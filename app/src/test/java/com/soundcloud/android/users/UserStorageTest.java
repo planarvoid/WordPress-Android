@@ -23,14 +23,14 @@ public class UserStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new UserStorage(propellerRx());
+        storage = new UserStorage(propellerRxV2());
     }
 
     @Test
     public void loadsUser() {
         ApiUser apiUser = testFixtures().insertUser();
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(getApiUserBuilder(apiUser).build());
     }
@@ -42,7 +42,7 @@ public class UserStorageTest extends StorageIntegrationTest {
         apiUser.setCity(null);
         testFixtures().insertUser(apiUser);
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(getBaseUserBuilder(apiUser).city(absent()).country(absent()).build());
     }
@@ -52,7 +52,7 @@ public class UserStorageTest extends StorageIntegrationTest {
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
         testFixtures().insertExtendedUser(apiUser, DESCRIPTION, WEBSITE_URL, WEBSITE_NAME, DISCOGS_NAME, MYSPACE_NAME);
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(getExtendedUserBuilder(apiUser).build());
     }
@@ -62,7 +62,7 @@ public class UserStorageTest extends StorageIntegrationTest {
         ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowing(apiUser.getUrn());
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(
                 getApiUserBuilder(apiUser).isFollowing(true).build());
@@ -73,7 +73,7 @@ public class UserStorageTest extends StorageIntegrationTest {
         ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowingPendingRemoval(apiUser.getUrn(), 123);
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(getApiUserBuilder(apiUser).build());
     }
@@ -84,7 +84,7 @@ public class UserStorageTest extends StorageIntegrationTest {
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
         testFixtures().insertUser(apiUser, artistStation);
 
-        User user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+        User user = storage.loadUser(apiUser.getUrn()).blockingGet();
 
         assertThat(user).isEqualTo(
                 getApiUserBuilder(apiUser).artistStation(of(artistStation)).build());

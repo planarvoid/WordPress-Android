@@ -5,12 +5,11 @@ import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.stations.StartStationHandler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.content.Context;
 import android.view.View;
@@ -26,9 +25,9 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     private final FollowingOperations followingOperations;
     private final UserMenuRendererFactory rendererFactory;
 
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private UserMenuRenderer renderer;
     private EventContextMetadata eventContextMetadata;
-    private Subscription userSubscription = RxUtils.invalidSubscription();
 
     @Inject
     UserMenuPresenter(UserMenuRendererFactory rendererFactory,
@@ -65,20 +64,19 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
 
     @Override
     public void onDismiss() {
-        userSubscription.unsubscribe();
-        userSubscription = RxUtils.invalidSubscription();
+        compositeDisposable.clear();
     }
 
     private void loadUser(Urn urn) {
-        userSubscription.unsubscribe();
-        userSubscription = userRepository.localUserInfo(urn)
-                                         .observeOn(AndroidSchedulers.mainThread())
-                                         .subscribe(new UserSubscriber());
+        compositeDisposable.clear();
+        compositeDisposable.add(userRepository.localUserInfo(urn)
+                                              .observeOn(AndroidSchedulers.mainThread())
+                                              .subscribeWith(new UserObserver()));
     }
 
-    private class UserSubscriber extends DefaultSubscriber<User> {
+    private class UserObserver extends DefaultMaybeObserver<User> {
         @Override
-        public void onNext(User user) {
+        public void onSuccess(User user) {
             renderer.render(user, accountOperations.isLoggedInUser(user.urn()));
         }
     }

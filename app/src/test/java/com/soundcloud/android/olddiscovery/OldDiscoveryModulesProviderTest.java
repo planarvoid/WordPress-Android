@@ -29,6 +29,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public class OldDiscoveryModulesProviderTest extends AndroidUnitTest {
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(Observable.just(playlistsItem));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.just(playlistTagsItem));
-        when(welcomeUserOperations.welcome()).thenReturn(Observable.just(welcomeUserItem));
+        when(welcomeUserOperations.welcome()).thenReturn(Maybe.just(welcomeUserItem));
         when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));
         when(inlineUpsellOperations.shouldDisplayInDiscovery()).thenReturn(true);
     }

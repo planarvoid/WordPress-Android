@@ -13,11 +13,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Maybe;
 import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.view.View;
 
@@ -38,7 +38,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(USER));
+        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Maybe.just(USER));
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,
                                           followingOperations,

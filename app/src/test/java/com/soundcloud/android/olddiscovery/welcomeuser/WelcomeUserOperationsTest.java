@@ -10,12 +10,12 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -53,12 +53,12 @@ public class WelcomeUserOperationsTest {
         userBuilder.signupDate(Optional.of(new Date()));
         userBuilder.avatarUrl(Optional.of("https://images.soundcloud.com/fancyimage.bmp"));
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
 
         welcomeUserOperations.welcome().test()
                              .assertValue(WelcomeUserItem.create(profileUser))
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
@@ -67,24 +67,24 @@ public class WelcomeUserOperationsTest {
         userBuilder.signupDate(Optional.of(new Date(new Date().getTime() - TimeUnit.MILLISECONDS.convert(10, TimeUnit.DAYS))));
         userBuilder.avatarUrl(Optional.of("https://images.soundcloud.com/fancyimage.bmp"));
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
 
         welcomeUserOperations.welcome().test()
                              .assertNoValues()
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
     public void defaultUserNameReturnsEmpty() throws Exception {
         userBuilder.avatarUrl(Optional.of("https://images.soundcloud.com/fancyimage.bmp"));
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
 
         welcomeUserOperations.welcome().test()
                              .assertNoValues()
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
@@ -92,12 +92,12 @@ public class WelcomeUserOperationsTest {
         userBuilder.username("Fancy Username");
         userBuilder.avatarUrl(Optional.absent());
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
 
         welcomeUserOperations.welcome().test()
                              .assertNoValues()
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
@@ -105,24 +105,24 @@ public class WelcomeUserOperationsTest {
         userBuilder.username("user-120398471");
         userBuilder.avatarUrl(Optional.absent());
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
 
         welcomeUserOperations.welcome().test()
                              .assertNoValues()
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
     public void emptyUserStorageReturnsFalse() throws Exception {
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
         when(welcomeUserStorage.shouldShowWelcome()).thenReturn(false);
 
         welcomeUserOperations.welcome().test()
                              .assertNoValues()
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 
     @Test
@@ -132,12 +132,12 @@ public class WelcomeUserOperationsTest {
         userBuilder.username("TestPerson");
         userBuilder.signupDate(Optional.of(new Date(longTimeAgo)));
         User profileUser = userBuilder.build();
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(profileUser));
         when(featureFlags.isEnabled(Flag.FORCE_SHOW_WELCOME_USER)).thenReturn(true);
 
         welcomeUserOperations.welcome().test()
                              .assertValue(WelcomeUserItem.create(profileUser))
                              .assertNoErrors()
-                             .assertCompleted();
+                             .assertComplete();
     }
 }

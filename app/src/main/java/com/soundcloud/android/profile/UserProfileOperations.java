@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
@@ -100,15 +101,15 @@ public class UserProfileOperations {
     }
 
     Observable<User> getLocalProfileUser(Urn user) {
-        return userRepository.localUserInfo(user);
+        return RxJava.toV1Observable(userRepository.localUserInfo(user));
     }
 
     Observable<User> getLocalAndSyncedProfileUser(Urn user) {
-        return userRepository.localAndSyncedUserInfo(user);
+        return RxJava.toV1Observable(userRepository.localAndSyncedUserInfo(user));
     }
 
     Observable<User> getSyncedProfileUser(Urn user) {
-        return userRepository.syncedUserInfo(user);
+        return RxJava.toV1Observable(userRepository.syncedUserInfo(user));
     }
 
     Observable<PagedRemoteCollection<PlaylistItem>> userPlaylists(Urn user) {

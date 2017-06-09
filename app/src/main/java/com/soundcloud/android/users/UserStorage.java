@@ -2,31 +2,26 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 
 public class UserStorage {
 
-    private final PropellerRx propeller;
+    private final PropellerRxV2 propeller;
 
     @Inject
-    UserStorage(PropellerRx propeller) {
+    UserStorage(PropellerRxV2 propeller) {
         this.propeller = propeller;
     }
 
-    Observable<User> loadUser(Urn urn) {
-        return propeller.query(buildUserQuery(urn))
-                        .map(new RxResultMapper<User>() {
-                            @Override
-                            public User map(CursorReader cursorReader) {
-                                return User.fromCursorReader(cursorReader);
-                            }
-                        });
+    Maybe<User> loadUser(Urn urn) {
+        return propeller.queryResult(buildUserQuery(urn))
+                        .flatMap(cursorReaders -> Observable.fromIterable(cursorReaders.toList(User::fromCursorReader)))
+                        .firstElement();
     }
 
     private Query buildUserQuery(Urn userUrn) {

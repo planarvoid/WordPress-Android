@@ -2,10 +2,10 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -19,7 +19,7 @@ public class UserRepository {
     @Inject
     public UserRepository(UserStorage userStorage,
                           SyncInitiator syncInitiator,
-                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.userStorage = userStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
@@ -28,37 +28,37 @@ public class UserRepository {
     /***
      * Returns a user from local storage if it exists, and backfills from the api if the user is not found locally
      */
-    public Observable<User> userInfo(Urn userUrn) {
-        return Observable
+    public Maybe<User> userInfo(Urn userUrn) {
+        return Maybe
                 .concat(
                         userStorage.loadUser(userUrn),
                         syncedUserInfo(userUrn)
                 )
-                .first()
+                .firstElement()
                 .subscribeOn(scheduler);
     }
 
     /***
      * Syncs a given user then returns the local user after the sync
      */
-    public Observable<User> syncedUserInfo(Urn userUrn) {
-        return RxJava.toV1Observable(syncInitiator.syncUser(userUrn)).flatMap(o -> localUserInfo(userUrn));
+    public Maybe<User> syncedUserInfo(Urn userUrn) {
+        return syncInitiator.syncUser(userUrn).flatMapMaybe(o -> localUserInfo(userUrn));
     }
 
     /***
      * Returns a local user, then syncs and emits the user again after the sync finishes
      */
     public Observable<User> localAndSyncedUserInfo(Urn userUrn) {
-        return Observable.concat(
+        return Maybe.concat(
                 localUserInfo(userUrn),
                 syncedUserInfo(userUrn)
-        );
+        ).toObservable();
     }
 
     /***
      * Returns a user from local storage only, or completes without emitting if no user found
      */
-    public Observable<User> localUserInfo(Urn userUrn) {
+    public Maybe<User> localUserInfo(Urn userUrn) {
         return userStorage.loadUser(userUrn).subscribeOn(scheduler);
     }
 

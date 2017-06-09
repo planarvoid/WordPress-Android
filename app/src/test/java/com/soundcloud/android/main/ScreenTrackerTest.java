@@ -19,7 +19,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,12 +39,12 @@ public class ScreenTrackerTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
 
     private ScreenTracker screenTracker;
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private EventTracker eventTracker;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         eventTracker = spy(new EventTracker(eventBus, trackingStateProvider, featureFlags));
         screenTracker = new ScreenTracker(referringEventProvider, enterScreenDispatcher,
                                           eventTracker);

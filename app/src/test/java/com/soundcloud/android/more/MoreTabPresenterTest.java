@@ -38,6 +38,7 @@ import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -100,7 +101,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(USER));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
     }
 
@@ -285,8 +286,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unbindsHeaderViewInOnDestroyView() {
-        final PublishSubject<User> subject = PublishSubject.create();
-        when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
+        when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(io.reactivex.Observable.never());
 
         initFragment();
         presenter.onDestroyView(fragment);

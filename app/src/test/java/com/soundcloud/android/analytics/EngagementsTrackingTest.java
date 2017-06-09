@@ -16,11 +16,10 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import io.reactivex.Maybe;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
 
 public class EngagementsTrackingTest extends AndroidUnitTest {
 
@@ -31,7 +30,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     private static final User FOLLOWED_USER = ModelFixtures.user(true);
 
     private EngagementsTracking engagementsTracking;
-    private TestSubscriber<UIEvent> testSubscriber;
+    private TestObserver<UIEvent> testObserver;
 
     @Mock private TrackRepository trackRepository;
     @Mock private UserRepository userRepository;
@@ -39,9 +38,9 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        testSubscriber = new TestSubscriber<>();
+        testObserver = new TestObserver<>();
 
-        when(eventTracker.trackEngagementSubscriber()).thenReturn(testSubscriber);
+        when(eventTracker.trackEngagementSubscriber()).thenReturn(testObserver);
 
         engagementsTracking = new EngagementsTracking(trackRepository, userRepository, eventTracker);
     }
@@ -62,7 +61,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        promotedSourceInfo,
                                                        entityMetadata);
 
-        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
+        assertCorrectEvent(testObserver.values().get(0), expectedEvent);
     }
 
     @Test
@@ -80,7 +79,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        null,
                                                        entityMetadata);
 
-        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
+        assertCorrectEvent(testObserver.values().get(0), expectedEvent);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                                                        null,
                                                        entityMetadata);
 
-        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
+        assertCorrectEvent(testObserver.values().get(0), expectedEvent);
     }
 
     @Test
@@ -104,13 +103,13 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         final EntityMetadata metadata = EntityMetadata.fromUser(FOLLOWED_USER);
         final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
-        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(FOLLOWED_USER));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(FOLLOWED_USER));
 
         engagementsTracking.followUserUrn(USER_URN, true, eventContextMetadata);
 
         final UIEvent expectedEvent = UIEvent.fromToggleFollow(true, metadata, eventContextMetadata);
 
-        assertCorrectEvent(testSubscriber.getOnNextEvents().get(0), expectedEvent);
+        assertCorrectEvent(testObserver.values().get(0), expectedEvent);
     }
 
     private void assertCorrectEvent(UIEvent event, UIEvent expectedEvent) {

@@ -8,7 +8,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.DateUtils;
-import rx.Observable;
+import io.reactivex.Maybe;
 
 import javax.inject.Inject;
 
@@ -30,16 +30,16 @@ public class WelcomeUserOperations {
         this.featureFlags = featureFlags;
     }
 
-    public Observable<OldDiscoveryItem> welcome() {
+    public Maybe<OldDiscoveryItem> welcome() {
         Urn userUrn = accountOperations.getLoggedInUserUrn();
         return userRepository.userInfo(userUrn)
-                         .flatMap(user -> {
-                             if (shouldShowWelcomeForUser(user)) {
-                                 welcomeUserStorage.onWelcomeUser();
-                                 return Observable.just(WelcomeUserItem.create(user));
-                             }
-                             return Observable.empty();
-                         });
+                             .flatMap(user -> {
+                                 if (shouldShowWelcomeForUser(user)) {
+                                     welcomeUserStorage.onWelcomeUser();
+                                     return Maybe.just(WelcomeUserItem.create(user));
+                                 }
+                                 return Maybe.empty();
+                             });
     }
 
     private boolean shouldShowWelcomeForUser(User user) {

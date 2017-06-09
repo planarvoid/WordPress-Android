@@ -26,6 +26,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
@@ -110,9 +111,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     @Override
     public void onCreate(MoreFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userSubscription = userRepository.userInfo(accountOperations.getLoggedInUserUrn())
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new MoreSubscriber());
+        userSubscription = RxJava.toV1Observable(userRepository.userInfo(accountOperations.getLoggedInUserUrn()))
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribe(new MoreSubscriber());
     }
 
     @Override

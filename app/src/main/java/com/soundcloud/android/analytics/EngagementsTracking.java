@@ -4,12 +4,11 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
-import rx.functions.Func1;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 
@@ -19,7 +18,7 @@ public class EngagementsTracking {
     private final UserRepository userRepository;
     private final EventTracker eventTracker;
 
-    private static Func1<Track, UIEvent> LIKE_EVENT_FROM_TRACK(final Urn trackUrn, final boolean addLike,
+    private static Function<Track, UIEvent> likeEventFromTrack(final Urn trackUrn, final boolean addLike,
                                                                final EventContextMetadata eventMetadata,
                                                                final PromotedSourceInfo promotedSourceInfo) {
         return track -> UIEvent.fromToggleLike(addLike,
@@ -29,7 +28,7 @@ public class EngagementsTracking {
                                                EntityMetadata.from(track));
     }
 
-    private static Func1<User, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
+    private static Function<User, UIEvent> followEventFromUser(final boolean isFollow,
                                                                final EventContextMetadata eventContextMetadata) {
         return user -> UIEvent.fromToggleFollow(isFollow,
                                                 EntityMetadata.fromUser(user),
@@ -48,14 +47,16 @@ public class EngagementsTracking {
     public void likeTrackUrn(Urn trackUrn, boolean addLike, EventContextMetadata eventMetadata,
                              PromotedSourceInfo promotedSourceInfo) {
 
-        RxJava.toV1Observable(trackRepository.track(trackUrn))
-              .map(LIKE_EVENT_FROM_TRACK(trackUrn, addLike, eventMetadata, promotedSourceInfo))
-              .subscribe(eventTracker.trackEngagementSubscriber());
+        trackRepository.track(trackUrn)
+                       .map(likeEventFromTrack(trackUrn, addLike, eventMetadata, promotedSourceInfo))
+                       .toObservable()
+                       .subscribe(eventTracker.trackEngagementSubscriber());
     }
 
     public void followUserUrn(Urn userUrn, boolean isFollow, EventContextMetadata eventContextMetadata) {
         userRepository.userInfo(userUrn)
-                      .map(FOLLOW_EVENT_FROM_USER(isFollow, eventContextMetadata))
+                      .map(followEventFromUser(isFollow, eventContextMetadata))
+                      .toObservable()
                       .subscribe(eventTracker.trackEngagementSubscriber());
     }
 }

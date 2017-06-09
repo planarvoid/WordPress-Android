@@ -17,6 +17,7 @@ import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.android.utils.EmptyThrowable;
 import com.soundcloud.android.rx.RxJava;
+import io.reactivex.Maybe;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -84,7 +85,7 @@ class OldDiscoveryModulesProvider {
     private List<Observable<OldDiscoveryItem>> itemsForPlaylistDiscoveryExperiment(boolean isRefresh) {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
-                    userWelcome(isRefresh),
+                    RxJava.toV1Observable(userWelcome(isRefresh)),
                     newForYouFirst(isRefresh),
                     recommendedTracks(isRefresh),
                     newForYouSecond(isRefresh),
@@ -95,7 +96,7 @@ class OldDiscoveryModulesProvider {
             );
         }
         return Arrays.asList(
-                userWelcome(isRefresh),
+                RxJava.toV1Observable(userWelcome(isRefresh)),
                 newForYouFirst(isRefresh),
                 recommendedTracks(isRefresh),
                 newForYouSecond(isRefresh),
@@ -108,7 +109,7 @@ class OldDiscoveryModulesProvider {
 
     private List<Observable<OldDiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
-                userWelcome(isRefresh),
+                RxJava.toV1Observable(userWelcome(isRefresh)),
                 newForYouFirst(isRefresh),
                 recommendedTracks(isRefresh),
                 newForYouSecond(isRefresh),
@@ -127,10 +128,10 @@ class OldDiscoveryModulesProvider {
         return Observable.empty();
     }
 
-    private Observable<OldDiscoveryItem> userWelcome(boolean isRefresh) {
+    private Maybe<OldDiscoveryItem> userWelcome(boolean isRefresh) {
         return !isRefresh && featureFlags.isEnabled(Flag.WELCOME_USER) ?
                welcomeUserOperations.welcome() :
-               Observable.empty();
+               Maybe.empty();
     }
 
     private Observable<OldDiscoveryItem> recommendedTracks(boolean isRefresh) {

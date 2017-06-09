@@ -10,20 +10,20 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscriber;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observer;
 
 import javax.inject.Inject;
 
 public class EventTracker {
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final FeatureFlags featureFlags;
     private final TrackingStateProvider trackingStateProvider;
 
     @Inject
-    public EventTracker(EventBus eventBus, TrackingStateProvider trackingStateProvider, FeatureFlags featureFlags) {
+    public EventTracker(EventBusV2 eventBus, TrackingStateProvider trackingStateProvider, FeatureFlags featureFlags) {
         this.eventBus = eventBus;
         this.trackingStateProvider = trackingStateProvider;
         this.featureFlags = featureFlags;
@@ -49,8 +49,8 @@ public class EventTracker {
         attachAndPublish(event, trackingStateProvider.getLastEvent());
     }
 
-    Subscriber<UIEvent> trackEngagementSubscriber() {
-        return new DefaultSubscriber<UIEvent>() {
+    Observer<UIEvent> trackEngagementSubscriber() {
+        return new DefaultObserver<UIEvent>() {
             @Override
             public void onNext(UIEvent uiEvent) {
                 trackEngagement(uiEvent);

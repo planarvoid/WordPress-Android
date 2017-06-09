@@ -38,11 +38,11 @@ public final class RxJava {
     }
 
     public static <T> Single<T> toV2Single(rx.Observable<T> sourceObservable) {
-        return RxJavaInterop.toV2Single(sourceObservable.toSingle());
+        return toV2Observable(sourceObservable).firstOrError();
     }
 
     public static <T> Completable toV2Completable(rx.Observable<T> sourceObservable) {
-        return RxJavaInterop.toV2Completable(sourceObservable.toCompletable());
+        return toV2Observable(sourceObservable).ignoreElements();
     }
 
     private RxJava() {}
