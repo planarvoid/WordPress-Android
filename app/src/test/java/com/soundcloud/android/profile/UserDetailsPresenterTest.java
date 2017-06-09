@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,15 +12,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.navigation.Navigator;
-import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.SocialMediaLinkItem;
@@ -37,8 +37,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
@@ -239,7 +237,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowersClicked();
-        verify(navigator).navigateTo(NavigationTarget.forFollowers((Activity) view.getContext(), USER_URN, Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(NavigationTarget.forFollowers(getFragmentActivity(view), USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -249,7 +247,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
-        verify(navigator).navigateTo(NavigationTarget.forFollowings((Activity) view.getContext(), USER_URN, Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(NavigationTarget.forFollowings(getFragmentActivity(view), USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test

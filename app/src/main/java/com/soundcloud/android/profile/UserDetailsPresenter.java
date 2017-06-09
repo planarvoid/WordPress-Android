@@ -1,11 +1,12 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.rx.RxUtils;
@@ -23,7 +24,6 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -87,12 +87,12 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
             @Override
             public void onViewFollowersClicked() {
-                navigator.navigateTo(NavigationTarget.forFollowers((Activity) view.getContext(), userUrn, searchQuerySourceInfo));
+                navigator.navigateTo(NavigationTarget.forFollowers(getFragmentActivity(view), userUrn, searchQuerySourceInfo));
             }
 
             @Override
             public void onViewFollowingClicked() {
-                navigator.navigateTo(NavigationTarget.forFollowings((Activity) view.getContext(), userUrn, searchQuerySourceInfo));
+                navigator.navigateTo(NavigationTarget.forFollowings(getFragmentActivity(view), userUrn, searchQuerySourceInfo));
             }
         });
 
