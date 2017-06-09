@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.performance;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.java.checks.Preconditions;
 
 /**
  * <p>A `PerformanceMetric` class represents a unique point in time.</p>
@@ -8,7 +9,6 @@ import com.google.auto.value.AutoValue;
  * <p>It consists of these additional properties:</p>
  *
  * - {@link MetricType}<br>
- * - Timestamp<br>
  * - {@link MetricParams}<br>
  *
  * <p>See: {@link PerformanceMetricsEngine}</p>
@@ -17,10 +17,10 @@ import com.google.auto.value.AutoValue;
 public abstract class PerformanceMetric {
 
     public abstract MetricType metricType();
-
-    public abstract long timestamp();
-
     public abstract MetricParams metricParams();
+
+    abstract long timestamp();
+    abstract TraceMetric traceMetric();
 
     public static PerformanceMetric create(MetricType type) {
         return builder().metricType(type)
@@ -30,17 +30,30 @@ public abstract class PerformanceMetric {
     public static Builder builder() {
         return new AutoValue_PerformanceMetric.Builder()
                 .timestamp(System.nanoTime())
+                .traceMetric(TraceMetric.EMPTY)
                 .metricParams(MetricParams.EMPTY);
     }
 
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder metricType(MetricType metricType);
-
-        public abstract Builder timestamp(long timestamp);
-
         public abstract Builder metricParams(MetricParams metricParams);
 
-        public abstract PerformanceMetric build();
+        abstract Builder timestamp(long timestamp);
+        abstract Builder traceMetric(TraceMetric trace);
+
+        abstract MetricType metricType();
+        abstract TraceMetric traceMetric();
+        abstract PerformanceMetric autoBuild();
+
+        public PerformanceMetric build() {
+            Preconditions.checkNotNull(metricType());
+            if (traceMetric().isEmpty()) {
+                final TraceMetric traceMetric = TraceMetric.create(metricType());
+                traceMetric.start();
+                traceMetric(traceMetric);
+            }
+            return autoBuild();
+        }
     }
 }

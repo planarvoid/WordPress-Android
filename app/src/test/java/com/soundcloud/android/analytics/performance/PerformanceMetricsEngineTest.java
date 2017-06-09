@@ -8,6 +8,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import android.os.Bundle;
 
@@ -17,56 +18,46 @@ public class PerformanceMetricsEngineTest extends AndroidUnitTest {
 
     private static final MetricType METRIC_TYPE = MetricType.APP_ON_CREATE;
 
-    private static final PerformanceMetric EARLIER_START_METRIC = PerformanceMetric.builder()
-                                                                           .timestamp(TimeUnit.MILLISECONDS.toNanos(500L))
-                                                                           .metricType(METRIC_TYPE)
-                                                                           .build();
-
-    private static final PerformanceMetric START_METRIC = PerformanceMetric.builder()
-                                                                           .timestamp(TimeUnit.MILLISECONDS.toNanos(1000L))
-                                                                           .metricType(METRIC_TYPE)
-                                                                           .build();
-
-    private static final PerformanceMetric END_METRIC = PerformanceMetric.builder()
-                                                                         .timestamp(TimeUnit.MILLISECONDS.toNanos(2500L))
-                                                                         .metricType(METRIC_TYPE)
-                                                                         .build();
-
     private final TestEventBus eventBus = new TestEventBus();
 
     private PerformanceMetricsEngine performanceMetricsEngine;
 
+    private PerformanceMetric earlierStartMetric;
+    private PerformanceMetric startMetric;
+    private PerformanceMetric endMetric;
+
+    @Mock private TraceMetric traceMetric;
+
     @Before
     public void setUp() throws Exception {
         performanceMetricsEngine = new PerformanceMetricsEngine(eventBus);
-    }
+        earlierStartMetric = PerformanceMetric.builder()
+                                              .timestamp(TimeUnit.MILLISECONDS.toNanos(500L))
+                                              .metricType(METRIC_TYPE)
+                                              .traceMetric(traceMetric)
+                                              .build();
 
-    @Test
-    public void publishesPerformanceEventWithDuration() {
-        performanceMetricsEngine.startMeasuring(START_METRIC);
-        performanceMetricsEngine.endMeasuring(END_METRIC);
+        startMetric = PerformanceMetric.builder()
+                                       .timestamp(TimeUnit.MILLISECONDS.toNanos(1000L))
+                                       .metricType(METRIC_TYPE)
+                                       .traceMetric(traceMetric)
+                                       .build();
 
-        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
-
-        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
-        assertThat(durationFromEvent(actualEvent)).isEqualTo(1500L);
+        endMetric = PerformanceMetric.builder()
+                                     .timestamp(TimeUnit.MILLISECONDS.toNanos(2500L))
+                                     .metricType(METRIC_TYPE)
+                                     .traceMetric(traceMetric)
+                                     .build();
     }
 
     @Test
     public void publishesPerformanceEventFromAPreviousMetric() {
-        performanceMetricsEngine.endMeasuringFrom(START_METRIC);
+        performanceMetricsEngine.endMeasuringFrom(startMetric);
 
         PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
 
         assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
         assertThat(hasDurationKey(actualEvent)).isTrue();
-    }
-
-    @Test
-    public void doesNotPublishWithOnlyOneMetric() {
-        performanceMetricsEngine.endMeasuring(END_METRIC);
-
-        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
     }
 
     @Test
@@ -84,17 +75,35 @@ public class PerformanceMetricsEngineTest extends AndroidUnitTest {
     public void doesNotPublishClearedMeasurings() {
         performanceMetricsEngine.startMeasuring(METRIC_TYPE);
 
-        performanceMetricsEngine.clearMeasuring(METRIC_TYPE);
+        performanceMetricsEngine.clearMeasurement(METRIC_TYPE);
         performanceMetricsEngine.endMeasuring(METRIC_TYPE);
 
         assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
     }
 
     @Test
+    public void publishesPerformanceEventWithDuration() {
+        performanceMetricsEngine.startMeasuring(startMetric);
+        performanceMetricsEngine.endMeasuring(endMetric);
+
+        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
+
+        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
+        assertThat(durationFromEvent(actualEvent)).isEqualTo(1500L);
+    }
+
+    @Test
+    public void doesNotPublishWithOnlyOneMetric() {
+        performanceMetricsEngine.endMeasuring(endMetric);
+
+        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
+    }
+
+    @Test
     public void shouldClearPreviousPerformanceMetricsOnStart() {
-        performanceMetricsEngine.startMeasuring(EARLIER_START_METRIC);
-        performanceMetricsEngine.startMeasuring(START_METRIC);
-        performanceMetricsEngine.endMeasuring(END_METRIC);
+        performanceMetricsEngine.startMeasuring(earlierStartMetric);
+        performanceMetricsEngine.startMeasuring(startMetric);
+        performanceMetricsEngine.endMeasuring(endMetric);
 
         PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
 

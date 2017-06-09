@@ -32,9 +32,10 @@ public class PerformanceMetricsEngine {
 
     private final EventBus eventBus;
     private final ConcurrentHashMap<MetricType, List<PerformanceMetric>> metricTypeList = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<MetricType, TraceMetric> traceList = new ConcurrentHashMap<>();
 
     @Inject
-    PerformanceMetricsEngine( EventBus eventBus) {
+    PerformanceMetricsEngine(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
@@ -49,11 +50,12 @@ public class PerformanceMetricsEngine {
     /**
      * Starts measuring a {@link PerformanceMetric} that is already timestamped.
      * Any previous existing {@link PerformanceMetric} of the same {@link MetricType}
-     * will be removed.
+     * will be overwritten.
      */
     public void startMeasuring(PerformanceMetric performanceMetric) {
-        clearMeasuring(performanceMetric.metricType());
+        clearMeasurement(performanceMetric);
         addPerformanceMetric(performanceMetric);
+        addTraceMetric(performanceMetric);
     }
 
     /**
@@ -72,8 +74,11 @@ public class PerformanceMetricsEngine {
      * As a result, a new performance event is going to be published.
      */
     public void endMeasuring(PerformanceMetric performanceMetric) {
+        final MetricType metricType = performanceMetric.metricType();
         addPerformanceMetric(performanceMetric);
-        publish(performanceMetric.metricType());
+        publishMetricEvent(metricType);
+        publishTraceEvent(metricType);
+        clearMeasurement(metricType);
     }
 
     /**
@@ -89,17 +94,27 @@ public class PerformanceMetricsEngine {
     }
 
     /**
-     * Clear measurings of the given {@link MetricType}
+     * Clear measurements of given {@link MetricType}
      */
-    public void clearMeasuring(MetricType type) {
+    public void clearMeasurement(MetricType type) {
         metricTypeList.remove(type);
+        traceList.remove(type);
     }
 
-    private void publish(MetricType metricType) {
+    private void clearMeasurement(PerformanceMetric performanceMetric) {
+        clearMeasurement(performanceMetric.metricType());
+    }
+
+    private void publishMetricEvent(MetricType metricType) {
         if (isValidMetric(metricType)) {
             sendEvent(metricType, calculateDuration(metricType));
         }
-        removeMetric(metricType);
+    }
+
+    private void publishTraceEvent(MetricType type) {
+        if (traceList.containsKey(type)) {
+            traceList.get(type).stop();
+        }
     }
 
     private boolean isValidMetric(MetricType metricType) {
@@ -118,8 +133,12 @@ public class PerformanceMetricsEngine {
         metricTypeList.get(metricType).add(performanceMetric);
     }
 
+    private void addTraceMetric(PerformanceMetric performanceMetric) {
+        traceList.put(performanceMetric.metricType(), performanceMetric.traceMetric());
+    }
+
     private long calculateDuration(MetricType metricType) {
-        List<PerformanceMetric> list = metricTypeList.get(metricType);
+        final List<PerformanceMetric> list = metricTypeList.get(metricType);
 
         if (!list.isEmpty()) {
             long lastTimestamp = list.get(list.size() - 1).timestamp();
@@ -130,24 +149,20 @@ public class PerformanceMetricsEngine {
     }
 
     private void sendEvent(MetricType metricType, long duration) {
-        MetricParams metricParams = buildMetricParams(metricType, duration);
-        PerformanceEvent performanceEvent = PerformanceEvent.create(metricType, metricParams);
+        final MetricParams metricParams = buildMetricParams(metricType, duration);
+        final PerformanceEvent performanceEvent = PerformanceEvent.create(metricType, metricParams);
         eventBus.publish(EventQueue.PERFORMANCE, performanceEvent);
         logPerformanceMetric(performanceEvent, duration);
     }
 
     private void logPerformanceMetric(PerformanceEvent performanceEvent, long duration) {
-        MetricType metricType = performanceEvent.metricType();
-        Bundle parametersBundle = performanceEvent.metricParams().toBundle();
+        final MetricType metricType = performanceEvent.metricType();
+        final Bundle parametersBundle = performanceEvent.metricParams().toBundle();
         Log.d(TAG, metricType.toString() + " took " + duration + "ms. Metric params: {" + dumpBundleToString(parametersBundle) + "}");
     }
 
-    private void removeMetric(MetricType metricType) {
-        metricTypeList.remove(metricType);
-    }
-
     private MetricParams buildMetricParams(MetricType metricType, long duration) {
-        MetricParams metricParams = new MetricParams();
+        final MetricParams metricParams = new MetricParams();
 
         for (PerformanceMetric performanceMetric : metricTypeList.get(metricType)) {
             metricParams.putAll(performanceMetric.metricParams());

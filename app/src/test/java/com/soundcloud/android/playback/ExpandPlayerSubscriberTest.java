@@ -51,13 +51,13 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(errorResult);
 
-        verify(performanceMetricsEngine).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
+        verify(performanceMetricsEngine).clearMeasurement(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
     @Test
     public void doesNotClearPerformanceMetricsWhenPlayerIsExpanded() {
         subscriber.onNext(PlaybackResult.success());
 
-        verify(performanceMetricsEngine, never()).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
+        verify(performanceMetricsEngine, never()).clearMeasurement(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 }

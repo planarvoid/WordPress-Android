@@ -44,7 +44,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     }
 
     private void clearMeasuring() {
-        performanceMetricsEngine.clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
+        performanceMetricsEngine.clearMeasurement(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
 }
