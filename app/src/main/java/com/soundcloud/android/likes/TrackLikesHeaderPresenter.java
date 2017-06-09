@@ -10,6 +10,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -74,7 +75,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
     private final OfflineSettingsStorage offlineSettingsStorage;
-    private final FeatureFlags featureFlags;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
             new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
@@ -127,7 +128,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      EventBus eventBus,
                                      Provider<UpdateHeaderViewSubscriber> subscriberProvider,
                                      OfflineSettingsStorage offlineSettingsStorage,
-                                     FeatureFlags featureFlags) {
+                                     GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
         this.headerViewFactory = headerViewFactory;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
@@ -140,7 +141,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.offlineContentOperations = offlineContentOperations;
         this.subscriberProvider = subscriberProvider;
         this.offlineSettingsStorage = offlineSettingsStorage;
-        this.featureFlags = featureFlags;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
 
         trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
         viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
@@ -241,7 +242,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private void handleEnableOfflineLikes() {
-        if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
+        if (goOnboardingTooltipExperiment.isEnabled()) {
             fireAndForget(offlineContentOperations.enableOfflineLikedTracks());
         } else {
             syncLikesDialogProvider.get().show(fragment.getFragmentManager());

@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -29,8 +30,6 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -68,9 +67,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private ImageView imageView;
     @Mock private TrackItemView trackItemView;
     @Mock private TrackItemView.Factory trackItemViewFactory;
-    @Mock private FeatureFlags flags;
     @Mock private OfflineSettingsOperations offlineSettingsOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     private TrackItem trackItem;
@@ -88,9 +87,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          navigationExecutor,
                                          featureOperations,
                                          trackItemViewFactory,
-                                         flags,
                                          offlineSettingsOperations,
                                          connectionHelper,
+                                         goOnboardingTooltipExperiment,
                                          lazyOf(introductoryOverlayPresenter));
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
@@ -365,7 +364,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotShowGoPlusIntroductoryOverlayIfTrackIsNotFullHighTier() {
-        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(true).subHighTier(true).build());
 
@@ -375,8 +374,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotShowGoPlusIntroductoryOverlayIfFeatureFlagIsNotEnabled() {
-        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(false);
+    public void shouldNotShowGoPlusIntroductoryOverlayIfExperimentIsNotEnabled() {
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
 
@@ -387,7 +386,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotShowGoPlusIntroductoryOverlayIfNotHighTier() {
-        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
 
@@ -398,7 +397,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoPlusIntroductoryOverlay() {
-        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
 

@@ -6,11 +6,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,14 +29,14 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackLikesHeaderView.Listener listener;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @Before
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
-                                                        featureFlags,
+                                                        goOnboardingTooltipExperiment,
                                                         introductoryOverlayPresenter,
                                                         view,
                                                         listener);
@@ -96,11 +95,11 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     @Test
     public void showIntroductoryOverlay() {
-        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(false);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
         verifyIntroductoryOverlay(0);
 
-        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
         verifyIntroductoryOverlay(1);
     }

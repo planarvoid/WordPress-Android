@@ -9,7 +9,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -18,17 +17,18 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -96,6 +96,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
     @Mock private PerformanceMetricsEngine performanceMetricEngine;
+    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private final Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private final TestEventBusV2 eventBus = new TestEventBusV2();
@@ -117,7 +118,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             navigationExecutor,
                                             offlinePropertiesProvider,
                                             featureFlags,
-                                            performanceMetricEngine);
+                                            performanceMetricEngine,
+                                            goOnboardingTooltipExperiment);
     }
 
     @Test
@@ -245,7 +247,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddOfflineOnboardingWhenEnabled() throws Exception {
-        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOfflineOnboardingEnabled()).thenReturn(true);
 

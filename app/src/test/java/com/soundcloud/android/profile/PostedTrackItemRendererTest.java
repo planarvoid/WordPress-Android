@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -44,9 +44,9 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Mock NavigationExecutor navigationExecutor;
     @Mock FeatureOperations featureOperations;
     @Mock TrackItemView.Factory factory;
-    @Mock FeatureFlags featureFlags;
     @Mock OfflineSettingsOperations offlineSettingsOperations;
     @Mock NetworkConnectionHelper networkConnectionHelper;
+    @Mock GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     private TrackItem trackItem;
@@ -81,9 +81,9 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                navigationExecutor,
                                                featureOperations,
                                                factory,
-                                               featureFlags,
                                                offlineSettingsOperations,
                                                networkConnectionHelper,
+                                               goOnboardingTooltipExperiment,
                                                lazyOf(introductoryOverlayPresenter));
     }
 

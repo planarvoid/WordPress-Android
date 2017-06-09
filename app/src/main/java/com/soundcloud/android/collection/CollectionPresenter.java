@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -68,7 +69,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                 @Override
                 public List<CollectionItem> apply(MyCollection myCollection) {
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
-                    if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)
+                    if (goOnboardingTooltipExperiment.isEnabled()
                             && featureOperations.isOfflineContentEnabled()
                             && collectionOptionsStorage.isOfflineOnboardingEnabled()) {
                         return collectionWithOfflineOnboarding(collectionItems);
@@ -97,6 +98,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private CompositeDisposable eventSubscriptions = new CompositeDisposable();
 
@@ -113,7 +115,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         NavigationExecutor navigationExecutor,
                         OfflinePropertiesProvider offlinePropertiesProvider,
                         FeatureFlags featureFlags,
-                        PerformanceMetricsEngine performanceMetricsEngine) {
+                        PerformanceMetricsEngine performanceMetricsEngine,
+                        GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -128,6 +131,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
 
         adapter.setTrackClickListener(this);
         adapter.setOnboardingListener(this);

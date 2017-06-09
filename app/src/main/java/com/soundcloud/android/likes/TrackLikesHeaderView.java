@@ -6,11 +6,10 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.OfflineStateButton;
 
 import android.content.res.Resources;
@@ -23,7 +22,7 @@ import android.widget.TextView;
 class TrackLikesHeaderView {
 
     private final Resources resources;
-    private final FeatureFlags featureFlags;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
@@ -44,12 +43,12 @@ class TrackLikesHeaderView {
     }
 
     TrackLikesHeaderView(@Provided Resources resources,
-                         @Provided FeatureFlags featureFlags,
+                         @Provided GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                          @Provided IntroductoryOverlayPresenter introductoryOverlayPresenter,
                          View view,
                          Listener listener) {
         this.resources = resources;
-        this.featureFlags = featureFlags;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.listener = listener;
         this.headerView = view.findViewById(R.id.track_likes_header);
@@ -71,7 +70,7 @@ class TrackLikesHeaderView {
     }
 
     void showOfflineIntroductoryOverlay() {
-        if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
+        if (goOnboardingTooltipExperiment.isEnabled()) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
                                                       offlineStateButton,
                                                       R.string.overlay_listen_offline_likes_title,

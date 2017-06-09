@@ -18,14 +18,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.TrackLikesHeaderPresenter.UpdateHeaderViewSubscriber;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
@@ -37,8 +38,6 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -87,7 +86,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
     @Mock private FragmentTransaction fragmentTransaction;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private TrackLikesHeaderPresenter presenter;
     private TestEventBus eventBus;
@@ -109,7 +108,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 eventBus,
                 InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)),
                 offlineSettingsStorage,
-                featureFlags);
+                goOnboardingTooltipExperiment);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
@@ -303,9 +302,9 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void enablesOfflineLikesWithoutDialogWhenCollectionOfflineOnboardingFlagEnabled() {
+    public void enablesOfflineLikesWithoutDialogWhenExperimentEnabled() {
         when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(rx.Observable.just(null));
-        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
 
         createAndBindView();
 

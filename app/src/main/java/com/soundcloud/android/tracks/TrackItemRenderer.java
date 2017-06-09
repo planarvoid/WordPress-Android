@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -23,8 +24,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -47,7 +46,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
     protected final ScreenProvider screenProvider;
     protected final FeatureOperations featureOperations;
-    protected final FeatureFlags featureFlags;
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
@@ -55,6 +53,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final NetworkConnectionHelper connectionHelper;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
 
     private Listener listener;
@@ -78,9 +77,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              NavigationExecutor navigationExecutor,
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory,
-                             FeatureFlags featureFlags,
                              OfflineSettingsOperations offlineSettingsOperations,
                              NetworkConnectionHelper connectionHelper,
+                             GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                              Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -90,9 +89,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.navigationExecutor = navigationExecutor;
         this.featureOperations = featureOperations;
         this.trackItemViewFactory = trackItemViewFactory;
-        this.featureFlags = featureFlags;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.connectionHelper = connectionHelper;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
     }
 
@@ -186,7 +185,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private boolean canShowOverlay(TrackItem track) {
-        return featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)
+        return goOnboardingTooltipExperiment.isEnabled()
                 && Plan.HIGH_TIER == featureOperations.getCurrentPlan()
                 && isFullHighTierTrack(track);
     }
