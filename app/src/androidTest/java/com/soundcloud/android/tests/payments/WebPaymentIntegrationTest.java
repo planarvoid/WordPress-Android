@@ -22,10 +22,24 @@ public class WebPaymentIntegrationTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testEndToEndMidTierPlanPurchase()  {
+    public void testEndToEndMidTierPurchase()  {
         CollectionScreen collectionScreen = mainNavHelper.goToMore()
                                                          .clickSubscribe()
                                                          .clickDefaultCheckout()
+                                                         .populateTestCardData()
+                                                         .subscribe()
+                                                         .clickStartButton();
+
+        assertThat(collectionScreen, is(visible()));
+    }
+
+    @PaymentTest
+    public void testEndToEndHighTierPurchase() {
+        CollectionScreen collectionScreen = mainNavHelper.goToMore()
+                                                         .clickSubscribe()
+                                                         .clickProductChoice()
+                                                         .swipeToHighTierPlan()
+                                                         .clickBuyButton()
                                                          .populateTestCardData()
                                                          .subscribe()
                                                          .clickStartButton();
