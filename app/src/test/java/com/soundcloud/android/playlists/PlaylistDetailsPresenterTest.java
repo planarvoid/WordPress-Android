@@ -59,6 +59,7 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -66,6 +67,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
+import io.reactivex.subjects.SingleSubject;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +138,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
     private final io.reactivex.subjects.PublishSubject<RepostStatuses> repostStatuses = io.reactivex.subjects.PublishSubject.create();
     private final PublishSubject<OfflineProperties> offlineProperties = PublishSubject.create();
-    private final PublishSubject<SyncJobResult> syncPlaylist = PublishSubject.create();
+    private final SingleSubject<SyncJobResult> syncPlaylist = SingleSubject.create();
 
     private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)));
     private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, of(asList(track1, track2, track3)));
@@ -615,7 +617,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                  .playlistWithExtras(of(updatedPlaylistWithTrackExtras))
                                                  .build());
 
-        syncPlaylist.onCompleted();
+        syncPlaylist.onSuccess(TestSyncJobResults.successWithChange());
         modelUpdates.assertValues(getIdleViewModel(initialModel),
                                   getRefreshingModel(initialModel),
                                   getRefreshingModel(updatedModel),

@@ -30,10 +30,10 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     private TestObserver<Track> trackItemSubscriber = new TestObserver<>();
     private TestObserver<Map<Urn,Track>> mapSubscriber = new TestObserver<>();
-    private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
+    private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
     private TestDateProvider currentTimeProvider = new TestDateProvider();
 
     @Before
@@ -101,7 +101,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(rx.Observable.just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
@@ -116,7 +116,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> syncedTracks = emptyMap();
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(rx.Observable.just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(syncedTracks));
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
@@ -126,7 +126,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(rx.Observable.empty());
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Single.never());
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
@@ -140,7 +140,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(rx.Observable.just(getSuccessResult()));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
@@ -177,8 +177,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository.fromUrns(urns).subscribe(mapSubscriber);
 
         mapSubscriber.assertNoValues();
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
         mapSubscriber.assertValue(toMap(asList(track1, track2)));
         mapSubscriber.assertComplete();
     }
@@ -196,8 +195,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
         testSubscriber.assertNoValues();
 
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
         testSubscriber.assertValue(trackList)
                       .assertComplete();
     }
@@ -229,8 +227,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 999).test();
         testSubscriber.assertNoValues();
 
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
         testSubscriber.assertValue(trackList)
                       .assertComplete();
 
@@ -277,7 +274,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> actualTrackProperties = singletonMap(track1.urn(), track1);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(rx.Observable.just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
         trackRepository.trackListFromUrns(requestedTracks).test().assertValue(

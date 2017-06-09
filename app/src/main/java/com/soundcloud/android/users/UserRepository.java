@@ -2,6 +2,7 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import rx.Observable;
 import rx.Scheduler;
@@ -41,7 +42,7 @@ public class UserRepository {
      * Syncs a given user then returns the local user after the sync
      */
     public Observable<User> syncedUserInfo(Urn userUrn) {
-        return syncInitiator.syncUser(userUrn).flatMap(o -> localUserInfo(userUrn));
+        return RxJava.toV1Observable(syncInitiator.syncUser(userUrn)).flatMap(o -> localUserInfo(userUrn));
     }
 
     /***

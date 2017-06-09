@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 public class PlaylistPostOperationsTest extends AndroidUnitTest {
@@ -25,7 +24,6 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private Action0 requestSystemSyncAction;
     private TestEventBus eventBus;
 
     private Scheduler scheduler = Schedulers.immediate();
@@ -38,8 +36,6 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
                 scheduler,
                 syncInitiator,
                 eventBus);
-
-        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test

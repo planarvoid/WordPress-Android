@@ -11,13 +11,14 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 public class UserRepositoryTest extends AndroidUnitTest {
 
@@ -56,7 +57,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void userInfoReturnsUserInfoFromStorage() {
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.never());
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Single.never());
 
         userRepository.userInfo(userUrn).subscribe(observer);
 
@@ -65,7 +66,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void userInfoReturnsUserInfoFromSyncerIfStorageEmpty() {
-        final PublishSubject<SyncJobResult> subject = PublishSubject.create();
+        final SingleSubject<SyncJobResult> subject = SingleSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.empty(),
                                                        Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
@@ -74,14 +75,14 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).isEmpty();
 
-        subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
+        subject.onSuccess(SyncJobResult.success(Syncable.USERS.name(), true));
 
         assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }
 
     @Test
     public void syncedUserInfoReturnsUserInfoFromStorageAfterSync() {
-        final PublishSubject<SyncJobResult> subject = PublishSubject.create();
+        final SingleSubject<SyncJobResult> subject = SingleSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
@@ -89,14 +90,14 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).isEmpty();
 
-        subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
+        subject.onSuccess(SyncJobResult.success(Syncable.USERS.name(), true));
 
         assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }
 
     @Test
     public void localAndSyncedUserInfoReturnsUserInfoFromStorage() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.never());
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Single.never());
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);
@@ -106,7 +107,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void localAndSyncedUserInfoReturnsUserInfoAgainFromStorageAfterSync() {
-        final PublishSubject<SyncJobResult> subject = PublishSubject.create();
+        final SingleSubject<SyncJobResult> subject = SingleSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user), Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
@@ -114,14 +115,14 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).containsExactly(user);
 
-        subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
+        subject.onSuccess(SyncJobResult.success(Syncable.USERS.name(), true));
 
         assertThat(observer.getOnNextEvents()).containsExactly(user, updatedUser);
     }
 
     @Test
     public void localAndSyncedUserInfoReturnsDoesNotEmitMissingUser() {
-        final PublishSubject<SyncJobResult> subject = PublishSubject.create();
+        final SingleSubject<SyncJobResult> subject = SingleSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.empty(),
                                                        Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
@@ -130,7 +131,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
         assertThat(observer.getOnNextEvents()).isEmpty();
 
-        subject.onNext(SyncJobResult.success(Syncable.USERS.name(), true));
+        subject.onSuccess(SyncJobResult.success(Syncable.USERS.name(), true));
 
         assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }

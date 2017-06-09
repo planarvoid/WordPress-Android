@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsMarkedForDownload;
 import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsUnmarkedForDownload;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
@@ -116,7 +115,7 @@ public class OfflineContentOperations {
                 .doOnNext(ignored -> offlineContentStorage.addOfflineCollection())
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
-                .flatMap(ignored -> syncInitiatorBridge.refreshMyPlaylists())
+                .flatMap(ignored -> RxJava.toV1Observable(syncInitiatorBridge.refreshMyPlaylists()))
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
@@ -180,7 +179,7 @@ public class OfflineContentOperations {
                 .storeAsOfflinePlaylists(playlistUrns)
                 .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED, fromPlaylistsMarkedForDownload(playlistUrns)))
                 .doOnNext(serviceInitiator.startFromUserAction())
-                .doOnNext(ignored -> fireAndForget(syncInitiator.syncPlaylists(playlistUrns)))
+                .doOnNext(ignored -> syncInitiator.syncPlaylistsAndForget(playlistUrns))
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }

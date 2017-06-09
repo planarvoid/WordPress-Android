@@ -20,7 +20,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
@@ -32,7 +31,6 @@ public class LikeOperationsTest extends AndroidUnitTest {
 
     @Mock private UpdateLikeCommand updateLikeCommand;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private Action0 requestSystemSyncAction;
     @Captor private ArgumentCaptor<UpdateLikeParams> commandParamsCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -48,7 +46,6 @@ public class LikeOperationsTest extends AndroidUnitTest {
                 eventBus,
                 scheduler);
         when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.just(5));
-        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
@@ -107,7 +104,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
     public void togglingLikeRequestsSystemSync() {
         operations.toggleLike(targetUrn, true).subscribe(observer);
 
-        verify(requestSystemSyncAction).call();
+        verify(syncInitiator).requestSystemSync();
     }
 
 }

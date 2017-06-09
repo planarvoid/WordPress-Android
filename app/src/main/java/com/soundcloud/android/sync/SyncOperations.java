@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.Observable.just;
 
+import com.soundcloud.android.rx.RxJava;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ public class SyncOperations {
     }
 
     public Observable<Result> sync(Syncable syncable) {
-        return syncInitiator.sync(syncable).map(o -> Result.SYNCED);
+        return RxJava.toV1Observable(syncInitiator.sync(syncable).map(o -> Result.SYNCED));
     }
 
     public Observable<Result> failSafeSync(Syncable syncable) {
@@ -49,7 +49,7 @@ public class SyncOperations {
     public Observable<Result> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
             if (!isContentStale(syncable)) {
-                fireAndForget(syncInitiator.sync(syncable));
+                syncInitiator.syncAndForget(syncable);
                 return just(Result.SYNCING);
             } else {
                 return just(Result.NO_OP);

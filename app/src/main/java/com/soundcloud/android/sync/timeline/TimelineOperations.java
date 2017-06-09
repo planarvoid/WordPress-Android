@@ -61,9 +61,8 @@ public abstract class TimelineOperations<StorageModel, ViewModel> {
     }
 
     protected Single<List<ViewModel>> updatedTimelineItems() {
-        return RxJava.toV2Observable(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH))
-                     .first(SyncJobResult.success(SyncInitiator.ACTION_HARD_REFRESH, false))
-                     .flatMap(syncJobResult -> handleSyncResult(syncJobResult, INITIAL_TIMESTAMP));
+        return syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)
+                            .flatMap(syncJobResult -> handleSyncResult(syncJobResult, INITIAL_TIMESTAMP));
     }
 
     protected abstract Single<List<ViewModel>> toViewModels(List<StorageModel> storageModels);
@@ -87,14 +86,12 @@ public abstract class TimelineOperations<StorageModel, ViewModel> {
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return RxJava.toV2Observable(syncInitiator.sync(syncable))
-                             .firstOrError()
-                             .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
+                return syncInitiator.sync(syncable)
+                                    .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
-                return RxJava.toV2Observable(syncInitiator.sync(syncable, ApiSyncService.ACTION_APPEND))
-                             .firstOrError()
-                             .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
+                return syncInitiator.sync(syncable, ApiSyncService.ACTION_APPEND)
+                                    .flatMap(syncJobResult -> handleSyncResult(syncJobResult, timestamp));
             }
         }
     }

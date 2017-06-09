@@ -1,16 +1,17 @@
 package com.soundcloud.android.sync;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
 import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,7 @@ public class SyncOperationsTest {
     @Mock private SyncerRegistry syncerRegistry;
 
     private TestSubscriber<Object> subscriber = new TestSubscriber<>();
-    private PublishSubject<SyncJobResult> jobResult = PublishSubject.create();
+    private SingleSubject<SyncJobResult> jobResult = SingleSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -56,8 +57,7 @@ public class SyncOperationsTest {
     }
 
     public void completeJob() {
-        jobResult.onNext(JOB_SUCCESS);
-        jobResult.onCompleted();
+        jobResult.onSuccess(JOB_SUCCESS);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class SyncOperationsTest {
 
         subscriber.assertCompleted();
 
-        assertThat(jobResult.hasObservers()).isTrue();
+        verify(syncInitiator).syncAndForget(SYNCABLE);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class SyncOperationsTest {
     @Test
     public void syncFailsOnException() {
         final Exception exception = new Exception("SYNC FAILED");
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(exception));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Single.error(exception));
 
         syncOperations.sync(SYNCABLE).subscribe(subscriber);
 
@@ -142,7 +142,7 @@ public class SyncOperationsTest {
 
     @Test
     public void failSafeSyncDoesReturnResultOnException() {
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(new Exception("SYNC FAILED")));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Single.error(new Exception("SYNC FAILED")));
 
         syncOperations.failSafeSync(SYNCABLE).subscribe(subscriber);
 

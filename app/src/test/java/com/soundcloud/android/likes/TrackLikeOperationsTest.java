@@ -19,14 +19,17 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,12 +38,10 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.functions.Func2;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.Collections;
 import java.util.Date;
@@ -58,7 +59,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private ConnectionHelper connectionHelper;
-    @Mock private Action0 requestSystemSyncAction;
     @Captor private ArgumentCaptor<Func2<TrackItem, Like, LikeWithTrack>> functionCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -66,21 +66,18 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     private List<TrackItem> tracks;
     private List<Like> likes;
 
-    private PublishSubject<Void> syncSubject = PublishSubject.create();
+    private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
     private List<LikeWithTrack> likeWithTracks;
 
     @Before
     public void setUp() throws Exception {
         operations = new TrackLikeOperations(
                 loadLikedTracksCommand,
-                syncInitiator,
                 syncInitiatorBridge,
                 eventBus,
                 scheduler,
-                connectionHelper,
                 trackRepository
         );
-        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiatorBridge.syncTrackLikes()).thenReturn(syncSubject);
 
         tracks = ModelFixtures.trackItems(2);
@@ -108,8 +105,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         verify(observer, never()).onNext(anyList());
 
-        syncSubject.onNext(null);
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
         verify(observer).onNext(likeWithTracks);
         verify(observer).onCompleted();
@@ -149,17 +145,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadTrackLikesRequestsUpdatesFromSyncerOnWifi() {
-        when(connectionHelper.isWifiConnected()).thenReturn(true);
-        when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(tracks)));
-
-        operations.likedTracks().subscribe(observer);
-
-        verify(syncInitiator).batchSyncTracks(asList(likes.get(0).urn(), likes.get(1).urn()));
-    }
-
-    @Test
     public void loadTrackLikesDoesNotRequestUpdatesFromSyncerOffWifi() {
         when(connectionHelper.isWifiConnected()).thenReturn(false);
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
@@ -190,8 +175,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         verify(observer, never()).onNext(anyList());
 
-        syncSubject.onNext(null);
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
         verify(observer).onNext(asList(
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),
@@ -211,8 +195,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         verify(observer, never()).onNext(anyList());
 
-        syncSubject.onNext(null);
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
         verify(observer).onNext(emptyList());
         verify(observer).onCompleted();

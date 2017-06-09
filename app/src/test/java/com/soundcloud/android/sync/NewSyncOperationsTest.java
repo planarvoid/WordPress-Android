@@ -34,7 +34,7 @@ public class NewSyncOperationsTest {
     public void setUp() throws Exception {
         syncOperations = new NewSyncOperations(syncInitiator, syncStateStorage, syncerRegistry);
 
-        when(syncInitiator.synchronise(SYNCABLE)).thenReturn(Single.just(JOB_SUCCESS));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Single.just(JOB_SUCCESS));
         when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.from(
                 SYNCABLE,
                 false,
@@ -53,7 +53,7 @@ public class NewSyncOperationsTest {
     @Test
     public void syncEmitsErrorStateWithExceptionOnFailure() {
         final Exception exception = new Exception("SYNC FAILED");
-        when(syncInitiator.synchronise(SYNCABLE)).thenReturn(Single.error(exception));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Single.error(exception));
 
         syncOperations.sync(SYNCABLE).subscribe(observer);
 
@@ -76,7 +76,7 @@ public class NewSyncOperationsTest {
         syncOperations.lazySyncIfStale(SYNCABLE).subscribe(observer);
 
         observer.assertValue(SyncResult.syncing());
-        verify(syncInitiator).synchronise(SYNCABLE);
+        verify(syncInitiator).sync(SYNCABLE);
     }
 
     @Test
@@ -87,6 +87,6 @@ public class NewSyncOperationsTest {
         syncOperations.lazySyncIfStale(SYNCABLE).subscribe(observer);
 
         observer.assertValue(SyncResult.noOp());
-        verify(syncInitiator, never()).synchronise(any());
+        verify(syncInitiator, never()).sync(any());
     }
 }

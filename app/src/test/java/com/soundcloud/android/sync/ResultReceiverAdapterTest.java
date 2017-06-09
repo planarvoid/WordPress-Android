@@ -1,9 +1,16 @@
 package com.soundcloud.android.sync;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.SingleEmitter;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
+import org.mockito.Mock;
 
 import android.os.Bundle;
 import android.os.Looper;
@@ -14,27 +21,29 @@ public class ResultReceiverAdapterTest extends AndroidUnitTest {
 
     private ResultReceiverAdapter adapter;
 
-    private TestSubscriber<SyncJobResult> subscriber = new TestSubscriber<>();
+    @Mock private SingleEmitter<SyncJobResult> subscriber;
 
     @Before
     public void setUp() throws Exception {
         adapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
+        reset(subscriber);
     }
 
     @Test
     public void shouldForwardSyncResultSuccessToSubscriberWhenSyncFinished() {
+        when(subscriber.isDisposed()).thenReturn(false);
         final Bundle resultData = new Bundle();
         SyncJobResult syncJobResult = SyncJobResult.success("action", true);
         resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, syncJobResult);
 
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        subscriber.assertValue(syncJobResult);
-        subscriber.assertCompleted();
+        verify(subscriber).onSuccess(syncJobResult);
     }
 
     @Test
     public void shouldForwardSyncResultFailureToSubscriberWhenSyncFinished() {
+        when(subscriber.isDisposed()).thenReturn(false);
         final Bundle resultData = new Bundle();
         IOException exception = new IOException();
         SyncJobResult resultEvent = SyncJobResult.failure("action", exception);
@@ -42,14 +51,15 @@ public class ResultReceiverAdapterTest extends AndroidUnitTest {
 
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        subscriber.assertError(exception);
+        verify(subscriber).onError(exception);
     }
 
     @Test
     public void shouldDropResultIfSubscriberHasUnsubscribed() {
-        subscriber.unsubscribe();
+        when(subscriber.isDisposed()).thenReturn(true);
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, new Bundle());
 
-        subscriber.assertNoValues();
+        verify(subscriber, never()).onSuccess(any(SyncJobResult.class));
+        verify(subscriber, never()).onError(any(Throwable.class));
     }
 }

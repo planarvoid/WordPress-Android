@@ -5,11 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.Scheduler;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,20 +23,20 @@ import java.util.List;
 
 public class SyncInitiatorTest extends AndroidUnitTest {
 
+    private final Scheduler scheduler = Schedulers.trampoline();
     private SyncInitiator syncInitiator;
-    private TestSubscriber<SyncJobResult> syncSubscriber = new TestSubscriber<>();
     private TestObserver<SyncJobResult> syncObserver = new TestObserver<>();
 
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
-        syncInitiator = new SyncInitiator(context(), accountOperations);
+        syncInitiator = new SyncInitiator(context(), accountOperations, scheduler);
     }
 
     @Test
     public void syncCreatesObservableForSyncable() {
-        syncInitiator.sync(Syncable.CHARTS).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(Syncable.CHARTS).test();
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
@@ -44,13 +45,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.awaitCount(1).assertResult(result);
     }
 
     @Test
     public void syncCreatesObservableForSyncableWithAction() {
-        syncInitiator.sync(Syncable.CHARTS, "action").subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(Syncable.CHARTS, "action").test();
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
@@ -60,13 +60,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertResult(result);
     }
 
     @Test
     public void synchroniseCreatesObservableForSyncable() {
-        syncInitiator.synchronise(Syncable.CHARTS).subscribe(syncObserver);
+        syncInitiator.sync(Syncable.CHARTS).subscribe(syncObserver);
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
@@ -82,7 +81,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     @Test
     public void batchSyncTrackCreatesObservableForTrackSync() {
         final List<Urn> entities = Collections.singletonList(Urn.forTrack(123));
-        syncInitiator.batchSyncTracks(entities).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.batchSyncTracks(entities).test();
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.TRACKS);
@@ -90,14 +89,13 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertResult(result);
     }
 
     @Test
     public void batchSyncUsersCreatesObservableForUsersSync() {
         final List<Urn> entities = Collections.singletonList(Urn.forUser(123));
-        syncInitiator.batchSyncUsers(entities).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.batchSyncUsers(entities).test();
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.USERS);
@@ -105,14 +103,13 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertResult(result);
     }
 
     @Test
     public void batchSyncPlaylistsCreatesObservableForPlaylistsSync() {
         final List<Urn> entities = Collections.singletonList(Urn.forPlaylist(123));
-        syncInitiator.batchSyncPlaylists(entities).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.batchSyncPlaylists(entities).test();
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLISTS);
@@ -120,13 +117,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertResult(result);
     }
 
     @Test
     public void syncPlaylistCreatesObservableForPlaylistSync() {
-        syncInitiator.syncPlaylist(Urn.forPlaylist(123)).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.syncPlaylist(Urn.forPlaylist(123)).test();
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
@@ -134,13 +130,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertResult(result);
     }
 
     @Test
     public void syncPlaylistsSyncsLocalAndRemotePlaylist() {
-        syncInitiator.syncPlaylists(Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(-123))).subscribe(syncSubscriber);
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.syncPlaylists(Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(-123))).test();
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
@@ -148,15 +143,14 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
+        syncSubscriber.assertValue(result);
 
         Intent syncMyPlaylists = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(syncMyPlaylists)).isEqualTo(Syncable.MY_PLAYLISTS);
         final SyncJobResult result2 = sendSyncChangedToReceiver(syncMyPlaylists);
 
-        syncSubscriber.assertReceivedOnNext(
-                Arrays.asList(result, result2));
-        syncSubscriber.assertCompleted();
+        syncSubscriber.assertValues(result, result2);
+        syncSubscriber.assertComplete();
     }
 
 

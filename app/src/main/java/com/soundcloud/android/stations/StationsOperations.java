@@ -139,15 +139,15 @@ public class StationsOperations {
     }
 
     private io.reactivex.Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-        return syncStations(type).flatMap(__ -> loadStationsCollection(type));
+        return syncStations(type).flatMapObservable(__ -> loadStationsCollection(type));
     }
 
-    public io.reactivex.Observable<SyncJobResult> syncStations(int type) {
-        return RxJava.toV2Observable(syncInitiator.sync(typeToSyncable(type)));
+    public io.reactivex.Single<SyncJobResult> syncStations(int type) {
+        return syncInitiator.sync(typeToSyncable(type));
     }
 
     Observable<SyncJobResult> syncLikedStations() {
-        return syncInitiator.sync(Syncable.LIKED_STATIONS);
+        return RxJava.toV1Observable(syncInitiator.sync(Syncable.LIKED_STATIONS));
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {

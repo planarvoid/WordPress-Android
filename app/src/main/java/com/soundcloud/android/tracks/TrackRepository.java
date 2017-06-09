@@ -2,15 +2,12 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static io.reactivex.Observable.error;
-import static io.reactivex.Observable.just;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -21,9 +18,9 @@ import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableTransformer;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleTransformer;
 import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
@@ -99,19 +96,18 @@ public class TrackRepository {
     }
 
     private Single<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
-        return RxJava.toV2Observable(syncInitiator.syncPlaylist(playlistUrn))
+        return syncInitiator.syncPlaylist(playlistUrn)
                      .compose(convertApiRequestExceptionToSyncFailure())
                      .map(SyncJobResult::wasSuccess)
-                     .first(false)
                      .observeOn(scheduler)
                      .flatMap(__ -> loadPlaylistTracksCommand.toSingle(playlistUrn));
     }
 
-    private static ObservableTransformer<SyncJobResult, SyncJobResult> convertApiRequestExceptionToSyncFailure() {
+    private static SingleTransformer<SyncJobResult, SyncJobResult> convertApiRequestExceptionToSyncFailure() {
         return observable -> observable.onErrorResumeNext(
                 throwable -> throwable instanceof ApiRequestException
-                             ? just(SyncJobResult.failure("unknown", ((ApiRequestException) throwable)))
-                             : error(throwable)
+                             ? Single.just(SyncJobResult.failure("unknown", (ApiRequestException) throwable))
+                             : Single.error(throwable)
         );
     }
 
@@ -121,10 +117,9 @@ public class TrackRepository {
             if (missingTracks.isEmpty()) {
                 return Single.just(false);
             } else {
-                return RxJava.toV2Observable(syncInitiator.batchSyncTracks(missingTracks))
-                             .observeOn(scheduler)
-                             .map(SyncJobResult::wasSuccess)
-                             .first(false);
+                return syncInitiator.batchSyncTracks(missingTracks)
+                                    .observeOn(scheduler)
+                                    .map(SyncJobResult::wasSuccess);
             }
         };
     }
@@ -156,7 +151,7 @@ public class TrackRepository {
 
     private Maybe<Track> syncThenLoadTrack(final Urn trackUrn,
                                            final Maybe<Track> loadObservable) {
-        return RxJava.toV2Observable(syncInitiator.syncTrack(trackUrn)).firstElement().flatMap(o -> loadObservable);
+        return syncInitiator.syncTrack(trackUrn).flatMapMaybe(o -> loadObservable);
     }
 
 }

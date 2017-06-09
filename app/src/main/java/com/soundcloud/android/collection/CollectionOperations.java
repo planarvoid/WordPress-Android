@@ -207,7 +207,7 @@ public class CollectionOperations {
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                LikesItem::create),
-                refreshStationsAndLoad(),
+                refreshStationsAndLoad().toObservable(),
                 refreshPlayHistoryItems(),
                 refreshRecentlyPlayedItems(),
                 (playlistItems, likes, stationRecords, playHistoryTrackItems, recentlyPlayedPlayableItems) -> myCollection(likes,
@@ -257,11 +257,11 @@ public class CollectionOperations {
         return RxJava.toV2Observable(loadLikedTrackPreviews.toObservable(null)).subscribeOn(scheduler);
     }
 
-    private Observable<List<StationRecord>> refreshStationsAndLoad() {
-        return syncStations().flatMapSingle(__ -> loadStations());
+    private Single<List<StationRecord>> refreshStationsAndLoad() {
+        return syncStations().flatMap(__ -> loadStations());
     }
 
-    private Observable<SyncJobResult> syncStations() {
+    private Single<SyncJobResult> syncStations() {
         return stationsOperations.syncStations(StationsCollectionsTypes.LIKED);
     }
 

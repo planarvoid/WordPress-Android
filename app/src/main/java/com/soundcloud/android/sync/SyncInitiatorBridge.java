@@ -1,12 +1,7 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
-import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.RxUtils;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import rx.Observable;
 
 import javax.inject.Inject;
 
@@ -23,7 +18,7 @@ public class SyncInitiatorBridge {
     }
 
     public void refreshMe() {
-        fireAndForget(syncInitiator.sync(Syncable.ME));
+        syncInitiator.syncAndForget(Syncable.ME);
     }
 
     public Single<Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {
@@ -31,13 +26,12 @@ public class SyncInitiatorBridge {
                                        syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES));
     }
 
-    public Observable<Void> refreshMyPlaylists() {
-        return syncInitiator.sync(Syncable.MY_PLAYLISTS).map(RxUtils.TO_VOID);
+    public Single<SyncJobResult> refreshMyPlaylists() {
+        return syncInitiator.sync(Syncable.MY_PLAYLISTS);
     }
 
     public Completable refreshMyPostedAndLikedPlaylists() {
-        return RxJava.toV2Completable(syncInitiator.sync(Syncable.MY_PLAYLISTS))
-                .mergeWith(RxJava.toV2Completable(syncInitiator.sync(Syncable.PLAYLIST_LIKES)));
+        return syncInitiator.sync(Syncable.MY_PLAYLISTS).toCompletable().mergeWith(syncInitiator.sync(Syncable.PLAYLIST_LIKES).toCompletable());
     }
 
     public Single<Boolean> hasSyncedTrackLikesBefore() {
@@ -45,14 +39,14 @@ public class SyncInitiatorBridge {
     }
 
     public Completable refreshLikedTracks() {
-        return RxJava.toV2Completable(syncInitiator.sync(Syncable.TRACK_LIKES));
+        return syncInitiator.sync(Syncable.TRACK_LIKES).toCompletable();
     }
 
-    public Observable<SyncJobResult> refreshFollowings() {
+    public Single<SyncJobResult> refreshFollowings() {
         return syncInitiator.sync(Syncable.MY_FOLLOWINGS);
     }
 
-    public Observable<Void> syncTrackLikes() {
-        return syncInitiator.sync(Syncable.TRACK_LIKES).map(RxUtils.TO_VOID);
+    public Single<SyncJobResult> syncTrackLikes() {
+        return syncInitiator.sync(Syncable.TRACK_LIKES);
     }
 }

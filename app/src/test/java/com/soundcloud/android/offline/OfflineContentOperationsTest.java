@@ -26,10 +26,12 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,9 +39,7 @@ import rx.Observable;
 import rx.functions.Action1;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -197,7 +197,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(collectionOperations.myPlaylists()).thenReturn(Maybe.just(Arrays.asList(createPlaylistItem(playlist1),
                                                                                      createPlaylistItem(playlist2))));
         when(offlineContentStorage.resetOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
-        final PublishSubject<Void> refreshSubject = PublishSubject.create();
+        final SingleSubject<SyncJobResult> refreshSubject = SingleSubject.create();
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(refreshSubject);
 
         operations.enableOfflineCollection().subscribe();
@@ -212,7 +212,6 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         List<Urn> playlists = singletonList(playlistUrn);
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
-        when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.just(SyncJobResult.success("blah", true)));
 
         operations.makePlaylistAvailableOffline(playlistUrn).test().assertValueCount(1).assertCompleted();
     }
@@ -236,7 +235,6 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final List<Urn> playlists = singletonList(playlistUrn);
 
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
-        when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.empty());
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
@@ -259,14 +257,12 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistAvailableOfflineStartsService() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final PublishSubject<SyncJobResult> sync = PublishSubject.create();
 
         when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(txnResult));
-        when(syncInitiator.syncPlaylists(singletonList(playlistUrn))).thenReturn(sync);
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
-        assertThat(sync.hasObservers()).isTrue();
+        verify(syncInitiator).syncPlaylistsAndForget(Lists.newArrayList(playlistUrn));
     }
 
     @Test
@@ -274,7 +270,6 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(123L);
 
         when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(txnResult));
-        when(syncInitiator.syncPlaylists(singletonList(playlistUrn))).thenReturn(Observable.error(new UnknownHostException("Sync error")));
 
         operations.makePlaylistAvailableOffline(playlistUrn)
                   .test()

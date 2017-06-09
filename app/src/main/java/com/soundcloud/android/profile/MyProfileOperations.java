@@ -68,15 +68,15 @@ public class MyProfileOperations {
     }
 
     Single<List<Following>> updatedFollowings() {
-        return RxJava.toV2Single(syncInitiatorBridge.refreshFollowings())
-                     .flatMap(__ -> pagedFollowingsFromPosition(Consts.NOT_SET).subscribeOn(scheduler));
+        return syncInitiatorBridge.refreshFollowings()
+                                  .flatMap(__ -> pagedFollowingsFromPosition(Consts.NOT_SET).subscribeOn(scheduler));
     }
 
     public Single<List<UserAssociation>> followingsUserAssociations() {
         return loadFollowingUserAssociationsFromStorage()
                 .filter(list -> !list.isEmpty())
-                .switchIfEmpty(Single.defer(() -> RxJava.toV2Single(syncInitiatorBridge.refreshFollowings())
-                                                        .flatMap(o -> loadFollowingUserAssociationsFromStorage()))
+                .switchIfEmpty(Single.defer(() -> syncInitiatorBridge.refreshFollowings()
+                                                                     .flatMap(o -> loadFollowingUserAssociationsFromStorage()))
                                      .toMaybe())
                 .toSingle(Collections.emptyList());
     }
@@ -98,8 +98,7 @@ public class MyProfileOperations {
             if (urns.isEmpty()) {
                 return Single.just(Collections.emptyList());
             } else {
-                return RxJava.toV2Single(syncInitiator.batchSyncUsers(urns))
-                             .flatMap(__ -> userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler));
+                return syncInitiator.batchSyncUsers(urns).flatMap(__ -> userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler));
             }
         };
     }

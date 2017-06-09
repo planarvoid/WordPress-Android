@@ -100,7 +100,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private PublishSubject<ModelCollection<ApiPlaylistPost>> otherUserOtherPlaylists = PublishSubject.create();
     private ApiRequestException apiRequestException = TestApiResponses.networkError().getFailure();
     private MaybeSubject<List<Playlist>> myOtherPlaylists = MaybeSubject.create();
-    private PublishSubject<SyncJobResult> syncResultSubject = PublishSubject.create();
+    private SingleSubject<SyncJobResult> syncResultSubject = SingleSubject.create();
 
     //
     @Before
@@ -340,8 +340,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
         refreshSubject.onNext(null);
 
-        syncResultSubject.onNext(TestSyncJobResults.successWithChange());
-        syncResultSubject.onCompleted();
+        syncResultSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
 

@@ -6,7 +6,6 @@ import static com.soundcloud.java.collections.Maps.asMap;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import io.reactivex.Maybe;
@@ -64,7 +63,7 @@ public class PlaylistRepository {
             if (missingPlaylists.isEmpty()) {
                 return Single.just(true);
             } else {
-                return RxJava.toV2Observable(syncInitiator.batchSyncPlaylists(missingPlaylists)).map(SyncJobResult::wasSuccess).first(false).observeOn(scheduler);
+                return syncInitiator.batchSyncPlaylists(missingPlaylists).map(SyncJobResult::wasSuccess).observeOn(scheduler);
             }
         };
     }

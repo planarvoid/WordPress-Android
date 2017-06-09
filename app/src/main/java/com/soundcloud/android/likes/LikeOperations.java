@@ -42,7 +42,7 @@ public class LikeOperations {
                 .toObservable(params)
                 .map(likesCount -> LikesStatusEvent.create(targetUrn, addLike, likesCount))
                 .doOnNext(likesStatusEvent -> eventBus.publish(EventQueue.LIKE_CHANGED, likesStatusEvent))
-                .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                .doOnCompleted(syncInitiator::requestSystemSync)
                 .subscribeOn(scheduler)
                 .map(likesStatusEvent -> addLike ? LikeResult.LIKE_SUCCEEDED : LikeResult.UNLIKE_SUCCEEDED)
                 .onErrorReturn(throwable -> addLike ? LikeResult.LIKE_FAILED : LikeResult.UNLIKE_FAILED);

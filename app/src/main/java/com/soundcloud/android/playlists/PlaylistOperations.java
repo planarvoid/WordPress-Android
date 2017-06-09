@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -24,13 +23,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
@@ -130,7 +129,7 @@ public class PlaylistOperations {
                                                     Observable.just(urn))
                                     .doOnNext(publishPlaylistCreatedEvent)
                                     .subscribeOn(scheduler)
-                                    .doOnCompleted(syncInitiator.requestSystemSyncAction());
+                                    .doOnCompleted(syncInitiator::requestSystemSync);
     }
 
     Observable<Playlist> editPlaylist(Playlist playlist, List<Urn> tracks) {
@@ -144,7 +143,7 @@ public class PlaylistOperations {
                                                                               updatedTracklist))
                                   .flatMap(o -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)))
                                   .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
-                                  .doOnNext(playlist -> fireAndForget(syncInitiator.syncPlaylist(playlist.urn())))
+                                  .doOnNext(playlist -> syncInitiator.syncPlaylistAndForget(playlist.urn()))
                                   .subscribeOn(scheduler);
     }
 
@@ -152,7 +151,7 @@ public class PlaylistOperations {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
                                         .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlistUrn, trackCount)))
-                                        .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                        .doOnCompleted(syncInitiator::requestSystemSync)
                                         .subscribeOn(scheduler);
     }
 
@@ -161,7 +160,7 @@ public class PlaylistOperations {
         return removeTrackFromPlaylistCommand.toObservable(params)
                                              .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
                                                                                       PlaylistTrackCountChangedEvent.fromTrackRemovedFromPlaylist(playlistUrn, trackCount)))
-                                             .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                             .doOnCompleted(syncInitiator::requestSystemSync)
                                              .subscribeOn(scheduler);
     }
 
@@ -185,11 +184,10 @@ public class PlaylistOperations {
     }
 
     private Observable<Playlist> updatedPlaylist(final Urn playlistUrn) {
-        return syncInitiator
-                .syncPlaylist(playlistUrn)
-                .observeOn(scheduler)
-                .flatMap(playlistWasUpdated -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)
-                                                                                       .switchIfEmpty(Maybe.error(new PlaylistMissingException()))));
+        return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn))
+                     .observeOn(scheduler)
+                     .flatMap(playlistWasUpdated -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)
+                                                                                            .switchIfEmpty(Maybe.error(new PlaylistMissingException()))));
     }
 
     Observable<PlaylistDetailsViewModel> playlistWithTracksAndRecommendations(Urn playlistUrn) {
@@ -199,9 +197,9 @@ public class PlaylistOperations {
     }
 
     Observable<PlaylistDetailsViewModel> updatedPlaylistWithTracksAndRecommendations(Urn playlistUrn) {
-        return syncInitiator.syncPlaylist(playlistUrn)
-                            .flatMap(ignored -> playlistWithTracksAndRecommendations(playlistUrn))
-                            .subscribeOn(scheduler);
+        return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn))
+                     .flatMap(ignored -> playlistWithTracksAndRecommendations(playlistUrn))
+                     .subscribeOn(scheduler);
     }
 
     private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn playlistUrn) {
@@ -271,21 +269,16 @@ public class PlaylistOperations {
     }
 
     private Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
-        return syncInitiator
-                .syncPlaylist(playlistUrn)
-                .flatMap(new Func1<SyncJobResult, Observable<List<Urn>>>() {
-                    @Override
-                    public Observable<List<Urn>> call(SyncJobResult syncJobResult) {
-                        return loadPlaylistTrackUrnsProvider.get().toObservable(playlistUrn).subscribeOn(scheduler);
-                    }
-                });
+        return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn)
+                                                  .flatMap(syncJobResult -> loadPlaylistTrackUrnsProvider.get().toSingle(playlistUrn)))
+                     .subscribeOn(scheduler);
     }
 
     private Func1<Playlist, Observable<Playlist>> syncIfNecessary(final Urn playlistUrn) {
         return playlist -> {
             final boolean isLocalPlaylist = playlistUrn.getNumericId() < 0;
             if (isLocalPlaylist) {
-                fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
+                syncInitiatorBridge.refreshMyPlaylists().subscribe(new DefaultSingleObserver<>());
                 return just(playlist);
             } else {
                 return just(playlist);

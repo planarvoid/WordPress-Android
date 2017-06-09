@@ -131,11 +131,11 @@ class DataSourceProvider {
 
     private Observable<Urn> refreshIntent(PublishSubject<Void> refresh) {
         return latestUrn.compose(Transformers.takeWhen(refresh))
-                        .flatMap(urn -> syncInitiator.syncPlaylist(urn)
-                                                     .map(syncJobResult -> urn)
-                                                     .doOnSubscribe(() -> refreshStateSubject.onNext(new PartialState.RefreshStarted()))
-                                                     .doOnError(throwable -> refreshStateSubject.onNext(new PartialState.RefreshError(throwable)))
-                                                     .onErrorResumeNext(Observable.empty()));
+                        .flatMap(urn -> RxJava.toV1Observable(syncInitiator.syncPlaylist(urn))
+                                              .map(syncJobResult -> urn)
+                                              .doOnSubscribe(() -> refreshStateSubject.onNext(new PartialState.RefreshStarted()))
+                                              .doOnError(throwable -> refreshStateSubject.onNext(new PartialState.RefreshError(throwable)))
+                                              .onErrorResumeNext(Observable.empty()));
     }
 
     private Observable<PartialState> emissions(Playlist playlist) {
@@ -152,7 +152,7 @@ class DataSourceProvider {
             return Observable.just(Collections.emptyList());
         } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
             return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()))
-                                        .map(playlistsWithExclusion(playlist));
+                         .map(playlistsWithExclusion(playlist));
         } else {
             Observable<List<Playlist>> eagerEmission = just(Collections.<Playlist>emptyList());
             Observable<List<Playlist>> lazyEmission = playlistsForOtherUser(playlist)

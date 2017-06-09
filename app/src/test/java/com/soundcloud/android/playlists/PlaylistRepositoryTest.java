@@ -19,10 +19,10 @@ import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.subjects.PublishSubject;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncinitiator;
     @Mock private PlaylistStorage playlistStorage;
 
-    private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
+    private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -71,8 +71,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         final TestObserver<Playlist> test = playlistRepository.withUrn(playlist.urn()).test();
 
         test.assertNoValues();
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         test.assertValue(playlist);
     }
@@ -105,8 +104,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         final TestObserver<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
         subscriber.assertNoValues();
 
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         subscriber.assertNoValues();
         subscriber.assertComplete();
@@ -141,8 +139,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
 
         subscriber.assertNoValues();
 
-        syncSubject.onNext(TestSyncJobResults.successWithChange());
-        syncSubject.onCompleted();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
     }
@@ -163,7 +160,6 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         subscriber.assertNoValues();
 
         syncSubject.onError(ApiRequestException.notFound(null, status(404)));
-        syncSubject.onCompleted();
 
         subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
     }

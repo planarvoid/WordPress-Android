@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CREATE;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -50,7 +49,7 @@ import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -314,12 +313,12 @@ public class SoundCloudApplication extends MultiDexApplication {
      * Alternatively, sync sets lazily where needed.
      */
     private void requestCollectionsSync() {
-        fireAndForget(syncInitiator.sync(Syncable.MY_PLAYLISTS));
-        fireAndForget(syncInitiator.sync(Syncable.PLAYLIST_LIKES));
-        fireAndForget(syncInitiator.sync(Syncable.TRACK_LIKES));
-        fireAndForget(RxJava.toV1Observable(stationsOperations.syncStations(StationsCollectionsTypes.LIKED)));
-        fireAndForget(syncInitiator.sync(Syncable.PLAY_HISTORY));
-        fireAndForget(syncInitiator.sync(Syncable.RECENTLY_PLAYED));
+        syncInitiator.syncAndForget(Syncable.MY_PLAYLISTS);
+        syncInitiator.syncAndForget(Syncable.PLAYLIST_LIKES);
+        syncInitiator.syncAndForget(Syncable.TRACK_LIKES);
+        stationsOperations.syncStations(StationsCollectionsTypes.LIKED).toCompletable().subscribe(new DefaultDisposableCompletableObserver());
+        syncInitiator.syncAndForget(Syncable.PLAY_HISTORY);
+        syncInitiator.syncAndForget(Syncable.RECENTLY_PLAYED);
     }
 
     private void setupStrictMode() {

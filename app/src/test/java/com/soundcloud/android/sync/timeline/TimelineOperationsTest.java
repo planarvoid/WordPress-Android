@@ -2,7 +2,10 @@ package com.soundcloud.android.sync.timeline;
 
 import static com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithChange;
 import static com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithoutChange;
-import static io.reactivex.Observable.*;
+import static io.reactivex.Observable.empty;
+import static io.reactivex.Observable.fromIterable;
+import static io.reactivex.Observable.just;
+import static io.reactivex.Observable.never;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.inOrder;
@@ -17,6 +20,7 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +81,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
         final List<ViewModel> viewModels = viewModelsFromStorageModel(items);
         initWithStorageModelOnRepeatAfterSyncing(items, viewModels);
         // returning true means new items have been added to local storage
-        when(syncInitiator.sync(syncable)).thenReturn(rx.Observable.just(successWithChange()));
+        when(syncInitiator.sync(syncable)).thenReturn(Single.just(successWithChange()));
 
         final TestObserver<List<ViewModel>> observer = operations.initialTimelineItems(false).test();
 
@@ -97,7 +101,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
                 .thenReturn(empty())
                 .thenReturn(empty());
         // returning true means successful sync
-        when(syncInitiator.sync(syncable)).thenReturn(rx.Observable.just(successWithChange()));
+        when(syncInitiator.sync(syncable)).thenReturn(Single.just(successWithChange()));
 
         final TestObserver<List<ViewModel>> observer = operations.initialTimelineItems(false).test();
 
@@ -131,7 +135,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
         final List<ViewModel> viewModels = viewModelsFromStorageModel(secondPage);
         initWithStorageModelOnRepeatAfterSyncingBefore(lastItemTimestamp, secondPage, viewModels);
         // returning true means new items have been added to local storage
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(rx.Observable.just(successWithChange()));
+        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(Single.just(successWithChange()));
 
         final AssertableSubscriber<List<ViewModel>> observer = operations.pagingFunction().call(viewModelsFromStorageModel(firstPage)).test();
 
@@ -152,7 +156,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
         // 2nd page is blank, will trigger backfill
         when(storage.timelineItemsBefore(123L, PAGE_SIZE)).thenReturn(empty());
         // returning false means no new items have been added to local storage
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(rx.Observable.just(successWithoutChange()));
+        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_APPEND)).thenReturn(Single.just(successWithoutChange()));
 
         final AssertableSubscriber<List<ViewModel>> observer = operations.pagingFunction().call(viewModels).test();
 
@@ -166,7 +170,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
 
     @Test
     public void refreshingShouldRequestSyncAndReloadFromLocalStorageWhenNewItemsAvailable() {
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(rx.Observable.just(successWithChange()));
+        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Single.just(successWithChange()));
         List<StorageModel> items = createItems(PAGE_SIZE, 123L);
         List<ViewModel> viewModels = viewModelsFromStorageModel(items);
         initWithStorageModel(items, viewModels);
@@ -183,7 +187,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
 
     @Test
     public void refreshingShouldRequestSyncAndCompleteWhenNoNewItemsAvailable() {
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(rx.Observable.just(successWithoutChange()));
+        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Single.just(successWithoutChange()));
 
         final TestObserver<List<ViewModel>> observer = operations.updatedTimelineItems().test();
 
@@ -215,7 +219,7 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
     @Test
     public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
         when(syncStateStorage.hasSyncedBefore(syncable)).thenReturn(false);
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(rx.Observable.just(successWithChange()));
+        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Single.just(successWithChange()));
 
         final TestObserver<List<ViewModel>> observer = operations.updatedTimelineItemsForStart().test();
 

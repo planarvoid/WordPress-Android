@@ -29,7 +29,7 @@ public class NewSyncOperations {
     }
 
     public Single<SyncResult> sync(Syncable syncable) {
-        return syncInitiator.synchronise(syncable)
+        return syncInitiator.sync(syncable)
                             .map(o -> SyncResult.synced())
                             .onErrorReturn(SyncResult::error);
     }
@@ -41,7 +41,7 @@ public class NewSyncOperations {
     public Single<SyncResult> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
             if (!isContentStale(syncable)) {
-                fireAndForget(syncInitiator.synchronise(syncable).toObservable());
+                fireAndForget(syncInitiator.sync(syncable).toObservable());
                 return Single.just(SyncResult.syncing());
             } else {
                 return Single.just(SyncResult.noOp());

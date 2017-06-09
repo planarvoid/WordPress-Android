@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.utils.Log;
-import rx.Subscriber;
-import rx.subscriptions.Subscriptions;
+import io.reactivex.SingleEmitter;
+import io.reactivex.disposables.Disposables;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -20,14 +20,14 @@ public class ResultReceiverAdapter extends ResultReceiver {
     public static final String SYNC_RESULT = "syncResult";
     private static final String TAG = "RxResultReceiver";
 
-    private final AtomicReference<Subscriber<? super SyncJobResult>> subscriberRef;
+    private final AtomicReference<SingleEmitter<? super SyncJobResult>> subscriberRef;
 
-    public ResultReceiverAdapter(final Subscriber<? super SyncJobResult> subscriber, Looper looper) {
+    public ResultReceiverAdapter(final SingleEmitter<? super SyncJobResult> subscriber, Looper looper) {
         super(new Handler(looper));
-        this.subscriberRef = new AtomicReference<Subscriber<? super SyncJobResult>>(subscriber);
+        this.subscriberRef = new AtomicReference<>(subscriber);
         // make sure we release the observer reference as soon as we're unsubscribing, or
         // we might create a memory leak
-        subscriber.add(Subscriptions.create(() -> {
+        subscriber.setDisposable(Disposables.fromAction(() -> {
             Log.d(TAG, "observer is unsubscribing, releasing ref...");
             subscriberRef.set(null);
         }));
@@ -35,13 +35,12 @@ public class ResultReceiverAdapter extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        final Subscriber<? super SyncJobResult> subscriber = subscriberRef.get();
-        if (subscriber != null && !subscriber.isUnsubscribed()) {
+        final SingleEmitter<? super SyncJobResult> subscriber = subscriberRef.get();
+        if (subscriber != null && !subscriber.isDisposed()) {
             Log.d(TAG, "delivering result: " + resultData);
             SyncJobResult syncJobResult = resultData.getParcelable(SYNC_RESULT);
             if (syncJobResult.wasSuccess()) {
-                subscriber.onNext(syncJobResult);
-                subscriber.onCompleted();
+                subscriber.onSuccess(syncJobResult);
             } else {
                 subscriber.onError(syncJobResult.getException());
             }
