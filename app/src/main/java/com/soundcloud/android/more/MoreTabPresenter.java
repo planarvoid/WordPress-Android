@@ -1,6 +1,7 @@
 package com.soundcloud.android.more;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -18,6 +19,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -36,7 +38,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -232,7 +233,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     @Override
     public void onActivitiesClicked(View view) {
         performanceMetricsEngine.startMeasuring(MetricType.ACTIVITIES_LOAD);
-        navigator.navigateTo(NavigationTarget.forActivities((Activity) view.getContext()));
+        navigator.navigateTo(NavigationTarget.forActivities(getFragmentActivity(view)));
     }
 
     @Override
