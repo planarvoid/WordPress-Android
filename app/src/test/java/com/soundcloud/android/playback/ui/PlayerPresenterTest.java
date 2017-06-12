@@ -12,6 +12,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -35,11 +36,13 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
 import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,8 +51,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -58,6 +59,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerPresenterTest extends AndroidUnitTest {
@@ -82,7 +84,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     private PlayerPresenter playerPresenter;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private final List<PlayQueueItem> fullPlayQueue = Arrays.asList(
             TestPlayQueueItem.createTrack(Urn.forTrack(789)),
             TRACK_PLAY_QUEUE_ITEM,
@@ -422,26 +424,28 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displayPlayQueue() {
-        TestSubscriber subscriber = TestSubscriber.create();
-        eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
+        DefaultObserver<PlayerUICommand> observer = spy(new DefaultObserver<>());
+        eventBus.subscribe(EventQueue.PLAYER_COMMAND, observer);
+
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
 
         verify(fragmentManager, times(1)).beginTransaction();
         verify(fragmentTransaction, times(1)).add(any(Integer.class), any(Fragment.class), eq(PlayQueueFragment.TAG));
-        subscriber.assertValue(PlayerUICommand.lockPlayQueue());
+        verify(observer).onNext(PlayerUICommand.lockPlayQueue());
     }
 
     @Test
     public void hidePlayQueue() {
-        TestSubscriber subscriber = TestSubscriber.create();
+        DefaultObserver<PlayerUICommand> observer = spy(new DefaultObserver<>());
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
-        eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
+
+        eventBus.subscribe(EventQueue.PLAYER_COMMAND, observer);
         when(fragmentManager.findFragmentByTag(PlayQueueFragment.TAG)).thenReturn(playQueueFragment);
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
 
         verify(fragmentManager, times(2)).beginTransaction();
         verify(fragmentTransaction, times(1)).remove(any(Fragment.class));
-        subscriber.assertValue(PlayerUICommand.unlockPlayQueue());
+        verify(observer).onNext(PlayerUICommand.unlockPlayQueue());
     }
 
     @Test
@@ -460,6 +464,6 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     private void assertLastQueueWasAdQueue() {
         verify(playerPagerPresenter, atLeastOnce()).setCurrentPlayQueue(playQueueItemsCaptor.capture(), anyInt());
         final List<List<PlayQueueItem>> allValues = playQueueItemsCaptor.getAllValues();
-        assertPlayQueueItemsEqual(Arrays.asList(AUDIO_AD_PLAY_QUEUE_ITEM), allValues.get(allValues.size() - 1));
+        assertPlayQueueItemsEqual(Collections.singletonList(AUDIO_AD_PLAY_QUEUE_ITEM), allValues.get(allValues.size() - 1));
     }
 }

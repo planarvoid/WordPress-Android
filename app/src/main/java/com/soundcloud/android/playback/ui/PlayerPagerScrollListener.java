@@ -5,11 +5,10 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Observable;
-import rx.functions.Func1;
-import rx.subjects.ReplaySubject;
-import rx.subscriptions.CompositeSubscription;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.ReplaySubject;
 
 import android.support.v4.view.ViewPager;
 
@@ -22,31 +21,10 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
 
-    private CompositeSubscription subscription;
+    private CompositeDisposable disposable;
     private PlayerTrackPager trackPager;
     private PlayerPagerPresenter presenter;
     private boolean wasPageChange;
-
-    private final DefaultSubscriber<Integer> showBlockedSwipeFeedback = new DefaultSubscriber<Integer>() {
-        @Override
-        public void onNext(Integer args) {
-            playbackFeedbackHelper.showUnskippableAdFeedback();
-        }
-    };
-
-    private final Func1<? super Integer, Boolean> settledOnNewPage = new Func1<Integer, Boolean>() {
-        @Override
-        public Boolean call(Integer state) {
-            return wasPageChange && state == ViewPager.SCROLL_STATE_IDLE;
-        }
-    };
-
-    private final Func1<? super Integer, Boolean> noPageChangedScrollOnAd = new Func1<Integer, Boolean>() {
-        @Override
-        public Boolean call(Integer state) {
-            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentItemAd();
-        }
-    };
 
     @Inject
     PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackFeedbackHelper playbackFeedbackHelper,
@@ -90,17 +68,17 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     }
 
     private void subscribe() {
-        subscription = new CompositeSubscription();
-        subscription.add(scrollStateSubject
-                                 .filter(noPageChangedScrollOnAd)
-                                 .subscribe(showBlockedSwipeFeedback));
+        disposable = new CompositeDisposable();
+        disposable.add(scrollStateSubject
+                               .filter(state -> !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentItemAd())
+                               .subscribeWith(LambdaObserver.onNext(__ -> playbackFeedbackHelper.showUnskippableAdFeedback())));
     }
 
     public void unsubscribe() {
-        subscription.unsubscribe();
+        disposable.dispose();
     }
 
-    public Observable<Integer> getPageChangedObservable() {
-        return scrollStateSubject.filter(settledOnNewPage);
+    Observable<Integer> getPageChangedObservable() {
+        return scrollStateSubject.filter(state -> wasPageChange && state == ViewPager.SCROLL_STATE_IDLE);
     }
 }

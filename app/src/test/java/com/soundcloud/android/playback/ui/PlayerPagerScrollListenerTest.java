@@ -16,10 +16,10 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestObserver;
 
 import android.support.v4.view.ViewPager;
 
@@ -49,7 +49,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     public void doesNotEmitTrackChangedOnIdleStateWithoutPageSelected() {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        assertThat(observer.getOnNextEvents()).isEmpty();
+        observer.assertNoValues();
     }
 
     @Test
@@ -59,7 +59,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
+        observer.assertValueCount(1);
     }
 
     @Test

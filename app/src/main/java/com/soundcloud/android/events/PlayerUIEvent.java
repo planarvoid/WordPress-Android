@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import io.reactivex.functions.Predicate;
 import rx.functions.Func1;
 
 public class PlayerUIEvent {
@@ -10,6 +11,8 @@ public class PlayerUIEvent {
     private final int kind;
 
     public static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPSED = playerUIEvent -> playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
+
+    public static final Predicate<PlayerUIEvent> PLAYER_IS_COLLAPSED_V2 = playerUIEvent -> playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
 
     /**
      * Panel is completely expanded.

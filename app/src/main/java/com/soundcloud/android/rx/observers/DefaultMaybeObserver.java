@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.ResourceMaybeObserver;
 import io.reactivex.observers.ResourceObserver;
 
@@ -16,8 +17,13 @@ public class DefaultMaybeObserver<T> extends ResourceMaybeObserver<T> {
     }
 
     @Override
-    public void onSuccess(T object) {
-        // no-op by default.
+    public void onSuccess(@NonNull T t) {
+        // no-op
+    }
+
+    @Override
+    public void onError(@NonNull Throwable throwable) {
+        errorReporter.handleOnError(throwable);
     }
 
     @Override
@@ -25,8 +31,4 @@ public class DefaultMaybeObserver<T> extends ResourceMaybeObserver<T> {
         errorReporter.handleOnComplete();
     }
 
-    @Override
-    public void onError(Throwable throwable) {
-        errorReporter.handleOnError(throwable);
-    }
 }
