@@ -66,6 +66,7 @@
     <item quantity="one">%s valutazione</item>
     <item quantity="other">%s valutazioni</item>
   </plurals>
+  <string name="ads_learn_more">Scopri di più</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Password dimenticata?</string>
   <string name="authentication_add_info_add_image_msg">Sorridi! Questa sarà la tua immagine del profilo.</string>
@@ -144,6 +145,7 @@
   <string name="error_unauthorized_message">Si è verificato un problema con il tuo account. Effettua nuovamente l\'accesso a SoundCloud per continuare a utilizzare l\'app.</string>
   <string name="error_unauthorized_title">Errore account</string>
   <string name="error_loading_url">Si è verificato un problema durante il caricamento dell\'URL.</string>
+  <string name="error_unknown_navigation">Ops! Operazione non riuscita.</string>
   <string name="crop_image_error">Si è verificato un errore durante il ritaglio dell\'immagine.</string>
   <string name="error_server_problems_message">Si è verificato un errore durante l\'elaborazione della tua richiesta. Riprova più tardi.</string>
   <!--signup scope was revoked on server side-->
@@ -604,7 +606,6 @@
   </plurals>
   <string name="collections_your_liked_tracks">Tracce preferite</string>
   <string name="track_likes_title">Tracce preferite</string>
-  <string name="collections_tracks_header">Tracce</string>
   <string name="collections_options_header_filters">Filtri</string>
   <string name="collections_options_header_sorting">Ordine</string>
   <string name="collections_options_toggle_created">Creato</string>
@@ -636,7 +637,7 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profilo</string>
-  <string name="collections_upsell_title">Passa a SoundCloud Go</string>
+  <string name="collections_upsell_title">Ottieni SoundCloud Go</string>
   <string name="collections_upsell_body">Ascolta i tuoi preferiti, playlist e album offline e senza pubblicità</string>
   <string name="collections_recently_played_clear_action">Cancella gli ascolti recenti</string>
   <string name="collections_recently_played_clear_dialog_title">Cancellare gli ascolti recenti?</string>
@@ -693,10 +694,14 @@
   <string name="notification_username_started_following_you">ha iniziato a seguirti</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abbonati</string>
+  <string name="conversion_title_mt">Desideri ascoltare offline e senza pubblicità?</string>
   <string name="conversion_title_ht">Scopri di più con i nostri piani SoundCloud Go</string>
-  <string name="conversion_title_upgrade">Scopri di più con SoundCloud Go+</string>
+  <string name="conversion_title_upgrade">Scopri ancora di più con SoundCloud Go+</string>
+  <string name="conversion_title_ads_focus">Desideri ascoltare senza pubblicità?</string>
+  <string name="conversion_title_offline_focus">Desideri ascoltare offline?</string>
   <string name="conversion_price">%s al mese</string>
   <string name="conversion_price_promo">%1$s per %2$s</string>
+  <string name="conversion_description_mt">Ottieni oggi SoundCloud Go con ascolto offline e senza pubblicità</string>
   <string name="conversion_description_ht">Ascolto offline, nessuna pubblicità né anteprima e accesso alla più vasta libreria di tracce in streaming al mondo </string>
   <string name="conversion_description_upgrade">Sblocca tutte le anteprime e accedi a oltre 150 milioni di tracce di artisti famosi ed emergenti </string>
   <string name="conversion_buy_loading">Caricamento…</string>
@@ -704,6 +709,7 @@
   <string name="conversion_buy_no_trial">Aggiorna subito</string>
   <string name="conversion_buy_promo">Acquistalo per un periodo di tempo limitato</string>
   <string name="conversion_mt_plan">Visualizza il nostro piano da %s</string>
+  <string name="conversion_ht_plan">Desideri di più?</string>
   <string name="conversion_retry_heading">Ops... riprova</string>
   <string name="conversion_retry_message">Qualcosa è andato storto, riprova.</string>
   <string name="conversion_retry_button">Riprova</string>
@@ -1006,6 +1012,17 @@ Riavvia l\'applicazione.</string>
   <string name="suggested_creators_relation_reposted">Hai ripubblicato una loro traccia di recente</string>
   <string name="suggested_creators_relation_curated">Hai aggiunto una loro traccia a una playlist di recente</string>
   <string name="remote_signin_activity_title">Attiva</string>
-  <!--Bug report settings tile-->
+  <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Invia il rapporto bug</string>
+  <!--LIKE TO SAVE EXPERIMENT VARIANTS-->
+  <string name="btn_add_to_collection">Aggiungi alla libreria</string>
+  <string name="btn_remove_from_collection">Rimuovi dalla libreria</string>
+  <string name="accessibility_stats_user_added">Aggiunta da te</string>
+  <string name="accessibility_add_action">Aggiungi</string>
+  <string name="tab_title_user_tracks">TRACCE</string>
+  <string name="collections_tracks_header">Tracce</string>
+  <string name="track_added_title">Tracce</string>
+  <string name="collections_options_toggle_added">Aggiunta</string>
+  <string name="user_tracks_label">Tracce</string>
+  <string name="like_your_favorite_tracks_title">Metti Mi piace alle tue tracce preferite</string>
 </resources>

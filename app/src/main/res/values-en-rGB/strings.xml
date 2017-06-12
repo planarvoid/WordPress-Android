@@ -18,8 +18,6 @@
   <string name="btn_unfollow">Unfollow</string>
   <string name="btn_like">Like</string>
   <string name="btn_unlike">Unlike</string>
-  <string name="btn_add_to_collection">Add to collection</string>
-  <string name="btn_remove_from_collection">Remove from collection</string>
   <string name="btn_save">Save</string>
   <string name="email">Email</string>
   <string name="password">Password</string>
@@ -68,6 +66,7 @@
     <item quantity="one">%s rating</item>
     <item quantity="other">%s ratings</item>
   </plurals>
+  <string name="ads_learn_more">Learn More</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Forgot your password?</string>
   <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
@@ -237,9 +236,6 @@
   <string name="like_toast_overflow_action">Saved to your likes</string>
   <string name="unlike_toast_overflow_action">Removed from your likes</string>
   <string name="like_error_toast_overflow_action">Like status was not changed</string>
-  <string name="add_snackbar_overflow_action">Added to your collection</string>
-  <string name="remove_snackbar_overflow_action">Removed from your collection</string>
-  <string name="add_error_snackbar_overflow_action">Collection status was not changed</string>
   <string name="reposted_to_followers">Reposted to your followers</string>
   <string name="unposted_to_followers">Unposted</string>
   <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
@@ -612,7 +608,6 @@
   </plurals>
   <string name="collections_your_liked_tracks">Liked tracks</string>
   <string name="track_likes_title">Liked tracks</string>
-  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filters</string>
   <string name="collections_options_header_sorting">Sorting</string>
   <string name="collections_options_toggle_created">Created</string>
@@ -1017,6 +1012,17 @@
   <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
   <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
   <string name="remote_signin_activity_title">Activate</string>
-  <!--Bug report settings tile-->
+  <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Send bug report</string>
+  <!--LIKE TO SAVE EXPERIMENT VARIANTS-->
+  <string name="btn_add_to_collection">Add to collection</string>
+  <string name="btn_remove_from_collection">Remove from collection</string>
+  <string name="accessibility_stats_user_added">Added by you</string>
+  <string name="accessibility_add_action">Add</string>
+  <string name="tab_title_user_tracks">TRACKS</string>
+  <string name="collections_tracks_header">Tracks</string>
+  <string name="track_added_title">Tracks</string>
+  <string name="collections_options_toggle_added">Added</string>
+  <string name="user_tracks_label">Tracks</string>
+  <string name="like_your_favorite_tracks_title">Like your favourite tracks</string>
 </resources>

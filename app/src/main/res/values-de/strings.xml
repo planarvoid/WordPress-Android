@@ -66,6 +66,7 @@
     <item quantity="one">%s Bewertung</item>
     <item quantity="other">%s Bewertungen</item>
   </plurals>
+  <string name="ads_learn_more">Weitere Informationen</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Kennwort vergessen?</string>
   <string name="authentication_add_info_add_image_msg">Bitte lächeln!\nDieses Bild wird in deinem Profil angezeigt.</string>
@@ -144,6 +145,7 @@
   <string name="error_unauthorized_message">Es gibt ein Problem mit deinem Konto. Melde dich noch einmal bei SoundCloud an, um die App weiter zu verwenden.</string>
   <string name="error_unauthorized_title">Kontofehler</string>
   <string name="error_loading_url">Beim Laden dieser URL ist ein Problem aufgetreten.</string>
+  <string name="error_unknown_navigation">Ups, hier geht es nicht weiter.</string>
   <string name="crop_image_error">Beim Zuschneiden deines Bildes ist ein Fehler aufgetreten.</string>
   <string name="error_server_problems_message">Beim Bearbeiten deiner Anfrage ist ein Problem aufgetreten. Versuch es später noch einmal.</string>
   <!--signup scope was revoked on server side-->
@@ -604,7 +606,6 @@
   </plurals>
   <string name="collections_your_liked_tracks">Likes</string>
   <string name="track_likes_title">Likes</string>
-  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filter</string>
   <string name="collections_options_header_sorting">Sortierung</string>
   <string name="collections_options_toggle_created">Erstellt am</string>
@@ -693,10 +694,14 @@
   <string name="notification_username_started_following_you">folgt dir</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonnieren</string>
+  <string name="conversion_title_mt">Offline und ohne Werbung anhören?</string>
   <string name="conversion_title_ht">Mehr entdecken mit unseren SoundCloud Go-Abos</string>
   <string name="conversion_title_upgrade">Noch mehr entdecken mit SoundCloud Go+</string>
+  <string name="conversion_title_ads_focus">Ohne Werbung anhören?</string>
+  <string name="conversion_title_offline_focus">Offline anhören?</string>
   <string name="conversion_price">%s/Monat</string>
   <string name="conversion_price_promo">%1$s für %2$s</string>
+  <string name="conversion_description_mt">Hol dir jetzt das neue SoundCloud Go für Offline- und werbefreie Wiedergabe</string>
   <string name="conversion_description_ht">Du erhältst Zugriff auf die Offline-Wiedergabe, werbefreie Tracks in voller Länge und die größte Track-Sammlung zum Streamen auf der ganzen Welt</string>
   <string name="conversion_description_upgrade">Gib alle Vorschauen frei und erhalte Zugriff auf mehr als 150 Millionen Tracks von  aufsteigenden und bei den großen Labels etablierten Künstlern.</string>
   <string name="conversion_buy_loading">Laden…</string>
@@ -704,6 +709,7 @@
   <string name="conversion_buy_no_trial">Upgrade jetzt durchführen</string>
   <string name="conversion_buy_promo">Gilt nur für begrenzte Zeit</string>
   <string name="conversion_mt_plan">Unser %s-Abo anzeigen</string>
+  <string name="conversion_ht_plan">Suchst du noch mehr?</string>
   <string name="conversion_retry_heading">Fehler... Versuch es noch einmal</string>
   <string name="conversion_retry_message">Da ist wohl etwas schiefgegangen. Versuch es später erneut.</string>
   <string name="conversion_retry_button">Versuch es noch einmal.</string>
@@ -1004,6 +1010,17 @@
   <string name="suggested_creators_relation_reposted">Du hast kürzlich einen Track dieses Nutzers repostet.</string>
   <string name="suggested_creators_relation_curated">Du hast kürzlich einen Track dieses Nutzers zu deiner Playlist hinzugefügt.</string>
   <string name="remote_signin_activity_title">Aktivieren</string>
-  <!--Bug report settings tile-->
+  <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Fehlerbericht senden</string>
+  <!--LIKE TO SAVE EXPERIMENT VARIANTS-->
+  <string name="btn_add_to_collection">Zur Sammlung hinzufügen</string>
+  <string name="btn_remove_from_collection">Aus Sammlung entfernen</string>
+  <string name="accessibility_stats_user_added">Von dir hinzugefügt</string>
+  <string name="accessibility_add_action">Hinzufügen</string>
+  <string name="tab_title_user_tracks">TRACKS</string>
+  <string name="collections_tracks_header">Tracks</string>
+  <string name="track_added_title">Tracks</string>
+  <string name="collections_options_toggle_added">Hinzugefügt</string>
+  <string name="user_tracks_label">Tracks</string>
+  <string name="like_your_favorite_tracks_title">Markiere deine Lieblings-Tracks mit „Gefällt mir“.</string>
 </resources>

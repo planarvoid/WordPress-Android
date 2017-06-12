@@ -66,6 +66,7 @@
     <item quantity="one">%s votación</item>
     <item quantity="other">%s votaciones</item>
   </plurals>
+  <string name="ads_learn_more">Más información</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">¿Has olvidado tu contraseña?</string>
   <string name="authentication_add_info_add_image_msg">¡Sonríe! Esta imagen aparecerá en tu perfil.</string>
@@ -144,6 +145,7 @@
   <string name="error_unauthorized_message">Tenemos un problema con tu cuenta. Vuelve a iniciar sesión en SoundCloud para seguir utilizando la app.</string>
   <string name="error_unauthorized_title">Error en la cuenta</string>
   <string name="error_loading_url">Ha habido un problema al cargar la URL.</string>
+  <string name="error_unknown_navigation">Vaya, nos hemos perdido.</string>
   <string name="crop_image_error">Hubo un error al recortar la imagen.</string>
   <string name="error_server_problems_message">Ha habido un problema al procesar tu solicitud. Inténtalo de nuevo más tarde.</string>
   <!--signup scope was revoked on server side-->
@@ -604,7 +606,6 @@
   </plurals>
   <string name="collections_your_liked_tracks">Pistas que te gustan</string>
   <string name="track_likes_title">Pistas que te gustan</string>
-  <string name="collections_tracks_header">Pistas</string>
   <string name="collections_options_header_filters">Filtros</string>
   <string name="collections_options_header_sorting">Ordenar</string>
   <string name="collections_options_toggle_created">Creado</string>
@@ -693,10 +694,14 @@
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Suscribirse</string>
+  <string name="conversion_title_mt">¿Quieres escuchar música sin conexión y sin anuncios?</string>
   <string name="conversion_title_ht">Descubre más con nuestros planes SoundCloud Go</string>
   <string name="conversion_title_upgrade">Descubre todavía más con SoundCloud Go+</string>
+  <string name="conversion_title_ads_focus">¿Quieres escuchar música sin anuncios?</string>
+  <string name="conversion_title_offline_focus">¿Quieres escuchar música sin conexión?</string>
   <string name="conversion_price">%s / mes</string>
   <string name="conversion_price_promo">%1$s por %2$s</string>
+  <string name="conversion_description_mt">Hazte con el nuevo SoundCloudGo hoy mismo - sin conexión y sin anuncios</string>
   <string name="conversion_description_ht">Hazte con la mayor colección de pistas en streaming del planeta, sin conexión, sin anuncios y sin vistas previas</string>
   <string name="conversion_description_upgrade">Desbloquea todas las vistas previas y accede a más de 150 millones de pistas de artistas emergentes y grandes discográficas</string>
   <string name="conversion_buy_loading">Cargando…</string>
@@ -704,6 +709,7 @@
   <string name="conversion_buy_no_trial">Mejorar la cuenta</string>
   <string name="conversion_buy_promo">Hazte con ello por tiempo limitado</string>
   <string name="conversion_mt_plan">Ver nuestro plan de %s</string>
+  <string name="conversion_ht_plan">¿Quieres más?</string>
   <string name="conversion_retry_heading">Vaya... Inténtalo de nuevo</string>
   <string name="conversion_retry_message">Parece que algo ha ido mal. Inténtalo de nuevo.</string>
   <string name="conversion_retry_button">Inténtalo de nuevo</string>
@@ -1004,6 +1010,17 @@
   <string name="suggested_creators_relation_reposted">Hace poco reposteaste su pista</string>
   <string name="suggested_creators_relation_curated">Hace poco añadiste su pista a una lista</string>
   <string name="remote_signin_activity_title">Activar</string>
-  <!--Bug report settings tile-->
+  <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Notificar error</string>
+  <!--LIKE TO SAVE EXPERIMENT VARIANTS-->
+  <string name="btn_add_to_collection">Añadir a la colección</string>
+  <string name="btn_remove_from_collection">Eliminar de la colección</string>
+  <string name="accessibility_stats_user_added">Añadido por ti</string>
+  <string name="accessibility_add_action">Añadir</string>
+  <string name="tab_title_user_tracks">PISTAS</string>
+  <string name="collections_tracks_header">Pistas</string>
+  <string name="track_added_title">Pistas</string>
+  <string name="collections_options_toggle_added">Añadido</string>
+  <string name="user_tracks_label">Pistas</string>
+  <string name="like_your_favorite_tracks_title">Dale a Me gusta en tus pistas favoritas</string>
 </resources>

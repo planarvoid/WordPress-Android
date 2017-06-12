@@ -66,6 +66,9 @@
     <item quantity="one">%s beoordeling</item>
     <item quantity="other">%s beoordelingen</item>
   </plurals>
+  <string name="ads_watch_now">Nu kijken</string>
+  <string name="ads_no_thanks">Nee, bedankt</string>
+  <string name="ads_learn_more">Meer informatie</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Wachtwoord vergeten?</string>
   <string name="authentication_add_info_add_image_msg">Cheese! Deze foto komt in je profiel te staan.</string>
@@ -144,6 +147,7 @@
   <string name="error_unauthorized_message">Er is een probleem met je account. Log opnieuw in bij SoundCloud om de app te gebruiken.</string>
   <string name="error_unauthorized_title">Fout in account</string>
   <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van de URL.</string>
+  <string name="error_unknown_navigation">Oeps, we zijn de weg kwijt.</string>
   <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van jouw afbeelding.</string>
   <string name="error_server_problems_message">Er is een probleem opgetreden bij het verwerken van je aanvraag. Probeer het zo nog eens.</string>
   <!--signup scope was revoked on server side-->
@@ -604,7 +608,6 @@
   </plurals>
   <string name="collections_your_liked_tracks">Gelikete tracks</string>
   <string name="track_likes_title">Gelikete tracks</string>
-  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filters</string>
   <string name="collections_options_header_sorting">Sorteren</string>
   <string name="collections_options_toggle_created">Aangemaakt</string>
@@ -693,10 +696,14 @@
   <string name="notification_username_started_following_you">is begonnen je te volgen</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
+  <string name="conversion_title_mt">Wil je offline en reclamevrij luisteren?</string>
   <string name="conversion_title_ht">Ontdek meer met onze SoundCloud Go-abonnementen</string>
   <string name="conversion_title_upgrade">Ontdek nog meer met SoundCloud Go+</string>
+  <string name="conversion_title_ads_focus">Wil je reclamevrij luisteren?</string>
+  <string name="conversion_title_offline_focus">Wil je offline luisteren?</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
+  <string name="conversion_description_mt">Krijg het nieuwe SoundCloud Go vandaag met offline en reclamevrij luisteren</string>
   <string name="conversion_description_ht">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie streamingtracks ter wereld</string>
   <string name="conversion_description_upgrade">Ontgrendel alle previews en krijg toegang tot meer dan 150 miljoen tracks van zowel aanstormende artiesten als grote namen</string>
   <string name="conversion_buy_loading">Laden…</string>
@@ -704,6 +711,7 @@
   <string name="conversion_buy_no_trial">Upgrade nu</string>
   <string name="conversion_buy_promo">Profiteer van deze tijdelijke aanbieding</string>
   <string name="conversion_mt_plan">Bekijk ons %s-abonnement</string>
+  <string name="conversion_ht_plan">Wil je nog meer?</string>
   <string name="conversion_retry_heading">Oeps... probeer het nog eens</string>
   <string name="conversion_retry_message">Zo te zien is er iets misgegaan. Probeer het opnieuw.</string>
   <string name="conversion_retry_button">Opnieuw proberen</string>
@@ -1004,6 +1012,17 @@
   <string name="suggested_creators_relation_reposted">Je hebt onlangs een track van deze artiest gerepost</string>
   <string name="suggested_creators_relation_curated">Je hebt deze artiest onlangs toegevoegd in een afspeellijst</string>
   <string name="remote_signin_activity_title">Activeren</string>
-  <!--Bug report settings tile-->
+  <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">bugrapport versturen</string>
+  <!--LIKE TO SAVE EXPERIMENT VARIANTS-->
+  <string name="btn_add_to_collection">Toevoegen aan verzameling</string>
+  <string name="btn_remove_from_collection">Verwijderen uit verzameling</string>
+  <string name="accessibility_stats_user_added">Toegevoegd door jou</string>
+  <string name="accessibility_add_action">Toevoegen</string>
+  <string name="tab_title_user_tracks">TRACKS</string>
+  <string name="collections_tracks_header">Tracks</string>
+  <string name="track_added_title">Tracks</string>
+  <string name="collections_options_toggle_added">Toegevoegd</string>
+  <string name="user_tracks_label">Tracks</string>
+  <string name="like_your_favorite_tracks_title">Like je favoriete tracks</string>
 </resources>
