@@ -512,7 +512,6 @@
   <string name="stations_tracks_in_this_station">Tracks in this station</string>
   <string name="stations_see_all_tracks">See all tracks</string>
   <string name="suggested_stations">Suggested stations</string>
-  <string name="stations_home_station_based_on">%s based on</string>
   <string name="stations_home_description">An endless mix of music including %1$s and more</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -924,11 +923,6 @@
   <string name="upsell_track_preview">Preview</string>
   <string name="upsell_track_geo_blocked">Not available in your country</string>
   <string name="upsell_not_avaliable">Not available</string>
-  <!--__STATIONS-->
-  <string name="station_type_track">Track station</string>
-  <string name="station_type_genre">Genre station</string>
-  <string name="station_type_curator">Curator station</string>
-  <string name="station_type_artist">Artist station</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
   <!--__PLAYER-->

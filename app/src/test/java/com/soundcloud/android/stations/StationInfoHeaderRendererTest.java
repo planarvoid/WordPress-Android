@@ -44,6 +44,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
     private View itemView;
     private StationInfoHeaderRenderer renderer;
     private Urn station = Urn.forTrackStation(123L);
+    private Urn artist = Urn.forArtistStation(1L);
 
     @Before
     public void setUp() throws Exception {
@@ -60,6 +61,16 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
         assertThat(textView(R.id.station_title)).hasText(stationInfoHeader.getTitle());
         assertThat(textView(R.id.station_type)).hasText("Track station based on");
+    }
+
+    @Test
+    public void bindArtistInfo() throws Exception {
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(artist));
+
+        renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
+
+        assertThat(textView(R.id.station_title)).hasText(stationInfoHeader.getTitle());
+        assertThat(textView(R.id.station_type)).hasText("Artist station based on");
     }
 
     @Test

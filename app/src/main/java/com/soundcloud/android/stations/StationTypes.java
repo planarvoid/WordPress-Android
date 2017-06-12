@@ -14,15 +14,16 @@ final class StationTypes {
     static String getHumanReadableType(Resources resources, String type) {
         switch (type) {
             case StationTypes.TRACK:
-                return resources.getString(R.string.station_type_track);
+                return resources.getString(R.string.stations_home_station_based_on_track);
             case StationTypes.GENRE:
-                return resources.getString(R.string.station_type_genre);
+                return resources.getString(R.string.stations_home_station_based_on_genre);
             case StationTypes.CURATOR:
-                return resources.getString(R.string.station_type_curator);
+                return resources.getString(R.string.stations_home_station_based_on_curator);
             case StationTypes.ARTIST:
-                return resources.getString(R.string.station_type_artist);
+                return resources.getString(R.string.stations_home_station_based_on_artist);
             default:
                 return Strings.EMPTY;
         }
     }
+
 }

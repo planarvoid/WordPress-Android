@@ -504,7 +504,6 @@
   <string name="stations_tracks_in_this_station">Tracks dieses Senders</string>
   <string name="stations_see_all_tracks">Alle Tracks anzeigen</string>
   <string name="suggested_stations">Vorgeschlagene Sender</string>
-  <string name="stations_home_station_based_on">%s, basierend auf</string>
   <string name="stations_home_description">Eine Endlosschleife mit Musik von %1$s und vielen mehr</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d Sek.</string>
@@ -911,11 +910,6 @@
   <string name="upsell_track_preview">Vorschau</string>
   <string name="upsell_track_geo_blocked">In deinem Land nicht verfügbar</string>
   <string name="upsell_not_avaliable">Nicht verfügbar</string>
-  <!--__STATIONS-->
-  <string name="station_type_track">Track-Sender</string>
-  <string name="station_type_genre">Genre-Sender</string>
-  <string name="station_type_curator">Kuratoren-Sender</string>
-  <string name="station_type_artist">Interpreten-Sender</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Wegen Wiedergabe auf einem anderen Gerät angehalten</string>
   <!--__PLAYER-->

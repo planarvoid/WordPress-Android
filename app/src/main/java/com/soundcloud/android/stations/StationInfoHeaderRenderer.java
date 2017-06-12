@@ -93,9 +93,7 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
     }
 
     private void bindTextViews(StationInfoHeader info, View itemView) {
-        ButterKnife.<TextView>findById(itemView, R.id.station_type)
-                .setText(resources.getString(R.string.stations_home_station_based_on,
-                                             getHumanReadableType(resources, info.getType())));
+        ButterKnife.<TextView>findById(itemView, R.id.station_type).setText(getHumanReadableType(resources, info.getType()));
         ButterKnife.<TextView>findById(itemView, R.id.station_title).setText(info.getTitle());
 
         final List<String> mostPlayedArtists = info.getMostPlayedArtists();

@@ -509,7 +509,6 @@
   <string name="stations_tracks_in_this_station">Titres de cette station</string>
   <string name="stations_see_all_tracks">Voir tous les titres</string>
   <string name="suggested_stations">Stations suggérées</string>
-  <string name="stations_home_station_based_on">%s basé sur</string>
   <string name="stations_home_description">Un mix de musique infini avec %1$s et bien d\'autres</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
@@ -916,11 +915,6 @@
   <string name="upsell_track_preview">Aperçu</string>
   <string name="upsell_track_geo_blocked">Non disponible dans votre pays</string>
   <string name="upsell_not_avaliable">Non disponible</string>
-  <!--__STATIONS-->
-  <string name="station_type_track">Station du titre</string>
-  <string name="station_type_genre">Station par genre</string>
-  <string name="station_type_curator">Station de curateur</string>
-  <string name="station_type_artist">Station de l\'artiste</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Mis en pause car vous avez commencé la lecture sur un autre appareil</string>
   <!--__PLAYER-->

@@ -504,7 +504,6 @@
   <string name="stations_tracks_in_this_station">Tracks op deze zender</string>
   <string name="stations_see_all_tracks">Alle tracks weergeven</string>
   <string name="suggested_stations">Voorgestelde zenders</string>
-  <string name="stations_home_station_based_on">%s op basis van</string>
   <string name="stations_home_description">Een eindeloze mix van muziek inclusief %1$s en anderen</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -911,11 +910,6 @@
   <string name="upsell_track_preview">Voorbeeld</string>
   <string name="upsell_track_geo_blocked">Niet beschikbaar in jouw land</string>
   <string name="upsell_not_avaliable">Niet beschikbaar</string>
-  <!--__STATIONS-->
-  <string name="station_type_track">Trackzender</string>
-  <string name="station_type_genre">Genrezender</string>
-  <string name="station_type_curator">Curatorzender</string>
-  <string name="station_type_artist">Artiestenzender</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Gepauzeerd omdat je op een ander apparaat bent begonnen met afspelen</string>
   <!--__PLAYER-->

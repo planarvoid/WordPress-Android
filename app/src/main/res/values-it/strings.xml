@@ -504,7 +504,6 @@
   <string name="stations_tracks_in_this_station">Tracce in questa stazione</string>
   <string name="stations_see_all_tracks">Visualizza tutte le tracce</string>
   <string name="suggested_stations">Stazioni consigliate</string>
-  <string name="stations_home_station_based_on">%s basata su</string>
   <string name="stations_home_description">Un mix infinito di musica tra cui %1$s e altri ancora</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -913,11 +912,6 @@ Riavvia l\'applicazione.</string>
   <string name="upsell_track_preview">Anteprima</string>
   <string name="upsell_track_geo_blocked">Non disponibile nel tuo paese</string>
   <string name="upsell_not_avaliable">Non disponibile</string>
-  <!--__STATIONS-->
-  <string name="station_type_track">Stazione traccia</string>
-  <string name="station_type_genre">Stazione genere</string>
-  <string name="station_type_curator">Stazione curatore</string>
-  <string name="station_type_artist">Stazione artista</string>
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">In pausa perché ascolti da un altro dispositivo</string>
   <!--__PLAYER-->
