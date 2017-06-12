@@ -71,7 +71,7 @@ public class ExperimentOperations {
     public Optional<String> getSerializedActiveVariants() {
         final List<Integer> activeVariants = new ArrayList<>();
         for (Layer layer : assignment.getLayers()) {
-            if (isActive(layer)) {
+            if (isActive()) {
                 activeVariants.add(layer.getVariantId());
             }
         }
@@ -82,15 +82,8 @@ public class ExperimentOperations {
         }
     }
 
-    private boolean isActive(Layer layer) {
-        if (!applicationProperties.isDevelopmentMode()) {
-            for (ExperimentConfiguration experiment : experimentStorage.getActiveExperiments()) {
-                if (matches(experiment, layer)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean isActive() {
+        return !applicationProperties.isDevelopmentMode();
     }
 
     @VisibleForTesting

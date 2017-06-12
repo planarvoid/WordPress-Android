@@ -174,10 +174,8 @@ public class ExperimentOperationsTest {
     @Test
     public void getActiveVariantsSingle() throws Exception {
         final Layer layer = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern(LAYER_NAME, EXPERIMENT_PATTERN);
 
         when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer));
-        when(experimentStorage.getActiveExperiments()).thenReturn(Lists.newArrayList(configuration));
 
         final Optional<String> activeVariants = operations.getSerializedActiveVariants();
 
@@ -188,14 +186,25 @@ public class ExperimentOperationsTest {
     public void getActiveVariantsMany() throws Exception {
         final Layer layer1 = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
         final Layer layer2 = new Layer(LAYER_NAME, 2, EXPERIMENT_2, VARIANT_ID_2, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern(LAYER_NAME, EXPERIMENT_PATTERN);
 
         when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer1, layer2));
-        when(experimentStorage.getActiveExperiments()).thenReturn(Lists.newArrayList(configuration));
 
         final Optional<String> activeVariants = operations.getSerializedActiveVariants();
 
         assertThat(activeVariants.get()).isEqualTo(MULTIPLE_SERIALIZED_VARIANT_IDS);
+    }
+
+    @Test
+    public void noActiveVariantsWhenDeveloperMode() throws Exception {
+        final Layer layer1 = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
+        final Layer layer2 = new Layer(LAYER_NAME, 2, EXPERIMENT_2, VARIANT_ID_2, VARIANT_0);
+
+        when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer1, layer2));
+        when(applicationProperties.isDevelopmentMode()).thenReturn(true);
+
+        final Optional<String> activeVariants = operations.getSerializedActiveVariants();
+
+        assertThat(activeVariants).isEqualTo(Optional.absent());
     }
 
     private Assignment createAssignment(String layerName) {

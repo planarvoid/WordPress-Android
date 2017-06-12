@@ -4,10 +4,8 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.experiments.ActiveExperiments;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.groupie.ExperimentConfiguration;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.java.strings.Strings;
 import org.json.JSONArray;
@@ -48,10 +46,6 @@ class ExperimentStorage {
 
     Assignment readAssignment() {
         return file.exists() ? readAssignmentFile() : Assignment.empty();
-    }
-
-    List<ExperimentConfiguration> getActiveExperiments() {
-        return ActiveExperiments.ACTIVE_EXPERIMENTS;
     }
 
     private Assignment readAssignmentFile() {
