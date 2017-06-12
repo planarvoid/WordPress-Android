@@ -5,6 +5,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
+import io.reactivex.Maybe;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -25,6 +26,10 @@ public class TrackItemRepository {
 
     public Observable<TrackItem> track(final Urn trackUrn) {
         return RxJava.toV1Observable(trackRepository.track(trackUrn)).map(entityItemCreator::trackItem);
+    }
+
+    public Maybe<TrackItem> trackV2(final Urn trackUrn) {
+        return trackRepository.track(trackUrn).map(entityItemCreator::trackItem);
     }
 
     public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {

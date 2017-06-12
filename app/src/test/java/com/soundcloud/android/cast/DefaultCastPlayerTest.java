@@ -32,13 +32,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.functions.Action2;
-import rx.observers.TestObserver;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -266,8 +266,8 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
         castPlayer.setNewQueue(TestPlayQueue.fromUrns(singletonList(TRACK_URN1), PlaySessionSource.EMPTY), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
+        observer.assertValueCount(1);
+        observer.assertValue(PlaybackResult::isSuccess);
     }
 
     @Test
@@ -276,8 +276,8 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
         castPlayer.setNewQueue(TestPlayQueue.fromUrns(urns, PlaySessionSource.EMPTY), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isTrue();
+        observer.assertValueCount(1);
+        observer.assertValue(PlaybackResult::isSuccess);
     }
 
     @Test

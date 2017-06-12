@@ -2,7 +2,8 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
-import rx.Observable;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 
 public class CastPlaybackStrategy implements PlaybackStrategy {
 
@@ -35,21 +36,19 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public Observable<Void> playCurrent() {
+    public Completable playCurrent() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isPlayable()) {
             castPlayer.playCurrent();
-            return Observable.just(null);
-        } else {
-            return Observable.empty();
         }
+        return Completable.complete();
     }
 
     @Override
-    public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
-                                                  Urn initialTrackUrn,
-                                                  int initialTrackPosition,
-                                                  PlaySessionSource playSessionSource) {
+    public Single<PlaybackResult> setNewQueue(final PlayQueue playQueue,
+                                              Urn initialTrackUrn,
+                                              int initialTrackPosition,
+                                              PlaySessionSource playSessionSource) {
         return castPlayer.setNewQueue(playQueue, initialTrackUrn, playSessionSource);
     }
 

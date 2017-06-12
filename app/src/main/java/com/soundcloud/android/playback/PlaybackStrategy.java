@@ -1,7 +1,8 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
-import rx.Observable;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 
 public interface PlaybackStrategy {
 
@@ -13,12 +14,12 @@ public interface PlaybackStrategy {
 
     void fadeAndPause();
 
-    Observable<Void> playCurrent();
+    Completable playCurrent();
 
-    Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
-                                           Urn initialTrackUrn,
-                                           int initialTrackPosition,
-                                           PlaySessionSource playSessionSource);
+    Single<PlaybackResult> setNewQueue(final PlayQueue playQueue,
+                                       Urn initialTrackUrn,
+                                       int initialTrackPosition,
+                                       PlaySessionSource playSessionSource);
 
     void seek(long position);
 

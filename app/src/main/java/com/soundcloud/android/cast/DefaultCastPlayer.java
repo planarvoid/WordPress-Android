@@ -19,8 +19,8 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.support.annotation.NonNull;
 
@@ -137,10 +137,10 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
-                                                  final Urn initialTrackUrn,
-                                                  final PlaySessionSource playSessionSource) {
-        return Observable.fromCallable(() -> {
+    public Single<PlaybackResult> setNewQueue(final PlayQueue playQueue,
+                                              final Urn initialTrackUrn,
+                                              final PlaySessionSource playSessionSource) {
+        return Single.fromCallable(() -> {
             playStateReporter.reportPlayingReset(initialTrackUrn);
             PlayQueue slicedPlayQueue = queueSlicer.slice(playQueue.getTrackItemUrns(), playQueue.getTrackItemUrns().indexOf(initialTrackUrn));
             playQueueManager.setNewPlayQueue(slicedPlayQueue, playSessionSource, correctStartPosition(slicedPlayQueue, 0, initialTrackUrn, playSessionSource));

@@ -28,6 +28,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -312,8 +313,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(playSessionController.playNewQueue(any(PlayQueue.class),
                                                 any(Urn.class),
                                                 anyInt(),
-                                                any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult
-                                                                                                                  .success()));
+                                                any(PlaySessionSource.class))).thenReturn(Single.just(PlaybackResult.success()));
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
                 Screen.MUSIC_TOP_50.get(), Urn.forPlaylist(1234), Urn.forUser(1), trackUrns.size());
@@ -487,7 +487,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                 any(Urn.class),
                                                 anyInt(),
                                                 any(PlaySessionSource.class)))
-                .thenReturn(Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, currentTrackUrn, 0)
                          .subscribe(observer);
 
@@ -505,7 +505,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                 any(Urn.class),
                                                 anyInt(),
                                                 any(PlaySessionSource.class)))
-                .thenReturn(Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSource, Urn.NOT_SET, 0)
                          .subscribe(observer);
@@ -593,7 +593,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                 any(Urn.class),
                                                 anyInt(),
                                                 any(PlaySessionSource.class)))
-                .thenReturn(Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), PlaySessionSource.EMPTY, Urn.NOT_SET, 0).subscribe();
 

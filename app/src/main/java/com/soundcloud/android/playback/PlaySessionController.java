@@ -6,9 +6,9 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPP
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -22,13 +22,17 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -59,7 +63,7 @@ public class PlaySessionController {
     private final PlaybackServiceController playbackServiceController;
     private final PlaybackProgressRepository playbackProgressRepository;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = Disposables.disposed();
 
     @Inject
     public PlaySessionController(EventBus eventBus,
@@ -92,10 +96,10 @@ public class PlaySessionController {
 
     public void reloadQueueAndShowPlayerIfEmpty() {
         if (playQueueManager.isQueueEmpty()) {
-            subscription.unsubscribe();
-            subscription = playQueueManager.loadPlayQueueAsync()
-                                           .doOnNext(playQueue -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer()))
-                                           .subscribe(new DefaultSubscriber<>());
+            disposable.dispose();
+            disposable = RxJava.toV2Observable(playQueueManager.loadPlayQueueAsync()
+                                                               .doOnNext(playQueue -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer())))
+                               .subscribeWith(new DefaultObserver<>());
         }
     }
 
@@ -209,17 +213,17 @@ public class PlaySessionController {
         }
     }
 
-    public Observable<PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,
-                                                   PlaySessionSource playSessionSource) {
+    public Single<PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,
+                                               PlaySessionSource playSessionSource) {
         if (playQueue.isEmpty()) {
-            return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
+            return Single.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
         } else if (shouldDisableSkipping()) {
-            return Observable.just(PlaybackResult.error(UNSKIPPABLE));
+            return Single.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return playbackStrategyProvider.get()
                                            .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
-                                           .doOnSubscribe(() -> subscription.unsubscribe())
-                                           .doOnNext(playbackResult -> playCurrent());
+                                           .doOnSubscribe(__ -> disposable.dispose())
+                                           .doOnSuccess(playbackResult -> playCurrent());
         }
     }
 
@@ -233,12 +237,22 @@ public class PlaySessionController {
     }
 
     void playCurrent() {
-        subscription.unsubscribe();
-        Observable<Void> playCurrentObservable = playQueueManager.isQueueEmpty()
-                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(playQueueItems -> playbackStrategyProvider.get().playCurrent())
-                                                 : playbackStrategyProvider.get().playCurrent();
+        disposable.dispose();
+        Completable playCurrentObservable = playQueueManager.isQueueEmpty()
+                                            ? RxJava.toV2Observable(playQueueManager.loadPlayQueueAsync()).flatMapCompletable(playQueueItems -> playbackStrategyProvider.get().playCurrent())
+                                            : playbackStrategyProvider.get().playCurrent();
 
-        subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
+        disposable = playCurrentObservable.subscribeWith(new DefaultDisposableCompletableObserver() {
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof BlockedTrackException) {
+                    pause();
+                    Log.e(TAG, "Not playing blocked track", e);
+                } else {
+                    super.onError(e);
+                }
+            }
+        });
     }
 
     public void resetPlaySession() {
@@ -279,17 +293,5 @@ public class PlaySessionController {
                     && (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem));
         }
 
-    }
-
-    private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
-        @Override
-        public void onError(Throwable e) {
-            if (e instanceof BlockedTrackException) {
-                pause();
-                Log.e(TAG, "Not playing blocked track", e);
-            } else {
-                super.onError(e);
-            }
-        }
     }
 }

@@ -259,7 +259,7 @@ public class ApplicationModule {
                                                     Lazy<CastPlayer> castPlayer,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
-                                                    EventBus eventBus,
+                                                    EventBusV2 eventBus,
                                                     OfflineSettingsStorage offlineSettingsStorage,
                                                     FeedbackController feedbackController) {
         if (castConnectionHelper.isCasting()) {

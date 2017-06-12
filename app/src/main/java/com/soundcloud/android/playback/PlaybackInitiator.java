@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
@@ -104,7 +105,7 @@ public class PlaybackInitiator {
                 }
             }
 
-            return playSessionController.playNewQueue(playQueue, urnOfFirstPlayable, positionOfFirstPlayable, playSessionSource);
+            return RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, urnOfFirstPlayable, positionOfFirstPlayable, playSessionSource));
         };
     }
 
@@ -133,8 +134,8 @@ public class PlaybackInitiator {
 
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, playSessionSource);
 
-        return playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
-                                    .doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource));
+        return RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
+                                                          .doOnSubscribe(__ -> startMeasuringPlaybackStarted(playSessionSource)));
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> allTracks, final PlaySessionSource playSessionSource) {
@@ -143,7 +144,7 @@ public class PlaybackInitiator {
                             PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns);
                             return ShuffledPlayQueue.from(playQueue, 0, playQueue.size());
                         })
-                        .flatMap(playQueue -> playSessionController.playNewQueue(playQueue, playQueue.getUrn(0), 0, playSessionSource))
+                        .flatMap(playQueue -> RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, playQueue.getUrn(0), 0, playSessionSource)))
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
