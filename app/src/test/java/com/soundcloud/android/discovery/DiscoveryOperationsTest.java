@@ -48,6 +48,8 @@ public class DiscoveryOperationsTest {
                                                               Optional.absent(),
                                                               Optional.absent(),
                                                               Optional.absent(),
+                                                              Optional.absent(),
+                                                              Optional.absent(),
                                                               Collections.singletonList(selectionItem));
 
     private final List<DiscoveryCard> discoveryCards = Lists.newArrayList(multiCard);

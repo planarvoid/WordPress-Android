@@ -195,7 +195,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                                                          .pageName(screen)
                                                                          .attributingActivity(AttributingActivity.fromPlayableItem(
                                                                                  item))
-                                                                         .clickSource(clickSource);
+                                                                         .source(clickSource);
 
         if (module.isPresent()) {
             builder.module(module.get());

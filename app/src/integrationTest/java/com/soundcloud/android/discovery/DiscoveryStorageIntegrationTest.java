@@ -10,6 +10,7 @@ import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.observers.TestObserver;
 import org.junit.After;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
     private static final String WEB_LINK = "subtitle";
     private static final String APP_LINK = "subtitle";
     private static final Urn SELECTION_URN = Urn.forSystemPlaylist("1");
+    private static final Urn PARENT_QUERY_URN = new Urn("soundcloud:discovery:123");
     private DiscoveryReadableStorage discoveryReadableStorage;
     private DiscoveryWritableStorage discoveryWritableStorage;
 
@@ -70,7 +72,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
     @Test
     public void insertAndReadDiscoveryCard() throws Exception {
-        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2));
+        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2), Optional.of(PARENT_QUERY_URN));
         final List<DiscoveryCard> discoveryCards = discoveryReadableStorage.discoveryCards().test().assertValueCount(1).values().get(0);
 
         assertThat(discoveryCards).hasSize(2);
@@ -81,12 +83,12 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
     @Test
     public void insertAndReadDiscoveryCardFromLiveObservable() throws Exception {
-        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(1));
+        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(1), Optional.of(PARENT_QUERY_URN));
         final TestObserver<List<DiscoveryCard>> test = discoveryReadableStorage.liveDiscoveryCards().test();
 
         test.awaitCount(1);
         test.assertValueCount(1);
-        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2));
+        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2), Optional.of(PARENT_QUERY_URN));
         test.awaitCount(2);
         test.assertValueCount(2);
     }

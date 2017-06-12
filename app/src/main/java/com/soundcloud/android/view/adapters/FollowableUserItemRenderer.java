@@ -69,6 +69,6 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
         return EventContextMetadata.builder()
                                    .module(Module.create(screen, position))
                                    .pageName(screen)
-                                   .clickSource(clickSource).build();
+                                   .source(clickSource).build();
     }
 }

@@ -18,6 +18,7 @@ public class ApiSingleContentSelectionCardTest {
     private static final String STYLE = "go_plus";
     private static final String TITLE = "New Release from Little Simz";
     private static final String DESCRIPTION = "Stillness In Wonderland";
+    private static final String TRACKING_FEATURE_NAME = "playlist-discovery";
     private static final String AVATAR_URL = "https://i1.sndcdn.com/artworks-000136596659-7rdy0i-{size}.jpg";
     static final String JSON = "{\n" +
             "        \"selection_urn\": \"" + SELECTION_URN + "\",\n" +
@@ -25,6 +26,7 @@ public class ApiSingleContentSelectionCardTest {
             "        \"style\": \"" + STYLE + "\",\n" +
             "        \"title\": \"" + TITLE + "\",\n" +
             "        \"description\": \"" + DESCRIPTION + "\",\n" +
+            "        \"tracking_feature_name\": \"" + TRACKING_FEATURE_NAME + "\",\n" +
             "        \"selection_item\": " + ApiSelectionItemTest.JSON + ",\n" +
             "        \"social_proof_avatar_url_templates\": [\"" + AVATAR_URL + "\"]\n" +
             "      }";
@@ -34,6 +36,7 @@ public class ApiSingleContentSelectionCardTest {
                                                                                                                              TITLE,
                                                                                                                              DESCRIPTION,
                                                                                                                              null,
+                                                                                                                             TRACKING_FEATURE_NAME,
                                                                                                                              ApiSelectionItemTest.EXPECTED_PLAYLIST,
                                                                                                                              Lists.newArrayList(AVATAR_URL));
     private final JsonTransformer jsonTransformer = new JacksonJsonTransformer();

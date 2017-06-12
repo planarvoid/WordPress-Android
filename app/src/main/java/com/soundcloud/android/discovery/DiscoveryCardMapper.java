@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 final class DiscoveryCardMapper {
 
@@ -8,15 +9,17 @@ final class DiscoveryCardMapper {
         // not used
     }
 
-    static DiscoveryCard map(ApiDiscoveryCard apiDiscoveryCard) {
+    static DiscoveryCard map(ApiDiscoveryCard apiDiscoveryCard, Optional<Urn> pageQueryUrn) {
         if (apiDiscoveryCard.multipleContentSelectionCard().isPresent()) {
             final ApiMultipleContentSelectionCard apiMultipleContentSelectionCard = apiDiscoveryCard.multipleContentSelectionCard().get();
             final Urn selectionUrn = apiMultipleContentSelectionCard.selectionUrn();
             return DiscoveryCard.MultipleContentSelectionCard.create(selectionUrn,
                                                                      apiMultipleContentSelectionCard.selectionItems().getQueryUrn(),
+                                                                     pageQueryUrn,
                                                                      apiMultipleContentSelectionCard.style(),
                                                                      apiMultipleContentSelectionCard.title(),
                                                                      apiMultipleContentSelectionCard.description(),
+                                                                     apiMultipleContentSelectionCard.trackingFeatureName(),
                                                                      apiMultipleContentSelectionCard.selectionItems()
                                                                                                     .transform(item -> DiscoveryCardMapper.map(selectionUrn, item))
                                                                                                     .getCollection());
@@ -25,9 +28,11 @@ final class DiscoveryCardMapper {
             final Urn selectionUrn = apiSingleContentSelectionCard.selectionUrn();
             return DiscoveryCard.SingleContentSelectionCard.create(selectionUrn,
                                                                    apiSingleContentSelectionCard.queryUrn(),
+                                                                   pageQueryUrn,
                                                                    apiSingleContentSelectionCard.style(),
                                                                    apiSingleContentSelectionCard.title(),
                                                                    apiSingleContentSelectionCard.description(),
+                                                                   apiSingleContentSelectionCard.trackingFeatureName(),
                                                                    map(selectionUrn, apiSingleContentSelectionCard.selectionItem()),
                                                                    apiSingleContentSelectionCard.socialProof(),
                                                                    apiSingleContentSelectionCard.socialProofAvatarUrlTemplates());

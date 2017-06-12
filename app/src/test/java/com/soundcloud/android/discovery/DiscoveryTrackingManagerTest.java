@@ -14,9 +14,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,12 +41,15 @@ public class DiscoveryTrackingManagerTest {
         discoveryTrackingManager.trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
-        builder.clickSource(Optional.of(SINGLE_CONTENT_SELECTION_CARD.selectionUrn().toString()));
-        builder.pageName(SCREEN.name());
-        builder.queryPosition(Optional.of(1));
-        builder.queryUrn(QUERY_URN);
+        builder.source(SINGLE_CONTENT_SELECTION_CARD.trackingFeatureName());
+        builder.sourceUrn(SINGLE_CONTENT_SELECTION_CARD.selectionUrn());
+        builder.sourceQueryUrn(SINGLE_CONTENT_SELECTION_CARD.queryUrn());
+        builder.sourceQueryPosition(0);
+        builder.pageName(SCREEN.get());
+        builder.queryPosition(1);
+        builder.queryUrn(SINGLE_CONTENT_SELECTION_CARD.parentQueryUrn());
 
-        verify(eventTracker).trackNavigation(eq(UIEvent.fromNavigation(SINGLE_CONTENT_SELECTION_CARD.selectionUrn(), builder.build())));
+        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(SINGLE_CONTENT_SELECTION_CARD.selectionUrn(), builder.build())));
     }
 
     @Test
@@ -58,12 +59,15 @@ public class DiscoveryTrackingManagerTest {
         discoveryTrackingManager.trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
-        builder.clickSource(MULTI_SELECTION_ITEM.urn().transform(Urn::toString));
-        builder.pageName(SCREEN.name());
-        builder.queryPosition(Optional.of(2));
+        builder.source(MULTI_CONTENT_SELECTION_CARD.trackingFeatureName());
+        builder.sourceUrn(MULTI_SELECTION_ITEM.urn());
+        builder.sourceQueryUrn(MULTI_CONTENT_SELECTION_CARD.parentQueryUrn());
+        builder.sourceQueryPosition(0);
+        builder.pageName(SCREEN.get());
+        builder.queryPosition(2);
         builder.queryUrn(QUERY_URN);
         builder.module(Module.create(MULTI_CONTENT_SELECTION_CARD.selectionUrn().toString(), 0));
 
-        verify(eventTracker).trackNavigation(eq(UIEvent.fromNavigation(MULTI_SELECTION_ITEM.urn().get(), builder.build())));
+        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(MULTI_SELECTION_ITEM.urn().get(), builder.build())));
     }
 }

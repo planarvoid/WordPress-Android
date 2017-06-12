@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ApiDiscoveryCardTest {
 
+    static final Urn PARENT_QUERY_URN = new Urn("soundcloud:discovery:123");
     static final ApiDiscoveryCard EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD = ApiDiscoveryCard.create(null, ApiMultipleContentSelectionCardTest.EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD);
     static final ApiDiscoveryCard EXPECTED_SINGLE_CONTENT_SELECTION_CARD = ApiDiscoveryCard.create(ApiSingleContentSelectionCardTest.EXPECTED_SINGLE_CONTENT_SELECTION_CARD, null);
 

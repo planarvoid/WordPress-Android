@@ -64,6 +64,10 @@ public class EventTracker {
         }
     }
 
+    public void trackClick(UIEvent event) {
+        publishAndUpdate(event, trackingStateProvider.getLastEvent());
+    }
+
     private void attachAndPublish(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
         eventBus.publish(EventQueue.TRACKING, attachReferringEvent(event, referringEvent));
     }

@@ -5,9 +5,11 @@ CREATE TABLE single_content_selection_card (
     _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     urn TEXT AS Urn NOT NULL,
     query_urn TEXT AS Urn,
+    parent_query_urn TEXT AS Urn,
     style TEXT,
     title TEXT,
     description TEXT,
+    tracking_feature_name TEXT,
     social_proof TEXT,
     social_proof_avatar_urls TEXT AS List<String> NOT NULL
   );
@@ -19,5 +21,5 @@ dropTable:
 DROP TABLE IF EXISTS single_content_selection_card;
 
 insertRow:
-INSERT INTO single_content_selection_card(urn, query_urn, style, title, description, social_proof, social_proof_avatar_urls)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO single_content_selection_card(urn, query_urn, parent_query_urn, style, title, description, tracking_feature_name, social_proof, social_proof_avatar_urls)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);

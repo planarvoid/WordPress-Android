@@ -33,6 +33,7 @@ class Fixtures {
         static final String STYLE = "go_plus";
         static final String TITLE = "Playlists for Chilling";
         static final String DESCRIPTION = "Some \uD83D\uDEC0\uD83C\uDF34\uD83C\uDF0A marketing copy goes here.";
+        static final String TRACKING_FEATURE_NAME = "chilling";
 
     }
 
@@ -44,6 +45,7 @@ class Fixtures {
         static final String TITLE = "New Release from Little Simz";
         static final String DESCRIPTION = "Stillness In Wonderland";
         static final String AVATAR_URL = "https://i1.sndcdn.com/artworks-000136596659-7rdy0i-{size}.jpg";
+        static final String TRACKING_FEATURE_NAME = "playlist-discovery";
 
     }
 
@@ -68,6 +70,7 @@ class Fixtures {
                                                       MultipleSelectionCard.STYLE,
                                                       MultipleSelectionCard.TITLE,
                                                       MultipleSelectionCard.DESCRIPTION,
+                                                      MultipleSelectionCard.TRACKING_FEATURE_NAME,
                                                       new ModelCollection<>(Lists.newArrayList(expectedPlaylist()),
                                                                             Collections
                                                                                     .emptyMap(),
@@ -80,6 +83,7 @@ class Fixtures {
                                                     SingleSelectionCard.STYLE,
                                                     SingleSelectionCard.TITLE,
                                                     SingleSelectionCard.DESCRIPTION,
+                                                    SingleSelectionCard.TRACKING_FEATURE_NAME,
                                                     null,
                                                     expectedPlaylist(),
                                                     Lists.newArrayList(SingleSelectionCard.AVATAR_URL));

@@ -65,6 +65,7 @@ final class DbModel {
         static final SingleContentSelectionCardModel.Factory<SingleContentSelectionCard> FACTORY = new SingleContentSelectionCardModel.Factory<>(CREATOR,
                                                                                                                                                  URN_ADAPTER,
                                                                                                                                                  URN_ADAPTER,
+                                                                                                                                                 URN_ADAPTER,
                                                                                                                                                  STRING_LIST_ADAPTER);
     }
 
@@ -72,6 +73,6 @@ final class DbModel {
     abstract static class MultipleContentSelectionCard implements MultipleContentSelectionCardModel {
         static final MultipleContentSelectionCardModel.Creator<MultipleContentSelectionCard> CREATOR = AutoValue_DbModel_MultipleContentSelectionCard::new;
 
-        static final MultipleContentSelectionCardModel.Factory<MultipleContentSelectionCard> FACTORY = new MultipleContentSelectionCardModel.Factory<>(CREATOR, URN_ADAPTER, URN_ADAPTER);
+        static final MultipleContentSelectionCardModel.Factory<MultipleContentSelectionCard> FACTORY = new MultipleContentSelectionCardModel.Factory<>(CREATOR, URN_ADAPTER, URN_ADAPTER, URN_ADAPTER);
     }
 }

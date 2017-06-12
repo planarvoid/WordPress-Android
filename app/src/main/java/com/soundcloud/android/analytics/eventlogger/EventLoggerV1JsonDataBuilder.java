@@ -498,6 +498,7 @@ class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent(event));
             case RECOMMENDED_PLAYLISTS:
             case MORE_PLAYLISTS_BY_USER:
+            case DISCOVERY_CARD:
                 return transform(buildItemNavigationClickEvent(event));
             case NAVIGATION:
                 return transform(buildInteractionEvent(event));
@@ -655,6 +656,12 @@ class EventLoggerV1JsonDataBuilder {
         }
         if (event.clickSource().isPresent()) {
             eventData.clickSource(event.clickSource().get());
+        }
+        if (event.clickSourceQueryPosition().isPresent()) {
+            eventData.clickSourceQueryPosition(event.clickSourceQueryPosition().get());
+        }
+        if (event.clickSourceQueryUrn().isPresent()) {
+            eventData.clickSourceQueryUrn(event.clickSourceQueryUrn().get().toString());
         }
         final Optional<Urn> sourceUrn = event.clickSourceUrn();
         final Optional<Urn> queryUrn = event.queryUrn();

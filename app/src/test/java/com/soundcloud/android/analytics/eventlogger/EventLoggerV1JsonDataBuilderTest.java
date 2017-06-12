@@ -28,9 +28,6 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.events.PrestitialAdImpressionEvent;
-import com.soundcloud.android.events.SponsoredSessionStartEvent;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
@@ -54,6 +51,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -61,12 +59,14 @@ import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.ScrollDepthEvent.Action;
 import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -111,11 +111,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final Plan CONSUMER_SUBS_PLAN = Plan.HIGH_TIER;
     private static final Urn QUERY_URN = new Urn("soundcloud:stations:6d2547a");
+    private static final Urn SOURCE_QUERY_URN = new Urn("soundcloud:discovery:123");
     private static final Urn CLICK_OBJECT_URN = new Urn("soundcloud:track:123");
     private static final Urn AD_URN = Urn.forAd("dfp", "123");
     private static final String PAGE_NAME = "page_name";
     private static final String SOURCE = "stations";
+    private static final Urn SOURCE_URN = new Urn("soundcloud:discovery:playlist");
     private static final int QUERY_POSITION = 0;
+    private static final int SOURCE_QUERY_POSITION = 1;
     private static final String SEARCH_QUERY = "searchQuery";
     private static final long TIMESTAMP = new Date().getTime();
     private static final String CDN_URL = "host.com";
@@ -2233,6 +2236,34 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryPosition(QUERY_POSITION));
     }
 
+    @Test
+    public void createsDiscoverySelectionCardClick() throws Exception {
+        final EventContextMetadata contextMetadata = EventContextMetadata.builder()
+                                                                         .source(SOURCE)
+                                                                         .sourceUrn(SOURCE_URN)
+                                                                         .sourceQueryPosition(SOURCE_QUERY_POSITION)
+                                                                         .sourceQueryUrn(Optional.of(SOURCE_QUERY_URN))
+                                                                         .queryPosition(QUERY_POSITION)
+                                                                         .queryUrn(Optional.of(QUERY_URN))
+                                                                         .pageName(Screen.DISCOVER.get())
+                                                                         .build();
+        final UIEvent event = UIEvent.fromDiscoveryCard(CLICK_OBJECT_URN, contextMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickObject(CLICK_OBJECT_URN.toString())
+                                               .clickSource(SOURCE)
+                                               .clickSourceUrn(SOURCE_URN.toString())
+                                               .clickSourceQueryUrn(SOURCE_QUERY_URN.toString())
+                                               .clickName("item_navigation")
+                                               .source(SOURCE)
+                                               .pageName(Screen.DISCOVER.get())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .clickSourceQueryPosition(SOURCE_QUERY_POSITION));
+    }
+
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
         verify(jsonTransformer).toJson(getEngagementEventData(engagementName, timestamp)
         );
@@ -2254,13 +2285,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventData(eventName,
-                                          boogalooVersion,
-                                          CLIENT_ID,
-                                          UDID,
-                                          LOGGED_IN_USER.toString(),
-                                          timestamp,
-                                          ConnectionType.WIFI.getValue(),
-                                          String.valueOf(APP_VERSION_CODE));
+                                        boogalooVersion,
+                                        CLIENT_ID,
+                                        UDID,
+                                        LOGGED_IN_USER.toString(),
+                                        timestamp,
+                                        ConnectionType.WIFI.getValue(),
+                                        String.valueOf(APP_VERSION_CODE));
     }
 
     private EventContextMetadata createEventContextMetadata() {

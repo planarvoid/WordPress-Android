@@ -4,7 +4,6 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.reflect.TypeToken;
 
@@ -21,8 +20,7 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
     @Inject
     DiscoveryCardSyncer(ApiClient apiClient,
                         DiscoveryWritableStorage discoveryWritableStorage,
-                        LocaleFormatter localeFormatter,
-                        ExperimentOperations experimentOperations) {
+                        LocaleFormatter localeFormatter) {
         this.apiClient = apiClient;
         this.discoveryWritableStorage = discoveryWritableStorage;
         this.localeFormatter = localeFormatter;

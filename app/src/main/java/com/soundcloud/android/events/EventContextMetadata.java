@@ -13,9 +13,12 @@ public abstract class EventContextMetadata {
     public static Builder builder() {
         return new AutoValue_EventContextMetadata.Builder()
                 .isFromOverflow(false)
-                .clickSource(Optional.absent())
                 .queryPosition(Optional.absent())
                 .queryUrn(Optional.absent())
+                .source(Optional.absent())
+                .sourceUrn(Optional.absent())
+                .sourceQueryUrn(Optional.absent())
+                .sourceQueryPosition(Optional.absent())
                 .pageUrn(Urn.NOT_SET);
     }
 
@@ -38,11 +41,17 @@ public abstract class EventContextMetadata {
     @Nullable
     public abstract TrackSourceInfo trackSourceInfo();
 
-    public abstract Optional<String> clickSource();
-
     public abstract Optional<Urn> queryUrn();
 
     public abstract Optional<Integer> queryPosition();
+
+    public abstract Optional<String> source();
+
+    public abstract Optional<Urn> sourceUrn();
+
+    public abstract Optional<Urn> sourceQueryUrn();
+
+    public abstract Optional<Integer> sourceQueryPosition();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -60,11 +69,33 @@ public abstract class EventContextMetadata {
 
         public abstract Builder isFromOverflow(boolean isFromOverflow);
 
-        public abstract Builder clickSource(Optional<String> clickSource);
-
         public abstract Builder queryUrn(Optional<Urn> queryUrn);
 
-        public abstract Builder queryPosition(Optional<Integer> queryPosition);
+        abstract Builder queryPosition(Optional<Integer> queryPosition);
+
+        public Builder queryPosition(Integer queryPosition) {
+            return queryPosition(Optional.of(queryPosition));
+        }
+
+        public abstract Builder source(Optional<String> source);
+
+        public Builder source(String source) {
+            return source(Optional.of(source));
+        }
+
+        public abstract Builder sourceUrn(Optional<Urn> sourceUrn);
+
+        public Builder sourceUrn(Urn sourceUrn) {
+            return sourceUrn(Optional.of(sourceUrn));
+        }
+
+        public abstract Builder sourceQueryUrn(Optional<Urn> sourceQueryUrn);
+
+        abstract Builder sourceQueryPosition(Optional<Integer> sourcePosition);
+
+        public Builder sourceQueryPosition(Integer sourcePosition) {
+            return sourceQueryPosition(Optional.of(sourcePosition));
+        }
 
         public abstract EventContextMetadata build();
     }

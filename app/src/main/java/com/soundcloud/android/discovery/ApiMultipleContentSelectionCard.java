@@ -20,6 +20,8 @@ abstract class ApiMultipleContentSelectionCard {
 
     abstract Optional<String> description();
 
+    abstract Optional<String> trackingFeatureName();
+
     abstract ModelCollection<ApiSelectionItem> selectionItems();
 
     @JsonCreator
@@ -27,11 +29,13 @@ abstract class ApiMultipleContentSelectionCard {
                                                   @JsonProperty("style") @Nullable String style,
                                                   @JsonProperty("title") @Nullable String title,
                                                   @JsonProperty("description") @Nullable String description,
+                                                  @JsonProperty("tracking_feature_name") @Nullable String trackingFeatureName,
                                                   @JsonProperty("selection_items") @Nullable ModelCollection<ApiSelectionItem> selectionItems) {
         return new AutoValue_ApiMultipleContentSelectionCard(selectionUrn,
-                                              Optional.fromNullable(style),
-                                              Optional.fromNullable(title),
-                                              Optional.fromNullable(description),
-                                              selectionItems);
+                                                             Optional.fromNullable(style),
+                                                             Optional.fromNullable(title),
+                                                             Optional.fromNullable(description),
+                                                             Optional.fromNullable(trackingFeatureName),
+                                                             selectionItems);
     }
 }

@@ -37,29 +37,36 @@ class DiscoveryTrackingManager {
     private void trackSelectionItemInSingleContentSelectionCard(int selectionPosition, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
         final Urn selectionUrn = singleContentSelectionCard.selectionUrn();
-        builder.pageName(SCREEN.name());
-        builder.clickSource(Optional.of(selectionUrn.toString()));
-        builder.queryPosition(Optional.of(selectionPosition));
-        builder.queryUrn(singleContentSelectionCard.queryUrn());
-        eventTracker.trackNavigation(UIEvent.fromNavigation(selectionUrn, builder.build()));
+        builder.pageName(SCREEN.get());
+        builder.source(singleContentSelectionCard.trackingFeatureName());
+        builder.sourceUrn(selectionUrn);
+        builder.sourceQueryUrn(singleContentSelectionCard.queryUrn());
+        builder.sourceQueryPosition(0);
+        builder.queryPosition(selectionPosition);
+        builder.queryUrn(singleContentSelectionCard.parentQueryUrn());
+        eventTracker.trackClick(UIEvent.fromDiscoveryCard(selectionUrn, builder.build()));
     }
 
     private void trackSelectionItemInMultipleContentSelectionCard(SelectionItem selectionItem, int selectionPosition, DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard) {
         final Optional<Urn> selectionItemUrn = selectionItem.urn();
         selectionItemUrn.ifPresent(itemUrn -> {
             final EventContextMetadata.Builder builder = EventContextMetadata.builder();
-            builder.pageName(SCREEN.name());
-            builder.clickSource(Optional.of(itemUrn.toString()));
-            builder.queryPosition(Optional.of(selectionPosition));
-            builder.queryUrn(multipleContentSelectionCard.queryUrn());
+            builder.pageName(SCREEN.get());
+            builder.source(multipleContentSelectionCard.trackingFeatureName());
+            builder.sourceUrn(itemUrn);
+            builder.sourceQueryUrn(multipleContentSelectionCard.queryUrn());
+            builder.queryPosition(selectionPosition);
+
+            builder.queryUrn(multipleContentSelectionCard.parentQueryUrn());
 
             final List<SelectionItem> selectionItems = multipleContentSelectionCard.selectionItems();
             final Optional<SelectionItem> selectionItemOptional = Iterables.tryFind(selectionItems, item -> item != null && item.urn().isPresent() && itemUrn.equals(item.urn().get()));
             selectionItemOptional.ifPresent(item -> {
                 final int itemPosition = selectionItems.indexOf(item);
+                builder.sourceQueryPosition(itemPosition);
                 builder.module(Module.create(multipleContentSelectionCard.selectionUrn().toString(), itemPosition));
             });
-            eventTracker.trackNavigation(UIEvent.fromNavigation(itemUrn, builder.build()));
+            eventTracker.trackClick(UIEvent.fromDiscoveryCard(itemUrn, builder.build()));
         });
     }
 }

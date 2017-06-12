@@ -56,9 +56,11 @@ final class DbModelMapper {
     private static DiscoveryCard.SingleContentSelectionCard mapSingleContentSelectionCard(DbModel.SingleContentSelectionCard singleContentSelectionCard, DbModel.SelectionItem selectionItem) {
         return DiscoveryCard.SingleContentSelectionCard.create(singleContentSelectionCard.urn(),
                                                                Optional.fromNullable(singleContentSelectionCard.query_urn()),
+                                                               Optional.fromNullable(singleContentSelectionCard.parent_query_urn()),
                                                                Optional.fromNullable(singleContentSelectionCard.style()),
                                                                Optional.fromNullable(singleContentSelectionCard.title()),
                                                                Optional.fromNullable(singleContentSelectionCard.description()),
+                                                               Optional.fromNullable(singleContentSelectionCard.tracking_feature_name()),
                                                                mapSelectionItem(singleContentSelectionCard.urn(), selectionItem),
                                                                Optional.fromNullable(singleContentSelectionCard.social_proof()),
                                                                singleContentSelectionCard.social_proof_avatar_urls());
@@ -68,9 +70,11 @@ final class DbModelMapper {
                                                                                               Collection<DbModel.SelectionItem> selectionItems) {
         return DiscoveryCard.MultipleContentSelectionCard.create(multipleContentSelectionCard.urn(),
                                                                  Optional.fromNullable(multipleContentSelectionCard.query_urn()),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.parent_query_urn()),
                                                                  Optional.fromNullable(multipleContentSelectionCard.style()),
                                                                  Optional.fromNullable(multipleContentSelectionCard.title()),
                                                                  Optional.fromNullable(multipleContentSelectionCard.description()),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.tracking_feature_name()),
                                                                  Lists.transform(Lists.newArrayList(selectionItems), item -> DbModelMapper.mapSelectionItem(multipleContentSelectionCard.urn(), item)));
     }
 

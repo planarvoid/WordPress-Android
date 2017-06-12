@@ -18,6 +18,8 @@ class EventLoggerParam {
     static final String SOURCE = "source";
     static final String SOURCE_URN = "source_urn";
     static final String SOURCE_VERSION = "source_version";
+    static final String SOURCE_QUERY_POSITION = "source_query_position";
+    static final String SOURCE_QUERY_URN = "source_query_urn";
     static final String IN_PLAYLIST = "in_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";

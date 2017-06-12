@@ -54,6 +54,8 @@ public class DiscoveryReadableStorageTest
                                                                                                                                   null,
                                                                                                                                   null,
                                                                                                                                   null,
+                                                                                                                                  null,
+                                                                                                                                  null,
                                                                                                                                   Lists.newArrayList());
         final DbModel.FullDiscoveryCard card = DbModel.FullDiscoveryCard.CREATOR.create(singleContentSelectionDbCard, null);
 

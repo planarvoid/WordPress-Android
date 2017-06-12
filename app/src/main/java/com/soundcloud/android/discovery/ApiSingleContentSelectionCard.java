@@ -24,6 +24,8 @@ abstract class ApiSingleContentSelectionCard {
 
     abstract Optional<String> socialProof();
 
+    abstract Optional<String> trackingFeatureName();
+
     abstract ApiSelectionItem selectionItem();
 
     abstract List<String> socialProofAvatarUrlTemplates();
@@ -35,15 +37,17 @@ abstract class ApiSingleContentSelectionCard {
                                                 @JsonProperty("title") @Nullable String title,
                                                 @JsonProperty("description") @Nullable String description,
                                                 @JsonProperty("social_proof") @Nullable String socialProof,
+                                                @JsonProperty("tracking_feature_name") @Nullable String trackingFeatureName,
                                                 @JsonProperty("selection_item") ApiSelectionItem selectionItem,
                                                 @JsonProperty("social_proof_avatar_url_templates") List<String> socialProofAvatarUrlTemplates) {
         return new AutoValue_ApiSingleContentSelectionCard(selectionUrn,
-                                                       Optional.fromNullable(queryUrn),
-                                                       Optional.fromNullable(style),
-                                                       Optional.fromNullable(title),
-                                                       Optional.fromNullable(description),
-                                                       Optional.fromNullable(socialProof),
-                                                       selectionItem,
-                                                       socialProofAvatarUrlTemplates);
+                                                           Optional.fromNullable(queryUrn),
+                                                           Optional.fromNullable(style),
+                                                           Optional.fromNullable(title),
+                                                           Optional.fromNullable(description),
+                                                           Optional.fromNullable(socialProof),
+                                                           Optional.fromNullable(trackingFeatureName),
+                                                           selectionItem,
+                                                           socialProofAvatarUrlTemplates);
     }
 }

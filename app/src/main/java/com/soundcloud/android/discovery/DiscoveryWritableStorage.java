@@ -30,7 +30,8 @@ public class DiscoveryWritableStorage {
 
     void storeDiscoveryCards(ModelCollection<ApiDiscoveryCard> apiDiscoveryCards) {
         clearData();
-        insertApiDiscoveryCards(filterInvalidCards(apiDiscoveryCards).getCollection());
+        final ModelCollection<ApiDiscoveryCard> filteredResult = filterInvalidCards(apiDiscoveryCards);
+        insertApiDiscoveryCards(filteredResult.getCollection(), filteredResult.getQueryUrn());
     }
 
     public void storeSystemPlaylist(final ApiSystemPlaylist systemPlaylist) {
@@ -56,13 +57,13 @@ public class DiscoveryWritableStorage {
         });
     }
 
-    void insertApiDiscoveryCards(List<ApiDiscoveryCard> discoveryCard) {
+    void insertApiDiscoveryCards(List<ApiDiscoveryCard> discoveryCard, Optional<Urn> pageQueryUrn) {
         discoveryDatabase.runInTransaction(() -> {
             final List<SQLiteStatement> inserts = Lists.newArrayList();
             for (ApiDiscoveryCard card : discoveryCard) {
                 final DiscoveryCardModel.InsertRow insertDiscoveryCard = new DiscoveryCardModel.InsertRow(discoveryDatabase.writableDatabase());
-                Optional<Long> singleSelectionCardId = card.singleContentSelectionCard().transform(this::insertSingleContentSelectionCard);
-                Optional<Long> multipleSelectionCardId = card.multipleContentSelectionCard().transform(this::insertMultipleContentSelectionCard);
+                Optional<Long> singleSelectionCardId = card.singleContentSelectionCard().transform(apiCard -> insertSingleContentSelectionCard(apiCard, pageQueryUrn));
+                Optional<Long> multipleSelectionCardId = card.multipleContentSelectionCard().transform(apiCard -> insertMultipleContentSelectionCard(apiCard, pageQueryUrn));
                 insertDiscoveryCard.bind(singleSelectionCardId.orNull(), multipleSelectionCardId.orNull());
                 inserts.add(insertDiscoveryCard.program);
             }
@@ -70,14 +71,16 @@ public class DiscoveryWritableStorage {
         });
     }
 
-    private long insertSingleContentSelectionCard(ApiSingleContentSelectionCard card) {
+    private long insertSingleContentSelectionCard(ApiSingleContentSelectionCard card, Optional<Urn> pageQueryUrn) {
         final DbModel.SingleContentSelectionCard.InsertRow insertRow = new DbModel.SingleContentSelectionCard.InsertRow(discoveryDatabase.writableDatabase(),
                                                                                                                         DbModel.SingleContentSelectionCard.FACTORY);
         insertRow.bind(card.selectionUrn(),
                        card.queryUrn().orNull(),
+                       pageQueryUrn.orNull(),
                        card.style().orNull(),
                        card.title().orNull(),
                        card.description().orNull(),
+                       card.trackingFeatureName().orNull(),
                        card.socialProof().orNull(),
                        card.socialProofAvatarUrlTemplates());
         final long cardId = discoveryDatabase.insert(DbModel.SingleContentSelectionCard.TABLE_NAME, insertRow.program);
@@ -85,10 +88,16 @@ public class DiscoveryWritableStorage {
         return cardId;
     }
 
-    private long insertMultipleContentSelectionCard(ApiMultipleContentSelectionCard card) {
+    private long insertMultipleContentSelectionCard(ApiMultipleContentSelectionCard card, Optional<Urn> pageQueryUrn) {
         final DbModel.MultipleContentSelectionCard.InsertRow insertRow = new DbModel.MultipleContentSelectionCard.InsertRow(discoveryDatabase.writableDatabase(),
                                                                                                                             DbModel.MultipleContentSelectionCard.FACTORY);
-        insertRow.bind(card.selectionUrn(), card.selectionItems().getQueryUrn().orNull(), card.style().orNull(), card.title().orNull(), card.description().orNull());
+        insertRow.bind(card.selectionUrn(),
+                       card.selectionItems().getQueryUrn().orNull(),
+                       pageQueryUrn.orNull(),
+                       card.style().orNull(),
+                       card.title().orNull(),
+                       card.description().orNull(),
+                       card.trackingFeatureName().orNull());
         final long cardId = discoveryDatabase.insert(DbModel.MultipleContentSelectionCard.TABLE_NAME, insertRow.program);
         for (ApiSelectionItem apiSelectionItem : card.selectionItems().getCollection()) {
             insertSelectionItem(apiSelectionItem, card.selectionUrn());

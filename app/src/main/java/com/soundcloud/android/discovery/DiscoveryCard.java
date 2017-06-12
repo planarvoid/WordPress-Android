@@ -38,21 +38,35 @@ abstract class DiscoveryCard {
 
         abstract Optional<Urn> queryUrn();
 
+        abstract Optional<Urn> parentQueryUrn();
+
         abstract Optional<String> style();
 
         abstract Optional<String> title();
 
         abstract Optional<String> description();
 
+        abstract Optional<String> trackingFeatureName();
+
         abstract List<SelectionItem> selectionItems();
 
         static MultipleContentSelectionCard create(Urn selectionUrn,
                                                    Optional<Urn> queryUrn,
+                                                   Optional<Urn> parentQueryUrn,
                                                    Optional<String> style,
                                                    Optional<String> title,
                                                    Optional<String> description,
+                                                   Optional<String> trackingFeatureName,
                                                    List<SelectionItem> selectionItems) {
-            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, queryUrn, style, title, description, selectionItems);
+            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD,
+                                                                            selectionUrn,
+                                                                            queryUrn,
+                                                                            parentQueryUrn,
+                                                                            style,
+                                                                            title,
+                                                                            description,
+                                                                            trackingFeatureName,
+                                                                            selectionItems);
         }
 
         @Override
@@ -74,7 +88,11 @@ abstract class DiscoveryCard {
 
         abstract Optional<Urn> queryUrn();
 
+        abstract Optional<Urn> parentQueryUrn();
+
         abstract SelectionItem selectionItem();
+
+        abstract Optional<String> trackingFeatureName();
 
         abstract Optional<String> socialProof();
 
@@ -82,21 +100,25 @@ abstract class DiscoveryCard {
 
         static SingleContentSelectionCard create(Urn selectionUrn,
                                                  Optional<Urn> queryUrn,
+                                                 Optional<Urn> parentQueryUrn,
                                                  Optional<String> style,
                                                  Optional<String> title,
                                                  Optional<String> description,
+                                                 Optional<String> trackingFeatureName,
                                                  SelectionItem selectionItem,
                                                  Optional<String> socialProof,
                                                  List<String> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingleContentSelectionCard(Kind.SINGLE_CONTENT_SELECTION_CARD,
-                    selectionUrn,
-                    style,
-                    title,
-                    description,
-                    queryUrn,
-                    selectionItem,
-                    socialProof,
-                    socialProofAvatarUrlTemplates);
+                                                                          selectionUrn,
+                                                                          style,
+                                                                          title,
+                                                                          description,
+                                                                          queryUrn,
+                                                                          parentQueryUrn,
+                                                                          selectionItem,
+                                                                          trackingFeatureName,
+                                                                          socialProof,
+                                                                          socialProofAvatarUrlTemplates);
         }
 
         @Override

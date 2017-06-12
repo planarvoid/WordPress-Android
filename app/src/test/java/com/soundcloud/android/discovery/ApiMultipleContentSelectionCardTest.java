@@ -22,16 +22,19 @@ public class ApiMultipleContentSelectionCardTest {
     private static final String STYLE = "go_plus";
     private static final String TITLE = "Playlists for Chilling";
     private static final String DESCRIPTION = "Some \uD83D\uDEC0\uD83C\uDF34\uD83C\uDF0A marketing copy goes here.";
+    private static final String TRACKING_FEATURE_NAME = "playlist-discovery";
     static final ApiMultipleContentSelectionCard EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD = ApiMultipleContentSelectionCard.create(new Urn(SELECTION_URN),
                                                                                                                                    STYLE,
                                                                                                                                    TITLE,
                                                                                                                                    DESCRIPTION,
+                                                                                                                                   TRACKING_FEATURE_NAME,
                                                                                                                                    new ModelCollection<>(Lists.newArrayList(ApiSelectionItemTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
     static final String JSON = "{\n" +
             "  \"selection_urn\": \"" + SELECTION_URN + "\",\n" +
             "  \"style\": \"" + STYLE + "\",\n" +
             "  \"title\": \"" + TITLE + "\",\n" +
             "  \"description\": \"" + DESCRIPTION + "\",\n" +
+            "  \"tracking_feature_name\": \"" + TRACKING_FEATURE_NAME + "\",\n" +
             "  \"selection_items\": {\n" +
             "    \"collection\": [\n" +
            ApiSelectionItemTest.JSON +

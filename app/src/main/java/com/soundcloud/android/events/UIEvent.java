@@ -63,7 +63,8 @@ public abstract class UIEvent extends TrackingEvent {
         PLAY_QUEUE_REPEAT("play_queue_repeat"),
         PLAY_NEXT("play_next"),
         RECOMMENDED_PLAYLISTS("playlist_discovery"),
-        MORE_PLAYLISTS_BY_USER("more_playlists_by_user");
+        MORE_PLAYLISTS_BY_USER("more_playlists_by_user"),
+        DISCOVERY_CARD("discovery_card");
         private final String key;
 
         Kind(String key) {
@@ -136,8 +137,7 @@ public abstract class UIEvent extends TrackingEvent {
         PLAY_QUEUE_REPEAT_ON("repeat::on"),
         PLAY_QUEUE_REPEAT_OFF("repeat::off"),
         PLAY_NEXT("play_next"),
-        RECOMMENDED_PLAYLIST("item_navigation"),
-        MORE_PLAYLISTS_BY_USER("item_navigation"),
+        ITEM_NAVIGATION("item_navigation"),
         SHUFFLE_ON("shuffle::on"),
         SHUFFLE_OFF("shuffle::off");
         private final String key;
@@ -218,6 +218,10 @@ public abstract class UIEvent extends TrackingEvent {
     public abstract Optional<String> clickSource();
 
     public abstract Optional<Urn> clickSourceUrn();
+
+    public abstract Optional<Urn> clickSourceQueryUrn();
+
+    public abstract Optional<Integer> clickSourceQueryPosition();
 
     public abstract Optional<Urn> queryUrn();
 
@@ -423,6 +427,10 @@ public abstract class UIEvent extends TrackingEvent {
         return event(Kind.NAVIGATION).action(Optional.of(Action.NAVIGATION)).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
+    public static UIEvent fromDiscoveryCard(Urn itemUrn, EventContextMetadata contextMetadata) {
+        return event(Kind.DISCOVERY_CARD, ClickName.ITEM_NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+    }
+
     public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {
         return event(Kind.PLAY_QUEUE_SHUFFLE).clickName(Optional.of(isShuffled ? ClickName.SHUFFLE_ON : ClickName.SHUFFLE_OFF)).originScreen(Optional.of(Screen.PLAY_QUEUE.get())).build();
     }
@@ -448,12 +456,12 @@ public abstract class UIEvent extends TrackingEvent {
 
     public static UIEvent fromRecommendedPlaylists(Urn itemUrn,
                                                    EventContextMetadata contextMetadata) {
-        return event(Kind.RECOMMENDED_PLAYLISTS, ClickName.RECOMMENDED_PLAYLIST).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+        return event(Kind.RECOMMENDED_PLAYLISTS, ClickName.ITEM_NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromMorePlaylistsByUser(Urn itemUrn,
                                                   EventContextMetadata contextMetadata) {
-        return event(Kind.MORE_PLAYLISTS_BY_USER, ClickName.MORE_PLAYLISTS_BY_USER).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+        return event(Kind.MORE_PLAYLISTS_BY_USER, ClickName.ITEM_NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromShareRequest(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
@@ -522,6 +530,8 @@ public abstract class UIEvent extends TrackingEvent {
                                               .clickObjectUrn(Optional.absent())
                                               .clickSource(Optional.absent())
                                               .clickSourceUrn(Optional.absent())
+                                              .clickSourceQueryUrn(Optional.absent())
+                                              .clickSourceQueryPosition(Optional.absent())
                                               .queryUrn(Optional.absent())
                                               .queryPosition(Optional.absent())
                                               .isFromOverflow(Optional.absent())
@@ -585,6 +595,10 @@ public abstract class UIEvent extends TrackingEvent {
 
         abstract Builder clickSourceUrn(Optional<Urn> clickSourceUrn);
 
+        abstract Builder clickSourceQueryUrn(Optional<Urn> clickQueryUrn);
+
+        abstract Builder clickSourceQueryPosition(Optional<Integer> clickPosition);
+
         abstract Builder queryUrn(Optional<Urn> queryUrn);
 
         abstract Builder queryPosition(Optional<Integer> queryPosition);
@@ -630,8 +644,19 @@ public abstract class UIEvent extends TrackingEvent {
             module(Optional.fromNullable(eventContextMetadata.module()));
             isFromOverflow(Optional.of(eventContextMetadata.isFromOverflow()));
             trackSourceInfo(eventContextMetadata.trackSourceInfo());
-            if (eventContextMetadata.clickSource().isPresent()) {
-                clickSource(eventContextMetadata.clickSource());
+            if (eventContextMetadata.source().isPresent()) {
+                clickSource(eventContextMetadata.source());
+            }
+            if (eventContextMetadata.sourceUrn().isPresent()) {
+                clickSourceUrn(eventContextMetadata.sourceUrn());
+            }
+            clickSourceQueryPosition(eventContextMetadata.sourceQueryPosition());
+            clickSourceQueryUrn(eventContextMetadata.sourceQueryUrn());
+            if (eventContextMetadata.queryUrn().isPresent()) {
+                queryUrn(eventContextMetadata.queryUrn());
+            }
+            if (eventContextMetadata.queryPosition().isPresent()) {
+                queryPosition(eventContextMetadata.queryPosition());
             }
             return this;
         }
