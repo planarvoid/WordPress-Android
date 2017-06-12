@@ -2,38 +2,22 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
-import static com.soundcloud.java.collections.Iterables.filter;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
-import static rx.Observable.concat;
-import static rx.Observable.error;
 import static rx.Observable.just;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiPlaylistPost;
-import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
-import com.soundcloud.android.collection.playlists.PlaylistsOptions;
-import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.Pair;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Maybe;
 import rx.Observable;
@@ -44,9 +28,7 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class PlaylistOperations {
 
@@ -69,12 +51,6 @@ public class PlaylistOperations {
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final OfflineContentOperations offlineContentOperations;
     private final EventBus eventBus;
-    private final ProfileApiMobile profileApiMobile;
-    private final MyPlaylistsOperations myPlaylistsOperations;
-    private final AccountOperations accountOperations;
-    private final OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
-    private final PlaylistDetailsViewModelCreator viewModelCreator;
-    private final EntityItemCreator entityItemCreator;
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -88,13 +64,7 @@ public class PlaylistOperations {
                        EditPlaylistCommand editPlaylistCommand,
                        SyncInitiatorBridge syncInitiatorBridge,
                        OfflineContentOperations offlineContentOperations,
-                       EventBus eventBus,
-                       ProfileApiMobile profileApiMobile,
-                       MyPlaylistsOperations myPlaylistsOperations,
-                       AccountOperations accountOperations,
-                       OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
-                       PlaylistDetailsViewModelCreator viewModelCreator,
-                       EntityItemCreator entityItemCreator) {
+                       EventBus eventBus) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistRepository = playlistRepository;
@@ -107,12 +77,6 @@ public class PlaylistOperations {
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.offlineContentOperations = offlineContentOperations;
         this.eventBus = eventBus;
-        this.profileApiMobile = profileApiMobile;
-        this.myPlaylistsOperations = myPlaylistsOperations;
-        this.accountOperations = accountOperations;
-        this.otherPlaylistsByUserConfig = otherPlaylistsByUserConfig;
-        this.viewModelCreator = viewModelCreator;
-        this.entityItemCreator = entityItemCreator;
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
@@ -144,6 +108,15 @@ public class PlaylistOperations {
                                   .flatMap(o -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)))
                                   .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
                                   .doOnNext(playlist -> syncInitiator.syncPlaylistAndForget(playlist.urn()))
+                                  .subscribeOn(scheduler);
+    }
+
+    Observable<List<Track>> editPlaylistTracks(Urn playlistUrn, List<Urn> updatedTracklist) {
+        return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn, updatedTracklist))
+                                  .flatMap(o -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)))
+                                  .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
+                                  .doOnNext(playlist -> syncInitiator.syncPlaylistAndForget(playlist.urn()))
+                                  .flatMap(playlist -> RxJava.toV1Observable(trackRepository.forPlaylist(playlist.urn())))
                                   .subscribeOn(scheduler);
     }
 
@@ -188,84 +161,6 @@ public class PlaylistOperations {
                      .observeOn(scheduler)
                      .flatMap(playlistWasUpdated -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)
                                                                                             .switchIfEmpty(Maybe.error(new PlaylistMissingException()))));
-    }
-
-    Observable<PlaylistDetailsViewModel> playlistWithTracksAndRecommendations(Urn playlistUrn) {
-        return playlistWithTracks(playlistUrn)
-                .flatMap(addOtherPlaylists())
-                .subscribeOn(scheduler);
-    }
-
-    Observable<PlaylistDetailsViewModel> updatedPlaylistWithTracksAndRecommendations(Urn playlistUrn) {
-        return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn))
-                     .flatMap(ignored -> playlistWithTracksAndRecommendations(playlistUrn))
-                     .subscribeOn(scheduler);
-    }
-
-    private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn playlistUrn) {
-        return Observable.combineLatest(RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)),
-                                        RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn))
-                                              .startWith(Collections.<Track>emptyList())
-                                              .debounce(300, TimeUnit.MILLISECONDS)
-                                              .onErrorResumeNext(throwable -> just(Collections.emptyList())),
-                                        Pair::of).switchIfEmpty(error(new PlaylistMissingException()));
-    }
-
-    private Func1<Pair<Playlist, List<Track>>, Observable<PlaylistDetailsViewModel>> addOtherPlaylists() {
-        return playlistWithTracks -> {
-            final Playlist playlist = playlistWithTracks.first();
-            final List<Track> tracks = playlistWithTracks.second();
-
-            if (tracks.isEmpty() || !otherPlaylistsByUserConfig.isEnabled()) {
-                return just(Collections.<Playlist>emptyList())
-                        .map(toViewModel(playlist, tracks));
-
-            } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
-                return myPlaylists()
-                        .map(otherPlaylistsFiltered(playlist))
-                        .map(toViewModel(playlist, tracks));
-            } else {
-
-                Observable<PlaylistDetailsViewModel> withoutOtherPlaylists = just(Collections.<Playlist>emptyList())
-                        .map(toViewModel(playlist, tracks));
-                Observable<PlaylistDetailsViewModel> withOtherPlaylists = playlistsForOtherUser(playlist.creatorUrn())
-                        .map(otherPlaylistsFiltered(playlist))
-                        .map(toViewModel(playlist, tracks));
-
-                return concat(withoutOtherPlaylists, withOtherPlaylists);
-            }
-        };
-    }
-
-    private Func1<List<Playlist>, List<Playlist>> otherPlaylistsFiltered(Playlist playlist) {
-        return playlistItems -> newArrayList(filter(playlistItems,
-                                                    input -> !input.urn().equals(playlist.urn())
-        ));
-    }
-
-
-    private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<Track> tracks) {
-        return playlists -> {
-            final List<PlaylistItem> playlistsItems = Lists.transform(playlists, entityItemCreator::playlistItem);
-            return viewModelCreator.create(playlist,
-                                           Lists.transform(tracks, entityItemCreator::trackItem),
-                                           playlist.isLikedByCurrentUser().or(false),
-                                           playlist.isRepostedByCurrentUser().or(false),
-                                           false,
-                                           playlist.offlineState().or(OfflineState.NOT_OFFLINE),
-                                           playlistsItems.isEmpty() ? Optional.absent() :
-                                           Optional.of(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems, false)));
-        };
-    }
-
-    private Observable<List<Playlist>> playlistsForOtherUser(Urn userUrn) {
-        return profileApiMobile.userPlaylists(userUrn)
-                               .map(apiPlaylistPosts -> transform(apiPlaylistPosts.getCollection(), ApiPlaylistPost::getApiPlaylist))
-                               .map(input -> Lists.transform(input, Playlist::from));
-    }
-
-    private Observable<List<Playlist>> myPlaylists() {
-        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()));
     }
 
     private Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
