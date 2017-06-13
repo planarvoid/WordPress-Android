@@ -81,6 +81,7 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
+import java.io.InterruptedIOException;
 
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -342,10 +343,23 @@ public class SoundCloudApplication extends MultiDexApplication {
     // smells that should be fixed. In RxJava1, no error was thrown, so these underlying issues were
     // never exposed.
     private void setupRxErrorHandling() {
-        if (!applicationProperties.isDevelopmentMode()) {
-            RxJavaPlugins.setErrorHandler(e -> {
+        RxJavaPlugins.setErrorHandler(e -> {
+            if (!applicationProperties.isDevelopmentMode()) {
                 ErrorUtils.handleSilentException("RxError", e);
-            });
+            } else {
+                handleThrowableInDebug(e);
+            }
+        });
+    }
+
+    private void handleThrowableInDebug(Throwable t) {
+        //We don't want to crash the app in debug when we unsubscribe from RX chain
+        if (t.getCause() != null && t.getCause().getCause() != null && t.getCause().getCause() instanceof InterruptedIOException) {
+            //Ignore interrupted cause
+            Log.d(TAG, "Expected interrupted IO exception");
+            Log.d(TAG, t.toString());
+        } else {
+            throw new RuntimeException("Debug exception from Rx chain", t);
         }
     }
 

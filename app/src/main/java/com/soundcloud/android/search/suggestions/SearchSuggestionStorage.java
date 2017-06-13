@@ -1,13 +1,14 @@
 package com.soundcloud.android.search.suggestions;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import io.reactivex.Single;
 
 import android.support.annotation.NonNull;
 
@@ -62,8 +63,8 @@ class SearchSuggestionStorage {
         this.propellerRx = new PropellerRx(propeller);
     }
 
-    public Observable<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
-        return propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn)).limit(limit).map(new SearchSuggestionMapper()).toList();
+    public Single<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
+        return RxJava.toV2Single(propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn)).limit(limit).map(new SearchSuggestionMapper()).toList());
     }
 
     @NonNull

@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -23,14 +23,14 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
 
@@ -44,7 +44,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
     private static final Urn USER_URN = Urn.forUser(123);
 
-    @Mock private ApiClientRx apiClientRx;
+    @Mock private ApiClientRxV2 apiClientRx;
     @Mock private SearchSuggestionStorage suggestionStorage;
     @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
     @Mock private AccountOperations accountOperations;
@@ -53,7 +53,6 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
     private SearchSuggestionOperations operations;
-    private TestSubscriber<List<SuggestionItem>> suggestionsResultSubscriber;
 
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
@@ -62,15 +61,14 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.immediate(), suggestionStorage, accountOperations, searchSuggestionFiltering, localizedAutocompletionsExperiment);
+        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.trampoline(), suggestionStorage, accountOperations, searchSuggestionFiltering, localizedAutocompletionsExperiment);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
-        suggestionsResultSubscriber = new TestSubscriber<>();
     }
 
     @Test
     public void returnsSuggestionsAndSendVariantNameWithExperimentEnabled() {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(localSuggestions));
         final Optional<String> variant = Optional.of("variant123");
         when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
 
@@ -78,7 +76,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
         requestMatcher.withQueryParam("variant", variant.get());
 
-        operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
+        final TestObserver<List<SuggestionItem>> suggestionsResultSubscriber = operations.suggestionsFor(SEARCH_QUERY).test();
 
         verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
 
@@ -90,7 +88,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
                                                            autocompletionItem);
 
 
-        final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
+        final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.values();
         assertThat(onNextEvents.get(0)).isEqualTo(firstItem);
         assertThat(onNextEvents.get(1)).isEqualTo(allItems);
     }
@@ -98,7 +96,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Test
     public void doesNotSendAuthorizationHeaderWithAutocompleteRequest() {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(localSuggestions));
         final Optional<String> variant = Optional.of("variant123");
         when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
 
@@ -114,14 +112,14 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Test
     public void doNotSendVariantWithExperimentDisabled() {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(localSuggestions));
         final Optional<String> variant = Optional.absent();
         when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
 
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
 
-        operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
+        operations.suggestionsFor(SEARCH_QUERY).test();
 
         verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
     }
@@ -143,7 +141,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
                 .withAnonymity();
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken)))
-                .thenReturn(Observable.just(autocompletions));
+                .thenReturn(Single.just(autocompletions));
 
         return requestMatcher;
     }

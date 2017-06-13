@@ -24,15 +24,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Subscriber;
-import rx.observers.TestSubscriber;
 
 import android.os.Bundle;
 import android.view.View;
@@ -60,8 +58,6 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<SearchEvent> searchEventCaptor;
 
     @Rule public FragmentRule fragmentRule = new FragmentRule(R.layout.recyclerview_with_emptyview);
-
-    private TestSubscriber<List<SuggestionItem>> testSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() {
@@ -131,7 +127,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         when(operations.suggestionsFor(API_QUERY)).thenReturn(Observable.empty());
 
         presenter.showSuggestionsFor(API_QUERY);
-        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
+        presenter.getCollectionBinding().items().test();
         verify(operations).suggestionsFor(API_QUERY);
         reset(operations);
 

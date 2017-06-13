@@ -15,7 +15,7 @@ import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.Observable;
+import io.reactivex.Observable;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -86,7 +86,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
 
     private CollectionBinding<List<SuggestionItem>, SuggestionItem> createCollection(String query) {
         return CollectionBinding
-                .from(buildCollectionBinding(query))
+                .fromV2(buildCollectionBinding(query))
                 .withAdapter(adapter)
                 .build();
     }
