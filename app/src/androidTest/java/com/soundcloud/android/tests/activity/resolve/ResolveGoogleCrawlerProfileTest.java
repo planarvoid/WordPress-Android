@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -16,6 +17,7 @@ public class ResolveGoogleCrawlerProfileTest extends ResolveGoogleCrawlerBaseTes
         return TestConsts.STEVE_ANGELLO_DEEP_LINK;
     }
 
+    @Ignore //FIXME https://soundcloud.atlassian.net/browse/DROID-1351
     public void testResolveUrl() {
         ProfileScreen profileScreen = new ProfileScreen(solo);
         assertThat(profileScreen, is(visible()));
