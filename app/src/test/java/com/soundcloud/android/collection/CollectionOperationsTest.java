@@ -115,7 +115,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 .thenReturn(Maybe.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
-                .thenReturn(Observable.just(recentlyPlayed));
+                .thenReturn(Single.just(recentlyPlayed));
     }
 
     @Test
@@ -188,7 +188,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 Observable.error(exception));
 
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS)).thenReturn(
-                Observable.error(exception));
+                Single.error(exception));
 
         MyCollection collection = operations.collections().test()
                                               .assertValueCount(1)

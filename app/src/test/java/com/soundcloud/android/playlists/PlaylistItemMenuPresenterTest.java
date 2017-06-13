@@ -41,6 +41,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +98,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Single.never());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
 
         button = new View(activity());
@@ -134,7 +135,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
-        final PublishSubject<LikeOperations.LikeResult> likeObservable = PublishSubject.create();
+        final SingleSubject<LikeOperations.LikeResult> likeObservable = SingleSubject.create();
         when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
@@ -250,7 +251,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void shouldLikeAndSaveOffline() {
         final PublishSubject<Void> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
-        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlistItem);

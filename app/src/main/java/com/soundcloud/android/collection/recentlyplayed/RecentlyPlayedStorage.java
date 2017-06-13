@@ -14,40 +14,41 @@ import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
-import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.Func2;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class RecentlyPlayedStorage {
 
     private static final String TRACK_STATIONS_URN_PREFIX = "soundcloud:track-stations:";
     private static final String ARTIST_STATIONS_URN_PREFIX = "soundcloud:artist-stations:";
-    public static final Func2<RecentlyPlayedPlayableItem, RecentlyPlayedPlayableItem, Integer> SORT_BY_TIMESTAMP = (a, b) -> {
+    private static final Comparator<RecentlyPlayedPlayableItem> SORT_DESC_BY_TIMESTAMP = (a, b) -> {
         final long l = b.getTimestamp() - a.getTimestamp();
         return l > 0 ? 1 : l < 0 ? -1 : 0;
     };
 
+
     private final PropellerDatabase database;
-    private final PropellerRx rxDatabase;
+    private final PropellerRxV2 propellerRx;
 
     @Inject
-    public RecentlyPlayedStorage(PropellerDatabase database) {
+    public RecentlyPlayedStorage(PropellerDatabase database, PropellerRxV2 propellerRx) {
         this.database = database;
-        this.rxDatabase = new PropellerRx(database);
+        this.propellerRx = propellerRx;
     }
 
     List<PlayHistoryRecord> loadUnSyncedRecentlyPlayed() {
@@ -66,15 +67,6 @@ public class RecentlyPlayedStorage {
         return database.bulkInsert(RecentlyPlayed.TABLE, buildBulkValues(addRecords));
     }
 
-    private Map<String, Class> getColumns() {
-        final HashMap<String, Class> columns = new HashMap<>(4);
-        columns.put(RecentlyPlayed.TIMESTAMP.name(), Long.class);
-        columns.put(RecentlyPlayed.CONTEXT_ID.name(), Long.class);
-        columns.put(RecentlyPlayed.CONTEXT_TYPE.name(), Integer.class);
-        columns.put(RecentlyPlayed.SYNCED.name(), Boolean.class);
-        return columns;
-    }
-
     TxnResult removeRecentlyPlayed(final List<PlayHistoryRecord> removeRecords) {
         return database.runTransaction(new PropellerDatabase.Transaction() {
             @Override
@@ -89,18 +81,19 @@ public class RecentlyPlayedStorage {
         });
     }
 
-    Observable<List<RecentlyPlayedPlayableItem>> loadContexts(final int limit) {
-        final Observable<CursorReader> playlists = rxDatabase.query(playlistsQuery());
-        final Observable<CursorReader> users = rxDatabase.query(usersQuery());
-        final Observable<CursorReader> stations = rxDatabase.query(stationsQuery());
+    Single<List<RecentlyPlayedPlayableItem>> loadContexts(final int limit) {
+        final Observable<QueryResult> playlists = propellerRx.queryResult(playlistsQuery());
+        final Observable<QueryResult> users = propellerRx.queryResult(usersQuery());
+        final Observable<QueryResult> stations = propellerRx.queryResult(stationsQuery());
 
         return Observable.concat(playlists, users, stations)
-                         .map(new RecentlyPlayedItemMapper())
-                         .toSortedList(SORT_BY_TIMESTAMP)
+                         .map(queryResult -> queryResult.toList(new RecentlyPlayedItemMapper()))
+                         .flatMap(Observable::fromIterable)
+                         .toSortedList(SORT_DESC_BY_TIMESTAMP)
                          .map(withLimit(limit));
     }
 
-    private Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedPlayableItem>> withLimit(final int limit) {
+    private Function<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedPlayableItem>> withLimit(final int limit) {
         return items -> items.subList(0, Math.min(limit, items.size()));
     }
 
@@ -221,7 +214,7 @@ public class RecentlyPlayedStorage {
                 .whereEq(RecentlyPlayed.CONTEXT_ID, record.contextUrn().getNumericId());
     }
 
-    private static class RecentlyPlayedItemMapper extends RxResultMapper<RecentlyPlayedPlayableItem> {
+    private static class RecentlyPlayedItemMapper extends RxResultMapperV2<RecentlyPlayedPlayableItem> {
         static final String COLUMN_ARTWORK_URL = "artwork_url";
         static final String COLUMN_COLLECTION_ALBUM = "collection_album";
         static final String COLUMN_COLLECTION_COUNT = "collection_count";

@@ -111,7 +111,7 @@ public class CardEngagementsPresenter {
         final Urn entityUrn = playableItem.getUrn();
         final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
-                      .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
+                      .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,

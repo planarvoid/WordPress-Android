@@ -6,7 +6,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -16,6 +15,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -27,7 +27,6 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Context;
 
@@ -55,24 +54,22 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onToggleUnlikedTrackLikesViaLikesOperations() {
-        when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.empty());
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
 
         listener.onToggleLike(true, TRACK_URN);
 
-        verify(likeOperations).toggleLike(TRACK_URN, true);
+        verify(likeOperations).toggleLikeAndForget(TRACK_URN, true);
     }
 
     @Test
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
-        when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.empty());
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
 
         listener.onToggleLike(false, TRACK_URN);
 
-        verify(likeOperations).toggleLike(TRACK_URN, false);
+        verify(likeOperations).toggleLikeAndForget(TRACK_URN, false);
     }
 
     @Test
@@ -80,7 +77,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
-        when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -97,7 +93,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
-        when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.empty());
 
         listener.onToggleLike(false, TRACK_URN);
 

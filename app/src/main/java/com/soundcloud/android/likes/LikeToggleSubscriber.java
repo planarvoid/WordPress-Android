@@ -7,13 +7,13 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 
 import android.content.Context;
 import android.widget.Toast;
 
-public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
+public class LikeToggleSubscriber extends DefaultSingleObserver<Object> {
     private final Context context;
     private final boolean likeStatus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
@@ -33,7 +33,7 @@ public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
     }
 
     @Override
-    public void onNext(Object ignored) {
+    public void onSuccess(Object ignored) {
         if (changeLikeToSaveExperiment.isEnabled()) {
             showAddSnackbar();
         } else {

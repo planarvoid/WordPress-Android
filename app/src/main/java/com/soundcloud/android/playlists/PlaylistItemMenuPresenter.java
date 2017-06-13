@@ -34,7 +34,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -235,7 +235,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     public void handleRepost(boolean addRepost) {
         repostOperations.toggleRepost(playlistUrn, addRepost)
-                        .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSingleObserver(appContext));
 
         eventTracker.trackEngagement(
@@ -269,7 +269,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         final boolean addLike = true;
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .doOnNext(ignored -> saveOffline())
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .doOnSuccess(ignored -> saveOffline())
                       .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
     }
 
@@ -293,7 +294,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         playlistSubscription = playlistOperations
                 .playlist(urn)
                 .first()
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber());
     }
 

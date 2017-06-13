@@ -265,7 +265,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
-        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_FAILED)); // should not be called, but just being safe
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED)); // should not be called, but just being safe
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
@@ -285,7 +285,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
-        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_FAILED));
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED));
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
@@ -303,7 +303,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
-        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
@@ -429,7 +429,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         LikeOperations.LikeResult likeResult = LikeOperations.LikeResult.LIKE_SUCCEEDED;
-        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(likeResult));
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(likeResult));
 
         AssertableSubscriber<LikeOperations.LikeResult> subscriber = newPlaylistPresenter.onLikeResult().test();
 
@@ -442,7 +442,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void likeSendsTracking() throws Exception {
         connect();
 
-        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(PublishSubject.create());
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(SingleSubject.create());
 
         inputs.onToggleLike(true);
 
@@ -454,7 +454,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         LikeOperations.LikeResult likeResult = LikeOperations.LikeResult.UNLIKE_SUCCEEDED;
-        when(likeOperations.toggleLike(playlistUrn, false)).thenReturn(just(likeResult));
+        when(likeOperations.toggleLike(playlistUrn, false)).thenReturn(Single.just(likeResult));
 
         AssertableSubscriber<LikeOperations.LikeResult> subscriber = newPlaylistPresenter.onLikeResult().test();
 
@@ -467,7 +467,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void unlikeSendsTracking() throws Exception {
         connect();
 
-        when(likeOperations.toggleLike(playlistUrn, false)).thenReturn(PublishSubject.create());
+        when(likeOperations.toggleLike(playlistUrn, false)).thenReturn(SingleSubject.create());
 
         inputs.onToggleLike(false);
 

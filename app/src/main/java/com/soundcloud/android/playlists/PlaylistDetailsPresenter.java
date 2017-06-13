@@ -388,7 +388,7 @@ public class PlaylistDetailsPresenter {
         if (isInUserCollection(playlistUrn, creatorUrn)) {
             return operation.flatMap(ignored -> submitUpdateViewModel(true));
         } else {
-            return likeOperations.toggleLike(playlistUrn, true).flatMap(whenLikeSucceeded(operation));
+            return RxJava.toV1Observable(likeOperations.toggleLike(playlistUrn, true)).flatMap(whenLikeSucceeded(operation));
         }
     }
 
@@ -568,12 +568,12 @@ public class PlaylistDetailsPresenter {
                                                             playSessionSource.getPromotedSourceInfo(),
                                                             entityMetadata));
 
-        return likeOperations.toggleLike(playlistUrn, isLike);
+        return RxJava.toV1Observable(likeOperations.toggleLike(playlistUrn, isLike));
     }
 
-    private Observable<RepostOperations.RepostResult> repost(android.util.Pair<PlaylistDetailsViewModel, Boolean> PlaylistWithExtrasBooleanPair, PlaySessionSource playSessionSource) {
-        final PlaylistDetailsMetadata playlist = PlaylistWithExtrasBooleanPair.first.metadata();
-        final Boolean isReposted = PlaylistWithExtrasBooleanPair.second;
+    private Observable<RepostOperations.RepostResult> repost(android.util.Pair<PlaylistDetailsViewModel, Boolean> playlistWithExtrasBooleanPair, PlaySessionSource playSessionSource) {
+        final PlaylistDetailsMetadata playlist = playlistWithExtrasBooleanPair.first.metadata();
+        final Boolean isReposted = playlistWithExtrasBooleanPair.second;
 
         eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
                                                               playlist.urn(),

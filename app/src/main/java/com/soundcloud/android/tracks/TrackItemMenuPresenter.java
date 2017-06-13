@@ -37,7 +37,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -210,7 +210,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackSubscription.unsubscribe();
         trackSubscription = trackItemRepository
                 .track(track.getUrn())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(menu, changeLikeToSaveExperimentStringHelper));
     }
 
@@ -242,7 +242,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 checkState(isOwnedPlaylist());
                 final Urn trackUrn = track.getUrn();
                 playlistOperations.removeTrackFromPlaylist(playlistUrn, trackUrn)
-                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
                                   .subscribe(new DefaultSubscriber<Integer>() {
                                       @Override
                                       public void onNext(Integer args) {
@@ -321,7 +321,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private void handleRepost() {
         final boolean repost = !track.isUserRepost();
         repostOperations.toggleRepost(track.getUrn(), repost)
-                        .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSingleObserver(context));
 
         trackRepost(repost);

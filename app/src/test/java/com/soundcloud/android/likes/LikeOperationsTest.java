@@ -11,17 +11,17 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import edu.emory.mathcs.backport.java.util.Collections;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Scheduler;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.io.IOException;
 
@@ -33,9 +33,8 @@ public class LikeOperationsTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Captor private ArgumentCaptor<UpdateLikeParams> commandParamsCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
-    private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<LikeOperations.LikeResult> observer = new TestSubscriber<>();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
+    private Scheduler scheduler = Schedulers.trampoline();
     private Urn targetUrn = Urn.forTrack(123);
 
     @Before
@@ -45,56 +44,56 @@ public class LikeOperationsTest extends AndroidUnitTest {
                 syncInitiator,
                 eventBus,
                 scheduler);
-        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.just(5));
+        when(updateLikeCommand.toSingle(any(UpdateLikeParams.class))).thenReturn(Single.just(5));
     }
 
     @Test
     public void toggleLikeAddsNewLikeAndEmitsEntityChangeSet() {
-        operations.toggleLike(targetUrn, true).subscribe(observer);
+        final TestObserver<LikeOperations.LikeResult> observer = operations.toggleLike(targetUrn, true).test();
 
-        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        verify(updateLikeCommand).toSingle(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isTrue();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.LIKE_SUCCEEDED);
+        assertThat(observer.values()).containsExactly(LikeOperations.LikeResult.LIKE_SUCCEEDED);
     }
 
     @Test
     public void toggleLikeAddsNewLikeAndEmitsErrorResult() {
-        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.error(new IOException()));
+        when(updateLikeCommand.toSingle(any(UpdateLikeParams.class))).thenReturn(Single.error(new IOException()));
 
-        operations.toggleLike(targetUrn, true).subscribe(observer);
+        final TestObserver<LikeOperations.LikeResult> observer = operations.toggleLike(targetUrn, true).test();
 
-        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        verify(updateLikeCommand).toSingle(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isTrue();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.LIKE_FAILED);
+        assertThat(observer.values()).containsExactly(LikeOperations.LikeResult.LIKE_FAILED);
     }
 
     @Test
     public void toggleLikeRemovesLikeAndEmitsEntityChangeSet() {
-        operations.toggleLike(targetUrn, false).subscribe(observer);
+        final TestObserver<LikeOperations.LikeResult> observer = operations.toggleLike(targetUrn, false).test();
 
-        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        verify(updateLikeCommand).toSingle(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isFalse();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.UNLIKE_SUCCEEDED);
+        assertThat(observer.values()).containsExactly(LikeOperations.LikeResult.UNLIKE_SUCCEEDED);
     }
 
     @Test
     public void toggleLikeRemovesLikeAndEmitsFailedResult() {
-        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.error(new IOException()));
+        when(updateLikeCommand.toSingle(any(UpdateLikeParams.class))).thenReturn(Single.error(new IOException()));
 
-        operations.toggleLike(targetUrn, false).subscribe(observer);
+        final TestObserver<LikeOperations.LikeResult> observer = operations.toggleLike(targetUrn, false).test();
 
-        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        verify(updateLikeCommand).toSingle(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isFalse();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.UNLIKE_FAILED);
+        assertThat(observer.values()).containsExactly(LikeOperations.LikeResult.UNLIKE_FAILED);
     }
 
     @Test
     public void togglingLikePublishesPlayableChangedEvent() {
-        operations.toggleLike(targetUrn, true).subscribe(observer);
+        operations.toggleLike(targetUrn, true).test();
 
         LikesStatusEvent event = eventBus.firstEventOn(EventQueue.LIKE_CHANGED);
         assertThat(event.likes()).isEqualTo(Collections.singletonMap(targetUrn, LikesStatusEvent.LikeStatus.create(targetUrn, true, 5)));
@@ -102,7 +101,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void togglingLikeRequestsSystemSync() {
-        operations.toggleLike(targetUrn, true).subscribe(observer);
+        operations.toggleLike(targetUrn, true).test();
 
         verify(syncInitiator).requestSystemSync();
     }

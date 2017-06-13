@@ -161,11 +161,11 @@ public class CollectionOperations {
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
-        return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
+        return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS).toObservable();
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayedItems() {
-        return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
+        return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS).toObservable();
     }
 
     public Maybe<List<Playlist>> myPlaylists() {

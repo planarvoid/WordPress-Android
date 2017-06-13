@@ -4,12 +4,12 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.content.Context;
 import android.view.View;
@@ -26,7 +26,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     private final NavigationExecutor navigationExecutor;
 
     private StationMenuRenderer renderer;
-    private Subscription stationSubscription = RxUtils.invalidSubscription();
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     StationMenuPresenter(Context context,
@@ -52,29 +52,25 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     public void handleLike(StationWithTracks station) {
         boolean addLike = !station.isLiked();
 
-        stationsOperations.toggleStationLike(station.getUrn(), addLike)
-                          .observeOn(AndroidSchedulers.mainThread())
-                          .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
+        disposable.add(RxJava.toV2Single(stationsOperations.toggleStationLike(station.getUrn(), addLike))
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribeWith(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor)));
     }
 
     @Override
     public void onDismiss() {
-        stationSubscription.unsubscribe();
-        stationSubscription = RxUtils.invalidSubscription();
+        disposable.clear();
     }
 
     private void loadStation(Urn urn) {
-        stationSubscription.unsubscribe();
-        stationSubscription = stationsOperations.stationWithTracks(urn, Optional.absent())
-                                                .first()
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(new StationSubscriber());
-    }
-
-    private class StationSubscriber extends DefaultSubscriber<StationWithTracks> {
-        @Override
-        public void onNext(StationWithTracks station) {
-            renderer.render(station);
-        }
+        disposable.add(RxJava.toV2Observable(stationsOperations.stationWithTracks(urn, Optional.absent()))
+                             .firstElement()
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribeWith(new DefaultMaybeObserver<StationWithTracks>() {
+                                 @Override
+                                 public void onSuccess(StationWithTracks station) {
+                                     renderer.render(station);
+                                 }
+                             }));
     }
 }

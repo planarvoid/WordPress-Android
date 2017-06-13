@@ -6,10 +6,11 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
 import java.util.List;
@@ -20,26 +21,24 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new RecentlyPlayedStorage(propeller());
+        storage = new RecentlyPlayedStorage(propeller(), propellerRxV2());
     }
 
     @Test
     public void loadCorrectOfflineStateForPlaylistMarkedAsOffline() {
-        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = insertDownloadedOfflinePlaylist();
         testFixtures().insertRecentlyPlayed(100, apiPlaylist.getUrn());
 
-        storage.loadContexts(1).subscribe(subscriber);
+        final TestObserver<List<RecentlyPlayedPlayableItem>> subscriber = storage.loadContexts(1).test();
 
         subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.of(OfflineState.DOWNLOADED), 100, false)));
     }
 
     @Test
     public void loadCorrectOfflineStateForPlaylistNotMarkedAsOffline() {
-        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
-        final ApiPlaylist apiPlaylist = insertRecentPlaylist();
+        final ApiPlaylist apiPlaylist = insertRecentPlaylist(0L);
 
-        storage.loadContexts(1).subscribe(subscriber);
+        final TestObserver<List<RecentlyPlayedPlayableItem>> subscriber = storage.loadContexts(1).test();
 
         subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 0L, false)));
 
@@ -47,20 +46,33 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadCorrectLikedPlaylist() {
-        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
         ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date());
         testFixtures().insertRecentlyPlayed(100, apiPlaylist.getUrn());
 
-        storage.loadContexts(1).subscribe(subscriber);
+        final TestObserver<List<RecentlyPlayedPlayableItem>> subscriber = storage.loadContexts(1).test();
 
         subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 100L, true)));
 
     }
 
-    private ApiPlaylist insertRecentPlaylist() {
+    @Test
+    public void loadPlaylistsInCorrectDescOrder() {
+        final long firstTimestamp = 100L;
+        final ApiPlaylist firstRecentPlaylist = insertRecentPlaylist(firstTimestamp);
+        final long secondTimestamp = 200L;
+        final ApiPlaylist secondRecentPlaylist = insertRecentPlaylist(secondTimestamp);
+
+        final TestObserver<List<RecentlyPlayedPlayableItem>> subscriber = storage.loadContexts(2).test();
+
+        subscriber.assertValue(Lists.newArrayList(getRecentlyPlayedItem(secondRecentPlaylist, Optional.absent(), secondTimestamp, true),
+                                                  getRecentlyPlayedItem(firstRecentPlaylist, Optional.absent(), firstTimestamp, true)));
+
+    }
+
+    private ApiPlaylist insertRecentPlaylist(long timestamp) {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertPlaylistTrack(apiPlaylist, 0);
-        testFixtures().insertRecentlyPlayed(0L, apiPlaylist.getUrn());
+        testFixtures().insertRecentlyPlayed(timestamp, apiPlaylist.getUrn());
         return apiPlaylist;
     }
 

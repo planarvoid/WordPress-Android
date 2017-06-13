@@ -20,7 +20,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class RecentlyPlayedPresenterTest extends AndroidUnitTest {
                 .thenReturn(recentlyPlayedAdapter);
 
         List<RecentlyPlayedPlayableItem> items = createRecentlyPlayedFixtures(RECENTLY_PLAYED_ITEMS_COUNT);
-        when(recentlyPlayedOperations.recentlyPlayed()).thenReturn(Observable.just(items));
+        when(recentlyPlayedOperations.recentlyPlayed()).thenReturn(Single.just(items));
 
         recentlyPlayedPresenter = new RecentlyPlayedPresenter(swipeRefreshAttacher,
                                                               recentlyPlayedAdapterFactory,

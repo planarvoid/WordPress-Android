@@ -47,7 +47,7 @@ class TrackPageListener extends PageListener {
 
     public void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
         checkNotNull(trackUrn);
-        fireAndForget(likeOperations.toggleLike(trackUrn, addLike));
+        likeOperations.toggleLikeAndForget(trackUrn, addLike);
 
         engagementsTracking.likeTrackUrn(trackUrn,
                                          addLike,

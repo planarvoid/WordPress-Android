@@ -35,25 +35,25 @@ public class RecentlyPlayedOperations {
         this.clearRecentlyPlayedCommand = clearRecentlyPlayedCommand;
     }
 
-    Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
+    Single<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
         return recentlyPlayed(MAX_RECENTLY_PLAYED);
     }
 
-    public Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed(int limit) {
+    public Single<List<RecentlyPlayedPlayableItem>> recentlyPlayed(int limit) {
         return syncOperations.lazySyncIfStale(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Single.just(SyncResult.noOp()))
-                             .flatMapObservable(__ -> recentlyPlayedItems(limit));
+                             .flatMap(__ -> recentlyPlayedItems(limit));
     }
 
-    Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed() {
+    Single<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed() {
         return refreshRecentlyPlayed(MAX_RECENTLY_PLAYED);
     }
 
-    public Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {
+    public Single<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {
         return syncOperations.failSafeSync(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
-                             .flatMapObservable(__ -> recentlyPlayedItems(limit));
+                             .flatMap(__ -> recentlyPlayedItems(limit));
     }
 
     Observable<Boolean> clearHistory() {
@@ -61,8 +61,8 @@ public class RecentlyPlayedOperations {
                                                 .subscribeOn(scheduler);
     }
 
-    private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {
-        return RxJava.toV2Observable(recentlyPlayedStorage.loadContexts(limit));
+    private Single<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {
+        return recentlyPlayedStorage.loadContexts(limit);
     }
 
 }

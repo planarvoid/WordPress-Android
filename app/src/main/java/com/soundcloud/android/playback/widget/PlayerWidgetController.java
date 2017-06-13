@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.widget;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -105,7 +103,7 @@ public class PlayerWidgetController {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
             final Urn currentTrackUrn = currentPlayQueueItem.getUrn();
-            fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
+            likeOperations.toggleLikeAndForget(currentTrackUrn, addLike);
 
             engagementsTracking.likeTrackUrn(currentTrackUrn,
                                              addLike,

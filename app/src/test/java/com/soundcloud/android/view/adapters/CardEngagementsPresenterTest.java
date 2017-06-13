@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.subjects.PublishSubject;
 
 import android.view.View;
 
@@ -51,7 +50,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final PlayableItem playableItem = ModelFixtures.playlistItem();
-    private final PublishSubject<LikeOperations.LikeResult> testSubject = PublishSubject.create();
+    private final SingleSubject<LikeOperations.LikeResult> testSubject = SingleSubject.create();
     private final SingleSubject<RepostOperations.RepostResult> repostTestSubject = SingleSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
 

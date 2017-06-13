@@ -4,7 +4,6 @@ import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expec
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -250,11 +249,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
 
-        verify(likeOperations).toggleLike(WIDGET_TRACK_URN, true);
+        verify(likeOperations).toggleLikeAndForget(WIDGET_TRACK_URN, true);
     }
 
     @Test
@@ -263,7 +261,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
 
@@ -279,7 +276,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getUrn())).thenReturn(promotedSourceInfo);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(promotedTrackItem.getUrn()));
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
 
@@ -300,7 +296,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPromotedSourceInfo(WIDGET_TRACK_URN)).thenReturn(promotedSourceInfo);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
 
@@ -323,7 +318,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         controller.handleToggleLikeAction(true);
 

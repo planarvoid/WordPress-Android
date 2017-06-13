@@ -45,7 +45,6 @@ import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -121,7 +120,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddTrackLike() {
-        final PublishSubject<LikeOperations.LikeResult> likeObservable = PublishSubject.create();
+        final SingleSubject<LikeOperations.LikeResult> likeObservable = SingleSubject.create();
         when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isUserLike())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 

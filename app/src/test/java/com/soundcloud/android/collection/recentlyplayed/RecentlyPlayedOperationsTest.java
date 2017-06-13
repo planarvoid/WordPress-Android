@@ -9,7 +9,6 @@ import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -34,7 +33,7 @@ public class RecentlyPlayedOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(recentlyPlayedStorage.loadContexts(anyInt())).thenReturn(rx.Observable.just(CONTEXT_ITEMS));
+        when(recentlyPlayedStorage.loadContexts(anyInt())).thenReturn(Single.just(CONTEXT_ITEMS));
         operations = new RecentlyPlayedOperations(recentlyPlayedStorage,
                                                   scheduler,
                                                   syncOperations,
