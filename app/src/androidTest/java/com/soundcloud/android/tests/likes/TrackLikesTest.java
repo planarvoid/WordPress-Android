@@ -1,5 +1,9 @@
 package com.soundcloud.android.tests.likes;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -9,7 +13,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -31,7 +34,12 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         return TestUser.likesUser;
     }
 
-    @Ignore // Test is flaky, see http://go/j/LISTEN-1031 for more details
+    @Override
+    protected void addInitialStubMappings() {
+        // Fix : test user data changes with toggling likes... we want the data to remain the same, so just prevent the likes changes from syncing :)
+        stubFor(post(urlPathEqualTo("/likes/tracks")).willReturn(aResponse().withStatus(500)));
+    }
+
     public void testLikesScreen() throws Exception {
         likesScreen = mainNavHelper.goToTrackLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();

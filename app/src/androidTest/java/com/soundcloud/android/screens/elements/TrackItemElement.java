@@ -35,6 +35,10 @@ public class TrackItemElement {
         return wrapped.findElement(With.id(R.id.reposter)).hasVisibility();
     }
 
+    public boolean isSnipped() {
+        return wrapped.findElement(With.id(R.id.preview_indicator)).hasVisibility();
+    }
+
     public boolean isLongerThanOneMinute() {
         final String durationText = new TextElement(wrapped.findElement(With.id(R.id.list_item_right_info))).getText();
         return durationText.length() > 0 && Integer.parseInt(durationText.substring(0, 1)) != 0;
@@ -113,7 +117,8 @@ public class TrackItemElement {
                     return false;
                 }
 
-                return new TrackItemElement(testDriver, input).isLongerThanOneMinute();
+                TrackItemElement trackItemElement = new TrackItemElement(testDriver, input);
+                return trackItemElement.isLongerThanOneMinute() && !trackItemElement.isSnipped();
             }
         };
     }
