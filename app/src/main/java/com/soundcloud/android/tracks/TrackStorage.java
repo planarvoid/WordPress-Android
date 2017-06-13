@@ -92,8 +92,9 @@ public class TrackStorage {
     }
 
     Maybe<Track> loadTrack(Urn urn) {
-        return propeller.query(buildTrackQuery(urn))
-                        .map(TrackStorage::trackFromCursorReader)
+        return propeller.queryResult(buildTrackQuery(urn))
+                        .map(result -> result.toList(TrackStorage::trackFromCursorReader))
+                        .flatMap(Observable::fromIterable)
                         .firstElement();
     }
 
@@ -125,8 +126,9 @@ public class TrackStorage {
     }
 
     Single<Optional<String>> loadTrackDescription(Urn urn) {
-        return propeller.query(buildTrackDescriptionQuery(urn))
-                        .map(new TrackDescriptionMapper())
+        return propeller.queryResult(buildTrackDescriptionQuery(urn))
+                        .map(result -> result.toList(new TrackDescriptionMapper()))
+                        .flatMap(Observable::fromIterable)
                         .first(Optional.absent());
     }
 

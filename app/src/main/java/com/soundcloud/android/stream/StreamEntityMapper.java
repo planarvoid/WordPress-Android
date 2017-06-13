@@ -60,7 +60,7 @@ class StreamEntityMapper {
 
     private static StreamEntity toPromotedStreamEntity(Urn urn, CursorReader cursorReader) {
         final StreamEntity.Builder builder = streamEntityBuilder(urn, cursorReader);
-        if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
+        if (cursorReader.hasColumn(PromotedTracks.AD_URN) && cursorReader.isNotNull(PromotedTracks.AD_URN)) {
             final String adUrn = cursorReader.getString(PromotedTracks.AD_URN);
             final List<String> trackClickedUrls = splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS));
             final List<String> trackImpressionUrls = splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS));

@@ -81,8 +81,9 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
                                  .whereNotNull(SoundStreamView.SOUND_ID)
                                  .limit(limit);
 
-        return propellerRx.query(query)
-                          .map(StreamEntityMapper.getPromotedMapper());
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(StreamEntityMapper.getPromotedMapper()))
+                          .flatMap(Observable::fromIterable);
     }
 
     @Override
@@ -93,7 +94,9 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
                                  .whereNull(SoundStreamView.PROMOTED_ID)
                                  .limit(limit);
 
-        return propellerRx.query(query).map(StreamEntityMapper.getMapper());
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(StreamEntityMapper.getPromotedMapper()))
+                          .flatMap(Observable::fromIterable);
     }
 
     @Override
@@ -113,13 +116,17 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
                            .whereNull(SoundStreamView.PROMOTED_ID)
                            .whereNotNull(SoundStreamView.SOUND_ID);
 
-        return propellerRx.query(query).map(scalar(Integer.class));
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(scalar(Integer.class)))
+                          .flatMap(Observable::fromIterable);
     }
 
     public Observable<PlayableWithReposter> playbackItems() {
         Query query = Query.from(Table.SoundStreamView.name())
                            .select(PLAYBACK_ITEMS_SELECTION);
-        return propellerRx.query(query).map(new ItemsForPlayback());
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(new ItemsForPlayback()))
+                          .flatMap(Observable::fromIterable);
     }
 
     private static final class ItemsForPlayback extends RxResultMapperV2<PlayableWithReposter> {

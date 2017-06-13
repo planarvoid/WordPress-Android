@@ -38,7 +38,9 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
         Query query = Query.count(Table.ActivityView.name())
                            .whereGt((Table.ActivityView.field(TableColumns.ActivityView.CREATED_AT)), timestamp);
 
-        return propellerRx.query(query).map(scalar(Integer.class));
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(scalar(Integer.class)))
+                          .flatMap(Observable::fromIterable);
     }
 
     @NonNull
@@ -51,14 +53,18 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
 
     @Override
     public Observable<ActivityItem> timelineItems(final int limit) {
-        return propellerRx.query(activitiesQuery(limit)).map(new ActivityRowMapper());
+        return propellerRx.queryResult(activitiesQuery(limit))
+                          .map(result -> result.toList(new ActivityRowMapper()))
+                          .flatMap(Observable::fromIterable);
     }
 
     @Override
     public Observable<ActivityItem> timelineItemsBefore(long timestamp, int limit) {
         final Query query = activitiesQuery(limit)
                 .whereLt(ActivityView.CREATED_AT, timestamp);
-        return propellerRx.query(query).map(new ActivityRowMapper());
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(new ActivityRowMapper()))
+                          .flatMap(Observable::fromIterable);
     }
 
     @Override

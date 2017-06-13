@@ -82,11 +82,11 @@ public class PlaylistStorage {
 
     Single<List<Urn>> availablePlaylists(final Collection<Urn> playlistUrns) {
         return propellerRx
-                .query(Query.from(Tables.PlaylistView.TABLE)
+                .queryResult(Query.from(Tables.PlaylistView.TABLE)
                             .select(Tables.PlaylistView.ID)
                             .whereIn(Tables.PlaylistView.ID, toIdsColl(playlistUrns)))
-                .map(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID)))
-                .toList();
+                .map(result -> result.toList(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID))))
+                .firstOrError();
     }
 
     Single<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
