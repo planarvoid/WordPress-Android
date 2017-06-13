@@ -12,12 +12,12 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -26,6 +26,7 @@ import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -37,6 +38,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+@Ignore // FIXME https://soundcloud.atlassian.net/browse/DROID-1350
 public class OnboardActivityTest extends AndroidUnitTest {
 
     private OnboardActivityWithSettableBundle activity;
