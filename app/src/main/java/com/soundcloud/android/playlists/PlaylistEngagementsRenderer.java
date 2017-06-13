@@ -6,8 +6,10 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
@@ -37,6 +39,7 @@ class PlaylistEngagementsRenderer {
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
     private final OfflineSettingsOperations offlineSettings;
     private final ConnectionHelper connectionHelper;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
@@ -48,6 +51,7 @@ class PlaylistEngagementsRenderer {
                                 IntroductoryOverlayPresenter introductoryOverlayPresenter,
                                 OfflineSettingsOperations offlineSettings,
                                 ConnectionHelper connectionHelper,
+                                GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                                 ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.context = context;
@@ -58,6 +62,7 @@ class PlaylistEngagementsRenderer {
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.offlineSettings = offlineSettings;
         this.connectionHelper = connectionHelper;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
@@ -176,6 +181,24 @@ class PlaylistEngagementsRenderer {
         stateButton.setVisibility(View.VISIBLE);
         setOfflineButtonState(stateButton, item.offlineState());
         stateButton.setOnClickListener(v -> toggleOffline(item, listener));
+
+        if (canShowListenOfflineOverlay(item.creatorUrn())) {
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_PLAYLIST,
+                                                      stateButton, R.string.overlay_listen_offline_playlist_title,
+                                                      R.string.overlay_listen_offline_playlist_description);
+        }
+    }
+
+    private boolean canShowListenOfflineOverlay(Urn creatorUrn) {
+        return !accountOperations.isLoggedInUser(creatorUrn)
+                && goOnboardingTooltipExperiment.isEnabled()
+                && canSyncOfflineOnCurrentConnection();
+    }
+
+    private boolean canSyncOfflineOnCurrentConnection() {
+        return offlineSettings.isWifiOnlyEnabled()
+               ? connectionHelper.isWifiConnected()
+               : connectionHelper.isNetworkConnected();
     }
 
     private void setOfflineButtonState(OfflineStateButton stateButton, OfflineState offlineState) {

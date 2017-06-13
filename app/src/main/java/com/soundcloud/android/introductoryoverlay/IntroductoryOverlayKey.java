@@ -11,11 +11,13 @@ public class IntroductoryOverlayKey {
     public static final String ADD_TO_COLLECTION = "add_to_collection";
     public static final String LISTEN_OFFLINE_LIKES = "listen_offline_likes";
     public static final String SEARCH_GO_PLUS = "search_go_plus";
+    public static final String LISTEN_OFFLINE_PLAYLIST = "listen_offline_playlist";
 
     public static final List<String> ALL_KEYS = Collections.unmodifiableList(Arrays.asList(PLAY_QUEUE,
                                                                                            CHROMECAST,
                                                                                            EDIT_PLAYLIST,
                                                                                            ADD_TO_COLLECTION,
                                                                                            LISTEN_OFFLINE_LIKES,
-                                                                                           SEARCH_GO_PLUS));
+                                                                                           SEARCH_GO_PLUS,
+                                                                                           LISTEN_OFFLINE_PLAYLIST));
 }
