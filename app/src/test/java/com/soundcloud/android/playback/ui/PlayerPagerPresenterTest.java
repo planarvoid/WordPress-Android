@@ -48,13 +48,13 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -165,10 +165,10 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build());
 
-        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Maybe.just(
                 ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build())));
 
-        when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
+        when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Maybe.just(
                 ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build())));
     }
 
@@ -524,7 +524,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindAdViewForAudioAdsWhenTrackRepositoryReturnsEmpty() {
-        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.empty());
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Maybe.empty());
         presenter.onResume(playerFragment);
         View pageView = getAudioAdPageView();
         ArgumentCaptor<AudioPlayerAd> captorAudioPlayerAd = ArgumentCaptor.forClass(AudioPlayerAd.class);
@@ -554,7 +554,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindAdViewAndSetVideoSurfaceForVideoAdsWhenTrackRepositoryReturnsEmpty() {
-        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.empty());
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Maybe.empty());
         when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
         when(videoAdPresenter.getViewabilityLayer(any(View.class))).thenReturn(view1);
         presenter.onResume(playerFragment);
@@ -848,7 +848,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupGetCurrentViewPreconditions(int position) {
-        when(trackRepository.track(playQueue.get(position).getUrn())).thenReturn(Observable.just(track));
+        when(trackRepository.track(playQueue.get(position).getUrn())).thenReturn(Maybe.just(track));
     }
 
     private void setCurrentTrackState(int position, boolean isCurrentTrack) {

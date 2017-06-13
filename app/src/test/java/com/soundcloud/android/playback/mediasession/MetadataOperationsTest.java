@@ -20,6 +20,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,7 +56,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         operations = new MetadataOperations(context().getResources(), trackRepository,
                                             imageOperations, Schedulers.immediate());
 
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
         when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
                                      any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))

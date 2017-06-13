@@ -213,7 +213,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onShuffle() {
-        playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
+        playbackInitiator.playTracksShuffled(RxJava.toV1Observable(likeOperations.likedTrackUrns()), new PlaySessionSource(Screen.LIKES))
                          .doOnCompleted(sendShuffleLikesAnalytics)
                          .subscribe(expandPlayerSubscriberProvider.get());
     }

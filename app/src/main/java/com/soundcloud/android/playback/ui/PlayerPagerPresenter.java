@@ -35,6 +35,7 @@ import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.rx.OperationsInstrumentation;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackItem;
@@ -453,8 +454,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private Observable<PlayerItem> emptyPlayerItem(PlayQueueItem playQueueItem) {
         return playQueueItem.isAd()
-                ? Observable.just(playerAdForAdData(playQueueItem.getAdData().get()))
-                : Observable.just(PlayerTrackState.EMPTY);
+               ? Observable.just(playerAdForAdData(playQueueItem.getAdData().get()))
+               : Observable.just(PlayerTrackState.EMPTY);
     }
 
     private void setVideoSurfaceIfNecessary(PlayQueueItem playQueueItem, View view) {
@@ -510,8 +511,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private Func1<TrackItem, PlayerTrackState> toPlayerTrackState(final PlayQueueItem playQueueItem) {
         return trackItem -> new PlayerTrackState(trackItem,
-                                                   playQueueManager.isCurrentItem(playQueueItem),
-                                                   isForeground, viewVisibilityProvider
+                                                 playQueueManager.isCurrentItem(playQueueItem),
+                                                 isForeground, viewVisibilityProvider
         );
     }
 
@@ -563,10 +564,9 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         ReplaySubject<TrackItem> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackItemRepository
-                    .track(urn)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(trackSubject);
+            RxJava.toV1Observable(trackItemRepository.track(urn))
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribe(trackSubject);
             trackObservableCache.put(urn, trackSubject);
         }
         return trackSubject;

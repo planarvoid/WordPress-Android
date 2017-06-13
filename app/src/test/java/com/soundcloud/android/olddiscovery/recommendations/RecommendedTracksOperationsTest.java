@@ -5,8 +5,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -18,6 +18,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -71,7 +72,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 Collections.singletonList(RECOMMENDED_TRACK.getUrn())));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(SYNC_SUBJECT);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
-        when(trackRepository.trackListFromUrns(Collections.singletonList(RECOMMENDED_TRACK.getUrn()))).thenReturn(Observable.just(RECOMMENDED_TRACKS));
+        when(trackRepository.trackListFromUrns(Collections.singletonList(RECOMMENDED_TRACK.getUrn()))).thenReturn(Single.just(RECOMMENDED_TRACKS));
     }
 
     @Test
@@ -189,7 +190,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(Observable.just(Result.SYNCED));
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(recommendationSeed));
         when(recommendationsStorage.recommendedTracksForSeed(seedId)).thenReturn(Observable.just(recommendedTracksUrns));
-        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
+        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Single.just(recommendedTracks));
 
         OldDiscoveryItem oldDiscoveryItem = operations.allBuckets().test()
                                                       .assertValueCount(1)
@@ -219,7 +220,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(firstRecommendationSeed, secondRecommendationSeed));
         when(recommendationsStorage.recommendedTracksForSeed(firstSeedId)).thenReturn(firstStorageSubject.map(tick -> recommendedTracksUrns));
         when(recommendationsStorage.recommendedTracksForSeed(secondSeedId)).thenReturn(secondStorageSubject.map(tick -> recommendedTracksUrns));
-        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
+        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Single.just(recommendedTracks));
 
 
         TestSubscriber<OldDiscoveryItem> testSubscriber = TestSubscriber.create();

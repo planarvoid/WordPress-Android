@@ -21,6 +21,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
@@ -149,7 +150,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
         final List<TrackItem> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTracksCommand.call(singletonList(track))).thenReturn(singletonList(playlist));
-        when(trackRepository.forPlaylist(playlist)).thenReturn(rx.Observable.just(tracksList));
+        when(trackRepository.forPlaylist(playlist)).thenReturn(Single.just(tracksList));
         when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date())));
         when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, TrackItem::offlineState));
     }

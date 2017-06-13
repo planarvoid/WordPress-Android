@@ -2,11 +2,11 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import io.reactivex.Maybe;
-import rx.Observable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,39 +24,31 @@ public class TrackItemRepository {
         this.entityItemCreator = entityItemCreator;
     }
 
-    public Observable<TrackItem> track(final Urn trackUrn) {
-        return RxJava.toV1Observable(trackRepository.track(trackUrn)).map(entityItemCreator::trackItem);
-    }
-
-    public Maybe<TrackItem> trackV2(final Urn trackUrn) {
+    public Maybe<TrackItem> track(final Urn trackUrn) {
         return trackRepository.track(trackUrn).map(entityItemCreator::trackItem);
     }
 
-    public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
-        return RxJava.toV1Observable(trackRepository.fromUrns(requestedTracks)).map(entityItemCreator::convertTrackMap);
+    public Single<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
+        return trackRepository.fromUrns(requestedTracks).map(entityItemCreator::convertTrackMap);
     }
 
-    public Observable<List<TrackItem>> trackListFromUrns(List<Urn> requestedTracks) {
+    public Single<List<TrackItem>> trackListFromUrns(List<Urn> requestedTracks) {
         return fromUrns(requestedTracks)
                 .map(urnTrackMap -> Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));
     }
 
-    public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
-        return RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn)).compose(tracksToItems());
+    public Single<List<TrackItem>> forPlaylist(Urn playlistUrn) {
+        return trackRepository.forPlaylist(playlistUrn).map(t -> Lists.transform(t, entityItemCreator::trackItem));
 
     }
 
-    public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
-        return RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn, staleTimeMillis)).compose(tracksToItems());
+    public Single<List<TrackItem>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
+        return trackRepository.forPlaylist(playlistUrn, staleTimeMillis).map(t -> Lists.transform(t, entityItemCreator::trackItem));
 
     }
 
     Observable<TrackItem> fullTrackWithUpdate(final Urn trackUrn) {
-        return RxJava.toV1Observable(trackRepository.fullTrackWithUpdate(trackUrn)).map(entityItemCreator::trackItem);
-    }
-
-    private Observable.Transformer<? super List<Track>, List<TrackItem>> tracksToItems() {
-        return tracks -> tracks.flatMap(t -> Observable.from(t).map(entityItemCreator::trackItem).toList());
+        return trackRepository.fullTrackWithUpdate(trackUrn).map(entityItemCreator::trackItem);
     }
 
 }

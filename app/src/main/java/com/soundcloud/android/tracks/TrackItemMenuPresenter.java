@@ -27,7 +27,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
-import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
@@ -35,10 +35,10 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -75,7 +75,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private PromotedSourceInfo promotedSourceInfo;
     private Urn playlistUrn;
     private Urn ownerUrn;
-    private Subscription trackSubscription = RxUtils.invalidSubscription();
+    private Disposable trackDisposable = Disposables.disposed();
     private boolean isShowing = false;
 
     @Nullable private RemoveTrackListener removeTrackListener;
@@ -83,7 +83,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private EventContextMetadata eventContextMetadata;
 
     public interface RemoveTrackListener {
-        RemoveTrackListener EMPTY = ignored -> {};
+        RemoveTrackListener EMPTY = ignored -> {
+        };
+
         void onPlaylistTrackRemoved(Urn track);
     }
 
@@ -207,17 +209,17 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void loadTrack(PopupMenuWrapper menu) {
-        trackSubscription.unsubscribe();
-        trackSubscription = trackItemRepository
+        trackDisposable.dispose();
+        trackDisposable = trackItemRepository
                 .track(track.getUrn())
-                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-                .subscribe(new TrackSubscriber(menu, changeLikeToSaveExperimentStringHelper));
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new TrackSubscriber(menu, changeLikeToSaveExperimentStringHelper));
     }
 
     @Override
     public void onDismiss() {
-        trackSubscription.unsubscribe();
-        trackSubscription = Subscriptions.empty();
+        trackDisposable.dispose();
+        trackDisposable = Disposables.empty();
         activity = null;
         track = null;
         isShowing = false;
@@ -327,7 +329,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackRepost(repost);
     }
 
-    private static class TrackSubscriber extends DefaultSubscriber<TrackItem> {
+    private static class TrackSubscriber extends DefaultMaybeObserver<TrackItem> {
         private final PopupMenuWrapper menu;
         private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
@@ -337,7 +339,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
 
         @Override
-        public void onNext(TrackItem track) {
+        public void onSuccess(TrackItem track) {
             updateLikeActionTitle(track.isUserLike());
             updateRepostActionTitle(track.isUserRepost());
         }

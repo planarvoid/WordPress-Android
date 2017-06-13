@@ -17,14 +17,14 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.functions.Func1;
-import rx.internal.util.UtilityFunctions;
+import io.reactivex.functions.Function;
 
 import android.content.Context;
 
@@ -76,14 +76,14 @@ public class PlayerWidgetController {
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation(UtilityFunctions.identity());
+        updatePlayableInformation(trackItem -> trackItem);
     }
 
     private void updatePlayState() {
         presenter.updatePlayState(context, playSessionsStateProvider.isPlaying());
     }
 
-    private void updatePlayableInformation(Func1<TrackItem, TrackItem> updateFunction) {
+    private void updatePlayableInformation(Function<TrackItem, TrackItem> updateFunction) {
         PlayQueueItem item = playQueueManager.getCurrentPlayQueueItem();
         if (item.isAudioAd()) {
             presenter.updateForAudioAd(context);
@@ -91,9 +91,9 @@ public class PlayerWidgetController {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
             trackItemRepository.track(item.getUrn())
-                           .filter(next -> next != null)
-                           .map(updateFunction)
-                           .subscribe(new CurrentTrackSubscriber());
+                               .filter(next -> next != null)
+                               .map(updateFunction)
+                               .subscribe(LambdaMaybeObserver.onNext(track -> presenter.updateTrackInformation(context, track)));
         } else {
             presenter.reset(context);
         }
@@ -141,17 +141,10 @@ public class PlayerWidgetController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<TrackItem> {
-        @Override
-        public void onNext(TrackItem track) {
-            presenter.updateTrackInformation(context, track);
-        }
-    }
-
     private class CurrentItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            updatePlayableInformation(UtilityFunctions.identity());
+            updatePlayableInformation(trackItem -> trackItem);
         }
     }
 

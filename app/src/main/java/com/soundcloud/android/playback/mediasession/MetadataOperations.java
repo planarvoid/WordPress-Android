@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
@@ -50,12 +51,11 @@ class MetadataOperations {
                                              boolean isAd,
                                              Optional<MediaMetadataCompat> existingMetadata) {
         if (urn.isTrack()) {
-            return trackRepository
-                    .track(urn)
-                    .filter(track -> track != null)
-                    .flatMap(toTrackWithBitmap(existingMetadata))
-                    .map(toMediaMetadata(isAd))
-                    .subscribeOn(scheduler);
+            return RxJava.toV1Observable(trackRepository.track(urn))
+                         .filter(track -> track != null)
+                         .flatMap(toTrackWithBitmap(existingMetadata))
+                         .map(toMediaMetadata(isAd))
+                         .subscribeOn(scheduler);
         } else if (isAd) {
             return adMediaMetadata();
         } else {

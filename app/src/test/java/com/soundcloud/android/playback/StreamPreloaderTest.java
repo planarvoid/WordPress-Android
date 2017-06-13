@@ -21,11 +21,11 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 public class StreamPreloaderTest extends AndroidUnitTest {
 
@@ -38,7 +38,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Mock private StreamCacheConfig.SkippyConfig streamCacheConfig;
     @Mock private CastConnectionHelper castConnectionHelper;
 
-    private final TestEventBus eventBus = new TestEventBus();
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
     private TrackItem track;
     private final PreloadItem preloadItem = new AutoValue_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
@@ -50,7 +50,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
                                         serviceInitiator, streamCacheConfig);
         preloader.subscribe();
         track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build());
-        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Maybe.just(track));
         when(castConnectionHelper.isCasting()).thenReturn(false);
     }
 

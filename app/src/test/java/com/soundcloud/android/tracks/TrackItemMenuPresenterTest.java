@@ -37,6 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +93,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(view.getContext()).thenReturn(context());
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.empty());
@@ -132,7 +133,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetLikeActionTitle() {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(trackItem.updatedWithLike(LikeStatus.create(trackItem.getUrn(), false))));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.just(trackItem.updatedWithLike(LikeStatus.create(trackItem.getUrn(), false))));
 
         presenter.show(activity, view, trackItem, 0);
 
@@ -142,7 +143,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetUnlikeActionTitle() {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(trackItem.updatedWithLike(LikeStatus.create(trackItem.getUrn(), true))));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.just(trackItem.updatedWithLike(LikeStatus.create(trackItem.getUrn(), true))));
 
         presenter.show(activity, view, trackItem, 0);
 

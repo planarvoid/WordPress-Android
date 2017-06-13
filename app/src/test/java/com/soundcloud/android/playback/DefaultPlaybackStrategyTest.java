@@ -112,7 +112,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem trackItem = onlineTrack();
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(trackItem));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.resume();
 
@@ -141,7 +141,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem trackItem = onlineTrack();
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(trackItem));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.togglePlayback();
 
@@ -153,7 +153,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         final TrackItem trackItem = onlineTrack();
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(trackItem));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.playCurrent().test().assertComplete();
 
@@ -166,7 +166,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(offlineTrack));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(offlineTrack));
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
         defaultPlaybackStrategy.playCurrent().test().assertComplete();
@@ -180,7 +180,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(offlineTrack));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(offlineTrack));
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
 
         defaultPlaybackStrategy.playCurrent().test().assertComplete();
@@ -195,7 +195,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(false);
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(offlineTrack));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().test().assertComplete();
 
@@ -220,7 +220,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         final Track.Builder builder = onlineTrackBuilder();
         builder.blocked(true);
         TrackItem trackItem = ModelFixtures.trackItem(builder.build());
-        when(trackItemRepository.trackV2(trackUrn)).thenReturn(Maybe.just(trackItem));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         TestObserver<Void> testObserver = defaultPlaybackStrategy.playCurrent().test();
 

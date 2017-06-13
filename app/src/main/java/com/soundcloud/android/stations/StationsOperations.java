@@ -108,9 +108,9 @@ public class StationsOperations {
     private Observable<StationWithTracks> loadStationWithTracks(Urn station) {
         return stationsStorage.stationWithTrackUrns(station)
                               .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.trackUrns().size() > 0)
-                              .flatMap(entity -> trackItemRepository.trackListFromUrns(entity.trackUrns())
-                                                                    .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
-                                                                    .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
+                              .flatMap(entity -> RxJava.toV1Observable(trackItemRepository.trackListFromUrns(entity.trackUrns()))
+                                                       .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
+                                                       .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
     }
 
     private Observable<StationRecord> syncSingleStation(Urn station, Func1<StationRecord, StationRecord> toStation) {

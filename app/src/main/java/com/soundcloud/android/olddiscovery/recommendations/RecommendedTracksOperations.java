@@ -8,6 +8,7 @@ import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
@@ -48,7 +49,7 @@ public class RecommendedTracksOperations {
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                                      .filter(list -> !list.isEmpty())
-                                     .flatMap(trackRepository::trackListFromUrns);
+                                     .flatMap(urns -> RxJava.toV1Observable(trackRepository.trackListFromUrns(urns)));
     }
 
     public Observable<OldDiscoveryItem> recommendedTracks() {

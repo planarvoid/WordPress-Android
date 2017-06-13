@@ -20,6 +20,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.functions.Predicate;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -71,7 +72,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         final List<TrackAndPlayQueueItem> expected = asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueue);
-        when(trackRepository.fromUrns(asList(track1Urn, track2Urn))).thenReturn(just(tracksFromStorage));
+        when(trackRepository.fromUrns(asList(track1Urn, track2Urn))).thenReturn(Single.just(tracksFromStorage));
 
         operations.getTracks().subscribe(subscriber);
 
@@ -81,8 +82,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemsDeferPlayQueueItemsLoadingToTheSubscription() {
-        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(just(singletonMap(track1Urn, trackItem1)));
-        when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(just(singletonMap(track2Urn, trackItem2)));
+        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(Single.just(singletonMap(track1Urn, trackItem1)));
+        when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(Single.just(singletonMap(track2Urn, trackItem2)));
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem1));
         final Observable<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
@@ -121,7 +122,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         final List<TrackAndPlayQueueItem> expectedTrackItems = singletonList(trackAndPlayQueueItem1);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueueItems);
-        when(trackRepository.fromUrns(requestedTracks)).thenReturn(just(knownTrack));
+        when(trackRepository.fromUrns(requestedTracks)).thenReturn(Single.just(knownTrack));
 
         operations.getTracks().subscribe(subscriber);
 

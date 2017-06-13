@@ -1,6 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import static rx.android.schedulers.AndroidSchedulers.mainThread;
+import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
@@ -12,12 +12,13 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -37,14 +38,14 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     private static final int COLLAPSE_DELAY_MILLIS = 300;
 
     @Inject TrackItemRepository trackRepository;
-    @Inject EventBus eventBus;
+    @Inject EventBusV2 eventBus;
     @Inject ImageOperations imageOperations;
     @Inject TrackInfoPresenter presenter;
     @Inject NavigationExecutor navigationExecutor;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private Observable<TrackItem> loadTrack;
-    private Subscription subscription;
+    private Disposable disposable;
 
     public static TrackInfoFragment create(Urn trackUrn) {
         Bundle args = new Bundle();
@@ -80,7 +81,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscription = loadTrack.subscribe(new TrackSubscriber());
+        disposable = loadTrack.subscribeWith(new TrackSubscriber());
         view.setOnClickListener(this);
     }
 
@@ -96,7 +97,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
     @Override
     public void onDestroy() {
-        subscription.unsubscribe();
+        disposable.dispose();
         super.onDestroy();
     }
 
@@ -105,7 +106,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         dismiss();
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<TrackItem> {
+    private class TrackSubscriber extends DefaultObserver<TrackItem> {
         @Override
         public void onNext(final TrackItem trackItem) {
             final View view = getView();
@@ -132,14 +133,14 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
         private final WeakReference<TrackInfoFragment> trackInfoFragmentRef;
         private final CollapseDelayHandler collapseDelayHandler;
-        private final EventBus eventBus;
+        private final EventBusV2 eventBus;
         private final Urn trackurn;
         private final NavigationExecutor navigationExecutor;
 
         private static class CollapseDelayHandler extends Handler {
-            private EventBus eventBus;
+            private final EventBusV2 eventBus;
 
-            private CollapseDelayHandler(EventBus eventBus) {
+            private CollapseDelayHandler(EventBusV2 eventBus) {
                 this.eventBus = eventBus;
             }
 
@@ -150,7 +151,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         }
 
         public TrackInfoCommentClickListener(TrackInfoFragment fragment,
-                                             EventBus eventBus,
+                                             EventBusV2 eventBus,
                                              Urn trackurn,
                                              NavigationExecutor navigationExecutor) {
             this.navigationExecutor = navigationExecutor;
@@ -174,19 +175,12 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             collapseDelayHandler.sendEmptyMessageDelayed(0, COLLAPSE_DELAY_MILLIS);
         }
 
-        private void subscribeToCollapsedEvent(Context context) {
+        private void subscribeToCollapsedEvent(final Context context) {
             eventBus.queue(EventQueue.PLAYER_UI)
-                    .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                    .subscribe(goToCommentsPage(context));
+                    .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED_V2)
+                    .firstOrError()
+                    .subscribe(LambdaSingleObserver.onNext(args -> navigationExecutor.openTrackComments(context, trackurn)));
         }
 
-        private DefaultSubscriber<PlayerUIEvent> goToCommentsPage(final Context context) {
-            return new DefaultSubscriber<PlayerUIEvent>() {
-                @Override
-                public void onNext(PlayerUIEvent args) {
-                    navigationExecutor.openTrackComments(context, trackurn);
-                }
-            };
-        }
     }
 }

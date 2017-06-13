@@ -47,6 +47,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -143,7 +144,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(likeOperations.likedTrackUrns()).thenReturn(rx.Observable.just(likedTrackUrns));
+        when(likeOperations.likedTrackUrns()).thenReturn(Single.just(likedTrackUrns));
         when(playbackInitiator.playTracksShuffled(any(rx.Observable.class), any(PlaySessionSource.class)))
                 .thenReturn(rx.Observable.empty());
         createAndBindView();

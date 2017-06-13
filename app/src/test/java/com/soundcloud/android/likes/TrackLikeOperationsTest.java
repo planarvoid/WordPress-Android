@@ -27,21 +27,19 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
 import rx.functions.Func2;
-import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.Date;
@@ -53,7 +51,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     private TrackLikeOperations operations;
 
-    @Mock private Observer<List<LikeWithTrack>> observer;
     @Mock private TrackItemRepository trackRepository;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
     @Mock private SyncInitiator syncInitiator;
@@ -61,8 +58,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Mock private ConnectionHelper connectionHelper;
     @Captor private ArgumentCaptor<Func2<TrackItem, Like, LikeWithTrack>> functionCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
-    private Scheduler scheduler = Schedulers.immediate();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
+    private Scheduler scheduler = Schedulers.trampoline();
     private List<TrackItem> tracks;
     private List<Like> likes;
 
@@ -90,8 +87,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),
                 LikeWithTrack.create(likes.get(1), tracks.get(1)));
 
-        when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE)))).thenReturn(
-                Observable.just(likes));
+        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE)))).thenReturn(
+                Single.just(likes));
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
     }
 
@@ -99,58 +96,55 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void syncAndLoadTrackLikesWhenHasNotSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(false));
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(tracks)));
+                .thenReturn(Single.just(urnToTrackMap(tracks)));
 
-        operations.likedTracks().subscribe(observer);
+        final TestObserver<List<LikeWithTrack>> observer = operations.likedTracks().test();
 
-        verify(observer, never()).onNext(anyList());
+        observer.assertNoValues();
 
         syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
-        verify(observer).onNext(likeWithTracks);
-        verify(observer).onCompleted();
+        observer.assertValue(likeWithTracks);
     }
 
     @Test
     public void loadTrackLikesWhenHasSyncedBefore() {
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(tracks)));
+                .thenReturn(Single.just(urnToTrackMap(tracks)));
 
-        operations.likedTracks().subscribe(observer);
+        final TestObserver<List<LikeWithTrack>> observer = operations.likedTracks().test();
 
         assertThat(syncSubject.hasObservers()).isFalse();
 
-        verify(observer).onNext(asList(
+        observer.assertValue(asList(
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),
                 LikeWithTrack.create(likes.get(1), tracks.get(1))));
-        verify(observer).onCompleted();
     }
 
     @Test
     public void loadEmptyTrackLikesWhenHasSyncedBefore() {
-        when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
-                .thenReturn(Observable.just(Collections.emptyList()));
+        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+                .thenReturn(Single.just(Collections.emptyList()));
 
         when(trackRepository.fromUrns(emptyList()))
-                .thenReturn(Observable.just(Collections.emptyMap()));
+                .thenReturn(Single.just(Collections.emptyMap()));
 
 
-        operations.likedTracks().subscribe(observer);
+        final TestObserver<List<LikeWithTrack>> observer = operations.likedTracks().test();
 
         assertThat(syncSubject.hasObservers()).isFalse();
 
-        verify(observer).onNext(emptyList());
-        verify(observer).onCompleted();
+        observer.assertValue(emptyList());
     }
 
     @Test
     public void loadTrackLikesDoesNotRequestUpdatesFromSyncerOffWifi() {
         when(connectionHelper.isWifiConnected()).thenReturn(false);
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(tracks)));
+                .thenReturn(Single.just(urnToTrackMap(tracks)));
 
-        operations.likedTracks().subscribe(observer);
+        operations.likedTracks().test();
 
         verify(syncInitiator, never()).batchSyncTracks(anyList());
     }
@@ -158,10 +152,10 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void loadEmptyTrackLikesDoesNotRequestUpdatesFromSyncer() {
         when(connectionHelper.isWifiConnected()).thenReturn(true);
-        when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
-                .thenReturn(Observable.just(Collections.emptyList()));
+        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+                .thenReturn(Single.just(Collections.emptyList()));
 
-        operations.likedTracks().subscribe(observer);
+        operations.likedTracks().test();
 
         verify(syncInitiator, never()).batchSyncTracks(anyList());
     }
@@ -169,48 +163,45 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
-                .thenReturn(Observable.just(urnToTrackMap(tracks)));
+                .thenReturn(Single.just(urnToTrackMap(tracks)));
 
-        operations.updatedLikedTracks().subscribe(observer);
+        final TestObserver<List<LikeWithTrack>> observer = operations.updatedLikedTracks().test();
 
-        verify(observer, never()).onNext(anyList());
+        observer.assertNoValues();
 
         syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
-        verify(observer).onNext(asList(
+        observer.assertValue(asList(
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),
                 LikeWithTrack.create(likes.get(1), tracks.get(1))));
-        verify(observer).onCompleted();
     }
 
     @Test
     public void updatedLikedTracksReloadsEmptyLikedTracksAfterSyncWithChange() {
-        when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
-                .thenReturn(Observable.just(Collections.emptyList()));
+        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+                .thenReturn(Single.just(Collections.emptyList()));
 
         when(trackRepository.fromUrns(emptyList()))
-                .thenReturn(Observable.just(Collections.emptyMap()));
+                .thenReturn(Single.just(Collections.emptyMap()));
 
-        operations.updatedLikedTracks().subscribe(observer);
+        final TestObserver<List<LikeWithTrack>> observer = operations.updatedLikedTracks().test();
 
-        verify(observer, never()).onNext(anyList());
+        observer.assertNoValues();
 
         syncSubject.onSuccess(TestSyncJobResults.successWithoutChange());
 
-        verify(observer).onNext(emptyList());
-        verify(observer).onCompleted();
+        observer.assertValue(emptyList());
     }
 
     @Test
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
         TrackItem track = ModelFixtures.expectedLikedTrackForLikesScreen();
-        when(trackRepository.track(track.getUrn())).thenReturn(Observable.just(track));
+        when(trackRepository.track(track.getUrn())).thenReturn(Maybe.just(track));
 
-        final TestSubscriber<TrackItem> observer = new TestSubscriber<>();
-        operations.onTrackLiked().subscribe(observer);
+        final TestObserver<TrackItem> observer = operations.onTrackLiked().test();
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(track.getUrn(), true, 5));
 
-        assertThat(observer.getOnNextEvents()).containsExactly(track);
+        assertThat(observer.values()).containsExactly(track);
     }
 
     @Test
@@ -221,7 +212,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(unlikedTrackUrn, false, 5));
 
-        assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
+        assertThat(observer.values()).containsExactly(unlikedTrackUrn);
     }
 
     private Map<Urn, TrackItem> urnToTrackMap(List<TrackItem> tracks) {

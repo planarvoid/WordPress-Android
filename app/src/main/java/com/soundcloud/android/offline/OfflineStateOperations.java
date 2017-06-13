@@ -158,10 +158,9 @@ public class OfflineStateOperations {
     }
 
     private OfflineState getState(Urn playlist) {
-        final List<TrackItem> playlistWithTracks = trackRepository
-                .forPlaylist(playlist)
-                .toBlocking()
-                .first();
+        final List<TrackItem> playlistWithTracks = RxJava.toV1Observable(trackRepository.forPlaylist(playlist))
+                                                         .toBlocking()
+                                                         .first();
         final Collection<OfflineState> tracksOfflineState = transform(playlistWithTracks, TrackItem::offlineState);
         return getCollectionOfflineState(tracksOfflineState);
     }

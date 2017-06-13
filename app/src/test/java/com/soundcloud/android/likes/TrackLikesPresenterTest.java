@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -42,6 +43,7 @@ import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,8 +86,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
-    private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
-                                                                                       Urn.forTrack(2)));
+    private final Single<List<Urn>> likedTrackUrns = Single.just(Arrays.asList(Urn.forTrack(1),
+                                                                               Urn.forTrack(2)));
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -111,8 +113,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             changeLikeToSaveExperimentStringHelper);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
-        when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
-        when(likeOperations.onTrackUnliked()).thenReturn(Observable.empty());
+        when(likeOperations.onTrackLiked()).thenReturn(io.reactivex.Observable.empty());
+        when(likeOperations.onTrackUnliked()).thenReturn(io.reactivex.Observable.empty());
         when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
         when(intentResolver.consumePlaybackRequest()).thenReturn(false);
     }
@@ -237,7 +239,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void loadingTrackLikesUpdatesHeaderViewOnlyOnce() {
         List<Urn> likedTrackUrns = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
-        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
+        when(likeOperations.likedTrackUrns()).thenReturn(Single.just(likedTrackUrns));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -253,7 +255,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         PlaybackResult playbackResult = PlaybackResult.success();
         when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(playbackInitiator.playTracks(eq(likedTrackUrns),
+        when(playbackInitiator.playTracks(any(Observable.class),
                                           eq(clickedTrack.getTrackItem().getUrn()),
                                           eq(0),
                                           isA(PlaySessionSource.class)))
@@ -266,7 +268,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         TrackItem trackItem = ModelFixtures.trackItem();
         final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
 
-        when(likeOperations.likedTracks()).thenReturn(Observable.just(tracks));
+        when(likeOperations.likedTracks()).thenReturn(Single.just(tracks));
 
         dataSource = new DataSource(likeOperations);
         dataSource.initialTrackLikes().subscribe(testSubscriber);
@@ -278,7 +280,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     public void dataSourceUpdatedTrackLikesReturnsLikedTracksWithHeader() {
         TrackItem trackItem = ModelFixtures.trackItem();
         final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
-        when(likeOperations.updatedLikedTracks()).thenReturn(Observable.just(tracks));
+        when(likeOperations.updatedLikedTracks()).thenReturn(Single.just(tracks));
 
         new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
 
@@ -294,7 +296,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                 getLikeWithTrack(trackItem, new Date(2))
         );
 
-        when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Observable.just(tracks));
+        when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Single.just(tracks));
 
         new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
 

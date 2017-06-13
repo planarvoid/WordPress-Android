@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.DiffUtils;
@@ -16,7 +17,6 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -55,16 +55,13 @@ public class PlayQueueOperations {
     private Observable<List<TrackAndPlayQueueItem>> loadTracks() {
         final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(IS_TRACK), cast(TrackQueueItem.class));
 
-        final Func1<Map<Urn, TrackItem>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = urnTrackMap -> toTrackAndPlayQueueItem(playQueueItems, urnTrackMap);
-
         final List<Urn> uniqueTrackUrns = DiffUtils.deduplicate(transform(playQueueItems, PlayQueueItem.TO_URN));
-        return trackItemRepository
-                .fromUrns(uniqueTrackUrns)
-                .map(fulfillWithKnownProperties)
-                .subscribeOn(scheduler);
+        return RxJava.toV1Observable(trackItemRepository.fromUrns(uniqueTrackUrns))
+                     .map(urnTrackMap -> toTrackAndPlayQueueItem(playQueueItems, urnTrackMap))
+                     .subscribeOn(scheduler);
     }
 
-    private ArrayList<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
+    private List<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
                                                                      Map<Urn, TrackItem> knownProperties) {
         final ArrayList<TrackAndPlayQueueItem> trackItems = new ArrayList<>(playQueueItems.size());
 

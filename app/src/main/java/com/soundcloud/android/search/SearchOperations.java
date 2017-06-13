@@ -5,6 +5,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
@@ -47,9 +48,9 @@ public class SearchOperations {
     Observable<SearchResult> searchPremiumResultFrom(List<Urn> searchableItems,
                                                      Optional<Link> nextHref,
                                                      Urn queryUrn) {
-        return trackRepository.trackListFromUrns(searchableItems)
-                              .map(Lists::<ListItem>newArrayList)
-                              .map(trackItems -> SearchResult.fromSearchableItems(trackItems, nextHref, queryUrn));
+        return RxJava.toV1Observable(trackRepository.trackListFromUrns(searchableItems))
+                     .map(Lists::<ListItem>newArrayList)
+                     .map(trackItems -> SearchResult.fromSearchableItems(trackItems, nextHref, queryUrn));
     }
 
     Observable<SearchResult> searchPremiumResult(String query, SearchType searchType) {

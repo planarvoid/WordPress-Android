@@ -5,20 +5,21 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func3;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import android.support.annotation.NonNull;
 
@@ -31,7 +32,7 @@ public class StreamPreloader {
     static final long MOBILE_TIME_TOLERANCE = TimeUnit.SECONDS.toMillis(30);
     static final long CACHE_CUSHION = 1024 * 1024; // one mb. not sure what this should be
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final TrackItemRepository trackItemRepository;
     private final PlayQueueManager playQueueManager;
     private final CastConnectionHelper castConnectionHelper;
@@ -39,30 +40,19 @@ public class StreamPreloader {
     private final PlaybackServiceController serviceController;
     private final StreamCacheConfig.SkippyConfig skippyConfig;
 
-    private Subscription preloadSubscription = RxUtils.invalidSubscription();
+    private Disposable preloadSubscription = Disposables.disposed();
 
-    private final Action1<CurrentPlayQueueItemEvent> unsubscribeFromPreload = currentPlayQueueItemEvent -> preloadSubscription.unsubscribe();
+    private final Consumer<CurrentPlayQueueItemEvent> unsubscribeFromPreload = currentPlayQueueItemEvent -> preloadSubscription.dispose();
 
-    private final Func1<CurrentPlayQueueItemEvent, Boolean> hasNextTrackInPlayQueue = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
+    private final Predicate<CurrentPlayQueueItemEvent> hasNextTrackInPlayQueue = new Predicate<CurrentPlayQueueItemEvent>() {
         @Override
-        public Boolean call(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
+        public boolean test(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
             return hasSpaceInCache() && playQueueManager.hasNextItem() && playQueueManager.getNextPlayQueueItem()
                                                                                           .isTrack();
         }
     };
 
-    private final Func1<TrackItem, Boolean> isNotOfflineTrack = new Func1<TrackItem, Boolean>() {
-        @Override
-        public Boolean call(TrackItem track) {
-            return !offlinePlaybackOperations.shouldPlayOffline(track);
-        }
-    };
-
-    private final Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = (playStateEvent, connectionType, playbackProgressEvent) -> new PlaybackNetworkState(playStateEvent,
-                                                                                                                                                                                                          playbackProgressEvent.getPlaybackProgress(),
-                                                                                                                                                                                                          connectionType);
-
-    private final Func1<PlaybackNetworkState, Boolean> checkNetworkAndProgressConditions = playbackNetworkState -> {
+    private final Predicate<PlaybackNetworkState> checkNetworkAndProgressConditions = playbackNetworkState -> {
         if (playbackNetworkState.playStateEvent.isPlayerPlaying()) {
             if (playbackNetworkState.connectionType == ConnectionType.WIFI) {
                 return true;
@@ -78,23 +68,23 @@ public class StreamPreloader {
 
     };
 
-    private final Func1<TrackItem, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<TrackItem, Observable<PreloadItem>>() {
+    private final Function<TrackItem, Maybe<PreloadItem>> waitForValidPreloadConditions = new Function<TrackItem, Maybe<PreloadItem>>() {
         @Override
-        public Observable<PreloadItem> call(final TrackItem nextItem) {
+        public Maybe<PreloadItem> apply(final TrackItem nextItem) {
             return Observable.combineLatest(
                     eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
                     eventBus.queue(EventQueue.PLAYBACK_PROGRESS),
-                    toPlaybackNetworkState)
+                    (playStateEvent, connectionType, playbackProgressEvent) -> new PlaybackNetworkState(playStateEvent, playbackProgressEvent.getPlaybackProgress(), connectionType))
                              .filter(checkNetworkAndProgressConditions)
-                             .take(1)
-                             .filter(cacheSpaceAvailable)
+                             .firstElement()
+                             .filter(playbackNetworkState -> hasSpaceInCache())
                              .map(toPreloadItem(nextItem));
         }
     };
 
     @NonNull
-    private Func1<Object, PreloadItem> toPreloadItem(final TrackItem trackItem) {
+    private Function<Object, PreloadItem> toPreloadItem(final TrackItem trackItem) {
         return ignored -> {
             final PlaybackType playbackType = trackItem.track().snipped() ?
                                               PlaybackType.AUDIO_SNIPPET :
@@ -103,19 +93,17 @@ public class StreamPreloader {
         };
     }
 
-    private final Func1<PlaybackNetworkState, Boolean> cacheSpaceAvailable = playbackNetworkState -> hasSpaceInCache();
-
     private boolean hasSpaceInCache() {
         return skippyConfig.getRemainingCacheSpace() > CACHE_CUSHION;
     }
 
     @Inject
-    public StreamPreloader(EventBus eventBus,
-                           TrackItemRepository trackItemRepository,
-                           PlayQueueManager playQueueManager,
-                           CastConnectionHelper castConnectionHelper,
-                           OfflinePlaybackOperations offlinePlaybackOperations,
-                           PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
+    StreamPreloader(EventBusV2 eventBus,
+                    TrackItemRepository trackItemRepository,
+                    PlayQueueManager playQueueManager,
+                    CastConnectionHelper castConnectionHelper,
+                    OfflinePlaybackOperations offlinePlaybackOperations,
+                    PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
         this.eventBus = eventBus;
         this.trackItemRepository = trackItemRepository;
         this.playQueueManager = playQueueManager;
@@ -133,20 +121,20 @@ public class StreamPreloader {
                 .subscribe(new PreloadCandidateSubscriber());
     }
 
-    private class PreloadCandidateSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+    private class PreloadCandidateSubscriber extends DefaultObserver<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent args) {
             final Urn urn = playQueueManager.getNextPlayQueueItem().getUrn();
             preloadSubscription = trackItemRepository.track(urn)
-                                                     .filter(isNotOfflineTrack)
+                                                     .filter(track -> !offlinePlaybackOperations.shouldPlayOffline(track))
                                                      .flatMap(waitForValidPreloadConditions)
-                                                     .subscribe(new PreloadSubscriber());
+                                                     .subscribeWith(new PreloadSubscriber());
         }
     }
 
-    private class PreloadSubscriber extends DefaultSubscriber<PreloadItem> {
+    private class PreloadSubscriber extends DefaultMaybeObserver<PreloadItem> {
         @Override
-        public void onNext(PreloadItem preloadItem) {
+        public void onSuccess(PreloadItem preloadItem) {
             serviceController.preload(preloadItem);
         }
     }
@@ -156,9 +144,9 @@ public class StreamPreloader {
         private final PlayStateEvent playStateEvent;
         private final ConnectionType connectionType;
 
-        private PlaybackNetworkState(PlayStateEvent playStateEvent,
-                                     PlaybackProgress playbackProgress,
-                                     ConnectionType connectionType) {
+        PlaybackNetworkState(PlayStateEvent playStateEvent,
+                             PlaybackProgress playbackProgress,
+                             ConnectionType connectionType) {
             this.playbackProgress = playbackProgress;
             this.playStateEvent = playStateEvent;
             this.connectionType = connectionType;

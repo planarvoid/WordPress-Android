@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
-import static com.soundcloud.android.utils.RepoUtils.enrich;
+import static com.soundcloud.android.utils.RepoUtils.enrichV2;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
@@ -10,15 +10,15 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func2;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.Observable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -31,20 +31,20 @@ public class TrackLikeOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
     static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
-    private static final Func2<TrackItem, Like, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
+    private static final BiFunction<TrackItem, Like, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
             .create(like, trackItem);
 
     private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final Scheduler scheduler;
     private final SyncInitiatorBridge syncInitiatorBridge;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final TrackItemRepository trackRepo;
 
     @Inject
     public TrackLikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
                                SyncInitiatorBridge syncInitiatorBridge,
-                               EventBus eventBus,
-                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                               EventBusV2 eventBus,
+                               @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                                TrackItemRepository trackItemRepository) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.syncInitiatorBridge = syncInitiatorBridge;
@@ -54,7 +54,7 @@ public class TrackLikeOperations {
     }
 
     Observable<TrackItem> onTrackLiked() {
-        return singleTrackLikeStatusChange(true).flatMap(trackRepo::track);
+        return singleTrackLikeStatusChange(true).flatMapMaybe(trackRepo::track);
     }
 
     Observable<Urn> onTrackUnliked() {
@@ -69,33 +69,33 @@ public class TrackLikeOperations {
                        .map(LikesStatusEvent.LikeStatus::urn);
     }
 
-    Observable<List<LikeWithTrack>> likedTracks() {
-        return RxJava.toV1Observable(syncInitiatorBridge.hasSyncedTrackLikesBefore())
-                     .flatMap(hasSynced -> {
-                         if (hasSynced) {
-                             return likedTracks(INITIAL_TIMESTAMP);
-                         } else {
-                             return updatedLikedTracks();
-                         }
-                     }).subscribeOn(scheduler);
+    Single<List<LikeWithTrack>> likedTracks() {
+        return syncInitiatorBridge.hasSyncedTrackLikesBefore()
+                                  .flatMap(hasSynced -> {
+                                      if (hasSynced) {
+                                          return likedTracks(INITIAL_TIMESTAMP);
+                                      } else {
+                                          return updatedLikedTracks();
+                                      }
+                                  }).subscribeOn(scheduler);
     }
 
-    Observable<List<LikeWithTrack>> likedTracks(long beforeTime) {
+    Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
         Params params = Params.from(beforeTime, PAGE_SIZE);
-        return loadLikedTracksCommand.toObservable(Optional.of(params))
-                                     .flatMap(source -> enrich(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+        return loadLikedTracksCommand.toSingle(Optional.of(params))
+                                     .flatMap(source -> enrichV2(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
                                      .subscribeOn(scheduler);
     }
 
-    Observable<List<LikeWithTrack>> updatedLikedTracks() {
-        return RxJava.toV1Observable(syncInitiatorBridge.syncTrackLikes())
+    Single<List<LikeWithTrack>> updatedLikedTracks() {
+        return syncInitiatorBridge.syncTrackLikes()
                      .observeOn(scheduler)
                      .flatMap(ignored -> likedTracks(INITIAL_TIMESTAMP))
                      .subscribeOn(scheduler);
     }
 
-    Observable<List<Urn>> likedTrackUrns() {
-        return loadLikedTracksCommand.toObservable(Optional.absent())
+    Single<List<Urn>> likedTrackUrns() {
+        return loadLikedTracksCommand.toSingle(Optional.absent())
                                      .map(likes -> transform(likes, Like::urn)).subscribeOn(scheduler);
     }
 
