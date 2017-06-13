@@ -1,5 +1,7 @@
 package com.soundcloud.android.suggestedcreators;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -9,10 +11,13 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.profile.ProfileImageHelper;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.users.User;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -34,6 +39,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final EngagementsTracking engagementsTracking;
     private final ScreenProvider screenProvider;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+    private final Navigator navigator;
 
     @Inject
     SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper,
@@ -42,7 +48,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
                              NavigationExecutor navigationExecutor,
                              EngagementsTracking engagementsTracking,
                              ScreenProvider screenProvider,
-                             ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
+                             ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper,
+                             Navigator navigator) {
         this.profileImageHelper = profileImageHelper;
         this.resources = resources;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
@@ -50,6 +57,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         this.engagementsTracking = engagementsTracking;
         this.screenProvider = screenProvider;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
+        this.navigator = navigator;
     }
 
     @Override
@@ -99,9 +107,10 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
-        textView.setOnClickListener(v -> navigationExecutor.openProfile(v.getContext(),
-                                                                        creator.urn(),
-                                                                        UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))));
+        textView.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v),
+                                                                                          creator.urn(),
+                                                                                          UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position)),
+                                                                                          Optional.absent())));
     }
 
     private EventContextMetadata buildEventContextMetadata(int position) {

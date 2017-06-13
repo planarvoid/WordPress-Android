@@ -12,6 +12,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -21,35 +23,40 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Observable;
 
+import android.app.Activity;
+
 import javax.inject.Inject;
 import java.util.List;
 
 public class SearchClickListener {
-    private final NavigationExecutor navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventTracker eventTracker;
     private final SearchPlayQueueFilter searchPlayQueueFilter;
     private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
+    private final Navigator navigator;
 
     @Inject
-    SearchClickListener(NavigationExecutor navigator, EventTracker eventTracker, SearchPlayQueueFilter searchPlayQueueFilter, PlaybackInitiator playbackInitiator, EventBus eventBus) {
-        this.navigator = navigator;
+    SearchClickListener(NavigationExecutor navigationExecutor,
+                        EventTracker eventTracker,
+                        SearchPlayQueueFilter searchPlayQueueFilter,
+                        PlaybackInitiator playbackInitiator,
+                        EventBus eventBus,
+                        Navigator navigator) {
+        this.navigationExecutor = navigationExecutor;
         this.eventTracker = eventTracker;
         this.searchPlayQueueFilter = searchPlayQueueFilter;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
+        this.navigator = navigator;
     }
 
     ClickResultAction playlistClickToNavigateAction(ClickParams params) {
-        return context -> navigator.openPlaylist(context, params.urn(), params.screen(), params.searchQuerySourceInfo(), null, params.uiEvent());
-
-
+        return context -> navigationExecutor.openPlaylist(context, params.urn(), params.screen(), params.searchQuerySourceInfo(), null, params.uiEvent());
     }
 
     ClickResultAction userClickToNavigateAction(ClickParams params) {
-        return context -> navigator.openProfile(context, params.urn(), params.screen(), params.uiEvent());
-
-
+        return context -> navigator.navigateTo(NavigationTarget.forProfile((Activity) context, params.urn(), params.uiEvent(), Optional.of(params.screen())));
     }
 
     Observable<PlaybackResult> trackClickToPlaybackResult(TrackClickParams params) {
@@ -59,8 +66,8 @@ public class SearchClickListener {
                                                                  searchPlayQueueFilter.correctPosition(params.playPosition()),
                                                                  params.playSessionSource()))
                      .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(params.clickParams().screen(),
-                                                                                        params.clickParams().searchQuerySourceInfo(),
-                                                                                        params.clickParams().clickSource())))
+                                                                                            params.clickParams().searchQuerySourceInfo(),
+                                                                                            params.clickParams().clickSource())))
                      .doOnNext(this::trackPlaybackSuccess);
     }
 

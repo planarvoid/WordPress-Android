@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -11,7 +12,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -23,10 +25,11 @@ import com.soundcloud.android.view.adapters.PrependItemToListObserver;
 import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -50,7 +53,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     };
 
     private final UserRecyclerItemAdapter adapter;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private Screen screen;
     private CompositeDisposable updateFollowingsSubscription;
 
@@ -60,14 +63,15 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                           UserRecyclerItemAdapter adapter,
                           MyProfileOperations profileOperations,
                           FollowingOperations followingOperations,
-                          EntityItemCreator entityItemCreator, NavigationExecutor navigationExecutor) {
+                          EntityItemCreator entityItemCreator,
+                          Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.profileOperations = profileOperations;
         this.followingOperations = followingOperations;
         this.entityItemCreator = entityItemCreator;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
     }
 
     @Override
@@ -79,12 +83,12 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
         updateFollowingsSubscription = new CompositeDisposable(
 
                 followingOperations.populatedOnUserFollowed()
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .subscribeWith(new PrependItemToListObserver<>(adapter)),
+                                   .observeOn(AndroidSchedulers.mainThread())
+                                   .subscribeWith(new PrependItemToListObserver<>(adapter)),
 
                 followingOperations.onUserUnfollowed()
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .subscribeWith(new RemoveEntityListObserver(adapter))
+                                   .observeOn(AndroidSchedulers.mainThread())
+                                   .subscribeWith(new RemoveEntityListObserver(adapter))
         );
 
         getBinding().connect();
@@ -140,7 +144,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .module(Module.create(Module.USER_FOLLOWING, position))
                                                                         .build();
 
-        navigationExecutor.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadata));
+        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, UIEvent.fromNavigation(urn, eventContextMetadata), Optional.absent()));
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.soundcloud.android.navigation;
 
-import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
@@ -28,6 +29,7 @@ import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
@@ -40,11 +42,12 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationsUriResolver;
-import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -55,7 +58,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowToast;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 
@@ -81,6 +83,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private StartStationHandler startStationHandler;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private EventTracker eventTracker;
 
     private NavigationResolver resolver;
 
@@ -99,7 +102,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           chartsUriResolver,
                                           signInOperations,
                                           startStationHandler,
-                                          stationsUriResolver,applicationProperties,() -> expandPlayerSubscriber);
+                                          stationsUriResolver,
+                                          applicationProperties,
+                                          InjectionSupport.providerOf(expandPlayerSubscriber),
+                                          eventTracker);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
@@ -829,6 +835,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verifyZeroInteractions(resolveOperations);
         verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forTrackStation(123L), DiscoverySource.DEEPLINK);
     }
+
     @Test
     public void deeplink_shouldGoToTheUpload() throws Exception {
         String target = "soundcloud://the-upload";
@@ -1503,13 +1510,25 @@ public class NavigationResolverTest extends AndroidUnitTest {
     // For Deeplink Navigation
 
     @Test
+    public void navigationDeeplink_shouldOpenProfile() throws Exception {
+        UIEvent event = mock(UIEvent.class);
+        NavigationTarget navigationTarget = NavigationTarget.forProfile(activity(), Urn.forUser(123L), event, Optional.of(Screen.USER_FOLLOWERS));
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), navigationTarget.targetUrn().get()));
+        verify(eventTracker).trackNavigation(event);
+    }
+
+    @Test
     public void navigationDeeplink_shouldOpenActivities() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forActivities(activity());
 
         resolveTarget(navigationTarget);
 
-        Context context = navigationTarget.activity();
-        context.startActivity(createActivitiesIntent(context));
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createActivitiesIntent(navigationTarget.activity()));
     }
 
     @Test

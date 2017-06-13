@@ -133,8 +133,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     private boolean shouldShowGoItems() {
-        return featureOperations.getCurrentPlan().isGoPlan() 
-                || featureOperations.upsellHighTier();
+        return featureOperations.getCurrentPlan().isGoPlan() || featureOperations.upsellHighTier();
     }
 
     @Override
@@ -341,7 +340,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         @Override
         public void onCompleted() {
-            if(!featureOperations.getCurrentPlan().isGoPlan()) {
+            if (!featureOperations.getCurrentPlan().isGoPlan()) {
                 feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_not_subscribed));
             }
             setRestoreSubscriptionEnabled(true);

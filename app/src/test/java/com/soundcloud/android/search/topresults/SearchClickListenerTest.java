@@ -17,6 +17,8 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
@@ -40,16 +42,17 @@ public class SearchClickListenerTest {
     private static final int POSITION = 1;
     private static final String CONTEXT = "search:tracks";
     private static final Screen SCREEN = Screen.SEARCH_EVERYTHING;
-    @Mock private NavigationExecutor navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private EventTracker eventTracker;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private EventBus eventBus;
+    @Mock private Navigator navigator;
     private SearchClickListener searchClickListener;
 
     @Before
     public void setUp() throws Exception {
-        searchClickListener = new SearchClickListener(navigator, eventTracker, searchPlayQueueFilter, playbackInitiator, eventBus);
+        searchClickListener = new SearchClickListener(navigationExecutor, eventTracker, searchPlayQueueFilter, playbackInitiator, eventBus, navigator);
     }
 
     @Test
@@ -67,7 +70,7 @@ public class SearchClickListenerTest {
         final Activity context = mock(Activity.class);
         clickResultAction.run(context);
 
-        verify(navigator).openPlaylist(eq(context), eq(playlistUrn), eq(SCREEN), eq(clickParams.searchQuerySourceInfo()), nullable(PromotedSourceInfo.class), eq(clickParams.uiEvent()));
+        verify(navigationExecutor).openPlaylist(eq(context), eq(playlistUrn), eq(SCREEN), eq(clickParams.searchQuerySourceInfo()), nullable(PromotedSourceInfo.class), eq(clickParams.uiEvent()));
     }
 
     @Test
@@ -82,10 +85,10 @@ public class SearchClickListenerTest {
                                                                                                    SearchEvent.ClickSource.PEOPLE_BUCKET);
         final ClickResultAction clickResultAction = searchClickListener.userClickToNavigateAction(clickParams);
 
-        final Activity context = mock(Activity.class);
-        clickResultAction.run(context);
+        final Activity activity = mock(Activity.class);
+        clickResultAction.run(activity);
 
-        verify(navigator).openProfile(eq(context), eq(userUrn), eq(SCREEN), eq(clickParams.uiEvent()));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn, clickParams.uiEvent(), Optional.of(SCREEN)));
     }
 
     @Test

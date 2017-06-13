@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -10,6 +11,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -17,6 +20,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -29,7 +33,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Screen screen;
 
@@ -38,12 +42,12 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
                            SwipeRefreshAttacher swipeRefreshAttacher,
                            UserProfileOperations profileOperations,
                            UserRecyclerItemAdapter adapter,
-                           NavigationExecutor navigationExecutor) {
+                           Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
     }
 
     @Override
@@ -101,7 +105,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
             eventContextMetadataBuilder.pageName(screen.get());
         }
 
-        navigationExecutor.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
+        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()), Optional.absent()));
     }
 
     @Override

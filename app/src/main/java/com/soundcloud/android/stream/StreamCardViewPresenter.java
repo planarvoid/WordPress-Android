@@ -2,8 +2,8 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -14,6 +14,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -35,11 +38,16 @@ class StreamCardViewPresenter {
     private final NavigationExecutor navigationExecutor;
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final Navigator navigator;
 
     @Inject
-    StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
-                            ScreenProvider screenProvider, NavigationExecutor navigationExecutor, Resources resources,
-                            ImageOperations imageOperations) {
+    StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder,
+                            EventBus eventBus,
+                            ScreenProvider screenProvider,
+                            NavigationExecutor navigationExecutor,
+                            Resources resources,
+                            ImageOperations imageOperations,
+                            Navigator navigator) {
 
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
@@ -47,6 +55,7 @@ class StreamCardViewPresenter {
         this.navigationExecutor = navigationExecutor;
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.navigator = navigator;
     }
 
     void bind(StreamItemViewHolder itemView,
@@ -188,7 +197,7 @@ class StreamCardViewPresenter {
 
         @Override
         public void onClick(View v) {
-            navigationExecutor.openProfile(v.getContext(), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata));
+            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata), Optional.absent()));
         }
     }
 }

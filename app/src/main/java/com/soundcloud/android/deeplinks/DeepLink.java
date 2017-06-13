@@ -38,6 +38,7 @@ public enum DeepLink {
     SHARE_APP,
     SYSTEM_SETTINGS,
     REMOTE_SIGN_IN,
+    PROFILE,
     UNKNOWN,
 
     // Navigation Target Deeplinks
@@ -73,7 +74,8 @@ public enum DeepLink {
                        COLLECTION,
                        OFFLINE_SETTINGS,
                        CHARTS,
-                       CHARTS_ALL_GENRES);
+                       CHARTS_ALL_GENRES,
+                       PROFILE);
 
     @VisibleForTesting
     static final EnumSet<DeepLink> RESOLVE_REQUIRED =

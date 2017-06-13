@@ -21,6 +21,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -59,6 +60,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private ImageView imageView;
     @Mock private View view;
     @Mock private FeatureOperations featureOperations;
+    @Mock private Navigator navigator;
 
     @Mock private FeatureFlags flags;
 
@@ -67,7 +69,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                                                navigationExecutor, resources(), imageOperations);
+                                                navigationExecutor, resources(), imageOperations, navigator);
 
         when(itemView.getImage()).thenReturn(imageView);
         when(itemView.getUserImage()).thenReturn(imageView);

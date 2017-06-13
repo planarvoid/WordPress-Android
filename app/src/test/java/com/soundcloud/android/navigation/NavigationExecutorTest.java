@@ -336,19 +336,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensProfileActivity() {
-        UIEvent uiEvent = UIEvent.fromPlayerOpen(false);
-
-        navigationExecutor.openProfile(activityContext, USER_URN, uiEvent);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
-                                   .opensActivity(ProfileActivity.class);
-
-        verify(eventTracker).trackNavigation(uiEvent);
-    }
-
-    @Test
     public void opensProfileActivityWithScreen() {
         navigationExecutor.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK);
 

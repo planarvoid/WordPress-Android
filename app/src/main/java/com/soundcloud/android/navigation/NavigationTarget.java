@@ -3,6 +3,7 @@ package com.soundcloud.android.navigation;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnCollection;
@@ -18,17 +19,30 @@ import android.support.annotation.Nullable;
 @AutoValue
 public abstract class NavigationTarget {
     public abstract Activity activity();
+
     @Nullable
     public abstract String target();
+
     public abstract Optional<String> fallback();
+
     public abstract Optional<DeepLink> deeplink();
+
     public abstract Screen screen();
+
     public abstract Optional<String> referrer();
+
     public abstract Optional<Urn> queryUrn();
+
     public abstract Optional<Urn> targetUrn();
+
     public abstract Optional<DiscoverySource> discoverySource();
+
     public abstract Optional<TopResultsMetaData> topResultsMetaData();
+
     public abstract Optional<SearchQuerySourceInfo> searchQuerySourceInfo();
+
+    public abstract Optional<UIEvent> uiEvent();
+
     abstract Builder toBuilder();
 
     static Builder newBuilder() {
@@ -40,7 +54,8 @@ public abstract class NavigationTarget {
                 .targetUrn(Optional.absent())
                 .discoverySource(Optional.absent())
                 .searchQuerySourceInfo(Optional.absent())
-                .topResultsMetaData(Optional.absent());
+                .topResultsMetaData(Optional.absent())
+                .uiEvent(Optional.absent());
     }
 
     /**
@@ -85,7 +100,6 @@ public abstract class NavigationTarget {
      *
      * @param urn that should be open
      * @return a {@link NavigationTarget} to open the desired urn
-     *
      * @throws IllegalArgumentException if the passed in URN is not suppred
      * @see {@link NavigationResolver#navigateToResource(NavigationTarget, Urn)} for supported URNs
      */
@@ -122,6 +136,14 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forProfile(Activity activity, Urn userUrn, UIEvent uiEvent, Optional<Screen> screen) {
+        return forNavigationDeeplink(activity, DeepLink.PROFILE, screen.or(Screen.UNKNOWN))
+                .toBuilder()
+                .targetUrn(Optional.of(userUrn))
+                .uiEvent(Optional.of(uiEvent))
+                .build();
+    }
+
     NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }
@@ -141,20 +163,33 @@ public abstract class NavigationTarget {
     @AutoValue.Builder
     abstract static class Builder {
         abstract Builder activity(Activity activity);
+
         abstract Builder target(@Nullable String target);
+
         abstract Builder fallback(Optional<String> fallback);
+
         abstract Builder screen(Screen screen);
+
         abstract Builder referrer(Optional<String> referrer);
+
         abstract Builder discoverySource(Optional<DiscoverySource> discoverySource);
+
         abstract NavigationTarget build();
 
         // Optional arguments depending on the started context
 
         abstract Builder topResultsMetaData(Optional<TopResultsMetaData> metaData);
+
         abstract Builder deeplink(Optional<DeepLink> deepLink);
+
         abstract Builder queryUrn(Optional<Urn> queryUrn);
+
         abstract Builder targetUrn(Optional<Urn> targetUrn);
+
         abstract Builder searchQuerySourceInfo(Optional<SearchQuerySourceInfo> searchQuerySourceInfo);
+
+        abstract Builder uiEvent(Optional<UIEvent> uiEvent);
+
         Builder discoverySource(@Nullable DiscoverySource discoverySource) {
             return discoverySource(Optional.fromNullable(discoverySource));
         }
@@ -163,7 +198,9 @@ public abstract class NavigationTarget {
     @AutoValue
     abstract static class TopResultsMetaData {
         abstract String query();
+
         abstract TopResults.Bucket.Kind kind();
+
         abstract boolean isPremium();
 
         static TopResultsMetaData create(String query, TopResults.Bucket.Kind kind, boolean isPremium) {

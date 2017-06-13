@@ -3,11 +3,13 @@ package com.soundcloud.android.navigation;
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
@@ -19,6 +21,7 @@ import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -71,6 +74,7 @@ public class NavigationResolver {
     private final StationsUriResolver stationsUriResolver;
     private final ApplicationProperties applicationProperties;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final EventTracker eventTracker;
 
     @Inject
     NavigationResolver(ResolveOperations resolveOperations,
@@ -87,7 +91,8 @@ public class NavigationResolver {
                        StartStationHandler startStationHandler,
                        StationsUriResolver stationsUriResolver,
                        ApplicationProperties applicationProperties,
-                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                       EventTracker eventTracker) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -103,6 +108,7 @@ public class NavigationResolver {
         this.stationsUriResolver = stationsUriResolver;
         this.applicationProperties = applicationProperties;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.eventTracker = eventTracker;
     }
 
     @CheckResult
@@ -257,9 +263,20 @@ public class NavigationResolver {
                 return showFollowers(navigationTarget);
             case FOLLOWINGS:
                 return showFollowings(navigationTarget);
+            case PROFILE:
+                return showProfile(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
+    }
+
+    private Single<Action> showProfile(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            trackNavigationEvent(navigationTarget.uiEvent());
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfileIntent(context, navigationTarget.targetUrn().get()));
+        });
     }
 
     @CheckResult
@@ -668,5 +685,9 @@ public class NavigationResolver {
 
     private void trackForegroundEvent(ForegroundEvent event) {
         eventBus.publish(EventQueue.TRACKING, event);
+    }
+
+    private void trackNavigationEvent(Optional<UIEvent> event) {
+        event.ifPresent(eventTracker::trackNavigation);
     }
 }

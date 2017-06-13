@@ -1,8 +1,8 @@
 package com.soundcloud.android.collection;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -11,6 +11,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.annotations.VisibleForTesting;
 
@@ -81,7 +82,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
         checkArgument(view.getContext() instanceof Activity);
-        Activity activity = (Activity) view.getContext();
+        Activity activity = getFragmentActivity(view);
         PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
         bindLikesView(item.getLikes(), view);
 
