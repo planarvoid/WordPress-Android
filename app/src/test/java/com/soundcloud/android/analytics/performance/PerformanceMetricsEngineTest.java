@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PerformanceMetricsEngineTest extends AndroidUnitTest {
 
-    private static final MetricType METRIC_TYPE = MetricType.APP_ON_CREATE;
+    private static final MetricType METRIC_TYPE = MetricType.DEV_APP_ON_CREATE;
 
     private final TestEventBus eventBus = new TestEventBus();
 

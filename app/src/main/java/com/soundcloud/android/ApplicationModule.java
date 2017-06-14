@@ -3,8 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
 import com.facebook.FacebookSdk;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
@@ -37,7 +35,6 @@ import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.sync.SyncModule;
@@ -156,19 +153,6 @@ public class ApplicationModule {
     @Provides
     public SharedPreferences provideDefaultSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
-    }
-
-    @Provides
-    @Singleton
-    public FirebaseRemoteConfig provideFirebaseRemoteConfig(ApplicationProperties applicationProperties) {
-        final FirebaseRemoteConfigSettings remoteConfigSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(applicationProperties.isDevelopmentMode())
-                .build();
-
-        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
-        remoteConfig.setConfigSettings(remoteConfigSettings);
-
-        return remoteConfig;
     }
 
     @Provides

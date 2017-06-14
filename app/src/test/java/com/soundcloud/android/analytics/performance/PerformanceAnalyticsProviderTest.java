@@ -16,7 +16,7 @@ import org.mockito.Mock;
 
 public class PerformanceAnalyticsProviderTest extends AndroidUnitTest {
 
-    private static final MetricType METRIC_TYPE = MetricType.APP_ON_CREATE;
+    private static final MetricType METRIC_TYPE = MetricType.DEV_APP_ON_CREATE;
     private static final MetricParams METRIC_PARAMS = new MetricParams();
     private static final PerformanceEvent PERFORMANCE_EVENT = PerformanceEvent.create(METRIC_TYPE, METRIC_PARAMS);
 

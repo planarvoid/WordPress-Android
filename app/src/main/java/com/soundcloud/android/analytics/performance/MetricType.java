@@ -6,8 +6,11 @@ package com.soundcloud.android.analytics.performance;
  * See: {@link PerformanceMetricsEngine}<br>
  */
 public enum MetricType {
-    APP_ON_CREATE("app_on_create"),
-    APP_UI_VISIBLE("app_ui_visible"),
+    //App Instrumentation Metrics
+    DEV_APP_ON_CREATE("dev_app_on_create"),
+    DEV_APP_UI_VISIBLE("dev_app_ui_visible"),
+
+    //App Performance Metrics
     TIME_TO_EXPAND_PLAYER("time_to_expand_player"),
     TIME_TO_PLAY("time_to_play"),
     PLAY_QUEUE_LOAD("play_queue_load"),

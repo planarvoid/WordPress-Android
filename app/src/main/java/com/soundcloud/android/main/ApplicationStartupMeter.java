@@ -35,7 +35,7 @@ public final class ApplicationStartupMeter implements Application.ActivityLifecy
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
         if (isLauncherActivity(activity)) {
-            performanceMetricsEngine.startMeasuring(PerformanceMetric.create(MetricType.APP_UI_VISIBLE));
+            performanceMetricsEngine.startMeasuring(PerformanceMetric.create(MetricType.DEV_APP_UI_VISIBLE));
         }
     }
 
@@ -53,7 +53,7 @@ public final class ApplicationStartupMeter implements Application.ActivityLifecy
 
                 application.unregisterActivityLifecycleCallbacks(this);
                 performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
-                                                              .metricType(MetricType.APP_UI_VISIBLE)
+                                                              .metricType(MetricType.DEV_APP_UI_VISIBLE)
                                                               .metricParams(metricParams)
                                                               .build());
             }

@@ -1,6 +1,6 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CREATE;
+import static com.soundcloud.android.analytics.performance.MetricType.DEV_APP_ON_CREATE;
 
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -87,7 +87,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Performance: we want to start timing when the class loader loads classes.
-    private final PerformanceMetric appOnCreateMetric = PerformanceMetric.create(APP_ON_CREATE);
+    private final PerformanceMetric appOnCreateMetric = PerformanceMetric.create(DEV_APP_ON_CREATE);
 
     private static SoundCloudApplication instance;
 
@@ -153,6 +153,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        initializeFirebase();
+
         if (LeakCanary.isInAnalyzerProcess(this)) {
             return;
         }
@@ -162,7 +164,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
         setupRxErrorHandling();
-        initializeFirebase();
 
         applicationComponent.inject(this);
 
@@ -171,7 +172,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             Stetho.initializeWithDefaults(this);
         }
 
-        initializePerformanceMonitoring();
+        setupPerformanceMonitoring();
         bootApplication();
 
         performanceMetricsEngine.endMeasuringFrom(appOnCreateMetric);
@@ -184,7 +185,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         FirebaseApp.initializeApp(this, options);
     }
 
-    private void initializePerformanceMonitoring() {
+    private void setupPerformanceMonitoring() {
         FirebasePerformance.getInstance().setPerformanceCollectionEnabled(featureFlags.isEnabled(Flag.FIREBASE_PERFORMANCE_MONITORING));
     }
 

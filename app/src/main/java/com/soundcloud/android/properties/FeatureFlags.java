@@ -28,7 +28,7 @@ public class FeatureFlags {
         }
     }
 
-    public boolean isDisabled(Flag flag) {
+    boolean isDisabled(Flag flag) {
         return !isEnabled(flag);
     }
 
@@ -61,7 +61,7 @@ public class FeatureFlags {
     /**
      * Local development: get runtime flag value
      */
-    public boolean getRuntimeFeatureFlagValue(Flag flag) {
+    boolean getRuntimeFeatureFlagValue(Flag flag) {
         return runtimeConfig.getFlagValue(flag);
     }
 
