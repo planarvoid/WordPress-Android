@@ -26,6 +26,8 @@ do
           MESSAGE="... is failing on CI! :fire:"
       fi
 
-      curl -X POST --data-urlencode payload="$(payload "@${map[1]}" "${USERNAME}" "*PR$ghprbPullId: $ghprbPullTitle*\n$MESSAGE\n Jenkins: ${JOB_URL}${BUILD_NUMBER} \n GitHub: ${ghprbPullLink}" "${ICON}")" $URL
+      JENKINS_BLUE_OCEAN_URL="${JENKINS_URL}blue/organizations/jenkins/${JOB_NAME}/detail/${JOB_NAME}/${BUILD_NUMBER}/pipeline"
+
+      curl -X POST --data-urlencode payload="$(payload "@${map[1]}" "${USERNAME}" "*PR$ghprbPullId: $ghprbPullTitle*\n$MESSAGE\n Jenkins: ${JOB_URL}${BUILD_NUMBER} \n Blue Ocean: ${JENKINS_BLUE_OCEAN_URL} \n GitHub: ${ghprbPullLink}" "${ICON}")" $URL
    fi
 done
