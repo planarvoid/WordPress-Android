@@ -88,7 +88,7 @@ public class SearchClickListenerTest {
         final Activity activity = mock(Activity.class);
         clickResultAction.run(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn, clickParams.uiEvent(), Optional.of(SCREEN)));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn, Optional.of(clickParams.uiEvent()), Optional.of(SCREEN), Optional.absent()));
     }
 
     @Test

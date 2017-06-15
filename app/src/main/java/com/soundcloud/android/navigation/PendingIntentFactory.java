@@ -12,6 +12,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -52,7 +53,7 @@ public final class PendingIntentFactory {
     public static PendingIntent openProfileFromNotification(Context context, Urn user) {
         return PendingIntent.getActivity(context,
                                          NO_FLAGS,
-                                         createProfileIntent(context, user, Screen.NOTIFICATION)
+                                         createProfileIntent(context, user, Optional.of(Screen.NOTIFICATION), Optional.absent(), Optional.absent())
                                                  .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK),
                                          PendingIntent.FLAG_CANCEL_CURRENT);
     }
@@ -60,7 +61,7 @@ public final class PendingIntentFactory {
     public static PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
         return PendingIntent.getActivity(context,
                                          requestCode,
-                                         createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
+                                         createProfileIntent(context, user, Optional.of(Screen.WIDGET), Optional.absent(), Optional.of(Referrer.PLAYBACK_WIDGET)),
                                          PendingIntent.FLAG_CANCEL_CURRENT);
     }
 

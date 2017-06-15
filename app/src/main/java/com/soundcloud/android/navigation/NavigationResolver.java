@@ -271,11 +271,19 @@ public class NavigationResolver {
     }
 
     private Single<Action> showProfile(NavigationTarget navigationTarget) {
+        return showProfile(navigationTarget, navigationTarget.targetUrn().get());
+    }
+
+    private Single<Action> showProfile(NavigationTarget navigationTarget, Urn urn) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
             trackNavigationEvent(navigationTarget.uiEvent());
             Context context = navigationTarget.activity();
-            context.startActivity(createProfileIntent(context, navigationTarget.targetUrn().get()));
+            context.startActivity(createProfileIntent(context,
+                                                      urn,
+                                                      Optional.of(navigationTarget.screen()),
+                                                      navigationTarget.searchQuerySourceInfo(),
+                                                      navigationTarget.referrer().transform(Referrer::fromOrigin)));
         });
     }
 
@@ -590,7 +598,7 @@ public class NavigationResolver {
         if (urn.isTrack()) {
             return startPlayback(navigationTarget, urn);
         } else if (urn.isUser()) {
-            return Single.just(() -> navigationExecutor.legacyOpenProfile(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return showProfile(navigationTarget, urn);
         } else if (urn.isPlaylist()) {
             return Single.just(() -> navigationExecutor.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else if (urn.isSystemPlaylist()) {

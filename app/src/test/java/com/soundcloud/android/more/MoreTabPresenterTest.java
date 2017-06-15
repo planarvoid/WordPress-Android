@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.deeplinks.DeepLink;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -19,12 +17,14 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.TestConfiguration;
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -47,6 +47,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.io.IOException;
@@ -178,9 +179,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onProfileClickedNavigatesToProfile() {
         initFragment();
-        listenerArgumentCaptor.getValue().onProfileClicked(new View(context()));
+        AppCompatActivity viewActivity = activity();
+        listenerArgumentCaptor.getValue().onProfileClicked(new View(viewActivity));
 
-        verify(navigationExecutor).legacyOpenProfile(context(), USER_URN);
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, accountOperations.getLoggedInUserUrn()));
     }
 
     @Test

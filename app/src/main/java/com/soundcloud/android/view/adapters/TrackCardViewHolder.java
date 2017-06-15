@@ -2,17 +2,19 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 
@@ -41,18 +43,18 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final Resources resources;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     TrackCardViewHolder(View view,
                         ImageOperations imageOperations,
-                        NavigationExecutor navigationExecutor,
+                        Navigator navigator,
                         Resources resources,
                         ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         super(view);
         this.imageOperations = imageOperations;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.resources = resources;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         ButterKnife.bind(this, view);
@@ -191,7 +193,7 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
 
         @Override
         public void onClick(View v) {
-            navigationExecutor.legacyOpenProfile(v.getContext(), userUrn);
+            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), userUrn));
         }
     }
 }

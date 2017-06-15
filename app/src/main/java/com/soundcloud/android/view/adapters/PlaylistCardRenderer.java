@@ -1,9 +1,10 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -11,15 +12,15 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.support.annotation.LayoutRes;
@@ -38,7 +39,7 @@ import java.util.List;
 public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private final Resources resources;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
@@ -49,13 +50,14 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Inject
     public PlaylistCardRenderer(Resources resources,
-                                NavigationExecutor navigationExecutor, ImageOperations imageOperations,
+                                Navigator navigator,
+                                ImageOperations imageOperations,
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 CardEngagementsPresenter cardEngagementsPresenter,
                                 ScreenProvider screenProvider,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.resources = resources;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.cardEngagementsPresenter = cardEngagementsPresenter;
@@ -116,23 +118,13 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         loadArtwork(itemView, playableItem);
         itemView.title.setText(playableItem.title());
         itemView.creator.setText(playableItem.creatorName());
-        itemView.creator.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(v.getContext(), playableItem.creatorUrn()));
+        itemView.creator.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), playableItem.creatorUrn())));
     }
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {
         imageOperations.displayInAdapterView(
                 playableItem, ApiImageSize.getFullImageSize(resources),
                 itemView.image);
-    }
-
-    private static String formatTags(List<String> tags) {
-        if (tags.size() >= 2) {
-            return Strings.joinOn(", ").join(Lists.transform(tags.subList(0, 2), tag -> "#" + tag));
-        } else if (tags.size() == 1) {
-            return "#" + tags.get(0);
-        } else {
-            return Strings.EMPTY;
-        }
     }
 
     @VisibleForTesting

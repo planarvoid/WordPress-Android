@@ -25,7 +25,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
@@ -43,6 +44,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -62,7 +64,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private NavigationExecutor navigationExecutor;
+    @Mock private Navigator navigator;
     @Mock private View itemView;
     @Mock private ImageView imageView;
     @Mock private TrackItemView trackItemView;
@@ -84,7 +86,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          null,
                                          eventBus,
                                          screenProvider,
-                                         navigationExecutor,
+                                         navigator,
                                          featureOperations,
                                          trackItemViewFactory,
                                          offlineSettingsOperations,
@@ -308,8 +310,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
+        AppCompatActivity activity = activity();
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
-        when(itemView.getContext()).thenReturn(context());
+        when(itemView.getContext()).thenReturn(activity);
         PlayableItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList((TrackItem) promotedListItem));
 
@@ -317,7 +320,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), Urn.forUser(193L));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, Urn.forUser(193L)));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

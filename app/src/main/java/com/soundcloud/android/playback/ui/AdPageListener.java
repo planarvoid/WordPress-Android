@@ -1,13 +1,14 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.EventQueue;
@@ -16,6 +17,9 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -34,18 +38,21 @@ class AdPageListener extends PageListener {
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final WhyAdsDialogPresenter whyAdsPresenter;
+    private final Navigator navigator;
 
     @Inject
     public AdPageListener(NavigationExecutor navigationExecutor,
                           PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus, AdsOperations adsOperations,
-                          WhyAdsDialogPresenter whyAdsPresenter) {
+                          WhyAdsDialogPresenter whyAdsPresenter,
+                          Navigator navigator) {
         super(playSessionController, eventBus);
         this.navigationExecutor = navigationExecutor;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.whyAdsPresenter = whyAdsPresenter;
+        this.navigator = navigator;
     }
 
     public void onNext() {
@@ -83,8 +90,8 @@ class AdPageListener extends PageListener {
 
     private void adClickThrough(Context activityContext, PlayableAdData adData) {
         final Uri clickThrough = Uri.parse(adData instanceof AudioAd
-                                     ? ((AudioAd) adData).clickThroughUrl().get()
-                                     : ((VideoAd) adData).clickThroughUrl());
+                                           ? ((AudioAd) adData).clickThroughUrl().get()
+                                           : ((VideoAd) adData).clickThroughUrl());
         final DeepLink deepLink = DeepLink.fromUri(clickThrough);
 
         switch (deepLink) {
@@ -148,7 +155,7 @@ class AdPageListener extends PageListener {
                     final Screen originScreen = Screen.fromTag(playQueueManager.getScreenTag());
                     navigationExecutor.legacyOpenPlaylist(activityContext, urn, originScreen);
                 } else if (urn.isUser()) {
-                    navigationExecutor.legacyOpenProfile(activityContext, urn);
+                    navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(activityContext), urn));
                 }
             }
         };

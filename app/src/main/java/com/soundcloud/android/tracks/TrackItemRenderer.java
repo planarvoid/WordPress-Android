@@ -18,7 +18,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
@@ -49,7 +49,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final NetworkConnectionHelper connectionHelper;
@@ -74,7 +74,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              TrackItemMenuPresenter trackItemMenuPresenter,
                              EventBus eventBus,
                              ScreenProvider screenProvider,
-                             NavigationExecutor navigationExecutor,
+                             Navigator navigator,
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory,
                              OfflineSettingsOperations offlineSettingsOperations,
@@ -86,7 +86,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.trackItemViewFactory = trackItemViewFactory;
         this.offlineSettingsOperations = offlineSettingsOperations;
@@ -336,7 +336,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final Context context = itemView.getContext();
         if (track.isPromoted() && track.promoterUrn().isPresent()) {
             itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.promoterName()));
-            itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigationExecutor));
+            itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted));
         }

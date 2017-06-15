@@ -2,11 +2,13 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -17,6 +19,7 @@ import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
@@ -36,6 +39,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     private final TrackRepository trackRepository;
     private final NavigationExecutor navigationExecutor;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final Navigator navigator;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -45,7 +49,8 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
                         TrackRepository trackRepository,
                         NavigationExecutor navigationExecutor,
                         NewItemsIndicator newItemsIndicator,
-                        PerformanceMetricsEngine performanceMetricsEngine) {
+                        PerformanceMetricsEngine performanceMetricsEngine,
+                        Navigator navigator) {
         super(swipeRefreshAttacher, RecyclerViewPresenter.Options.list().build(),
               newItemsIndicator, operations, adapter);
         this.operations = operations;
@@ -53,6 +58,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         this.trackRepository = trackRepository;
         this.navigationExecutor = navigationExecutor;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.navigator = navigator;
     }
 
     @Override
@@ -117,8 +123,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
             });
         } else {
             // in all other cases we simply go to the user profile
-            final Urn userUrn = item.getUrn();
-            navigationExecutor.legacyOpenProfile(view.getContext(), userUrn);
+            navigator.navigateTo(NavigationTarget.forProfile(ViewUtils.getFragmentActivity(view), item.getUrn()));
         }
     }
 

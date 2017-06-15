@@ -6,7 +6,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -19,6 +18,9 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -34,6 +36,7 @@ import org.mockito.Mock;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.app.AppCompatActivity;
 
 public class AdPageListenerTest extends AndroidUnitTest {
 
@@ -47,11 +50,12 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
     @Mock private Activity activity;
     @Mock private NavigationExecutor navigationExecutor;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(navigationExecutor, playSessionController, playQueueManager,
-                                      eventBus, adsOperations, whyAdsPresenter);
+                                      eventBus, adsOperations, whyAdsPresenter, navigator);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 
@@ -121,7 +125,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(userAudioAd));
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity());
 
         PlayerUICommand event = eventBus.firstEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isAutomaticCollapse()).isTrue();
@@ -140,15 +144,16 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickthroughforUserProfileDeeplinkshouldStartProfileActivityAfterPlayerUICollapsed() {
+        AppCompatActivity activity = activity();
         final AudioAd userAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://users/42", Urn.forTrack(123L));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(userAudioAd));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(userAudioAd));
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(Urn.forUser(42L)));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, Urn.forUser(42L)));
     }
 
     @Test

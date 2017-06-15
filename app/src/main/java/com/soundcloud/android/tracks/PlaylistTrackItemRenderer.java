@@ -14,7 +14,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -42,7 +42,7 @@ public class PlaylistTrackItemRenderer extends TrackItemRenderer {
                               @Provided EventBus eventBus,
                               @Provided FeatureOperations featureOperations,
                               @Provided ScreenProvider screenProvider,
-                              @Provided NavigationExecutor navigationExecutor,
+                              @Provided Navigator navigator,
                               @Provided TrackItemView.Factory trackItemViewFactory,
                               @Provided OfflineSettingsOperations offlineSettingsOperations,
                               @Provided NetworkConnectionHelper connectionHelper,
@@ -53,7 +53,7 @@ public class PlaylistTrackItemRenderer extends TrackItemRenderer {
               trackItemMenuPresenter,
               eventBus,
               screenProvider,
-              navigationExecutor,
+              navigator,
               featureOperations,
               trackItemViewFactory,
               offlineSettingsOperations,

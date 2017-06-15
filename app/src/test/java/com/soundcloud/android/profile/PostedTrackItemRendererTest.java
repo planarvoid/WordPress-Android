@@ -12,7 +12,7 @@ import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExper
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
@@ -41,7 +41,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Mock View itemView;
     @Mock EventBus eventBus;
     @Mock ScreenProvider screenProvider;
-    @Mock NavigationExecutor navigationExecutor;
+    @Mock Navigator navigator;
     @Mock FeatureOperations featureOperations;
     @Mock TrackItemView.Factory factory;
     @Mock OfflineSettingsOperations offlineSettingsOperations;
@@ -78,7 +78,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                null,
                                                eventBus,
                                                screenProvider,
-                                               navigationExecutor,
+                                               navigator,
                                                featureOperations,
                                                factory,
                                                offlineSettingsOperations,

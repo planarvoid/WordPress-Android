@@ -7,10 +7,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -28,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.util.Collections;
@@ -47,6 +50,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Mock private View itemView;
     @Mock private NewItemsIndicator newItemsIndicator;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +62,8 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 trackRepository,
                 navigationExecutor,
                 newItemsIndicator,
-                performanceMetricsEngine);
+                performanceMetricsEngine,
+                navigator);
 
         when(operations.updatedTimelineItemsForStart()).thenReturn(Maybe.empty());
         when(operations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
@@ -79,50 +84,60 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     public void shouldGoToUserProfileWhenClickingFollower() {
         final ActivityItem activity = PlayableFixtures.activityUserFollow();
         when(adapter.getItem(0)).thenReturn(activity);
+        AppCompatActivity viewActivity = activity();
+        when(itemView.getContext()).thenReturn(viewActivity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackLike() {
         final ActivityItem activity = PlayableFixtures.activityTrackLike();
         when(adapter.getItem(0)).thenReturn(activity);
+        AppCompatActivity viewActivity = activity();
+        when(itemView.getContext()).thenReturn(viewActivity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackRepost() {
         final ActivityItem activity = PlayableFixtures.activityTrackRepost();
         when(adapter.getItem(0)).thenReturn(activity);
+        AppCompatActivity viewActivity = activity();
+        when(itemView.getContext()).thenReturn(viewActivity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistLike() {
         final ActivityItem activity = PlayableFixtures.activityPlaylistLike();
         when(adapter.getItem(0)).thenReturn(activity);
+        AppCompatActivity viewActivity = activity();
+        when(itemView.getContext()).thenReturn(viewActivity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
     }
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistRepost() {
         final ActivityItem activity = PlayableFixtures.activityPlaylistRepost();
         when(adapter.getItem(0)).thenReturn(activity);
+        AppCompatActivity viewActivity = activity();
+        when(itemView.getContext()).thenReturn(viewActivity);
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
     }
 
     @Test

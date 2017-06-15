@@ -144,7 +144,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .module(Module.create(Module.USER_FOLLOWING, position))
                                                                         .build();
 
-        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, UIEvent.fromNavigation(urn, eventContextMetadata), Optional.absent()));
+        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, Optional.of(UIEvent.fromNavigation(urn, eventContextMetadata)), Optional.absent(), Optional.absent()));
     }
 
     @Override

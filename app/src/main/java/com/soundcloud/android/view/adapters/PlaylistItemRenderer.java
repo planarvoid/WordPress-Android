@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -37,7 +37,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
@@ -47,7 +47,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 EventBus eventBus,
                                 ScreenProvider screenProvider,
-                                NavigationExecutor navigationExecutor,
+                                Navigator navigator,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
 
         this.resources = resources;
@@ -56,7 +56,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
@@ -137,7 +137,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private void setPromoterClickable(TextView promoter, PlaylistItem item) {
-        ViewUtils.setTouchClickable(promoter, new PromoterClickViewListener(item, eventBus, screenProvider, navigationExecutor));
+        ViewUtils.setTouchClickable(promoter, new PromoterClickViewListener(item, eventBus, screenProvider, navigator));
     }
 
     private void unsetPromoterClickable(View itemView) {

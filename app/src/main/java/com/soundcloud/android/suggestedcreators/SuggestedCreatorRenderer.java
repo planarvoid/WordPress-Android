@@ -109,7 +109,8 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
         textView.setText(creator.username());
         textView.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v),
                                                                                           creator.urn(),
-                                                                                          UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position)),
+                                                                                          Optional.of(UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))),
+                                                                                          Optional.absent(),
                                                                                           Optional.absent())));
     }
 

@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +14,8 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 
 public class TrackPageListenerTest extends AndroidUnitTest {
 
@@ -41,6 +41,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private TrackRepository trackRepository;
     @Mock private EngagementsTracking engagementsTracking;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -49,7 +50,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
-                                         likeOperations, navigationExecutor, engagementsTracking);
+                                         likeOperations, navigationExecutor, engagementsTracking, navigator);
     }
 
     @Test
@@ -107,7 +108,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onGotoUserEmitsEventToClosePlayer() {
         Urn userUrn = Urn.forUser(42L);
 
-        listener.onGotoUser(context(), userUrn);
+        listener.onGotoUser(activity(), userUrn);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isAutomaticCollapse()).isTrue();
@@ -117,10 +118,11 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
         Urn userUrn = Urn.forUser(42L);
 
-        listener.onGotoUser(context(), userUrn);
+        AppCompatActivity activity = activity();
+        listener.onGotoUser(activity, userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(userUrn));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn));
     }
 
     @Test

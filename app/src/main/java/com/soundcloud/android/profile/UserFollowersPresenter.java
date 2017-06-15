@@ -105,7 +105,12 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
             eventContextMetadataBuilder.pageName(screen.get());
         }
 
-        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()), Optional.absent()));
+        navigator.navigateTo(NavigationTarget.forProfile(
+                getFragmentActivity(view),
+                urn,
+                Optional.of(UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build())),
+                Optional.absent(),
+                Optional.absent()));
     }
 
     @Override

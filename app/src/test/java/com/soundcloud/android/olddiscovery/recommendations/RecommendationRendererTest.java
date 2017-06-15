@@ -1,14 +1,16 @@
 package com.soundcloud.android.olddiscovery.recommendations;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -40,9 +42,9 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
     @Mock private RecommendationsAdapter adapter;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private TrackRecommendationListener listener;
     @Mock private FeatureFlags flags;
+    @Mock private Navigator navigator;
     private View itemView;
     private TrackItem recommendedTrack;
 
@@ -50,7 +52,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(activity());
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigationExecutor);
+        renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigator);
         final Recommendation recommendation = RecommendationsFixtures.createNonHighTierRecommendation(SEED_TRACK.getUrn());
         recommendedTrack = recommendation.getTrack();
         final Recommendation goRecommendation = RecommendationsFixtures.createHighTierRecommendation(SEED_TRACK.getUrn());
@@ -124,7 +126,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         View artistName = itemView.findViewById(R.id.recommendation_artist);
         artistName.performClick();
-        verify(navigationExecutor).legacyOpenProfile(artistName.getContext(), recommendedTrack.creatorUrn());
+        verify(navigator).navigateTo(NavigationTarget.forProfile(getFragmentActivity(artistName), recommendedTrack.creatorUrn()));
     }
 
 }

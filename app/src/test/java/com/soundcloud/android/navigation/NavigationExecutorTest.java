@@ -327,38 +327,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void legacyOpensProfileActivity() {
-        navigationExecutor.legacyOpenProfile(activityContext, USER_URN);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
-                                   .opensActivity(ProfileActivity.class);
-    }
-
-    @Test
-    public void opensProfileActivityWithScreen() {
-        navigationExecutor.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
-                                   .containsScreen(Screen.DEEPLINK)
-                                   .opensActivity(ProfileActivity.class);
-    }
-
-    @Test
-    public void opensProfileActivityWithSearchSourceInfo() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-
-        navigationExecutor.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.DEEPLINK)
-                                   .opensActivity(ProfileActivity.class);
-    }
-
-    @Test
     public void createsPendingIntentToProfileFromNotification() throws PendingIntent.CanceledException {
         PendingIntent pendingIntent = PendingIntentFactory.openProfileFromNotification(appContext, USER_URN);
 

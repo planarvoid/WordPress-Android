@@ -1,9 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -13,6 +11,9 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -21,6 +22,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -32,17 +34,21 @@ class TrackPageListener extends PageListener {
     private final LikeOperations likeOperations;
     private final NavigationExecutor navigationExecutor;
     private final EngagementsTracking engagementsTracking;
+    private final Navigator navigator;
 
     @Inject
     public TrackPageListener(PlaySessionController playSessionController,
                              PlayQueueManager playQueueManager,
-                             EventBus eventBus, LikeOperations likeOperations, NavigationExecutor navigationExecutor,
-                             EngagementsTracking engagementsTracking) {
+                             EventBus eventBus, LikeOperations likeOperations,
+                             NavigationExecutor navigationExecutor,
+                             EngagementsTracking engagementsTracking,
+                             Navigator navigator) {
         super(playSessionController, eventBus);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
         this.navigationExecutor = navigationExecutor;
         this.engagementsTracking = engagementsTracking;
+        this.navigator = navigator;
     }
 
     public void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
@@ -85,7 +91,7 @@ class TrackPageListener extends PageListener {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                navigationExecutor.legacyOpenProfile(activityContext, userUrn);
+                navigator.navigateTo(NavigationTarget.forProfile((Activity) activityContext, userUrn));
             }
         };
     }

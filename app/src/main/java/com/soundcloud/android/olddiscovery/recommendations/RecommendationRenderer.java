@@ -8,11 +8,12 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
@@ -30,17 +31,17 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final TrackRecommendationListener listener;
 
     RecommendationRenderer(TrackRecommendationListener listener,
                            @Provided ImageOperations imageOperations,
                            @Provided TrackItemMenuPresenter trackItemMenuPresenter,
-                           @Provided NavigationExecutor navigationExecutor) {
+                           @Provided Navigator navigator) {
         this.listener = listener;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
     }
 
     @Override
@@ -79,7 +80,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(VISIBLE);
-            artist.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(artist.getContext(), creatorUrn));
+            artist.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(artist), creatorUrn)));
         }
     }
 

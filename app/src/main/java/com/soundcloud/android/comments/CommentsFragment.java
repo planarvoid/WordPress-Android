@@ -3,10 +3,11 @@ package com.soundcloud.android.comments;
 import static com.soundcloud.android.comments.CommentsOperations.TO_COMMENT_VIEW_MODEL;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
@@ -34,9 +35,9 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Inject CommentsOperations operations;
     @Inject PagingListItemAdapter<Comment> adapter;
-    @Inject NavigationExecutor navigationExecutor;
     @Inject @LightCycle ListViewController listViewController;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject Navigator navigator;
 
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -61,7 +62,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        navigationExecutor.legacyOpenProfile(getActivity(), adapter.getItem(position).getUserUrn());
+        navigator.navigateTo(NavigationTarget.forProfile(getActivity(), adapter.getItem(position).getUserUrn()));
     }
 
     @Override
@@ -104,7 +105,8 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
         super.onDestroy();
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }

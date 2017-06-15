@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -21,6 +20,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
@@ -54,7 +54,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private HeaderSpannableBuilder headerSpannableBuilder;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder itemView;
     @Mock private ImageView imageView;
@@ -68,8 +67,12 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                                                navigationExecutor, resources(), imageOperations, navigator);
+        presenter = new StreamCardViewPresenter(headerSpannableBuilder,
+                                                eventBus,
+                                                screenProvider,
+                                                resources(),
+                                                imageOperations,
+                                                navigator);
 
         when(itemView.getImage()).thenReturn(imageView);
         when(itemView.getUserImage()).thenReturn(imageView);
@@ -109,8 +112,9 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
+        AppCompatActivity activity = activity();
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
-        when(view.getContext()).thenReturn(context());
+        when(view.getContext()).thenReturn(activity);
 
         PlayableItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         presenter.bind(itemView, promotedListItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
@@ -119,7 +123,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(itemView).setPromoterClickable(captor.capture());
         captor.getValue().onClick(view);
 
-        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(Urn.forUser(193L)));
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, Urn.forUser(193L)));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

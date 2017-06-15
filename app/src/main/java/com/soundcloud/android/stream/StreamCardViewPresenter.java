@@ -35,7 +35,6 @@ class StreamCardViewPresenter {
     private final HeaderSpannableBuilder headerSpannableBuilder;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
-    private final NavigationExecutor navigationExecutor;
     private final Resources resources;
     private final ImageOperations imageOperations;
     private final Navigator navigator;
@@ -44,7 +43,6 @@ class StreamCardViewPresenter {
     StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder,
                             EventBus eventBus,
                             ScreenProvider screenProvider,
-                            NavigationExecutor navigationExecutor,
                             Resources resources,
                             ImageOperations imageOperations,
                             Navigator navigator) {
@@ -52,7 +50,6 @@ class StreamCardViewPresenter {
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigationExecutor = navigationExecutor;
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.navigator = navigator;
@@ -157,7 +154,7 @@ class StreamCardViewPresenter {
                        eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
             itemView.setPromoterHeader(promotedProperties.promoterName().get(), headerSpannableBuilder.get());
-            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigationExecutor));
+            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();
 
@@ -197,7 +194,12 @@ class StreamCardViewPresenter {
 
         @Override
         public void onClick(View v) {
-            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata), Optional.absent()));
+            navigator.navigateTo(
+                    NavigationTarget.forProfile(getFragmentActivity(v),
+                                                userUrn,
+                                                Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
+                                                Optional.absent(),
+                                                Optional.absent()));
         }
     }
 }

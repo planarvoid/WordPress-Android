@@ -136,11 +136,16 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public static NavigationTarget forProfile(Activity activity, Urn userUrn, UIEvent uiEvent, Optional<Screen> screen) {
+    public static NavigationTarget forProfile(Activity activity, Urn userUrn) {
+        return forProfile(activity, userUrn, Optional.absent(), Optional.absent(), Optional.absent());
+    }
+
+    public static NavigationTarget forProfile(Activity activity, Urn userUrn, Optional<UIEvent> uiEvent, Optional<Screen> screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
         return forNavigationDeeplink(activity, DeepLink.PROFILE, screen.or(Screen.UNKNOWN))
                 .toBuilder()
                 .targetUrn(Optional.of(userUrn))
-                .uiEvent(Optional.of(uiEvent))
+                .uiEvent(uiEvent)
+                .searchQuerySourceInfo(searchQuerySourceInfo)
                 .build();
     }
 

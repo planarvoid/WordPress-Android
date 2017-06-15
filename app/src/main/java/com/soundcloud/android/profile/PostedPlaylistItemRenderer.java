@@ -1,10 +1,10 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -28,7 +28,7 @@ class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
                                PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                EventBus eventBus,
                                ScreenProvider screenProvider,
-                               NavigationExecutor navigationExecutor,
+                               Navigator navigator,
                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         super(resources,
               imageOperations,
@@ -36,7 +36,7 @@ class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
               playlistItemMenuPresenter,
               eventBus,
               screenProvider,
-              navigationExecutor,
+              navigator,
               changeLikeToSaveExperiment);
     }
 

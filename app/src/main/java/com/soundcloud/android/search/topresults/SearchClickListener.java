@@ -56,7 +56,7 @@ public class SearchClickListener {
     }
 
     ClickResultAction userClickToNavigateAction(ClickParams params) {
-        return context -> navigator.navigateTo(NavigationTarget.forProfile((Activity) context, params.urn(), params.uiEvent(), Optional.of(params.screen())));
+        return context -> navigator.navigateTo(NavigationTarget.forProfile((Activity) context, params.urn(), Optional.of(params.uiEvent()), Optional.of(params.screen()), Optional.absent()));
     }
 
     Observable<PlaybackResult> trackClickToPlaybackResult(TrackClickParams params) {

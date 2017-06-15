@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -20,6 +19,9 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayableWithReposter;
@@ -34,6 +36,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -44,8 +47,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import rx.Observable;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -64,18 +67,22 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private AdapterView adapterView;
     @Mock private View view;
     @Mock private NavigationExecutor navigationExecutor;
-    @Mock private Context context;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
+    @Mock private Navigator navigator;
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, mock(PerformanceMetricsEngine.class));
+    private AppCompatActivity activity;
 
     @Before
     public void setUp() {
         listener = new MixedItemClickListener(playbackInitiator,
                                               providerOf(expandPlayerSubscriber),
-                                              navigationExecutor, screen, searchQuerySourceInfo);
-
-        when(view.getContext()).thenReturn(context);
+                                              navigationExecutor,
+                                              screen,
+                                              searchQuerySourceInfo,
+                                              navigator);
+        activity = activity();
+        when(view.getContext()).thenReturn(activity);
     }
 
     @Test
@@ -139,7 +146,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view.getContext(), 2);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -154,7 +161,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(playables, view, 0, playlistItem);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -173,12 +180,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 ModelFixtures.trackItem()
         );
 
-        listener.onItemClick(items, view.getContext(), 2);
+        listener.onItemClick(items, activity, 2);
 
-        verify(navigationExecutor).legacyOpenProfile(context,
-                                                     userItem.getUrn(),
-                                                     screen,
-                                                     searchQuerySourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -205,7 +209,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -220,7 +224,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -244,10 +248,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigationExecutor).legacyOpenProfile(context,
-                                                     userItem.getUrn(),
-                                                     screen,
-                                                     searchQuerySourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -271,11 +272,11 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     public void postItemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
-                                                createPlayable(playlistItem.getUrn()));
+                                                         createPlayable(playlistItem.getUrn()));
 
         listener.legacyOnPostClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -293,7 +294,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final Module module = Module.create(Module.USER_ALBUMS, modulePosition);
         listener.onPostClick(Observable.just(items), view, 1, playlistItem, module);
 
-        verify(navigationExecutor).openPlaylist(eq(context),
+        verify(navigationExecutor).openPlaylist(eq(activity),
                                                 eq(playlistItem.getUrn()),
                                                 eq(screen),
                                                 eq(searchQuerySourceInfo),
@@ -307,15 +308,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     public void postItemClickOnLocalUserGoesToUserProfile() {
         final UserItem userItem = ModelFixtures.userItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
-                                                createPlayable(Urn.forPlaylist(123L)),
-                                                createPlayable(userItem.getUrn()));
+                                                         createPlayable(Urn.forPlaylist(123L)),
+                                                         createPlayable(userItem.getUrn()));
 
         listener.legacyOnPostClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigationExecutor).legacyOpenProfile(context,
-                                                     userItem.getUrn(),
-                                                     screen,
-                                                     searchQuerySourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @NonNull

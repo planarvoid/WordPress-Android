@@ -33,7 +33,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCol
 import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileAlbumsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileLikesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfilePlaylistsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileRepostsIntent;
@@ -198,10 +197,6 @@ public class NavigationExecutor {
         context.startActivity(createPlaylistIntent(playlist, screen, queryInfo, promotedInfo));
     }
 
-    public void legacyOpenProfile(Context context, Urn user) {
-        context.startActivity(createProfileIntent(context, user));
-    }
-
     public void openSearch(Activity activity) {
         activity.startActivity(createSearchIntent(activity));
     }
@@ -245,17 +240,6 @@ public class NavigationExecutor {
 
     public void openExternal(Activity activity, Uri uri) {
         activity.startActivity(createViewIntent(uri));
-    }
-
-    public void legacyOpenProfile(Context context, Urn user, Screen screen) {
-        context.startActivity(createProfileIntent(context, user, screen));
-    }
-
-    public void legacyOpenProfile(Context context,
-                                  Urn user,
-                                  Screen screen,
-                                  SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfileIntent(context, user, screen), searchQuerySourceInfo));
     }
 
     public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {

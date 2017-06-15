@@ -130,19 +130,12 @@ public final class IntentFactory {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    public static Intent createProfileIntent(Context context, Urn user) {
-        return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
-    }
-
-    static Intent createProfileIntent(Context context, Urn user, Screen screen) {
-        Intent intent = createProfileIntent(context, user);
-        screen.addToIntent(intent);
-        return intent;
-    }
-
-    static Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
-        Intent intent = createProfileIntent(context, user, screen);
-        referrer.addToIntent(intent);
+    public static Intent createProfileIntent(Context context, Urn user, Optional<Screen> screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, Optional<Referrer> referrer) {
+        Intent intent = new Intent(context, ProfileActivity.class)
+                .putExtra(ProfileActivity.EXTRA_USER_URN, user)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
+        screen.ifPresent(s -> s.addToIntent(intent));
+        referrer.ifPresent(r -> r.addToIntent(intent));
         return intent;
     }
 

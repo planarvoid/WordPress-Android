@@ -227,7 +227,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onProfileClicked(View view) {
-        navigationExecutor.legacyOpenProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
+        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), accountOperations.getLoggedInUserUrn()));
     }
 
     @Override

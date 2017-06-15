@@ -1,11 +1,11 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import static butterknife.ButterKnife.findById;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.CollectionEvent;
@@ -18,6 +18,8 @@ import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.users.UserMenuPresenter;
 import com.soundcloud.android.utils.OverflowButtonBackground;
@@ -38,20 +40,20 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final UserMenuPresenter userMenuPresenter;
 
     RecentlyPlayedProfileRenderer(boolean fixedWidth,
                                   @Provided ImageOperations imageOperations,
-                                  @Provided NavigationExecutor navigationExecutor,
+                                  @Provided Navigator navigator,
                                   @Provided ScreenProvider screenProvider,
                                   @Provided EventBus eventBus,
                                   @Provided UserMenuPresenter userMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.userMenuPresenter = userMenuPresenter;
@@ -100,7 +102,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
             Urn urn = user.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigationExecutor.legacyOpenProfile(view.getContext(), urn, lastScreen);
+            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, Optional.absent(), Optional.of(lastScreen), Optional.absent()));
         };
     }
 

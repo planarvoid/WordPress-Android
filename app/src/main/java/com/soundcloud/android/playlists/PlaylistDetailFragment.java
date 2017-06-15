@@ -13,6 +13,8 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
@@ -71,6 +73,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject FeedbackController feedbackController;
+    @Inject Navigator navigator;
     @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -162,7 +165,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.goToCreator()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigationExecutor.legacyOpenProfile(getActivity(), urn)),
+                         .subscribe(urn -> navigator.navigateTo(NavigationTarget.forProfile(getActivity(), urn))),
 
                 presenter.goToContentUpsell()
                          .observeOn(AndroidSchedulers.mainThread())

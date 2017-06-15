@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -90,7 +91,7 @@ public class UploadNotificationController {
     }
 
     private Notification createUploadFinishedNotification(Recording recording) {
-        final Intent profileIntent = IntentFactory.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
+        final Intent profileIntent = IntentFactory.createProfileIntent(context, accountOperations.getLoggedInUserUrn(), Optional.absent(), Optional.absent(), Optional.absent());
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_finished_title));
         finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded,

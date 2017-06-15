@@ -5,7 +5,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
@@ -30,7 +30,7 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                             TrackItemMenuPresenter trackItemMenuPresenter,
                             EventBus eventBus,
                             ScreenProvider screenProvider,
-                            NavigationExecutor navigationExecutor,
+                            Navigator navigator,
                             FeatureOperations featureOperations,
                             TrackItemView.Factory trackItemViewFactory,
                             OfflineSettingsOperations offlineSettingsOperations,
@@ -42,7 +42,7 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
               trackItemMenuPresenter,
               eventBus,
               screenProvider,
-              navigationExecutor,
+              navigator,
               featureOperations,
               trackItemViewFactory,
               offlineSettingsOperations,

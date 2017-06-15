@@ -6,11 +6,13 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 import com.soundcloud.android.tracks.TrackItem;
@@ -31,6 +33,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     private final ImageOperations imageOperations;
     private final StationInfoClickListener clickListener;
     private final TrackItemMenuPresenter menuPresenter;
+    private final Navigator navigator;
 
     private final View.OnClickListener onTrackClicked = new View.OnClickListener() {
         @Override
@@ -50,11 +53,13 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     StationTrackRenderer(StationInfoClickListener clickListener,
                          @Provided NavigationExecutor navigationExecutor,
                          @Provided ImageOperations imageOperations,
-                         @Provided TrackItemMenuPresenter menuPresenter) {
+                         @Provided TrackItemMenuPresenter menuPresenter,
+                         @Provided Navigator navigator) {
         this.clickListener = clickListener;
         this.navigationExecutor = navigationExecutor;
         this.imageOperations = imageOperations;
         this.menuPresenter = menuPresenter;
+        this.navigator = navigator;
     }
 
     @Override
@@ -89,7 +94,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(View.VISIBLE);
-            artist.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(artist.getContext(), creatorUrn));
+            artist.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(artist), creatorUrn)));
         }
 
         findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
