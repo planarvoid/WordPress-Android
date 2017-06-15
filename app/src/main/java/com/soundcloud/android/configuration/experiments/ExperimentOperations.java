@@ -56,6 +56,10 @@ public class ExperimentOperations {
         }
     }
 
+    public Optional<String> getOptionalExperimentVariant(ExperimentConfiguration experiment) {
+        return findLayer(experiment).transform(Layer::getVariantName);
+    }
+
     Optional<Layer> findLayer(ExperimentConfiguration experiment) {
         for (Layer layer : assignment.getLayers()) {
             if (matches(experiment, layer)) {

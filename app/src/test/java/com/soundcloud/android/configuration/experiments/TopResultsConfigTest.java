@@ -15,58 +15,74 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class TopResultsConfigTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private TopResultsBackendExperiments topResultsBackendExperiments;
 
     private TopResultsConfig topResultsConfig;
 
     @Before
     public void setUp() throws Exception {
-        topResultsConfig = new TopResultsConfig(experimentOperations, featureFlags);
+        topResultsConfig = new TopResultsConfig(experimentOperations, featureFlags, topResultsBackendExperiments);
     }
 
     @Test
     public void disablesTopResultsForControlGroup1() {
-        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL1);
+        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL1, false);
 
         assertThat(topResultsConfig.isEnabled()).isFalse();
     }
 
     @Test
     public void disablesTopResultsForControlGroup2() {
-        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL2);
+        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL2, false);
 
         assertThat(topResultsConfig.isEnabled()).isFalse();
     }
 
     @Test
     public void enablesTopResultsWithFeatureFlagTurnedOn() {
-        setPreconditions(true, TopResultsConfig.VARIANT_CONTROL1);
+        setPreconditions(true, TopResultsConfig.VARIANT_CONTROL1, false);
 
         assertThat(topResultsConfig.isEnabled()).isTrue();
     }
 
     @Test
     public void enablesTopResultsWithTopResultVariant() {
-        setPreconditions(false, TopResultsConfig.VARIANT_TOP_RESULT);
+        setPreconditions(false, TopResultsConfig.VARIANT_TOP_RESULT, false);
 
         assertThat(topResultsConfig.isEnabled()).isTrue();
     }
 
     @Test
     public void enablesTopResultsWithFixedResultVariant() {
-        setPreconditions(false, TopResultsConfig.VARIANT_FIXED_BUCKETS);
+        setPreconditions(false, TopResultsConfig.VARIANT_FIXED_BUCKETS, false);
 
         assertThat(topResultsConfig.isEnabled()).isTrue();
     }
 
     @Test
     public void enablesTopResultsWithVariableResultVariant() {
-        setPreconditions(false, TopResultsConfig.VARIANT_VARIABLE_BUCKETS);
+        setPreconditions(false, TopResultsConfig.VARIANT_VARIABLE_BUCKETS, false);
 
         assertThat(topResultsConfig.isEnabled()).isTrue();
     }
 
-    private void setPreconditions(boolean featureFlag, String variant) {
+    @Test
+    public void enablesTopResultsWhenBackendExperimentsEnabled() {
+        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL1, true);
+
+        assertThat(topResultsConfig.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void disablesTopResultsWhenBackendExperimentsDisabled() {
+        setPreconditions(false, TopResultsConfig.VARIANT_CONTROL1, false);
+
+        assertThat(topResultsConfig.isEnabled()).isFalse();
+    }
+
+    private void setPreconditions(boolean featureFlag, String variant, Boolean backendExperiementEnabled) {
         when(featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)).thenReturn(featureFlag);
         when(experimentOperations.getExperimentVariant(TopResultsConfig.CONFIGURATION)).thenReturn(variant);
+        when(topResultsBackendExperiments.topResultsEnabled()).thenReturn(backendExperiementEnabled);
     }
 }

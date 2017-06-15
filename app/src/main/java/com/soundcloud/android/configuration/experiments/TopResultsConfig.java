@@ -24,15 +24,17 @@ public class TopResultsConfig {
 
     private final ExperimentOperations experimentOperations;
     private final FeatureFlags featureFlags;
+    private final TopResultsBackendExperiments topResultsBackendExperiments;
 
     @Inject
-    TopResultsConfig(ExperimentOperations experimentOperations, FeatureFlags featureFlags) {
+    TopResultsConfig(ExperimentOperations experimentOperations, FeatureFlags featureFlags, TopResultsBackendExperiments topResultsBackendExperiments) {
         this.experimentOperations = experimentOperations;
         this.featureFlags = featureFlags;
+        this.topResultsBackendExperiments = topResultsBackendExperiments;
     }
 
     public boolean isEnabled() {
-        return featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS) || isExperimentEnabled();
+        return featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS) || isExperimentEnabled() || topResultsBackendExperiments.topResultsEnabled();
     }
 
     private boolean isExperimentEnabled() {
