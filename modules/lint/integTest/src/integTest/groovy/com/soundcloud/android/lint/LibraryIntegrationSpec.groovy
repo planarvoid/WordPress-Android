@@ -42,14 +42,14 @@ class LibraryIntegrationSpec extends IntegrationSpec {
 
             buildscript {
                 apply from: '../../../../../../../buildsystem/dependencies.gradle'
-                def gradleLibs = rootProject.ext.gradleLibraries
+                def gradlePlugins = rootProject.ext.gradlePlugins
                 
                 repositories {
                     jcenter()
                     mavenCentral()
                 }
                 dependencies {
-                    classpath gradleLibs.gradleBuildTools
+                    classpath gradlePlugins.android
                 }
             }
             

@@ -4,15 +4,15 @@ apply from: "${buildSrcDir}/tests.gradle"
 
 buildscript {
   apply from: "buildsystem/dependencies.gradle"
-  def gradleLibs = rootProject.ext.gradleLibraries
+  def gradlePlugins = rootProject.ext.gradlePlugins
 
   repositories {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath gradleLibs.gradleBuildTools
-    classpath gradleLibs.gms
+    classpath gradlePlugins.android
+    classpath gradlePlugins.gms
   }
 }
 
