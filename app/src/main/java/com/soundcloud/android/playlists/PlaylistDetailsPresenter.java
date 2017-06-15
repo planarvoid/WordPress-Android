@@ -54,7 +54,6 @@ import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import io.reactivex.Single;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -288,7 +287,7 @@ public class PlaylistDetailsPresenter {
                       .map(model -> model.metadata().urn())
                       .flatMap(playlistOperations::trackUrnsForPlayback)
                       .withLatestFrom(playSessionSource(), Pair::of)
-                      .flatMap(pair -> RxJava.toV1Observable(playbackInitiator.playTracks(pair.first(), 0, pair.second())))
+                      .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
                       .doOnNext(this::sendErrorIfUnsuccessful);
     }
 
@@ -329,11 +328,11 @@ public class PlaylistDetailsPresenter {
     }
 
     private Observable<PlaybackResult> playTracksFromPosition(Integer position, PlaySessionSource playSessionSource, List<Urn> tracks) {
-        return RxJava.toV1Observable(playbackInitiator.playTracks(
+        return playbackInitiator.playTracks(
                 tracks,
                 position,
                 playSessionSource
-        ));
+        );
     }
 
     private Observable<LikeOperations.LikeResult> actionLike(PublishSubject<Boolean> trigger) {
@@ -550,8 +549,8 @@ public class PlaylistDetailsPresenter {
                        .withLatestFrom(playSessionSource(), Pair::of)
                        .flatMap(pair -> {
                            PlaylistDetailsViewModel viewModel = pair.first();
-                           return RxJava.toV1Observable(playbackInitiator
-                                   .playTracksShuffled(Single.just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second()))
+                           return playbackInitiator
+                                   .playTracksShuffled(just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second())
                                    .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext(viewModel.metadata().urn()))));
                        }).doOnNext(this::sendErrorIfUnsuccessful);
     }

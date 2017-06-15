@@ -29,7 +29,7 @@ public class PlayQueueHelper {
         @Override
         public Observable<PlaybackResult> call(List<Urn> tracks) {
             final String screen = screenProvider.getLastScreenTag();
-            return RxJava.toV1Observable(playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screen)));
+            return playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screen));
         }
     };
 

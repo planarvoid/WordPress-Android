@@ -17,6 +17,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -59,14 +60,15 @@ public class SearchClickListener {
     }
 
     Observable<PlaybackResult> trackClickToPlaybackResult(TrackClickParams params) {
-        return playbackInitiator.playPosts(searchPlayQueueFilter.correctQueue(params.playableItems(), params.playPosition()),
-                                           params.clickParams().urn(),
-                                           searchPlayQueueFilter.correctPosition(params.playPosition()),
-                                           params.playSessionSource())
-                                .doOnSuccess(__ -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(params.clickParams().screen(),
-                                                                                                        params.clickParams().searchQuerySourceInfo(),
-                                                                                                        params.clickParams().clickSource())))
-                                .doOnSuccess(this::trackPlaybackSuccess).toObservable();
+        return RxJava.toV2Observable(playbackInitiator.playPosts(searchPlayQueueFilter.correctQueue(params.playableItems(),
+                                                                                                    params.playPosition()),
+                                                                 params.clickParams().urn(),
+                                                                 searchPlayQueueFilter.correctPosition(params.playPosition()),
+                                                                 params.playSessionSource()))
+                     .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(params.clickParams().screen(),
+                                                                                            params.clickParams().searchQuerySourceInfo(),
+                                                                                            params.clickParams().clickSource())))
+                     .doOnNext(this::trackPlaybackSuccess);
     }
 
     private void trackPlaybackSuccess(PlaybackResult playbackResult) {

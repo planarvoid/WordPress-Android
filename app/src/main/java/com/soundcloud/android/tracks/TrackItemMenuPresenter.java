@@ -27,7 +27,6 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -277,8 +276,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
         if (playQueueManager.isQueueEmpty()) {
             final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
-            RxJava.toV1Observable(playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource))
-                  .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
+            playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
+                             .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         } else {
             playQueueManager.insertNext(trackUrn);
         }

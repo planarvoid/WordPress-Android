@@ -29,6 +29,8 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
@@ -39,10 +41,10 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.functions.Func4;
 import rx.subjects.BehaviorSubject;
-import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -101,10 +103,17 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private Fragment fragment;
 
+    private final Action0 sendShuffleLikesAnalytics = new Action0() {
+        @Override
+        public void call() {
+            eventBus.publish(EventQueue.TRACKING, UIEvent
+                    .fromShuffle(builder().pageName(Screen.LIKES.get()).build()));
+        }
+    };
+
     private final BehaviorSubject<Integer> trackCountSubject;
     private final BehaviorSubject<Optional<WeakReference<View>>> viewSubject;
     private Subscription subscription;
-    private CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     @Inject
     public TrackLikesHeaderPresenter(final TrackLikesHeaderViewFactory headerViewFactory,
@@ -151,7 +160,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onDestroy(Fragment fragment) {
-        compositeSubscription.clear();
         subscription.unsubscribe();
         super.onDestroy(fragment);
     }
@@ -205,9 +213,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onShuffle() {
-        compositeSubscription.add(RxJava.toV1Observable(playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
-                                                                         .doOnSuccess(__ -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(builder().pageName(Screen.LIKES.get()).build()))))
-                                        .subscribe(expandPlayerSubscriberProvider.get()));
+        playbackInitiator.playTracksShuffled(RxJava.toV1Observable(likeOperations.likedTrackUrns()), new PlaySessionSource(Screen.LIKES))
+                         .doOnCompleted(sendShuffleLikesAnalytics)
+                         .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override

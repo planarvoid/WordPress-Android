@@ -127,7 +127,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                                                                                    trackItem.genre()) :
                                                         PlaySessionSource.EMPTY;
 
-            RxJava.toV1Observable(playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.getUrn()), playSessionSource))
+            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.getUrn()), playSessionSource)
                              .subscribe(expandPlayerSubscriberProvider.get());
         }
     }

@@ -9,16 +9,16 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.java.collections.Lists;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 
 public class PlaybackInitiator {
@@ -39,44 +39,45 @@ public class PlaybackInitiator {
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
-    public Single<PlaybackResult> startPlayback(Urn trackUrn, Screen screen) {
+    public Observable<PlaybackResult> startPlayback(Urn trackUrn, Screen screen) {
         playQueueManager.clearAll();
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
-        return playTracks(Single.just(Collections.singletonList(trackUrn)), trackUrn, 0, playSessionSource);
+        return playTracks(Observable.just(trackUrn).toList(), trackUrn, 0, playSessionSource);
     }
 
-    public Single<PlaybackResult> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public Observable<PlaybackResult> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        return playTracks(Single.just(Collections.singletonList(urn)), urn, 0, playSessionSource);
+        return playTracks(Observable.just(urn).toList(), urn, 0, playSessionSource);
     }
 
     @Deprecated
     // Please, use playTrackWithRecommendations instead.
-    public Single<PlaybackResult> playTrackWithRecommendationsLegacy(Urn track, PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playTrackWithRecommendationsLegacy(Urn track, PlaySessionSource playSessionSource) {
         // TODO : move to the alternative solution when playing the tracking story DROID-1028
-        return playTracks(Single.just(Collections.singletonList(track)), track, 0, playSessionSource);
+        return playTracks(Observable.just(track).toList(), track, 0, playSessionSource);
     }
 
-    public Single<PlaybackResult> playPosts(Single<List<PlayableWithReposter>> playables, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
-        Single<List<Urn>> urns = playables.map(playablesItem -> Lists.transform(playablesItem, PlayableWithReposter::getUrn));
+    public Observable<PlaybackResult> playPosts(Observable<List<PlayableWithReposter>> playables, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+        Observable<List<Urn>> urns = playables.map(playablesItem -> Lists.transform(playablesItem, PlayableWithReposter::getUrn));
         return playTracks(urns, initialTrack, position, playSessionSource);
     }
 
-    public Single<PlaybackResult> playPosts(List<Urn> playableUrns, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
-        return playTracks(Single.just(playableUrns), initialTrack, position, playSessionSource);
+    public Observable<PlaybackResult> playPosts(List<Urn> playableUrns, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+        Observable<List<Urn>> urns = Observable.just(playableUrns);
+        return playTracks(urns, initialTrack, position, playSessionSource);
     }
 
-    public Single<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
-        return playTracks(Single.just(trackUrns), trackUrns.get(position), position, playSessionSource);
+    public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
+        return playTracks(Observable.just(trackUrns), trackUrns.get(position), position, playSessionSource);
     }
 
-    public Single<PlaybackResult> playTracks(Single<List<Urn>> allTracks, Urn initialTrack, int initialPosition, PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int initialPosition, PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             playSessionController.playCurrent();
-            return Single.just(PlaybackResult.success());
+            return Observable.just(PlaybackResult.success());
         } else {
-            return allTracks.doOnSubscribe(__ -> startMeasuringPlaybackStarted(playSessionSource))
+            return allTracks.doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource))
                             .flatMap(policyOperations.blockedStatuses())
                             .zipWith(allTracks, (blockedUrns, urns) -> PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns))
                             .map(addExplicitContentFromCurrentPlayQueue(initialPosition, initialTrack, playSessionSource))
@@ -86,7 +87,7 @@ public class PlaybackInitiator {
     }
 
     @NonNull
-    private Function<PlayQueue, Single<? extends PlaybackResult>> playNewQueue(final Urn initialTrack, final int initialPosition, final PlaySessionSource playSessionSource) {
+    private Func1<PlayQueue, Observable<? extends PlaybackResult>> playNewQueue(final Urn initialTrack, final int initialPosition, final PlaySessionSource playSessionSource) {
         return playQueue -> {
 
             int positionOfFirstPlayable = PlaybackUtils.correctStartPosition(playQueue, initialPosition, initialTrack, playSessionSource);
@@ -104,7 +105,7 @@ public class PlaybackInitiator {
                 }
             }
 
-            return playSessionController.playNewQueue(playQueue, urnOfFirstPlayable, positionOfFirstPlayable, playSessionSource);
+            return RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, urnOfFirstPlayable, positionOfFirstPlayable, playSessionSource));
         };
     }
 
@@ -122,32 +123,32 @@ public class PlaybackInitiator {
         performanceMetricsEngine.startMeasuring(timeToExpand);
     }
 
-    public Single<PlaybackResult> playStation(Urn stationUrn,
-                                              List<StationTrack> stationTracks,
-                                              final PlaySessionSource playSessionSource,
-                                              final Urn clickedTrack, final int playQueuePosition) {
+    public Observable<PlaybackResult> playStation(Urn stationUrn,
+                                                  List<StationTrack> stationTracks,
+                                                  final PlaySessionSource playSessionSource,
+                                                  final Urn clickedTrack, final int playQueuePosition) {
 
         if (isCurrentPlayQueueOrRecommendationState(clickedTrack, playSessionSource)) {
-            return Single.just(PlaybackResult.success());
+            return Observable.just(PlaybackResult.success());
         }
 
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, playSessionSource);
 
-        return playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
-                                    .doOnSubscribe(__ -> startMeasuringPlaybackStarted(playSessionSource));
+        return RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
+                                                          .doOnSubscribe(__ -> startMeasuringPlaybackStarted(playSessionSource)));
     }
 
-    public Single<PlaybackResult> playTracksShuffled(Single<List<Urn>> allTracks, final PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> allTracks, final PlaySessionSource playSessionSource) {
         return allTracks.flatMap(policyOperations.blockedStatuses())
                         .zipWith(allTracks, (blockedUrns, urns) -> {
                             PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns);
                             return ShuffledPlayQueue.from(playQueue, 0, playQueue.size());
                         })
-                        .flatMap(playQueue -> playSessionController.playNewQueue(playQueue, playQueue.getUrn(0), 0, playSessionSource))
+                        .flatMap(playQueue -> RxJava.toV1Observable(playSessionController.playNewQueue(playQueue, playQueue.getUrn(0), 0, playSessionSource)))
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Function<PlayQueue, PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition, Urn initialTrack, PlaySessionSource playSessionSource) {
+    private Func1<PlayQueue, PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition, Urn initialTrack, PlaySessionSource playSessionSource) {
         return playQueueItems -> {
             final List<PlayQueueItem> explicitQueueItems = playQueueManager.getUpcomingExplicitQueueItems();
             final int updatedInitialPosition = PlaybackUtils.correctStartPosition(playQueueItems, startPosition, initialTrack, playSessionSource);

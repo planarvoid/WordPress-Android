@@ -19,7 +19,6 @@ import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -85,10 +84,9 @@ public class PlayHistoryStorage {
         return database.bulkInsert(PlayHistory.TABLE, buildBulkValues(addRecords));
     }
 
-    Single<List<Urn>> loadPlayHistoryForPlayback() {
+    Observable<List<Urn>> loadPlayHistoryForPlayback() {
         return rxDatabase.queryResult(loadForPlaybackQuery())
-                         .map(result -> result.toList(URN_MAPPER))
-                         .singleOrError();
+                         .map(result -> result.toList(URN_MAPPER));
     }
 
     boolean hasPendingTracksToSync() {
