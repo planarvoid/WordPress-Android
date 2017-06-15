@@ -29,8 +29,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
@@ -272,16 +270,19 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         private final OfflineSettingsOperations offlineSettings;
         private final ConnectionHelper connectionHelper;
         private final EventBus eventBus;
+        private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
         private Optional<HeaderViewUpdate> previousUpdate = Optional.absent();
 
         @Inject
         UpdateHeaderViewSubscriber(OfflineSettingsOperations offlineSettings,
                                    ConnectionHelper connectionHelper,
-                                   EventBus eventBus) {
+                                   EventBus eventBus,
+                                   GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;
             this.eventBus = eventBus;
+            this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         }
 
         @Override
@@ -325,9 +326,13 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
 
         private void showOfflineIntroductoryOverlayIfNeeded(TrackLikesHeaderView headerView, boolean offlineLikesEnabled) {
-            if (!offlineLikesEnabled && canSyncOfflineOnCurrentConnection()) {
+            if (shouldShowOfflineIntroductoryOverlay(offlineLikesEnabled) && canSyncOfflineOnCurrentConnection()) {
                 headerView.showOfflineIntroductoryOverlay();
             }
+        }
+
+        private boolean shouldShowOfflineIntroductoryOverlay(boolean offlineLikesEnabled) {
+            return !offlineLikesEnabled && goOnboardingTooltipExperiment.isEnabled();
         }
 
         private boolean canSyncOfflineOnCurrentConnection() {

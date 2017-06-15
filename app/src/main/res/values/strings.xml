@@ -864,6 +864,8 @@
     <string name="overlay_search_go_plus_description">Previews are a thing of the past! This marker identifies exclusive content you’ve unlocked with SoundCloud Go+</string>
     <string name="overlay_listen_offline_playlist_title">Listen offline</string>
     <string name="overlay_listen_offline_playlist_description">Tap the arrow to save newly-discovered playlists and albums to your offline collection.</string>
+    <string name="overlay_offline_settings_title">Adjust your settings</string>
+    <string name="overlay_offline_settings_description">Tap to manage your storage and offline listening settings.</string>
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>

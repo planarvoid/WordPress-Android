@@ -6,7 +6,6 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.OfflineState;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 class TrackLikesHeaderView {
 
     private final Resources resources;
-    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
@@ -43,12 +41,10 @@ class TrackLikesHeaderView {
     }
 
     TrackLikesHeaderView(@Provided Resources resources,
-                         @Provided GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                          @Provided IntroductoryOverlayPresenter introductoryOverlayPresenter,
                          View view,
                          Listener listener) {
         this.resources = resources;
-        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.listener = listener;
         this.headerView = view.findViewById(R.id.track_likes_header);
@@ -70,12 +66,10 @@ class TrackLikesHeaderView {
     }
 
     void showOfflineIntroductoryOverlay() {
-        if (goOnboardingTooltipExperiment.isEnabled()) {
-            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
-                                                      offlineStateButton,
-                                                      R.string.overlay_listen_offline_likes_title,
-                                                      R.string.overlay_listen_offline_likes_description);
-        }
+        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
+                                                  offlineStateButton,
+                                                  R.string.overlay_listen_offline_likes_title,
+                                                  R.string.overlay_listen_offline_likes_description);
     }
 
     void showNoWifi() {

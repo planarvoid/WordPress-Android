@@ -5,8 +5,10 @@ import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.SEARC
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
@@ -29,6 +31,8 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private final NavigationExecutor navigationExecutor;
     private final ShortcutController shortcutController;
     private final FeatureOperations featureOperations;
+    private final OfflineContentOperations offlineContentOperations;
+    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private RootActivity activity;
 
@@ -42,12 +46,16 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       NavigationExecutor navigationExecutor,
                       ShortcutController shortcutController,
                       FeatureOperations featureOperations,
+                      OfflineContentOperations offlineContentOperations,
+                      GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                       MainTabsView mainTabsView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigationExecutor = navigationExecutor;
         this.shortcutController = shortcutController;
         this.featureOperations = featureOperations;
+        this.offlineContentOperations = offlineContentOperations;
+        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.mainTabsView = mainTabsView;
     }
 
@@ -60,12 +68,20 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         super.onCreate(activity, bundle);
         this.activity = activity;
 
-        mainTabsView.setupViews(activity, pagerAdapterFactory.create(activity));
+        mainTabsView.setupViews(pagerAdapterFactory.create(activity));
 
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
         }
         startDevelopmentMenuStream();
+    }
+
+    @Override
+    public void onResume(RootActivity host) {
+        super.onResume(host);
+        if (offlineContentOperations.hasOfflineContent() && goOnboardingTooltipExperiment.isEnabled()) {
+            mainTabsView.showOfflineSettingsIntroductoryOverlay();
+        }
     }
 
     @Override
@@ -127,7 +143,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 break;
             case Actions.SEARCH:
                 mainTabsView.selectItem(Screen.SEARCH_MAIN);
-                openSearchScreen(intent);
+                navigationExecutor.openSearch(activity, intent);
                 break;
             case Actions.MORE:
                 mainTabsView.selectItem(Screen.MORE);
@@ -145,10 +161,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
             default:
                 break;
         }
-    }
-
-    private void openSearchScreen(final Intent intent) {
-        navigationExecutor.openSearch(activity, intent);
     }
 
     private class UpdateDevelopmentMenuAction extends DefaultObserver<Boolean> {

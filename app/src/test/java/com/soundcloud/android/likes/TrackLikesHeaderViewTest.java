@@ -1,12 +1,9 @@
 package com.soundcloud.android.likes;
 
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -29,14 +26,12 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackLikesHeaderView.Listener listener;
-    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @Before
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
-                                                        goOnboardingTooltipExperiment,
                                                         introductoryOverlayPresenter,
                                                         view,
                                                         listener);
@@ -95,17 +90,8 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     @Test
     public void showIntroductoryOverlay() {
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
-        verifyIntroductoryOverlay(0);
-
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
-        trackLikesHeaderView.showOfflineIntroductoryOverlay();
-        verifyIntroductoryOverlay(1);
-    }
-
-    private void verifyIntroductoryOverlay(int times) {
-        verify(introductoryOverlayPresenter, times(times)).showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
+        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
                                                                         getOfflineStateButton(),
                                                                         R.string.overlay_listen_offline_likes_title,
                                                                         R.string.overlay_listen_offline_likes_description);

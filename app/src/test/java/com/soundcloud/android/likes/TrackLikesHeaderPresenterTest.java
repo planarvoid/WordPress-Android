@@ -107,7 +107,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigationExecutor,
                 eventBus,
-                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)),
+                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus, goOnboardingTooltipExperiment)),
                 offlineSettingsStorage,
                 goOnboardingTooltipExperiment);
 
@@ -370,6 +370,17 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void doNotShowIntroductoryOverlayIfLikesEnabled() {
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        createAndBindView();
+
+        verify(headerView, never()).showOfflineIntroductoryOverlay();
+    }
+
+    @Test
+    public void doNotShowIntroductoryOverlayIfExperimentNotEnabled() {
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         createAndBindView();
 
@@ -379,6 +390,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void doNotShowIntroductoryOverlayIfNoConnection() {
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
 
@@ -386,8 +398,9 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showIntroductoryOverlayIfLikesNotEnabledAndHasConnection() {
+    public void showIntroductoryOverlayIfLikesNotEnabledAndExperimentEnabledAndHasConnection() {
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         createAndBindView();
 

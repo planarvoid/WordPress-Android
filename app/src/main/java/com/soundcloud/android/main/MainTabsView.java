@@ -5,7 +5,10 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -33,25 +36,29 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
 
     private final NavigationModel navigationModel;
     private final EventTracker eventTracker;
+    private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     private RootActivity activity;
 
     @Inject
-    MainTabsView(EnterScreenDispatcher enterScreenDispatcher, NavigationModel navigationModel, EventTracker eventTracker) {
+    MainTabsView(EnterScreenDispatcher enterScreenDispatcher,
+                 NavigationModel navigationModel,
+                 EventTracker eventTracker,
+                 IntroductoryOverlayPresenter introductoryOverlayPresenter) {
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.navigationModel = navigationModel;
         this.eventTracker = eventTracker;
+        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         enterScreenDispatcher.setListener(this);
     }
 
     @Override
     public void onCreate(RootActivity activity, @Nullable Bundle bundle) {
         super.onCreate(activity, bundle);
-
         this.activity = activity;
     }
 
-    void setupViews(RootActivity activity, MainPagerAdapter pagerAdapter) {
+    void setupViews(MainPagerAdapter pagerAdapter) {
         ButterKnife.bind(this, activity);
 
         pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
@@ -62,15 +69,28 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
         bindPagerToTabs(pagerAdapter);
     }
 
+    void showOfflineSettingsIntroductoryOverlay() {
+        getMoreTabCustomView().ifPresent(view -> introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.OFFLINE_SETTINGS,
+                                                                                           view,
+                                                                                           R.string.overlay_offline_settings_title,
+                                                                                           R.string.overlay_offline_settings_description));
+    }
+
+    private Optional<View> getMoreTabCustomView() {
+        int morePosition = navigationModel.getPosition(Screen.MORE);
+        return morePosition == NavigationModel.NOT_FOUND
+               ? Optional.absent()
+               : Optional.of(tabBar.getTabAt(morePosition).getCustomView());
+    }
+
     private void bindPagerToTabs(MainPagerAdapter pagerAdapter) {
         pager.setAdapter(pagerAdapter);
         tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
         pager.addOnPageChangeListener(pageChangeListenerFor(tabBar, pagerAdapter));
-        setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
+        setTabIcons(pagerAdapter, pager.getCurrentItem());
     }
 
-
-    private void setTabIcons(MainPagerAdapter pagerAdapter, TabLayout tabBar, int currentItem) {
+    private void setTabIcons(MainPagerAdapter pagerAdapter, int currentItem) {
         int tabCount = pagerAdapter.getCount();
         tabBar.removeAllTabs();
         for (int pageIndex = 0; pageIndex < tabCount; pageIndex++) {

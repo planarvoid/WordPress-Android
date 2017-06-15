@@ -12,6 +12,7 @@ public class IntroductoryOverlayKey {
     public static final String LISTEN_OFFLINE_LIKES = "listen_offline_likes";
     public static final String SEARCH_GO_PLUS = "search_go_plus";
     public static final String LISTEN_OFFLINE_PLAYLIST = "listen_offline_playlist";
+    public static final String OFFLINE_SETTINGS = "offline_settings";
 
     public static final List<String> ALL_KEYS = Collections.unmodifiableList(Arrays.asList(PLAY_QUEUE,
                                                                                            CHROMECAST,
@@ -19,5 +20,6 @@ public class IntroductoryOverlayKey {
                                                                                            ADD_TO_COLLECTION,
                                                                                            LISTEN_OFFLINE_LIKES,
                                                                                            SEARCH_GO_PLUS,
-                                                                                           LISTEN_OFFLINE_PLAYLIST));
+                                                                                           LISTEN_OFFLINE_PLAYLIST,
+                                                                                           OFFLINE_SETTINGS));
 }
