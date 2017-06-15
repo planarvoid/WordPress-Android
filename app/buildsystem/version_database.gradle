@@ -1,0 +1,55 @@
+import groovy.sql.Sql
+
+import java.text.SimpleDateFormat
+/*
+ * We need to load the DB driver in the same classloader as Groovy,
+ * so the dependency must be loaded here rather than defined in 'buildscript'.
+ */
+
+configurations {
+  driver
+}
+
+dependencies {
+  driver group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
+}
+
+task logVersion {
+  description = 'Stores versions and timestamp to mobile_releases database'
+
+  doLast {
+    logReleaseToDatabase Integer.toString(project.('ext').releaseVersionCode), project.('ext').currentVersionName
+  }
+}
+
+def logReleaseToDatabase(String build, String version) {
+  def dbProperties = file('/home/mobile/version_database.properties')
+  if (dbProperties.exists() && dbProperties.canRead()) {
+    def sql = connectToReleasesDb(dbProperties)
+    def params = ['3152', build, version, currentDate()]
+    sql.execute 'insert into Releases (application_id, build, version, release_date) values (?, ?, ?, ?)', params
+    sql.close()
+  } else {
+    System.err.println("WARNING: Can't connect to release versions database. Is the properties file present?")
+  }
+}
+
+private def connectToReleasesDb(File dbProperties) {
+  def props = new Properties()
+  file(dbProperties).withInputStream { props.load(it) }
+
+  configureDbDriver()
+  Sql.newInstance("jdbc:mysql://" + props.getProperty('host'),
+          props.getProperty('username'),
+          props.getProperty('password'))
+}
+
+private void configureDbDriver() {
+  configurations.driver.files.each {
+    Sql.classLoader.addURL(it.toURI().toURL())
+  }
+}
+
+private static def currentDate() {
+  new SimpleDateFormat('yyyy-MM-dd HH:mm:ss').format(new Date())
+}

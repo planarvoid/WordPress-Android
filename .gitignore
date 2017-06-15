@@ -1,9 +1,9 @@
-# OS X Finder and svn
+# OSX finder and svn
 .DS_Store
 .svn
 .settings
 
-# intellij
+# IntelliJ
 soundcloud-android.ipr
 soundcloud-android.iws
 app/gen-external-apklibs/
@@ -16,54 +16,40 @@ tmp
 gen
 lint_files
 
-# keystore
+# Keystore
 ks/
 
-#eclipse
-.classpath
-
-#vim
+# Vim
 *.swp
 
-# ant
+# Ant
 local.properties
 build.xml
 soundcloud_sign
 
-#prefs
+# Prefs
 com.soundcloud.android_preferences.xml
 com_crashlytics_export_strings.xml
 
-#sbt
+# SBT
 project/boot
 project/plugins/project/
 target
-
-c2dm.credentials
-
-reg_ids.yaml
 
 # Gradle
 .gradle
 .gradletasknamecache
 build
 
-# test data
+# Test data
 tests-*.sqlite
 coverage-error.log
 
-# PlayStore credentials
-client_secrets.json
-release.properties
-
+# Properties
 app/src/main/res/values/app_properties*.xml
 app/src/androidTest/res/values/test_properties.xml
 
-# RVM, in case you use RVM + Replicant
-.rvmrc
-.ruby-*
-
-# jenv
+# JEnv
 .java-version
 
 # Crashlytics build product
@@ -72,7 +58,7 @@ crashlytics-build.properties
 tests-integration/res/values/test_properties.xml
 reports
 
-# heap dumps
+# Heap dumps
 captures
 nimbledroid.properties
 
@@ -82,3 +68,10 @@ app/src/androidTest/res/com/soundcloud/android/framework/helpers/mrlogga/log/
 # Mobile Test Runner
 results
 htmlTemplates
+
+# Credentials
+client_secrets.json
+release.properties
+version_database.properties
+c2dm.credentials
+reg_ids.yaml

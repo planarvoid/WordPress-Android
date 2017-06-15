@@ -160,10 +160,11 @@ task deployReleaseTwentyPercent(dependsOn: ['rolloutTwentyPercent', 'slogRollout
 }
 slogRolloutTwentyPercent.mustRunAfter('rolloutTwentyPercent')
 
-task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull']) {
+task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull', 'logVersion']) {
   description = 'Deploy Release build to playstore (100% rollout).'
 }
 slogRolloutFull.mustRunAfter('rolloutFull')
+logVersion.mustRunAfter('slogRolloutFull')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleReleaseNonPlayStore']) {
   description = 'Assembles Release for Non Google Play Stores for CI.'
