@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -11,12 +10,14 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -56,9 +57,9 @@ public class MixedItemClickListener {
             final TrackItem item = (TrackItem) clickedItem;
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-            playbackInitiator
-                    .playTracks(playables, item.getUrn(), position, playSessionSource)
-                    .subscribe(subscriberProvider.get());
+            RxJava.toV1Observable(playbackInitiator
+                                          .playTracks(RxJava.toV2Single(playables), item.getUrn(), position, playSessionSource))
+                  .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, Optional.absent());
         }
@@ -111,9 +112,9 @@ public class MixedItemClickListener {
             if (item.isPromoted()) {
                 playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((TrackItem) clickedItem));
             }
-            playbackInitiator
-                    .playPosts(playablesWithReposters, item.getUrn(), position, playSessionSource)
-                    .subscribe(subscriberProvider.get());
+            RxJava.toV1Observable(playbackInitiator
+                                          .playPosts(RxJava.toV2Single(playablesWithReposters), item.getUrn(), position, playSessionSource))
+                  .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, module);
         }
@@ -155,7 +156,7 @@ public class MixedItemClickListener {
             navigationExecutor.legacyOpenProfile(context, entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
-                                                                            .getSimpleName() + ": " + entityUrn);
+                                                                                                .getSimpleName() + ": " + entityUrn);
         }
     }
 
@@ -182,9 +183,9 @@ public class MixedItemClickListener {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playbackInitiator
-                .playTracks(trackUrns, adjustedPosition, playSessionSource)
-                .subscribe(subscriberProvider.get());
+        RxJava.toV1Observable(playbackInitiator
+                                      .playTracks(trackUrns, adjustedPosition, playSessionSource))
+              .subscribe(subscriberProvider.get());
     }
 
     private List<Urn> filterTracks(List<? extends ListItem> data) {

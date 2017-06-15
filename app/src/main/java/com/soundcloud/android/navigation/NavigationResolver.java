@@ -31,7 +31,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -605,19 +604,19 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<Action> startPlayback(NavigationTarget navigationTarget, Urn urn) {
-        return RxJava.toV2Single(playbackInitiator.startPlayback(urn, navigationTarget.screen()))
-                     .observeOn(AndroidSchedulers.mainThread())
-                     .flatMap(playbackResult -> {
-                         if (navigationTarget.screen() == Screen.DEEPLINK) {
-                             if (playbackResult.isSuccess()) {
-                                 return Single.just(() -> navigationExecutor.openStreamWithExpandedPlayer(navigationTarget.activity(), navigationTarget.screen()));
-                             } else {
-                                 return launchApplicationWithMessage(navigationTarget, R.string.error_loading_url);
-                             }
-                         } else {
-                             return Single.just(() -> expandPlayerSubscriberProvider.get().onNext(playbackResult));
-                         }
-                     });
+        return playbackInitiator.startPlayback(urn, navigationTarget.screen())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .flatMap(playbackResult -> {
+                                    if (navigationTarget.screen() == Screen.DEEPLINK) {
+                                        if (playbackResult.isSuccess()) {
+                                            return Single.just(() -> navigationExecutor.openStreamWithExpandedPlayer(navigationTarget.activity(), navigationTarget.screen()));
+                                        } else {
+                                            return launchApplicationWithMessage(navigationTarget, R.string.error_loading_url);
+                                        }
+                                    } else {
+                                        return Single.just(() -> expandPlayerSubscriberProvider.get().onNext(playbackResult));
+                                    }
+                                });
     }
 
     @CheckResult
