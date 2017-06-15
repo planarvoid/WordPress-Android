@@ -38,6 +38,7 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -96,7 +96,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
-                .thenReturn(Observable.empty());
+                .thenReturn(Single.never());
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory,
                                                trackRepository,

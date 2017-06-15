@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -63,9 +64,9 @@ public class MixedItemClickListener {
             final TrackItem item = (TrackItem) clickedItem;
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-            playbackInitiator
-                    .playTracks(playables, item.getUrn(), position, playSessionSource)
-                    .subscribe(subscriberProvider.get());
+            RxJava.toV1Observable(playbackInitiator
+                                          .playTracks(RxJava.toV2Single(playables), item.getUrn(), position, playSessionSource))
+                  .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, Optional.absent());
         }
@@ -118,9 +119,9 @@ public class MixedItemClickListener {
             if (item.isPromoted()) {
                 playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((TrackItem) clickedItem));
             }
-            playbackInitiator
-                    .playPosts(playablesWithReposters, item.getUrn(), position, playSessionSource)
-                    .subscribe(subscriberProvider.get());
+            RxJava.toV1Observable(playbackInitiator
+                                          .playPosts(RxJava.toV2Single(playablesWithReposters), item.getUrn(), position, playSessionSource))
+                  .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, module);
         }
@@ -189,9 +190,9 @@ public class MixedItemClickListener {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playbackInitiator
-                .playTracks(trackUrns, adjustedPosition, playSessionSource)
-                .subscribe(subscriberProvider.get());
+        RxJava.toV1Observable(playbackInitiator
+                                      .playTracks(trackUrns, adjustedPosition, playSessionSource))
+              .subscribe(subscriberProvider.get());
     }
 
     private List<Urn> filterTracks(List<? extends ListItem> data) {

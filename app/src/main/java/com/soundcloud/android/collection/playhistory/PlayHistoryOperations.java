@@ -74,17 +74,17 @@ public class PlayHistoryOperations {
                                  .map(tracks -> Lists.transform(tracks, entityItemCreator::trackItem));
     }
 
-    public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
-        return RxJava.toV2Observable(playbackInitiator.playTracks(RxJava.toV1Observable(getAllTracksForPlayback()), trackUrn, 0,
-                                            PlaySessionSource.forHistory(screen)));
+    public Single<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
+        return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
+                                            PlaySessionSource.forHistory(screen));
     }
 
     Observable<Boolean> clearHistory() {
         return RxJava.toV2Observable(clearPlayHistoryCommand.toObservable(null))
-                                             .subscribeOn(scheduler);
+                     .subscribeOn(scheduler);
     }
 
-    private Observable<List<Urn>> getAllTracksForPlayback() {
+    private Single<List<Urn>> getAllTracksForPlayback() {
         return playHistoryStorage.loadPlayHistoryForPlayback()
                                  .subscribeOn(scheduler);
     }

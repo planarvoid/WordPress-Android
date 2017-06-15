@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -82,11 +83,11 @@ public class StartStationPresenter {
         return stationRecord -> {
             checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
 
-            return playbackInitiator.playStation(stationRecord.getUrn(),
-                                                 stationRecord.getTracks(),
-                                                 createPlaySessionSource(discoverySource, stationRecord),
-                                                 stationRecord.getTracks().get(position).getTrackUrn(),
-                                                 position);
+            return RxJava.toV1Observable(playbackInitiator.playStation(stationRecord.getUrn(),
+                                                                       stationRecord.getTracks(),
+                                                                       createPlaySessionSource(discoverySource, stationRecord),
+                                                                       stationRecord.getTracks().get(position).getTrackUrn(),
+                                                                       position));
         };
     }
 
@@ -128,11 +129,11 @@ public class StartStationPresenter {
                 trackToPlay = station.getTracks().get(station.getPreviousPosition()).getTrackUrn();
                 position = (station.getPreviousPosition() + 1) % station.getTracks().size();
             }
-            return playbackInitiator.playStation(station.getUrn(),
-                                                 station.getTracks(),
-                                                 createPlaySessionSource(source, station),
-                                                 trackToPlay,
-                                                 position);
+            return RxJava.toV1Observable(playbackInitiator.playStation(station.getUrn(),
+                                                                       station.getTracks(),
+                                                                       createPlaySessionSource(source, station),
+                                                                       trackToPlay,
+                                                                       position));
         };
     }
 

@@ -19,6 +19,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -52,7 +53,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
         when(screenProvider.getOriginScreen()).thenReturn(screen.get());
         when(playbackInitiator.playStation(any(Urn.class), anyListOf(StationTrack.class),
                                            any(PlaySessionSource.class), any(Urn.class), anyInt()))
-                .thenReturn(Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         presenter = new StartStationPresenter(dialogBuilder,
                                               stationsOperations,

@@ -64,7 +64,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(eq(playlistUrn)))
                 .thenReturn(Observable.just(trackList));
         when(playbackInitiator.playTracks(trackList, 0, playSessionSource))
-                .thenReturn(Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         playQueueHelper.playNext(playlistUrn);
 

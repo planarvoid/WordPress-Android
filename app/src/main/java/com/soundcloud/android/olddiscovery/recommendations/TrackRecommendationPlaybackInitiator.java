@@ -11,13 +11,14 @@ import static com.soundcloud.java.collections.Iterables.transform;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem.Kind;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem.Kind;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.functions.Predicate;
 
 import javax.inject.Inject;
@@ -49,8 +50,8 @@ public class TrackRecommendationPlaybackInitiator {
         final List<Urn> playQueue = newArrayList(concat(backQueue, seed, forwardQueue));
         final int playPosition = playQueue.indexOf(bucket.seedTrackUrn());
 
-        playbackInitiator.playTracks(playQueue, playPosition, playSessionSource)
-                         .subscribe(expandPlayerSubscriberProvider.get());
+        RxJava.toV1Observable(playbackInitiator.playTracks(playQueue, playPosition, playSessionSource))
+              .subscribe(expandPlayerSubscriberProvider.get());
 
     }
 
@@ -63,8 +64,8 @@ public class TrackRecommendationPlaybackInitiator {
         final List<Urn> playQueue = discoveryItemsToRecommendedTrackUrns(items);
         final int playPosition = playQueue.indexOf(recommendation.getTrackUrn());
 
-        playbackInitiator.playTracks(playQueue, playPosition, playSessionSource)
-                         .subscribe(expandPlayerSubscriberProvider.get());
+        RxJava.toV1Observable(playbackInitiator.playTracks(playQueue, playPosition, playSessionSource))
+              .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     private List<Urn> discoveryItemsToRecommendedTrackUrns(List<OldDiscoveryItem> oldDiscoveryItems) {

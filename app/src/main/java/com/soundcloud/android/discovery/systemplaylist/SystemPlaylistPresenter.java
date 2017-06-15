@@ -238,10 +238,10 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     }
 
     private void startPlayback(int adapterPosition, int finalPosition) {
-        subscription.add(playbackInitiator.playTracks(getTrackUrns(),
-                                                      finalPosition,
-                                                      getPlaySessionSource(adapterPosition, finalPosition))
-                                          .subscribe(expandPlayerSubscriberProvider.get()));
+        subscription.add(RxJava.toV1Observable(playbackInitiator.playTracks(getTrackUrns(),
+                                                                            finalPosition,
+                                                                            getPlaySessionSource(adapterPosition, finalPosition)))
+                               .subscribe(expandPlayerSubscriberProvider.get()));
     }
 
     private List<Urn> getTrackUrns() {

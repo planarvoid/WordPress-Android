@@ -113,7 +113,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
-                                             any(Screen.class))).thenReturn(rx.Observable.empty());
+                                             any(Screen.class))).thenReturn(Single.never());
         when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
     }
 
@@ -199,7 +199,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         resolveTarget(navigationTarget);
 
@@ -214,7 +214,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
+                .thenReturn(Single.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
 
         resolveTarget(navigationTarget);
 
@@ -290,7 +290,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.TWITTER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         resolveTarget(navigationTarget);
 
@@ -308,7 +308,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.TWITTER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.error(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE)));
+                .thenReturn(Single.just(PlaybackResult.error(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE)));
 
         resolveTarget(navigationTarget);
 
@@ -326,7 +326,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.FACEBOOK);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
         resolveTarget(navigationTarget);
@@ -355,7 +355,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(rx.Observable.just(PlaybackResult.success()));
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         resolveTarget(navigationTarget);
 
@@ -974,7 +974,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN))
-                .thenReturn(rx.Observable.just(playbackResult));
+                .thenReturn(Single.just(playbackResult));
 
         resolveTarget(navigationTarget);
 
@@ -991,7 +991,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         PlaybackResult playbackResult = PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE);
         when(playbackInitiator.startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN))
-                .thenReturn(rx.Observable.just(playbackResult));
+                .thenReturn(Single.just(playbackResult));
 
         resolveTarget(navigationTarget);
 

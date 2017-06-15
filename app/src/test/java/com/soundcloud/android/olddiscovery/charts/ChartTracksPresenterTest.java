@@ -27,12 +27,12 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import rx.Observable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -56,10 +56,10 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     private static final ApiChart<ApiTrack> API_CHART = ChartsFixtures.createApiChart(GENRE, CHART_TYPE);
     private static final ApiChart<ApiTrack> API_CHART_NO_QUERY_URN = ChartsFixtures.createApiChart(GENRE, CHART_TYPE, null);
     private static final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
-                                                                          FIRST_TRACK_ITEM,
-                                                                          SECOND_TRACK_ITEM,
-                                                                          THIRD_TRACK_ITEM,
-                                                                          FOOTER);
+                                                                                         FIRST_TRACK_ITEM,
+                                                                                         SECOND_TRACK_ITEM,
+                                                                                         THIRD_TRACK_ITEM,
+                                                                                         FOOTER);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private ChartsOperations chartsOperations;
@@ -105,7 +105,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         int queryPosition = chartItemPosition - 1;
         when(chartTracksAdapter.getItem(chartItemPosition)).thenReturn(SECOND_TRACK_ITEM);
         when(chartTracksAdapter.getItems()).thenReturn(CHART_TRACK_ITEMS);
-        when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.empty());
+        when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Single.never());
         final String screenString = "charts:music_top_50:" + GENRE;
         when(chartsTracker.getScreen(TOP, MUSIC, GENRE_URN)).thenReturn(screenString);
 
@@ -130,7 +130,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         final int chartItemPosition = CHART_TRACK_ITEMS.indexOf(THIRD_TRACK_ITEM);
         when(chartTracksAdapter.getItem(chartItemPosition)).thenReturn(THIRD_TRACK_ITEM);
         when(chartTracksAdapter.getItems()).thenReturn(CHART_TRACK_ITEMS);
-        when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.empty());
+        when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Single.never());
         final String screenString = "charts:music_top_50:" + GENRE;
         when(chartsTracker.getScreen(TOP, MUSIC, GENRE_URN)).thenReturn(screenString);
 

@@ -67,7 +67,12 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     private static final Optional<String> LAST_UPDATED = Optional.of("last_updated");
 
     private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(TITLE, DESCRIPTION, METADATA, LAST_UPDATED, SYSTEM_PLAYLIST.imageResource(), QUERY_URN);
-    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(NEW_FOR_YOU_TITLE, NEW_FOR_YOU_DESCRIPTION, METADATA, LAST_UPDATED, NEW_FOR_YOU_SYSTEM_PLAYLIST.imageResource(), QUERY_URN);
+    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(NEW_FOR_YOU_TITLE,
+                                                                                                         NEW_FOR_YOU_DESCRIPTION,
+                                                                                                         METADATA,
+                                                                                                         LAST_UPDATED,
+                                                                                                         NEW_FOR_YOU_SYSTEM_PLAYLIST.imageResource(),
+                                                                                                         QUERY_URN);
 
     private static final SystemPlaylistItem.Track FIRST = SystemPlaylistItem.Track.create(FIRST_TRACK_ITEM, QUERY_URN);
     private static final SystemPlaylistItem.Track SECOND = SystemPlaylistItem.Track.create(SECOND_TRACK_ITEM, QUERY_URN);
@@ -106,7 +111,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         when(resources.getString(eq(R.string.system_playlist_updated_at), any(Object.class))).thenReturn(LAST_UPDATED.get());
         when(resources.getString(eq(R.string.new_for_you_title))).thenReturn(NEW_FOR_YOU_TITLE.get());
         when(resources.getString(eq(R.string.new_for_you_intro))).thenReturn(NEW_FOR_YOU_DESCRIPTION.get());
-        when(playbackInitiator.playTracks(any(List.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(rx.Observable.just(mock(PlaybackResult.class)));
+        when(playbackInitiator.playTracks(any(List.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Single.just(mock(PlaybackResult.class)));
         when(playSessionStateProvider.isCurrentlyPlaying(FIRST_TRACK_ITEM.getUrn())).thenReturn(false);
 
         presenter = new SystemPlaylistPresenter(swipeRefreshAttacher,

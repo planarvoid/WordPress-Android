@@ -37,6 +37,7 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -145,8 +146,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
         when(likeOperations.likedTrackUrns()).thenReturn(Single.just(likedTrackUrns));
-        when(playbackInitiator.playTracksShuffled(any(rx.Observable.class), any(PlaySessionSource.class)))
-                .thenReturn(rx.Observable.empty());
+        when(playbackInitiator.playTracksShuffled(any(Single.class), any(PlaySessionSource.class)))
+                .thenReturn(Single.just(PlaybackResult.success()));
         createAndBindView();
 
         presenter.onShuffle();

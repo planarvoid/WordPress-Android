@@ -24,6 +24,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,7 +108,7 @@ public class SearchClickListenerTest {
                                                                                                                   playQueue);
         when(searchPlayQueueFilter.correctQueue(playQueue, POSITION)).thenReturn(playQueue);
         when(searchPlayQueueFilter.correctPosition(POSITION)).thenReturn(POSITION);
-        when(playbackInitiator.playPosts(playQueue, trackUrn2, POSITION, trackClickParams.playSessionSource())).thenReturn(rx.Observable.just(PlaybackResult.success()));
+        when(playbackInitiator.playPosts(playQueue, trackUrn2, POSITION, trackClickParams.playSessionSource())).thenReturn(Single.just(PlaybackResult.success()));
 
         final TestObserver<PlaybackResult> observer = searchClickListener.trackClickToPlaybackResult(trackClickParams).test();
 
@@ -134,7 +135,7 @@ public class SearchClickListenerTest {
         when(searchPlayQueueFilter.correctPosition(POSITION)).thenReturn(POSITION);
         final PlaybackResult error = PlaybackResult.error(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
-        when(playbackInitiator.playPosts(playQueue, trackUrn2, POSITION, trackClickParams.playSessionSource())).thenReturn(rx.Observable.just(error));
+        when(playbackInitiator.playPosts(playQueue, trackUrn2, POSITION, trackClickParams.playSessionSource())).thenReturn(Single.just(error));
 
         final TestObserver<PlaybackResult> observer = searchClickListener.trackClickToPlaybackResult(trackClickParams).test();
 

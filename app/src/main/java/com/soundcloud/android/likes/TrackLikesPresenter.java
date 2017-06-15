@@ -77,7 +77,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final TrackLikeOperations likeOperations;
-    private final PlaybackInitiator playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final OfflineContentOperations offlineContentOperations;
     private final TrackLikesAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -87,6 +87,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     private CompositeSubscription viewLifeCycle;
 
+    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
     private Subscription collectionSubscription = RxUtils.invalidSubscription();
     private Subscription likeSubscription = RxUtils.invalidSubscription();
 
@@ -120,7 +121,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
-        this.playbackOperations = playbackInitiator;
+        this.playbackInitiator = playbackInitiator;
         this.offlineContentOperations = offlineContentOperations;
         this.dataSource = dataSource;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
@@ -244,6 +245,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @Override
     public void onDestroyView(Fragment fragment) {
         // TODO create subscription light cycle
+        compositeSubscription.clear();
         likeSubscription.unsubscribe();
         collectionSubscription.unsubscribe();
         viewLifeCycle.unsubscribe();
@@ -266,11 +268,10 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             Urn initialTrack = trackItem.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
 
-            playbackOperations
-                    .playTracks(RxJava.toV1Observable(likeOperations.likedTrackUrns()), initialTrack, position, playSessionSource)
-                    .subscribe(expandPlayerSubscriberProvider.get());
+            compositeSubscription.add(RxJava.toV1Observable(playbackInitiator
+                                                                    .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource))
+                                            .subscribe(expandPlayerSubscriberProvider.get()));
         }
-
     }
 
     @Override

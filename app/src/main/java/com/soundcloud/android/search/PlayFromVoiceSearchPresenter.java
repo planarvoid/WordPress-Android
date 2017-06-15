@@ -3,16 +3,17 @@ package com.soundcloud.android.search;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -51,8 +52,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<ListItem> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
-            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
-                                                                        new PlaySessionSource(Screen.VOICE_COMMAND));
+            return RxJava.toV1Observable(playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
+                                                                                              new PlaySessionSource(Screen.VOICE_COMMAND)));
         }
     };
 

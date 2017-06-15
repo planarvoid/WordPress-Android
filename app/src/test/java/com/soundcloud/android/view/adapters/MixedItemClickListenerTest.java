@@ -31,6 +31,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -39,6 +40,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -99,9 +101,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         final List<Urn> trackList = Arrays.asList(track1.getUrn(), track2.getUrn());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(
-                Observable.just(
-                        playbackResult));
+        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Single.just(playbackResult));
 
         listener.onItemClick(items, view.getContext(), 3);
 
@@ -116,16 +116,16 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
 
-        final Observable<List<PlayableWithReposter>> trackList = Observable.empty();
+        final Observable<List<PlayableWithReposter>> trackList = Observable.just(Collections.emptyList());
         final PlaybackResult playbackResult = PlaybackResult.success();
 
-        when(playbackInitiator.playPosts(eq(trackList),
+        when(playbackInitiator.playPosts(eq(RxJava.toV2Single(trackList)),
                                          eq(promotedTrack.getUrn()),
                                          eq(0),
                                          not(eq(playSessionSource))))
                 .thenThrow(new IllegalArgumentException());
-        when(playbackInitiator.playPosts(trackList, promotedTrack.getUrn(), 0, playSessionSource))
-                .thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playPosts(any(Single.class), eq(promotedTrack.getUrn()), eq(0), eq(playSessionSource)))
+                .thenReturn(Single.just(playbackResult));
 
         listener.legacyOnPostClick(trackList, view, 0, promotedTrack);
 
@@ -188,13 +188,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void itemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
         final TrackItem track1 = ModelFixtures.trackItem();
-        final Observable<List<Urn>> tracklist = Observable.empty();
+        final Observable<List<Urn>> tracklist = Observable.just(Collections.emptyList());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(tracklist,
-                                          track1.getUrn(),
-                                          1,
-                                          new PlaySessionSource(screen))).thenReturn(
-                Observable.just(playbackResult));
+        when(playbackInitiator.playTracks(any(Single.class),
+                                          eq(track1.getUrn()),
+                                          eq(1),
+                                          eq(new PlaySessionSource(screen)))).thenReturn(Single.just(playbackResult));
 
         listener.onItemClick(tracklist, view, 1, track1);
 
@@ -254,13 +253,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void postItemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
         final TrackItem track1 = ModelFixtures.trackItem();
-        final Observable<List<PlayableWithReposter>> tracklist = Observable.empty();
+        final Observable<List<PlayableWithReposter>> tracklist = Observable.just(Collections.emptyList());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playPosts(tracklist,
-                                         track1.getUrn(),
-                                         1,
-                                         new PlaySessionSource(screen))).thenReturn(
-                Observable.just(playbackResult));
+        when(playbackInitiator.playPosts(any(Single.class),
+                                         eq(track1.getUrn()),
+                                         eq(1),
+                                         eq(new PlaySessionSource(screen)))).thenReturn(Single.just(playbackResult));
 
         listener.legacyOnPostClick(tracklist, view, 1, track1);
 

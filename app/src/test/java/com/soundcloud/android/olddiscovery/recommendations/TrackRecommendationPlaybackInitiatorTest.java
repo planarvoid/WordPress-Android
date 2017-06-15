@@ -8,11 +8,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
-import com.soundcloud.android.olddiscovery.EmptyViewItem;
-import com.soundcloud.android.olddiscovery.PlaylistTagsItem;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.EmptyViewItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.PlaylistTagsItem;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -21,10 +21,10 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.strings.Strings;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import javax.inject.Provider;
 import java.util.Collections;
@@ -76,8 +76,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     @SuppressWarnings("unchecked")
     public void shouldInitiatePlaybackWithCorrectQueueWhenReasonClicked() {
-        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(
-                Observable.empty());
+        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Single.never());
 
         trackRecommendationPlaybackInitiator.playFromReason(SEED_2, Screen.RECOMMENDATIONS_MAIN, DISCOVERY_ITEMS);
 
@@ -92,8 +91,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     @SuppressWarnings("unchecked")
     public void shouldInitiatePlaybackWithCorrectQueueWhenTrackClicked() {
-        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(
-                Observable.empty());
+        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Single.never());
 
         trackRecommendationPlaybackInitiator.playFromRecommendation(SEED_2,
                                                                     RECOMMENDATION_URN_2,

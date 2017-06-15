@@ -12,12 +12,12 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -66,8 +66,8 @@ import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
-import io.reactivex.subjects.SingleSubject;
 import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -392,8 +392,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         List<Urn> trackUrns = transform(trackItems, PlayableItem::getUrn);
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(just(trackUrns));
-        when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(just(PlaybackResult.success()));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Observable.just(trackUrns));
+        when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(Single.just(PlaybackResult.success()));
 
         inputs.onHeaderPlayButtonClicked();
 
@@ -405,8 +405,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         List<Urn> trackUrns = transform(trackItems, PlayableItem::getUrn);
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(just(trackUrns));
-        when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(just(PlaybackResult.error(ErrorReason.MISSING_PLAYABLE_TRACKS)));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Observable.just(trackUrns));
+        when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(Single.just(PlaybackResult.error(ErrorReason.MISSING_PLAYABLE_TRACKS)));
 
         AssertableSubscriber<ErrorReason> test = newPlaylistPresenter.onPlaybackError().test();
 
@@ -658,6 +658,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onItemTriggeredForTrackStartsPlaybackOnGivenTrack() {
         connect();
 
+        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Single.just(PlaybackResult.success()));
+
         inputs.onItemTriggered(initialModel.tracks().get(1));
 
         final List<Urn> tracks = transform(initialModel.tracks(), PlaylistDetailTrackItem::getUrn);
@@ -690,7 +692,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(playlistOperations.editPlaylistTracks(
                 updatedPlaylist.urn(),
                 asList(trackItem2.getUrn(), trackItem1.getUrn())
-        )).thenReturn(just(asList(track2, track1)));
+        )).thenReturn(Observable.just(asList(track2, track1)));
 
         inputs.actionUpdateTrackList(asList(
                 getPlaylistDetailTrackItem(trackItem2),
@@ -749,8 +751,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
 
-        ArgumentCaptor<Observable<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Observable.class);
-        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(just(PlaybackResult.success()));
+        ArgumentCaptor<Single<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Single.class);
+        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(Single.just(PlaybackResult.success()));
 
         inputs.onPlayShuffled();
 
@@ -765,8 +767,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
 
-        ArgumentCaptor<Observable<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Observable.class);
-        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(just(PlaybackResult.error(ErrorReason.TRACK_UNAVAILABLE_CAST)));
+        ArgumentCaptor<Single<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Single.class);
+        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(Single.just(PlaybackResult.error(ErrorReason.TRACK_UNAVAILABLE_CAST)));
 
         inputs.onPlayShuffled();
 
