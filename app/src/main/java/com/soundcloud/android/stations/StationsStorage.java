@@ -10,12 +10,14 @@ import static com.soundcloud.propeller.query.Query.apply;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackView;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -26,10 +28,11 @@ import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Column;
-import rx.Observable;
+import io.reactivex.Maybe;
 
 import android.content.ContentValues;
 import android.content.SharedPreferences;
@@ -41,10 +44,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class StationsStorage {
+public class StationsStorage {
 
     private static final String STATION_LIKE = "STATION_LIKE";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
+    private final SharedPreferences sharedPreferences;
+    private final PropellerDatabase propellerDatabase;
+    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRxV2;
+    private final DateProvider dateProvider;
+
+    private static int mapLastPosition(CursorReader cursorReader) {
+        return cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION) ?
+               NEVER_PLAYED : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION);
+    }
+
+    @Inject
+    public StationsStorage(@Named(StorageModule.STATIONS) SharedPreferences sharedPreferences,
+                           PropellerDatabase propellerDatabase,
+                           PropellerRx propellerRx,
+                           PropellerRxV2 propellerRxV2,
+                           CurrentDateProvider dateProvider) {
+        this.sharedPreferences = sharedPreferences;
+        this.propellerDatabase = propellerDatabase;
+        this.propellerRx = propellerRx;
+        this.propellerRxV2 = propellerRxV2;
+        this.dateProvider = dateProvider;
+    }
 
     void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
                                            final List<ApiStationMetadata> newStationsMetaData) {
@@ -74,27 +100,8 @@ class StationsStorage {
         }));
     }
 
-    private static int mapLastPosition(CursorReader cursorReader) {
-        return cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION) ?
-               NEVER_PLAYED : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION);
-    }
 
-    private final SharedPreferences sharedPreferences;
-    private final PropellerDatabase propellerDatabase;
-    private final PropellerRx propellerRx;
-    private final DateProvider dateProvider;
-
-    @Inject
-    public StationsStorage(@Named(StorageModule.STATIONS) SharedPreferences sharedPreferences,
-                           PropellerDatabase propellerDatabase,
-                           CurrentDateProvider dateProvider) {
-        this.sharedPreferences = sharedPreferences;
-        this.propellerDatabase = propellerDatabase;
-        this.propellerRx = new PropellerRx(propellerDatabase);
-        this.dateProvider = dateProvider;
-    }
-
-    Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
+    rx.Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
         return propellerRx
                 .query(Query.from(StationsPlayQueues.TABLE)
                             .whereEq(StationsPlayQueues.STATION_URN, station.toString())
@@ -103,7 +110,17 @@ class StationsStorage {
                 .map(new StationTrackMapper());
     }
 
-    Observable<TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {
+    @SuppressWarnings("PMD.SimplifyStartsWith")
+    public Maybe<Urn> urnForPermalink(String permalink) {
+        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        final String normalizedPermalink = permalink.replaceFirst("stations/", "");
+        return propellerRxV2.queryResult(buildPermalinkQuery(normalizedPermalink))
+                            .filter(queryResult -> !queryResult.isEmpty())
+                            .map(queryResult -> queryResult.first(cursorReader -> new Urn(cursorReader.getString(Stations.STATION_URN))))
+                            .firstElement();
+    }
+
+    rx.Observable<TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
@@ -119,7 +136,7 @@ class StationsStorage {
         });
     }
 
-    Observable<ChangeResult> updateLocalStationLike(Urn stationUrn, boolean liked) {
+    rx.Observable<ChangeResult> updateLocalStationLike(Urn stationUrn, boolean liked) {
         return propellerRx.upsert(StationsCollections.TABLE, contentValuesForStationLikeToggled(stationUrn, liked));
     }
 
@@ -139,7 +156,7 @@ class StationsStorage {
         sharedPreferences.edit().clear().apply();
     }
 
-    Observable<StationRecord> getStationsCollection(int type) {
+    rx.Observable<StationRecord> getStationsCollection(int type) {
         return propellerRx
                 .query(buildStationsQuery(type))
                 .flatMap(cursorReader -> station(new Urn(cursorReader.getString(Stations.STATION_URN))));
@@ -159,8 +176,8 @@ class StationsStorage {
                     .order(StationsCollections.POSITION, Query.Order.ASC);
     }
 
-    Observable<StationRecord> station(final Urn station) {
-        return Observable.fromCallable(() -> {
+    rx.Observable<StationRecord> station(final Urn station) {
+        return rx.Observable.fromCallable(() -> {
             final Station result = propellerDatabase
                     .query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, station))
                     .firstOrDefault(new StationMapper(), null);
@@ -174,8 +191,8 @@ class StationsStorage {
         });
     }
 
-    Observable<StationWithTrackUrns> stationWithTrackUrns(final Urn station) {
-        return Observable.fromCallable(() -> {
+    rx.Observable<StationWithTrackUrns> stationWithTrackUrns(final Urn station) {
+        return rx.Observable.fromCallable(() -> {
             final StationWithTrackUrns stationWithTracks = propellerDatabase.query(stationInfoQuery(station))
                                                                             .firstOrDefault(new StationWithTracksMapper(), null);
 
@@ -185,6 +202,13 @@ class StationsStorage {
             }
             return null;
         });
+    }
+
+    private Query buildPermalinkQuery(String identifier) {
+        return Query.from(Tables.Stations.TABLE)
+                    .select(Tables.Stations.STATION_URN)
+                    .whereIn(Tables.Stations.PERMALINK, identifier)
+                    .limit(1);
     }
 
     private static Query stationInfoTracksQuery(Urn station) {

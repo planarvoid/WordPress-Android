@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class TrackStorageTest extends StorageIntegrationTest {
 
@@ -196,5 +197,27 @@ public class TrackStorageTest extends StorageIntegrationTest {
         final TestObserver<List<Urn>> subscriber = storage.availableTracks(trackUrns).test();
 
         assertThat(subscriber.values().get(0)).isEqualTo(trackUrns);
+    }
+
+    @Test
+    public void loadsUrnByPermalink() throws Exception {
+        List<Urn> trackUrns = testFixtures().insertTracks(BATCH_TRACKS_COUNT);
+        Urn expectedUrn = trackUrns.get(666);
+        String permalinkUrl = storage.loadTrack(expectedUrn).blockingGet().permalinkUrl();
+        String permalink = permalinkUrl.replace("https://soundcloud.com/", "");
+
+        final Urn urn = storage.urnForPermalink(permalink).blockingGet();
+
+        assertThat(urn).isEqualTo(expectedUrn);
+    }
+
+    @Test
+    public void loadsUrnByPermalinkNotFound() throws Exception {
+        testFixtures().insertTracks(BATCH_TRACKS_COUNT);
+
+        storage.urnForPermalink("testing")
+               .test()
+               .assertNoValues()
+               .assertComplete();
     }
 }

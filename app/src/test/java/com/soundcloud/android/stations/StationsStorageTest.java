@@ -2,8 +2,10 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.stations.StationFixtures.createStationsCollection;
 import static java.util.Collections.singletonList;
+import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -21,13 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class StationsStorageDatabaseTest extends StorageIntegrationTest {
+public class StationsStorageTest extends StorageIntegrationTest {
 
     private final TestDateProvider dateProvider = new TestDateProvider();
     private final Urn stationUrn = Urn.forTrackStation(123L);
     private final long BEFORE_24H = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(25L);
     private SharedPreferences sharedPreferences = sharedPreferences();
-
 
     private StationsStorage storage;
     private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
@@ -37,6 +38,8 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         storage = new StationsStorage(
                 sharedPreferences,
                 propeller(),
+                propellerRx(),
+                propellerRxV2(),
                 dateProvider
         );
     }
@@ -275,11 +278,35 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         databaseAssertions().assertStationMetadataInserted(collection.get(1));
     }
 
-    private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {
-        for (int i = 0; i < apiTracks.size(); i++) {
-            final ApiTrack apiTrack = apiTracks.get(i);
-            assertThat(apiTrack.getUrn()).isEqualTo(receivedTracks.get(i).getUrn());
-            assertThat(apiTrack.getImageUrlTemplate()).isEqualTo(receivedTracks.get(i).getImageUrlTemplate());
-        }
+    @Test
+    public void loadsUrnByPermalink() throws Exception {
+        testFixtures().insertStation();
+        ApiStation station = testFixtures().insertStation();
+        String permalink = station.getPermalink();
+
+        final Urn urn = storage.urnForPermalink(permalink).blockingGet();
+
+        assertThat(urn).isEqualTo(station.getUrn());
+    }
+
+    @Test
+    public void loadsUrnByPermalinkWithStationPrefix() throws Exception {
+        testFixtures().insertStation();
+        ApiStation station = testFixtures().insertStation();
+        String permalink = "stations/" + station.getPermalink();
+
+        final Urn urn = storage.urnForPermalink(permalink).blockingGet();
+
+        assertThat(urn).isEqualTo(station.getUrn());
+    }
+
+    @Test
+    public void loadsUrnByPermalinkNotFound() throws Exception {
+        testFixtures().insertStation();
+
+        storage.urnForPermalink("testing")
+                .test()
+                .assertNoValues()
+                .assertComplete();
     }
 }

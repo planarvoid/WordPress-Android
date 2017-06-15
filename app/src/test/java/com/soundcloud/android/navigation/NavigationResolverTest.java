@@ -67,7 +67,7 @@ import android.support.v7.app.AppCompatActivity;
 
 public class NavigationResolverTest extends AndroidUnitTest {
     private static final String TOP_FIFTY = "Top 50";
-    private static final ResolveResult RESULT_TRACK = ResolveResult.succes(Urn.forTrack(123));
+    private static final ResolveResult RESULT_TRACK = ResolveResult.success(Urn.forTrack(123));
     private static final Screen NAVIGATION_SCREEN = Screen.DISCOVER;
     private static final Screen DEEPLINK_SCREEN = Screen.DEEPLINK;
 
@@ -1625,7 +1625,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         NavigationTarget navigationTarget = getTargetForNavigation(target, fallback);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(ResolveResult.error(Uri.parse(target), null)));
-        when(resolveOperations.resolve(fallback)).thenReturn(Single.just(ResolveResult.succes(Urn.forComment(123))));
+        when(resolveOperations.resolve(fallback)).thenReturn(Single.just(ResolveResult.success(Urn.forComment(123))));
 
         resolveTarget(navigationTarget);
 

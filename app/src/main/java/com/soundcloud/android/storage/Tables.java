@@ -16,6 +16,7 @@ import com.soundcloud.propeller.schema.Column;
 
 import android.provider.BaseColumns;
 
+@SuppressWarnings({"PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.ExcessiveClassLength"})
 public interface Tables {
 
     // Pure Tables
@@ -969,7 +970,7 @@ public interface Tables {
         public static final Column ARTIST_STATION = Column.create(TABLE, "uv_artist_station", String.class);
         public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following", Boolean.class);
         public static final Column SIGNUP_DATE = Column.create(TABLE, "uv_signup_date", String.class);
-
+        public static final Column PERMALINK = Column.create(TABLE, "uv_permalink", String.class);
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
                 Query.from(Users.TABLE)
@@ -991,7 +992,8 @@ public interface Tables {
                              Users.DISCOGS_NAME.as(DISCOGS_NAME.name()),
                              Users.ARTIST_STATION.as(ARTIST_STATION.name()),
                              exists(followingQuery()).as(IS_FOLLOWING.name()),
-                             Users.SIGNUP_DATE.as(SIGNUP_DATE.name())
+                             Users.SIGNUP_DATE.as(SIGNUP_DATE.name()),
+                             Users.PERMALINK.as(PERMALINK.name())
                      );
 
         static Query followingQuery() {

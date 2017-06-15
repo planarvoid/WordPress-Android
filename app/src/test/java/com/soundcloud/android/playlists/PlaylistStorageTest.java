@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
@@ -128,5 +129,27 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         Optional<LocalPlaylistChange> playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
 
         assertThat(playlist.get()).isEqualTo(LocalPlaylistChange.create(apiPlaylist.getUrn(), apiPlaylist.getTitle(), Sharing.PRIVATE.equals(apiPlaylist.getSharing())));
+    }
+
+    @Test
+    public void loadsUrnByPermalink() throws Exception {
+        testFixtures().insertPlaylist();
+        ApiPlaylist playlist = testFixtures().insertPlaylist();
+        String permalinkUrl = playlist.getPermalinkUrl();
+        String permalink = permalinkUrl.replace("https://soundcloud.com/", "");
+
+        final Urn urn = storage.urnForPermalink(permalink).blockingGet();
+
+        assertThat(urn).isEqualTo(playlist.getUrn());
+    }
+
+    @Test
+    public void loadsUrnByPermalinkNotFound() throws Exception {
+        testFixtures().insertPlaylist();
+
+        storage.urnForPermalink("testing")
+               .test()
+               .assertNoValues()
+               .assertComplete();
     }
 }

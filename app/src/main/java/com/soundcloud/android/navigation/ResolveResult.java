@@ -15,7 +15,7 @@ abstract class ResolveResult {
     abstract Optional<Uri> uri();
     abstract Optional<Exception> exception();
 
-    public static ResolveResult succes(Urn urn) {
+    public static ResolveResult success(Urn urn) {
         return new AutoValue_ResolveResult(true, Optional.of(urn), Optional.absent(), Optional.absent());
     }
 

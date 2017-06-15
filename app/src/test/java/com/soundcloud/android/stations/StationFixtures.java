@@ -34,11 +34,12 @@ public class StationFixtures {
     }
 
     private static ApiStationMetadata getApiStationMetadata(Urn station) {
+        final String stationType = getStationType(station);
         return new ApiStationMetadata(
                 station,
                 "stationWithSeed " + System.currentTimeMillis(),
-                "http://permalink",
-                getStationType(station),
+                stationType + "/tycho" + random.nextLong(),
+                stationType,
                 "https://i1.sndcdn.com/artworks-000056536728-bjjprz-{size}.jpg"
         );
     }

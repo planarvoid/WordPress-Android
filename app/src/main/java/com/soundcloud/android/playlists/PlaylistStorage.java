@@ -14,6 +14,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
+import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -23,6 +24,7 @@ import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
@@ -50,6 +52,15 @@ public class PlaylistStorage {
 
     public boolean hasLocalChanges() {
         return hasLocalPlaylistChange() || hasLocalTrackChanges();
+    }
+
+    @SuppressWarnings("PMD.SimplifyStartsWith")
+    public Maybe<Urn> urnForPermalink(String permalink) {
+        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        return propellerRx.queryResult(buildPermalinkQuery(permalink))
+                          .filter(queryResult -> !queryResult.isEmpty())
+                          .map(queryResult -> queryResult.first(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID))))
+                          .firstElement();
     }
 
     private Boolean hasLocalPlaylistChange() {
@@ -138,6 +149,13 @@ public class PlaylistStorage {
         return Query.from(Tables.PlaylistView.TABLE)
                     .select(Tables.PlaylistView.TABLE.name() + ".*"
                     ).whereIn(Tables.PlaylistView.ID, playlistIds);
+    }
+
+    private Query buildPermalinkQuery(String permalink) {
+        return Query.from(Tables.PlaylistView.TABLE)
+                    .select(Tables.PlaylistView.ID)
+                    .whereIn(Tables.PlaylistView.PERMALINK_URL, "https://soundcloud.com/" + permalink)
+                    .limit(1);
     }
 
     private static class PlaylistModificationMapper implements ResultMapper<LocalPlaylistChange> {

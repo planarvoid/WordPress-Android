@@ -12,6 +12,7 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.olddiscovery.charts.Chart;
@@ -441,6 +442,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Users.FOLLOWINGS_COUNT, user.getFollowingsCount());
         cv.put(Tables.Users.AVATAR_URL, user.getImageUrlTemplate().orNull());
         cv.put(Tables.Users.VISUAL_URL, user.getVisualUrlTemplate().orNull());
+        cv.put(Tables.Users.PERMALINK, user.getPermalink());
         return cv;
     }
 

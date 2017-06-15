@@ -29,7 +29,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 110;
+    public static final int DATABASE_VERSION = 111;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -368,6 +368,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 110:
                             success = upgradeTo110(db, oldVersion);
+                            break;
+                        case 111:
+                            success = upgradeTo111(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1403,6 +1406,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Add permalink to UsersView
+     */
+    private boolean upgradeTo111(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropView(Tables.UsersView.TABLE.name(), db);
+            db.execSQL(Tables.UsersView.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 111);
+        }
+        return false;
+    }
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {

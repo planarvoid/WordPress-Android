@@ -40,9 +40,6 @@ public class ApiTrackBlueprint {
     @Default
     String waveformUrl = "http://waveform.url";
 
-    @Default
-    String permalinkUrl = "https://soundcloud.com/bismakarisma/kuatkitabersinar";
-
     @Default(force = true)
     Sharing sharing = Sharing.PUBLIC;
 
@@ -67,6 +64,7 @@ public class ApiTrackBlueprint {
             model.setMonetizationModel("MONETIZABLE");
             model.setSubMidTier(false);
             model.setSubHighTier(false);
+            model.setPermalinkUrl("https://soundcloud.com/bismakarisma/kuatkitabersinar" + runningId);
             return model;
         }
     };

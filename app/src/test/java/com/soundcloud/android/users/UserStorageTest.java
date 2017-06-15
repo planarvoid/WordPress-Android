@@ -90,6 +90,27 @@ public class UserStorageTest extends StorageIntegrationTest {
                 getApiUserBuilder(apiUser).artistStation(of(artistStation)).build());
     }
 
+    @Test
+    public void loadsUrnByPermalink() throws Exception {
+        testFixtures().insertUser();
+        ApiUser user = testFixtures().insertUser();
+        String permalink = user.getPermalink();
+
+        final Urn urn = storage.urnForPermalink(permalink).blockingGet();
+
+        assertThat(urn).isEqualTo(user.getUrn());
+    }
+
+    @Test
+    public void loadsUrnByPermalinkNotFound() throws Exception {
+        testFixtures().insertUser();
+
+        storage.urnForPermalink("testing")
+               .test()
+               .assertNoValues()
+               .assertComplete();
+    }
+
     private User.Builder getExtendedUserBuilder(ApiUser apiUser) {
         return getBaseUserBuilder(apiUser)
                 .country(fromNullable(apiUser.getCountry()))

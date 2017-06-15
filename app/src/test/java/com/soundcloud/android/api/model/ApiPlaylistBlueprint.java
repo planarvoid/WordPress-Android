@@ -41,9 +41,6 @@ public class ApiPlaylistBlueprint {
     Sharing sharing = Sharing.PUBLIC;
 
     @Default
-    String permalinkUrl = "http://permalink";
-
-    @Default
     String genre = "clownstep";
 
     @Default
@@ -73,6 +70,7 @@ public class ApiPlaylistBlueprint {
             model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
             model.setTitle("Playlist " + runningId);
             model.setDuration(123456);
+            model.setPermalinkUrl("https://soundcloud.com/marc/sets/mahsongs" + runningId);
             return model;
         }
     };

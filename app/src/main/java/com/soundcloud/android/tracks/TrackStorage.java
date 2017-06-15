@@ -44,6 +44,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
@@ -70,14 +71,12 @@ public class TrackStorage {
     private static final TrackUrnMapperV2 TRACK_URN_MAPPER = new TrackUrnMapperV2();
 
     private final PropellerRxV2 propeller;
-
     private final Function<List<Urn>, Observable<QueryResult>> fetchTracks = new Function<List<Urn>, Observable<QueryResult>>() {
         @Override
         public Observable<QueryResult> apply(List<Urn> urns) {
             return propeller.queryResult(buildTracksQuery(urns));
         }
     };
-
     private final Function<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Function<List<Urn>, Observable<Urn>>() {
         @Override
         public Observable<Urn> apply(List<Urn> urns) {
@@ -89,6 +88,15 @@ public class TrackStorage {
     @Inject
     public TrackStorage(PropellerRxV2 propeller) {
         this.propeller = propeller;
+    }
+
+    @SuppressWarnings("PMD.SimplifyStartsWith")
+    public Maybe<Urn> urnForPermalink(String permalink) {
+        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        return propeller.queryResult(buildPermalinkQuery(permalink))
+                        .filter(queryResult -> !queryResult.isEmpty())
+                        .map(queryResult -> queryResult.first(cursorReader -> Urn.forTrack(cursorReader.getLong(Tables.TrackView.ID))))
+                        .firstElement();
     }
 
     Maybe<Track> loadTrack(Urn urn) {
@@ -158,6 +166,12 @@ public class TrackStorage {
                     .whereIn(Tables.Sounds._ID, transform(trackUrns, Urns.TO_ID));
     }
 
+    private Query buildPermalinkQuery(String permalink) {
+        return Query.from(Tables.TrackView.TABLE)
+                    .select(Tables.TrackView.ID)
+                    .whereIn(Tables.TrackView.PERMALINK_URL, "https://soundcloud.com/" + permalink)
+                    .limit(1);
+    }
 
     public static Track trackFromCursorReader(CursorReader cursorReader) {
         final Track.Builder builder = Track.builder();

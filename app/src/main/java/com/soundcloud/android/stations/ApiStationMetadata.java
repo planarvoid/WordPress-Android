@@ -20,7 +20,9 @@ public final class ApiStationMetadata {
     @JsonCreator
     ApiStationMetadata(@JsonProperty("urn") Urn urn,
                        @JsonProperty("title") String title,
-                       @JsonProperty("permalink") String permalink,
+                       // This property is called `permalink` since the `permalink_url` from
+                       // api-mobile return just the permalink and not the full url
+                       @JsonProperty("permalink_url") String permalink,
                        @JsonProperty("type") String type,
                        @JsonProperty("artwork_url_template") String artworkUrlTemplate) {
         this.urn = urn;
