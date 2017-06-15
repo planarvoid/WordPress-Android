@@ -73,7 +73,6 @@ ext {
           sqlBrite                    : "com.squareup.sqlbrite:sqlbrite:1.1.1",
 
           // UI libraries
-          slidingUpPanel               : "com.sothree.slidinguppanel:library:3.3.1@aar",
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",
           facebookRebound              : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk           : "com.facebook.android:facebook-android-sdk:4.4.0",

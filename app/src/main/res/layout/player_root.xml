@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <View
+        android:id="@+id/player_overlay"
+        style="@style/PlayerOverlayBackgroundStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/player_overlay_background_behavior"
+        app:player_collapsed_height="@dimen/player_footer"
+        tools:ignore="MissingPrefix" />
+
+    <fragment
+        android:id="@+id/player_root"
+        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_peekHeight="@dimen/player_footer"
+        app:layout_behavior="@string/fullscreenable_bottomsheet_behavior" />
+
+</merge>

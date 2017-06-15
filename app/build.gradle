@@ -200,9 +200,7 @@ dependencies {
   compile libraries.jacksonDataBind
   compile libraries.jacksonCore
   compile libraries.okHttp
-  compile (libraries.slidingUpPanel) {
-    transitive = true
-  }
+
   compile libraries.androidCrop
   compile libraries.rxAndroid
   compile libraries.rxJava

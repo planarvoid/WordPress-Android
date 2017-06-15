@@ -360,5 +360,8 @@
         <item name="android:layout_marginEnd" tools:targetApi="17">8dp</item>
     </style>
 
-
+    <style name="PlayerOverlayBackgroundStyle">
+        <item name="android:background">@color/black_60</item>
+        <item name="android:elevation" tools:ignore="NewApi">@dimen/player_elevation</item>
+    </style>
 </resources>
