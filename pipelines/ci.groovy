@@ -271,6 +271,6 @@ def setBuildType(String buildType) {
 
 def gradle(String tasks) {
   withEnv(['GRADLE_OPTS=-Dorg.gradle.daemon=false']) {
-    sh "./gradlew " + tasks
+    sh "./gradlew " + tasks + " --console=plain"
   }
 }
