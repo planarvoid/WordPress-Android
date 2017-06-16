@@ -266,7 +266,7 @@ public class CollectionOperations {
     }
 
     private Single<List<StationRecord>> loadStations() {
-        return stationsOperations.collection(StationsCollectionsTypes.LIKED).toList();
+        return stationsOperations.collection(StationsCollectionsTypes.LIKED);
     }
 
     public void clearData() {

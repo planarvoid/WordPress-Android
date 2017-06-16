@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,16 +22,17 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
-import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 public class StationsOperationsTest extends AndroidUnitTest {
 
@@ -46,7 +46,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
     @Mock TrackItemRepository trackRepository;
 
     private final Urn station = Urn.forTrackStation(123L);
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private StationsOperations operations;
     private StationRecord stationFromDisk;
     private ApiStation apiStation;
@@ -55,7 +55,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
     public void setUp() {
         stationFromDisk = StationFixtures.getStation(Urn.forTrackStation(123L));
         apiStation = StationFixtures.getApiStation();
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
 
         operations = new StationsOperations(
                 syncStateStorage,
@@ -64,80 +64,66 @@ public class StationsOperationsTest extends AndroidUnitTest {
                 storeTracksCommand,
                 storeStationCommand,
                 syncInitiator,
-                Schedulers.immediate(),
-                io.reactivex.schedulers.Schedulers.trampoline(),
+                Schedulers.trampoline(),
                 eventBus,
                 trackRepository);
 
-        when(stationsStorage.clearExpiredPlayQueue(station)).thenReturn(Observable.just(new TxnResult()));
-        when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));
-        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(apiStation));
+        when(stationsStorage.clearExpiredPlayQueue(station)).thenReturn(Single.just(new TxnResult()));
+        when(stationsStorage.station(station)).thenReturn(Maybe.just(stationFromDisk));
+        when(stationsApi.fetchStation(station)).thenReturn(Single.just(apiStation));
     }
 
     @Test
     public void getStationShouldReturnAStationFromDiskIfDataIsAvailableInDatabase() {
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        operations.station(station).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(Collections.singletonList(stationFromDisk));
+        operations.station(station).test().assertValue(stationFromDisk);
     }
 
     @Test
     public void getStationShouldFallbackToNetwork() {
-        when(stationsStorage.station(station)).thenReturn(Observable.empty());
+        when(stationsStorage.station(station)).thenReturn(Maybe.empty());
 
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        operations.station(station).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
-        subscriber.assertCompleted();
+        operations.station(station).test().assertNever(stationFromDisk).assertComplete();
     }
 
     @Test
     public void getStationShouldFallBackToNetworkWhenTracksMissing() {
         StationRecord noTracksStation = StationFixtures.getApiStation(Urn.forTrackStation(123), 0);
-        when(stationsStorage.station(station)).thenReturn(Observable.just(noTracksStation));
+        when(stationsStorage.station(station)).thenReturn(Maybe.just(noTracksStation));
 
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        operations.station(station).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
-        subscriber.assertCompleted();
+        operations.station(station).test().assertNever(stationFromDisk).assertComplete();
     }
 
     @Test
     public void fetchUpcomingTracksShouldFetchAndReturnTrackFromStorage() {
-        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         final Urn station = Urn.forTrackStation(123L);
         final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
         final List<StationTrack> tracks = stationApi.getTracks();
         final List<StationTrack> subTrackList = tracks.subList(2, tracks.size());
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, station);
 
-        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
-        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));
+        when(stationsApi.fetchStation(station)).thenReturn(Single.just(stationApi));
+        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Single.just(subTrackList));
 
-        operations.fetchUpcomingTracks(station, 2, playSessionSource).subscribe(subscriber);
-
-        subscriber.assertValue(PlayQueue.fromStation(station, subTrackList, playSessionSource));
+        operations.fetchUpcomingTracks(station, 2, playSessionSource)
+                  .test()
+                  .assertValue(PlayQueue.fromStation(station, subTrackList, playSessionSource));
     }
 
 
     @Test
     public void fetchUpcomingTracksShouldHaveASuggestionsSource() {
-        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         final Urn station = Urn.forTrackStation(123L);
         final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
         final List<StationTrack> tracks = stationApi.getTracks();
         final List<StationTrack> subTrackList = tracks.subList(2, tracks.size());
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.STATIONS_INFO, station);
 
-        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
-        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));
+        when(stationsApi.fetchStation(station)).thenReturn(Single.just(stationApi));
+        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Single.just(subTrackList));
 
-        operations.fetchUpcomingTracks(station, 2, playSessionSource).subscribe(subscriber);
-
-        final TrackQueueItem playQueueItem = (TrackQueueItem) subscriber.getOnNextEvents()
+        final TrackQueueItem playQueueItem = (TrackQueueItem) operations.fetchUpcomingTracks(station, 2, playSessionSource)
+                                                                        .test()
+                                                                        .values()
                                                                         .get(0)
                                                                         .getPlayQueueItem(0);
         assertThat(playQueueItem.getSource()).isEqualTo("stations:suggestions");
@@ -145,19 +131,18 @@ public class StationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPersistApiStation() {
-        when(stationsStorage.station(station)).thenReturn(Observable.empty());
+        when(stationsStorage.station(station)).thenReturn(Maybe.empty());
 
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
-        operations.station(station).subscribe(subscriber);
+        operations.station(station).test();
 
         verify(storeTracksCommand).call(apiStation.getTrackRecords());
-        verify(storeStationCommand).call(eq(apiStation));
+        verify(storeStationCommand).call(apiStation);
     }
 
     @Test
     public void shouldPersistNewLikedStation() {
         when(stationsStorage.updateLocalStationLike(any(Urn.class),
-                                                    anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+                                                    anyBoolean())).thenReturn(Single.just(mock(ChangeResult.class)));
 
         operations.toggleStationLike(station, true).subscribe();
 
@@ -167,7 +152,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldEmitStationUpdatedEventWhenLikingAStation() {
         when(stationsStorage.updateLocalStationLike(any(Urn.class),
-                                                    anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+                                                    anyBoolean())).thenReturn(Single.just(mock(ChangeResult.class)));
 
         operations.toggleStationLike(station, true).subscribe();
 

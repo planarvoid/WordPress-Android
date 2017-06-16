@@ -16,7 +16,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.likes.LikeToggleSubscriber;
+import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -316,7 +316,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final boolean addLike = !track.isUserLike();
         likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
+                      .subscribe(new LikeToggleObserver(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         trackLike(addLike);
     }

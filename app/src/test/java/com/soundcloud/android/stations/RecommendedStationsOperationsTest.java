@@ -7,27 +7,29 @@ import static com.soundcloud.java.collections.Lists.transform;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.sync.SyncOperations;
-import com.soundcloud.android.sync.SyncOperations.Result;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Scheduler;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+
+import io.reactivex.Scheduler;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RecommendedStationsOperationsTest extends AndroidUnitTest {
@@ -43,22 +45,22 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     private static final StationRecord RECENT_1 = StationFixtures.getStation(Urn.forTrackStation(1001));
     private static final StationRecord RECENT_2 = StationFixtures.getStation(Urn.forTrackStation(1002));
 
-    private final PublishSubject<Result> syncSubject = PublishSubject.create();
+    PublishSubject<SyncResult> syncSubject;
 
     @Mock StationsStorage stationsStorage;
     @Mock SyncStateStorage syncStateStorage;
-    @Mock SyncOperations syncOperations;
+    @Mock NewSyncOperations syncOperations;
     @Mock PlayQueueManager playQueueManager;
 
     private RecommendedStationsOperations operations;
-    private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<OldDiscoveryItem> subscriber = new TestSubscriber<>();
+    private Scheduler scheduler = Schedulers.trampoline();
 
     @Before
     public void setUp() throws Exception {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.empty());
-        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(just(RECENT_1, RECENT_2));
-        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject);
+        syncSubject = PublishSubject.create();
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList()));
+        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(RECENT_1, RECENT_2)));
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject.firstOrError());
         when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(true);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
 
@@ -68,65 +70,65 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnStoredRecommendations() {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
+                .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, SUGGESTED_2)));
 
-        operations.recommendedStations().subscribe(subscriber);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
         subscriber.assertNoValues();
 
-        syncSubject.onNext(Result.SYNCING);
+        syncSubject.onNext(SyncResult.syncing());
 
-        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2));
+        assertThat(getEmittedStations(subscriber)).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2));
     }
 
     @Test
     public void shouldReorderRecentStations() {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
+                .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2)));
 
-        operations.recommendedStations().subscribe(subscriber);
-        syncSubject.onNext(Result.SYNCING);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
+        syncSubject.onNext(SyncResult.syncing());
 
-        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2),
+        assertThat(getEmittedStations(subscriber)).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2),
                                                          viewModelFrom(RECENT_2), viewModelFrom(RECENT_1));
     }
 
     @Test
     public void shouldNotReorderWhenNoRecentStations() {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
+                .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2)));
         when(stationsStorage.getStationsCollection(RECENT))
-                .thenReturn(Observable.empty());
+                .thenReturn(Single.just(Lists.newArrayList()));
 
-        operations.recommendedStations().subscribe(subscriber);
-        syncSubject.onNext(Result.SYNCING);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
+        syncSubject.onNext(SyncResult.syncing());
 
-        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1),
+        assertThat(getEmittedStations(subscriber)).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1),
                                                          viewModelFrom(SUGGESTED_2), viewModelFrom(RECENT_2));
     }
 
     @Test
     public void shouldNotAddRecentWhenNotSuggested() {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, RECENT_1));
+                .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1)));
         when(stationsStorage.getStationsCollection(RECENT))
-                .thenReturn(just(RECENT_2));
+                .thenReturn(Single.just(Lists.newArrayList(RECENT_2)));
 
-        operations.recommendedStations().subscribe(subscriber);
-        syncSubject.onNext(Result.SYNCING);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
+        syncSubject.onNext(SyncResult.syncing());
 
-        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1));
+        assertThat(getEmittedStations(subscriber)).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1));
     }
 
     @Test
     public void shouldSetCorrectNoPlayingStatus() {
         when(playQueueManager.getCollectionUrn()).thenReturn(SUGGESTED_1.getUrn());
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
+                .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, SUGGESTED_2)));
 
-        operations.recommendedStations().subscribe(subscriber);
-        syncSubject.onNext(Result.SYNCING);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
+        syncSubject.onNext(SyncResult.syncing());
 
-        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1, true),
+        assertThat(getEmittedStations(subscriber)).containsExactly(viewModelFrom(SUGGESTED_1, true),
                                                          viewModelFrom(SUGGESTED_2, false));
     }
 
@@ -134,13 +136,13 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     public void shouldAlwaysReturnGivenNumberOfSuggestedStations() {
         List<StationRecord> recommendedStations = stationRecordsList(STATIONS_IN_BUCKET + 2);
         List<StationRecord> recentlyPlayed = stationRecordsList(STATIONS_IN_BUCKET);
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.from(recommendedStations));
-        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Observable.from(recentlyPlayed));
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList(recommendedStations)));
+        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(recentlyPlayed)));
 
-        operations.recommendedStations().subscribe(subscriber);
-        syncSubject.onNext(Result.SYNCING);
+        TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
+        syncSubject.onNext(SyncResult.syncing());
 
-        List<StationViewModel> emitted = getEmittedStations();
+        List<StationViewModel> emitted = getEmittedStations(subscriber);
         assertThat(emitted).containsAll(transform(recommendedStations.subList(0, STATIONS_IN_BUCKET), TO_VIEW_MODEL));
         assertThat(emitted).doesNotContainAnyElementsOf(transform(recentlyPlayed, TO_VIEW_MODEL));
     }
@@ -160,8 +162,8 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         return records;
     }
 
-    private List<StationViewModel> getEmittedStations() {
-        OldDiscoveryItem oldDiscoveryItem = subscriber.getOnNextEvents().get(0);
+    private List<StationViewModel> getEmittedStations(TestObserver<OldDiscoveryItem> subscriber) {
+        OldDiscoveryItem oldDiscoveryItem = subscriber.values().get(0);
         return ((RecommendedStationsBucketItem) oldDiscoveryItem).getStations();
     }
 

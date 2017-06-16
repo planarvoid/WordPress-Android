@@ -26,15 +26,17 @@ import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
+
+import io.reactivex.Maybe;
+import io.reactivex.subjects.PublishSubject;
 
 import android.os.Bundle;
 
@@ -64,17 +66,17 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
     @Captor ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private StationWithTracks stationWithTracks;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         stationWithTracks = StationFixtures.getStationWithTracks(TRACK_STATION);
 
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        when(stationOperations.stationWithTracks(TRACK_STATION, Optional.absent())).thenReturn(Observable.just(
+        when(stationOperations.stationWithTracks(TRACK_STATION, Optional.absent())).thenReturn(Maybe.just(
                 stationWithTracks));
 
         when(rendererFactory.create(any(StationInfoPresenter.class))).thenReturn(bucketRenderer);
@@ -130,7 +132,7 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartStationOnTrackClicked() {
-        final Observable<StationRecord> recordObservable = Observable.empty();
+        final Maybe<StationRecord> recordObservable = Maybe.empty();
         final int trackPosition = 2;
         when(stationOperations.station(TRACK_STATION)).thenReturn(recordObservable);
 
@@ -143,14 +145,11 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldChangeLikeStatusWhenLikeButtonToggled() {
-        final PublishSubject<ChangeResult> toggleLikeObservable = PublishSubject.create();
-        when(stationOperations.toggleStationLike(TRACK_STATION, true)).thenReturn(toggleLikeObservable);
-
         presenter.onCreate(fragmentRule1.getFragment(), null);
 
         presenter.onLikeToggled(context(), true);
 
-        assertThat(toggleLikeObservable.hasObservers()).isTrue();
+        verify(stationOperations).toggleStationLikeAndForget(TRACK_STATION, true);
     }
 
     @Test

@@ -1,21 +1,15 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.stations.StationFixtures.createStationsCollection;
-import static java.util.Collections.singletonList;
-import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.propeller.ChangeResult;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import android.content.SharedPreferences;
 
@@ -31,14 +25,12 @@ public class StationsStorageTest extends StorageIntegrationTest {
     private SharedPreferences sharedPreferences = sharedPreferences();
 
     private StationsStorage storage;
-    private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
 
     @Before
     public void setup() {
         storage = new StationsStorage(
                 sharedPreferences,
                 propeller(),
-                propellerRx(),
                 propellerRxV2(),
                 dateProvider
         );
@@ -46,10 +38,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnEmptyIfStationIsAbsent() {
-        storage.station(stationUrn).subscribe(subscriber);
-
-        subscriber.assertValue(null);
-        subscriber.assertCompleted();
+        storage.station(stationUrn).test().assertNoValues().assertComplete();
     }
 
     @Test
@@ -88,47 +77,40 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayQueueReturnsEmptyWhenNoContent() {
-        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
-
-        storage.loadPlayQueue(stationUrn, 30).subscribe(subscriber);
-
-        subscriber.assertNoValues();
-        subscriber.assertCompleted();
+        storage.loadPlayQueue(stationUrn, 30)
+               .test()
+               .assertValue(Lists.emptyList())
+               .assertComplete();
     }
 
     @Test
     public void loadPlayQueueReturnsAllContentWhenStartPositionIs0() {
-        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
         final ApiStation station = StationFixtures.getApiStation(stationUrn, 10);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(stationUrn, 0).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(station.getTracks());
-        subscriber.assertCompleted();
+        storage.loadPlayQueue(stationUrn, 0).test()
+               .assertValue(station.getTracks())
+               .assertComplete();
     }
 
     @Test
     public void loadPlayQueueReturnsContentAfterGivenStartPosition() {
-        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
         final int size = 10;
         final ApiStation station = StationFixtures.getApiStation(stationUrn, size);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(stationUrn, 5).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(station.getTracks().subList(5, size));
-        subscriber.assertCompleted();
+        storage.loadPlayQueue(stationUrn, 5).test()
+               .assertValue(station.getTracks().subList(5, size))
+               .assertComplete();
     }
 
     @Test
     public void shouldReturnTheStation() {
-        ApiStation apiStation = testFixtures().insertStation();
-
-        storage.station(apiStation.getUrn()).subscribe(subscriber);
-
+        final ApiStation apiStation = testFixtures().insertStation();
         final StationRecord station = StationFixtures.getStation(apiStation);
-        subscriber.assertReceivedOnNext(singletonList(station));
+
+        storage.station(apiStation.getUrn()).test()
+               .assertValue(station);
     }
 
     @Test
@@ -143,14 +125,13 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadLastPlayedTrackPosition() {
-        TestSubscriber<StationWithTrackUrns> subscriber = new TestSubscriber<>();
         final int position = 20;
         final Urn station = testFixtures().insertStation(0).getUrn();
 
         storage.saveLastPlayedTrackPosition(station, position);
-        storage.stationWithTrackUrns(station).subscribe(subscriber);
+        final StationWithTrackUrns stationWithTrackUrns = storage.stationWithTrackUrns(station).test().values().get(0);
 
-        assertThat(subscriber.getOnNextEvents().get(0).lastPlayedTrackPosition()).isEqualTo(20);
+        assertThat(stationWithTrackUrns.lastPlayedTrackPosition()).isEqualTo(20);
     }
 
     @Test
@@ -180,30 +161,23 @@ public class StationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertLocallyPlayedRecentStation(secondStation.getUrn(), System.currentTimeMillis());
         testFixtures().insertRecentlyPlayedStationAtPosition(thirdStation.getUrn(), 1);
 
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        storage.getStationsCollection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
-
-        subscriber.assertValues(
-                StationFixtures.getStation(secondStation),
-                StationFixtures.getStation(firstStation),
-                StationFixtures.getStation(thirdStation)
-        );
+        storage.getStationsCollection(StationsCollectionsTypes.RECENT).test()
+               .assertValue(Lists.newArrayList(StationFixtures.getStation(secondStation),
+                                               StationFixtures.getStation(firstStation),
+                                               StationFixtures.getStation(thirdStation))
+               );
     }
 
     @Test
     public void shouldSaveLocalStationLike() {
-        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
-
-        storage.updateLocalStationLike(stationUrn, true).subscribe(subscriber);
+        storage.updateLocalStationLike(stationUrn, true).test();
 
         databaseAssertions().assertLocalStationLike(stationUrn);
     }
 
     @Test
     public void shouldSaveLocalStationUnlike() {
-        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
-
-        storage.updateLocalStationLike(stationUrn, false).subscribe(subscriber);
+        storage.updateLocalStationLike(stationUrn, false).test();
 
         databaseAssertions().assertLocalStationUnlike(stationUrn);
     }
@@ -211,9 +185,8 @@ public class StationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStationLikeOverridePreviousUnlikeState() {
         final ApiStation apiStation = testFixtures().insertUnlikedStation();
-        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
 
-        storage.updateLocalStationLike(apiStation.getUrn(), true).subscribe(subscriber);
+        storage.updateLocalStationLike(apiStation.getUrn(), true).test();
 
         databaseAssertions().assertLocalStationLike(apiStation.getUrn());
     }
@@ -255,10 +228,8 @@ public class StationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldReturnCorrectLikeStatusWhenLoadingStationWithTracks() {
         final ApiStation apiStation = testFixtures().insertLikedStation();
-        final TestSubscriber<StationWithTrackUrns> subscriber = new TestSubscriber<>();
 
-        storage.stationWithTrackUrns(apiStation.getUrn()).subscribe(subscriber);
-        final StationWithTrackUrns stationWithTracks = subscriber.getOnNextEvents().get(0);
+        final StationWithTrackUrns stationWithTracks = storage.stationWithTrackUrns(apiStation.getUrn()).test().values().get(0);
 
         assertThat(stationWithTracks.liked()).isTrue();
         assertThat(stationWithTracks.title()).isEqualTo(apiStation.getTitle());

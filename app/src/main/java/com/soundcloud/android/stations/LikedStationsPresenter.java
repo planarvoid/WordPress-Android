@@ -16,18 +16,12 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -39,12 +33,18 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Function;
+
 class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
 
-    private final Func1<StationRecord, StationViewModel> toViewModel = new Func1<StationRecord, StationViewModel>() {
+    private final Function<List<StationRecord>, List<StationViewModel>> toViewModel = new Function<List<StationRecord>, List<StationViewModel>>() {
         @Override
-        public StationViewModel call(StationRecord station) {
-            return StationViewModel.create(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
+        public List<StationViewModel> apply(List<StationRecord> stations) {
+            return Lists.transform(stations, station -> StationViewModel.create(station, playQueueManager.getCollectionUrn().equals(station.getUrn())));
         }
     };
 
@@ -52,13 +52,13 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     private final StationsAdapter adapter;
     private final Resources resources;
     private final PlayQueueManager playQueueManager;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @LightCycle final StationsNowPlayingController stationsNowPlayingController;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     LikedStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -66,7 +66,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
                            StationsAdapter adapter,
                            Resources resources,
                            PlayQueueManager playQueueManager,
-                           EventBus eventBus,
+                           EventBusV2 eventBus,
                            StationsNowPlayingController stationsNowPlayingController,
                            PerformanceMetricsEngine performanceMetricsEngine,
                            ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
@@ -90,11 +90,10 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
 
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onBuildBinding(Bundle bundle) {
-        return CollectionBinding
-                .from(stationsSource())
-                .withAdapter(adapter)
-                .addObserver(onNext(this::endMeasureLoadingTime))
-                .build();
+        return CollectionBinding.fromV2(stationsSource())
+                                .withAdapter(adapter)
+                                .addObserver(onNext(this::endMeasureLoadingTime))
+                                .build();
     }
 
     private void endMeasureLoadingTime(Iterable<StationViewModel> stations) {
@@ -108,16 +107,15 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
 
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onRefreshBinding() {
-        return CollectionBinding
-                .from(operations.syncLikedStations().flatMap(o -> stationsSource()))
-                .withAdapter(adapter)
-                .build();
+        return CollectionBinding.fromV2(operations.syncLikedStations()
+                                                  .flatMap(__ -> stationsSource()))
+                                .withAdapter(adapter)
+                                .build();
     }
 
-    private Observable<List<StationViewModel>> stationsSource() {
-        return RxJava.toV1Observable(operations.collection(StationsCollectionsTypes.LIKED))
-                     .map(toViewModel)
-                     .toList();
+    private Single<List<StationViewModel>> stationsSource() {
+        return operations.collection(StationsCollectionsTypes.LIKED)
+                         .map(toViewModel);
     }
 
     @Override
@@ -126,15 +124,15 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         configureRecyclerView(view);
         configureEmptyView();
 
-        subscription = eventBus.queue(EventQueue.URN_STATE_CHANGED)
+        disposable.add(eventBus.queue(EventQueue.URN_STATE_CHANGED)
                                .filter(event -> event.kind() == UrnStateChangedEvent.Kind.STATIONS_COLLECTION_UPDATED)
                                .observeOn(AndroidSchedulers.mainThread())
-                               .subscribe(new RefreshLikedStationsSubscriber());
+                               .subscribeWith(new RefreshLikedStationsObserver()));
     }
 
     @Override
     public void onDestroy(Fragment fragment) {
-        subscription.unsubscribe();
+        disposable.clear();
         super.onDestroy(fragment);
     }
 
@@ -157,7 +155,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private class RefreshLikedStationsSubscriber extends DefaultSubscriber<UrnStateChangedEvent> {
+    private class RefreshLikedStationsObserver extends DefaultObserver<UrnStateChangedEvent> {
 
         @Override
         public void onNext(UrnStateChangedEvent args) {

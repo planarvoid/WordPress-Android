@@ -19,8 +19,9 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import io.reactivex.subjects.PublishSubject;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 public class StationsControllerTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = TestPlayStates.URN;
@@ -29,11 +30,11 @@ public class StationsControllerTest extends AndroidUnitTest {
     @Mock StationsOperations operations;
 
     private TestEventBus eventBus = new TestEventBus();
-    private final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
 
     @Before
     public void setUp() {
-        when(operations.syncLikedStations()).thenReturn(syncLikedStations);
+        final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
+        when(operations.syncLikedStations()).thenReturn(syncLikedStations.firstOrError());
 
         new StationsController(eventBus, operations, Schedulers.immediate()).subscribe();
     }

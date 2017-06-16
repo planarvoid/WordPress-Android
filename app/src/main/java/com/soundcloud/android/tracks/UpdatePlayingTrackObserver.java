@@ -2,19 +2,13 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
-/**
- * Once Rx2 migration is completed, this class should be removed.
- *
- * @deprecated Use {@link UpdatePlayingTrackObserver} instead.
- */
-@Deprecated
-public class UpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+public class UpdatePlayingTrackObserver extends DefaultObserver<CurrentPlayQueueItemEvent> {
     private final PlayingTrackAware adapter;
 
-    public UpdatePlayingTrackSubscriber(PlayingTrackAware adapter) {
+    public UpdatePlayingTrackObserver(PlayingTrackAware adapter) {
         this.adapter = adapter;
     }
 

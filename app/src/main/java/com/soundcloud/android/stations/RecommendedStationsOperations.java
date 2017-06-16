@@ -1,84 +1,72 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
+
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.sync.SyncOperations;
-import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.Lists;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
-import rx.functions.Func2;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.ArrayList;
-import java.util.List;
-
 public class RecommendedStationsOperations {
     @VisibleForTesting
     static final int STATIONS_IN_BUCKET = 12;
-
-    private static final Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>> MOVE_RECENT_TO_END =
-            (suggestions, recent) -> calculateStationsSuggestions(suggestions, recent);
-    private final Func1<SyncOperations.Result, Observable<OldDiscoveryItem>> loadRecommendedStations = result -> getCollection(RECOMMENDATIONS)
-            .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-            .filter(IS_NOT_EMPTY_LIST)
-            .map(toDiscoveryItem())
-            .switchIfEmpty(SyncOperations.emptyResult(result));
-
-    private Func1<List<StationRecord>, OldDiscoveryItem> toDiscoveryItem() {
-        return stationRecords -> RecommendedStationsBucketItem.create(transformToStationViewModels(
-                stationRecords));
-    }
-
     private final StationsStorage stationsStorage;
     private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
-    private final SyncOperations syncOperations;
+    private final NewSyncOperations syncOperations;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
                                   PlayQueueManager playQueueManager,
-                                  @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                  SyncOperations syncOperations) {
+                                  @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
+                                  NewSyncOperations syncOperations) {
         this.stationsStorage = stationsStorage;
         this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
     }
 
-    public Observable<OldDiscoveryItem> recommendedStations() {
+    public Maybe<OldDiscoveryItem> recommendedStations() {
         return load(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS));
     }
 
-    public Observable<OldDiscoveryItem> refreshRecommendedStations() {
+    public Maybe<OldDiscoveryItem> refreshRecommendedStations() {
         return load(syncOperations.failSafeSync(Syncable.RECOMMENDED_STATIONS));
     }
 
-    private Observable<OldDiscoveryItem> load(Observable<SyncOperations.Result> source) {
-        return source
-                .flatMap(loadRecommendedStations)
-                .subscribeOn(scheduler);
+    private Maybe<OldDiscoveryItem> load(Single<SyncResult> source) {
+        return source.flatMapMaybe(result -> getCollection(RECOMMENDATIONS).zipWith(getCollection(RECENT), RecommendedStationsOperations::calculateStationsSuggestions)
+                                                                           .filter(stationRecords -> !stationRecords.isEmpty())
+                                                                           .map(toDiscoveryItem())
+                                                                           .switchIfEmpty(NewSyncOperations.emptyResult(result)))
+                     .subscribeOn(scheduler);
     }
 
     public void clearData() {
         stationsStorage.clear();
     }
 
-    private Observable<List<StationRecord>> getCollection(int collectionType) {
-        return stationsStorage
-                .getStationsCollection(collectionType)
-                .toList()
-                .subscribeOn(scheduler);
+    private Single<List<StationRecord>> getCollection(int collectionType) {
+        return stationsStorage.getStationsCollection(collectionType)
+                              .subscribeOn(scheduler);
     }
 
     private List<StationViewModel> transformToStationViewModels(List<StationRecord> records) {
@@ -101,4 +89,8 @@ public class RecommendedStationsOperations {
         return suggestions.subList(0, min(suggestions.size(), STATIONS_IN_BUCKET));
     }
 
+    private Function<List<StationRecord>, OldDiscoveryItem> toDiscoveryItem() {
+        return stationRecords -> RecommendedStationsBucketItem.create(transformToStationViewModels(
+                stationRecords));
+    }
 }

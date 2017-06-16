@@ -3,7 +3,7 @@ package com.soundcloud.android.stations;
 import static java.util.Collections.singletonMap;
 
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
@@ -12,7 +12,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
-import rx.Observable;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 class StationsApi {
-    private final ApiClientRx apiClientRx;
+    private final ApiClientRxV2 apiClientRx;
     private final ApiClient apiClient;
 
     @Inject
-    public StationsApi(ApiClientRx apiClientRx,
+    public StationsApi(ApiClientRxV2 apiClientRx,
                        ApiClient apiClient) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
@@ -54,7 +54,7 @@ class StationsApi {
         });
     }
 
-    Observable<ApiStation> fetchStation(Urn stationUrn) {
+    Single<ApiStation> fetchStation(Urn stationUrn) {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(stationUrn.toString()));
         final ApiRequest request = builder
                 .forPrivateApi()

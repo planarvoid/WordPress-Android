@@ -19,7 +19,7 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.likes.LikeToggleSubscriber;
+import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -219,7 +219,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         boolean addLike = !playlist.isUserLike();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
+                      .subscribe(new LikeToggleObserver(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(
                 UIEvent.fromToggleLike(addLike,
@@ -271,7 +271,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                       .observeOn(AndroidSchedulers.mainThread())
                       .observeOn(AndroidSchedulers.mainThread())
                       .doOnSuccess(ignored -> saveOffline())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
+                      .subscribe(new LikeToggleObserver(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
     }
 
     private void saveOffline() {

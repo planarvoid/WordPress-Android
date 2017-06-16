@@ -7,6 +7,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
@@ -90,10 +91,10 @@ public class PlayQueueExtender {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpcomingTracksSubscriber());
             } else if (collectionUrn.isStation()) {
-                loadRecommendedSubscription = stationsOperations
+                loadRecommendedSubscription = RxJava.toV1Observable(stationsOperations
                         .fetchUpcomingTracks(collectionUrn,
                                              playQueueManager.getQueueSize(),
-                                             playQueueManager.getCurrentPlaySessionSource())
+                                             playQueueManager.getCurrentPlaySessionSource()))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpcomingTracksSubscriber());
             }

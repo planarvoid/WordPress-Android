@@ -141,9 +141,9 @@ class OldDiscoveryModulesProvider {
     }
 
     private Observable<OldDiscoveryItem> recommendedStations(boolean isRefresh) {
-        return isRefresh ?
+        return RxJava.toV1Observable(isRefresh ?
                recommendedStationsOperations.refreshRecommendedStations() :
-               recommendedStationsOperations.recommendedStations();
+               recommendedStationsOperations.recommendedStations());
     }
 
     private Observable<OldDiscoveryItem> charts(boolean isRefresh) {

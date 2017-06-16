@@ -3,6 +3,7 @@ package com.soundcloud.android.presentation;
 import com.soundcloud.rx.Pager;
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import rx.Observable;
@@ -43,6 +44,10 @@ public class CollectionBinding<SourceT, ItemT> {
                 return itemTS;
             }
         });
+    }
+
+    public static <ItemT, T extends Iterable<ItemT>> Builder<T, ItemT, T> fromV2(Maybe<T> source) {
+        return fromV2(source.toObservable());
     }
 
     public static <SourceT, ItemT, T extends Iterable<ItemT>> Builder<SourceT, ItemT, T> fromV2(

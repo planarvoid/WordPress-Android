@@ -26,6 +26,7 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
@@ -110,7 +111,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.just(trackPreviews));
         when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
-                .thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
+                .thenReturn(Single.just(Lists.newArrayList(StationFixtures.getStation(Urn.forTrackStation(123L)))));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Maybe.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
@@ -180,9 +181,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.error(exception));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL)).thenReturn(Maybe.error(exception));
-
-        when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Observable.error(
-                exception));
+        when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Single.error(exception));
 
         when(playHistoryOperations.playHistory(3)).thenReturn(
                 Observable.error(exception));
@@ -206,7 +205,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Maybe.error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
-                .thenReturn(Observable.error(exception));
+                .thenReturn(Single.error(exception));
 
         MyCollection collection = operations.collections().test()
                                               .assertValueCount(1)

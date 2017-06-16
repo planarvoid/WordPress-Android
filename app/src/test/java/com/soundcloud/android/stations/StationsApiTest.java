@@ -8,17 +8,20 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import io.reactivex.Single;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
 public class StationsApiTest extends AndroidUnitTest {
-    @Mock ApiClientRx apiClientRx;
+    @Mock ApiClientRxV2 apiClientRx;
     @Mock ApiClient apiClient;
 
     private final Urn stationUrn = Urn.forTrackStation(123L);
@@ -34,13 +37,9 @@ public class StationsApiTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnAnApiStation() {
-        final TestSubscriber<ApiStation> subscriber = new TestSubscriber<>();
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STATION.path(stationUrn.toString()))),
                                         eq(ApiStation.class)))
-                .thenReturn(Observable.just(apiStation));
-        api.fetchStation(stationUrn).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(singletonList(apiStation));
+                .thenReturn(Single.just(apiStation));
+        api.fetchStation(stationUrn).test().assertValue(apiStation);
     }
-
 }

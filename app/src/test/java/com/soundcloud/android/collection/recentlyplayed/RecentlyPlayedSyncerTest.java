@@ -21,7 +21,8 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
+
+import io.reactivex.Maybe;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.emptyList());
-        when(stationsOperations.station(any(Urn.class))).thenReturn(Observable.empty());
+        when(stationsOperations.station(any(Urn.class))).thenReturn(Maybe.empty());
 
         syncer = new RecentlyPlayedSyncer(recentlyPlayedStorage, fetchRecentlyPlayedCommand, pushRecentlyPlayedCommand,
                                           fetchPlaylistsCommand, storePlaylistsCommand, fetchUsersCommand,

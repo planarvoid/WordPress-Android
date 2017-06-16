@@ -29,6 +29,8 @@ import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import io.reactivex.Single;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -98,7 +100,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(queueSize);
         when(playQueueManager.getCollectionUrn()).thenReturn(station);
         when(stationsOperations.fetchUpcomingTracks(station, queueSize, playSessionSource))
-                .thenReturn(Observable.just(playQueue));
+                .thenReturn(Single.just(playQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, station, 0));
 

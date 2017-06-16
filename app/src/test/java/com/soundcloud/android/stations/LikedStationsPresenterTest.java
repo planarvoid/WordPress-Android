@@ -15,8 +15,11 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +38,7 @@ public class LikedStationsPresenterTest extends AndroidUnitTest {
     @Mock private StationsAdapter stationsAdapter;
     @Mock private Resources resources;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private EventBus eventBus;
+    @Mock private EventBusV2 eventBus;
     @Mock private StationsNowPlayingController stationsNowPlayingController;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
@@ -49,7 +52,7 @@ public class LikedStationsPresenterTest extends AndroidUnitTest {
 
         Urn urn = Urn.forTrackStation(0);
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
-                .thenReturn(Observable.just(StationFixtures.getStation(urn)));
+                .thenReturn(Single.just(Lists.newArrayList(StationFixtures.getStation(urn))));
         when(playQueueManager.getCollectionUrn()).thenReturn(urn);
 
         likedStationsPresenter = new LikedStationsPresenter(swipeRefreshAttacher,

@@ -1,10 +1,9 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
-import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
-import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
@@ -18,25 +17,26 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
+
+import io.reactivex.Maybe;
+import io.reactivex.disposables.CompositeDisposable;
+
+import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
 class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, StationInfoItem>
         implements StationInfoClickListener {
@@ -45,10 +45,10 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     private final StationsOperations stationOperations;
     private final StationInfoAdapter adapter;
     private final PlayQueueManager playQueueManager;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private DiscoverySource discoverySource;
     private Optional<Urn> seedTrack;
     private Urn stationUrn;
@@ -60,7 +60,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                          StartStationPresenter stationPresenter,
                          StationInfoTracksBucketRendererFactory bucketRendererFactory,
                          PlayQueueManager playQueueManager,
-                         EventBus eventBus,
+                         EventBusV2 eventBus,
                          PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher);
         this.stationOperations = stationOperations;
@@ -76,14 +76,13 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         super.onCreate(fragment, bundle);
         getBinding().connect();
 
-        subscription = eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                          new UpdatePlayingTrackSubscriber(adapter));
+        disposables.add(eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackObserver(adapter)));
     }
 
     @Override
     public void onDestroy(Fragment fragment) {
         super.onDestroy(fragment);
-        subscription.unsubscribe();
+        disposables.clear();
     }
 
     @Override
@@ -92,7 +91,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         seedTrack = getSeedTrackUrn(fragmentArgs);
         stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
 
-        return CollectionBinding.from(getStation(stationUrn))
+        return CollectionBinding.fromV2(getStation(stationUrn))
                                 .withAdapter(adapter)
                                 .addObserver(onNext(this::endMeasureLoadStation))
                                 .build();
@@ -121,7 +120,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         return Optional.fromNullable(fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACK));
     }
 
-    private Observable<List<StationInfoItem>> getStation(final Urn stationUrn) {
+    private Maybe<List<StationInfoItem>> getStation(final Urn stationUrn) {
         return stationOperations.stationWithTracks(stationUrn, seedTrack)
                                 .map(stationWithTracks -> Arrays.asList(StationInfoHeader.from(stationWithTracks), createTracksBucketViewModel(stationWithTracks)));
     }
@@ -156,7 +155,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
 
     @Override
     public void onLikeToggled(Context context, boolean liked) {
-        fireAndForget(stationOperations.toggleStationLike(stationUrn, liked));
+        stationOperations.toggleStationLikeAndForget(stationUrn, liked);
     }
 
 }

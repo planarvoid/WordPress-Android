@@ -501,7 +501,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         return Observable.zip(
                 getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData()).map(toPlayerTrackState(
                         playQueueItem)),
-                stationsOperations.station(playQueueManager.getCollectionUrn()),
+                RxJava.toV1Observable(stationsOperations.station(playQueueManager.getCollectionUrn())),
                 (playerTrackState, station) -> {
                     playerTrackState.setStation(station);
                     return playerTrackState;

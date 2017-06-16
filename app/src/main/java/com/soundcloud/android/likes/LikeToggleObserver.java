@@ -13,18 +13,18 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import android.content.Context;
 import android.widget.Toast;
 
-public class LikeToggleSubscriber extends DefaultSingleObserver<Object> {
+public class LikeToggleObserver extends DefaultSingleObserver<Object> {
     private final Context context;
     private final boolean likeStatus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
 
-    public LikeToggleSubscriber(Context context,
-                                boolean likeStatus,
-                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
-                                FeedbackController feedbackController,
-                                NavigationExecutor navigationExecutor) {
+    public LikeToggleObserver(Context context,
+                              boolean likeStatus,
+                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                              FeedbackController feedbackController,
+                              NavigationExecutor navigationExecutor) {
         this.context = context;
         this.likeStatus = likeStatus;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;

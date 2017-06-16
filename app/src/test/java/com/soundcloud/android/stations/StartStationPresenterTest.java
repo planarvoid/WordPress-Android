@@ -18,12 +18,13 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
+
+import io.reactivex.Maybe;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,7 +33,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
 
     @Mock StationsOperations stationsOperations;
     @Mock PlaybackInitiator playbackInitiator;
-    @Mock EventBus eventBus;
+    @Mock EventBusV2 eventBus;
     @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock PlaySessionOriginScreenProvider screenProvider;
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
@@ -69,9 +70,9 @@ public class StartStationPresenterTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn, 5, 2);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screen.get(), stationUrn, STATIONS);
-        final Observable<StationRecord> stationObservable = Observable.just(station);
+        final Maybe<StationRecord> stationMaybe = Maybe.just(station);
 
-        presenter.playStation(context(), stationObservable, STATIONS);
+        presenter.playStation(context(), stationMaybe, STATIONS);
 
         verify(playbackInitiator).playStation(stationUrn, station.getTracks(),
                                               playSessionSource, station.getTracks().get(2).getTrackUrn(), 3);
@@ -82,9 +83,9 @@ public class StartStationPresenterTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn, 5, 4);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screen.get(), stationUrn, STATIONS);
-        final Observable<StationRecord> stationObservable = Observable.just(station);
+        final Maybe<StationRecord> stationMaybe = Maybe.just(station);
 
-        presenter.playStation(context(), stationObservable, STATIONS);
+        presenter.playStation(context(), stationMaybe, STATIONS);
 
         verify(playbackInitiator).playStation(stationUrn, station.getTracks(),
                                               playSessionSource, station.getTracks().get(4).getTrackUrn(), 0);
@@ -95,9 +96,9 @@ public class StartStationPresenterTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screen.get(), stationUrn, STATIONS);
-        final Observable<StationRecord> stationObservable = Observable.just(station);
+        final Maybe<StationRecord> stationMaybe = Maybe.just(station);
 
-        presenter.playStation(context(), stationObservable, STATIONS);
+        presenter.playStation(context(), stationMaybe, STATIONS);
 
         verify(playbackInitiator).playStation(stationUrn, station.getTracks(),
                                               playSessionSource, Urn.NOT_SET, 0);

@@ -1,10 +1,9 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.likes.LikeToggleSubscriber;
+import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
@@ -52,9 +51,9 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     public void handleLike(StationWithTracks station) {
         boolean addLike = !station.isLiked();
 
-        disposable.add(RxJava.toV2Single(stationsOperations.toggleStationLike(station.getUrn(), addLike))
+        disposable.add(stationsOperations.toggleStationLike(station.getUrn(), addLike)
                              .observeOn(AndroidSchedulers.mainThread())
-                             .subscribeWith(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor)));
+                             .subscribeWith(new LikeToggleObserver(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor)));
     }
 
     @Override
@@ -63,8 +62,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     }
 
     private void loadStation(Urn urn) {
-        disposable.add(RxJava.toV2Observable(stationsOperations.stationWithTracks(urn, Optional.absent()))
-                             .firstElement()
+        disposable.add(stationsOperations.stationWithTracks(urn, Optional.absent())
                              .observeOn(AndroidSchedulers.mainThread())
                              .subscribeWith(new DefaultMaybeObserver<StationWithTracks>() {
                                  @Override
