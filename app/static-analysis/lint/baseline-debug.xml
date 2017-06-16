@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 2.3.1">
+<issues format="4" by="lint 2.3.3">
 
     <issue
         id="sc.StartIntent"
@@ -162,7 +162,7 @@
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
-            line="48"
+            line="50"
             column="9"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
-            line="92"
+            line="95"
             column="13"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/settings/OfflineSettingsFragment.java"
-            line="231"
+            line="235"
             column="17"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="181"
+            line="182"
             column="17"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="485"
+            line="488"
             column="9"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="499"
+            line="502"
             column="9"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="504"
+            line="507"
             column="9"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="513"
+            line="516"
             column="9"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="580"
+            line="583"
             column="17"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="934"
+            line="937"
             column="21"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/search/PlayFromVoiceSearchPresenter.java"
-            line="149"
+            line="150"
             column="13"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
-            line="92"
+            line="95"
             column="27"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/settings/OfflineSettingsFragment.java"
-            line="231"
+            line="235"
             column="31"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="509"
+            line="512"
             column="33"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
-            line="580"
+            line="583"
             column="31"/>
     </issue>
 
@@ -629,13 +629,3577 @@
     </issue>
 
     <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
-        errorLine1="    &lt;item quantity=&quot;one&quot;>playlist&lt;/item>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;ActivityItem>> initialActivities() {"
+        errorLine2="    ^">
         <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="596"
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesOperations.java"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;ActivityItem>> updatedActivities() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesOperations.java"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesOperations.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Integer> timelineItemCountSince(final long timestamp) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesStorage.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesStorage.java"
+            line="54"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/activities/ActivitiesStorage.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;ApiResponse> response(final ApiRequest request) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/api/ApiClientRxV2.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Completable ignoreResultRequest(final ApiRequest request) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/api/ApiClientRxV2.java"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public &lt;T> Single&lt;T> mappedResponse(final ApiRequest request, final TypeToken&lt;T> resourceType) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/api/ApiClientRxV2.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public &lt;T> Single&lt;T> mappedResponse(final ApiRequest request, final Class&lt;T> resourceType) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/api/ApiClientRxV2.java"
+            line="52"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Provides"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/ApplicationModule.java"
+            line="285"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Provides"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/ApplicationModule.java"
+            line="291"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/CastPlaybackStrategy.java"
+            line="38"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/CastPlaybackStrategy.java"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;PlaybackResult> setNewQueue(PlayQueue playQueue, Urn initialTrackUrn, PlaySessionSource playSessionSource);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/cast/CastPlayer.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;ApiChart&lt;ApiTrack>> chartTracks(ChartType type, String genre) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsApi.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;ApiChart&lt;ApiTrack>> getMappedResponse(ApiRequest request) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsApi.java"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="                @Override"
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;OldDiscoveryItem> load(Single&lt;SyncResult> source) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;OldDiscoveryItem> featuredCharts() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="100"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;OldDiscoveryItem> refreshFeaturedCharts() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="104"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;ApiChart&lt;ApiTrack>> tracks(ChartType type, String genre) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="108"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Chart>> genresByCategory(ChartCategory chartCategory) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsOperations.java"
+            line="114"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;ChartBucket> featuredCharts() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsStorage.java"
+            line="57"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Chart>> genres(ChartCategory chartCategory) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/charts/ChartsStorage.java"
+            line="69"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Completable clearCache() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/ClearCacheDialog.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Object> onCollectionChanged() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="127"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;MyCollection> collections() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="136"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;RecentlyPlayedPlayableItem>> recentlyPlayed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="163"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;RecentlyPlayedPlayableItem>> refreshRecentlyPlayedItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="167"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;List&lt;Playlist>> myPlaylists() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="171"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;LikesItem> likesItem() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="175"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;TrackItem>> playHistoryItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="181"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;TrackItem>> refreshPlayHistoryItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="185"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;OfflineState> likedTracksOfflineState() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="189"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;LikedTrackPreview>> tracksLiked() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="193"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;MyCollection> updatedCollections() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="204"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;LikedTrackPreview>> refreshLikesAndLoadPreviews() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="251"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;LikedTrackPreview>> likedTrackPreviews() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="256"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationRecord>> refreshStationsAndLoad() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="260"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;SyncJobResult> syncStations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="264"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationRecord>> loadStations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionOperations.java"
+            line="268"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Disposable subscribeToOfflineContent() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/CollectionPresenter.java"
+            line="271"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;O> toSingle(final I input) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/commands/Command.java"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/cast/DefaultCastPlayer.java"
+            line="139"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    &lt;E> Observer&lt;E> subscribe(Queue&lt;E> queue, Observer&lt;E> observer) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/DefaultEventBusV2.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/DefaultEventBusV2.java"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/DefaultEventBusV2.java"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Completable completeIfServiceRunning(PlayerLifeCycleEvent playerLifeCycleEvent, Action action) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/DefaultPlaybackStrategy.java"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/DefaultPlaybackStrategy.java"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Completable playCurrentAd(PlayQueueItem currentPlayQueueItem) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/DefaultPlaybackStrategy.java"
+            line="115"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/DefaultPlaybackStrategy.java"
+            line="130"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;SelectionItem> selectionItemClick() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryAdapter.java"
+            line="45"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    &lt;T> Observable&lt;List&lt;T>> observeList(final RowMapper&lt;T> mapper, final String tableName, final String query, final String... args) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryDatabase.java"
+            line="71"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    &lt;T> Single&lt;List&lt;T>> selectList(SqlDelightStatement sqlDelightStatement, RowMapper&lt;T> selectionItemMapper) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryDatabase.java"
+            line="76"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;DiscoveryCard>> discoveryCards() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryOperations.java"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;DiscoveryCard>> refreshDiscoveryCards() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryOperations.java"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;DbModel.SelectionItem>> liveSelectionItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryReadableStorage.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;DbModel.SelectionItem>> selectionItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryReadableStorage.java"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;SystemPlaylistEntity> systemPlaylistEntity(final Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryReadableStorage.java"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;DiscoveryCard>> liveDiscoveryCards() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryReadableStorage.java"
+            line="43"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;List&lt;DiscoveryCard>> discoveryCards() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryReadableStorage.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/EventBusV2.java"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/EventBusV2.java"
+            line="16"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observer&lt;UIEvent> trackEngagementSubscriber() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/analytics/EventTracker.java"
+            line="52"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;StreamItem> creatorInvites() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/facebookinvites/FacebookInvitesOperations.java"
+            line="57"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;StreamItem> listenerInvites() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/facebookinvites/FacebookInvitesOperations.java"
+            line="65"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Boolean> canShowForCreators() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/facebookinvites/FacebookInvitesOperations.java"
+            line="71"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;Boolean> canShowForListeners() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/facebookinvites/FacebookInvitesOperations.java"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Boolean> adsEnabled() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/FeatureOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Boolean> offlineContentEnabled() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/FeatureOperations.java"
+            line="107"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;Boolean> getUpdates(String name) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/FeatureOperations.java"
+            line="111"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Boolean> developmentMenuEnabled() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/FeatureOperations.java"
+            line="119"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Boolean> getUpdates(final String name) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/features/FeatureStorage.java"
+            line="63"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;UserItem> populatedOnUserFollowed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/FollowingOperations.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Urn> onUserFollowed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/FollowingOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Urn> onUserUnfollowed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/FollowingOperations.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Completable toggleFollowing(final Urn targetUrn, final boolean following) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/FollowingOperations.java"
+            line="67"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;FollowingStatuses> followingStatuses() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/FollowingStateProvider.java"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;LikeResult> toggleLike(final Urn targetUrn, final boolean addLike) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/LikeOperations.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Disposable toggleLikeAndForget(final Urn targetUrn, final boolean addLike) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/LikeOperations.java"
+            line="54"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationViewModel>> stationsSource() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/LikedStationsPresenter.java"
+            line="116"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;Urn> resolve(String identifier) throws UriResolveException {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/LocalEntityUriResolver.java"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;SelectionItem> selectionItemClick() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/MultipleContentSelectionCardRenderer.java"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;List&lt;Playlist>> myPlaylists(final PlaylistsOptions options) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playlists/MyPlaylistsOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;List&lt;Playlist>> refreshAndLoadPlaylists(final PlaylistsOptions options) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playlists/MyPlaylistsOperations.java"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;List&lt;Playlist>> loadPlaylists(PlaylistsOptions options) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playlists/MyPlaylistsOperations.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;PlaylistAssociation>> unsortedPlaylists(PlaylistsOptions options) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playlists/MyPlaylistsOperations.java"
+            line="159"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Following>> followings() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="54"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Following>> updatedFollowings() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;UserAssociation>> followingsUserAssociations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="75"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;UserAssociation>> loadFollowingUserAssociationsFromStorage() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;Following>> pagedFollowingsFromPosition(long fromPosition) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="88"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;LastPostedTrack> lastPublicPostedTrack() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/MyProfileOperations.java"
+            line="106"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Action> showProfile(NavigationTarget navigationTarget) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/NavigationResolver.java"
+            line="283"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Action> showProfile(NavigationTarget navigationTarget, Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/NavigationResolver.java"
+            line="287"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;NavigationResult> listenToNavigation() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/Navigator.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;NewForYou> newForYou() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/newforyou/NewForYouOperations.java"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;NewForYou> refreshNewForYou() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/newforyou/NewForYouOperations.java"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static &lt;T> Maybe&lt;T> emptyResult(SyncResult result) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/NewSyncOperations.java"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncResult> sync(Syncable syncable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/NewSyncOperations.java"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncResult> failSafeSync(Syncable syncable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/NewSyncOperations.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncResult> lazySyncIfStale(Syncable syncable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/NewSyncOperations.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public io.reactivex.Observable&lt;Boolean> isOfflineLikesEnabled() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflineContentStorage.java"
+            line="65"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public io.reactivex.Observable&lt;OfflineProperties> statesV2() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflinePropertiesProvider.java"
+            line="148"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Boolean> getWifiOnlyOfflineSyncStateChange() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflineSettingsStorage.java"
+            line="81"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;String> getOfflineContentLocationChange() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflineSettingsStorage.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflineStateOperations.java"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;OfflineState> loadLikedTracksOfflineState() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/offline/OfflineStateOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;OldDiscoveryItem> userWelcome(boolean isRefresh) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/OldDiscoveryModulesProvider.java"
+            line="131"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;List&lt;Plan>> getUpsellUpdates() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/PlanStorage.java"
+            line="91"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;TrackItem>> playHistory() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;List&lt;TrackItem>> playHistory(final int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;TrackItem>> refreshPlayHistory() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="62"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;List&lt;TrackItem>> refreshPlayHistory(final int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;TrackItem>> tracks(int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="72"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="77"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Boolean> clearHistory() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="82"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;Urn>> getAllTracksForPlayback() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryOperations.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;Track>> loadTracks(int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryStorage.java"
+            line="53"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Urn>> loadPlayHistoryForPlayback() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/playhistory/PlayHistoryStorage.java"
+            line="88"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaySessionController.java"
+            line="216"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> startPlayback(Urn trackUrn, Screen screen) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="42"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Deprecated"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="54"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playPosts(Single&lt;List&lt;PlayableWithReposter>> playables, Urn initialTrack, int position, PlaySessionSource playSessionSource) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playPosts(List&lt;Urn> playableUrns, Urn initialTrack, int position, PlaySessionSource playSessionSource) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playTracks(List&lt;Urn> trackUrns, int position, PlaySessionSource playSessionSource) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playTracks(Single&lt;List&lt;Urn>> allTracks, Urn initialTrack, int initialPosition, PlaySessionSource playSessionSource) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="74"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playStation(Urn stationUrn,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="125"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlaybackResult> playTracksShuffled(Single&lt;List&lt;Urn>> allTracks, final PlaySessionSource playSessionSource) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackInitiator.java"
+            line="140"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Completable playCurrent();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackStrategy.java"
+            line="17"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;PlaybackResult> setNewQueue(final PlayQueue playQueue,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackStrategy.java"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Integer> getPageChangedObservable() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/ui/PlayerPagerScrollListener.java"
+            line="81"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;List&lt;PlaylistAssociation>> loadLikedPlaylists(int limit, long fromTimestamp) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/PlaylistLikesStorage.java"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;List&lt;PlaylistAssociation>> loadPostedPlaylists(int limit, long fromTimestamp) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistPostStorage.java"
+            line="42"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;TxnResult> markPendingRemoval(final Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistPostStorage.java"
+            line="59"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;TxnResult> remove(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistPostStorage.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @SuppressWarnings(&quot;WeakerAccess&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistRepository.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;Map&lt;Urn, Playlist>> withUrns(final Collection&lt;Urn> requestedPlaylists) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistRepository.java"
+            line="49"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @SuppressWarnings(&quot;PMD.SimplifyStartsWith&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistStorage.java"
+            line="57"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Urn>> availablePlaylists(final Collection&lt;Urn> playlistUrns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistStorage.java"
+            line="94"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Playlist>> loadPlaylists(final Collection&lt;Urn> playlistUrns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistStorage.java"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;LastPostedTrack> loadLastPublicPostedTrack() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/PostsStorage.java"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;RecentlyPlayedPlayableItem>> recentlyPlayed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="38"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;RecentlyPlayedPlayableItem>> recentlyPlayed(int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="42"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;RecentlyPlayedPlayableItem>> refreshRecentlyPlayed() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="49"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="53"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Boolean> clearHistory() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="59"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedOperations.java"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;RecentlyPlayedPlayableItem>> loadContexts(final int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/collection/recentlyplayed/RecentlyPlayedStorage.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;OldDiscoveryItem> recommendedStations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/RecommendedStationsOperations.java"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;OldDiscoveryItem> refreshRecommendedStations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/RecommendedStationsOperations.java"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;OldDiscoveryItem> load(Single&lt;SyncResult> source) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/RecommendedStationsOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationRecord>> getCollection(int collectionType) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/RecommendedStationsOperations.java"
+            line="67"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static &lt;Entity extends UrnHolder, Properties, Aggregate> Single&lt;List&lt;Aggregate>> enrichV2(final List&lt;Entity> sourceItems,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/RepoUtils.java"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;RepostResult> toggleRepost(final Urn soundUrn, final boolean addRepost) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostOperations.java"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;RepostStatus> addRepostLocally(final Urn soundUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostOperations.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;RepostStatus> removeRepostLocally(final Urn soundUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostOperations.java"
+            line="69"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;ApiResponse> pushAddRepost(Urn soundUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostOperations.java"
+            line="77"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;ApiResponse> pushRemoveRepost(Urn soundUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostOperations.java"
+            line="85"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Urn>> loadReposts() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostStorage.java"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;RepostStatuses> repostedStatuses() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/associations/RepostsStateProvider.java"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;ResolveResult> resolve(@NonNull final String target) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/ResolveOperations.java"
+            line="73"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Urn> resolveResource(@NonNull String identifier)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/ResolveOperations.java"
+            line="90"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;Urn> resolveViaStorage(@NonNull String identifier) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/ResolveOperations.java"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;ApiResolvedResource> resolveViaApi(@NonNull String identifier) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/ResolveOperations.java"
+            line="152"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Uri> followClickTrackingUrl(@NonNull Uri uri) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/ResolveOperations.java"
+            line="160"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static &lt;T> Observable&lt;T> toV2Observable(rx.Observable&lt;T> sourceObservable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/rx/RxJava.java"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static &lt;T> Single&lt;T> toV2Single(rx.Observable&lt;T> sourceObservable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/rx/RxJava.java"
+            line="40"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static &lt;T> Completable toV2Completable(rx.Observable&lt;T> sourceObservable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/rx/RxJava.java"
+            line="44"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public static Disposable emptyDisposable() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/rx/RxUtils.java"
+            line="52"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;PlaybackResult> trackClickToPlaybackResult(TrackClickParams params) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/SearchClickListener.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;List&lt;SuggestionItem>> suggestionsFor(String query) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/suggestions/SearchSuggestionOperations.java"
+            line="50"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;List&lt;SuggestionItem>> localCollectionSuggestions(final String query) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/suggestions/SearchSuggestionOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;List&lt;SuggestionItem>> getAutocompletions(String query) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/suggestions/SearchSuggestionOperations.java"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/suggestions/SearchSuggestionStorage.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;List&lt;SuggestionItem>> buildCollectionBinding(String query) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/suggestions/SearchSuggestionsPresenter.java"
+            line="94"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;SelectionItem> selectionItemClick() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/SingleSelectionContentCardRenderer.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;List&lt;StationInfoItem>> getStation(final Urn stationUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationInfoPresenter.java"
+            line="123"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;ApiStation> fetchStation(Urn stationUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsApi.java"
+            line="57"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;StationRecord> station(Urn station) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Disposable toggleStationLikeAndForget(Urn stationUrn, boolean liked) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="73"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;StationWithTracks> stationWithTracks(Urn station, final Optional&lt;Urn> seed) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="77"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;StationWithTracks> stationWithTracks(Urn station, Function&lt;StationRecord, StationRecord> toStation) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="81"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;StationRecord> getStation(Urn station, Function&lt;StationRecord, StationRecord> toStation) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;StationWithTracks> loadStationWithTracks(Urn station, Function&lt;StationRecord, StationRecord> toStation) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;StationWithTracks> loadStationWithTracks(Urn station) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;StationRecord> syncSingleStation(Urn station, Function&lt;StationRecord, StationRecord> toStation) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="111"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;StationRecord>> collection(final int type) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="122"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationRecord>> loadStationsCollection(final int type) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="132"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;StationRecord>> syncAndLoadStationsCollection(int type) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="137"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> syncStations(int type) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="141"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;SyncJobResult> syncLikedStations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="145"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;ChangeResult> toggleStationLike(Urn stationUrn, boolean liked) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="170"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;PlayQueue> fetchUpcomingTracks(final Urn station,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsOperations.java"
+            line="176"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;StationTrack>> loadPlayQueue(Urn station, int startPosition) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @SuppressWarnings(&quot;PMD.SimplifyStartsWith&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="112"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="122"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;ChangeResult> updateLocalStationLike(Urn stationUrn, boolean liked) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="138"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;StationRecord>> getStationsCollection(int type) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="158"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;StationRecord> station(final Urn station) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="180"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;StationWithTrackUrns> stationWithTrackUrns(final Urn station) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stations/StationsStorage.java"
+            line="195"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamEntityToItemTransformer.java"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;StreamItem>> initialStreamItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Optional&lt;StreamItem>> initialNotificationItem() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="112"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;StreamItem>> updatedStreamItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="120"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Optional&lt;StreamItem>> updatedNotificationItem() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="130"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;PlayableWithReposter>> urnsForPlayback() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamOperations.java"
+            line="136"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/StreamPreloader.java"
+            line="72"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamStorage.java"
+            line="72"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamStorage.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Integer> timelineItemCountSince(final long timestamp) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamStorage.java"
+            line="113"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;PlayableWithReposter> playbackItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/stream/StreamStorage.java"
+            line="124"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;StreamItem> suggestedCreators() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsOperations.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Completable toggleFollow(Urn urn, boolean isFollowing) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsOperations.java"
+            line="79"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;StreamItem> loadSuggestedCreators(List&lt;UserAssociation> userAssociations) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsOperations.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;SuggestedCreator>> lazySyncCreators() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsOperations.java"
+            line="112"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;SuggestedCreator>> load(Single&lt;SyncResult> source) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsOperations.java"
+            line="116"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;SuggestedCreator>> suggestedCreators() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsStorage.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Completable toggleFollowSuggestedCreator(Urn urn, boolean isFollowing) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/suggestedcreators/SuggestedCreatorsStorage.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Disposable syncAndForget(Syncable syncable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> sync(Syncable syncable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="52"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> sync(Syncable syncable, String action) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> syncTrack(Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="60"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> batchSyncTracks(Collection&lt;Urn> trackUrns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> syncUser(Urn userUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> batchSyncUsers(List&lt;Urn> userUrns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="74"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Disposable syncPlaylistAndForget(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="80"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> syncPlaylist(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> batchSyncPlaylists(List&lt;Urn> playlistUrns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="94"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;SyncJobResult> syncPlaylists(final Collection&lt;Urn> playlists) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="104"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @NonNull"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiator.java"
+            line="121"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> refreshMyPlaylists() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Completable refreshMyPostedAndLikedPlaylists() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;Boolean> hasSyncedTrackLikesBefore() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="37"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Completable refreshLikedTracks() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> refreshFollowings() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="45"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;SyncJobResult> syncTrackLikes() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/SyncInitiatorBridge.java"
+            line="49"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;SystemPlaylist> fetchSystemPlaylist(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/systemplaylist/SystemPlaylistOperations.java"
+            line="42"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;SystemPlaylist> fetchSystemPlaylistFromApi(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/discovery/systemplaylist/SystemPlaylistOperations.java"
+            line="50"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/TestEventBusV2.java"
+            line="99"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/rx/eventbus/TestEventBusV2.java"
+            line="111"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    protected Single&lt;List&lt;ViewModel>> initialTimelineItems(final boolean syncCompleted) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    protected Single&lt;List&lt;ViewModel>> updatedTimelineItems() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="63"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    protected abstract Single&lt;List&lt;ViewModel>> toViewModels(List&lt;StorageModel> storageModels);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="68"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;ViewModel>> handleLocalResult(List&lt;ViewModel> result,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;ViewModel>> handleEmptyLocalResult(final long timestamp, boolean syncCompleted) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="82"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;ViewModel>> handleSyncResult(SyncJobResult syncJobResult, long currentTimestamp) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="99"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;ViewModel>> pagedTimelineItems(final long timestamp, final boolean syncCompleted) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="114"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Long> lastSyncTime() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="148"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;Boolean> hasSyncedBefore() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="152"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;List&lt;ViewModel>> updatedTimelineItemsForStart() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="156"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;Integer> newItemsSince(long time) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineOperations.java"
+            line="164"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;T> timelineItems(int limit);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineStorage.java"
+            line="9"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;T> timelineItemsBefore(long timestamp, int limit);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineStorage.java"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Integer> timelineItemCountSince(long timestamp);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/sync/timeline/TimelineStorage.java"
+            line="15"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="132"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="137"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="143"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="148"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="153"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="158"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="163"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsFragment.java"
+            line="168"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Observable&lt;SearchResult> search(SearchParams params) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsOperations.java"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private io.reactivex.Observable&lt;TopResults> searchDataSource(SearchParams search) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsOperations.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;ApiTopResults> apiSearch(SearchParams search) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsOperations.java"
+            line="70"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.Search> searchIntent();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.Refresh> refreshIntent();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.Enter> enterScreen();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="59"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.TrackClick> trackClick();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="61"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.PlaylistClick> playlistClick();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="63"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.UserClick> userClick();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="65"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.ViewAllClick> viewAllClick();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="67"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        Observable&lt;UiAction.HelpClick> helpClick();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="69"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private ObservableTransformer&lt;PlaybackResult, ClickResultAction> showErrorFromPlaybackResult() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsPresenter.java"
+            line="143"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;TrackItem> track(final Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;Map&lt;Urn, TrackItem>> fromUrns(final List&lt;Urn> requestedTracks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;TrackItem>> trackListFromUrns(List&lt;Urn> requestedTracks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;TrackItem>> forPlaylist(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="40"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;TrackItem>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="45"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;TrackItem> fullTrackWithUpdate(final Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackItemRepository.java"
+            line="50"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;TrackItem> onTrackLiked() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Urn> onTrackUnliked() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="60"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;Urn> singleTrackLikeStatusChange(boolean wasLiked) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;LikeWithTrack>> likedTracks() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="72"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;LikeWithTrack>> likedTracks(long beforeTime) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="83"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;LikeWithTrack>> updatedLikedTracks() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="90"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Urn>> likedTrackUrns() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/likes/TrackLikeOperations.java"
+            line="97"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;Track> track(final Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;Map&lt;Urn, Track>> fromUrns(final List&lt;Urn> requestedTracks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="62"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;Track>> trackListFromUrns(List&lt;Urn> requestedTracks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="71"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;Track>> forPlaylist(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="76"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;Track>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;Track>> loadPlaylistTracks(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="92"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Single&lt;List&lt;Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="98"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private static SingleTransformer&lt;SyncJobResult, SyncJobResult> convertApiRequestExceptionToSyncFailure() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="106"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Observable&lt;Track> fullTrackWithUpdate(final Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="127"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;Track> trackFromStorage(Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="141"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;Track> fullTrackFromStorage(Urn trackUrn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="145"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Maybe&lt;Track> syncThenLoadTrack(final Urn trackUrn,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackRepository.java"
+            line="152"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="75"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="81"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @SuppressWarnings(&quot;PMD.SimplifyStartsWith&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="93"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;Track> loadTrack(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;Map&lt;Urn, Track>> loadTracks(List&lt;Urn> urns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="109"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;QueryResult> batchedTracks(List&lt;Urn> urns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="113"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    private Observable&lt;Urn> batchedAvailableTracks(List&lt;Urn> urns) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="117"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;List&lt;Urn>> availableTracks(final List&lt;Urn> requestedTracks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="132"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;Optional&lt;String>> loadTrackDescription(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/tracks/TrackStorage.java"
+            line="136"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;Following>> followedUsers(int limit, long fromPosition) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserAssociationStorage.java"
+            line="110"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;User> followedUser(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserAssociationStorage.java"
+            line="115"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;Urn>> followedUserUrns(int limit, long fromPosition) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserAssociationStorage.java"
+            line="125"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Single&lt;List&lt;UserAssociation>> followedUserAssociations() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserAssociationStorage.java"
+            line="136"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /***"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserRepository.java"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /***"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserRepository.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /***"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserRepository.java"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    /***"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserRepository.java"
+            line="58"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Maybe&lt;User> loadUser(Urn urn) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserStorage.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    @SuppressWarnings(&quot;PMD.SimplifyStartsWith&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/users/UserStorage.java"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    Single&lt;AvailableWebProducts> products() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/WebPaymentOperations.java"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="sc.MissingCheckResult"
+        message="Method should have `@CheckResult` annotation"
+        errorLine1="    public Maybe&lt;OldDiscoveryItem> welcome() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/olddiscovery/welcomeuser/WelcomeUserOperations.java"
+            line="33"
             column="5"/>
     </issue>
 
@@ -645,8 +4209,8 @@
         errorLine1="    &lt;item quantity=&quot;one&quot;>playlist&lt;/item>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-fr/strings.xml"
-            line="600"
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="595"
             column="5"/>
     </issue>
 
@@ -657,18 +4221,18 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="600"
+            line="599"
             column="5"/>
     </issue>
 
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
-        errorLine1="    &lt;item quantity=&quot;one&quot;>album&lt;/item>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;item quantity=&quot;one&quot;>playlist&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="604"
+            line="603"
             column="5"/>
     </issue>
 
@@ -679,7 +4243,18 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="604"
+            line="603"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>album&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="607"
             column="5"/>
     </issue>
 
@@ -690,7 +4265,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="608"
+            line="611"
             column="5"/>
     </issue>
 
@@ -718,22 +4293,11 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.drawable.ak_list_divider_margin` appears to be unused">
-        <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-hdpi/ak_list_divider_margin.9.png"/>
-        <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-mdpi/ak_list_divider_margin.9.png"/>
-        <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-xhdpi/ak_list_divider_margin.9.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.com_appboy_api_key` appears to be unused">
         <location
             file="build.gradle"/>
         <location
-            file="build/generated/res/resValues/prod/preRelease/values/generated.xml"
+            file="build/generated/res/resValues/prod/debug/values/generated.xml"
             line="36"
             column="13"/>
     </issue>
@@ -888,7 +4452,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="224"
+            line="222"
             column="12"/>
     </issue>
 
@@ -899,23 +4463,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="232"
+            line="230"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_bug_report` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/ic_bug_report.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_bug_report.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_bug_report.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_bug_report.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_bug_report.png"/>
     </issue>
 
     <issue
@@ -1033,7 +4582,7 @@
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="41"
+            line="39"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
@@ -1068,27 +4617,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="113"
+            line="114"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="115"
+            line="114"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="113"
+            line="114"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="113"
+            line="116"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="113"
+            line="114"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="113"
+            line="116"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1107,27 +4656,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="275"
+            line="277"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="283"
+            line="279"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="275"
+            line="277"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="280"
+            line="284"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="275"
+            line="277"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="275"
+            line="279"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1146,27 +4695,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="411"
+            line="413"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="419"
+            line="415"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="411"
+            line="413"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="416"
+            line="420"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="411"
+            line="413"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="411"
+            line="415"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1185,27 +4734,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="412"
+            line="414"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="420"
+            line="416"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="412"
+            line="414"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="417"
+            line="421"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="412"
+            line="414"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="412"
+            line="416"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1224,27 +4773,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="413"
+            line="415"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="421"
+            line="417"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="413"
+            line="415"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="418"
+            line="422"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="413"
+            line="415"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="413"
+            line="417"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1263,27 +4812,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="414"
+            line="416"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="422"
+            line="418"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="414"
+            line="416"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="419"
+            line="423"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="414"
+            line="416"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="414"
+            line="418"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1302,27 +4851,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="415"
+            line="417"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="423"
+            line="419"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="415"
+            line="417"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="420"
+            line="424"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="415"
+            line="417"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="415"
+            line="419"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1341,27 +4890,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="416"
+            line="418"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="424"
+            line="420"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="416"
+            line="418"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="421"
+            line="425"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="416"
+            line="418"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="416"
+            line="420"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1380,27 +4929,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="476"
+            line="478"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="484"
+            line="480"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="476"
+            line="478"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="481"
+            line="485"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="476"
+            line="478"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="476"
+            line="480"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1419,27 +4968,27 @@
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="477"
+            line="479"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="485"
+            line="481"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="477"
+            line="479"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="482"
+            line="486"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="477"
+            line="479"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="477"
+            line="481"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -1454,35 +5003,35 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="628"
+            line="631"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
-            line="573"
+            line="574"
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="581"
+            line="576"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
-            line="573"
+            line="574"
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="578"
+            line="581"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
-            line="573"
+            line="574"
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="573"
+            line="576"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="573"
+            line="572"
             column="11"/>
     </issue>
 
@@ -1493,7 +5042,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1103"
+            line="1108"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -1501,7 +5050,7 @@
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="1009"
+            line="998"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
@@ -1509,7 +5058,7 @@
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1001"
+            line="1003"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
@@ -1517,11 +5066,11 @@
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="996"
+            line="998"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="996"
+            line="990"
             column="11"/>
     </issue>
 
@@ -1532,7 +5081,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1116"
+            line="1121"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -1540,7 +5089,7 @@
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="1021"
+            line="1010"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
@@ -1548,7 +5097,7 @@
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1013"
+            line="1015"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
@@ -1556,11 +5105,11 @@
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="1008"
+            line="1010"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1008"
+            line="1002"
             column="11"/>
     </issue>
 
@@ -1571,7 +5120,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1118"
+            line="1123"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -1579,7 +5128,7 @@
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="1023"
+            line="1012"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
@@ -1587,7 +5136,7 @@
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1015"
+            line="1017"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
@@ -1595,11 +5144,11 @@
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="1010"
+            line="1012"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1010"
+            line="1004"
             column="11"/>
     </issue>
 
@@ -1610,7 +5159,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1119"
+            line="1124"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -1618,7 +5167,7 @@
             column="11"/>
         <location
             file="src/main/res/values-en-rGB/strings.xml"
-            line="1024"
+            line="1013"
             column="11"/>
         <location
             file="src/main/res/values-es/strings.xml"
@@ -1626,7 +5175,7 @@
             column="11"/>
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1016"
+            line="1018"
             column="11"/>
         <location
             file="src/main/res/values-it/strings.xml"
@@ -1634,50 +5183,11 @@
             column="11"/>
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="1011"
+            line="1013"
             column="11"/>
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1011"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.bug_report_settings_title` appears to be unused"
-        errorLine1="    &lt;string name=&quot;bug_report_settings_title&quot;>Send bug report&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1123"
-            column="13"/>
-        <location
-            file="src/main/res/values-de/strings.xml"
-            line="1014"
-            column="11"/>
-        <location
-            file="src/main/res/values-en-rGB/strings.xml"
-            line="1027"
-            column="11"/>
-        <location
-            file="src/main/res/values-es/strings.xml"
-            line="1014"
-            column="11"/>
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="1019"
-            column="11"/>
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="1016"
-            column="11"/>
-        <location
-            file="src/main/res/values-nl/strings.xml"
-            line="1014"
-            column="11"/>
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="1014"
+            line="1005"
             column="11"/>
     </issue>
 
