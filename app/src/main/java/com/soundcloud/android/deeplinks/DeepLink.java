@@ -46,8 +46,10 @@ public enum DeepLink {
     ACTIVITIES,
     FOLLOWERS,
     FOLLOWINGS,
-    SEARCH_RESULTS_VIEW_ALL
-    ;
+    SEARCH_RESULTS_VIEW_ALL,
+    AD_FULLSCREEN_VIDEO,
+    AD_PRESTITIAL,
+    AD_CLICKTHROUGH;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 

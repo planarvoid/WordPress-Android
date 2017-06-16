@@ -183,7 +183,6 @@ public class PlayerAdsController {
                 .subscribe(new PlayerStateSubscriber());
 
 
-
         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).subscribe(new ResetAdsOnTrackChange());
 
         final Observable<Object> queueChangeForAd = Observable.merge(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),

@@ -1,21 +1,23 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.AdPlaybackEvent.*;
 import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -23,7 +25,6 @@ import rx.Subscription;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -38,10 +39,10 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final AdStateProvider stateProvider;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
-    private final NavigationExecutor navigationExecutor;
     private final TrackSourceInfo trackSourceInfo;
     private final StreamAdsController streamAdsController;
     private final AdViewabilityController adViewabilityController;
+    private final Navigator navigator;
 
     private Optional<VideoAd> ad = Optional.absent();
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -56,13 +57,13 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
                              CurrentDateProvider dateProvider,
                              AdPlayer adPlayer,
                              EventBus eventBus,
-                             NavigationExecutor navigationExecutor) {
+                             Navigator navigator) {
+        this.navigator = navigator;
         view.setListener(this);
         this.view = view;
         this.adPlayer = adPlayer;
         this.stateProvider = stateProvider;
         this.dateProvider = dateProvider;
-        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.streamAdsController = streamAdsController;
         this.adViewabilityController = adViewabilityController;
@@ -95,7 +96,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     private void onInlayStateTransition(Activity activity, AdPlayStateTransition event) {
         final PlaybackStateTransition transition = event.stateTransition();
-        if (transition.playbackHasStopped())  {
+        if (transition.playbackHasStopped()) {
             activity.finish();
         } else {
             view.setPlayState(transition);
@@ -151,7 +152,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onLearnMoreClick(Context context) {
         ad.ifPresent(video -> {
-            navigationExecutor.openAdClickthrough(context, Uri.parse(video.clickThroughUrl()));
+            navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), video.clickThroughUrl()));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayableClickThrough(video, trackSourceInfo));
         });
     }
@@ -160,7 +161,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         @Override
         public void onNext(AdPlayStateTransition event) {
             if (hasActivityRef()) {
-               onInlayStateTransition(activityRef.get(), event);
+                onInlayStateTransition(activityRef.get(), event);
             }
         }
     }

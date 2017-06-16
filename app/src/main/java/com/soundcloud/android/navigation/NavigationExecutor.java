@@ -1,7 +1,6 @@
 package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.addSearchQuerySource;
-import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
@@ -11,7 +10,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createConversionIn
 import static com.soundcloud.android.navigation.IntentFactory.createDirectCheckoutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
@@ -30,7 +28,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createPlaylistDisc
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileAlbumsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileLikesIntent;
@@ -135,18 +132,6 @@ public class NavigationExecutor {
         }
 
         context.startActivity(homeIntent);
-    }
-
-    public void openFullscreenVideoAd(Context context, Urn adUrn) {
-        context.startActivity(createFullscreenVideoAdIntent(context, adUrn));
-    }
-
-    public void openPrestititalAd(Context context) {
-        context.startActivity(createPrestititalAdIntent(context));
-    }
-
-    public void openAdClickthrough(Context context, Uri clickUrl) {
-        context.startActivity(createAdClickthroughIntent(clickUrl));
     }
 
     public void openUpgrade(Context context, UpsellContext upsellContext) {

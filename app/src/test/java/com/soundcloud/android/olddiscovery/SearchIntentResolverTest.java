@@ -86,7 +86,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.DEEPLINK);
         assertThat(resultNavigationTarget.referrer()).isEqualTo(Optional.of(Referrer.STREAM_NOTIFICATION.value()));
-        assertThat(resultNavigationTarget.target()).isEqualTo("content://" + SyncConfig.AUTHORITY + "/tracks/#");
+        assertThat(resultNavigationTarget.linkNavigationParameters().get().target()).isEqualTo("content://" + SyncConfig.AUTHORITY + "/tracks/#");
     }
 
     @Test

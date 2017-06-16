@@ -5,11 +5,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
@@ -24,7 +25,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.Date;
@@ -39,7 +39,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Mock CurrentDateProvider dateProvider;
     @Mock StreamAdsController controller;
     @Mock AdViewabilityController viewabilityController;
-    @Mock NavigationExecutor navigationExecutor;
+    @Mock Navigator navigator;
 
     @Mock AppCompatActivity activity;
 
@@ -49,7 +49,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigationExecutor);
+        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigator);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
         intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
@@ -72,10 +72,9 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Test
     public void onLearnMoreClickOpensClickthroughAndSendsTrackingEvent() {
         presenter.onCreate(activity, null);
-        presenter.onLearnMoreClick(context());
+        presenter.onLearnMoreClick(activity);
 
-        final Uri clickThroughUrl = Uri.parse(VIDEO_AD.clickThroughUrl());
-        verify(navigationExecutor).openAdClickthrough(context(), clickThroughUrl);
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, VIDEO_AD.clickThroughUrl()));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }

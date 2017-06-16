@@ -1,8 +1,11 @@
 package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
 
 import com.soundcloud.android.BuildConfig;
@@ -112,8 +115,7 @@ public class NavigationResolver {
 
     @CheckResult
     public Single<NavigationResult> resolveNavigationResult(NavigationTarget navigationTarget) {
-        String target = navigationTarget.target();
-        if (Strings.isNullOrEmpty(target)) {
+        if (!navigationTarget.linkNavigationParameters().isPresent() || Strings.isNullOrEmpty(navigationTarget.linkNavigationParameters().get().target())) {
             try {
                 if (navigationTarget.deeplink().isPresent()) {
                     return handleDeepLink(navigationTarget, navigationTarget.deeplink().get()).map(action -> NavigationResult.create(navigationTarget, action));
@@ -125,12 +127,12 @@ public class NavigationResolver {
                 return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
             }
         } else {
-            final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.target()));
+            final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.linkNavigationParameters().get().target()));
             NavigationTarget newTarget = navigationTarget.withTarget(hierarchicalUri.toString());
             try {
-                if (localEntityUriResolver.canResolveLocally(newTarget.target())) {
+                if (localEntityUriResolver.canResolveLocally(newTarget.linkNavigationParameters().get().target())) {
                     return resolveLocal(navigationTarget, newTarget);
-                } else if (localEntityUriResolver.isKnownDeeplink(newTarget.target())) {
+                } else if (localEntityUriResolver.isKnownDeeplink(newTarget.linkNavigationParameters().get().target())) {
                     return resolveDeeplink(hierarchicalUri, newTarget);
                 } else {
                     return resolveTarget(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
@@ -162,7 +164,7 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> resolveLocal(NavigationTarget navigationTarget, NavigationTarget newTarget) throws UriResolveException {
-        return localEntityUriResolver.resolve(newTarget.target())
+        return localEntityUriResolver.resolve(newTarget.linkNavigationParameters().get().target())
                                      .observeOn(AndroidSchedulers.mainThread())
                                      .flatMap(urn -> startActivityForResource(navigationTarget, urn).map(action -> NavigationResult.create(navigationTarget, action, urn)));
     }
@@ -185,14 +187,17 @@ public class NavigationResolver {
     @CheckResult
     private Single<Action> handleUnsuccessfulResolve(NavigationTarget navigationTarget, ResolveResult resolveResult) {
         final Optional<String> errorUrl = resolveResult.uri().transform(Uri::toString);
-        final NavigationTarget fallbackAwareTarget = navigationTarget.withFallback(navigationTarget.fallback().or(errorUrl));
+        final NavigationTarget fallbackAwareTarget = navigationTarget.withFallback(navigationTarget.linkNavigationParameters().get().fallback().or(errorUrl));
         if (shouldRetryWithFallback(fallbackAwareTarget)) {
             if (applicationProperties.isDebuggableFlavor()) {
                 AndroidUtils.showToast(navigationTarget.activity(), "Retry resolve with fallback");
             }
             final Exception e = resolveResult.exception().or(new UriResolveException("Resolve with fallback"));
-            ErrorUtils.handleSilentException("Resolve uri " + navigationTarget.target() + " with fallback " + fallbackAwareTarget.fallback().orNull(), e);
-            return resolveNavigationResult(fallbackAwareTarget.withTarget(fallbackAwareTarget.fallback().get())
+            ErrorUtils.handleSilentException("Resolve uri " + navigationTarget.linkNavigationParameters().get().target() + " with fallback " + fallbackAwareTarget.linkNavigationParameters()
+                                                                                                                                                                  .get()
+                                                                                                                                                                  .fallback()
+                                                                                                                                                                  .orNull(), e);
+            return resolveNavigationResult(fallbackAwareTarget.withTarget(fallbackAwareTarget.linkNavigationParameters().get().fallback().get())
                                                               .withFallback(Optional.absent()))
                     .map(NavigationResult::action);
         } else {
@@ -264,6 +269,12 @@ public class NavigationResolver {
                 return showFollowings(navigationTarget);
             case PROFILE:
                 return showProfile(navigationTarget);
+            case AD_FULLSCREEN_VIDEO:
+                return showFullscreenVideoAd(navigationTarget);
+            case AD_PRESTITIAL:
+                return showPrestitialAd(navigationTarget);
+            case AD_CLICKTHROUGH:
+                return showAdClickthrough(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
@@ -289,14 +300,14 @@ public class NavigationResolver {
     @CheckResult
     private Single<Action> startExternal(NavigationTarget navigationTarget) {
         trackForegroundEvent(navigationTarget);
-        String target = navigationTarget.target();
+        String target = navigationTarget.linkNavigationParameters().get().target();
         Preconditions.checkNotNull(target, "Covered by #resolve");
         Uri targetUri = Uri.parse(target);
         final String identifier = Optional.fromNullable(targetUri.getAuthority()).or(targetUri.getPath());
         if (ScTextUtils.isEmail(identifier)) {
             return Single.just(() -> navigationExecutor.openEmail(navigationTarget.activity(), identifier));
         } else {
-            return Single.just(() -> navigationExecutor.openExternal(navigationTarget.activity(), navigationTarget.targetUri()));
+            return Single.just(() -> navigationExecutor.openExternal(navigationTarget.activity(), navigationTarget.linkNavigationParameters().get().targetUri()));
         }
     }
 
@@ -327,10 +338,34 @@ public class NavigationResolver {
     }
 
     @CheckResult
+    private Single<Action> showFullscreenVideoAd(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createFullscreenVideoAdIntent(navigationTarget.activity(), navigationTarget.targetUrn().get()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showPrestitialAd(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createPrestititalAdIntent(navigationTarget.activity()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showAdClickthrough(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createAdClickthroughIntent(Uri.parse(navigationTarget.deeplinkTarget().get())));
+        });
+    }
+
+    @CheckResult
     private Single<Action> startWebViewForRemoteSignIn(NavigationTarget navigationTarget) {
         final Uri target;
-        if (DeepLink.isWebScheme(navigationTarget.targetUri())) {
-            target = signInOperations.generateRemoteSignInUri(navigationTarget.targetUri().getPath());
+        if (DeepLink.isWebScheme(navigationTarget.linkNavigationParameters().get().targetUri())) {
+            target = signInOperations.generateRemoteSignInUri(navigationTarget.linkNavigationParameters().get().targetUri().getPath());
         } else {
             target = signInOperations.generateRemoteSignInUri();
         }
@@ -347,7 +382,7 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<Action> resolveTarget(NavigationTarget navigationTarget) {
-        String target = navigationTarget.target();
+        String target = navigationTarget.linkNavigationParameters().get().target();
         Preconditions.checkNotNull(target, "Covered by #resolve");
         return resolveOperations.resolve(target)
                                 .observeOn(AndroidSchedulers.mainThread())
@@ -358,7 +393,7 @@ public class NavigationResolver {
     private Single<Action> startWebView(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openWebView(navigationTarget.activity(), navigationTarget.targetUri());
+            navigationExecutor.openWebView(navigationTarget.activity(), navigationTarget.linkNavigationParameters().get().targetUri());
         });
     }
 
@@ -391,7 +426,7 @@ public class NavigationResolver {
     private Single<Action> showCharts(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            ChartDetails chartDetails = chartsUriResolver.resolveUri(navigationTarget.targetUri());
+            ChartDetails chartDetails = chartsUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
             navigationExecutor.openChart(navigationTarget.activity(), chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
         });
     }
@@ -400,17 +435,17 @@ public class NavigationResolver {
     private Single<Action> showAllGenresCharts(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.targetUri()));
+            navigationExecutor.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri()));
         });
     }
 
     @CheckResult
     private Single<Action> showStation(NavigationTarget navigationTarget) throws UriResolveException {
-        Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.targetUri());
+        Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.linkNavigationParameters().get().targetUri());
         if (urn.isPresent()) {
             return showStation(navigationTarget, urn.get());
         } else {
-            throw new UriResolveException("Station " + navigationTarget.target() + " could not be resolved locally");
+            throw new UriResolveException("Station " + navigationTarget.linkNavigationParameters().get().target() + " could not be resolved locally");
         }
     }
 
@@ -428,7 +463,7 @@ public class NavigationResolver {
     private Single<Action> showSearchScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openSearch(navigationTarget.activity(), navigationTarget.targetUri(), navigationTarget.screen());
+            navigationExecutor.openSearch(navigationTarget.activity(), navigationTarget.linkNavigationParameters().get().targetUri(), navigationTarget.screen());
         });
     }
 
@@ -543,7 +578,7 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<Action> shareApp(NavigationTarget navigationTarget) {
-        final Uri uri = Uri.parse(navigationTarget.target());
+        final Uri uri = Uri.parse(navigationTarget.linkNavigationParameters().get().target());
         final String title = uri.getQueryParameter("title");
         final String text = uri.getQueryParameter("text");
         final String path = uri.getQueryParameter("path");
@@ -631,7 +666,7 @@ public class NavigationResolver {
     private Single<Action> showOnboardingForUri(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             AndroidUtils.showToast(navigationTarget.activity(), R.string.error_toast_user_not_logged_in);
-            navigationExecutor.openOnboarding(navigationTarget.activity(), Uri.parse(navigationTarget.target()), navigationTarget.screen());
+            navigationExecutor.openOnboarding(navigationTarget.activity(), Uri.parse(navigationTarget.linkNavigationParameters().get().target()), navigationTarget.screen());
         });
     }
 
@@ -671,7 +706,9 @@ public class NavigationResolver {
     }
 
     private boolean shouldRetryWithFallback(NavigationTarget navigationTarget) {
-        return navigationTarget.fallback().isPresent() && !navigationTarget.fallback().get().equals(navigationTarget.target());
+        return navigationTarget.linkNavigationParameters().isPresent() &&
+                navigationTarget.linkNavigationParameters().get().fallback().isPresent() &&
+                !navigationTarget.linkNavigationParameters().get().fallback().get().equals(navigationTarget.linkNavigationParameters().get().target());
     }
 
     private void trackForegroundEventForResource(NavigationTarget navigationTarget, Urn urn) {

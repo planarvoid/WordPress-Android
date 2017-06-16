@@ -20,7 +20,8 @@ import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
@@ -35,7 +36,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.TextureView;
@@ -47,7 +47,7 @@ import java.util.List;
 
 public class PrestitialPresenterTest extends AndroidUnitTest {
 
-    @Mock NavigationExecutor navigationExecutor;
+    @Mock Navigator navigator;
     @Mock AdViewabilityController viewabilityController;
     @Mock VisualPrestitialView visualPrestitialView;
     @Mock PrestitialAdsController adsController;
@@ -84,7 +84,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
                                             videoSurfaceProvider,
                                             whyAdsDialogPresenter,
                                             adPlayer,
-                                            navigationExecutor,
+                                            navigator,
                                             eventBus);
         when(adsController.getCurrentAd()).thenReturn(Optional.of(visualPrestitialAd));
     }
@@ -120,18 +120,18 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     public void navigatesToClickThroughOnImageClickForVisualPrestitial() {
         presenter.onCreate(activity, null);
 
-        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
+        presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
-        verify(navigationExecutor).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, visualPrestitialAd.clickthroughUrl().toString()));
     }
 
     @Test
     public void navigatesToClickThroughOnImageClickForSponsoredSessionAdEndCard() {
         presenter.onCreate(activity, null);
 
-        presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
+        presenter.onImageClick(activity, sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
-        verify(navigationExecutor).openAdClickthrough(context(), sponsoredSessionAd.clickthroughUrl());
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, sponsoredSessionAd.clickthroughUrl().toString()));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     public void publishesUIEventOnClickThroughForVisualPrestitial() {
         presenter.onCreate(activity, null);
 
-        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
+        presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
@@ -158,18 +158,18 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     public void publishesUIEventOnClickThroughForSponsoredSession() {
         presenter.onCreate(activity, null);
 
-        presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
+        presenter.onImageClick(activity, sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
 
     @Test
     public void finishesActivityOnClickThrough() {
-        presenter.onCreate(activity, null);
+        presenter.onCreate(this.activity, null);
 
-        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
+        presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
-        verify(activity).finish();
+        verify(this.activity).finish();
     }
 
     @Test
@@ -446,9 +446,8 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setupSponsoredSession();
         setSponsoredSessionPage(2);
 
-        presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, context());
-
-        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(sponsoredSessionAd.optInCard().clickthroughUrl()));
+        presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, activity);
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, sponsoredSessionAd.optInCard().clickthroughUrl()));
     }
 
     @Test

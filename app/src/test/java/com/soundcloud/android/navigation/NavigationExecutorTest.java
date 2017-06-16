@@ -1,16 +1,11 @@
 package com.soundcloud.android.navigation;
 
-import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.FullScreenVideoActivity;
-import com.soundcloud.android.ads.PrestitialActivity;
-import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -176,33 +171,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         navigationExecutor.openCollection(activityContext);
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.COLLECTION);
-    }
-
-    @Test
-    public void openAdClickthrough() {
-        final Uri uri = Uri.parse("http://clickthroughurl.com");
-        navigationExecutor.openAdClickthrough(activityContext, uri);
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(uri)
-                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
-    }
-
-    @Test
-    public void openVideoFullScreen() {
-        final Urn urn = forAd("network", "123");
-        navigationExecutor.openFullscreenVideoAd(activityContext, urn);
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn)
-                                   .opensActivity(FullScreenVideoActivity.class);
-    }
-
-    @Test
-    public void openVisualPrestitial() {
-        final VisualPrestitialAd ad = VisualPrestitialAd.create(AdFixtures.getApiVisualPrestitial());
-        navigationExecutor.openPrestititalAd(activityContext);
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(PrestitialActivity.class);
     }
 
     @Test

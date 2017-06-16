@@ -13,12 +13,14 @@ import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -52,7 +54,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final VideoSurfaceProvider videoSurfaceProvider;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
     private final AdPlayer adPlayer;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final EventBus eventBus;
 
     private WeakReference<Activity> activityRef;
@@ -71,7 +73,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
                         VideoSurfaceProvider videoSurfaceProvider,
                         WhyAdsDialogPresenter whyAdsDialogPresenter,
                         AdPlayer adPlayer,
-                        NavigationExecutor navigationExecutor,
+                        Navigator navigator,
                         EventBus eventBus) {
         this.adsController = adsController;
         this.adViewabilityController = adViewabilityController;
@@ -81,7 +83,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         this.videoSurfaceProvider = videoSurfaceProvider;
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
         this.adPlayer = adPlayer;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.eventBus = eventBus;
     }
 
@@ -179,7 +181,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void onClickThrough(Context context, Uri clickthroughUrl, AdData ad) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(ad));
-        navigationExecutor.openAdClickthrough(context, clickthroughUrl);
+        navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), clickthroughUrl.toString()));
         endActivity();
     }
 

@@ -35,7 +35,6 @@ import org.mockito.Mock;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
 public class AdPageListenerTest extends AndroidUnitTest {
@@ -48,14 +47,18 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
-    @Mock private Activity activity;
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
-        listener = new AdPageListener(navigationExecutor, playSessionController, playQueueManager,
-                                      eventBus, adsOperations, whyAdsPresenter, navigator);
+        listener = new AdPageListener(navigationExecutor,
+                                      playSessionController,
+                                      playQueueManager,
+                                      eventBus,
+                                      adsOperations,
+                                      whyAdsPresenter,
+                                      navigator);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 
@@ -67,29 +70,32 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldOpenUrlForAudioAd() throws CreateModelException {
+        Activity activity = activity();
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
 
-        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(adData.clickThroughUrl().get()));
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, adData.clickThroughUrl().get()));
     }
 
     @Test
     public void onClickThroughShouldOpenUrlForVideoAd() throws CreateModelException {
+        Activity activity = activity();
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(videoAd));
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
 
-        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, videoAd.clickThroughUrl()));
     }
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
+        Activity activity = activity();
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
@@ -98,12 +104,13 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldPublishUIEventForVideoAdClick() {
+        Activity activity = activity();
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(videoAd));
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.absent());
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
@@ -111,11 +118,12 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldSetMonetizableTrackMetaAdClicked() {
+        Activity activity = activity();
         final LeaveBehindAd monetizableLeaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(321L));
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.of(monetizableLeaveBehindAd));
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity);
 
         assertThat(monetizableLeaveBehindAd.isMetaAdClicked()).isTrue();
     }
@@ -186,6 +194,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onAboutAdsShowsDialog() {
+        Activity activity = activity();
         listener.onAboutAds(activity);
         verify(whyAdsPresenter).show(activity);
     }

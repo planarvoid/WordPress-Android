@@ -23,6 +23,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
@@ -44,15 +45,16 @@ class AdPageListener extends PageListener {
     public AdPageListener(NavigationExecutor navigationExecutor,
                           PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
-                          EventBus eventBus, AdsOperations adsOperations,
+                          EventBus eventBus,
+                          AdsOperations adsOperations,
                           WhyAdsDialogPresenter whyAdsPresenter,
                           Navigator navigator) {
         super(playSessionController, eventBus);
         this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.whyAdsPresenter = whyAdsPresenter;
-        this.navigator = navigator;
     }
 
     public void onNext() {
@@ -100,7 +102,7 @@ class AdPageListener extends PageListener {
                 openUserOrPlaylistDeeplink(activityContext, deepLink, clickThrough);
                 break;
             default:
-                navigationExecutor.openAdClickthrough(activityContext, clickThrough);
+                navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(activityContext), clickThrough.toString()));
                 break;
         }
 

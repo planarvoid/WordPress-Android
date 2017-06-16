@@ -1604,6 +1604,37 @@ public class NavigationResolverTest extends AndroidUnitTest {
                   .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, null);
     }
 
+    @Test
+    public void navigationDeeplink_shouldOpenFullscreenVideoAd() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forFullscreenVideoAd(activity(), Urn.forAd("dfp", "video"));
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createFullscreenVideoAdIntent(navigationTarget.activity(), navigationTarget.targetUrn().get()));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenPrestitialAd() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forPrestitialAd(activity());
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createPrestititalAdIntent(navigationTarget.activity()));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenClickthroughAd() throws Exception {
+        String target = "https://ferrari.com/";
+        NavigationTarget navigationTarget = NavigationTarget.forAdClickthrough(activity(), target);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
+    }
+
 
     // Fallback Errors
 

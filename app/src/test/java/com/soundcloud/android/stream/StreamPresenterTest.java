@@ -22,7 +22,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
@@ -41,6 +40,9 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
@@ -74,7 +76,7 @@ import org.mockito.Spy;
 import rx.Observer;
 import io.reactivex.subjects.PublishSubject;
 
-import android.net.Uri;
+import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -105,6 +107,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
     @Mock private NavigationExecutor navigationExecutor;
+    @Mock private Navigator navigator;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
@@ -145,6 +148,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 facebookInvitesDialogPresenter,
                 navigationExecutor,
+                navigator,
                 newItemsIndicator,
                 followingOperations,
                 whyAdsDialogPresenter,
@@ -665,9 +669,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onAdItemClicked(view.getContext(), appInstall);
+        Activity activity = activity();
+        presenter.onAdItemClicked(activity, appInstall);
 
-        verify(navigationExecutor).openAdClickthrough(view.getContext(), Uri.parse(appInstall.clickThroughUrl()));
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, appInstall.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -679,9 +684,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onAdItemClicked(view.getContext(), videoAd);
+        Activity activity = activity();
+        presenter.onAdItemClicked(activity, videoAd);
 
-        verify(navigationExecutor).openAdClickthrough(view.getContext(), Uri.parse(videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, videoAd.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -754,9 +760,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
     public void shouldSetFullscreenEnabledAndOpenFullscreenVideoAdOnVideoFullscreenClicked() {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
-        presenter.onVideoFullscreenClicked(context(), videoAd);
+        Activity activity = activity();
+        presenter.onVideoFullscreenClicked(activity, videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigationExecutor).openFullscreenVideoAd(context(), videoAd.adUrn());
+        verify(navigator).navigateTo(NavigationTarget.forFullscreenVideoAd(activity, videoAd.adUrn()));
     }
 }

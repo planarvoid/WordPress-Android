@@ -11,7 +11,8 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.RootActivity;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -27,7 +28,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
     @Mock PlayerAdsController playerAdsController;
     @Mock StreamAdsController streamAdsController;
 
-    @Mock NavigationExecutor navigationExecutor;
+    @Mock Navigator navigator;
     @Mock AdsOperations adsOperations;
     @Mock PlaySessionStateProvider playSessionStateProvider;
     @Mock AdsStorage adsStorage;
@@ -49,7 +50,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
                                                  streamAdsController,
                                                  adsOperations,
                                                  playSessionStateProvider,
-                                                 navigationExecutor,
+                                                 navigator,
                                                  adsStorage,
                                                  eventBus);
 
@@ -179,11 +180,11 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         isFetched = () -> verify(adsOperations, times(1)).prestitialAd(any(AdRequestData.class));
         notFetched = () -> verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
         isOpened = () -> {
-            verify(navigationExecutor, times(1)).openPrestititalAd(activity);
+            verify(navigator, times(1)).navigateTo(NavigationTarget.forPrestitialAd(activity));
             assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
         };
         notOpened = () -> {
-            verify(navigationExecutor, never()).openPrestititalAd(activity);
+            verify(navigator, never()).navigateTo(NavigationTarget.forPrestitialAd(activity));
             assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
         };
     }

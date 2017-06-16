@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
@@ -226,7 +227,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
         verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
-        assertThat(resultNavigationTarget.target()).isEqualTo(url);
+        assertThat(resultNavigationTarget.linkNavigationParameters().get().target()).isEqualTo(url);
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.USER_INFO);
     }
 

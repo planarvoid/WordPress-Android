@@ -4,7 +4,8 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.RootActivity;
-import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -29,7 +30,7 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     private final AdsOperations adsOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final AdsStorage adsStorage;
     private final EventBus eventBus;
 
@@ -43,14 +44,14 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
                             StreamAdsController streamAdsController,
                             AdsOperations adsOperations,
                             PlaySessionStateProvider playSessionStateProvider,
-                            NavigationExecutor navigationExecutor,
+                            Navigator navigator,
                             AdsStorage adsStorage,
                             EventBus eventBus) {
         this.playerAdsController = playerAdsController;
         this.streamAdsController = streamAdsController;
         this.adsOperations = adsOperations;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.adsStorage = adsStorage;
         this.eventBus = eventBus;
     }
@@ -115,10 +116,11 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
         @Override
         public void onNext(AdData data) {
+
             final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
             currentAd = Optional.of(data);
             eventBus.publish(EventQueue.TRACKING, event);
-            navigationExecutor.openPrestititalAd(activity);
+            navigator.navigateTo(NavigationTarget.forPrestitialAd(activity));
         }
     }
 }

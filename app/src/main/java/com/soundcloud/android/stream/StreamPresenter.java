@@ -10,7 +10,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdItemRenderer;
@@ -31,6 +30,9 @@ import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRendere
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
@@ -45,6 +47,7 @@ import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -55,13 +58,12 @@ import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.Nullable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -92,6 +94,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final FollowingOperations followingOperations;
     private final StreamMeasurements streamMeasurements;
     private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
 
@@ -111,6 +114,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     StreamSwipeRefreshAttacher swipeRefreshAttacher,
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
                     NavigationExecutor navigationExecutor,
+                    Navigator navigator,
                     NewItemsIndicator newItemsIndicator,
                     FollowingOperations followingOperations,
                     WhyAdsDialogPresenter whyAdsDialogPresenter,
@@ -128,6 +132,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.newItemsIndicator = newItemsIndicator;
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
@@ -385,7 +390,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
         eventBus.publish(EventQueue.TRACKING, event);
-        navigationExecutor.openAdClickthrough(context, Uri.parse(clickthrough));
+        navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), clickthrough));
     }
 
     @Override
@@ -403,6 +408,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
-        navigationExecutor.openFullscreenVideoAd(context, videoAd.adUrn());
+        navigator.navigateTo(NavigationTarget.forFullscreenVideoAd(ViewUtils.getFragmentActivity(context), videoAd.adUrn()));
     }
 }
