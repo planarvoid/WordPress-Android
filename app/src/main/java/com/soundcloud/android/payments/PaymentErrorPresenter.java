@@ -70,25 +70,25 @@ class PaymentErrorPresenter {
         }
     }
 
-    public void showCancelled() {
+    void showCancelled() {
         errorView.showCancelled();
     }
 
-    public void showConnectionError() {
+    void showConnectionError() {
         errorView.showConnectionError();
     }
 
-    public void showBillingUnavailable() {
+    void showBillingUnavailable() {
         errorView.showBillingUnavailable();
         trackFailure("Billing unavailable");
     }
 
-    public void showVerifyFail() {
+    void showVerifyFail() {
         errorView.showVerifyFail();
         trackFailure("Verify fail");
     }
 
-    public void showVerifyTimeout() {
+    void showVerifyTimeout() {
         errorView.showVerifyTimeout();
         trackFailure("Verify timeout");
     }

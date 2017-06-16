@@ -3,7 +3,7 @@ package com.soundcloud.android.payments;
 import android.webkit.JavascriptInterface;
 
 class WebCheckoutInterface {
-    public static final String JAVASCRIPT_OBJECT_NAME = "AndroidApp";
+    static final String JAVASCRIPT_OBJECT_NAME = "AndroidApp";
 
     private final Listener listener;
 
@@ -15,7 +15,7 @@ class WebCheckoutInterface {
         void onPaymentError(String errorType);
     }
 
-    public WebCheckoutInterface(Listener listener) {
+    WebCheckoutInterface(Listener listener) {
         this.listener = listener;
     }
 

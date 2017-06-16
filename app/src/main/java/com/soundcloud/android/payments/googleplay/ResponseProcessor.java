@@ -12,7 +12,7 @@ class ResponseProcessor {
     ResponseProcessor() {
     }
 
-    public ProductDetails parseProduct(String productJson) throws JSONException {
+    ProductDetails parseProduct(String productJson) throws JSONException {
         JSONObject json = new JSONObject(productJson);
         return new ProductDetails(json.getString("productId"),
                                   BillingUtil.removeAppName(json.optString("title")),
@@ -20,7 +20,7 @@ class ResponseProcessor {
                                   json.optString("price"));
     }
 
-    public String extractToken(String json) throws JSONException {
+    String extractToken(String json) throws JSONException {
         return new JSONObject(json).getString("developerPayload");
     }
 

@@ -24,7 +24,7 @@ class PaymentErrorView {
     private FragmentManager fragmentManager;
 
     @Inject
-    public PaymentErrorView() {
+    PaymentErrorView() {
     }
 
     public void bind(FragmentActivity activity) {
@@ -32,7 +32,7 @@ class PaymentErrorView {
         fragmentManager = activity.getSupportFragmentManager();
     }
 
-    public void showCancelled() {
+    void showCancelled() {
         final View view = new CustomFontViewBuilder(activity)
                 .setContent(R.drawable.dialog_payment_error,
                             R.string.payments_error_title_canceled,
@@ -44,39 +44,39 @@ class PaymentErrorView {
                 .show();
     }
 
-    public void showVerifyFail() {
+    void showVerifyFail() {
         VerifyIssueDialog.showFail(fragmentManager);
     }
 
-    public void showVerifyTimeout() {
+    void showVerifyTimeout() {
         VerifyIssueDialog.showTimeout(fragmentManager);
     }
 
-    public void showBillingUnavailable() {
+    void showBillingUnavailable() {
         BillingUnavailableDialog.show(fragmentManager);
     }
 
-    public void showAlreadySubscribed() {
+    void showAlreadySubscribed() {
         AlreadySubscribedDialog.show(fragmentManager);
     }
 
-    public void showStaleCheckout() {
+    void showStaleCheckout() {
         StaleCheckoutDialog.show(fragmentManager);
     }
 
-    public void showWrongUser() {
+    void showWrongUser() {
         WrongUserDialog.show(fragmentManager);
     }
 
-    public void showUnconfirmedEmail() {
+    void showUnconfirmedEmail() {
         UnconfirmedEmailDialog.show(fragmentManager);
     }
 
-    public void showConnectionError() {
+    void showConnectionError() {
         showGenericError();
     }
 
-    public void showUnknownError() {
+    void showUnknownError() {
         showGenericError();
     }
 

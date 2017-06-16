@@ -10,7 +10,7 @@ class CheckoutUpdated {
     public final String reason;
     public final String token;
 
-    public static final Func1<CheckoutUpdated, PurchaseStatus> TO_STATUS = update -> {
+    static final Func1<CheckoutUpdated, PurchaseStatus> TO_STATUS = update -> {
         switch (update.state) {
             case "pending":
                 return PurchaseStatus.PENDING;
@@ -24,9 +24,9 @@ class CheckoutUpdated {
     };
 
     @JsonCreator
-    public CheckoutUpdated(@JsonProperty("state") String state,
-                           @JsonProperty("reason") String reason,
-                           @JsonProperty("checkout_token") String token) {
+    CheckoutUpdated(@JsonProperty("state") String state,
+                    @JsonProperty("reason") String reason,
+                    @JsonProperty("checkout_token") String token) {
         this.state = state;
         this.reason = reason;
         this.token = token;

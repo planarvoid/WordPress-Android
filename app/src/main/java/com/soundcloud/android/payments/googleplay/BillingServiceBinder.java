@@ -27,7 +27,7 @@ class BillingServiceBinder {
         serviceIntent.setPackage("com.android.vending");
     }
 
-    public boolean canConnect() {
+    boolean canConnect() {
         List<ResolveInfo> resolveInfo = context.getPackageManager().queryIntentServices(
                 serviceIntent, PackageManager.MATCH_DEFAULT_ONLY);
         return resolveInfo != null && !resolveInfo.isEmpty();

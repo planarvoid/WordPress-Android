@@ -9,7 +9,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class PaymentErrorEvent extends TrackingEvent implements MetricEvent {
+abstract class PaymentErrorEvent extends TrackingEvent implements MetricEvent {
 
     public static final String KIND = "PaymentError";
     abstract String errorType();

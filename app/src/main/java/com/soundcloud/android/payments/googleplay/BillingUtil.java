@@ -71,7 +71,7 @@ final class BillingUtil {
         }
     }
 
-    public static String removeAppName(String productTitle) {
+    static String removeAppName(String productTitle) {
         return productTitle.replaceAll(IN_PARENTHESES, Strings.EMPTY).trim();
     }
 
@@ -79,7 +79,7 @@ final class BillingUtil {
         Log.d(TAG, message);
     }
 
-    public static void logBillingResponse(String message, int responseCode) {
+    static void logBillingResponse(String message, int responseCode) {
         switch (responseCode) {
             case BillingUtil.RESULT_OK:
                 Log.d(TAG, message + ": OK");

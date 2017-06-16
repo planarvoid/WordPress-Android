@@ -12,11 +12,11 @@ class TransactionState {
         this.status = status;
     }
 
-    public boolean isTransactionInProgress() {
+    boolean isTransactionInProgress() {
         return status != null || purchase != null;
     }
 
-    public boolean isRetrievingStatus() {
+    boolean isRetrievingStatus() {
         return status != null;
     }
 

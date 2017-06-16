@@ -13,7 +13,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -24,19 +23,12 @@ import java.util.concurrent.TimeUnit;
 
 class NativePaymentOperations {
 
-    private static final int API_VERSION = 1;
     private static final int VERIFY_THROTTLE_SECONDS = 2;
 
     private final Scheduler scheduler;
     private final ApiClientRx api;
     private final BillingService playBilling;
     private final TokenStorage tokenStorage;
-
-    private static final Func1<ApiResponse, PurchaseStatus> TO_STATUS = apiResponse -> apiResponse.isSuccess()
-           ? PurchaseStatus.PENDING
-           : PurchaseStatus.UPDATE_FAIL;
-
-    private static final Func1<PurchaseStatus, Boolean> IGNORE_PENDING = purchaseStatus -> !purchaseStatus.isPending();
 
     private final Func1<SubscriptionStatus, Observable<PurchaseStatus>> verifyPendingSubscription = new Func1<SubscriptionStatus, Observable<PurchaseStatus>>() {
         @Override
@@ -46,24 +38,6 @@ class NativePaymentOperations {
                 return verify(subscriptionStatus.getPayload());
             }
             return Observable.just(PurchaseStatus.NONE);
-        }
-    };
-
-    private final Func1<Product, Observable<ProductStatus>> productToResult = product -> product.isEmpty()
-           ? Observable.just(ProductStatus.fromNoProduct())
-           : queryProduct(product.id).map(ProductStatus.SUCCESS);
-
-    private final Action1<String> saveToken = new Action1<String>() {
-        @Override
-        public void call(String checkoutToken) {
-            tokenStorage.setCheckoutToken(checkoutToken);
-        }
-    };
-
-    private final Action0 clearToken = new Action0() {
-        @Override
-        public void call() {
-            tokenStorage.clear();
         }
     };
 
@@ -99,7 +73,9 @@ class NativePaymentOperations {
 
     Observable<ProductStatus> queryProduct() {
         return getSubscriptionId()
-                .flatMap(productToResult)
+                .flatMap(product -> product.isEmpty()
+                                    ? Observable.just(ProductStatus.fromNoProduct())
+                                    : queryProduct(product.id).map(ProductStatus::fromSuccess))
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -110,8 +86,8 @@ class NativePaymentOperations {
                                              .build();
         return api.mappedResponse(request, CheckoutStarted.class)
                   .subscribeOn(scheduler)
-                  .map(CheckoutStarted.TOKEN)
-                  .doOnNext(saveToken)
+                  .map(started -> started.token)
+                  .doOnNext(tokenStorage::setCheckoutToken)
                   .doOnNext(launchPaymentFlow(id))
                   .observeOn(AndroidSchedulers.mainThread());
     }
@@ -131,14 +107,16 @@ class NativePaymentOperations {
                         return Observable.just(PurchaseStatus.UPDATE_FAIL);
                     }
                 })
-                .doOnCompleted(clearToken)
+                .doOnCompleted(tokenStorage::clear)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
     private Observable<PurchaseStatus> update(final Payload payload) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
                   .subscribeOn(scheduler)
-                  .map(TO_STATUS);
+                  .map(apiResponse -> apiResponse.isSuccess()
+                                      ? PurchaseStatus.PENDING
+                                      : PurchaseStatus.UPDATE_FAIL);
     }
 
     private Observable<PurchaseStatus> pollStatus() {
@@ -150,7 +128,7 @@ class NativePaymentOperations {
                                  return getStatus();
                              }
                          })
-                         .filter(IGNORE_PENDING)
+                         .filter(status -> !status.isPending())
                          .firstOrDefault(PurchaseStatus.VERIFY_TIMEOUT);
     }
 
@@ -167,7 +145,7 @@ class NativePaymentOperations {
     public Observable<ApiResponse> cancel(final String reason) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
                   .subscribeOn(scheduler)
-                  .doOnCompleted(clearToken);
+                  .doOnCompleted(tokenStorage::clear);
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {

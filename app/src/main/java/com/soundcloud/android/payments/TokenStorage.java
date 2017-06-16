@@ -15,16 +15,16 @@ class TokenStorage {
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public TokenStorage(@Named(StorageModule.PAYMENTS) SharedPreferences sharedPreferences) {
+    TokenStorage(@Named(StorageModule.PAYMENTS) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public void setCheckoutToken(String token) {
+    void setCheckoutToken(String token) {
         sharedPreferences.edit().putString(KEY_PENDING_URN, token).apply();
     }
 
     @Nullable
-    public String getCheckoutToken() {
+    String getCheckoutToken() {
         return sharedPreferences.getString(KEY_PENDING_URN, null);
     }
 

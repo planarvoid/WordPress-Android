@@ -10,7 +10,7 @@ public class ProductStatusTest {
     public void successFunctionMapsDetailsToStatus() {
         ProductDetails details = new ProductDetails("id", "Subscription", "Blah", "$100");
 
-        ProductStatus status = ProductStatus.SUCCESS.call(details);
+        ProductStatus status = ProductStatus.fromSuccess(details);
 
         assertThat(status.isSuccess()).isTrue();
         assertThat(status.getDetails()).isSameAs(details);

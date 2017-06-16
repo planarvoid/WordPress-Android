@@ -16,7 +16,7 @@ public class PlayerUpsellImpressionController {
     private final EventBus eventBus;
 
     @Inject
-    public PlayerUpsellImpressionController(EventBus eventBus) {
+    PlayerUpsellImpressionController(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

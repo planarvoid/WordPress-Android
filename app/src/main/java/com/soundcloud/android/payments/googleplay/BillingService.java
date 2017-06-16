@@ -127,25 +127,22 @@ public class BillingService {
     }
 
     public Observable<SubscriptionStatus> getStatus() {
-        return Observable.create(new Observable.OnSubscribe<SubscriptionStatus>() {
-            @Override
-            public void call(Subscriber<? super SubscriptionStatus> subscriber) {
-                try {
-                    Bundle response = iabService.getPurchases(IAB_VERSION,
-                                                              deviceHelper.getPackageName(),
-                                                              TYPE_SUBS,
-                                                              null);
-                    int responseCode = getResponseCodeFromBundle(response);
-                    logBillingResponse("getPurchases", responseCode);
+        return Observable.create(subscriber -> {
+            try {
+                Bundle response = iabService.getPurchases(IAB_VERSION,
+                                                          deviceHelper.getPackageName(),
+                                                          TYPE_SUBS,
+                                                          null);
+                int responseCode = getResponseCodeFromBundle(response);
+                logBillingResponse("getPurchases", responseCode);
 
-                    if (responseCode == RESULT_OK) {
-                        subscriber.onNext(extractStatusFromResponse(response));
-                    }
-                    subscriber.onCompleted();
-                } catch (RemoteException | JSONException e) {
-                    log("Failed to retrieve subscription status");
-                    subscriber.onError(e);
+                if (responseCode == RESULT_OK) {
+                    subscriber.onNext(extractStatusFromResponse(response));
                 }
+                subscriber.onCompleted();
+            } catch (RemoteException | JSONException e) {
+                log("Failed to retrieve subscription status");
+                subscriber.onError(e);
             }
         });
     }

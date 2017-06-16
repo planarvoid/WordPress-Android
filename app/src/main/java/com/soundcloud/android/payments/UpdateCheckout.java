@@ -14,11 +14,11 @@ final class UpdateCheckout {
     public final String payload;
     public final String signature;
 
-    public static UpdateCheckout fromSuccess(Payload payload) {
+    static UpdateCheckout fromSuccess(Payload payload) {
         return new UpdateCheckout(STATUS_SUCCESS, REASON_OK, payload.data, payload.signature);
     }
 
-    public static UpdateCheckout fromFailure(String reason) {
+    static UpdateCheckout fromFailure(String reason) {
         return new UpdateCheckout(STATUS_FAILURE, reason, null, null);
     }
 

@@ -8,7 +8,7 @@ final class StartCheckout {
     @JsonProperty("product_id")
     public final String productId;
 
-    public StartCheckout(String productId) {
+    StartCheckout(String productId) {
         this.productId = productId;
     }
 
