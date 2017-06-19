@@ -25,6 +25,7 @@ import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.collections.ListMultiMap;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
@@ -48,8 +49,12 @@ public class ApiClientTest extends AndroidUnitTest {
 
     private static final String URL = "http://path/to/resource";
     private static final String JSON_DATA = "{}";
-    public static final Layer LAYER = new Layer("layerName", 123, "experimentName", 456, "variantName");
-    private static final String LAYERS_JSON_DATA = "[{\"experimentId\":123,\"experimentName\":\"experiment_name\",\"layerName\":\"layerName\",\"variantId\":456,\"variantName\":\"variant_name\"}]";
+    private static final Layer FIRST_LAYER = new Layer("firstLayerName", 123, "firstExperimentName", 456, "firstVariantName");
+    private static final Layer SECOND_LAYER = new Layer("secondLayerName", 789, "secondExperimentName", 101, "secondVariantName");
+    private static final List<Layer> SINGLE_LAYER = Lists.newArrayList(FIRST_LAYER);
+    private static final List<Layer> MULTIPLE_LAYERS = Lists.newArrayList(FIRST_LAYER, SECOND_LAYER);
+    private static final String SINGLE_VARIANT_IDS = "456";
+    private static final String MULTIPLE_VARIANT_IDS = "456,101";
     private static final String CLIENT_ID = "testClientId";
     private static final String OAUTH_TOKEN = "OAuth 12345";
 
@@ -154,21 +159,31 @@ public class ApiClientTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSendVariantHeaderWhenUserIsInAnExperiment() throws Exception {
-        List<Layer> layers = Collections.singletonList(LAYER);
-        when(experimentOperations.getAssignment()).thenReturn(new Assignment(layers));
-        when(jsonTransformer.toJson(layers)).thenReturn(LAYERS_JSON_DATA);
+    public void shouldSendCommaSeparatedAppVariantIdsHeaderWhenUserIsInMultipleExperiments() throws Exception {
+        when(experimentOperations.getAssignment()).thenReturn(new Assignment(MULTIPLE_LAYERS));
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         ApiResponse response = apiClient.fetchResponse(request);
 
         assertThat(response.isSuccess()).isTrue();
-        assertThat(httpRequestCaptor.getValue().header("App-Experiments")).isEqualTo(LAYERS_JSON_DATA);
+        assertThat(httpRequestCaptor.getValue().header("App-Variant-Ids")).isEqualTo(MULTIPLE_VARIANT_IDS);
     }
 
     @Test
-    public void shouldNotSendVariantHeaderWhenUserIsNotInAnExperiment() throws Exception {
+    public void shouldSendSingleAppVariantIdsHeaderWhenUserIsInSingleExperiment() throws Exception {
+        when(experimentOperations.getAssignment()).thenReturn(new Assignment(SINGLE_LAYER));
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("App-Variant-Ids")).isEqualTo(SINGLE_VARIANT_IDS);
+    }
+
+    @Test
+    public void shouldNotSendAppVariantIdsHeaderWhenUserIsNotInAnExperiment() throws Exception {
         when(experimentOperations.getAssignment()).thenReturn(Assignment.empty());
 
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
@@ -177,8 +192,7 @@ public class ApiClientTest extends AndroidUnitTest {
         ApiResponse response = apiClient.fetchResponse(request);
 
         assertThat(response.isSuccess()).isTrue();
-        assertThat(httpRequestCaptor.getValue().header("APP_EXPERIMENTS")).isNull();
-        verifyZeroInteractions(jsonTransformer);
+        assertThat(httpRequestCaptor.getValue().header("App-Variant-Ids")).isNull();
     }
 
     @Test
@@ -480,17 +494,6 @@ public class ApiClientTest extends AndroidUnitTest {
                                        .build();
         mockJsonResponseFor(request, 500, "");
         apiClient.fetchMappedResponse(request, ApiTrack.class);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldThrowRuntimeExceptionWhenJsonifyingAssignmentFails() throws Exception {
-        List<Layer> layers = Collections.singletonList(LAYER);
-        when(experimentOperations.getAssignment()).thenReturn(new Assignment(layers));
-        when(jsonTransformer.toJson(layers)).thenThrow(new ApiMapperException("expected"));
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
-        mockSuccessfulResponseFor(request);
-
-        apiClient.fetchResponse(request);
     }
 
     @Test(expected = IllegalStateException.class)

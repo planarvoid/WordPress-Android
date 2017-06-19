@@ -1,11 +1,14 @@
 package com.soundcloud.android.configuration.experiments;
 
+import static com.soundcloud.android.configuration.experiments.ExperimentOperations.matches;
+import static com.soundcloud.java.optional.Optional.absent;
+import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.groupie.ExperimentConfiguration;
@@ -21,22 +24,11 @@ import java.util.Collections;
 @RunWith(MockitoJUnitRunner.class)
 public class ExperimentOperationsTest {
 
-    private static final String LAYER_NAME = "layer";
-    private static final String ANOTHER_LAYER_NAME = "another-layer";
-    private static final String EXPERIMENT_1 = "experiment-1";
-    private static final String EXPERIMENT_2 = "experiment-2";
-    private static final String DIFFERENT_EXPERIMENT = "something-else-1";
-    private static final String VARIANT_0 = "variant-0";
-    private static final String EXPERIMENT_PATTERN = "experiment-.*";
-    private static final int VARIANT_ID_1 = 1;
-    private static final String SERIALIZED_VARIANT_ID = "1";
-    private static final int VARIANT_ID_2 = 2;
-    private static final String MULTIPLE_SERIALIZED_VARIANT_IDS = "1,2";
-    private ExperimentOperations operations;
-
     @Mock private ExperimentStorage experimentStorage;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private Assignment assignment;
+
+    private ExperimentOperations operations;
 
     @Before
     public void setUp() throws Exception {
@@ -90,7 +82,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldReturnLayerWhenAssigned() {
-        final Layer layer = new Layer(LAYER_NAME, 1, "experiment", 1, "variant");
+        final Layer layer = new Layer("layerName", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
         when(experimentStorage.readAssignment()).thenReturn(assignment);
@@ -101,7 +93,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldFindUpdatedLayer() {
-        final Layer layer = new Layer(LAYER_NAME, 1, "experiment", 1, "variant");
+        final Layer layer = new Layer("layerName", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
 
@@ -112,7 +104,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldReturnAbsentWhenNotAssigned() {
-        final String layerName = LAYER_NAME;
+        final String layerName = "layerName";
         final Assignment assignment = createAssignment(layerName);
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layerName, "unknown", Collections.emptyList());
 
@@ -123,88 +115,33 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void experimentFromPatternReturnsTrueWhenPatternMatches() {
-        final Layer layer = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern(LAYER_NAME, EXPERIMENT_PATTERN);
-
-        assertThat(ExperimentOperations.matches(configuration, layer)).isTrue();
+    public void matchesConfigAndLayerWhenLayerNameAndExperimentIdOtherwiseExperimentNameMatch() {
+        assertThat(matches(configuration("layer", "expName", absent()), layer("layer", "expName", absent()))).isTrue();
+        assertThat(matches(configuration("layer", "expName", of(1234)), layer("layer", "expName", of(1234)))).isTrue();
+        assertThat(matches(configuration("layer", "expName", of(1234)), layer("layer", "-------", of(1234)))).isTrue();
+        assertThat(matches(configuration("layer", "expName", absent()), layer("-----", "expName", absent()))).isFalse();
+        assertThat(matches(configuration("layer", "expName", absent()), layer("layer", "-------", absent()))).isFalse();
+        assertThat(matches(configuration("layer", "expName", of(1234)), layer("layer", "expName", of(-999)))).isFalse();
     }
 
     @Test
-    public void experimentFromPatternReturnsFalseWhenPatternDoesNotMatch() {
-        final Layer layer = new Layer(LAYER_NAME, 1, DIFFERENT_EXPERIMENT, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern(LAYER_NAME, EXPERIMENT_PATTERN);
-
-        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
-    }
-
-    @Test
-    public void experimentFromNameReturnsTrueWhenNameAreIdentical() {
-        final Layer layer = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(LAYER_NAME, EXPERIMENT_1, Collections.emptyList());
-
-        assertThat(ExperimentOperations.matches(configuration, layer)).isTrue();
-    }
-
-    @Test
-    public void experimentFromNameReturnsFalseWhenNameIsDifferent() {
-        final Layer layer = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(LAYER_NAME, EXPERIMENT_PATTERN, Collections.emptyList());
-
-        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
-    }
-
-    @Test
-    public void experimentReturnsFalseWhenLayersAreDifferent() {
-        final Layer layer = new Layer(ANOTHER_LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(LAYER_NAME, EXPERIMENT_1, Collections.emptyList());
-
-        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
-    }
-
-    @Test
-    public void getActiveVariantsEmpty() throws Exception {
-        when(assignment.getLayers()).thenReturn(Collections.emptyList());
+    public void getSerializedActiveVariants() throws Exception {
+        final String expectedVariantIds = "123,456";
+        when(assignment.commaSeparatedVariantIds()).thenReturn(of(expectedVariantIds));
 
         final Optional<String> activeVariants = operations.getSerializedActiveVariants();
 
-        assertThat(activeVariants.isPresent()).isFalse();
+        assertThat(activeVariants.get()).isEqualTo(expectedVariantIds);
     }
 
     @Test
-    public void getActiveVariantsSingle() throws Exception {
-        final Layer layer = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-
-        when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer));
-
-        final Optional<String> activeVariants = operations.getSerializedActiveVariants();
-
-        assertThat(activeVariants.get()).isEqualTo(SERIALIZED_VARIANT_ID);
-    }
-
-    @Test
-    public void getActiveVariantsMany() throws Exception {
-        final Layer layer1 = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final Layer layer2 = new Layer(LAYER_NAME, 2, EXPERIMENT_2, VARIANT_ID_2, VARIANT_0);
-
-        when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer1, layer2));
-
-        final Optional<String> activeVariants = operations.getSerializedActiveVariants();
-
-        assertThat(activeVariants.get()).isEqualTo(MULTIPLE_SERIALIZED_VARIANT_IDS);
-    }
-
-    @Test
-    public void noActiveVariantsWhenDeveloperMode() throws Exception {
-        final Layer layer1 = new Layer(LAYER_NAME, 1, EXPERIMENT_1, VARIANT_ID_1, VARIANT_0);
-        final Layer layer2 = new Layer(LAYER_NAME, 2, EXPERIMENT_2, VARIANT_ID_2, VARIANT_0);
-
-        when(assignment.getLayers()).thenReturn(Lists.newArrayList(layer1, layer2));
+    public void noSerializedActiveVariantsWhenDeveloperMode() throws Exception {
         when(applicationProperties.isDevelopmentMode()).thenReturn(true);
 
         final Optional<String> activeVariants = operations.getSerializedActiveVariants();
 
-        assertThat(activeVariants).isEqualTo(Optional.absent());
+        assertThat(activeVariants).isEqualTo(absent());
+        verifyZeroInteractions(assignment);
     }
 
     private Assignment createAssignment(String layerName) {
@@ -212,4 +149,15 @@ public class ExperimentOperationsTest {
         return new Assignment(Collections.singletonList(layer));
     }
 
+    private ExperimentConfiguration configuration(String layerName, String experimentName, Optional<Integer> experimentId) {
+        if (experimentId.isPresent()) {
+            return ExperimentConfiguration.fromNamesAndIds(layerName, experimentName, experimentId.get(), Collections.emptyList());
+        } else {
+            return ExperimentConfiguration.fromName(layerName, experimentName, Collections.emptyList());
+        }
+    }
+
+    private Layer layer(String layerName, String experimentName, Optional<Integer> experimentId) {
+        return new Layer(layerName, experimentId.or(-1), experimentName, -1, "");
+    }
 }

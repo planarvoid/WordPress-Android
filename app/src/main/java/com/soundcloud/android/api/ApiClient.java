@@ -153,12 +153,8 @@ public class ApiClient {
                 builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
             }
         }
-        if (experimentOperations.getAssignment() != null && !experimentOperations.getAssignment().isEmpty()) {
-            try {
-                builder.header(ApiHeaders.APP_EXPERIMENTS, jsonTransformer.toJson(experimentOperations.getAssignment().getLayers()));
-            } catch (ApiMapperException e) {
-                throw new RuntimeException(e);
-            }
+        if (experimentOperations.getAssignment() != null && experimentOperations.getAssignment().commaSeparatedVariantIds().isPresent()) {
+            builder.header(ApiHeaders.APP_VARIANT_IDS, experimentOperations.getAssignment().commaSeparatedVariantIds().get());
         }
 
         // transfer other HTTP headers

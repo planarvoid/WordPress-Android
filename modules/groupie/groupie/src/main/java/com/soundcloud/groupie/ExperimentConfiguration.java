@@ -1,28 +1,30 @@
 package com.soundcloud.groupie;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.optional.Optional;
 
-import java.util.Collections;
 import java.util.List;
 
 @AutoValue
 public abstract class ExperimentConfiguration {
 
-    public static ExperimentConfiguration fromName(String layerName, String experimentName, List<String> variations) {
+    public static ExperimentConfiguration fromName(String layerName, String experimentName, List<String> variantNames) {
         return builder()
-                .pattern(false)
                 .layerName(layerName)
-                .name(experimentName)
-                .variations(variations)
+                .experimentName(experimentName)
+                .experimentId(Optional.absent())
+                .variants(Lists.transform(variantNames, name -> Pair.of(name, Optional.absent())))
                 .build();
     }
 
-    public static ExperimentConfiguration fromPattern(String layerName, String experimentPattern) {
+    public static ExperimentConfiguration fromNamesAndIds(String layerName, String experimentName, int experimentId, List<Pair<String, Integer>> variants) {
         return builder()
-                .pattern(true)
                 .layerName(layerName)
-                .name(experimentPattern)
-                .variations(Collections.<String>emptyList())
+                .experimentName(experimentName)
+                .experimentId(Optional.of(experimentId))
+                .variants(Lists.transform(variants, pair -> Pair.of(pair.first(), Optional.of(pair.second()))))
                 .build();
     }
 
@@ -32,21 +34,21 @@ public abstract class ExperimentConfiguration {
 
     public abstract String getLayerName();
 
-    public abstract String getName();
+    public abstract String getExperimentName();
 
-    public abstract List<String> getVariations();
+    public abstract Optional<Integer> getExperimentId();
 
-    public abstract boolean isPattern();
+    public abstract List<Pair<String, Optional<Integer>>> getVariants();
 
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder layerName(String layer);
 
-        public abstract Builder name(String name);
+        public abstract Builder experimentName(String name);
 
-        public abstract Builder variations(List<String> variations);
+        public abstract Builder experimentId(Optional<Integer> experimentId);
 
-        public abstract Builder pattern(boolean pattern);
+        public abstract Builder variants(List<Pair<String, Optional<Integer>>> variants);
 
         public abstract ExperimentConfiguration build();
     }

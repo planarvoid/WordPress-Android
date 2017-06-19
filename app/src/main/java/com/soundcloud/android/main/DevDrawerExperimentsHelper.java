@@ -2,11 +2,14 @@ package com.soundcloud.android.main;
 
 import static com.soundcloud.java.strings.Strings.isNullOrEmpty;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.experiments.ActiveExperiments;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.groupie.ExperimentConfiguration;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
@@ -18,6 +21,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class DevDrawerExperimentsHelper {
+    private static final String VARIANT_DELIMITER = " : ";
 
     private final Resources resources;
     private final ExperimentOperations experimentOperations;
@@ -43,16 +47,16 @@ class DevDrawerExperimentsHelper {
     private ListPreference buildExperimentListPreference(final PreferenceScreen screen,
                                                          final ExperimentConfiguration experiment) {
         ListPreference listPreference = new ListPreference(screen.getContext());
-        String experimentKey = getExperimentLayerPrefix(experiment.getLayerName()) + experiment.getName();
+        String experimentKey = getExperimentLayerPrefix(experiment.getLayerName()) + experiment.getExperimentName();
 
         listPreference.setKey(experimentKey);
-        listPreference.setTitle(ScTextUtils.fromSnakeCaseToCamelCase(experiment.getName()));
+        listPreference.setTitle(ScTextUtils.fromSnakeCaseToCamelCase(experiment.getExperimentName()));
         setExperimentEntries(listPreference, experiment);
         setExperimentSummary(listPreference, experiment);
 
-        listPreference.setOnPreferenceChangeListener((preference, variation) -> {
+        listPreference.setOnPreferenceChangeListener((preference, variant) -> {
             clearPreferencesForExperimentLayer(screen, experiment.getLayerName());
-            experimentOperations.forceExperimentVariation(experiment, (String) variation);
+            experimentOperations.forceExperimentVariation(buildExperimentLayer(experiment, (String) variant));
             setExperimentSummary((ListPreference) preference, experiment);
             return true;
         });
@@ -60,11 +64,24 @@ class DevDrawerExperimentsHelper {
         return listPreference;
     }
 
+    private Layer buildExperimentLayer(ExperimentConfiguration experiment, String variant) {
+        final String[] variantParts = variant.split(VARIANT_DELIMITER);
+        final String variantName = variantParts[0];
+        final int variantId = Integer.parseInt(variantParts[1]);
+
+        return new Layer(
+                experiment.getLayerName(),
+                experiment.getExperimentId().or(Consts.NOT_SET),
+                experiment.getExperimentName(),
+                variantId,
+                variantName);
+    }
+
     private void setExperimentEntries(ListPreference listPreference, ExperimentConfiguration experiment) {
-        List<String> variations = experiment.getVariations();
-        int entriesCount = variations.size();
-        CharSequence[] entryLabels = variations.toArray(new CharSequence[entriesCount + 1]);
-        CharSequence[] entryValues = variations.toArray(new CharSequence[entriesCount + 1]);
+        List<String> variants = Lists.transform(experiment.getVariants(), variant -> variant.first() + VARIANT_DELIMITER + variant.second().or(Consts.NOT_SET));
+        int entriesCount = variants.size();
+        CharSequence[] entryLabels = variants.toArray(new CharSequence[entriesCount + 1]);
+        CharSequence[] entryValues = variants.toArray(new CharSequence[entriesCount + 1]);
 
         entryLabels[entriesCount] = resources.getString(R.string.dev_drawer_section_experiment_default);
         entryValues[entriesCount] = Strings.EMPTY;

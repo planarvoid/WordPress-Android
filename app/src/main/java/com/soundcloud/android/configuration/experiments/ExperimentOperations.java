@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration.experiments;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.groupie.ExperimentConfiguration;
@@ -70,61 +69,38 @@ public class ExperimentOperations {
     }
 
     /**
-     * @return active experiments separated by commas, absent if no experiments are active
+     * @return active experiments separated by commas, absent if development mode
      */
     public Optional<String> getSerializedActiveVariants() {
-        final List<Integer> activeVariants = new ArrayList<>();
-        for (Layer layer : assignment.getLayers()) {
-            if (isActive()) {
-                activeVariants.add(layer.getVariantId());
-            }
-        }
-        if (activeVariants.isEmpty()) {
-            return Optional.absent();
-        } else {
-            return Optional.of(Strings.joinOn(",").join(activeVariants));
-        }
-    }
-
-    private boolean isActive() {
-        return !applicationProperties.isDevelopmentMode();
+        return applicationProperties.isDevelopmentMode() ? Optional.absent() : assignment.commaSeparatedVariantIds();
     }
 
     @VisibleForTesting
     static boolean matches(ExperimentConfiguration experimentConfiguration, Layer layer) {
-        if (layer.getLayerName().equals(experimentConfiguration.getLayerName())) {
-            if (experimentConfiguration.isPattern()) {
-                return layer.getExperimentName().matches(experimentConfiguration.getName());
+        if (experimentConfiguration.getLayerName().equals(layer.getLayerName())) {
+            if (experimentConfiguration.getExperimentId().isPresent()) {
+                return experimentConfiguration.getExperimentId().get().equals(layer.getExperimentId());
             } else {
-                return layer.getExperimentName().equals(experimentConfiguration.getName());
+                return experimentConfiguration.getExperimentName().equals(layer.getExperimentName());
             }
+        } else {
+            return false;
         }
-        return false;
     }
 
-    public void forceExperimentVariation(ExperimentConfiguration experiment, String variation) {
+    public void forceExperimentVariation(Layer layer) {
         List<Layer> existingLayers = assignment.getLayers();
         List<Layer> newLayers = new ArrayList<>(existingLayers.size() + 1);
-        String layerName = experiment.getLayerName();
 
         for (Layer existingLayer : existingLayers) {
-            if (!existingLayer.getLayerName().equals(layerName)) {
+            if (!existingLayer.getLayerName().equals(layer.getLayerName())) {
                 newLayers.add(existingLayer);
                 break;
             }
         }
 
-        newLayers.add(buildExperimentLayer(experiment, variation));
+        newLayers.add(layer);
         assignment = new Assignment(newLayers);
         update(assignment);
-    }
-
-    private Layer buildExperimentLayer(ExperimentConfiguration experiment, String variation) {
-        return new Layer(
-                experiment.getLayerName(),
-                Consts.NOT_SET,
-                experiment.getName(),
-                Consts.NOT_SET,
-                variation);
     }
 }

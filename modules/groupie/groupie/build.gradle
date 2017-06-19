@@ -1,4 +1,15 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+  }
+  dependencies {
+    classpath 'me.tatarka:gradle-retrolambda:3.6.1'
+  }
+}
+
 apply plugin: 'java'
+apply plugin: 'me.tatarka.retrolambda'
 
 configurations {
   apt
@@ -8,10 +19,11 @@ dependencies {
   def libraries = rootProject.ext.libraries
 
   compile project(':modules:groupie:groupie-annotation')
+  compile project(":modules:android-kit:core")
 
   apt libraries.autoValue
   compileOnly libraries.autoValue
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
