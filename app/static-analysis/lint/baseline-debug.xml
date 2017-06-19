@@ -398,6 +398,1865 @@
     </issue>
 
     <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.i(ADS_TAG, &quot;Retrieved ads via &quot; + endpoint + &quot;: &quot; + apiAds.contentString());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/ads/AdsOperations.java"
+            line="120"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.i(ADS_TAG, &quot;Failed to retrieve ads via &quot; + endpoint, throwable);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/ads/AdsOperations.java"
+            line="128"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(SoundRecorder.TAG, &quot;writing amplitude data to &quot; + out);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/AmplitudeData.java"
+            line="149"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + &quot;Small Screen&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/AndroidUtils.java"
+            line="126"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + &quot;Normal Screen&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/AndroidUtils.java"
+            line="129"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + &quot;Large Screen&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/AndroidUtils.java"
+            line="132"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + &quot;XLarge Screen&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/AndroidUtils.java"
+            line="135"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + &quot;Undefined Screen&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/AndroidUtils.java"
+            line="138"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.e(TAG, &quot;Failed to call ValueAnimator.clearAllAnimations() - maybe this method is changed/removed&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/util/AnimUtils.java"
+            line="176"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Received push notification.&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/AppboyBroadcastReceiver.java"
+            line="76"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Got uninstall tracking push&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/AppboyBroadcastReceiver.java"
+            line="78"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.w(AudioConfig.class.getSimpleName(),"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/AudioConfig.java"
+            line="94"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(AudioConfig.class.getSimpleName(), e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/AudioConfig.java"
+            line="98"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(&quot;AudioConfig&quot;, &quot;unable to detect valid audio config for this device&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/AudioConfig.java"
+            line="178"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onCreate&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="64"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;rebinding collection&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="72"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;retrying collection&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="85"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;subscribing view observers&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="92"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onViewCreated&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="103"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onDestroyView&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="140"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onDestroy&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="161"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;refresh complete&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="199"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;refresh failed&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="218"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;refreshing collection&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/presentation/CollectionViewPresenter.java"
+            line="228"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Forcing configuration fetch&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ConfigurationManager.java"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Requesting configuration fetch&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ConfigurationManager.java"
+            line="43"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Received new configuration&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ConfigurationManager.java"
+            line="63"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;Unauthorized device, logging out&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ConfigurationManager.java"
+            line="65"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.e(SoundCloudApplication.TAG, &quot;Encountered exception loading the font&quot;, e);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/view/CustomFontLoader.java"
+            line="45"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onCreate(&quot; + db + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onRecreate(&quot; + db + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="78"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Upgrading database from version &quot; + oldVersion + &quot; to &quot; + newVersion);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="131"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.i(TAG, &quot;successful db recreating views&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="385"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.i(TAG, &quot;successful db upgrade&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="390"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;upgrade not successful, recreating db&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="393"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;clearing &quot; + tableName);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/DatabaseManager.java"
+            line="1484"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;dumpIntent(&quot; + intent + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;extras: &quot; + map);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;dumped stack to &quot; + traceFile);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="86"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, e);"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="88"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;could not dump stack because file not available&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="91"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;no READ_LOGS permission, skipping dumpLog&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;wrote log to &quot; + logFile);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="117"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;error writing logs&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="120"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;could not log because file not available&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/DebugUtils.java"
+            line="124"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Encoder.run(&quot; + recording + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;encoding from source &quot; + in.getAbsolutePath());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="72"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;encoding finished in &quot; + (System.currentTimeMillis() - now) + &quot; msecs&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="83"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.w(TAG, &quot;could not rename &quot; + tmp + &quot; to &quot; + out);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="87"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;encoded file &quot; + tmp + &quot; does not exist or is empty&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="91"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;user cancelled encoding&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="95"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;error encoding file&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="97"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Encoder#onProgress(&quot; + current + &quot;, &quot; + max + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="112"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.d(TAG, &quot;canceling encoding of &quot; + recording);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Encoder.java"
+            line="130"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.i(ONBOARDING_TAG, &quot;Facebook authorization cancelled&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/FacebookSessionCallback.java"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;This device is not supported.&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/GcmManager.java"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Push Registration Token: &quot; + token);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/GcmRegistrationService.java"
+            line="72"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.e(TAG, &quot;error retrieving google token&quot;, e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/tasks/GooglePlusSignInTask.java"
+            line="69"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.e(TAG, &quot;error retrieving google token&quot;, e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/tasks/GooglePlusSignInTask.java"
+            line="73"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;mkdir &quot; + d.getAbsolutePath() + &quot; returned false&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/IOUtils.java"
+            line="268"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;could not delete &quot; + f);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/IOUtils.java"
+            line="279"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;error creating .nomedia file&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/IOUtils.java"
+            line="354"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(UploadService.TAG, &quot;ImageResizer.run(&quot; + recording + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/ImageResizer.java"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;resizing &quot; + recording.artwork_path);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/ImageResizer.java"
+            line="48"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.d(TAG,"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/ImageResizer.java"
+            line="61"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;did not resize image &quot; + recording.artwork_path);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/ImageResizer.java"
+            line="69"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, &quot;error resizing&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/ImageResizer.java"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, ERROR, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="120"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, ERROR, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="166"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;error decoding &quot; + imageFile);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="180"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, ERROR, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="188"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;bitmap.compress returned false&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="262"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, String.format(&quot;not resizing: sampleSize %d, degree %d&quot;, sampleSize, degree));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="266"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;error creating avatar temp file&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="281"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.e(TAG, &quot;Could not acquire audio focus&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="228"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, &quot;OnPrepared called unexpectedly in state &quot; + internalState);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="234"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;stream disconnected, retrying (try=&quot; + connectionRetries + &quot;)&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="281"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;stream disconnected, giving up&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="285"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;onSeekComplete(state=&quot; + internalState + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="300"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;Not clearing seek, waiting for buffer&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="313"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;onInfo(&quot; + what + &quot;,&quot; + extra + &quot;, state=&quot; + internalState + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="339"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;Not clearing seek, waiting for seek to finish&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="356"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;onBufferingUpdate(&quot; + percent + &quot;)&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="374"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                        Log.d(TAG, &quot;seeking to &quot; + position);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="538"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Progress > expectedDuration: &quot; + progress + &quot; > &quot; + duration);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/MediaPlayerAdapter.java"
+            line="583"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, String.format(&quot;Logging performance event in Firebase: %s&quot;, event.metricType()));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/analytics/performance/PerformanceAnalyticsProvider.java"
+            line="43"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, String.format(&quot;Logging performance event in Fabric: %s&quot;, event.metricType()));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/analytics/performance/PerformanceAnalyticsProvider.java"
+            line="48"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(PlaybackService.TAG, &quot;premature end of track [lastPosition = &quot; + lastPosition"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/PlaybackCompletionListener.java"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(PlaybackService.TAG, &quot;Calculating end pos from Seek position &quot; + seekPos);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/PlaybackCompletionListener.java"
+            line="49"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(PlaybackService.TAG, &quot;Calculating end pos from resume position &quot; + resumeTime);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/PlaybackCompletionListener.java"
+            line="54"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(PlaybackService.TAG, &quot;Calculating end pos from completion position &quot; + duration);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/PlaybackCompletionListener.java"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(PlaybackService.TAG, &quot;Calculating end pos from current position &quot; + currentPosition);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediaplayer/PlaybackCompletionListener.java"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;[FOCUS] focusGained with state &quot; + focusLossState);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="174"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG,"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="180"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Received new playState &quot; + stateTransition);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="205"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;resetting volume after playstate changed on different track&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="223"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Toggling playback&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="267"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Seeking to &quot; + pos);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="276"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;scheduleServiceShutdownCheck()&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="291"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;On Idle State (focusLossState=&quot; + focusLossState + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="297"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Play item (playbackItem=&quot; + playbackItem + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="307"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Playing&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="316"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Pausing&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="331"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Stopping&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="343"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;DelayedStopHandler: stopping service&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/PlaybackService.java"
+            line="396"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, String.format(&quot;Processor.run(%s, start=%d, end=%d)&quot;, recording, start, end));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Processor.java"
+            line="44"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.w(TAG, &quot;error processing &quot; + encoded, e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Processor.java"
+            line="52"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;no processing to be done&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Processor.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;notify change &quot; + intent);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/RecordAppWidgetProvider.java"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SoundRecorder.TAG,"
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/RecordStream.java"
+            line="60"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(SoundRecorder.TAG, &quot;error reading amplitude data&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/RecordStream.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;could not initialize playback stream&quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/api/legacy/model/Recording.java"
+            line="464"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;Fetching Remote Feature Flags&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/properties/RemoteConfig.java"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                            Log.d(TAG, &quot;Activating Fetched Remote Config&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/properties/RemoteConfig.java"
+            line="53"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG,  String.format(&quot;Persisting Remote Flag: &apos;%s&apos; with value: &apos;%s&apos;&quot;,"
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/soundcloud/android/properties/RemoteConfig.java"
+            line="68"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(Table.TAG, &quot;dropping &quot; + table.name());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="22"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(Table.TAG, &quot;dropping &quot; + tableName);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(Table.TAG, &quot;creating &quot; + (table.view ? &quot;view&quot; : &quot;table&quot;) + &quot; &quot; + table.name());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="51"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(Table.TAG, &quot;NOT creating &quot; + table.name());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;executing &quot; + sql);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="109"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;executing &quot; + copy);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="124"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;migrating &quot; + sql);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/storage/SchemaMigrationHelper.java"
+            line="158"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;setImage(&quot; + file + &quot;)&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/SignupDetailsLayout.java"
+            line="54"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(SoundCloudApplication.TAG, &quot;Error writing to sign up log &quot;, e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/SignupLog.java"
+            line="68"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.e(SoundCloudApplication.TAG, &quot;Error reading sign up log &quot;, e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/SignupLog.java"
+            line="86"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                        Log.w(TAG, &quot;error setting position&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="228"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.i(TAG, &quot;Trimmed &quot; + trimmed + &quot; bytes of wav data&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="387"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;startReading(&quot; + newState + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="463"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.w(TAG, &quot;error during playback&quot;, e);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="588"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.d(TAG, &quot;player loop exit: no stream available&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="612"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, &quot;AudioTrack#write() returned &quot; +"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="691"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;starting reader thread: state=&quot; + state);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="709"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.w(TAG, &quot;audiorecorder is not initialized&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="712"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                        Log.w(TAG, &quot;AudioRecord.read() returned error: &quot; + read);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="724"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                        Log.w(TAG, &quot;AudioRecord.read() returned no data&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="727"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                        Log.w(TAG,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="730"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                                Log.w(TAG, &quot;partial write &quot; + written);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="738"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                            Log.e(TAG, &quot;Error occured in updateListener, recording is aborted : &quot;, e);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="741"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;exiting reader loop, stopping recording (state=&quot; + state + &quot;)&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="753"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                            Log.w(TAG, e);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="771"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.e(TAG, &quot;could not obtain audio focus&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorder.java"
+            line="803"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.d(TAG, &quot;DelayedStopHandler: stopping service&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorderService.java"
+            line="49"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;BroadcastReceiver#onReceive(&quot; + action + &quot;)&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorderService.java"
+            line="68"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;create service started&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorderService.java"
+            line="136"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;scheduleServiceShutdownCheck()&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorderService.java"
+            line="178"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.e(getClass().getSimpleName(), e.getMessage(), e);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/view/TouchLayout.java"
+            line="137"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;upload service started&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="79"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;onDestroy()&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="93"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;Service being destroyed while still uploading.&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="100"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;shutdown complete.&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="106"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;acquireLocks&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="150"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;releaseLocks&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="158"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;onCancel() called without any active uploads&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="213"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;handleMessage(&quot; + upload + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/UploadService.java"
+            line="290"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(UploadService.TAG, &quot;Uploader.run(&quot; + recording + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Uploader.java"
+            line="81"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.v(TAG, &quot;starting upload of &quot; + recordingFile);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Uploader.java"
+            line="105"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.e(TAG, &quot;Error uploading&quot;, e);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Uploader.java"
+            line="179"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;Upload successful : &quot; + track);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Uploader.java"
+            line="192"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                    Log.d(TAG, &quot;canceling upload of &quot; + recording);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/upload/Uploader.java"
+            line="219"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(SoundCloudApplication.TAG, &quot;Could not parse last segment as long from URI &quot; + uri.toString());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/UriUtils.java"
+            line="31"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;still unreleased in finalize() - call release() when done with decode&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/jni/VorbisDecoder.java"
+            line="153"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;encodeStream(length=&quot; + length + &quot;, &quot; + options + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/jni/VorbisEncoder.java"
+            line="74"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="        Log.d(TAG, &quot;startNewStream(&quot; + pos + &quot;)&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/jni/VorbisEncoder.java"
+            line="113"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(TAG, &quot;unreleased encoder in finalize() - call release() when done with encoder&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/jni/VorbisEncoder.java"
+            line="291"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.w(WavReader.class.getSimpleName(), e);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/reader/WavReader.java"
+            line="66"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;creating new WAV file (&quot; + file.getAbsolutePath() + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/writer/WavWriter.java"
+            line="33"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;appending to existing WAV file (&quot; + file.getAbsolutePath() + &quot;) at &quot; + seekTo);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/writer/WavWriter.java"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="            Log.d(TAG, &quot;finalising recording file (length=&quot; + fileLength + &quot;)&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/writer/WavWriter.java"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.AndroidLog"
+        message="Android Log usage detected."
+        errorLine1="                Log.d(TAG, &quot;setting new pos &quot; + newPos);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/writer/WavWriter.java"
+            line="78"
+            column="17"/>
+    </issue>
+
+    <issue
         id="PrivateResource"
         message="The resource `@anim/abc_slide_in_top` is marked as private in com.android.support:appcompat-v7"
         errorLine1="        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_slide_in_top);"
@@ -4308,7 +6167,7 @@
         errorLine1="    &lt;color name=&quot;snow&quot;>#f8f8f8&lt;/color>"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values/colors.xml"
             line="6"
             column="12"/>
     </issue>
@@ -4319,7 +6178,7 @@
         errorLine1="    &lt;color name=&quot;mint&quot;>#e5f3f3&lt;/color>"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values/colors.xml"
             line="25"
             column="12"/>
     </issue>
@@ -4330,7 +6189,7 @@
         errorLine1="    &lt;color name=&quot;facebook_blue&quot;>#3b5998&lt;/color>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values/colors.xml"
             line="29"
             column="12"/>
     </issue>
@@ -4341,7 +6200,7 @@
         errorLine1="    &lt;color name=&quot;google_blue&quot;>#4285f4&lt;/color>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values/colors.xml"
             line="30"
             column="12"/>
     </issue>
@@ -4534,35 +6393,35 @@
         errorLine1="    &lt;string name=&quot;ak_retry&quot;>Retry&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values/strings.xml"
             line="4"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-ar/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-ar/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-es/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-es/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-fr/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-fr/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-in/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-in/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-nl/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-nl/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-pt/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-pt/strings.xml"
             line="3"
             column="13"/>
         <location
-            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-ru/strings.xml"
+            file="/Users/marvinramin/dev/soundcloud/SoundCloud-Android/modules/android-kit/platform/src/main/res/values-ru/strings.xml"
             line="3"
             column="13"/>
     </issue>
