@@ -865,8 +865,8 @@
     <string name="tap_here_to_change_storage_location">Tap here to change storage location</string>
     <string name="overlay_listen_offline_likes_title">Listen offline</string>
     <string name="overlay_listen_offline_likes_description">Tap the arrow to download your liked tracks to your device.</string>
-    <string name="overlay_search_go_plus_title">Stream full tracks</string>
-    <string name="overlay_search_go_plus_description">Previews are a thing of the past! This marker identifies exclusive content you’ve unlocked with SoundCloud Go+</string>
+    <string name="overlay_search_go_plus_title">SoundCloud Go+ tracks</string>
+    <string name="overlay_search_go_plus_description">Your new subscription gives you access to these premium tracks.</string>
     <string name="overlay_listen_offline_playlist_title">Listen offline</string>
     <string name="overlay_listen_offline_playlist_description">Tap the arrow to download a playlist or album to your device.</string>
     <string name="overlay_offline_settings_title">Manage your storage</string>
