@@ -1605,6 +1605,16 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void navigationDeeplink_shouldOpenSearchAutocomplete() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forSearchAutocomplete(activity(), Screen.DISCOVER);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createSearchIntent(navigationTarget.activity()));
+    }
+
+    @Test
     public void navigationDeeplink_shouldOpenFullscreenVideoAd() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forFullscreenVideoAd(activity(), Urn.forAd("dfp", "video"));
 

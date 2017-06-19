@@ -7,6 +7,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIn
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.PlaybackServiceController;
@@ -231,6 +232,8 @@ public class NavigationResolver {
                 return showStation(navigationTarget);
             case SEARCH:
                 return showSearchScreen(navigationTarget);
+            case SEARCH_AUTOCOMPLETE:
+                return showSearchAutocompleteScreen(navigationTarget);
             case SEARCH_RESULTS_VIEW_ALL:
                 return showSearchResultViewAllScreen(navigationTarget);
             case WEB_VIEW:
@@ -464,6 +467,14 @@ public class NavigationResolver {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
             navigationExecutor.openSearch(navigationTarget.activity(), navigationTarget.linkNavigationParameters().get().targetUri(), navigationTarget.screen());
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showSearchAutocompleteScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createSearchIntent(navigationTarget.activity()));
         });
     }
 

@@ -26,7 +26,7 @@ public class StreamSwipeRefreshAttacher extends SwipeRefreshAttacher {
         this.listener = listener;
     }
 
-    void forceRefresh() {
+    public void forceRefresh() {
         if (listener != null) {
             listener.onRefresh();
         }

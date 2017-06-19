@@ -411,6 +411,11 @@
     <string name="sc_upload_private">\u00A0Private</string>
     <string name="sc_upload_public">\u00A0Public</string>
 
+    <!-- __DISCOVERY PAGE -->
+    <string name="discovery_error_offline">Oops… looks like you\'re offline.</string>
+    <string name="discovery_error_failed_to_load">Oops… failed to load.</string>
+    <string name="discovery_error_retry_button">Try again</string>
+
     <!-- __DISCOVERY SEARCH -->
     <string name="search_type_all">ALL</string>
     <string name="search_type_tracks">TRACKS</string>

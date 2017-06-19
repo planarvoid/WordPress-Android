@@ -4,8 +4,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Maybe;
@@ -66,28 +68,29 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertComplete()
-                           .assertValue(discoveryCards);
+                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
     }
 
     @Test
     public void discoveryCardsReturnsCardsFromStorageAfterSyncFailure() throws Exception {
-        setUpDiscoveryCards(SyncResult.error(new Exception("Relevant error message")), Maybe.just(discoveryCards));
+        final SyncFailedException throwable = new SyncFailedException();
+        setUpDiscoveryCards(SyncResult.error(throwable), Maybe.just(discoveryCards));
 
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(discoveryCards);
+                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
     public void discoveryCardsReturnsEmptyCardWithErrorAfterSyncFailureAndStorageIsEmpty() throws Exception {
-        SyncResult syncResult = SyncResult.error(new Exception("Relevant error message"));
-        setUpDiscoveryCards(syncResult, Maybe.empty());
+        final SyncFailedException throwable = new SyncFailedException();
+        setUpDiscoveryCards(SyncResult.error(throwable), Maybe.empty());
 
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable())));
+                           .assertValue(DiscoveryResult.create(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
@@ -96,28 +99,30 @@ public class DiscoveryOperationsTest {
 
         discoveryOperations.refreshDiscoveryCards()
                            .test()
-                           .assertValue(discoveryCards);
+                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
     }
 
     @Test
     public void refreshDiscoveryCardsReturnsCardsFromStorageAfterSyncFailure() throws Exception {
-        setUpRefreshDiscoveryCards(SyncResult.error(new Exception("Relevant error message")), Maybe.just(discoveryCards));
+        final SyncFailedException throwable = new SyncFailedException();
+        setUpRefreshDiscoveryCards(SyncResult.error(throwable), Maybe.just(discoveryCards));
 
         discoveryOperations.refreshDiscoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(discoveryCards);
+                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
     public void refreshDiscoveryCardsReturnsEmptyCardWithErrorAfterSyncFailureAndStorageIsEmpty() throws Exception {
-        SyncResult syncResult = SyncResult.error(new Exception("Relevant error message"));
+        final SyncFailedException throwable = new SyncFailedException();
+        SyncResult syncResult = SyncResult.error(throwable);
         setUpRefreshDiscoveryCards(syncResult, Maybe.empty());
 
         discoveryOperations.refreshDiscoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable())));
+                           .assertValue(DiscoveryResult.create(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     private void setUpDiscoveryCards(SyncResult syncResult, Maybe<List<DiscoveryCard>> storageResult) {

@@ -18,15 +18,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
@@ -47,14 +47,14 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Mock private Fragment fragment;
     @Mock private Bundle bundle;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private DiscoveryAdapter adapter;
     @Mock private DiscoveryAdapterFactory adapterFactory;
-    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
+    @Mock private StreamSwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Observer<Iterable<DiscoveryCard>> itemObserver;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private Navigator navigator;
     @Mock private DiscoveryTrackingManager discoveryTrackingManager;
+    @Mock private FeedbackController feedbackController;
 
     private static final Screen SCREEN = Screen.DISCOVER;
 
@@ -64,9 +64,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(adapterFactory.create(any(DiscoveryPresenter.class))).thenReturn(adapter);
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, navigationExecutor, discoveryOperations, navigator, discoveryTrackingManager);
-        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(emptyList()));
-        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(emptyList()));
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController);
+        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
+        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(fragment.getActivity()).thenReturn(activity);
     }
 
@@ -92,7 +92,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void navigatesToSearchWhenClicked() {
         presenter.onSearchClicked(activity);
 
-        verify(navigationExecutor).openSearch(activity);
+        verify(navigator).navigateTo(NavigationTarget.forSearchAutocomplete(activity, Screen.DISCOVER));
     }
 
     @Test

@@ -149,6 +149,10 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forSearchAutocomplete(Activity activity, Screen screen) {
+        return forNavigationDeeplink(activity, DeepLink.SEARCH_AUTOCOMPLETE, screen);
+    }
+
     public static NavigationTarget forProfile(Activity activity, Urn userUrn) {
         return forProfile(activity, userUrn, Optional.absent(), Optional.absent(), Optional.absent());
     }
