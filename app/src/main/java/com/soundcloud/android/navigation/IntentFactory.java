@@ -161,37 +161,35 @@ public final class IntentFactory {
         return intent;
     }
 
-    static Intent createProfileRepostsIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserRepostsActivity.class)
-                .putExtra(UserRepostsActivity.EXTRA_USER_URN, user);
-        screen.addToIntent(intent);
-        return intent;
+    static Intent createProfileRepostsIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return createProfileSubScreenIntent(context, user, screen, searchQuerySourceInfo, UserRepostsActivity.class, UserRepostsActivity.EXTRA_USER_URN);
     }
 
-    static Intent createProfileTracksIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserTracksActivity.class)
-                .putExtra(UserTracksActivity.EXTRA_USER_URN, user);
-        screen.addToIntent(intent);
-        return intent;
+    static Intent createProfileTracksIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return createProfileSubScreenIntent(context, user, screen, searchQuerySourceInfo, UserTracksActivity.class, UserTracksActivity.EXTRA_USER_URN);
     }
 
-    static Intent createProfileLikesIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserLikesActivity.class)
-                .putExtra(UserLikesActivity.EXTRA_USER_URN, user);
-        screen.addToIntent(intent);
-        return intent;
+    static Intent createProfileLikesIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return createProfileSubScreenIntent(context, user, screen, searchQuerySourceInfo, UserLikesActivity.class, UserLikesActivity.EXTRA_USER_URN);
     }
 
-    static Intent createProfileAlbumsIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserAlbumsActivity.class)
-                .putExtra(UserAlbumsActivity.EXTRA_USER_URN, user);
-        screen.addToIntent(intent);
-        return intent;
+    static Intent createProfileAlbumsIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return createProfileSubScreenIntent(context, user, screen, searchQuerySourceInfo, UserAlbumsActivity.class, UserAlbumsActivity.EXTRA_USER_URN);
     }
 
-    static Intent createProfilePlaylistsIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserPlaylistsActivity.class)
-                .putExtra(UserPlaylistsActivity.EXTRA_USER_URN, user);
+    static Intent createProfilePlaylistsIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return createProfileSubScreenIntent(context, user, screen, searchQuerySourceInfo, UserPlaylistsActivity.class, UserPlaylistsActivity.EXTRA_USER_URN);
+    }
+
+    private static Intent createProfileSubScreenIntent(Context context,
+                                                       Urn user,
+                                                       Screen screen,
+                                                       Optional<SearchQuerySourceInfo> searchQuerySourceInfo,
+                                                       Class<? extends Activity> cls,
+                                                       String userUrnKey) {
+        Intent intent = new Intent(context, cls)
+                .putExtra(userUrnKey, user)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
         screen.addToIntent(intent);
         return intent;
     }
@@ -330,10 +328,6 @@ public final class IntentFactory {
 
     static Intent createViewIntent(Uri uri) {
         return new Intent(Intent.ACTION_VIEW, uri);
-    }
-
-    static Intent addSearchQuerySource(Intent intent, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return intent.putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
     static Intent createActivitiesIntent(Context context) {

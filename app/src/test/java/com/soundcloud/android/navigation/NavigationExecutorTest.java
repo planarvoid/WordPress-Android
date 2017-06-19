@@ -48,11 +48,6 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.profile.UserAlbumsActivity;
-import com.soundcloud.android.profile.UserLikesActivity;
-import com.soundcloud.android.profile.UserPlaylistsActivity;
-import com.soundcloud.android.profile.UserRepostsActivity;
-import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
@@ -533,66 +528,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
                                    .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         Assertions.assertThat(activityContext.isFinishing()).isTrue();
-    }
-
-    @Test
-    public void opensProfileReposts() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigationExecutor.openProfileReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(UserRepostsActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.USERS_REPOSTS)
-                                   .opensActivity(UserRepostsActivity.class);
-    }
-
-    @Test
-    public void opensProfileTracks() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigationExecutor.openProfileTracks(activityContext, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(UserTracksActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.USER_TRACKS)
-                                   .opensActivity(UserTracksActivity.class);
-    }
-
-    @Test
-    public void openProfileAlbums() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigationExecutor.openProfileAlbums(activityContext, USER_URN, Screen.USER_ALBUMS, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(UserAlbumsActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.USER_ALBUMS)
-                                   .opensActivity(UserAlbumsActivity.class);
-    }
-
-    @Test
-    public void opensProfileLikes() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigationExecutor.openProfileLikes(activityContext, USER_URN, Screen.USER_LIKES, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(UserLikesActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.USER_LIKES)
-                                   .opensActivity(UserLikesActivity.class);
-    }
-
-    @Test
-    public void opensProfilePlaylists() {
-        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigationExecutor.openProfilePlaylists(activityContext, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(UserPlaylistsActivity.EXTRA_USER_URN, USER_URN)
-                                   .intentExtraIsNotNull(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                                   .containsScreen(Screen.USER_PLAYLISTS)
-                                   .opensActivity(UserPlaylistsActivity.class);
     }
 
     @Test

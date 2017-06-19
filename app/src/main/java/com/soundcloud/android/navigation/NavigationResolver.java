@@ -6,8 +6,13 @@ import static com.soundcloud.android.navigation.IntentFactory.createFollowersInt
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfileAlbumsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfileLikesIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfilePlaylistsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfileRepostsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProfileTracksIntent;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.PlaybackServiceController;
@@ -270,23 +275,35 @@ public class NavigationResolver {
                 return showFollowers(navigationTarget);
             case FOLLOWINGS:
                 return showFollowings(navigationTarget);
-            case PROFILE:
-                return showProfile(navigationTarget);
             case AD_FULLSCREEN_VIDEO:
                 return showFullscreenVideoAd(navigationTarget);
             case AD_PRESTITIAL:
                 return showPrestitialAd(navigationTarget);
             case AD_CLICKTHROUGH:
                 return showAdClickthrough(navigationTarget);
+            case PROFILE:
+                return showProfile(navigationTarget);
+            case PROFILE_REPOSTS:
+                return showProfileReposts(navigationTarget);
+            case PROFILE_TRACKS:
+                return showProfileTracks(navigationTarget);
+            case PROFILE_LIKES:
+                return showProfileLikes(navigationTarget);
+            case PROFILE_ALBUMS:
+                return showProfileAlbums(navigationTarget);
+            case PROFILE_PLAYLISTS:
+                return showProfilePlaylists(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
     }
 
+    @CheckResult
     private Single<Action> showProfile(NavigationTarget navigationTarget) {
         return showProfile(navigationTarget, navigationTarget.targetUrn().get());
     }
 
+    @CheckResult
     private Single<Action> showProfile(NavigationTarget navigationTarget, Urn urn) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
@@ -297,6 +314,52 @@ public class NavigationResolver {
                                                       Optional.of(navigationTarget.screen()),
                                                       navigationTarget.searchQuerySourceInfo(),
                                                       navigationTarget.referrer().transform(Referrer::fromOrigin)));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showProfileReposts(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfileRepostsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showProfileTracks(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfileTracksIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showProfileLikes(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfileLikesIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showProfileAlbums(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfileAlbumsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo()));
+        });
+    }
+
+
+    @CheckResult
+    private Single<Action> showProfilePlaylists(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Context context = navigationTarget.activity();
+            context.startActivity(createProfilePlaylistsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo()));
         });
     }
 

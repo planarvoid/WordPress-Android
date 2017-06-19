@@ -1,12 +1,16 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
 import android.support.annotation.Nullable;
@@ -17,17 +21,17 @@ import java.util.List;
 
 class UserSoundsItemClickListener {
 
+    private final MixedItemClickListener mixedItemClickListener;
+    private final Navigator navigator;
+
     @Nullable
     private static PlayableItem userSoundsItemToPlayableItem(final UserSoundsItem userSoundsItem) {
         return userSoundsItem.getPlayableItem().orNull();
     }
 
-    private final NavigationExecutor navigationExecutor;
-    private final MixedItemClickListener mixedItemClickListener;
-
-    UserSoundsItemClickListener(NavigationExecutor navigationExecutor, MixedItemClickListener mixedItemClickListener) {
-        this.navigationExecutor = navigationExecutor;
+    UserSoundsItemClickListener(Navigator navigator, MixedItemClickListener mixedItemClickListener) {
         this.mixedItemClickListener = mixedItemClickListener;
+        this.navigator = navigator;
     }
 
     public void onItemClick(Observable<List<PlayableItem>> playables,
@@ -60,28 +64,24 @@ class UserSoundsItemClickListener {
         }
     }
 
-    private void handleViewAllClickEvent(View view, UserSoundsItem item, Urn userUrn,
-                                         SearchQuerySourceInfo searchQuerySourceInfo) {
+    private void handleViewAllClickEvent(View view, UserSoundsItem item, Urn userUrn, @Nullable SearchQuerySourceInfo searchQuerySourceInfo) {
         final int collectionType = item.collectionType();
 
         switch (collectionType) {
             case UserSoundsTypes.REPOSTS:
-                navigationExecutor.openProfileReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forProfileReposts(getFragmentActivity(view), userUrn, Optional.fromNullable(searchQuerySourceInfo)));
                 break;
             case UserSoundsTypes.TRACKS:
-                navigationExecutor.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forProfileTracks(getFragmentActivity(view), userUrn, Optional.fromNullable(searchQuerySourceInfo)));
                 break;
             case UserSoundsTypes.ALBUMS:
-                navigationExecutor.openProfileAlbums(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forProfileAlbums(getFragmentActivity(view), userUrn, Optional.fromNullable(searchQuerySourceInfo)));
                 break;
             case UserSoundsTypes.LIKES:
-                navigationExecutor.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forProfileLikes(getFragmentActivity(view), userUrn, Optional.fromNullable(searchQuerySourceInfo)));
                 break;
             case UserSoundsTypes.PLAYLISTS:
-                navigationExecutor.openProfilePlaylists(view.getContext(),
-                                                        userUrn,
-                                                        Screen.USER_PLAYLISTS,
-                                                        searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forProfilePlaylists(getFragmentActivity(view), userUrn, Optional.fromNullable(searchQuerySourceInfo)));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);
@@ -89,18 +89,18 @@ class UserSoundsItemClickListener {
     }
 
     public static class Factory {
-        private final NavigationExecutor navigationExecutor;
+        private final Navigator navigator;
         private final MixedItemClickListener.Factory mixedItemClickListenerFactory;
 
         @Inject
-        Factory(NavigationExecutor navigationExecutor, MixedItemClickListener.Factory mixedItemClickListenerFactory) {
-            this.navigationExecutor = navigationExecutor;
+        Factory(Navigator navigationExecutor, MixedItemClickListener.Factory mixedItemClickListenerFactory) {
+            this.navigator = navigationExecutor;
             this.mixedItemClickListenerFactory = mixedItemClickListenerFactory;
         }
 
         public UserSoundsItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
             final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(screen, searchQuerySourceInfo);
-            return new UserSoundsItemClickListener(navigationExecutor, clickListener);
+            return new UserSoundsItemClickListener(navigator, clickListener);
         }
     }
 }

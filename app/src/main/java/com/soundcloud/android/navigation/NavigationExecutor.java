@@ -1,6 +1,5 @@
 package com.soundcloud.android.navigation;
 
-import static com.soundcloud.android.navigation.IntentFactory.addSearchQuerySource;
 import static com.soundcloud.android.navigation.IntentFactory.createAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
@@ -29,11 +28,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createPlaylistInte
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfileAlbumsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfileLikesIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfilePlaylistsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfileRepostsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createProfileTracksIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecentlyPlayedIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecordIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecordPermissionIntent;
@@ -225,26 +219,6 @@ public class NavigationExecutor {
 
     public void openExternal(Activity activity, Uri uri) {
         activity.startActivity(createViewIntent(uri));
-    }
-
-    public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfileRepostsIntent(context, user, screen), querySourceInfo));
-    }
-
-    public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfileTracksIntent(context, user, screen), querySourceInfo));
-    }
-
-    public void openProfileAlbums(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfileAlbumsIntent(context, user, screen), querySourceInfo));
-    }
-
-    public void openProfileLikes(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfileLikesIntent(context, user, screen), querySourceInfo));
-    }
-
-    public void openProfilePlaylists(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(addSearchQuerySource(createProfilePlaylistsIntent(context, user, screen), querySourceInfo));
     }
 
     public void openSystemPlaylist(Context context, Urn urn, Screen screen) {

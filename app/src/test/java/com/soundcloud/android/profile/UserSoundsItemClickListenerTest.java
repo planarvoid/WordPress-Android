@@ -5,38 +5,41 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.Module;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(123L);
 
-    @Mock private NavigationExecutor navigationExecutor;
+    @Mock private Navigator navigator;
     @Mock private MixedItemClickListener mixedItemClickListener;
     @Mock private View view;
-    @Mock private Context context;
     @Mock private Module module;
+
+    private AppCompatActivity activity;
 
     private UserSoundsItemClickListener subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new UserSoundsItemClickListener(navigationExecutor, mixedItemClickListener);
-        when(view.getContext()).thenReturn(context);
+        subject = new UserSoundsItemClickListener(navigator, mixedItemClickListener);
+        activity = activity();
+        when(view.getContext()).thenReturn(activity);
     }
 
     @Test
@@ -78,7 +81,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigationExecutor).openProfileReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfileReposts(activity, USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -92,7 +95,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigationExecutor).openProfileTracks(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfileTracks(activity, USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -106,7 +109,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigationExecutor).openProfileAlbums(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfileAlbums(activity, USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -120,7 +123,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigationExecutor).openProfileLikes(context, USER_URN, Screen.USER_LIKES, searchSourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfileLikes(activity, USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -134,7 +137,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigationExecutor).openProfilePlaylists(context, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forProfilePlaylists(activity, USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test

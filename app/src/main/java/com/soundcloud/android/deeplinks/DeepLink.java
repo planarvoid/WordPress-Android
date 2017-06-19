@@ -39,6 +39,11 @@ public enum DeepLink {
     SYSTEM_SETTINGS,
     REMOTE_SIGN_IN,
     PROFILE,
+    PROFILE_REPOSTS,
+    PROFILE_TRACKS,
+    PROFILE_LIKES,
+    PROFILE_ALBUMS,
+    PROFILE_PLAYLISTS,
     UNKNOWN,
 
     // Navigation Target Deeplinks
@@ -78,7 +83,12 @@ public enum DeepLink {
                        OFFLINE_SETTINGS,
                        CHARTS,
                        CHARTS_ALL_GENRES,
-                       PROFILE);
+                       PROFILE,
+                       PROFILE_REPOSTS,
+                       PROFILE_TRACKS,
+                       PROFILE_LIKES,
+                       PROFILE_ALBUMS,
+                       PROFILE_PLAYLISTS);
 
     @VisibleForTesting
     static final EnumSet<DeepLink> RESOLVE_REQUIRED =

@@ -141,6 +141,10 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forPrestitialAd(Activity activity) {
+        return forNavigationDeeplink(activity, DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
+    }
+
     public static NavigationTarget forSearchViewAll(Activity activity, Optional<Urn> queryUrn, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
         return forNavigationDeeplink(activity, DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
                 .toBuilder()
@@ -166,8 +170,32 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public static NavigationTarget forPrestitialAd(Activity activity) {
-        return forNavigationDeeplink(activity, DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
+    public static NavigationTarget forProfileReposts(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_REPOSTS, Screen.USERS_REPOSTS);
+    }
+
+    public static NavigationTarget forProfileTracks(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_TRACKS, Screen.USER_TRACKS);
+    }
+
+    public static NavigationTarget forProfileLikes(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_LIKES, Screen.USER_LIKES);
+    }
+
+    public static NavigationTarget forProfileAlbums(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_ALBUMS, Screen.USER_ALBUMS);
+    }
+
+    public static NavigationTarget forProfilePlaylists(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_PLAYLISTS, Screen.USER_PLAYLISTS);
+    }
+
+    private static NavigationTarget forProfileSubScreen(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, DeepLink deepLink, Screen screen) {
+        return forNavigationDeeplink(activity, deepLink, screen)
+                .toBuilder()
+                .targetUrn(Optional.of(userUrn))
+                .searchQuerySourceInfo(searchQuerySourceInfo)
+                .build();
     }
 
     NavigationTarget withScreen(Screen screen) {

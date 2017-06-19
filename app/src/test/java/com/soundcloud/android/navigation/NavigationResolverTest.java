@@ -19,6 +19,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -40,9 +41,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.profile.FollowersActivity;
-import com.soundcloud.android.profile.FollowingsActivity;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
@@ -258,11 +256,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus).publish(EventQueue.TRACKING, ForegroundEvent.open(navigationTarget.screen(), navigationTarget.referrer().get()));
         Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.absent()))
-                  .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
-                  .opensActivity(ProfileActivity.class)
-                  .containsScreen(DEEPLINK_SCREEN)
-                  .containsReferrer(Referrer.fromOrigin(navigationTarget.referrer().get()));
+                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
     }
 
     @Test
@@ -277,11 +271,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus).publish(EventQueue.TRACKING, ForegroundEvent.open(navigationTarget.screen(), navigationTarget.referrer().get()));
         Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.absent()))
-                  .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
-                  .opensActivity(ProfileActivity.class)
-                  .containsScreen(DEEPLINK_SCREEN)
-                  .containsReferrer(Referrer.fromOrigin(navigationTarget.referrer().get()));
+                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
     }
 
     @Test
@@ -1035,10 +1025,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
         Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()))
-                  .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
-                  .opensActivity(ProfileActivity.class)
-                  .containsScreen(NAVIGATION_SCREEN);
+                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
     }
 
     @Test
@@ -1053,10 +1040,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
         Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()))
-                  .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
-                  .opensActivity(ProfileActivity.class)
-                  .containsScreen(NAVIGATION_SCREEN);
+                  .isEqualToIntent(IntentFactory.createProfileIntent(navigationTarget.activity(), urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
     }
 
     @Test
@@ -1555,10 +1539,77 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker).trackNavigation(event);
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
         Assertions.assertThat(activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity(), urn, Optional.of(Screen.USER_FOLLOWERS), Optional.absent(), Optional.absent()))
-                  .containsScreen(Screen.USER_FOLLOWERS)
-                  .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
-                  .opensActivity(ProfileActivity.class);
+                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(Screen.USER_FOLLOWERS), Optional.absent(), Optional.absent()));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenProfileReposts() throws Exception {
+        Optional<SearchQuerySourceInfo> searchQuerySourceInfo = Optional.of(mock(SearchQuerySourceInfo.class));
+        AppCompatActivity activity = activity();
+        Urn urn = Urn.forUser(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forProfileReposts(activity, urn, searchQuerySourceInfo);
+
+        resolveTarget(navigationTarget);
+
+        verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfileRepostsIntent(activity(), urn, Screen.USERS_REPOSTS, searchQuerySourceInfo));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenProfileTracks() throws Exception {
+        Optional<SearchQuerySourceInfo> searchQuerySourceInfo = Optional.of(mock(SearchQuerySourceInfo.class));
+        AppCompatActivity activity = activity();
+        Urn urn = Urn.forUser(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forProfileTracks(activity, urn, searchQuerySourceInfo);
+
+        resolveTarget(navigationTarget);
+
+        verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfileTracksIntent(activity(), urn, Screen.USER_TRACKS, searchQuerySourceInfo));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenProfileAlbums() throws Exception {
+        Optional<SearchQuerySourceInfo> searchQuerySourceInfo = Optional.of(mock(SearchQuerySourceInfo.class));
+        AppCompatActivity activity = activity();
+        Urn urn = Urn.forUser(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forProfileAlbums(activity, urn, searchQuerySourceInfo);
+
+        resolveTarget(navigationTarget);
+
+        verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfileAlbumsIntent(activity(), urn, Screen.USER_ALBUMS, searchQuerySourceInfo));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenProfileLikes() throws Exception {
+        Optional<SearchQuerySourceInfo> searchQuerySourceInfo = Optional.of(mock(SearchQuerySourceInfo.class));
+        AppCompatActivity activity = activity();
+        Urn urn = Urn.forUser(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forProfileLikes(activity, urn, searchQuerySourceInfo);
+
+        resolveTarget(navigationTarget);
+
+        verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfileLikesIntent(activity(), urn, Screen.USER_LIKES, searchQuerySourceInfo));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenProfilePlaylists() throws Exception {
+        Optional<SearchQuerySourceInfo> searchQuerySourceInfo = Optional.of(mock(SearchQuerySourceInfo.class));
+        AppCompatActivity activity = activity();
+        Urn urn = Urn.forUser(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forProfilePlaylists(activity, urn, searchQuerySourceInfo);
+
+        resolveTarget(navigationTarget);
+
+        verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createProfilePlaylistsIntent(activity(), urn, Screen.USER_PLAYLISTS, searchQuerySourceInfo));
     }
 
     @Test
@@ -1587,9 +1638,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         Assertions.assertThat(activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createFollowersIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()))
-                  .containsExtra(FollowersActivity.EXTRA_USER_URN, navigationTarget.targetUrn().get())
-                  .containsExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, null);
+                  .isEqualToIntent(IntentFactory.createFollowersIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
     }
 
     @Test
@@ -1599,9 +1648,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createFollowingsIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()))
-                  .containsExtra(FollowingsActivity.EXTRA_USER_URN, navigationTarget.targetUrn().get())
-                  .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, null);
+                  .isEqualToIntent(IntentFactory.createFollowingsIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
     }
 
     @Test
