@@ -3095,22 +3095,22 @@
     <issue
         id="sc.MissingCheckResult"
         message="Method should have `@CheckResult` annotation"
-        errorLine1="    Single&lt;List&lt;DiscoveryCard>> discoveryCards() {"
+        errorLine1="    private Single&lt;DiscoveryResult> cardsFromStorage(SyncResult syncResult) {"
         errorLine2="    ^">
         <location
             file="src/main/java/com/soundcloud/android/discovery/DiscoveryOperations.java"
-            line="29"
+            line="46"
             column="5"/>
     </issue>
 
     <issue
         id="sc.MissingCheckResult"
         message="Method should have `@CheckResult` annotation"
-        errorLine1="    Single&lt;List&lt;DiscoveryCard>> refreshDiscoveryCards() {"
+        errorLine1="    private SingleTransformer&lt;DiscoveryResult, List&lt;DiscoveryCard>> handleDiscoveryResult() {"
         errorLine2="    ^">
         <location
-            file="src/main/java/com/soundcloud/android/discovery/DiscoveryOperations.java"
-            line="35"
+            file="src/main/java/com/soundcloud/android/discovery/DiscoveryPresenter.java"
+            line="130"
             column="5"/>
     </issue>
 
@@ -3528,7 +3528,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/com/soundcloud/android/navigation/NavigationResolver.java"
-            line="283"
+            line="286"
             column="5"/>
     </issue>
 
@@ -3539,7 +3539,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/com/soundcloud/android/navigation/NavigationResolver.java"
-            line="287"
+            line="290"
             column="5"/>
     </issue>
 
@@ -6550,7 +6550,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="457"
+            line="462"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6589,7 +6589,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="458"
+            line="463"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6628,7 +6628,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="459"
+            line="464"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6667,7 +6667,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="460"
+            line="465"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6706,7 +6706,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="461"
+            line="466"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6745,7 +6745,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="462"
+            line="467"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6784,7 +6784,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="524"
+            line="529"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6823,7 +6823,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="525"
+            line="530"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6862,7 +6862,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="631"
+            line="636"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6901,7 +6901,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1108"
+            line="1113"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6940,7 +6940,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1121"
+            line="1126"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -6979,7 +6979,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1123"
+            line="1128"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
@@ -7018,7 +7018,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="1124"
+            line="1129"
             column="13"/>
         <location
             file="src/main/res/values-de/strings.xml"
