@@ -706,9 +706,9 @@
     <string name="collections_recently_played_profile">profile</string>
     <string name="collections_upsell_title">Get SoundCloud Go</string>
     <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
-    <string name="collections_offline_onboarding_title">Save your collection offline</string>
-    <string name="collections_offline_onboarding_body">Don’t limit your listening: tap into your likes or playlists &amp; albums while connected to wi-fi to save your favorite music to your device.</string>
-    <string name="collections_offline_onboarding_body_tracks">Don’t limit your listening: tap into your tracks or playlists &amp; albums while connected to wi-fi to save your favorite music to your device.</string>
+    <string name="collections_offline_onboarding_title">Take your music offline</string>
+    <string name="collections_offline_onboarding_body">Tap into Liked Tracks or Playlists &amp; Albums to download your favorite music to your device.</string>
+    <string name="collections_offline_onboarding_body_tracks">Tap into Tracks or Playlists &amp; Albums to download your favorite music to your device.</string>
 
     <string name="collections_recently_played_clear_action">Clear recently played</string>
     <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
@@ -864,13 +864,13 @@
     <string name="sd_card_cannot_be_found">SD card cannot be found</string>
     <string name="tap_here_to_change_storage_location">Tap here to change storage location</string>
     <string name="overlay_listen_offline_likes_title">Listen offline</string>
-    <string name="overlay_listen_offline_likes_description">Tap the arrow to take all your likes offline and take them wherever you go.</string>
+    <string name="overlay_listen_offline_likes_description">Tap the arrow to download your liked tracks to your device.</string>
     <string name="overlay_search_go_plus_title">Stream full tracks</string>
     <string name="overlay_search_go_plus_description">Previews are a thing of the past! This marker identifies exclusive content you’ve unlocked with SoundCloud Go+</string>
     <string name="overlay_listen_offline_playlist_title">Listen offline</string>
-    <string name="overlay_listen_offline_playlist_description">Tap the arrow to save newly-discovered playlists and albums to your offline collection.</string>
-    <string name="overlay_offline_settings_title">Adjust your settings</string>
-    <string name="overlay_offline_settings_description">Tap to manage your storage and offline listening settings.</string>
+    <string name="overlay_listen_offline_playlist_description">Tap the arrow to download a playlist or album to your device.</string>
+    <string name="overlay_offline_settings_title">Manage your storage</string>
+    <string name="overlay_offline_settings_description">Tap to change your offline listening and storage settings.</string>
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
