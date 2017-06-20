@@ -52,7 +52,7 @@ ext {
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",
           adjustAndroid                : "com.adjust.sdk:adjust-android:4.10.4",
-          crashlytics                  : "com.crashlytics.sdk.android:crashlytics:2.6.7",
+          crashlytics                  : "com.crashlytics.sdk.android:crashlytics:2.6.8",
           appBoy                       : "com.appboy:android-sdk-ui:2.0.0",
           krux                         : "com.krux:androidsdk:2.0.0",
           moat                         : "com.moat.analytics.mobile:app-kit:2.1.0",
@@ -111,8 +111,13 @@ ext {
   ]
 
   gradlePlugins = [
-          android          : 'com.android.tools.build:gradle:2.3.3',
-          gms              : 'com.google.gms:google-services:3.0.0'
+          android    : 'com.android.tools.build:gradle:2.3.3',
+          gms        : 'com.google.gms:google-services:3.0.0',
+          fabric     : 'io.fabric.tools:gradle:1.22.2',
+          frodo      : 'com.fernandocejas.frodo:frodo-plugin:0.8.2',
+          retrolambda: 'me.tatarka:gradle-retrolambda:3.6.1',
+          sqlDelight : 'com.squareup.sqldelight:gradle-plugin:0.6.1',
+          firebase   : 'com.google.firebase:firebase-plugins:1.1.0'
   ]
 
   devLibraries = [

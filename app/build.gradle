@@ -53,11 +53,11 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'io.fabric.tools:gradle:1.22.0'
-    classpath 'com.fernandocejas.frodo:frodo-plugin:0.8.2'
-    classpath 'me.tatarka:gradle-retrolambda:3.6.1'
-    classpath 'com.squareup.sqldelight:gradle-plugin:0.6.1'
-    classpath 'com.google.firebase:firebase-plugins:1.1.0'
+    classpath gradlePlugins.fabric
+    classpath gradlePlugins.frodo
+    classpath gradlePlugins.retrolambda
+    classpath gradlePlugins.sqlDelight
+    classpath gradlePlugins.firebase
   }
 }
 

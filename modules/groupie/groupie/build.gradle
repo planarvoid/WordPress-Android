@@ -4,7 +4,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'me.tatarka:gradle-retrolambda:3.6.1'
+    classpath gradlePlugins.retrolambda
   }
 }
 
