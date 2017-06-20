@@ -51,11 +51,15 @@ public enum DeepLink {
     ACTIVITIES,
     FOLLOWERS,
     FOLLOWINGS,
-    SEARCH_RESULTS_VIEW_ALL,
     SEARCH_AUTOCOMPLETE,
     AD_FULLSCREEN_VIDEO,
     AD_PRESTITIAL,
-    AD_CLICKTHROUGH;
+    AD_CLICKTHROUGH,
+    SEARCH_RESULTS_VIEW_ALL,
+    SYSTEM_PLAYLIST,
+    PLAYLISTS_AND_ALBUMS_COLLECTION,
+    PLAYLISTS_COLLECTION,
+    PLAYLISTS;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
@@ -83,6 +87,11 @@ public enum DeepLink {
                        OFFLINE_SETTINGS,
                        CHARTS,
                        CHARTS_ALL_GENRES,
+                       PROFILE,
+                       SYSTEM_PLAYLIST,
+                       PLAYLISTS_AND_ALBUMS_COLLECTION,
+                       PLAYLISTS_COLLECTION,
+                       PLAYLISTS,
                        PROFILE,
                        PROFILE_REPOSTS,
                        PROFILE_TRACKS,

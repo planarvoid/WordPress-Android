@@ -1,10 +1,11 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -12,6 +13,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -46,7 +48,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
 
     private final PlaylistDiscoveryOperations operations;
     private final PlaylistResultsAdapter adapter;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final EventBus eventBus;
 
     private Subscription eventSubscription = RxUtils.invalidSubscription();
@@ -55,12 +57,12 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     PlaylistResultsPresenter(PlaylistDiscoveryOperations operations,
                              PlaylistResultsAdapter adapter,
                              SwipeRefreshAttacher swipeRefreshAttacher,
-                             NavigationExecutor navigationExecutor,
+                             Navigator navigator,
                              EventBus eventBus) {
         super(swipeRefreshAttacher, Options.grid(R.integer.grids_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.eventBus = eventBus;
     }
 
@@ -106,7 +108,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     @Override
     protected void onItemClicked(View view, int position) {
         PlaylistItem playlist = adapter.getItem(position);
-        navigationExecutor.legacyOpenPlaylist(view.getContext(), playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(view.getContext()), playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
         eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

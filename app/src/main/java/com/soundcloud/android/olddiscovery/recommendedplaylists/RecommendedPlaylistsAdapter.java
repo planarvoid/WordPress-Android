@@ -2,18 +2,20 @@ package com.soundcloud.android.olddiscovery.recommendedplaylists;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -27,29 +29,27 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
         implements CarouselPlaylistItemRenderer.PlaylistListener {
 
     private static final String PLAYLIST_DISCOVERY_SOURCE = "playlist_discovery";
-
-    public interface QueryPositionProvider {
-        int queryPosition(String bucketKey, int bucketPosition);
-    }
-
     private static final int RECOMMENDED_PLAYLIST_TYPE = 0;
-
+    private final Navigator navigator;
     private final QueryPositionProvider queryPositionProvider;
-    private final NavigationExecutor navigationExecutor;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
 
     private Optional<String> key = Optional.absent();
     private Optional<Urn> queryUrn = Optional.absent();
 
+    public interface QueryPositionProvider {
+        int queryPosition(String bucketKey, int bucketPosition);
+    }
+
     RecommendedPlaylistsAdapter(QueryPositionProvider queryPositionProvider,
                                 @Provided CarouselPlaylistItemRenderer renderer,
-                                @Provided NavigationExecutor navigationExecutor,
+                                @Provided Navigator navigator,
                                 @Provided ScreenProvider screenProvider,
                                 @Provided EventBus eventBus) {
         super(renderer);
         this.queryPositionProvider = queryPositionProvider;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         renderer.setPlaylistListener(this);
@@ -95,7 +95,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
                                                                                   this.queryUrn);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromRecommendedPlaylists(playlistUrn, eventContextMetadata));
-        navigationExecutor.openPlaylist(context, playlistUrn, screen, event);
+        navigator.navigateTo(NavigationTarget.forPlaylist(ViewUtils.getFragmentActivity(context), playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

@@ -1,16 +1,18 @@
 package com.soundcloud.android.collection.playlists;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.OverflowButtonBackground;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 
@@ -28,7 +30,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
 
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final PlaylistItemIndicatorsView playlistItemIndicatorsView;
@@ -36,13 +38,13 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     @Inject
     PlaylistCollectionItemRenderer(ImageOperations imageOperations,
                                    Resources resources,
-                                   NavigationExecutor navigationExecutor,
+                                   Navigator navigator,
                                    FeatureOperations featureOperations,
                                    PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                    PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.playlistItemIndicatorsView = playlistItemIndicatorsView;
@@ -86,6 +88,6 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
-        return view -> navigationExecutor.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
+        return view -> navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(view.getContext()), playlistItem.getUrn(), Screen.PLAYLISTS));
     }
 }

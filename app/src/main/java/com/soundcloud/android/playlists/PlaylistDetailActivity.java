@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -11,9 +10,11 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.FullscreenablePlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
@@ -37,15 +38,11 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
     @Inject NavigationExecutor navigationExecutor;
     @Inject @Named(PlaylistsModule.FULLSCREEN_PLAYLIST_DETAILS) boolean showFullscreenPlaylistDetails;
 
-    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
-        return getIntent(playlistUrn, screen, autoPlay, null, null);
-    }
-
     public static Intent getIntent(@NotNull Urn playlistUrn,
                                    Screen screen,
                                    boolean autoPlay,
-                                   SearchQuerySourceInfo queryInfo,
-                                   PromotedSourceInfo promotedInfo) {
+                                   Optional<SearchQuerySourceInfo> queryInfo,
+                                   Optional<PromotedSourceInfo> promotedInfo) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
 
@@ -55,8 +52,8 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         return intent
                 .putExtra(EXTRA_URN, playlistUrn)
                 .putExtra(EXTRA_AUTO_PLAY, autoPlay)
-                .putExtra(EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                .putExtra(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
+                .putExtra(EXTRA_QUERY_SOURCE_INFO, queryInfo.orNull())
+                .putExtra(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo.orNull());
     }
 
     public PlaylistDetailActivity() {

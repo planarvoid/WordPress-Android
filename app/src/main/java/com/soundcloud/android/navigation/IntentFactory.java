@@ -277,11 +277,11 @@ public final class IntentFactory {
     }
 
     static Intent createPlaylistIntent(Urn playlist, Screen screen, boolean autoPlay) {
-        return PlaylistDetailActivity.getIntent(playlist, screen, autoPlay);
+        return PlaylistDetailActivity.getIntent(playlist, screen, autoPlay, Optional.absent(), Optional.absent());
     }
 
-    static Intent createPlaylistIntent(Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
-        return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
+    static Intent createPlaylistIntent(Urn playlist, Screen screen, Optional<SearchQuerySourceInfo> queryInfo, Optional<PromotedSourceInfo> promotedInfo) {
+            return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
     }
 
     static Intent createSearchIntent(Activity activity) {

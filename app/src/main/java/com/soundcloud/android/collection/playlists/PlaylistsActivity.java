@@ -18,7 +18,7 @@ public class PlaylistsActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
 
-    private static final String EXTRA_PLAYLISTS_AND_ALBUMS = "extraPlaylistsAndAlbums";
+    public static final String EXTRA_PLAYLISTS_AND_ALBUMS = "extraPlaylistsAndAlbums";
     private static final String EXTRA_PLAYLISTS_ONLY = "extraPlaylistsOnly";
     private static final String EXTRA_ALBUMS_ONLY = "extraAlbumsOnly";
 

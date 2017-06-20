@@ -12,7 +12,6 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -23,6 +22,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -40,20 +40,17 @@ public class MixedItemClickListener {
 
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
-    private final NavigationExecutor navigationExecutor;
     private final Screen screen;
     private final SearchQuerySourceInfo searchQuerySourceInfo;
     private final Navigator navigator;
 
     public MixedItemClickListener(PlaybackInitiator playbackInitiator,
                                   Provider<ExpandPlayerSubscriber> subscriberProvider,
-                                  NavigationExecutor navigationExecutor,
                                   Screen screen,
                                   SearchQuerySourceInfo searchQuerySourceInfo,
                                   Navigator navigator) {
         this.playbackInitiator = playbackInitiator;
         this.subscriberProvider = subscriberProvider;
-        this.navigationExecutor = navigationExecutor;
         this.screen = screen;
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.navigator = navigator;
@@ -147,18 +144,18 @@ public class MixedItemClickListener {
     private void handleNonTrackItemClick(Context context, ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
-            navigationExecutor.openPlaylist(context,
-                                            entityUrn,
-                                            screen,
-                                            searchQuerySourceInfo,
-                                            promotedPlaylistInfo(item),
-                                            UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)));
+            navigator.navigateTo(NavigationTarget.forPlaylist(ViewUtils.getFragmentActivity(context),
+                                                              entityUrn,
+                                                              screen,
+                                                              Optional.fromNullable(searchQuerySourceInfo),
+                                                              Optional.fromNullable(promotedPlaylistInfo(item)),
+                                                              Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
-            navigationExecutor.legacyOpenPlaylist(context,
-                                                  entityUrn,
-                                                  screen,
-                                                  searchQuerySourceInfo,
-                                                  promotedPlaylistInfo(item));
+            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(context),
+                                                                    entityUrn,
+                                                                    screen,
+                                                                    Optional.of(searchQuerySourceInfo),
+                                                                    Optional.of(promotedPlaylistInfo(item))));
         } else if (entityUrn.isUser()) {
             navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(context), entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {
@@ -209,19 +206,16 @@ public class MixedItemClickListener {
 
         private final PlaybackInitiator playbackInitiator;
         private final Provider<ExpandPlayerSubscriber> subscriberProvider;
-        private final NavigationExecutor navigationExecutor;
         private final PerformanceMetricsEngine performanceMetricsEngine;
         private final Navigator navigator;
 
         @Inject
         public Factory(PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       NavigationExecutor navigationExecutor,
                        PerformanceMetricsEngine performanceMetricsEngine,
                        Navigator navigator) {
             this.playbackInitiator = playbackInitiator;
             this.subscriberProvider = subscriberProvider;
-            this.navigationExecutor = navigationExecutor;
             this.performanceMetricsEngine = performanceMetricsEngine;
             this.navigator = navigator;
         }
@@ -229,7 +223,6 @@ public class MixedItemClickListener {
         public MixedItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
             return new MixedItemClickListener(playbackInitiator,
                                               subscriberProvider,
-                                              navigationExecutor,
                                               screen,
                                               searchQuerySourceInfo,
                                               navigator);

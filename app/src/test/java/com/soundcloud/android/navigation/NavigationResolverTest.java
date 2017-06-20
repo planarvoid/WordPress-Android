@@ -14,18 +14,22 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ChartsUriResolver;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -41,6 +45,11 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.profile.FollowersActivity;
+import com.soundcloud.android.profile.FollowingsActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
@@ -49,6 +58,7 @@ import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -85,6 +95,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private StartStationHandler startStationHandler;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private Optional<PromotedSourceInfo> promotedSourceInfo;
     @Mock private EventTracker eventTracker;
 
     private NavigationResolver resolver;
@@ -230,7 +241,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsScreen(DEEPLINK_SCREEN);
     }
 
     @Test
@@ -241,7 +255,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsScreen(DEEPLINK_SCREEN);
     }
 
     @Test
@@ -999,7 +1016,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsScreen(NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1010,7 +1030,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsScreen(NAVIGATION_SCREEN);
+
     }
 
     @Test
@@ -1525,6 +1549,74 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(navigationExecutor).openNewForYou(navigationTarget.activity());
     }
 
+    @Test
+    public void navigation_shouldOpensSystemPlaylist() {
+        String target = "soundcloud:system-playlists:123";
+        Urn urn = new Urn(target);
+        NavigationTarget navigationTarget = NavigationTarget.forNavigation(activity(), target, Optional.absent(), Screen.DEEPLINK, Optional.of(DiscoverySource.RECOMMENDATIONS));
+
+        resolveTarget(navigationTarget);
+
+        verify(resolveOperations, never()).resolve(anyString());
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .opensActivity(SystemPlaylistActivity.class)
+                  .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false)
+                  .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn)
+                  .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void navigation_shouldOpenLegacyPlaylistWithoutSearchQuerySourceInfo() {
+        Urn playlistUrn = Urn.forPlaylist(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(activity(), playlistUrn, Screen.SEARCH_PLAYLISTS);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                  .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
+    @Test
+    public void navigation_shouldOpenLegacyPlaylistWithSearchQuerySourceInfo() {
+        PlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
+        Urn playlistUrn = playlist.getUrn();
+
+        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
+        NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(activity(), playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo));
+        resolveTarget(navigationTarget);
+
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
+                  .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
+    @Test
+    public void navigation_shouldOpensPlaylist() {
+        PlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
+        Urn playlistUrn = playlist.getUrn();
+        UIEvent event = mock(UIEvent.class);
+
+        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
+        NavigationTarget navigationTarget = NavigationTarget.forPlaylist(activity(), playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo),Optional.of(event));
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                                   .containsAction(Actions.PLAYLIST)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
+                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
+        verify(eventTracker).trackNavigation(event);
+    }
+
     // For Deeplink Navigation
 
     @Test
@@ -1692,6 +1784,16 @@ public class NavigationResolverTest extends AndroidUnitTest {
                   .isEqualToIntent(IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
     }
 
+    @Test
+    public void navigationDeeplink_shouldOpenPlaylistsAndAlbums() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forPlaylistsAndAlbumsCollection(activity());
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .opensActivity(PlaylistsActivity.class)
+                  .containsExtra(PlaylistsActivity.EXTRA_PLAYLISTS_AND_ALBUMS, true);
+    }
 
     // Fallback Errors
 
@@ -1819,7 +1921,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
             try {
                 navigationResult.action().run();
             } catch (Exception e) {
-                fail("Exception during execution");
+                fail("Exception during execution", e);
             }
         }
     }

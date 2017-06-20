@@ -11,7 +11,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -28,7 +27,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class SearchClickListener {
-    private final NavigationExecutor navigationExecutor;
     private final EventTracker eventTracker;
     private final SearchPlayQueueFilter searchPlayQueueFilter;
     private final PlaybackInitiator playbackInitiator;
@@ -36,13 +34,11 @@ public class SearchClickListener {
     private final Navigator navigator;
 
     @Inject
-    SearchClickListener(NavigationExecutor navigationExecutor,
-                        EventTracker eventTracker,
+    SearchClickListener(EventTracker eventTracker,
                         SearchPlayQueueFilter searchPlayQueueFilter,
                         PlaybackInitiator playbackInitiator,
                         EventBus eventBus,
                         Navigator navigator) {
-        this.navigationExecutor = navigationExecutor;
         this.eventTracker = eventTracker;
         this.searchPlayQueueFilter = searchPlayQueueFilter;
         this.playbackInitiator = playbackInitiator;
@@ -51,7 +47,12 @@ public class SearchClickListener {
     }
 
     ClickResultAction playlistClickToNavigateAction(ClickParams params) {
-        return context -> navigationExecutor.openPlaylist(context, params.urn(), params.screen(), params.searchQuerySourceInfo(), null, params.uiEvent());
+        return activity -> navigator.navigateTo(NavigationTarget.forPlaylist(activity,
+                                                                             params.urn(),
+                                                                             params.screen(),
+                                                                             Optional.of(params.searchQuerySourceInfo()),
+                                                                             Optional.absent(),
+                                                                             Optional.of(params.uiEvent())));
     }
 
     ClickResultAction userClickToNavigateAction(ClickParams params) {

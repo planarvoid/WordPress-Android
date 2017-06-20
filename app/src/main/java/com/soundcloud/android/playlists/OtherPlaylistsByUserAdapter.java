@@ -2,17 +2,20 @@ package com.soundcloud.android.playlists;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.CarouselPlaylistItemRenderer;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.olddiscovery.recommendedplaylists.CarouselPlaylistItemRenderer;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -25,17 +28,17 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
 
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
 
     OtherPlaylistsByUserAdapter(@Provided CarouselPlaylistItemRenderer renderer,
                                 @Provided ScreenProvider screenProvider,
                                 @Provided EventBus eventBus,
-                                @Provided NavigationExecutor navigationExecutor) {
+                                @Provided Navigator navigator) {
         super(renderer);
+        this.navigator = navigator;
         renderer.setPlaylistListener(this);
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
-        this.navigationExecutor = navigationExecutor;
     }
 
     void setOtherPlaylistsByUser(PlaylistDetailOtherPlaylistsItem otherPlaylistsItem) {
@@ -59,7 +62,7 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
         final EventContextMetadata eventContextMetadata = getEventContextMetadata(module, screen);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromMorePlaylistsByUser(playlistUrn, eventContextMetadata));
-        navigationExecutor.openPlaylist(context, playlistUrn, screen, event);
+        navigator.navigateTo(NavigationTarget.forPlaylist(ViewUtils.getFragmentActivity(context), playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

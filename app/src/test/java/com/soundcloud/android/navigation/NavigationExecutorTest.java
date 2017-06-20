@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -46,7 +45,6 @@ import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
@@ -56,7 +54,6 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
@@ -205,75 +202,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(NotificationPreferencesActivity.class)
                                    .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-    }
-
-    @Test
-    public void opensPlaylist() {
-        PlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
-        Urn playlistUrn = playlist.getUrn();
-
-        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
-        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
-        final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
-
-        navigationExecutor.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo, event);
-
-        verify(eventTracker).trackNavigation(event);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
-                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
-    }
-
-
-    @Test
-    public void opensPlaylistWithoutSearchQuerySourceInfo() {
-        PlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
-        Urn playlistUrn = playlist.getUrn();
-
-        final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
-
-        navigationExecutor.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, event);
-
-        verify(eventTracker).trackNavigation(event);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
-                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
-    }
-
-    @Test
-    public void opensLegacyPlaylist() {
-        PlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
-        Urn playlistUrn = playlist.getUrn();
-
-        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
-        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
-
-        navigationExecutor.legacyOpenPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
-                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
-    }
-
-    @Test
-    public void opensLegacyPlaylistWithoutSearchQuerySourceInfo() {
-        Urn playlist = Urn.forPlaylist(123L);
-
-        navigationExecutor.legacyOpenPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
-                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
 
     @Test
@@ -441,19 +369,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
                                    .opensActivity(SystemPlaylistActivity.class)
                                    .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
     }
-
-    @Test
-    public void opensSystemPlaylist() {
-        final Urn urn = Urn.forSystemPlaylist("123");
-        navigationExecutor.openSystemPlaylist(activityContext, urn, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(SystemPlaylistActivity.class)
-                                   .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false)
-                                   .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn)
-                                   .containsScreen(Screen.DEEPLINK);
-    }
-
 
     @Test
     public void opensSearchPremiumContentResults() {

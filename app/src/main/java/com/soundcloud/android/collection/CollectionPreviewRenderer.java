@@ -11,10 +11,11 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.annotations.VisibleForTesting;
-
 import android.app.Activity;
 import android.content.res.Resources;
 import android.support.annotation.StringRes;
@@ -28,6 +29,7 @@ import java.util.List;
 class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final Resources resources;
     private final ImageOperations imageOperations;
     private final PerformanceMetricsEngine performanceMetricsEngine;
@@ -36,12 +38,14 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Inject
     CollectionPreviewRenderer(NavigationExecutor navigationExecutor,
+                              Navigator navigator,
                               Resources resources,
                               ImageOperations imageOperations,
                               PerformanceMetricsEngine performanceMetricsEngine,
                               ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                               ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
@@ -66,7 +70,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     @VisibleForTesting
     void onGoToPlaylistsAndAlbumsClick(Activity activity) {
         performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
-        navigationExecutor.openPlaylistsAndAlbumsCollection(activity);
+        navigator.navigateTo(NavigationTarget.forPlaylistsAndAlbumsCollection(activity));
     }
 
     @VisibleForTesting
@@ -93,7 +97,8 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         });
 
         item.getPlaylists().ifPresent(playlists -> {
-            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigationExecutor.openPlaylistsCollection(activity));
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header,
+                                                                            v -> navigator.navigateTo(NavigationTarget.forPlaylistsCollection(activity)));
             removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlists, playlistsPreviewView);
         });

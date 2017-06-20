@@ -1,7 +1,6 @@
 package com.soundcloud.android.search.topresults;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -53,7 +51,7 @@ public class SearchClickListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        searchClickListener = new SearchClickListener(navigationExecutor, eventTracker, searchPlayQueueFilter, playbackInitiator, eventBus, navigator);
+        searchClickListener = new SearchClickListener(eventTracker, searchPlayQueueFilter, playbackInitiator, eventBus, navigator);
     }
 
     @Test
@@ -71,7 +69,7 @@ public class SearchClickListenerTest {
         final Activity context = mock(Activity.class);
         clickResultAction.run(context);
 
-        verify(navigationExecutor).openPlaylist(eq(context), eq(playlistUrn), eq(SCREEN), eq(clickParams.searchQuerySourceInfo()), nullable(PromotedSourceInfo.class), eq(clickParams.uiEvent()));
+        verify(navigator).navigateTo(NavigationTarget.forPlaylist(context, playlistUrn, SCREEN, Optional.of(clickParams.searchQuerySourceInfo()), Optional.absent(),Optional.of(clickParams.uiEvent())));
     }
 
     @Test

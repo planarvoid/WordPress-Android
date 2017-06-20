@@ -155,7 +155,7 @@ class AdPageListener extends PageListener {
             public void onNext(PlayerUIEvent playerUIEvent) {
                 if (urn.isPlaylist()) {
                     final Screen originScreen = Screen.fromTag(playQueueManager.getScreenTag());
-                    navigationExecutor.legacyOpenPlaylist(activityContext, urn, originScreen);
+                    navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(activityContext), urn, originScreen));
                 } else if (urn.isUser()) {
                     navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(activityContext), urn));
                 }

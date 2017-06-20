@@ -1,6 +1,7 @@
 package com.soundcloud.android.navigation;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.UIEvent;
@@ -18,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 @AutoValue
+@SuppressWarnings("PMD.GodClass")
 public abstract class NavigationTarget {
     public abstract Activity activity();
 
@@ -41,9 +43,11 @@ public abstract class NavigationTarget {
 
     public abstract Optional<SearchQuerySourceInfo> searchQuerySourceInfo();
 
+    public abstract Optional<PromotedSourceInfo> promotedSourceInfo();
+
     public abstract Optional<UIEvent> uiEvent();
 
-    abstract Builder toBuilder();
+    public abstract Builder toBuilder();
 
     static Builder newBuilder() {
         return new AutoValue_NavigationTarget.Builder()
@@ -55,6 +59,7 @@ public abstract class NavigationTarget {
                 .targetUrn(Optional.absent())
                 .discoverySource(Optional.absent())
                 .searchQuerySourceInfo(Optional.absent())
+                .promotedSourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent())
                 .uiEvent(Optional.absent());
     }
@@ -105,6 +110,32 @@ public abstract class NavigationTarget {
     public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
         Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
         return forNavigation(activity, urn.toString(), Optional.absent(), screen, Optional.absent());
+    }
+
+    public static NavigationTarget forPlaylistsAndAlbumsCollection(Activity activity) {
+        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS_AND_ALBUMS_COLLECTION, Screen.PLAYLISTS);
+    }
+
+    public static NavigationTarget forPlaylistsCollection(Activity activity) {
+        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS_COLLECTION, Screen.PLAYLISTS);
+    }
+
+    public static NavigationTarget forLegacyPlaylist(Activity activity, Urn urn, Screen screen) {
+        return forPlaylist(activity, urn, screen, Optional.absent(), Optional.absent(), Optional.absent());
+    }
+
+    public static NavigationTarget forLegacyPlaylist(Activity activity, Urn urn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, Optional<PromotedSourceInfo> promotedSourceInfo) {
+        return forPlaylist(activity, urn, screen, searchQuerySourceInfo, promotedSourceInfo, Optional.absent());
+    }
+
+    public static NavigationTarget forPlaylist(Activity activity, Urn entityUrn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo,  Optional<PromotedSourceInfo> promotedSourceInfo, Optional<UIEvent> uiEvent) {
+        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS, screen)
+                .toBuilder()
+                .uiEvent(uiEvent)
+                .targetUrn(Optional.of(entityUrn))
+                .searchQuerySourceInfo(searchQuerySourceInfo)
+                .promotedSourceInfo(promotedSourceInfo)
+                .build();
     }
 
     public static NavigationTarget forActivities(Activity activity) {
@@ -237,6 +268,8 @@ public abstract class NavigationTarget {
         abstract Builder targetUrn(Optional<Urn> targetUrn);
 
         abstract Builder searchQuerySourceInfo(Optional<SearchQuerySourceInfo> searchQuerySourceInfo);
+
+        abstract Builder promotedSourceInfo(Optional<PromotedSourceInfo> promotedSourceInfo);
 
         abstract Builder uiEvent(Optional<UIEvent> uiEvent);
 

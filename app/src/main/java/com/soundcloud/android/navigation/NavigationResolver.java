@@ -4,10 +4,14 @@ import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIn
 import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPrestititalAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileAlbumsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createSystemPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileLikesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfilePlaylistsIntent;
@@ -293,6 +297,14 @@ public class NavigationResolver {
                 return showProfileAlbums(navigationTarget);
             case PROFILE_PLAYLISTS:
                 return showProfilePlaylists(navigationTarget);
+            case SYSTEM_PLAYLIST:
+                return showSystemPlaylist(navigationTarget);
+            case PLAYLISTS_AND_ALBUMS_COLLECTION:
+                return showPlaylistsAndAlbumsCollection(navigationTarget);
+            case PLAYLISTS_COLLECTION:
+                return showPlaylistsCollection(navigationTarget);
+            case PLAYLISTS:
+                return showPlaylist(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
@@ -424,6 +436,52 @@ public class NavigationResolver {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
             navigationTarget.activity().startActivity(createAdClickthroughIntent(Uri.parse(navigationTarget.deeplinkTarget().get())));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showSystemPlaylist(NavigationTarget navigationTarget) {
+        return showSystemPlaylist(navigationTarget, navigationTarget.targetUrn().get());
+    }
+
+    @CheckResult
+    private Single<Action> showSystemPlaylist(NavigationTarget navigationTarget, Urn urn) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createSystemPlaylistIntent(navigationTarget.activity(), urn, navigationTarget.screen()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showPlaylistsAndAlbumsCollection(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createPlaylistsAndAlbumsCollectionIntent(navigationTarget.activity()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showPlaylistsCollection(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createPlaylistsCollectionIntent(navigationTarget.activity()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showPlaylist(NavigationTarget navigationTarget) {
+        return showPlaylist(navigationTarget, navigationTarget.targetUrn().get());
+    }
+
+    @CheckResult
+    private Single<Action> showPlaylist(NavigationTarget navigationTarget, Urn urn) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            trackNavigationEvent(navigationTarget.uiEvent());
+            navigationTarget.activity().startActivity(createPlaylistIntent(urn,
+                                                                           navigationTarget.screen(),
+                                                                           navigationTarget.searchQuerySourceInfo(),
+                                                                           navigationTarget.promotedSourceInfo()));
         });
     }
 
@@ -708,9 +766,9 @@ public class NavigationResolver {
         } else if (urn.isUser()) {
             return showProfile(navigationTarget, urn);
         } else if (urn.isPlaylist()) {
-            return Single.just(() -> navigationExecutor.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return showPlaylist(navigationTarget, urn);
         } else if (urn.isSystemPlaylist()) {
-            return Single.just(() -> navigationExecutor.openSystemPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return showSystemPlaylist(navigationTarget, urn);
         } else if (urn.isArtistStation() || urn.isTrackStation()) {
             return showStation(navigationTarget, urn);
         } else {

@@ -25,8 +25,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createPerformSearc
 import static com.soundcloud.android.navigation.IntentFactory.createPlayHistoryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecentlyPlayedIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecordIntent;
@@ -42,7 +40,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createSettingsInte
 import static com.soundcloud.android.navigation.IntentFactory.createStationsInfoIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamWithExpandedPlayerIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createSystemPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackCommentsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesFromShortcutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesIntent;
@@ -53,9 +50,7 @@ import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
@@ -154,28 +149,6 @@ public class NavigationExecutor {
         context.startActivity(createPlaylistIntent(playlist, screen, true));
     }
 
-    public void legacyOpenPlaylist(Context context, Urn playlist, Screen screen) {
-        context.startActivity(createPlaylistIntent(playlist, screen, false));
-    }
-
-    public void legacyOpenPlaylist(Context context, Urn playlist, Screen screen,
-                                   SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
-        context.startActivity(createPlaylistIntent(playlist, screen, queryInfo, promotedInfo));
-    }
-
-    public void openPlaylist(Context context, Urn playlist, Screen screen, UIEvent event) {
-        eventTracker.trackNavigation(event);
-
-        context.startActivity(createPlaylistIntent(playlist, screen, false));
-    }
-
-    public void openPlaylist(Context context, Urn playlist, Screen screen,
-                             SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo, UIEvent event) {
-        eventTracker.trackNavigation(event);
-
-        context.startActivity(createPlaylistIntent(playlist, screen, queryInfo, promotedInfo));
-    }
-
     public void openSearch(Activity activity) {
         activity.startActivity(createSearchIntent(activity));
     }
@@ -219,10 +192,6 @@ public class NavigationExecutor {
 
     public void openExternal(Activity activity, Uri uri) {
         activity.startActivity(createViewIntent(uri));
-    }
-
-    public void openSystemPlaylist(Context context, Urn urn, Screen screen) {
-        context.startActivity(createSystemPlaylistIntent(context, urn, screen));
     }
 
     public void openBasicSettings(Context context) {
@@ -384,14 +353,6 @@ public class NavigationExecutor {
 
     public void openOfflineSettingsOnboarding(Context context) {
         context.startActivity(createOfflineSettingsOnboardingIntent(context));
-    }
-
-    public void openPlaylistsAndAlbumsCollection(Activity activity) {
-        activity.startActivity(createPlaylistsAndAlbumsCollectionIntent(activity));
-    }
-
-    public void openPlaylistsCollection(Activity activity) {
-        activity.startActivity(createPlaylistsCollectionIntent(activity));
     }
 
     public void openAlbumsCollection(Activity activity) {

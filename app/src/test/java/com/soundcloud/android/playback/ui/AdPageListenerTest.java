@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -144,7 +142,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         final AudioAd playlistAudioAd = AdFixtures.getAudioAdWithCustomClickthrough("soundcloud://playlists/42", Urn.forTrack(123L));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(playlistAudioAd));
 
-        listener.onClickThrough(context());
+        listener.onClickThrough(activity());
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isAutomaticCollapse()).isTrue();
@@ -171,11 +169,12 @@ public class AdPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(playlistAudioAd));
         when(playQueueManager.getScreenTag()).thenReturn("stream:main");
 
-        listener.onClickThrough(context());
+        AppCompatActivity activity = activity();
+        listener.onClickThrough(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigationExecutor).legacyOpenPlaylist(any(Context.class), eq(Urn.forPlaylist(42L)), eq(Screen.STREAM));
+        verify(navigator).navigateTo(NavigationTarget.forLegacyPlaylist(activity, Urn.forPlaylist(42L), Screen.STREAM));
     }
 
     @Test

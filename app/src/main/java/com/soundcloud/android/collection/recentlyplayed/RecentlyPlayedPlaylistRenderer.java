@@ -5,7 +5,6 @@ import static butterknife.ButterKnife.findById;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
@@ -17,6 +16,8 @@ import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.OverflowButtonBackground;
@@ -37,7 +38,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
@@ -45,14 +46,14 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
-                                   @Provided NavigationExecutor navigationExecutor,
+                                   @Provided Navigator navigator,
                                    @Provided ScreenProvider screenProvider,
                                    @Provided EventBus eventBus,
                                    @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                    @Provided PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
@@ -108,7 +109,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
             Urn urn = playlist.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigationExecutor.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
+            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(view.getContext()), urn, lastScreen));
         };
     }
 
