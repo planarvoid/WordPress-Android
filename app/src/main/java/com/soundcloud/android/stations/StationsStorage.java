@@ -192,8 +192,8 @@ public class StationsStorage {
         });
     }
 
-    Observable<StationWithTrackUrns> stationWithTrackUrns(final Urn station) {
-        return Observable.fromCallable(() -> {
+    Maybe<StationWithTrackUrns> stationWithTrackUrns(final Urn station) {
+        return Maybe.fromCallable(() -> {
             final StationWithTrackUrns stationWithTracks = propellerDatabase.query(stationInfoQuery(station))
                                                                             .firstOrDefault(new StationWithTracksMapper(), null);
 

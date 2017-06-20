@@ -80,7 +80,7 @@ public class StationsOperations {
 
     private Maybe<StationWithTracks> stationWithTracks(Urn station, Function<StationRecord, StationRecord> toStation) {
         return stationsStorage.clearExpiredPlayQueue(station)
-                              .flatMapMaybe(o -> loadStationWithTracks(station, toStation))
+                              .flatMapMaybe(__ -> loadStationWithTracks(station, toStation))
                               .subscribeOn(scheduler);
     }
 
@@ -95,17 +95,17 @@ public class StationsOperations {
 
     private Maybe<StationWithTracks> loadStationWithTracks(Urn station, Function<StationRecord, StationRecord> toStation) {
         return Maybe.concat(loadStationWithTracks(station),
-                             syncSingleStation(station, toStation).flatMapMaybe(__ -> loadStationWithTracks(station)))
-                         .firstElement();
+                            syncSingleStation(station, toStation).flatMapMaybe(__ -> loadStationWithTracks(station)))
+                    .firstElement();
     }
 
     private Maybe<StationWithTracks> loadStationWithTracks(Urn station) {
         return stationsStorage.stationWithTrackUrns(station)
-                              .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.trackUrns().size() > 0)
-                              .flatMapSingle(entity -> trackItemRepository.trackListFromUrns(entity.trackUrns())
-                                                                          .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
-                                                                          .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)))
-                              .firstElement();
+                              .filter(stationFromStorage -> stationFromStorage.trackUrns().size() > 0)
+                              .flatMap(entity -> trackItemRepository.trackListFromUrns(entity.trackUrns())
+                                                                    .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
+                                                                    .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks))
+                                                                    .toMaybe());
     }
 
     private Single<StationRecord> syncSingleStation(Urn station, Function<StationRecord, StationRecord> toStation) {

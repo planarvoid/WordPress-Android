@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static java.util.Locale.US;
+import java.util.Locale;
 
 public enum DiscoverySource {
     RECOMMENDER("recommender"),
@@ -26,6 +26,11 @@ public enum DiscoverySource {
     }
 
     public static DiscoverySource from(String value) {
-        return DiscoverySource.valueOf(value.toUpperCase(US).replaceAll(":", "_"));
+        for (DiscoverySource source : values()) {
+            if (source.value.equalsIgnoreCase(value)) {
+                return source;
+            }
+        }
+        return DiscoverySource.valueOf(value.toUpperCase(Locale.US).replaceAll(":", "_"));
     }
 }
