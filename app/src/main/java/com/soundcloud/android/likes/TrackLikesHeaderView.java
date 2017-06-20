@@ -6,10 +6,13 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.view.OfflineStateButton;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
@@ -66,10 +69,13 @@ class TrackLikesHeaderView {
     }
 
     void showOfflineIntroductoryOverlay() {
-        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
-                                                  offlineStateButton,
-                                                  R.string.overlay_listen_offline_likes_title,
-                                                  R.string.overlay_listen_offline_likes_description);
+        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                     .overlayKey(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES)
+                                                                     .targetView(offlineStateButton)
+                                                                     .title(R.string.overlay_listen_offline_likes_title)
+                                                                     .description(R.string.overlay_listen_offline_likes_description)
+                                                                     .event(Optional.of(GoOnboardingTooltipEvent.forListenOfflineLikes()))
+                                                                     .build());
     }
 
     void showNoWifi() {

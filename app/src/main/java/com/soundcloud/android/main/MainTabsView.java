@@ -4,7 +4,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -70,10 +72,13 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
     }
 
     void showOfflineSettingsIntroductoryOverlay() {
-        getMoreTabCustomView().ifPresent(view -> introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.OFFLINE_SETTINGS,
-                                                                                           view,
-                                                                                           R.string.overlay_offline_settings_title,
-                                                                                           R.string.overlay_offline_settings_description));
+        getMoreTabCustomView().ifPresent(view -> introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                                                              .overlayKey(IntroductoryOverlayKey.OFFLINE_SETTINGS)
+                                                                                                              .targetView(view)
+                                                                                                              .title(R.string.overlay_offline_settings_title)
+                                                                                                              .description(R.string.overlay_offline_settings_description)
+                                                                                                              .event(Optional.of(GoOnboardingTooltipEvent.forOfflineSettings()))
+                                                                                                              .build()));
     }
 
     private Optional<View> getMoreTabCustomView() {

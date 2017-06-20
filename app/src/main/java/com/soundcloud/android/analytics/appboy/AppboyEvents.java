@@ -16,4 +16,5 @@ abstract class AppboyEvents {
     static final String SUBSCRIPTION_MODAL_VIEW = "subscription_modal_view";
     static final String SUBSCRIPTION_PLAN_PICKER_MID_TIER = "subscription_plan_picker_mid_tier";
     static final String SUBSCRIPTION_PLAN_PICKER_HIGH_TIER = "subscription_plan_picker_high_tier";
+    static final String SUBSCRIPTION_ONBOARDING_TOOLTIP_VIEW = "subscription_onboarding_tooltip_view";
 }

@@ -24,6 +24,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
@@ -781,10 +782,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void showingPlayQueueIntroductoryOverlayForwardsCallToPresenterWithCorrectParameters() {
         presenter.showIntroductoryOverlayForPlayQueue(trackView);
 
-        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.PLAY_QUEUE,
-                                                          getHolder(trackView).playQueueButton,
-                                                          R.string.play_queue_introductory_overlay_title,
-                                                          R.string.play_queue_introductory_overlay_description);
+        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlay.builder()
+                                                                             .overlayKey(IntroductoryOverlayKey.PLAY_QUEUE)
+                                                                             .targetView(getHolder(trackView).playQueueButton)
+                                                                             .title(R.string.play_queue_introductory_overlay_title)
+                                                                             .description(R.string.play_queue_introductory_overlay_description)
+                                                                             .build());
     }
 
     @Test

@@ -7,6 +7,8 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
@@ -96,9 +98,12 @@ class PlaylistEngagementsRenderer {
                                changeLikeToSaveExperiment.isEnabled());
 
         if (changeLikeToSaveExperiment.isTooltipEnabled() && !accountOperations.isLoggedInUser(item.creatorUrn())) {
-            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.ADD_TO_COLLECTION,
-                                                      likeToggle, changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_TITLE),
-                                                      changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION));
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                         .overlayKey(IntroductoryOverlayKey.ADD_TO_COLLECTION)
+                                                                         .targetView(likeToggle)
+                                                                         .title(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_TITLE))
+                                                                         .description(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION))
+                                                                         .build());
         }
     }
 
@@ -119,9 +124,12 @@ class PlaylistEngagementsRenderer {
         });
 
         if (accountOperations.isLoggedInUser(item.creatorUrn())) {
-            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
-                                                      overflowButton, R.string.edit_playlists_introductory_overlay_title,
-                                                      R.string.edit_playlists_introductory_overlay_description);
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                         .overlayKey(IntroductoryOverlayKey.EDIT_PLAYLIST)
+                                                                         .targetView(overflowButton)
+                                                                         .title(R.string.edit_playlists_introductory_overlay_title)
+                                                                         .description(R.string.edit_playlists_introductory_overlay_description)
+                                                                         .build());
         }
     }
 
@@ -183,9 +191,13 @@ class PlaylistEngagementsRenderer {
         stateButton.setOnClickListener(v -> toggleOffline(item, listener));
 
         if (canShowListenOfflineOverlay(item.creatorUrn())) {
-            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_PLAYLIST,
-                                                      stateButton, R.string.overlay_listen_offline_playlist_title,
-                                                      R.string.overlay_listen_offline_playlist_description);
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                         .overlayKey(IntroductoryOverlayKey.LISTEN_OFFLINE_PLAYLIST)
+                                                                         .targetView(stateButton)
+                                                                         .title(R.string.overlay_listen_offline_playlist_title)
+                                                                         .description(R.string.overlay_listen_offline_playlist_description)
+                                                                         .event(Optional.of(GoOnboardingTooltipEvent.forListenOfflinePlaylist()))
+                                                                         .build());
         }
     }
 

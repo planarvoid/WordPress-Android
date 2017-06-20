@@ -17,6 +17,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
@@ -239,10 +240,12 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void showIntroductoryOverlayForPlayQueue(View trackView) {
         final View playQueueButton = getViewHolder(trackView).playQueueButton;
-        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.PLAY_QUEUE,
-                                                  playQueueButton,
-                                                  R.string.play_queue_introductory_overlay_title,
-                                                  R.string.play_queue_introductory_overlay_description);
+        introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
+                                                                     .overlayKey(IntroductoryOverlayKey.PLAY_QUEUE)
+                                                                     .targetView(playQueueButton)
+                                                                     .title(R.string.play_queue_introductory_overlay_title)
+                                                                     .description(R.string.play_queue_introductory_overlay_description)
+                                                                     .build());
     }
 
     @Override

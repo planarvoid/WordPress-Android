@@ -9,9 +9,11 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYAB
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_URN;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_TITLE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_URN;
+import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.TOOLTIP_NAME;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -64,6 +66,14 @@ class AppboyEventHandler {
             default:
                 break;
         }
+    }
+
+    void handleEvent(GoOnboardingTooltipEvent event) {
+        tagEvent(AppboyEvents.SUBSCRIPTION_ONBOARDING_TOOLTIP_VIEW, buildTooltipProperties(event));
+    }
+
+    private AppboyProperties buildTooltipProperties(GoOnboardingTooltipEvent event) {
+        return new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), event.tooltipName());
     }
 
     void handleEvent(OfflineInteractionEvent event) {

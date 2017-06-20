@@ -10,7 +10,8 @@ enum AppboyAttributeName {
     PLAYLIST_TITLE("playlist_title"),
     PLAYLIST_URN("playlist_urn"),
     CATEGORY("category"),
-    GENRE("genre");
+    GENRE("genre"),
+    TOOLTIP_NAME("tooltip_name");
 
     private final String appBoyKey;
 

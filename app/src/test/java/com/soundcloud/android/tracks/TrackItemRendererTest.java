@@ -4,6 +4,7 @@ import static com.soundcloud.android.api.model.ChartType.TOP;
 import static com.soundcloud.android.api.model.ChartType.TRENDING;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -19,9 +20,11 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
@@ -66,6 +69,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private Navigator navigator;
     @Mock private View itemView;
+    @Mock private View goIndicator;
     @Mock private ImageView imageView;
     @Mock private TrackItemView trackItemView;
     @Mock private TrackItemView.Factory trackItemViewFactory;
@@ -114,6 +118,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getContext()).thenReturn(context());
         when(trackItemView.getResources()).thenReturn(resources());
+        when(trackItemView.getGoIndicator()).thenReturn(goIndicator);
         when(imageView.getContext()).thenReturn(context());
         when(itemView.getResources()).thenReturn(resources());
         when(itemView.getTag()).thenReturn(trackItemView);
@@ -406,11 +411,16 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
 
-        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.SEARCH_GO_PLUS,
-                                                          trackItemView.goIndicator,
-                                                          R.string.overlay_search_go_plus_title,
-                                                          R.string.overlay_search_go_plus_description,
-                                                          Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
+        ArgumentCaptor<IntroductoryOverlay> introductoryOverlayCaptor = ArgumentCaptor.forClass(IntroductoryOverlay.class);
+        verify(introductoryOverlayPresenter).showIfNeeded(introductoryOverlayCaptor.capture());
+
+        IntroductoryOverlay introductoryOverlay = introductoryOverlayCaptor.getValue();
+        assertThat(introductoryOverlay.overlayKey()).isEqualTo(IntroductoryOverlayKey.SEARCH_GO_PLUS);
+        assertThat(introductoryOverlay.targetView()).isEqualTo(trackItemView.getGoIndicator());
+        assertThat(introductoryOverlay.title()).isEqualTo(R.string.overlay_search_go_plus_title);
+        assertThat(introductoryOverlay.description()).isEqualTo(R.string.overlay_search_go_plus_description);
+        assertThat(introductoryOverlay.icon()).isEqualTo(Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
+        assertThat(introductoryOverlay.event()).isEqualTo(Optional.of(GoOnboardingTooltipEvent.forSearchGoPlus()));
     }
 
 }

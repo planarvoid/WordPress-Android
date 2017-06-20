@@ -12,9 +12,11 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
@@ -176,11 +178,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void showGoPlusIntroductoryOverlayIfNeeded(View itemView, TrackItem track) {
         final TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         if (canShowOverlay(track)) {
-            introductoryOverlayPresenter.get().showIfNeeded(IntroductoryOverlayKey.SEARCH_GO_PLUS,
-                                                            trackItemView.goIndicator,
-                                                            R.string.overlay_search_go_plus_title,
-                                                            R.string.overlay_search_go_plus_description,
-                                                            Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
+            introductoryOverlayPresenter.get().showIfNeeded(IntroductoryOverlay.builder()
+                                                                               .overlayKey(IntroductoryOverlayKey.SEARCH_GO_PLUS)
+                                                                               .targetView(trackItemView.getGoIndicator())
+                                                                               .title(R.string.overlay_search_go_plus_title)
+                                                                               .description(R.string.overlay_search_go_plus_description)
+                                                                               .icon(Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)))
+                                                                               .event(Optional.of(GoOnboardingTooltipEvent.forSearchGoPlus()))
+                                                                               .build());
         }
     }
 

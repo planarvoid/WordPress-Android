@@ -4,10 +4,13 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -91,10 +94,14 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Test
     public void showIntroductoryOverlay() {
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
-        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
-                                                                        getOfflineStateButton(),
-                                                                        R.string.overlay_listen_offline_likes_title,
-                                                                        R.string.overlay_listen_offline_likes_description);
+
+        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlay.builder()
+                                                                             .overlayKey(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES)
+                                                                             .targetView(getOfflineStateButton())
+                                                                             .title(R.string.overlay_listen_offline_likes_title)
+                                                                             .description(R.string.overlay_listen_offline_likes_description)
+                                                                             .event(Optional.of(GoOnboardingTooltipEvent.forListenOfflineLikes()))
+                                                                             .build());
     }
 
     private View getOfflineStateButton() {

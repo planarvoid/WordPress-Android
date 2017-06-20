@@ -165,6 +165,10 @@ public class TrackItemView {
         reposter.setVisibility(View.VISIBLE);
     }
 
+    public View getGoIndicator() {
+        return goIndicator;
+    }
+
     public ImageView getImage() {
         return image;
     }

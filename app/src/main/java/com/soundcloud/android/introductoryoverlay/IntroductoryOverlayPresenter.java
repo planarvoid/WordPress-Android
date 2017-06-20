@@ -6,7 +6,9 @@ import static com.soundcloud.android.view.CustomFontLoader.getFont;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -14,10 +16,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -26,44 +25,27 @@ public class IntroductoryOverlayPresenter {
 
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
     private final Resources resources;
+    private final EventBusV2 eventBus;
 
     @Inject
     public IntroductoryOverlayPresenter(IntroductoryOverlayOperations introductoryOverlayOperations,
-                                        Resources resources) {
+                                        Resources resources,
+                                        EventBusV2 eventBus) {
         this.introductoryOverlayOperations = introductoryOverlayOperations;
         this.resources = resources;
+        this.eventBus = eventBus;
     }
 
-    public void showIfNeeded(String overlayKey, final View targetView,
-                             @StringRes int title, @StringRes int description) {
-        showIfNeeded(overlayKey, targetView, title, description, Optional.absent());
-    }
-
-    public void showIfNeeded(String overlayKey, final View targetView,
-                             @StringRes int title, @StringRes int description, Optional<Drawable> icon) {
+    public void showIfNeeded(IntroductoryOverlay introductoryOverlay) {
+        final String overlayKey = introductoryOverlay.overlayKey();
         if (!introductoryOverlayOperations.wasOverlayShown(overlayKey)) {
+            final View targetView = introductoryOverlay.targetView();
             final Activity activity = getActivity(targetView);
             if (activity != null) {
-                show(activity, targetView, title, description, icon);
+                show(activity, targetView, introductoryOverlay.title(), introductoryOverlay.description(), introductoryOverlay.icon());
                 introductoryOverlayOperations.setOverlayShown(overlayKey);
+                introductoryOverlay.event().ifPresent(event -> eventBus.publish(EventQueue.TRACKING, event));
             }
-        }
-    }
-
-    public void showForMenuItemIfNeeded(String overlayKey, Toolbar toolbar, @IdRes int menuItemIdRes,
-                                        @StringRes int title, @StringRes int description) {
-        Optional<MenuItem> menuItem = findMenuItem(toolbar, menuItemIdRes);
-        if (menuItem.isPresent()) {
-            View view = menuItem.get().getActionView();
-            showIfNeeded(overlayKey, view, title, description);
-        }
-    }
-
-    private Optional<MenuItem> findMenuItem(Toolbar toolbar, @IdRes int menuItemIdRes) {
-        if (toolbar != null && toolbar.getMenu() != null) {
-            return Optional.fromNullable(toolbar.getMenu().findItem(menuItemIdRes));
-        } else {
-            return Optional.absent();
         }
     }
 
