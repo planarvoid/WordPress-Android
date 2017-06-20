@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -27,7 +26,6 @@ public class AudioAdTest extends AdBaseTest {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
-    @Ignore // (19th June 2017) Started failing after "Test Ads Server" changes
     public void testQuartileEvents() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -37,7 +35,6 @@ public class AudioAdTest extends AdBaseTest {
         mrLocalLocal.verify(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
-    @Ignore // (19th June 2017) Started failing after "Test Ads Server" changes
     public void testSkipIsNotAllowedOnAd() {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
@@ -48,8 +45,7 @@ public class AudioAdTest extends AdBaseTest {
 
         assertThat(playerElement, is(not(SkipAllowed())));
     }
-    
-    @Ignore // (19th June 2017) Started failing after "Test Ads Server" changes
+
     public void testTappingFullBleedAdArtworkTwiceResumesPlayingAd() {
         swipeToAd();
         if (playerElement.isFullbleedAd()) {
@@ -68,7 +64,6 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(SkipAllowed()));
     }
 
-    @Ignore // (19th June 2017) Started failing after "Test Ads Server" changes
     public void testSkipAdShouldStartTheMonetizableTrack() {
         swipeToAd();
         playerElement
@@ -79,7 +74,6 @@ public class AudioAdTest extends AdBaseTest {
         assertFalse(playerElement.isAdPageVisible());
     }
 
-    @Ignore // (19th June 2017) Started failing after "Test Ads Server" changes
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
         swipeToAd();
         playerElement.pressBackToCollapse();
