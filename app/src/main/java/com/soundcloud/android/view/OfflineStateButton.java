@@ -15,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class OfflineStateButton extends LinearLayout {
+public class OfflineStateButton extends LinearLayout implements OfflineStateHelper.Callback {
 
     private ImageView icon;
     private TextView label;
@@ -26,6 +26,7 @@ public class OfflineStateButton extends LinearLayout {
     private final Drawable waitingIcon;
 
     private OfflineState offlineState;
+    private final OfflineStateHelper offlineStateHelper;
 
     public OfflineStateButton(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -37,6 +38,7 @@ public class OfflineStateButton extends LinearLayout {
         waitingIcon = a.getDrawable(R.styleable.OfflineStateButton_waitingIcon);
         a.recycle();
 
+        offlineStateHelper = OfflineStateHelper.create(this, this);
         init(context);
     }
 
@@ -69,15 +71,14 @@ public class OfflineStateButton extends LinearLayout {
     }
 
     public void setState(OfflineState state) {
-        if (!isTransitioningFromDownloadingToRequested(state)) {
-            offlineState = state;
-            setIcon(state);
-            setLabel(state);
-        }
+        offlineStateHelper.update(offlineState, state);
     }
 
-    private boolean isTransitioningFromDownloadingToRequested(OfflineState state) {
-        return OfflineState.DOWNLOADING == offlineState && OfflineState.REQUESTED == state;
+    @Override
+    public void onStateTransition(OfflineState state) {
+        offlineState = state;
+        setIcon(state);
+        setLabel(state);
     }
 
     private void setIcon(OfflineState state) {

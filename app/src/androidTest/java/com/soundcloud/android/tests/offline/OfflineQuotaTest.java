@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
@@ -45,7 +44,6 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         disableOfflineSettingsOnboarding(context);
     }
 
-    @Ignore
     public void testOfflineStateRequestedWhenNotEnoughSpace() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
 

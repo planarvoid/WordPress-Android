@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true" />
 
-        <com.soundcloud.android.offline.DownloadImageView
+        <com.soundcloud.android.view.DownloadImageView
             android:id="@+id/collection_download_state"
             style="@style/DownloadItem"
             android:layout_width="wrap_content"

@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.ScTextUtils.formatTimeElapsedSince;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.view.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.utils.ViewUtils;
 

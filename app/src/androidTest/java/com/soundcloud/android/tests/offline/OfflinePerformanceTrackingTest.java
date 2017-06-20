@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
@@ -63,7 +62,6 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
     }
 
-    @Ignore
     public void testStorageLimitErrorTracking() throws Exception {
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);

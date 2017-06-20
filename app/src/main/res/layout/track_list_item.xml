@@ -81,7 +81,7 @@
                 android:layout_marginTop="6dp"
                 android:layout_below="@id/list_item_subheader" >
 
-                <com.soundcloud.android.offline.DownloadImageView
+                <com.soundcloud.android.view.DownloadImageView
                     android:id="@+id/track_list_item_offline_state_image_view"
                     style="@style/DownloadItem"
                     android:layout_width="wrap_content"
