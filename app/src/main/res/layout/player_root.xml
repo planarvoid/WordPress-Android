@@ -8,6 +8,7 @@
         style="@style/PlayerOverlayBackgroundStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:alpha="0"
         app:layout_behavior="@string/player_overlay_background_behavior"
         app:player_collapsed_height="@dimen/player_footer"
         tools:ignore="MissingPrefix" />
