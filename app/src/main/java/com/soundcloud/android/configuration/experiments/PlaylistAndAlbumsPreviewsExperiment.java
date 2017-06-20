@@ -13,9 +13,9 @@ public class PlaylistAndAlbumsPreviewsExperiment {
 
     private static final String NAME = "albums_bucket_in_collection";
 
-    static final String VARIANT_CONTROL = "control1";
-    static final String VARIANT_CONTROL_2 = "control2";
-    static final String VARIANT_SEPARATE_PLAYLIST_AND_ALBUMS = "albums_bucket";
+    public static final String VARIANT_CONTROL = "control1";
+    public static final String VARIANT_CONTROL_2 = "control2";
+    public static final String VARIANT_SEPARATE_PLAYLIST_AND_ALBUMS = "albums_bucket";
 
     public static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
             .fromName(LISTENING_LAYER, NAME, asList(VARIANT_CONTROL, VARIANT_CONTROL_2, VARIANT_SEPARATE_PLAYLIST_AND_ALBUMS));

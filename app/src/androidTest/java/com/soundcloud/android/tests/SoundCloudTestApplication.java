@@ -4,6 +4,7 @@ import com.facebook.login.LoginManager;
 import com.soundcloud.android.ApplicationComponent;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.di.TestApplicationModule;
@@ -33,6 +34,7 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     @Inject FeatureFlags featureFlags;
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
+    @Inject ExperimentOperations experimentOperations;
     @Inject ConnectionHelper connectionHelper;
     @Inject LoginManager loginManager;
     @Inject GooglePlayServicesWrapper playServicesWrapper;
@@ -93,6 +95,10 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     public AccountOperations getAccountOperations() {
         return accountOperations;
+    }
+
+    public ExperimentOperations getExperimentOperations() {
+        return experimentOperations;
     }
 
     public TestConnectionHelper getConnectionHelper() {

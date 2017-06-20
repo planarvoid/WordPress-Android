@@ -13,6 +13,7 @@ import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.mrlocallocal.MrLocalLocal;
+import com.soundcloud.android.properties.ExperimentsHelper;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
@@ -213,6 +214,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     protected FeatureFlagsHelper getFeatureFlags() {
         return FeatureFlagsHelper.create(getActivity().getApplicationContext());
+    }
+
+    protected ExperimentsHelper getExperiments() {
+        return ExperimentsHelper.create(getActivity().getApplicationContext());
     }
 
     private void logIn() {
