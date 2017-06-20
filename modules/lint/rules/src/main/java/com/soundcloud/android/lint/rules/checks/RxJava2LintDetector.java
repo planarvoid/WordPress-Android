@@ -9,10 +9,12 @@ import com.android.tools.lint.detector.api.Detector;
 import com.android.tools.lint.detector.api.Implementation;
 import com.android.tools.lint.detector.api.Issue;
 import com.android.tools.lint.detector.api.JavaContext;
+import com.android.tools.lint.detector.api.LintUtils;
 import com.android.tools.lint.detector.api.Severity;
 import com.intellij.psi.JavaElementVisitor;
-import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiCallExpression;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiExpressionStatement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 
@@ -21,63 +23,64 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Based on rxjava2-lint-rules from https://github.com/vanniktech/lint-rules.
- */
 public class RxJava2LintDetector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_METHOD_MISSING_CHECK_RESULT =
-            Issue.create("sc.MissingCheckResult",
-                         "Method is missing the `@CheckResult` annotation",
-                         "Methods returning RxJava Reactive Types should be annotated with the `@CheckResult` annotation.",
-                         Category.MESSAGES,
-                         8,
+            Issue.create("sc.CheckResult",
+                         "Ignoring results",
+                         "Methods returning Rx2 types might have no side effect, and calling them without handling the result is suspicious.",
+                         Category.CORRECTNESS,
+                         6,
                          Severity.WARNING,
                          new Implementation(RxJava2LintDetector.class, EnumSet.of(JAVA_FILE, TEST_SOURCES)));
 
-    private static final String CLASS_ANNOTATION_CHECK_RESULT = "android.support.annotation.CheckResult";
     private static final String CLASS_DISPOSABLE = "io.reactivex.disposables.Disposable";
     private static final String CLASS_TEST_OBSERVER = "io.reactivex.observers.TestObserver";
     private static final String CLASS_TEST_SUBSCRIBER = "io.reactivex.subscribers.TestSubscriber";
     private static final Pattern PATTERN_PACKAGE_RX2 = Pattern.compile("io\\.reactivex\\.[\\w]+");
+    private static final String POSTFIX_METHOD_SUPPRESSION = "AndForget";
 
     @Override
     public List<Class<? extends PsiElement>> getApplicablePsiTypes() {
-        return Collections.singletonList(PsiMethod.class);
+        return Collections.singletonList(PsiCallExpression.class);
     }
 
     @Override
     public JavaElementVisitor createPsiVisitor(@NonNull final JavaContext context) {
-        return new CheckReturnValueVisitor(context);
+        return new Visitor(context);
     }
 
-    private static class CheckReturnValueVisitor extends JavaElementVisitor {
+    private static class Visitor extends JavaElementVisitor {
         private final JavaContext context;
 
-        CheckReturnValueVisitor(final JavaContext context) {
+        Visitor(final JavaContext context) {
             this.context = context;
         }
 
         @Override
-        public void visitMethod(final PsiMethod method) {
-            final PsiType returnType = method.getReturnType();
-            if (returnType == null || !isRxJava2Type(returnType)) {
+        public void visitCallExpression(PsiCallExpression call) {
+            final PsiMethod method = call.resolveMethod();
+            if (method == null) {
                 return;
             }
-            if (hasCheckResultAnnotation(method)) {
+            if (context.getDriver().isSuppressed(context, ISSUE_METHOD_MISSING_CHECK_RESULT, method)) {
                 return;
             }
-            context.report(ISSUE_METHOD_MISSING_CHECK_RESULT, method, context.getLocation(method), "Method should have `@CheckResult` annotation");
+            checkResultUsed(context, method, call);
         }
 
-        private static boolean hasCheckResultAnnotation(PsiMethod method) {
-            final PsiAnnotation[] annotations = method.getModifierList().getAnnotations();
-            for (final PsiAnnotation annotation : annotations) {
-                if (CLASS_ANNOTATION_CHECK_RESULT.equals(annotation.getQualifiedName())) {
-                    return true;
-                }
+        private void checkResultUsed(JavaContext context, PsiMethod method, PsiCallExpression call) {
+            if (!isRxJava2Type(method.getReturnType())) {
+                return;
             }
-            return false;
+            if (LintUtils.skipParentheses(call.getParent()) instanceof PsiExpressionStatement) {
+                String methodName = JavaContext.getMethodName(call);
+                String message = String.format("The result of `%1$s` is not used.", methodName);
+                if (methodName.endsWith(POSTFIX_METHOD_SUPPRESSION)) {
+                    return;
+                }
+                context.report(ISSUE_METHOD_MISSING_CHECK_RESULT, call, context.getNameLocation(call), message);
+            }
         }
 
         static boolean isRxJava2Type(final PsiType psiType) {

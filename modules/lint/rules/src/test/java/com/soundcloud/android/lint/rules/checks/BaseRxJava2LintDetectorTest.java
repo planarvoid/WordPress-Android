@@ -51,12 +51,6 @@ public abstract class BaseRxJava2LintDetectorTest extends LintDetectorTest {
                             + "}");
     }
 
-    static LintDetectorTest.TestFile stubCheckResult() {
-        return java("package android.support.annotation;\n"
-                            + "public @interface CheckResult {\n"
-                            + "}");
-    }
-
     static LintDetectorTest.TestFile stubObservable() {
         return java("io/reactivex/Observable.java",
                     "package io.reactivex;\n"
