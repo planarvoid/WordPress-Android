@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
@@ -12,6 +13,7 @@ import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore // FIXME https://soundcloud.atlassian.net/browse/DROID-1359
 public class StreamUpsellTest extends ActivityTest<MainActivity> {
 
     private static final String STREAM_UPSELL_TRACKING_TEST = "specs/stream_upsell_tracking_test.spec";
