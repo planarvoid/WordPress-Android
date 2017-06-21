@@ -294,6 +294,8 @@ public enum DeepLink {
             case "/discover/new-tracks-for-you":
             case "/the-upload":
                 return THE_UPLOAD;
+            case "/discovery":
+                return DISCOVERY;
             case "/charts":
                 return CHARTS;
             case "/search":

@@ -37,6 +37,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
@@ -87,6 +88,7 @@ public class NavigationResolver {
     private final ApplicationProperties applicationProperties;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventTracker eventTracker;
+    private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
 
     @Inject
     NavigationResolver(ResolveOperations resolveOperations,
@@ -104,7 +106,8 @@ public class NavigationResolver {
                        StationsUriResolver stationsUriResolver,
                        ApplicationProperties applicationProperties,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                       EventTracker eventTracker) {
+                       EventTracker eventTracker,
+                       DefaultHomeScreenConfiguration defaultHomeScreenConfiguration) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -121,6 +124,7 @@ public class NavigationResolver {
         this.applicationProperties = applicationProperties;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventTracker = eventTracker;
+        this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
     }
 
     @CheckResult
@@ -130,11 +134,11 @@ public class NavigationResolver {
                 if (navigationTarget.deeplink().isPresent()) {
                     return handleDeepLink(navigationTarget, navigationTarget.deeplink().get()).map(action -> NavigationResult.create(navigationTarget, action));
                 } else {
-                    return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+                    return showHome(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
                 }
             } catch (UriResolveException e) {
                 handleUriResolveException(navigationTarget, e);
-                return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+                return showHome(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
             }
         } else {
             final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.linkNavigationParameters().get().target()));
@@ -225,6 +229,7 @@ public class NavigationResolver {
     private Single<Action> handleDeepLink(NavigationTarget navigationTarget, DeepLink deepLink) throws UriResolveException {
         switch (deepLink) {
             case HOME:
+                return showHome(navigationTarget);
             case STREAM:
                 return showStream(navigationTarget);
             case RECORD:
@@ -522,6 +527,15 @@ public class NavigationResolver {
     }
 
     @CheckResult
+    private Single<Action> showHome(NavigationTarget navigationTarget) {
+        if (defaultHomeScreenConfiguration.isStreamHome()) {
+            return showStream(navigationTarget);
+        } else {
+            return showDiscoveryScreen(navigationTarget);
+        }
+    }
+
+    @CheckResult
     private Single<Action> showStream(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             accountOperations.clearCrawler();
@@ -623,14 +637,14 @@ public class NavigationResolver {
                 navigationExecutor.openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
             });
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
     }
 
     @CheckResult
     private Single<Action> showProductChoiceScreen(NavigationTarget navigationTarget, Plan plan) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
-            return openFallback(navigationTarget)
+            return showHome(navigationTarget)
                     .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(() -> {
@@ -638,14 +652,14 @@ public class NavigationResolver {
                 navigationExecutor.openProductChoiceOnMain(navigationTarget.activity(), plan);
             });
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
     }
 
     @CheckResult
     private Single<Action> showMidTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
-            return openFallback(navigationTarget)
+            return showHome(navigationTarget)
                     .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(() -> {
@@ -653,14 +667,14 @@ public class NavigationResolver {
                 navigationExecutor.openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
             });
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
     }
 
     @CheckResult
     private Single<Action> showHighTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (Plan.HIGH_TIER == featureOperations.getCurrentPlan()) {
-            return openFallback(navigationTarget)
+            return showHome(navigationTarget)
                     .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellHighTier()) {
             return Single.just(() -> {
@@ -668,7 +682,7 @@ public class NavigationResolver {
                 navigationExecutor.openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
             });
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
     }
 
@@ -680,16 +694,8 @@ public class NavigationResolver {
                 navigationExecutor.openOfflineSettings(navigationTarget.activity());
             });
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
-    }
-
-    @CheckResult
-    private Single<Action> openFallback(NavigationTarget navigationTarget) {
-        return Single.just(() -> {
-            trackForegroundEvent(navigationTarget);
-            navigationExecutor.openStream(navigationTarget.activity(), navigationTarget.screen());
-        });
     }
 
     @CheckResult
@@ -723,7 +729,7 @@ public class NavigationResolver {
             intent.setType("message/rfc822");
             return Single.just(() -> navigationTarget.activity().startActivity(Intent.createChooser(intent, title)));
         } else {
-            return openFallback(navigationTarget);
+            return showHome(navigationTarget);
         }
     }
 

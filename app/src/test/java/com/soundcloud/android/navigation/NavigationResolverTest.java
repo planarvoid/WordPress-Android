@@ -37,6 +37,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
@@ -97,6 +98,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private Optional<PromotedSourceInfo> promotedSourceInfo;
     @Mock private EventTracker eventTracker;
+    @Mock private DefaultHomeScreenConfiguration homeScreenConfiguration;
 
     private NavigationResolver resolver;
 
@@ -118,11 +120,14 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           stationsUriResolver,
                                           applicationProperties,
                                           InjectionSupport.providerOf(expandPlayerSubscriber),
-                                          eventTracker);
+                                          eventTracker,
+                                          homeScreenConfiguration);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
                                              any(Screen.class))).thenReturn(Single.never());
+
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
     }
 
@@ -130,6 +135,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchSoundStreamIfUriBlank() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink("");
 
         resolveTarget(navigationTarget);
@@ -139,11 +145,32 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchSoundStreamIfUriNull() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
         resolveTarget(navigationTarget);
 
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
+    public void deeplink_shouldLaunchSoundStreamIfUriBlank_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        NavigationTarget navigationTarget = getTargetForDeeplink("");
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
+    public void deeplink_shouldLaunchSoundStreamIfUriNull_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        NavigationTarget navigationTarget = getTargetForDeeplink(null);
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -348,11 +375,23 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldTrackForegroundEventsWithoutResourcesForHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
         resolveTarget(navigationTarget);
 
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verifyTrackingEvent(navigationTarget.referrer());
+    }
+
+    @Test
+    public void deeplink_shouldTrackForegroundEventsWithoutResourcesForHome_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        NavigationTarget navigationTarget = getTargetForDeeplink(null);
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
         verifyTrackingEvent(navigationTarget.referrer());
     }
 
@@ -511,6 +550,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -522,7 +562,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void deeplink_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        String target = "soundcloud://soundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
     public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -536,7 +590,23 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        String target = "soundcloud://buysoundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
     public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -545,6 +615,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        String target = "soundcloud://buysoundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -564,6 +649,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldNotLaunchMidTierCheckout() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgo";
@@ -576,7 +662,22 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void deeplink_shouldNotLaunchMidTierCheckout_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellBothTiers()).thenReturn(false);
+        String target = "soundcloud://buysoundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
     public void deeplink_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -585,6 +686,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void deeplink_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        String target = "soundcloud://buysoundcloudgoplus";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -617,6 +733,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldNotLaunchHighTierCheckout() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -629,7 +746,22 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void deeplink_shouldNotLaunchHighTierCheckout_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        String target = "soundcloud://buysoundcloudgoplus";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
     public void deeplink_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -638,6 +770,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void deeplink_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        String target = "soundcloud://soundcloudgo/soundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -670,6 +817,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldNotLaunchProductChoice() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
@@ -679,6 +827,20 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
+    public void deeplink_shouldNotLaunchProductChoice_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellBothTiers()).thenReturn(false);
+        String target = "soundcloud://soundcloudgo/soundcloudgo";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -695,6 +857,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -703,6 +866,19 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+    }
+
+    @Test
+    public void deeplink_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        String target = "soundcloud://settings_offlinelistening";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -902,6 +1078,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigation_shouldLaunchSoundStreamIfUriBlank() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForNavigation("");
 
         resolveTarget(navigationTarget);
@@ -910,12 +1087,33 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void navigation_shouldLaunchSoundStreamIfUriBlank_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        NavigationTarget navigationTarget = getTargetForNavigation("");
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), NAVIGATION_SCREEN);
+    }
+
+    @Test
     public void navigation_shouldLaunchSoundStreamIfUriNull() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForNavigation(null);
 
         resolveTarget(navigationTarget);
 
         verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+    }
+
+    @Test
+    public void navigation_shouldLaunchSoundStreamIfUriNull_newHome() throws Exception {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
+        NavigationTarget navigationTarget = getTargetForNavigation(null);
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
