@@ -19,10 +19,10 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 import org.json.JSONException;
-import rx.Observable;
-import rx.Subscriber;
-import rx.subjects.BehaviorSubject;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -89,7 +89,7 @@ public class BillingService {
             log("Billing service is not available on this device");
             connectionSubject.onNext(ConnectionStatus.UNSUPPORTED);
         }
-        return connectionSubject.asObservable();
+        return connectionSubject.hide();
     }
 
     public void closeConnection() {
@@ -97,37 +97,35 @@ public class BillingService {
             bindingActivity.unbindService(serviceConnection);
             log("Connection closed");
         }
-        connectionSubject.onCompleted();
+        connectionSubject.onComplete();
         bindingActivity = null;
     }
 
-    public Observable<ProductDetails> getDetails(final String id) {
-        return Observable.create(new Observable.OnSubscribe<ProductDetails>() {
-            @Override
-            public void call(Subscriber<? super ProductDetails> subscriber) {
-                try {
-                    Bundle response = iabService.getSkuDetails(IAB_VERSION,
-                                                               deviceHelper.getPackageName(),
-                                                               TYPE_SUBS,
-                                                               getSkuBundle(id));
-                    logBillingResponse("getSkuDetails", getResponseCodeFromBundle(response));
+    public Single<ProductDetails> getDetails(final String id) {
+        return Single.create(emitter -> {
+            try {
+                Bundle response = iabService.getSkuDetails(IAB_VERSION,
+                                                           deviceHelper.getPackageName(),
+                                                           TYPE_SUBS,
+                                                           getSkuBundle(id));
+                logBillingResponse("getSkuDetails", getResponseCodeFromBundle(response));
 
-                    if (response.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
-                        ArrayList<String> responseList = response.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
-                        ProductDetails details = processor.parseProduct(responseList.get(0));
-                        subscriber.onNext(details);
-                    }
-                    subscriber.onCompleted();
-                } catch (RemoteException | JSONException e) {
-                    log("Failed to retrieve subscription details");
-                    subscriber.onError(e);
+                if (response.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
+                    ArrayList<String> responseList = response.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
+                    ProductDetails details = processor.parseProduct(responseList.get(0));
+                    emitter.onSuccess(details);
+                } else {
+                    emitter.onError(new IllegalStateException("No subscription details in IAB service response"));
                 }
+            } catch (RemoteException | JSONException e) {
+                log("Failed to retrieve subscription details");
+                emitter.onError(e);
             }
         });
     }
 
-    public Observable<SubscriptionStatus> getStatus() {
-        return Observable.create(subscriber -> {
+    public Single<SubscriptionStatus> getStatus() {
+        return Single.create(emitter -> {
             try {
                 Bundle response = iabService.getPurchases(IAB_VERSION,
                                                           deviceHelper.getPackageName(),
@@ -137,12 +135,13 @@ public class BillingService {
                 logBillingResponse("getPurchases", responseCode);
 
                 if (responseCode == RESULT_OK) {
-                    subscriber.onNext(extractStatusFromResponse(response));
+                    emitter.onSuccess(extractStatusFromResponse(response));
+                } else {
+                    emitter.onError(new IllegalStateException("Non-OK subscription status response code from IAB service"));
                 }
-                subscriber.onCompleted();
             } catch (RemoteException | JSONException e) {
                 log("Failed to retrieve subscription status");
-                subscriber.onError(e);
+                emitter.onError(e);
             }
         });
     }

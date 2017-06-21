@@ -9,22 +9,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.PublishSubject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.subjects.PublishSubject;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -47,11 +48,11 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     private NativeConversionPresenter presenter;
 
-    private TestObserver testObserver;
+    private TestObserver<String> testTokenObserver = new TestObserver<>();
+    private TestObserver<PurchaseStatus> testStatusObserver = new TestObserver<>();
 
     @Before
     public void setUp() {
-        testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
         presenter = new NativeConversionPresenter(paymentOperations,
                                                   paymentErrorPresenter,
@@ -95,8 +96,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.never(),
-                                                                                               null));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Single.never(), null));
         presenter.onCreate(activity, null);
 
         verify(conversionView, never()).showDetails(anyString());
@@ -107,8 +107,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void restoringPurchaseStateWithErrorDisplaysError() {
         setupSuccessfulConnection();
         Throwable error = new Throwable();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.error(
-                error), null));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Single.error(error), null));
 
         presenter.onCreate(activity, null);
 
@@ -118,9 +117,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void restoringVerificationObservableTriggersSuccess() {
         setupSuccessfulConnection();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null,
-                                                                                               Observable.just(
-                                                                                                       PurchaseStatus.SUCCESS)));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(
+                new TransactionState(null, Single.just(PurchaseStatus.SUCCESS)));
 
         presenter.onCreate(activity, null);
 
@@ -130,9 +128,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void onCreateWithVerifyTimeoutObservableShowsFailure() {
         setupSuccessfulConnection();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null,
-                                                                                               Observable.just(
-                                                                                                       PurchaseStatus.VERIFY_TIMEOUT)));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(
+                new TransactionState(null, Single.just(PurchaseStatus.VERIFY_TIMEOUT)));
 
         presenter.onCreate(activity, null);
 
@@ -151,7 +148,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void getStateWithPurchaseObservableReturnsPurchasingState() {
         setupExpectedProductDetails();
-        Observable<String> purchase = Observable.just("token");
+        Single<String> purchase = Single.just("token");
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(purchase);
 
         presenter.onCreate(activity, null);
@@ -159,38 +156,38 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         final TransactionState state = presenter.getState();
 
         assertThat(state.isRetrievingStatus()).isFalse();
-        state.purchase().subscribe(testObserver);
-        assertThat(testObserver.getOnNextEvents()).containsExactly("token");
+        state.purchase().subscribe(testTokenObserver);
+        testTokenObserver.assertValue("token");
     }
 
     @Test
     public void getStateWithStatusObservableFromOnCreateReturnsStatus() {
-        final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.NONE);
+        final Single<PurchaseStatus> status = Single.just(PurchaseStatus.NONE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(status);
-        when(paymentOperations.queryProduct()).thenReturn(Observable.never());
+        when(paymentOperations.queryProduct()).thenReturn(Single.never());
 
         presenter.onCreate(activity, null);
 
         final TransactionState state = presenter.getState();
         assertThat(state.isRetrievingStatus()).isTrue();
-        state.status().subscribe(testObserver);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PurchaseStatus.NONE);
+        state.status().subscribe(testStatusObserver);
+        testStatusObserver.assertValue(PurchaseStatus.NONE);
     }
 
     @Test
     public void getStateWithStatusObservableFromBillingResultReturnsStatus() {
         final BillingResult success = TestBillingResults.success();
-        final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.SUCCESS);
-        when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Observable.just("token"));
+        final Single<PurchaseStatus> status = Single.just(PurchaseStatus.SUCCESS);
+        when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Single.just("token"));
         when(paymentOperations.verify(success.getPayload())).thenReturn(status);
 
         presenter.handleBillingResult(success);
 
         final TransactionState state = presenter.getState();
         assertThat(state.isRetrievingStatus()).isTrue();
-        state.status().subscribe(testObserver);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(PurchaseStatus.SUCCESS);
+        state.status().subscribe(testStatusObserver);
+        testStatusObserver.assertValue(PurchaseStatus.SUCCESS);
     }
 
     @Test
@@ -202,7 +199,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void sendsPlayBillingSuccessForVerification() {
         BillingResult billingResult = TestBillingResults.success();
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.PENDING));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Single.just(PurchaseStatus.PENDING));
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(billingResult);
@@ -212,7 +209,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void cancelsTransactionForPlayBillingFailure() {
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Single.never());
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -223,7 +220,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void cancelsTransactionPlayBillingError() {
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Single.never());
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.error());
@@ -234,9 +231,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void purchaseCancellationWithNoProductSetsUpProduct() {
         setupExpectedProductDetails();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.never(),
-                                                                                               null));
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Single.never(), null));
+        when(paymentOperations.cancel(anyString())).thenReturn(Single.never());
         presenter.onCreate(activity, null);
 
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -257,7 +253,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void queriesPurchaseStatusWhenBillingServiceIsReady() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryStatus()).thenReturn(Observable.empty());
+        when(paymentOperations.queryStatus()).thenReturn(Single.never());
 
         presenter.onCreate(activity, null);
 
@@ -267,8 +263,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void queriesProductDetailsWhenPurchaseStatusIsNone() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
-        when(paymentOperations.queryProduct()).thenReturn(Observable.never());
+        when(paymentOperations.queryStatus()).thenReturn(Single.just(PurchaseStatus.NONE));
+        when(paymentOperations.queryProduct()).thenReturn(Single.never());
 
         presenter.onCreate(activity, null);
 
@@ -287,7 +283,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void disablesBuyButtonWhenClicked() {
         ProductDetails details = setupExpectedProductDetails();
-        when(paymentOperations.purchase(details.getId())).thenReturn(Observable.just("token"));
+        when(paymentOperations.purchase(details.getId())).thenReturn(Single.just("token"));
         presenter.onCreate(activity, null);
 
         verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
@@ -300,7 +296,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void reEnablesBuyButtonIfPurchaseStartFails() {
         ProductDetails details = setupExpectedProductDetails();
         Exception exception = new Exception();
-        when(paymentOperations.purchase(details.getId())).thenReturn(Observable.error(exception));
+        when(paymentOperations.purchase(details.getId())).thenReturn(Single.error(exception));
         presenter.onCreate(activity, null);
 
         verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
@@ -313,7 +309,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void reEnablesBuyButtonWhenPurchaseIsCancelled() {
         setupExpectedProductDetails();
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.just(new ApiResponse(null, 200, null)));
+        when(paymentOperations.cancel(anyString())).thenReturn(Single.just(new ApiResponse(null, 200, null)));
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -325,7 +321,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void sendsFailReasonWhenPurchaseIsCancelled() {
         BillingResult result = TestBillingResults.cancelled();
         PublishSubject subject = PublishSubject.create();
-        when(paymentOperations.cancel(result.getFailReason())).thenReturn(subject);
+        when(paymentOperations.cancel(result.getFailReason())).thenReturn(subject.hide().firstOrError());
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -336,8 +332,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void displaysConnectionErrorIfProductIsNotAvailable() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
-        when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromNoProduct()));
+        when(paymentOperations.queryStatus()).thenReturn(Single.just(PurchaseStatus.NONE));
+        when(paymentOperations.queryProduct()).thenReturn(Single.just(ProductStatus.fromNoProduct()));
 
         presenter.onCreate(activity, null);
 
@@ -346,7 +342,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsSuccessActivityWhenPurchaseIsSuccess() {
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Single.just(PurchaseStatus.SUCCESS));
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
@@ -356,7 +352,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displaysErrorOnVerificationFail() {
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_FAIL));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Single.just(PurchaseStatus.VERIFY_FAIL));
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
@@ -366,7 +362,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displaysErrorOnVerificationTimeout() {
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_TIMEOUT));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Single.just(PurchaseStatus.VERIFY_TIMEOUT));
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
@@ -382,8 +378,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     private ProductDetails setupExpectedProductDetails() {
         ProductDetails details = new ProductDetails(PRODUCT_ID, "product title", "description", PRICE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
-        when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
+        when(paymentOperations.queryStatus()).thenReturn(Single.just(PurchaseStatus.NONE));
+        when(paymentOperations.queryProduct()).thenReturn(Single.just(ProductStatus.fromSuccess(details)));
         return details;
     }
 

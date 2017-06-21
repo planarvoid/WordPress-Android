@@ -22,13 +22,13 @@ import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Observable;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -77,7 +77,7 @@ public class BillingServiceTest extends AndroidUnitTest {
         when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(RESULT_OK);
         onServiceConnected();
 
-        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
+        ConnectionStatus status = result.blockingFirst(null);
         assertThat(status.isReady()).isTrue();
     }
 
@@ -87,7 +87,7 @@ public class BillingServiceTest extends AndroidUnitTest {
 
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
 
-        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
+        ConnectionStatus status = result.blockingFirst(null);
         assertThat(status.isUnsupported()).isTrue();
     }
 
@@ -97,7 +97,7 @@ public class BillingServiceTest extends AndroidUnitTest {
         when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(RESULT_ERROR);
         onServiceConnected();
 
-        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
+        ConnectionStatus status = result.blockingFirst(null);
         assertThat(status.isUnsupported()).isTrue();
     }
 
@@ -108,7 +108,7 @@ public class BillingServiceTest extends AndroidUnitTest {
 
         onServiceDisconnected();
 
-        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
+        ConnectionStatus status = result.blockingFirst(null);
         assertThat(status.isDisconnected()).isTrue();
     }
 
@@ -132,7 +132,7 @@ public class BillingServiceTest extends AndroidUnitTest {
 
         billingService.openConnection(activity);
         onServiceConnected();
-        ProductDetails result = billingService.getDetails("id").toBlocking().firstOrDefault(null);
+        ProductDetails result = billingService.getDetails("id").test().values().get(0);
 
         assertThat(result).isSameAs(details);
     }
@@ -147,7 +147,7 @@ public class BillingServiceTest extends AndroidUnitTest {
 
         billingService.openConnection(activity);
         onServiceConnected();
-        SubscriptionStatus status = billingService.getStatus().toBlocking().firstOrDefault(null);
+        SubscriptionStatus status = billingService.getStatus().test().values().get(0);
 
         assertThat(status.isSubscribed()).isTrue();
         assertThat(status.getPayload()).isEqualTo(new Payload("data", "signature"));
@@ -156,13 +156,13 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Test
     public void getStatusReturnsCorrectStatusIfNotSubscribed() throws RemoteException {
         Bundle bundle = okBundle();
-        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, new ArrayList<String>());
-        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, new ArrayList<String>());
+        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, new ArrayList<>());
+        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, new ArrayList<>());
         when(service.getPurchases(3, "com.package", "subs", null)).thenReturn(bundle);
 
         billingService.openConnection(activity);
         onServiceConnected();
-        SubscriptionStatus status = billingService.getStatus().toBlocking().firstOrDefault(null);
+        SubscriptionStatus status = billingService.getStatus().test().values().get(0);
 
         assertThat(status.isSubscribed()).isFalse();
     }

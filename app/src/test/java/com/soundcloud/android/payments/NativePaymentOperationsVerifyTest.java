@@ -1,7 +1,6 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
@@ -9,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingResult;
@@ -18,20 +17,20 @@ import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.TestScheduler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.schedulers.TestScheduler;
 
 import java.net.HttpURLConnection;
 import java.util.concurrent.TimeUnit;
 
 public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
 
-    @Mock private ApiClientRx api;
+    @Mock private ApiClientRxV2 api;
     @Mock private BillingService billingService;
     @Mock private TokenStorage tokenStorage;
 
@@ -49,7 +48,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
+                .thenReturn(Single.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
         when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))),
                                 eq(CheckoutUpdated.class)))
                 .thenReturn(successObservable());
@@ -67,12 +66,12 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
     public void verifyReturnsUpdateFailStatusIfUpdateFailed() {
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_FORBIDDEN, null)));
+                .thenReturn(Single.just(new ApiResponse(null, HttpURLConnection.HTTP_FORBIDDEN, null)));
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(PurchaseStatus.UPDATE_FAIL);
+        observer.assertValue(PurchaseStatus.UPDATE_FAIL);
     }
 
     @Test
@@ -93,7 +92,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(PurchaseStatus.SUCCESS);
+        observer.assertValue(PurchaseStatus.SUCCESS);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(PurchaseStatus.VERIFY_FAIL);
+        observer.assertValue(PurchaseStatus.VERIFY_FAIL);
     }
 
     @Test
@@ -117,10 +116,10 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
 
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
-        assertThat(observer.getOnNextEvents()).isEmpty();
+        observer.assertNoValues();
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(PurchaseStatus.SUCCESS);
-        observer.assertTerminalEvent();
+        observer.assertValue(PurchaseStatus.SUCCESS);
+        observer.assertComplete();
     }
 
     @Test
@@ -135,7 +134,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         verify(api, times(4)).mappedResponse(argThat(isApiRequestTo("GET",
                                                                     ApiEndpoints.CHECKOUT_URN.path("token_123"))),
                                              eq(CheckoutUpdated.class));
-        observer.assertTerminalEvent();
+        observer.assertComplete();
     }
 
     @Test
@@ -147,7 +146,7 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(8, TimeUnit.SECONDS);
 
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(PurchaseStatus.VERIFY_TIMEOUT);
+        observer.assertValue(PurchaseStatus.VERIFY_TIMEOUT);
     }
 
     @Test
@@ -175,25 +174,25 @@ public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
         verify(tokenStorage).clear();
     }
 
-    private Observable<CheckoutUpdated> successObservable() {
-        return Observable.just(new CheckoutUpdated("successful", "ok", "token_123"));
+    private Single<CheckoutUpdated> successObservable() {
+        return Single.just(new CheckoutUpdated("successful", "ok", "token_123"));
     }
 
-    private Observable<CheckoutUpdated> failObservable() {
-        return Observable.just(new CheckoutUpdated("failed", "error", "token_123"));
+    private Single<CheckoutUpdated> failObservable() {
+        return Single.just(new CheckoutUpdated("failed", "error", "token_123"));
     }
 
-    private Observable<CheckoutUpdated> pendingObservable() {
-        return Observable.just(new CheckoutUpdated("pending", "working", "token_123"));
+    private Single<CheckoutUpdated> pendingObservable() {
+        return Single.just(new CheckoutUpdated("pending", "working", "token_123"));
     }
 
     private void setupPendingSubscription(Payload payload) {
-        when(billingService.getStatus()).thenReturn(Observable.just(SubscriptionStatus.subscribed("token_123",
+        when(billingService.getStatus()).thenReturn(Single.just(SubscriptionStatus.subscribed("token_123",
                                                                                                   payload)));
         when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                           .withContent(UpdateCheckout.fromSuccess(payload)))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
+                .thenReturn(Single.just(new ApiResponse(null, HttpURLConnection.HTTP_OK, null)));
     }
 
 }

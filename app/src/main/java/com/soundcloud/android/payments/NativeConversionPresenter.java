@@ -1,18 +1,17 @@
 package com.soundcloud.android.payments;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.error.PaymentError;
 import com.soundcloud.android.payments.googleplay.BillingResult;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
+import io.reactivex.disposables.CompositeDisposable;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,9 +28,9 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private final EventBus eventBus;
     private final NavigationExecutor navigationExecutor;
 
-    private Observable<String> purchaseObservable;
-    private Observable<PurchaseStatus> statusObservable;
-    private final CompositeSubscription subscription = new CompositeSubscription();
+    private Single<String> purchaseSingle;
+    private Single<PurchaseStatus> statusSingle;
+    private final CompositeDisposable disposable = new CompositeDisposable();
     @Nullable private TransactionState restoreState;
 
     private AppCompatActivity activity;
@@ -70,7 +69,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private void initConnection() {
-        subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
+        disposable.add(paymentOperations.connect(activity).subscribeWith(new ConnectionObserver()));
     }
 
     private void clearExistingError(AppCompatActivity activity) {
@@ -84,12 +83,12 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     public TransactionState getState() {
-        return new TransactionState(purchaseObservable, statusObservable);
+        return new TransactionState(purchaseSingle, statusSingle);
     }
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        subscription.unsubscribe();
+        disposable.clear();
         paymentOperations.disconnect();
     }
 
@@ -101,7 +100,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
                 subscribeToStatus(paymentOperations.verify(result.getPayload()).cache());
             } else {
                 paymentErrorPresenter.showCancelled();
-                fireAndForget(paymentOperations.cancel(result.getFailReason()));
+                paymentOperations.cancel(result.getFailReason()).subscribeWith(new DefaultSingleObserver<>());
                 if (details == null) {
                     initConnection();
                 } else {
@@ -111,18 +110,18 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         }
     }
 
-    private void subscribeToStatus(Observable<PurchaseStatus> status) {
-        statusObservable = status;
-        subscription.add(statusObservable.subscribe(new StatusSubscriber()));
+    private void subscribeToStatus(Single<PurchaseStatus> status) {
+        statusSingle = status;
+        disposable.add(statusSingle.subscribeWith(new StatusObserver()));
     }
 
-    private void subscribeToPurchase(Observable<String> purchase) {
-        statusObservable = null;
-        purchaseObservable = purchase;
-        subscription.add(purchaseObservable.subscribe(new PurchaseSubscriber()));
+    private void subscribeToPurchase(Single<String> purchase) {
+        statusSingle = null;
+        purchaseSingle = purchase;
+        disposable.add(purchaseSingle.subscribeWith(new PurchaseObserver()));
     }
 
-    private class ConnectionSubscriber extends DefaultSubscriber<ConnectionStatus> {
+    private class ConnectionObserver extends DefaultObserver<ConnectionStatus> {
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
@@ -150,9 +149,9 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         restoreState = null;
     }
 
-    private class DetailsSubscriber extends DefaultSubscriber<ProductStatus> {
+    private class DetailsObserver extends DefaultSingleObserver<ProductStatus> {
         @Override
-        public void onNext(ProductStatus result) {
+        public void onSuccess(ProductStatus result) {
             if (result.isSuccess()) {
                 details = result.getDetails();
                 conversionView.showDetails(details.getPrice());
@@ -160,6 +159,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
             } else {
                 paymentErrorPresenter.showConnectionError();
             }
+            super.onSuccess(result);
         }
 
         @Override
@@ -169,7 +169,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         }
     }
 
-    private class PurchaseSubscriber extends DefaultSubscriber<String> {
+    private class PurchaseObserver extends DefaultSingleObserver<String> {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
@@ -178,9 +178,9 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
         }
     }
 
-    private class StatusSubscriber extends DefaultSubscriber<PurchaseStatus> {
+    private class StatusObserver extends DefaultSingleObserver<PurchaseStatus> {
         @Override
-        public void onNext(PurchaseStatus result) {
+        public void onSuccess(PurchaseStatus result) {
             switch (result) {
                 case SUCCESS:
                     upgradeSuccess();
@@ -197,6 +197,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
                 default:
                     break;
             }
+            super.onSuccess(result);
         }
 
         @Override
@@ -212,7 +213,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private void loadPurchaseOptions() {
-        subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
+        disposable.add(paymentOperations.queryProduct().subscribeWith(new DetailsObserver()));
     }
 
 }

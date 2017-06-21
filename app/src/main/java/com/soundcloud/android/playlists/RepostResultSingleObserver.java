@@ -15,6 +15,7 @@ public class RepostResultSingleObserver extends DefaultSingleObserver<RepostOper
     @Override
     public void onSuccess(RepostOperations.RepostResult result) {
         repostResultSubscriber.onNext(result);
+        super.onSuccess(result);
     }
 
     @Override

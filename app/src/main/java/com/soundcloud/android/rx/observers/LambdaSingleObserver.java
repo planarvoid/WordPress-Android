@@ -18,6 +18,7 @@ public final class LambdaSingleObserver<T> extends DefaultSingleObserver<T> {
     public void onSuccess(T args) {
         try {
             onNextConsumer.accept(args);
+            super.onSuccess(args);
         } catch (Exception e) {
             onError(e);
         }

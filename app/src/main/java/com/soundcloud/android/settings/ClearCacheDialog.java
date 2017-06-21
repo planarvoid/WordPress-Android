@@ -87,6 +87,7 @@ public class ClearCacheDialog extends DialogFragment {
         public void onComplete() {
             Toast.makeText(appContext, R.string.cache_cleared, Toast.LENGTH_SHORT).show();
             dismiss();
+            super.onComplete();
         }
     }
 }

@@ -22,30 +22,30 @@ public class AvailableProductsTest {
     }
 
     @Test
-    public void mapsAvailableProductListToKnownProductId() {
+    public void mapsAvailableProductListToKnownProductId() throws Exception {
         AvailableProducts products = new AvailableProducts(singletonList(knownProduct));
-        Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
+        Product mappedProduct = AvailableProducts.TO_PRODUCT.apply(products);
         assertThat(mappedProduct.id).isEqualTo("product_id");
     }
 
     @Test
-    public void ignoresUnknownProducts() {
+    public void ignoresUnknownProducts() throws Exception {
         AvailableProducts products = new AvailableProducts(asList(unknownProduct, knownProduct));
-        Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
+        Product mappedProduct = AvailableProducts.TO_PRODUCT.apply(products);
         assertThat(mappedProduct.id).isEqualTo("product_id");
     }
 
     @Test
-    public void mapsListOfUnknownProductsToEmptyProduct() {
+    public void mapsListOfUnknownProductsToEmptyProduct() throws Exception {
         AvailableProducts products = new AvailableProducts(singletonList(unknownProduct));
-        Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
+        Product mappedProduct = AvailableProducts.TO_PRODUCT.apply(products);
         assertThat(mappedProduct.isEmpty()).isTrue();
     }
 
     @Test
-    public void mapsEmptyProductListToEmptyProduct() {
-        AvailableProducts products = new AvailableProducts(new ArrayList<Product>());
-        Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
+    public void mapsEmptyProductListToEmptyProduct() throws Exception {
+        AvailableProducts products = new AvailableProducts(new ArrayList<>());
+        Product mappedProduct = AvailableProducts.TO_PRODUCT.apply(products);
         assertThat(mappedProduct.isEmpty()).isTrue();
     }
 

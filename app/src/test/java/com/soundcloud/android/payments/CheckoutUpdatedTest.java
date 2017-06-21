@@ -7,21 +7,21 @@ import org.junit.Test;
 public class CheckoutUpdatedTest {
 
     @Test
-    public void mapsPendingToStatus() {
+    public void mapsPendingToStatus() throws Exception {
         CheckoutUpdated result = new CheckoutUpdated("pending", "blah", "token");
-        assertThat(CheckoutUpdated.TO_STATUS.call(result)).isEqualTo(PurchaseStatus.PENDING);
+        assertThat(CheckoutUpdated.TO_STATUS.apply(result)).isEqualTo(PurchaseStatus.PENDING);
     }
 
     @Test
-    public void mapsFailureToStatus() {
+    public void mapsFailureToStatus() throws Exception {
         CheckoutUpdated result = new CheckoutUpdated("failed", "blah", "token");
-        assertThat(CheckoutUpdated.TO_STATUS.call(result)).isEqualTo(PurchaseStatus.VERIFY_FAIL);
+        assertThat(CheckoutUpdated.TO_STATUS.apply(result)).isEqualTo(PurchaseStatus.VERIFY_FAIL);
     }
 
     @Test
-    public void mapsSuccessToStatus() {
+    public void mapsSuccessToStatus() throws Exception {
         CheckoutUpdated result = new CheckoutUpdated("successful", "blah", "token");
-        assertThat(CheckoutUpdated.TO_STATUS.call(result)).isEqualTo(PurchaseStatus.SUCCESS);
+        assertThat(CheckoutUpdated.TO_STATUS.apply(result)).isEqualTo(PurchaseStatus.SUCCESS);
     }
 
 }

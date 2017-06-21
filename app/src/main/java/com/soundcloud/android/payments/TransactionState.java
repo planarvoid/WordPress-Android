@@ -1,13 +1,13 @@
 package com.soundcloud.android.payments;
 
-import rx.Observable;
+import io.reactivex.Single;
 
 class TransactionState {
 
-    private final Observable<String> purchase;
-    private final Observable<PurchaseStatus> status;
+    private final Single<String> purchase;
+    private final Single<PurchaseStatus> status;
 
-    TransactionState(Observable<String> purchase, Observable<PurchaseStatus> status) {
+    TransactionState(Single<String> purchase, Single<PurchaseStatus> status) {
         this.purchase = purchase;
         this.status = status;
     }
@@ -20,11 +20,11 @@ class TransactionState {
         return status != null;
     }
 
-    public Observable<String> purchase() {
+    public Single<String> purchase() {
         return purchase;
     }
 
-    public Observable<PurchaseStatus> status() {
+    public Single<PurchaseStatus> status() {
         return status;
     }
 }

@@ -1,24 +1,26 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.payments.AvailableProducts.Product;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
-import com.soundcloud.android.rx.ScSchedulers;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 
 import android.app.Activity;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
 class NativePaymentOperations {
@@ -26,32 +28,28 @@ class NativePaymentOperations {
     private static final int VERIFY_THROTTLE_SECONDS = 2;
 
     private final Scheduler scheduler;
-    private final ApiClientRx api;
+    private final ApiClientRxV2 apiClient;
     private final BillingService playBilling;
     private final TokenStorage tokenStorage;
 
-    private final Func1<SubscriptionStatus, Observable<PurchaseStatus>> verifyPendingSubscription = new Func1<SubscriptionStatus, Observable<PurchaseStatus>>() {
+    private final Function<SubscriptionStatus, Single<PurchaseStatus>> verifyPendingSubscription = new Function<SubscriptionStatus, Single<PurchaseStatus>>() {
         @Override
-        public Observable<PurchaseStatus> call(SubscriptionStatus subscriptionStatus) {
+        public Single<PurchaseStatus> apply(@NonNull SubscriptionStatus subscriptionStatus) throws Exception {
             if (subscriptionStatus.isSubscribed()) {
                 tokenStorage.setCheckoutToken(subscriptionStatus.getToken());
                 return verify(subscriptionStatus.getPayload());
             }
-            return Observable.just(PurchaseStatus.NONE);
+            return Single.just(PurchaseStatus.NONE);
         }
     };
 
     @Inject
-    NativePaymentOperations(ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
-        this(ScSchedulers.HIGH_PRIO_SCHEDULER, api, playBilling, tokenStorage);
-    }
-
-    NativePaymentOperations(Scheduler scheduler,
-                            ApiClientRx api,
+    NativePaymentOperations(@Named(RX_HIGH_PRIORITY) Scheduler scheduler,
+                            ApiClientRxV2 apiClient,
                             BillingService playBilling,
                             TokenStorage tokenStorage) {
         this.scheduler = scheduler;
-        this.api = api;
+        this.apiClient = apiClient;
         this.playBilling = playBilling;
         this.tokenStorage = tokenStorage;
     }
@@ -64,88 +62,82 @@ class NativePaymentOperations {
         playBilling.closeConnection();
     }
 
-    Observable<PurchaseStatus> queryStatus() {
+    Single<PurchaseStatus> queryStatus() {
         return playBilling.getStatus()
                           .subscribeOn(scheduler)
                           .flatMap(verifyPendingSubscription)
                           .observeOn(AndroidSchedulers.mainThread());
     }
 
-    Observable<ProductStatus> queryProduct() {
+    Single<ProductStatus> queryProduct() {
         return getSubscriptionId()
                 .flatMap(product -> product.isEmpty()
-                                    ? Observable.just(ProductStatus.fromNoProduct())
+                                    ? Single.just(ProductStatus.fromNoProduct())
                                     : queryProduct(product.id).map(ProductStatus::fromSuccess))
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    Observable<String> purchase(final String id) {
+    Single<String> purchase(final String id) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CHECKOUT.path())
                                              .forPrivateApi()
                                              .withContent(new StartCheckout(id))
                                              .build();
-        return api.mappedResponse(request, CheckoutStarted.class)
-                  .subscribeOn(scheduler)
-                  .map(started -> started.token)
-                  .doOnNext(tokenStorage::setCheckoutToken)
-                  .doOnNext(launchPaymentFlow(id))
-                  .observeOn(AndroidSchedulers.mainThread());
+        return apiClient.mappedResponse(request, CheckoutStarted.class)
+                        .subscribeOn(scheduler)
+                        .map(started -> started.token)
+                        .doOnSuccess(token -> {
+                            tokenStorage.setCheckoutToken(token);
+                            playBilling.startPurchase(id, token);
+                        })
+                        .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Action1<String> launchPaymentFlow(final String id) {
-        return token -> playBilling.startPurchase(id, token);
-    }
-
-    Observable<PurchaseStatus> verify(final Payload payload) {
+    Single<PurchaseStatus> verify(final Payload payload) {
         return update(payload)
-                .flatMap(new Func1<PurchaseStatus, Observable<PurchaseStatus>>() {
+                .flatMap(new Function<PurchaseStatus, Single<PurchaseStatus>>() {
                     @Override
-                    public Observable<PurchaseStatus> call(PurchaseStatus purchaseStatus) {
+                    public Single<PurchaseStatus> apply(@NonNull PurchaseStatus purchaseStatus) throws Exception {
                         if (purchaseStatus.isPending()) {
                             return pollStatus();
                         }
-                        return Observable.just(PurchaseStatus.UPDATE_FAIL);
-                    }
+                        return Single.just(PurchaseStatus.UPDATE_FAIL);                    }
                 })
-                .doOnCompleted(tokenStorage::clear)
+                .doOnSuccess(ignore -> tokenStorage.clear())
+                .doOnError(ignore -> tokenStorage.clear())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Observable<PurchaseStatus> update(final Payload payload) {
-        return api.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
+    private Single<PurchaseStatus> update(final Payload payload) {
+        return apiClient.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
                   .subscribeOn(scheduler)
                   .map(apiResponse -> apiResponse.isSuccess()
                                       ? PurchaseStatus.PENDING
                                       : PurchaseStatus.UPDATE_FAIL);
     }
 
-    private Observable<PurchaseStatus> pollStatus() {
+    private Single<PurchaseStatus> pollStatus() {
         return Observable.interval(VERIFY_THROTTLE_SECONDS, TimeUnit.SECONDS, scheduler)
                          .take(4)
-                         .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
-                             @Override
-                             public Observable<PurchaseStatus> call(Long tick) {
-                                 return getStatus();
-                             }
-                         })
+                         .flatMap(tick -> getStatus().toObservable())
                          .filter(status -> !status.isPending())
-                         .firstOrDefault(PurchaseStatus.VERIFY_TIMEOUT);
+                         .first(PurchaseStatus.VERIFY_TIMEOUT);
     }
 
-    private Observable<PurchaseStatus> getStatus() {
+    private Single<PurchaseStatus> getStatus() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
                           .forPrivateApi()
                           .build();
-        return api.mappedResponse(request, CheckoutUpdated.class)
+        return apiClient.mappedResponse(request, CheckoutUpdated.class)
                   .subscribeOn(scheduler)
                   .map(CheckoutUpdated.TO_STATUS);
     }
 
-    public Observable<ApiResponse> cancel(final String reason) {
-        return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
-                  .subscribeOn(scheduler)
-                  .doOnCompleted(tokenStorage::clear);
+    public Single<ApiResponse> cancel(final String reason) {
+        return apiClient.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
+                        .doOnSuccess(ignore -> tokenStorage.clear())
+                        .doOnError(ignore -> tokenStorage.clear())
+                        .subscribeOn(scheduler);
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {
@@ -155,22 +147,22 @@ class NativePaymentOperations {
                          .build();
     }
 
-    private Observable<ProductDetails> queryProduct(String id) {
+    private Single<ProductDetails> queryProduct(String id) {
         return playBilling.getDetails(id)
                           .subscribeOn(scheduler);
     }
 
-    private Observable<Product> getSubscriptionId() {
+    private Single<Product> getSubscriptionId() {
         return fetchAvailableProducts()
                 .map(AvailableProducts.TO_PRODUCT);
     }
 
-    private Observable<AvailableProducts> fetchAvailableProducts() {
+    private Single<AvailableProducts> fetchAvailableProducts() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.NATIVE_PRODUCTS.path())
                           .forPrivateApi()
                           .build();
-        return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
+        return apiClient.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
     }
 
 }

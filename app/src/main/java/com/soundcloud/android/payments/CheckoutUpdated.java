@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import rx.functions.Func1;
+import io.reactivex.functions.Function;
 
 class CheckoutUpdated {
 
@@ -10,7 +10,7 @@ class CheckoutUpdated {
     public final String reason;
     public final String token;
 
-    static final Func1<CheckoutUpdated, PurchaseStatus> TO_STATUS = update -> {
+    static final Function<CheckoutUpdated, PurchaseStatus> TO_STATUS = update -> {
         switch (update.state) {
             case "pending":
                 return PurchaseStatus.PENDING;

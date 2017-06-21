@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import rx.functions.Func1;
+import io.reactivex.functions.Function;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ class AvailableProducts {
 
     private static final String HIGH_TIER = "high_tier";
 
-    public static final Func1<AvailableProducts, Product> TO_PRODUCT = availableProducts -> {
+    static final Function<AvailableProducts, Product> TO_PRODUCT = availableProducts -> {
         for (Product product : availableProducts.products) {
             if (product.planId.equals(HIGH_TIER)) {
                 return product;
