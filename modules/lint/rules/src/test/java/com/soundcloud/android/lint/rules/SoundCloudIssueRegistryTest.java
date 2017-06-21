@@ -2,6 +2,7 @@ package com.soundcloud.android.lint.rules;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.soundcloud.android.lint.rules.checks.EnumDetector;
 import com.soundcloud.android.lint.rules.checks.IntentFactoryDetector;
 import com.soundcloud.android.lint.rules.checks.LogDetector;
 import com.soundcloud.android.lint.rules.checks.NavigatorDetector;
@@ -25,6 +26,7 @@ public class SoundCloudIssueRegistryTest {
         assertThat(issueRegistry.getIssues()).containsExactly(
                 NavigatorDetector.ISSUE_START_INTENT,
                 IntentFactoryDetector.ISSUE_CREATE_OUTSIDE,
+                EnumDetector.ISSUE_ENUM_USAGE,
                 RxJava2LintDetector.ISSUE_METHOD_MISSING_CHECK_RESULT,
                 LogDetector.ISSUE_ANDROID_LOG,
                 RxJava1Detector.ISSUE_RXJAVA_1_USAGE

@@ -2,6 +2,62 @@
 <issues format="4" by="lint 2.3.3">
 
     <issue
+        id="sc.EnumUsage"
+        message="Unsafe `valueOf()` call to enum with label."
+        errorLine1="        return DiscoverySource.valueOf(value.toUpperCase(US).replaceAll(&quot;:&quot;, &quot;_&quot;));"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/DiscoverySource.java"
+            line="29"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="sc.EnumUsage"
+        message="Unsafe `name()` call to enum with label."
+        errorLine1="        return Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(Tables.PlaylistView.SHARING.name()));"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/NewPlaylistMapper.java"
+            line="55"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="sc.EnumUsage"
+        message="Unsafe `name()` call to enum with label."
+        errorLine1="                                              Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(Tables.Sounds.SHARING)));"
+        errorLine2="                                                              ~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistStorage.java"
+            line="166"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="sc.EnumUsage"
+        message="Unsafe `name()` call to enum with label."
+        errorLine1="            return Sharing.PRIVATE.name().equalsIgnoreCase(reader.getString(SoundView.SHARING));"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playlists/PlaylistTracksStorage.java"
+            line="180"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="sc.EnumUsage"
+        message="Unsafe `valueOf()` call to enum with label."
+        errorLine1="            return Referrer.valueOf(referrer.toUpperCase(Locale.US));"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/analytics/Referrer.java"
+            line="49"
+            column="29"/>
+    </issue>
+
+
+    <issue
         id="sc.RxJava1Usage"
         message="Migrate to RxJava2. RxJava1 should no longer be used."
         errorLine1="import rx.functions.Action0;"

@@ -2,6 +2,7 @@ package com.soundcloud.android.storage;
 
 import android.provider.BaseColumns;
 
+@SuppressWarnings("sc.EnumUsage")
 @Deprecated // use the new `Tables` structure
 public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),

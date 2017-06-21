@@ -51,7 +51,7 @@ public class ApplicationProperties {
         return buildType.playbackFeedbackEmail;
     }
 
-
+    @SuppressWarnings("sc.EnumUsage")
     private enum BuildType {
         DEBUG(DEV_LOGS_EMAIL, DEV_PLAYBACK_LOGS_EMAIL),
         ALPHA(ALPHA_LOGS_EMAIL, ALPHA_PLAYBACK_LOGS_EMAIL),

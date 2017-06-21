@@ -2,6 +2,7 @@ package com.soundcloud.android.lint.rules;
 
 import com.android.tools.lint.client.api.IssueRegistry;
 import com.android.tools.lint.detector.api.Issue;
+import com.soundcloud.android.lint.rules.checks.EnumDetector;
 import com.soundcloud.android.lint.rules.checks.IntentFactoryDetector;
 import com.soundcloud.android.lint.rules.checks.LogDetector;
 import com.soundcloud.android.lint.rules.checks.NavigatorDetector;
@@ -17,6 +18,7 @@ public class SoundCloudIssueRegistry extends IssueRegistry {
         return Arrays.asList(
                 NavigatorDetector.ISSUE_START_INTENT,
                 IntentFactoryDetector.ISSUE_CREATE_OUTSIDE,
+                EnumDetector.ISSUE_ENUM_USAGE,
                 RxJava2LintDetector.ISSUE_METHOD_MISSING_CHECK_RESULT,
                 LogDetector.ISSUE_ANDROID_LOG,
                 RxJava1Detector.ISSUE_RXJAVA_1_USAGE
