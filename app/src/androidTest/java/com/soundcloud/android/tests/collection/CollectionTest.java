@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
@@ -23,6 +24,13 @@ public class CollectionTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.collectionUser;
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
     }
 
     public void testCollection() {

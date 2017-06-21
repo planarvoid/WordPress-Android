@@ -9,6 +9,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -43,8 +44,11 @@ public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        context = getInstrumentation().getTargetContext();
         super.setUp();
+
+        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
+
+        context = getInstrumentation().getTargetContext();
         playlist = String.valueOf(System.currentTimeMillis());
     }
 

@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
@@ -41,6 +42,9 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+
+        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
+
         context = getInstrumentation().getTargetContext();
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);
