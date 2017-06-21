@@ -4,19 +4,13 @@ import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 
-/**
- * Should be deleted after Rx2 migration.
- *
- * @deprecated Use {@link UpdateTrackListObserver} instead.
- */
-@Deprecated
-public final class UpdateTrackListSubscriber extends DefaultSubscriber<TrackChangedEvent> {
+public final class UpdateTrackListObserver extends DefaultObserver<TrackChangedEvent> {
     private final RecyclerItemAdapter adapter;
 
-    public UpdateTrackListSubscriber(RecyclerItemAdapter adapter) {
+    public UpdateTrackListObserver(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 

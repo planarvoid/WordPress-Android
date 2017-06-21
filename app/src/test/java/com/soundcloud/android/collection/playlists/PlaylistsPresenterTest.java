@@ -21,7 +21,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +68,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
     @Captor private ArgumentCaptor<PlaylistsOptions> playlistsOptionsCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private PlaylistsOptions options;
 
     @Before

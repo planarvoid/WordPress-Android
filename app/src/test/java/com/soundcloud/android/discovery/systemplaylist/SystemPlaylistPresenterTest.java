@@ -14,7 +14,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYou;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -29,7 +29,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.Before;
@@ -96,8 +96,8 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Mock Resources resources;
     @Mock PlaySessionStateProvider playSessionStateProvider;
 
-    private final TestEventBus eventBus = new TestEventBus();
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
+    private final Provider<ExpandPlayerObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver(eventBus);
     private SystemPlaylistPresenter presenter;
 
     @Before
@@ -231,12 +231,12 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void canTransformNewForYouToNewForYouItemsWithHeaderAndTracksWithIsPlaying() {
+    public void canTransformNewForYouToNewForYouItemsWithHeaderAndTracksWithIsPlaying() throws Exception {
         when(playSessionStateProvider.isCurrentlyPlaying(TRACKS.get(0).urn())).thenReturn(false);
         when(playSessionStateProvider.isCurrentlyPlaying(TRACKS.get(1).urn())).thenReturn(true);
         when(playSessionStateProvider.isCurrentlyPlaying(TRACKS.get(2).urn())).thenReturn(false);
 
-        final Iterator<SystemPlaylistItem> systemPlaylistItem = presenter.toSystemPlaylistItems().call(SYSTEM_PLAYLIST).iterator();
+        final Iterator<SystemPlaylistItem> systemPlaylistItem = presenter.toSystemPlaylistItems().apply(SYSTEM_PLAYLIST).iterator();
 
         assertThat(systemPlaylistItem.next().isHeader()).isTrue();
         assertThat(((SystemPlaylistItem.Track) systemPlaylistItem.next()).track().isPlaying()).isFalse();

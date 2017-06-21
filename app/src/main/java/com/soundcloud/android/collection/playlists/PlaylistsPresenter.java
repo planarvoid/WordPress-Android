@@ -36,21 +36,23 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
-import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.android.view.adapters.LikeEntityListObserver;
+import com.soundcloud.android.view.adapters.RepostEntityListObserver;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -74,16 +76,16 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private final PlaylistsAdapter adapter;
     private final PlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final EntityItemCreator entityItemCreator;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final CompositeDisposable eventDisposables = new CompositeDisposable();
 
     private PlaylistsOptions.Entities entities;
     private PlaylistsOptions currentOptions;
-    private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
     @Inject
     public PlaylistsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -92,7 +94,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               PlaylistsAdapter adapter,
                               PlaylistOptionsPresenter optionsPresenter,
                               Resources resources,
-                              EventBus eventBus,
+                              EventBusV2 eventBus,
                               OfflinePropertiesProvider offlinePropertiesProvider,
                               FeatureFlags featureFlags,
                               EntityItemCreator entityItemCreator,
@@ -148,13 +150,13 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        eventSubscriptions.unsubscribe();
+        eventDisposables.clear();
         super.onDestroyView(fragment);
     }
 
     @Override
     protected CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> onBuildBinding(Bundle bundle) {
-        return CollectionBinding.from(setupSourceObservable(playlists()))
+        return CollectionBinding.fromV2(setupSourceObservable(playlists()))
                                 .withAdapter(adapter)
                                 .addObserver(onNext(this::endMeasuringPlaylistsLoading))
                                 .build();
@@ -162,16 +164,16 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
     @Override
     protected CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> onRefreshBinding() {
-        return CollectionBinding.from(setupSourceObservable(updatedPlaylists()))
+        return CollectionBinding.fromV2(setupSourceObservable(updatedPlaylists()))
                                 .withAdapter(adapter)
                                 .build();
     }
 
     @NonNull
-    private Observable<List<PlaylistCollectionItem>> setupSourceObservable(Observable<List<PlaylistItem>> source) {
+    private Maybe<List<PlaylistCollectionItem>> setupSourceObservable(Maybe<List<PlaylistItem>> source) {
         return source.map(this::playlistCollectionItems)
                      .observeOn(AndroidSchedulers.mainThread())
-                     .doOnNext(new OnCollectionLoadedAction());
+                     .doOnSuccess(new OnCollectionLoadedAction());
     }
 
     private void endMeasuringPlaylistsLoading(Iterable<PlaylistCollectionItem> items) {
@@ -182,15 +184,15 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         performanceMetricsEngine.endMeasuring(performanceMetric);
     }
 
-    private Observable<List<PlaylistItem>> playlists() {
-        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(currentOptions)).map(toPlaylistsItems());
+    private Maybe<List<PlaylistItem>> playlists() {
+        return myPlaylistsOperations.myPlaylists(currentOptions).map(toPlaylistsItems());
     }
 
-    private Observable<List<PlaylistItem>> updatedPlaylists() {
-        return RxJava.toV1Observable(myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions)).map(toPlaylistsItems());
+    private Maybe<List<PlaylistItem>> updatedPlaylists() {
+        return myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions).map(toPlaylistsItems());
     }
 
-    private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
+    private Function<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
         return playlists -> Lists.transform(playlists, entityItemCreator::playlistItem);
     }
 
@@ -271,56 +273,46 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         };
     }
 
-    private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
+    private final Predicate<Object> isNotRefreshing = new Predicate<Object>() {
         @Override
-        public Boolean call(Object event) {
+        public boolean test(Object event) {
             return !swipeRefreshAttacher.isRefreshing();
         }
     };
 
     private void subscribeForUpdates() {
-        eventSubscriptions.unsubscribe();
-        eventSubscriptions = new CompositeSubscription(
+        eventDisposables.clear();
+        eventDisposables.addAll(
                 subscribeToOfflineContent(),
                 eventBus.queue(PLAYLIST_CHANGED)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new DefaultSubscriber<PlaylistChangedEvent>() {
-                            @Override
-                            public void onNext(PlaylistChangedEvent args) {
-                                updateFromPlaylistChange(args);
-                            }
-                        }),
+                        .subscribeWith(LambdaObserver.onNext(this::updateFromPlaylistChange)),
                 eventBus.queue(URN_STATE_CHANGED)
-                        .filter(UrnStateChangedEvent::containsPlaylist)
                         .filter(isNotRefreshing)
+                        .filter(UrnStateChangedEvent::containsPlaylist)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new DefaultSubscriber<UrnStateChangedEvent>() {
-                            @Override
-                            public void onNext(UrnStateChangedEvent args) {
-                                refreshCollections();
-                            }
-                        }),
+                        .subscribeWith(LambdaObserver.onNext(args -> refreshCollections())),
                 eventBus.queue(LIKE_CHANGED)
                         .filter(LikesStatusEvent::containsPlaylistChange)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new LikeEntityListSubscriber(adapter)),
+                        .subscribeWith(new LikeEntityListObserver(adapter)),
                 eventBus.queue(REPOST_CHANGED)
                         .filter(RepostsStatusEvent::containsPlaylistChange)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostEntityListSubscriber(adapter))
+                        .subscribeWith(new RepostEntityListObserver(adapter))
         );
     }
 
-    private Subscription subscribeToOfflineContent() {
+    private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new OfflinePropertiesSubscriber(adapter));
+            return RxJava.toV2Observable(offlinePropertiesProvider.states())
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribeWith(new OfflinePropertiesObserver(adapter));
         } else {
-            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadSubscriber());
+            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadObserver());
         }
     }
 
@@ -343,15 +335,15 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         }
     }
 
-    private class OnCollectionLoadedAction implements Action1<List<PlaylistCollectionItem>> {
+    private class OnCollectionLoadedAction implements Consumer<List<PlaylistCollectionItem>> {
         @Override
-        public void call(List<PlaylistCollectionItem> ignored) {
+        public void accept(List<PlaylistCollectionItem> ignored) {
             adapter.clear();
             subscribeForUpdates();
         }
     }
 
-    private class UpdatePlaylistsDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+    private class UpdatePlaylistsDownloadObserver extends DefaultObserver<OfflineContentChangedEvent> {
         @Override
         public void onNext(final OfflineContentChangedEvent event) {
             for (int position = 0; position < adapter.getItems().size(); position++) {
@@ -366,11 +358,11 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         }
     }
 
-    private class OfflinePropertiesSubscriber extends DefaultSubscriber<OfflineProperties> {
+    private class OfflinePropertiesObserver extends DefaultObserver<OfflineProperties> {
 
         private final PlaylistsAdapter adapter;
 
-        private OfflinePropertiesSubscriber(PlaylistsAdapter adapter) {
+        private OfflinePropertiesObserver(PlaylistsAdapter adapter) {
             this.adapter = adapter;
         }
 

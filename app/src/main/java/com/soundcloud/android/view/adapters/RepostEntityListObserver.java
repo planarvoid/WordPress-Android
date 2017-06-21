@@ -3,20 +3,14 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 
-/**
- * Should be deleted after Rx2 migration.
- *
- * @deprecated Use {@link RepostEntityListObserver} instead.
- */
-@Deprecated
-public final class RepostEntityListSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
+public final class RepostEntityListObserver extends DefaultObserver<RepostsStatusEvent> {
     private final RecyclerItemAdapter adapter;
 
-    public RepostEntityListSubscriber(RecyclerItemAdapter adapter) {
+    public RepostEntityListObserver(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 

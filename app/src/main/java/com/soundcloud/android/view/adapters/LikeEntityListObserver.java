@@ -3,20 +3,14 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 
-/**
- * Should be deleted after Rx2 migration.
- *
- * @deprecated Use {@link LikeEntityListObserver} instead.
- */
-@Deprecated
-public final class LikeEntityListSubscriber extends DefaultSubscriber<LikesStatusEvent> {
+public final class LikeEntityListObserver extends DefaultObserver<LikesStatusEvent> {
     private final RecyclerItemAdapter adapter;
 
-    public LikeEntityListSubscriber(RecyclerItemAdapter adapter) {
+    public LikeEntityListObserver(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 

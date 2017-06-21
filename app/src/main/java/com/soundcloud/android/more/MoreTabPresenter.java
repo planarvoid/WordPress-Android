@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
@@ -27,8 +26,8 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
@@ -36,8 +35,8 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -66,9 +65,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final ConfigurationOperations configurationOperations;
     private final FeedbackController feedbackController;
     private final PerformanceMetricsEngine performanceMetricsEngine;
-
-    private Subscription userSubscription = RxUtils.invalidSubscription();
-    private Subscription configSubscription = RxUtils.invalidSubscription();
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     private Optional<MoreView> moreViewOpt = Optional.absent();
     private Optional<More> moreOpt = Optional.absent();
@@ -111,9 +108,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     @Override
     public void onCreate(MoreFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userSubscription = RxJava.toV1Observable(userRepository.userInfo(accountOperations.getLoggedInUserUrn()))
-                                 .observeOn(AndroidSchedulers.mainThread())
-                                 .subscribe(new MoreSubscriber());
+        disposables.add(userRepository.userInfo(accountOperations.getLoggedInUserUrn())
+                                      .observeOn(AndroidSchedulers.mainThread())
+                                      .subscribeWith(new MoreObserver()));
     }
 
     @Override
@@ -188,13 +185,13 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
             moreViewOpt.get().unbind();
             moreViewOpt = Optional.absent();
         }
-        configSubscription.unsubscribe();
+        disposables.clear();
         super.onDestroyView(fragment);
     }
 
     @Override
     public void onDestroy(MoreFragment fragment) {
-        userSubscription.unsubscribe();
+        disposables.clear();
         super.onDestroy(fragment);
     }
 
@@ -212,9 +209,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                                                        headerView.getProfileImageView());
     }
 
-    private class MoreSubscriber extends DefaultSubscriber<User> {
+    private class MoreObserver extends DefaultMaybeObserver<User> {
         @Override
-        public void onNext(User user) {
+        public void onSuccess(User user) {
             moreOpt = Optional.of(new More(user));
             bindUserIfPresent();
         }
@@ -293,9 +290,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onRestoreSubscriptionClicked(View view) {
-        configSubscription = configurationOperations.update()
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe(new ConfigurationSubscriber());
+        disposables.add(RxJava.toV2Completable(configurationOperations.update())
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribeWith(new ConfigurationObserver()));
         setRestoreSubscriptionEnabled(false);
     }
 
@@ -336,10 +333,10 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                 .show();
     }
 
-    private class ConfigurationSubscriber extends DefaultSubscriber<Configuration> {
+    private class ConfigurationObserver extends DefaultDisposableCompletableObserver {
 
         @Override
-        public void onCompleted() {
+        public void onComplete() {
             if (!featureOperations.getCurrentPlan().isGoPlan()) {
                 feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_not_subscribed));
             }

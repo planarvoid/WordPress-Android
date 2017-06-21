@@ -26,32 +26,30 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
-import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
+import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
-import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
-import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
+import com.soundcloud.android.view.adapters.LikeEntityListObserver;
+import com.soundcloud.android.view.adapters.RepostEntityListObserver;
+import com.soundcloud.android.view.adapters.UpdateTrackListObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -70,22 +68,22 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     private final PlayHistoryOperations playHistoryOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PlayHistoryAdapter adapter;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final EventBus eventBus;
+    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
+    private final EventBusV2 eventBus;
     private final PerformanceMetricsEngine performanceMetricsEngine;
-
-    private CompositeSubscription viewLifeCycle;
-    private Fragment fragment;
-    private FeedbackController feedbackController;
+    private final CompositeDisposable viewLifeCycle = new CompositeDisposable();
+    private final FeedbackController feedbackController;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
+
+    private Fragment fragment;
 
     @Inject
     PlayHistoryPresenter(PlayHistoryOperations playHistoryOperations,
                          OfflineContentOperations offlineContentOperations,
                          PlayHistoryAdapter adapter,
-                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                         EventBus eventBus,
+                         Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
+                         EventBusV2 eventBus,
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          FeedbackController feedbackController,
                          OfflinePropertiesProvider offlinePropertiesProvider,
@@ -95,7 +93,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         this.playHistoryOperations = playHistoryOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.adapter = adapter;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.expandPlayerObserverProvider = expandPlayerObserverProvider;
         this.eventBus = eventBus;
         this.feedbackController = feedbackController;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
@@ -114,7 +112,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     @Override
     public void onClearConfirmationClicked() {
-        playHistoryOperations.clearHistory().subscribe(new ClearHistorySubscriber());
+        playHistoryOperations.clearHistory().subscribe(new ClearHistoryObserver());
     }
 
     @Override
@@ -124,9 +122,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     @Override
     public void trackItemClicked(Urn urn, int position) {
-        RxJava.toV1Observable(playHistoryOperations
-                .startPlaybackFrom(urn, Screen.PLAY_HISTORY))
-                .subscribe(expandPlayerSubscriberProvider.get());
+        viewLifeCycle.add(playHistoryOperations.startPlaybackFrom(urn, Screen.PLAY_HISTORY).subscribeWith(expandPlayerObserverProvider.get()));
     }
 
     @Override
@@ -172,14 +168,14 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         super.onViewCreated(fragment, view, savedInstanceState);
         this.fragment = fragment;
 
-        viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
+        viewLifeCycle.addAll(
+                eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackObserver(adapter)),
                 subscribeToOfflineContent(),
-                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
-                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
-                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
-                offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
-                                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
+                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListObserver(adapter)),
+                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListObserver(adapter)),
+                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListObserver(adapter)),
+                offlineContentOperations.getOfflineContentOrOfflineLikesStatusChangesV2()
+                                        .subscribeWith(new RefreshRecyclerViewAdapterObserver(adapter))
         );
 
         getEmptyView().setImage(R.drawable.collection_empty_playlists);
@@ -187,21 +183,21 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         getEmptyView().setBackgroundResource(R.color.page_background);
     }
 
-    private Subscription subscribeToOfflineContent() {
+    private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
+            return offlinePropertiesProvider.statesV2()
                                             .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new OfflinePropertiesSubscriber());
+                                            .subscribeWith(new OfflinePropertiesObserver());
         } else {
             return eventBus.queue(OFFLINE_CONTENT_CHANGED)
                            .observeOn(AndroidSchedulers.mainThread())
-                           .subscribe(new CurrentDownloadSubscriber());
+                           .subscribeWith(new CurrentDownloadObserver());
         }
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        viewLifeCycle.unsubscribe();
+        viewLifeCycle.clear();
         this.fragment = null;
         super.onDestroyView(fragment);
     }
@@ -211,7 +207,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private class ClearHistorySubscriber extends DefaultObserver<Boolean> {
+    private class ClearHistoryObserver extends DefaultObserver<Boolean> {
         @Override
         public void onNext(Boolean wasSuccessful) {
             if (!wasSuccessful) {
@@ -225,7 +221,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         }
     }
 
-    private abstract class UpdateSubscriber<T> extends DefaultSubscriber<T> {
+    private abstract class UpdateObserver<T> extends DefaultObserver<T> {
 
         abstract TrackItem getUpdatedTrackItem(T event, TrackItem itemTrack);
 
@@ -251,7 +247,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         }
     }
 
-    class OfflinePropertiesSubscriber extends UpdateSubscriber<OfflineProperties> {
+    class OfflinePropertiesObserver extends UpdateObserver<OfflineProperties> {
 
         @Override
         TrackItem getUpdatedTrackItem(OfflineProperties properties, TrackItem trackItem) {
@@ -267,7 +263,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         }
     }
 
-    private class CurrentDownloadSubscriber extends UpdateSubscriber<OfflineContentChangedEvent> {
+    private class CurrentDownloadObserver extends UpdateObserver<OfflineContentChangedEvent> {
         @Override
         TrackItem getUpdatedTrackItem(OfflineContentChangedEvent event, TrackItem trackItem) {
             return trackItem.updatedWithOfflineState(event.state);

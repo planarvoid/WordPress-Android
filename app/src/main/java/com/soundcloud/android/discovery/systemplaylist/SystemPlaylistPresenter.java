@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -14,22 +14,21 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
-import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -54,13 +53,13 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     private final NewForYouOperations newForYouOperations;
     private final SystemPlaylistAdapter adapter;
     private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
     private final Resources resources;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final EntityItemCreator entityItemCreator;
 
-    private final CompositeSubscription subscription = new CompositeSubscription();
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private boolean forNewForYou;
     private Urn urn;
     private WeakReference<Activity> activity;
@@ -71,9 +70,9 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                             NewForYouOperations newForYouOperations,
                             SystemPlaylistAdapterFactory adapterFactory,
                             PlaybackInitiator playbackInitiator,
-                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                            Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
                             Resources resources,
-                            EventBus eventBus,
+                            EventBusV2 eventBus,
                             PlaySessionStateProvider playSessionStateProvider,
                             EntityItemCreator entityItemCreator) {
         super(swipeRefreshAttacher, Options.list().build());
@@ -82,7 +81,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
         this.newForYouOperations = newForYouOperations;
         this.adapter = adapterFactory.create(this, this);
         this.playbackInitiator = playbackInitiator;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.expandPlayerObserverProvider = expandPlayerObserverProvider;
         this.resources = resources;
         this.eventBus = eventBus;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -110,7 +109,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
 
     @Override
     public void onDestroy(Fragment fragment) {
-        subscription.unsubscribe();
+        disposables.clear();
         super.onDestroy(fragment);
     }
 
@@ -118,7 +117,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        subscription.add(eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)));
+        disposables.add(eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackObserver(adapter)));
     }
 
     @Override
@@ -150,7 +149,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     }
 
     private CollectionBinding<SystemPlaylist, SystemPlaylistItem> buildCollectionBinding(Observable<SystemPlaylist> systemPlaylistObservable) {
-        return CollectionBinding.from(RxJava.toV1Observable(systemPlaylistObservable.observeOn(AndroidSchedulers.mainThread())), toSystemPlaylistItems())
+        return CollectionBinding.fromV2(systemPlaylistObservable.observeOn(AndroidSchedulers.mainThread()), toSystemPlaylistItems())
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -161,7 +160,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     }
 
     @VisibleForTesting
-    Func1<SystemPlaylist, ? extends Iterable<SystemPlaylistItem>> toSystemPlaylistItems() {
+    Function<SystemPlaylist, ? extends Iterable<SystemPlaylistItem>> toSystemPlaylistItems() {
         return systemPlaylist -> {
             final List<SystemPlaylistItem> items = new ArrayList<>(systemPlaylist.tracks().size() + NUM_EXTRA_ITEMS);
 
@@ -238,10 +237,8 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     }
 
     private void startPlayback(int adapterPosition, int finalPosition) {
-        subscription.add(RxJava.toV1Observable(playbackInitiator.playTracks(getTrackUrns(),
-                                                                            finalPosition,
-                                                                            getPlaySessionSource(adapterPosition, finalPosition)))
-                               .subscribe(expandPlayerSubscriberProvider.get()));
+        disposables.add(playbackInitiator.playTracks(getTrackUrns(), finalPosition, getPlaySessionSource(adapterPosition, finalPosition))
+                                         .subscribeWith(expandPlayerObserverProvider.get()));
     }
 
     private List<Urn> getTrackUrns() {

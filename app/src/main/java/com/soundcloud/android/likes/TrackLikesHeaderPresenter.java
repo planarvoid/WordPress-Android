@@ -1,9 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventContextMetadata.builder;
-import static com.soundcloud.android.rx.RxUtils.IS_NOT_NULL;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.Observable.combineLatest;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
@@ -17,7 +15,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
@@ -25,24 +22,23 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.functions.Func4;
-import rx.subjects.BehaviorSubject;
-import rx.subscriptions.CompositeSubscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Function4;
+import io.reactivex.subjects.BehaviorSubject;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -53,35 +49,37 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+@SuppressWarnings("PMD.GodClass")
 public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
         implements TrackLikesHeaderView.Listener, CellRenderer<TrackLikesItem> {
 
-    private static final Func1<Optional<WeakReference<View>>, View> EXTRACT_VIEW = weakReferenceOptional -> weakReferenceOptional.get().get();
+    private static final Function<Optional<WeakReference<View>>, Optional<View>> EXTRACT_VIEW = weakReferenceOptional -> weakReferenceOptional.transform(Reference::get);
 
     private final TrackLikesHeaderViewFactory headerViewFactory;
     private final OfflineStateOperations offlineStateOperations;
     private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
     private final FeatureOperations featureOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final TrackLikeOperations likeOperations;
     private final NavigationExecutor navigationExecutor;
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final OfflineContentOperations offlineContentOperations;
-    private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
+    private final Provider<UpdateHeaderViewObserver> observerProvider;
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
-    private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
-            new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
+    private final Function4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
+            new Function4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
                 @Override
-                public HeaderViewUpdate call(Integer trackCount,
-                                             TrackLikesHeaderView view,
-                                             OfflineState offlineState,
-                                             Boolean offlineLikesEnabled) {
+                public HeaderViewUpdate apply(Integer trackCount,
+                                              TrackLikesHeaderView view,
+                                              OfflineState offlineState,
+                                              Boolean offlineLikesEnabled) {
                     return HeaderViewUpdate.create(view,
                                                    trackCount,
                                                    featureOperations.isOfflineContentEnabled(),
@@ -91,9 +89,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 }
             };
 
-    private Func1<View, TrackLikesHeaderView> toTrackLikesHeaderView = new Func1<View, TrackLikesHeaderView>() {
+    private final Function<View, TrackLikesHeaderView> toTrackLikesHeaderView = new Function<View, TrackLikesHeaderView>() {
         @Override
-        public TrackLikesHeaderView call(View view) {
+        public TrackLikesHeaderView apply(View view) {
             return headerViewFactory.create(view, TrackLikesHeaderPresenter.this);
         }
 
@@ -103,8 +101,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private final BehaviorSubject<Integer> trackCountSubject;
     private final BehaviorSubject<Optional<WeakReference<View>>> viewSubject;
-    private Subscription subscription;
-    private CompositeSubscription compositeSubscription = new CompositeSubscription();
+    private final CompositeDisposable compositeDisposables = new CompositeDisposable();
 
     @Inject
     public TrackLikesHeaderPresenter(final TrackLikesHeaderViewFactory headerViewFactory,
@@ -113,46 +110,46 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      TrackLikeOperations likeOperations,
                                      final FeatureOperations featureOperations,
                                      PlaybackInitiator playbackInitiator,
-                                     Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                     Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
                                      Provider<OfflineLikesDialog> syncLikesDialogProvider,
                                      NavigationExecutor navigationExecutor,
-                                     EventBus eventBus,
-                                     Provider<UpdateHeaderViewSubscriber> subscriberProvider,
+                                     EventBusV2 eventBus,
+                                     Provider<UpdateHeaderViewObserver> observerProvider,
                                      OfflineSettingsStorage offlineSettingsStorage,
                                      GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
         this.headerViewFactory = headerViewFactory;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.expandPlayerObserverProvider = expandPlayerObserverProvider;
         this.syncLikesDialogProvider = syncLikesDialogProvider;
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
         this.navigationExecutor = navigationExecutor;
         this.offlineContentOperations = offlineContentOperations;
-        this.subscriberProvider = subscriberProvider;
+        this.observerProvider = observerProvider;
         this.offlineSettingsStorage = offlineSettingsStorage;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
 
-        trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
-        viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
+        trackCountSubject = BehaviorSubject.createDefault(Consts.NOT_SET);
+        viewSubject = BehaviorSubject.createDefault(Optional.<WeakReference<View>>absent());
     }
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
 
-        subscription = combineLatest(trackCountSubject,
-                                     headerViewObservable(),
-                                     getOfflineStateObservable(),
-                                     getOfflineLikesEnabledObservable(),
-                                     toHeaderViewUpdate).subscribe(subscriberProvider.get());
+        compositeDisposables.add(Observable.combineLatest(trackCountSubject,
+                                                          headerViewObservable(),
+                                                          getOfflineStateObservable(),
+                                                          getOfflineLikesEnabledObservable(),
+                                                          toHeaderViewUpdate)
+                                           .subscribeWith(observerProvider.get()));
     }
 
     @Override
     public void onDestroy(Fragment fragment) {
-        compositeSubscription.clear();
-        subscription.unsubscribe();
+        compositeDisposables.clear();
         super.onDestroy(fragment);
     }
 
@@ -183,8 +180,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private Observable<Boolean> getOfflineLikesEnabledObservable() {
         if (featureOperations.isOfflineContentEnabled()) {
-            return offlineContentOperations.getOfflineLikedTracksStatusChanges()
-                                           .observeOn(AndroidSchedulers.mainThread());
+            return RxJava.toV2Observable(offlineContentOperations.getOfflineLikedTracksStatusChanges())
+                         .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(false);
         }
@@ -193,9 +190,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private Observable<OfflineState> getOfflineStateObservable() {
         if (featureOperations.isOfflineContentEnabled()) {
             return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                           .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
-                           .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                           .startWith(RxJava.toV1Observable(offlineStateOperations.loadLikedTracksOfflineState()))
+                           .filter(event -> event.isLikedTrackCollection)
+                           .map(event -> event.state)
+                           .startWith(offlineStateOperations.loadLikedTracksOfflineState())
                            .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(OfflineState.NOT_OFFLINE);
@@ -205,10 +202,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onShuffle() {
-        compositeSubscription.add(RxJava.toV1Observable(playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
-                                                                         .doOnEvent((__, ___) -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(builder().pageName(Screen.LIKES.get())
-                                                                                                                                                                    .build()))))
-                                        .subscribe(expandPlayerSubscriberProvider.get()));
+        compositeDisposables.add(playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
+                                                  .doOnEvent((a, b) -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(builder().pageName(Screen.LIKES.get())
+                                                                                                                                            .build())))
+                                                  .subscribeWith(expandPlayerObserverProvider.get()));
     }
 
     @Override
@@ -254,25 +251,25 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @NonNull
     private Observable<TrackLikesHeaderView> headerViewObservable() {
-        return viewSubject.filter(Optional::isPresent)
-                          .map(EXTRACT_VIEW)
-                          .filter(IS_NOT_NULL)
+        return viewSubject.map(EXTRACT_VIEW)
+                          .filter(Optional::isPresent)
+                          .map(Optional::get)
                           .map(toTrackLikesHeaderView);
     }
 
-    static final class UpdateHeaderViewSubscriber extends DefaultSubscriber<HeaderViewUpdate> {
+    static final class UpdateHeaderViewObserver extends DefaultObserver<HeaderViewUpdate> {
 
         private final OfflineSettingsOperations offlineSettings;
         private final ConnectionHelper connectionHelper;
-        private final EventBus eventBus;
+        private final EventBusV2 eventBus;
         private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
         private Optional<HeaderViewUpdate> previousUpdate = Optional.absent();
 
         @Inject
-        UpdateHeaderViewSubscriber(OfflineSettingsOperations offlineSettings,
+        UpdateHeaderViewObserver(OfflineSettingsOperations offlineSettings,
                                    ConnectionHelper connectionHelper,
-                                   EventBus eventBus,
+                                   EventBusV2 eventBus,
                                    GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;

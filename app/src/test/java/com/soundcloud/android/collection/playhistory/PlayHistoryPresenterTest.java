@@ -17,7 +17,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -25,7 +25,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +48,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private SwipeRefreshAttacher swipeRrefreshAttacher;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private ExpandPlayerObserver expandPlayerObserver;
     @Mock private PlayHistoryAdapter adapter;
     @Mock private FeedbackController feedbackController;
     @Mock private Fragment fragment;
@@ -58,8 +58,8 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
 
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
-    private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
+    private TestEventBusV2 eventBus = new TestEventBusV2();
+    private Provider<ExpandPlayerObserver> expandPlayerObserverProvider = providerOf(expandPlayerObserver);
 
     private PlayHistoryPresenter playHistoryPresenter;
 
@@ -72,7 +72,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
         playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations,
                                                         offlineContentOperations,
                                                         adapter,
-                                                        expandPlayerSubscriberProvider,
+                                                        expandPlayerObserverProvider,
                                                         eventBus,
                                                         swipeRrefreshAttacher,
                                                         feedbackController,

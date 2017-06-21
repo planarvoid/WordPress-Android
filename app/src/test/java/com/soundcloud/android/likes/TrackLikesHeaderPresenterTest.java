@@ -23,7 +23,7 @@ import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExper
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.likes.TrackLikesHeaderPresenter.UpdateHeaderViewSubscriber;
+import com.soundcloud.android.likes.TrackLikesHeaderPresenter.UpdateHeaderViewObserver;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
@@ -46,7 +46,7 @@ import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.junit.Before;
@@ -91,12 +91,12 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
 
     private TrackLikesHeaderPresenter presenter;
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private List<Urn> likedTrackUrns;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         presenter = new TrackLikesHeaderPresenter(
                 headerViewFactory,
                 offlineContentOperations,
@@ -104,11 +104,11 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 likeOperations,
                 featureOperations,
                 playbackInitiator,
-                TestSubscribers.expandPlayerSubscriber(),
+                TestSubscribers.expandPlayerObserver(eventBus),
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigationExecutor,
                 eventBus,
-                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus, goOnboardingTooltipExperiment)),
+                InjectionSupport.providerOf(new UpdateHeaderViewObserver(offlineSettings, connectionHelper, eventBus, goOnboardingTooltipExperiment)),
                 offlineSettingsStorage,
                 goOnboardingTooltipExperiment);
 

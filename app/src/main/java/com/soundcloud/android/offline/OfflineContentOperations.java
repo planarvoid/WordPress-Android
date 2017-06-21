@@ -205,6 +205,10 @@ public class OfflineContentOperations {
         return RxJava.toV1Observable(featureOperations.offlineContentEnabled()).concatWith(getOfflineLikedTracksStatusChanges());
     }
 
+    public io.reactivex.Observable<Boolean> getOfflineContentOrOfflineLikesStatusChangesV2() {
+        return featureOperations.offlineContentEnabled().concatWith(RxJava.toV2Observable(getOfflineLikedTracksStatusChanges()));
+    }
+
     public Observable<Void> disableOfflineFeature() {
         return clearOfflineContent()
                 .doOnNext(ignored -> disableOfflineCollection());

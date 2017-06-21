@@ -12,18 +12,16 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
-import rx.Subscription;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,7 +38,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     private final NavigationExecutor navigationExecutor;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
-    private Subscription trackSubscription = RxUtils.invalidSubscription();
+    private Disposable trackDisposable = Disposables.disposed();
 
     @Inject
     ActivitiesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -78,7 +76,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(RxJava.toV1Observable(operations.initialActivities().toObservable()))
+        return CollectionBinding.fromV2(operations.initialActivities().toObservable())
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
                                 .addObserver(onNext(o -> endMeasuringLoadingTime()))
@@ -91,7 +89,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onRefreshBinding() {
-        return CollectionBinding.from(RxJava.toV1Observable(operations.updatedActivities().toObservable()))
+        return CollectionBinding.fromV2(operations.updatedActivities().toObservable())
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
                                 .build();
@@ -104,7 +102,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        trackSubscription.unsubscribe();
+        trackDisposable.dispose();
         super.onDestroyView(fragment);
     }
 
@@ -115,12 +113,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         if (commentedTrackUrn.isPresent()) {
             // for track comments we go to the comments screen
             final Urn trackUrn = commentedTrackUrn.get();
-            trackSubscription = RxJava.toV1Observable(trackRepository.track(trackUrn)).subscribe(new DefaultSubscriber<Track>() {
-                @Override
-                public void onNext(Track track) {
-                    navigationExecutor.openTrackComments(view.getContext(), trackUrn);
-                }
-            });
+            trackDisposable = trackRepository.track(trackUrn).subscribeWith(LambdaMaybeObserver.onNext(track -> navigationExecutor.openTrackComments(view.getContext(), trackUrn)));
         } else {
             // in all other cases we simply go to the user profile
             navigator.navigateTo(NavigationTarget.forProfile(ViewUtils.getFragmentActivity(view), item.getUrn()));

@@ -20,14 +20,13 @@ import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.tracks.TrackItem;
@@ -96,11 +95,10 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CollectionOperations collectionOperations;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
     private final PlayHistoryOperations playHistoryOperations;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
-
-    private CompositeDisposable eventSubscriptions = new CompositeDisposable();
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
     CollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -109,7 +107,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         CollectionAdapter adapter,
                         Resources resources,
                         EventBusV2 eventBus,
-                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                        Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
                         PlayHistoryOperations playHistoryOperations,
                         FeatureOperations featureOperations,
                         NavigationExecutor navigationExecutor,
@@ -119,7 +117,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.expandPlayerObserverProvider = expandPlayerObserverProvider;
         this.playHistoryOperations = playHistoryOperations;
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
@@ -173,7 +171,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void onDestroy(Fragment fragment) {
-        eventSubscriptions.clear();
+        disposables.clear();
         super.onDestroy(fragment);
     }
 
@@ -258,8 +256,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     private void subscribeForUpdates() {
-        eventSubscriptions.clear();
-        eventSubscriptions = new CompositeDisposable(
+        disposables.clear();
+        disposables.addAll(
                 subscribeToOfflineContent(),
                 collectionOperations.onCollectionChanged()
                                     .filter(event -> !swipeRefreshAttacher.isRefreshing())
@@ -325,9 +323,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void trackItemClicked(Urn urn, int position) {
-        RxJava.toV1Observable(playHistoryOperations
-                                      .startPlaybackFrom(urn, Screen.COLLECTIONS)
-        ).subscribe(expandPlayerSubscriberProvider.get());
+        disposables.add(playHistoryOperations.startPlaybackFrom(urn, Screen.COLLECTIONS).subscribeWith(expandPlayerObserverProvider.get()));
     }
 
     private class OnCollectionLoadedComsumer implements Consumer<MyCollection> {

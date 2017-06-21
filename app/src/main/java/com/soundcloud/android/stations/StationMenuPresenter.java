@@ -23,9 +23,9 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     private StationMenuRenderer renderer;
-    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     StationMenuPresenter(Context context,
