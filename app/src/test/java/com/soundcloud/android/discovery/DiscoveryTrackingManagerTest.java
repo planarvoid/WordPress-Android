@@ -60,7 +60,7 @@ public class DiscoveryTrackingManagerTest {
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
         builder.source(MULTI_CONTENT_SELECTION_CARD.trackingFeatureName());
-        builder.sourceUrn(MULTI_SELECTION_ITEM.urn());
+        builder.sourceUrn(MULTI_CONTENT_SELECTION_CARD.selectionUrn());
         builder.sourceQueryUrn(MULTI_CONTENT_SELECTION_CARD.parentQueryUrn());
         builder.sourceQueryPosition(0);
         builder.pageName(SCREEN.get());

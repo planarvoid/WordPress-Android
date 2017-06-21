@@ -53,7 +53,7 @@ class DiscoveryTrackingManager {
             final EventContextMetadata.Builder builder = EventContextMetadata.builder();
             builder.pageName(SCREEN.get());
             builder.source(multipleContentSelectionCard.trackingFeatureName());
-            builder.sourceUrn(itemUrn);
+            builder.sourceUrn(multipleContentSelectionCard.selectionUrn());
             builder.sourceQueryUrn(multipleContentSelectionCard.queryUrn());
             builder.queryPosition(selectionPosition);
 
