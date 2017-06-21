@@ -39,6 +39,7 @@ public class LikeToggleObserver extends DefaultSingleObserver<Object> {
         } else {
             showLikeToast();
         }
+        super.onSuccess(ignored);
     }
 
     private void showAddSnackbar() {

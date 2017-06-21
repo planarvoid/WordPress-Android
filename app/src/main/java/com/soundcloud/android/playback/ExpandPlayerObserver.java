@@ -33,6 +33,7 @@ public class ExpandPlayerObserver extends DefaultSingleObserver<PlaybackResult> 
             onPlaybackError();
             playbackFeedbackHelper.showFeedbackOnPlaybackError(result.getErrorReason());
         }
+        super.onSuccess(result);
     }
 
     protected void onPlaybackError() {
