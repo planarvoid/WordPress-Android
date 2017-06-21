@@ -6,9 +6,6 @@
         <ignore path="src/androidTest/**/*" />
     </issue>
 
-    <!-- Ignored as part of the android-kit pull in. Remove once https://soundcloud.atlassian.net/browse/DROID-1318 is done! -->
-    <issue id="IconMissingDensityFolder" severity="ignore"/>
-
     <!-- auto/value uses GWT related annotations about which we don't care -->
     <issue id="InvalidPackage">
         <ignore path="**/com.google.auto.value/**/*"/>
@@ -168,6 +165,10 @@
     <issue id="VisibleForTests" severity="ignore" />
 
     <!-- don't want to break build for identical assets in different density buckets -->
-    <issue id="IconDuplicates" severity="informational" />
+    <issue id="IconDuplicates" severity="informational" >
+        <ignore path="**/drawable-xxhdpi/ak_list_selector_pressed_gray.9.png" />
+        <ignore path="**/drawable-xxhdpi/ak_list_selector_longpressed_gray.9.png" />
+    </issue>
+
 
 </lint>
