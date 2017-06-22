@@ -43,7 +43,7 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
     @Override
     public View createItemView(ViewGroup viewGroup) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                                     .inflate(R.layout.multiple_content_selection_card, viewGroup, false);
+                                     .inflate(R.layout.discovery_multiple_content_selection_card, viewGroup, false);
         initCarousel(view, ButterKnife.findById(view, R.id.selection_playlists_carousel));
         return view;
     }

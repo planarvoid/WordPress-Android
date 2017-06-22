@@ -68,26 +68,21 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
     }
 
     private void bindSocialProof(View itemView, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
-        View container = itemView.findViewById(R.id.single_card_social_proof_container);
-        boolean boundText = bindSocialProofText(container, singleContentSelectionCard);
-        boolean boundAvatars = bindSocialProofAvatars(container, singleContentSelectionCard);
-        int visibility = boundText || boundAvatars ? View.VISIBLE : View.GONE;
-        container.setVisibility(visibility);
+        bindSocialProofText(itemView, singleContentSelectionCard);
+        bindSocialProofAvatars(itemView, singleContentSelectionCard);
     }
 
-    private boolean bindSocialProofText(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
+    private void bindSocialProofText(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
         bindText(container, R.id.single_card_social_proof, singleContentSelectionCard.socialProof());
-        return singleContentSelectionCard.socialProof().isPresent();
     }
 
-    private boolean bindSocialProofAvatars(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
+    private void bindSocialProofAvatars(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
         List<String> imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates();
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_1, imageUrls, 0);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_2, imageUrls, 1);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_3, imageUrls, 2);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_4, imageUrls, 3);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_5, imageUrls, 4);
-        return !imageUrls.isEmpty();
     }
 
     private void bindSocialProofUserArtwork(View itemView, int resId, List<String> userArtworkUrls, int position) {

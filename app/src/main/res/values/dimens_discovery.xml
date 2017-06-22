@@ -4,4 +4,5 @@
     <dimen name="empty_card_top_padding">78dp</dimen>
     <dimen name="empty_card_right_padding">0dp</dimen>
     <dimen name="empty_card_bottom_padding">0dp</dimen>
+    <dimen name="carousel_image_size">128dp</dimen>
 </resources>
