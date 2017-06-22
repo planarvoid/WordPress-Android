@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.subjects.BehaviorSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TopResultsBucketPresenterTest {
@@ -28,14 +28,14 @@ public class TopResultsBucketPresenterTest {
     @Mock ReferringEventProvider referringEventProvider;
     @Mock TopResultsBucketPresenter.TopResultsBucketView view;
 
-    private final BehaviorSubject<Void> enterScreen = BehaviorSubject.create();
+    private final BehaviorSubject<Long> enterScreen = BehaviorSubject.create();
 
     private TopResultsBucketPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
         presenter = new TopResultsBucketPresenter(eventTracker, referringEventProvider);
-        when(view.enterScreen()).thenReturn(enterScreen);
+        when(view.enterScreenTimestamp()).thenReturn(enterScreen);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TopResultsBucketPresenterTest {
 
         presenter.attachView(view);
 
-        enterScreen.onNext(null);
+        enterScreen.onNext(123L);
 
         verify(eventTracker).trackScreen(eq(ScreenEvent.create(Screen.SEARCH_TRACKS.get(), Optional.of(QUERY_URN))), eq(referringEventOptional));
     }

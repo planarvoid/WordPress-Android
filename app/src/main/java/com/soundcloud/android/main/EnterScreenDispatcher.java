@@ -3,20 +3,29 @@ package com.soundcloud.android.main;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 
 import android.support.v4.view.ViewPager;
 
 import javax.inject.Inject;
 
 public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActivity> implements ViewPager.OnPageChangeListener {
+
+    @LightCycle final ScreenStateProvider screenStateProvider;
+    private final BehaviorSubject<Long> enterScreen = BehaviorSubject.create();
+
     private RootActivity activity;
+    private Optional<Listener> listener = Optional.absent();
 
     public interface Listener {
+
         void onEnterScreen(RootActivity activity);
     }
 
-    @LightCycle final ScreenStateProvider screenStateProvider;
-    private Optional<Listener> listener = Optional.absent();
+    public Observable<Long> enterScreenTimestamp() {
+        return enterScreen;
+    }
 
     @Inject
     public EnterScreenDispatcher(ScreenStateProvider screenStateProvider) {
@@ -36,6 +45,7 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
         if (listener.isPresent() && screenStateProvider.isEnteringScreen()) {
             listener.get().onEnterScreen(activity);
         }
+        enterScreen.onNext(System.currentTimeMillis());
     }
 
     @Override
@@ -52,9 +62,10 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
 
     @Override
     public void onPageSelected(int position) {
-        if (listener.isPresent() && activity != null) {
+        if (activity != null && listener.isPresent()) {
             listener.get().onEnterScreen(activity);
         }
+        enterScreen.onNext(System.currentTimeMillis());
     }
 
     @Override

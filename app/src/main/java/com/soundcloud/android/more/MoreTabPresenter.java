@@ -341,6 +341,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                 feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_not_subscribed));
             }
             setRestoreSubscriptionEnabled(true);
+            super.onComplete();
         }
 
         @Override

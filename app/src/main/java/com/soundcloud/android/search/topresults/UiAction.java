@@ -2,8 +2,6 @@ package com.soundcloud.android.search.topresults;
 
 import com.google.auto.value.AutoValue;
 
-import java.util.UUID;
-
 abstract class UiAction {
     @AutoValue
     abstract static class TrackClick extends UiAction {
@@ -76,11 +74,11 @@ abstract class UiAction {
 
     @AutoValue
     abstract static class Enter extends UiAction {
-        abstract String uuid();
+        abstract long timestamp();
         abstract String searchQuery();
 
-        static Enter create(String searchQuery) {
-            return new AutoValue_UiAction_Enter(UUID.randomUUID().toString(), searchQuery);
+        static Enter create(long timestamp, String searchQuery) {
+            return new AutoValue_UiAction_Enter(timestamp, searchQuery);
         }
     }
 }

@@ -15,9 +15,16 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.ReferringEventProvider;
+import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
@@ -33,6 +40,8 @@ import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observer;
 
@@ -55,19 +64,24 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private DiscoveryTrackingManager discoveryTrackingManager;
     @Mock private FeedbackController feedbackController;
+    @Mock private EventTracker eventTracker;
+    @Mock private ReferringEventProvider referringEventProvider;
+    @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
     private static final Screen SCREEN = Screen.DISCOVER;
-
     private DiscoveryPresenter presenter;
     private final FragmentActivity activity = activity();
+    private final PublishSubject<Long> enterScreen = PublishSubject.create();
+    private final ReferringEvent referringEvent = ReferringEvent.create("123", "previous_event");
 
     @Before
     public void setUp() {
         when(adapterFactory.create(any(DiscoveryPresenter.class))).thenReturn(adapter);
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController);
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController, eventTracker, referringEventProvider);
         when(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(fragment.getActivity()).thenReturn(activity);
+        when(referringEventProvider.getReferringEvent()).thenReturn(Optional.of(referringEvent));
     }
 
     @Test
@@ -109,13 +123,14 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
+        final RootActivity rootActivity = initRootActivity();
 
         presenter.onStart(fragment);
 
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(rootActivity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
     }
 
     @Test
@@ -124,12 +139,44 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
+        final RootActivity rootActivity = initRootActivity();
 
         presenter.onStart(fragment);
 
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(rootActivity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+    }
+
+    @Test
+    public void sendsPageViewWithQueryUrnAfterResultReceived() {
+        when(adapter.selectionItemClick()).thenReturn(PublishSubject.create());
+        initRootActivity();
+
+        presenter.onStart(fragment);
+
+        enterScreen.onNext(123L);
+
+        verifyZeroInteractions(eventTracker);
+
+        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult.create(Lists.newArrayList(DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD,
+                                                                                                                    DiscoveryFixtures.MULTI_CONTENT_SELECTION_CARD), Optional.absent())));
+        CollectionBinding<List<DiscoveryCard>, DiscoveryCard> binding = presenter.onBuildBinding(bundle);
+        binding.connect();
+        binding.items().subscribe(itemObserver);
+
+        verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), eq(Optional.of(referringEvent)));
+
+        final ScreenEvent screenEvent = screenEventArgumentCaptor.getValue();
+        assertThat(screenEvent.screen()).isEqualTo(Screen.DISCOVER.get());
+        assertThat(screenEvent.queryUrn().get()).isEqualTo(DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD.parentQueryUrn().get());
+    }
+
+    private RootActivity initRootActivity() {
+        final RootActivity rootActivity = mock(RootActivity.class);
+        when(fragment.getActivity()).thenReturn(rootActivity);
+        when(rootActivity.enterScreenTimestamp()).thenReturn(enterScreen);
+        return rootActivity;
     }
 }

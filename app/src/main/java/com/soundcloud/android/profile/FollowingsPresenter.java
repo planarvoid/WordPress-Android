@@ -7,27 +7,28 @@ import com.soundcloud.android.analytics.ReferringEventProvider;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.LambdaSubscriber;
-import rx.Observable;
-import rx.Subscription;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 import javax.inject.Inject;
 
 class FollowingsPresenter {
+
+    private final EventTracker eventTracker;
+    private final ReferringEventProvider referringEventProvider;
+    private final AccountOperations accountOperations;
+    private Disposable subscription;
+
     interface FollowingsView {
         Urn getUserUrn();
 
-        Observable<Void> enterScreen();
+        Observable<Long> enterScreenTimestamp();
 
         void visitFollowingsScreenForCurrentUser(Screen trackingScreen);
 
         void visitFollowingsScreenForOtherUser(Screen trackingScreen);
     }
-
-    private final EventTracker eventTracker;
-    private final ReferringEventProvider referringEventProvider;
-    private final AccountOperations accountOperations;
-    private Subscription subscription;
 
     @Inject
     FollowingsPresenter(EventTracker eventTracker, ReferringEventProvider referringEventProvider, AccountOperations accountOperations) {
@@ -38,13 +39,13 @@ class FollowingsPresenter {
 
     void attachView(FollowingsPresenter.FollowingsView followingsView) {
         final Urn userUrn = followingsView.getUserUrn();
-        subscription = followingsView.enterScreen()
-                                    .subscribe(LambdaSubscriber.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(getTrackingScreen(userUrn), userUrn),
-                                                                                                         referringEventProvider.getReferringEvent())));
+        subscription = followingsView.enterScreenTimestamp()
+                                     .subscribeWith(LambdaObserver.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(getTrackingScreen(userUrn), userUrn),
+                                                                                                            referringEventProvider.getReferringEvent())));
     }
 
     void detachView() {
-        subscription.unsubscribe();
+        subscription.dispose();
     }
 
     void visitFollowingsScreen(FollowingsPresenter.FollowingsView followingsView) {

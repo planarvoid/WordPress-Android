@@ -1,5 +1,7 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.java.optional.Optional;
+
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
@@ -45,6 +47,8 @@ public class NavigationModel {
         Fragment createFragment();
 
         Screen getScreen();
+
+        Optional<Screen> getPageViewScreen();
     }
 
 }

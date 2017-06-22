@@ -306,7 +306,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final Optional<ReferringEvent> referringEvent = of(ReferringEvent.create("123A", "kind"));
         when(trackingStateProvider.getLastEvent()).thenReturn(referringEvent);
 
-        enterScreen.onNext(UiAction.Enter.create(QUERY));
+        enterScreen.onNext(UiAction.Enter.create(123L, QUERY));
 
         verify(eventTracker).trackScreen(eq(ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(), new SearchQuerySourceInfo(QUERY_URN, QUERY))), eq(referringEvent));
 

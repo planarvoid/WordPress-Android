@@ -16,6 +16,7 @@ import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
+import io.reactivex.Observable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -96,6 +97,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         super.onNewIntent(activity, intent);
 
         setTabFromIntent(intent);
+    }
+
+    public Observable<Long> enterScreenTimestamp() {
+        return mainTabsView.enterScreenDispatcher.enterScreenTimestamp();
     }
 
     void hideToolbar() {

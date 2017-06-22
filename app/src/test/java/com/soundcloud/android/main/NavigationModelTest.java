@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,6 +48,11 @@ public class NavigationModelTest {
             public Screen getScreen() {
                 return Screen.STREAM;
             }
+
+            @Override
+            public Optional<Screen> getPageViewScreen() {
+                return Optional.of(getScreen());
+            }
         }, new NavigationModel.Target() {
             @Override
             public int getName() {
@@ -66,6 +72,11 @@ public class NavigationModelTest {
             @Override
             public Screen getScreen() {
                 return Screen.COLLECTIONS;
+            }
+
+            @Override
+            public Optional<Screen> getPageViewScreen() {
+                return Optional.of(getScreen());
             }
         });
     }

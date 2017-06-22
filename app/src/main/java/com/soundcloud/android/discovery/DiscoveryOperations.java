@@ -9,8 +9,6 @@ import com.soundcloud.java.collections.Lists;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
-import android.support.annotation.CheckResult;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -29,14 +27,12 @@ class DiscoveryOperations {
         this.scheduler = scheduler;
     }
 
-    @CheckResult
     Single<DiscoveryResult> discoveryCards() {
         return syncOperations.lazySyncIfStale(Syncable.DISCOVERY_CARDS)
                              .flatMap(this::cardsFromStorage)
                              .subscribeOn(scheduler);
     }
 
-    @CheckResult
     Single<DiscoveryResult> refreshDiscoveryCards() {
         return syncOperations.sync(Syncable.DISCOVERY_CARDS)
                              .flatMap(this::cardsFromStorage)

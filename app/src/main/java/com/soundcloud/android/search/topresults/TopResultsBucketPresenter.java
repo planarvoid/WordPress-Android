@@ -5,14 +5,18 @@ import com.soundcloud.android.analytics.ReferringEventProvider;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 import javax.inject.Inject;
 
 public class TopResultsBucketPresenter {
+
+    private final EventTracker eventTracker;
+    private final ReferringEventProvider referringEventProvider;
+    private Disposable disposable;
 
     interface TopResultsBucketView {
 
@@ -22,12 +26,8 @@ public class TopResultsBucketPresenter {
 
         Optional<Urn> getQueryUrn();
 
-        Observable<Void> enterScreen();
+        Observable<Long> enterScreenTimestamp();
     }
-
-    private final EventTracker eventTracker;
-    private final ReferringEventProvider referringEventProvider;
-    private Subscription subscription;
 
     @Inject
     public TopResultsBucketPresenter(EventTracker eventTracker, ReferringEventProvider referringEventProvider) {
@@ -38,12 +38,12 @@ public class TopResultsBucketPresenter {
     public void attachView(TopResultsBucketView topResultsBucketActivity) {
         final Screen screen = topResultsBucketActivity.getKind().toSearchType().getScreen(topResultsBucketActivity.isPremium());
         final Optional<Urn> queryUrn = topResultsBucketActivity.getQueryUrn();
-        subscription = topResultsBucketActivity.enterScreen()
-                                               .subscribe(LambdaSubscriber.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(screen.get(), queryUrn),
+        disposable = topResultsBucketActivity.enterScreenTimestamp()
+                                             .subscribeWith(LambdaObserver.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(screen.get(), queryUrn),
                                                                                                                     referringEventProvider.getReferringEvent())));
     }
 
     public void detachView() {
-        subscription.unsubscribe();
+        disposable.dispose();
     }
 }

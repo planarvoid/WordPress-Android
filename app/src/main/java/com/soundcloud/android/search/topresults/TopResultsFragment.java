@@ -142,7 +142,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public Observable<UiAction.Enter> enterScreen() {
-        return RxJava.toV2Observable(((RootActivity) getActivity()).enterScreen().map(ignore -> UiAction.Enter.create(apiQuery())));
+        return ((RootActivity) getActivity()).enterScreenTimestamp().map(timestamp -> UiAction.Enter.create(timestamp, apiQuery()));
     }
 
     @Override

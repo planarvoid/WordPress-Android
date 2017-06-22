@@ -164,6 +164,7 @@ public class StartStationPresenter {
 
         @Override
         public void onSuccess(PlaybackResult result) {
+            super.onSuccess(result);
             if (result.isSuccess()) {
                 expandPlayer();
                 delayedLoadingDialogPresenter.onSuccess();

@@ -13,8 +13,8 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 import com.soundcloud.lightcycle.LightCycles;
+import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
-import rx.Observable;
 
 import android.os.Bundle;
 
@@ -71,7 +71,7 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
         return true;
     }
 
-    public Observable<Void> enterScreen() {
-        return screenTracker.enterScreen;
+    public Observable<Long> enterScreenTimestamp() {
+        return screenTracker.enterScreenTimestamp();
     }
 }

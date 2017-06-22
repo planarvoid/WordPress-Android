@@ -4,14 +4,20 @@ import static com.soundcloud.android.discovery.DiscoveryTrackingManager.SCREEN;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.ReferringEventProvider;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -20,17 +26,18 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleTransformer;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.BehaviorSubject;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CheckResult;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -46,7 +53,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     private final DiscoveryTrackingManager discoveryTrackingManager;
     private final FeedbackController feedbackController;
     private final StreamSwipeRefreshAttacher swipeRefreshAttacher;
+    private final EventTracker eventTracker;
+    private final ReferringEventProvider referringEventProvider;
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private final BehaviorSubject<Optional<Urn>> queryUrn = BehaviorSubject.create();
 
     @Inject
     DiscoveryPresenter(StreamSwipeRefreshAttacher swipeRefreshAttacher,
@@ -54,7 +64,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
                        DiscoveryOperations discoveryOperations,
                        Navigator navigator,
                        DiscoveryTrackingManager discoveryTrackingManager,
-                       FeedbackController feedbackController) {
+                       FeedbackController feedbackController,
+                       EventTracker eventTracker,
+                       ReferringEventProvider referringEventProvider) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         adapter = adapterFactory.create(this);
@@ -62,6 +74,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         this.discoveryTrackingManager = discoveryTrackingManager;
         this.feedbackController = feedbackController;
         this.swipeRefreshAttacher = swipeRefreshAttacher;
+        this.eventTracker = eventTracker;
+        this.referringEventProvider = referringEventProvider;
     }
 
     @Override
@@ -80,6 +94,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
                 selectionItemClick(fragment.getActivity(), item);
             }
         }));
+
+        disposable.add(Observable.combineLatest(((RootActivity) fragment.getActivity()).enterScreenTimestamp(), queryUrn, Pair::of)
+                                 .distinctUntilChanged(Pair::first)
+                                 .subscribeWith(LambdaObserver.onNext(pair -> this.trackPageView(pair.second()))));
+    }
+
+    private void trackPageView(Optional<Urn> queryUrn) {
+        eventTracker.trackScreen(ScreenEvent.create(Screen.DISCOVER.get(), queryUrn), referringEventProvider.getReferringEvent());
     }
 
     @Override
@@ -128,11 +150,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
                 .build();
     }
 
-    @CheckResult
     private SingleTransformer<DiscoveryResult, List<DiscoveryCard>> handleDiscoveryResult() {
         return discoveryResult -> discoveryResult.doOnSuccess(this::showErrorMessage)
                                                  .map(DiscoveryResult::cards)
+                                                 .doOnSuccess(this::emitQueryUrn)
                                                  .map(this::addSearchItem);
+    }
+
+    private void emitQueryUrn(List<DiscoveryCard> discoveryCards) {
+        if (!discoveryCards.isEmpty()) {
+            queryUrn.onNext(discoveryCards.get(0).parentQueryUrn());
+        }
     }
 
     @Override

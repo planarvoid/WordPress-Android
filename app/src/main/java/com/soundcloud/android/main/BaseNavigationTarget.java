@@ -1,5 +1,7 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.java.optional.Optional;
+
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 
@@ -23,4 +25,8 @@ public abstract class BaseNavigationTarget implements NavigationModel.Target {
         return icon;
     }
 
+    @Override
+    public Optional<Screen> getPageViewScreen() {
+        return Optional.of(getScreen());
+    }
 }

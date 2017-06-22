@@ -1,9 +1,9 @@
 package com.soundcloud.android.discovery;
 
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.BaseNavigationTarget;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.v4.app.Fragment;
 
@@ -23,4 +23,8 @@ public class DiscoveryNavigationTarget extends BaseNavigationTarget {
         return Screen.DISCOVER;
     }
 
+    @Override
+    public Optional<Screen> getPageViewScreen() {
+        return Optional.absent();
+    }
 }

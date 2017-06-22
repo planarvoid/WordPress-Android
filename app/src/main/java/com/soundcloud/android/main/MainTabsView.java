@@ -26,7 +26,7 @@ import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener{
+public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener {
 
     @BindView(R.id.pager) ViewPager pager;
     @BindView(R.id.tab_layout) TabLayout tabBar;
@@ -129,7 +129,7 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
     @Override
     public void onEnterScreen(RootActivity activity) {
         setTitle();
-        eventTracker.trackScreen(ScreenEvent.create(getScreen()), activity.getReferringEvent());
+        getPageViewScreen().ifPresent(screen -> eventTracker.trackScreen(ScreenEvent.create(screen), activity.getReferringEvent()));
     }
 
     private void setTitle() {
@@ -160,8 +160,8 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
         return navigationModel.getItem(pager.getCurrentItem());
     }
 
-    Screen getScreen() {
-        return currentTargetItem().getScreen();
+    Optional<Screen> getPageViewScreen() {
+        return currentTargetItem().getPageViewScreen();
     }
 
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,

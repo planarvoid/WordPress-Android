@@ -10,6 +10,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.lightcycle.LightCycle;
+import io.reactivex.Observable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -107,5 +108,10 @@ public class MainActivity extends PlayerActivity {
     public void onCastAvailable() {
         mainPresenter.showToolbar();
         super.onCastAvailable();
+    }
+
+    @Override
+    public Observable<Long> enterScreenTimestamp() {
+        return mainPresenter.enterScreenTimestamp();
     }
 }

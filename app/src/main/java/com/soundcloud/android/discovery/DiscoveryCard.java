@@ -24,10 +24,12 @@ abstract class DiscoveryCard {
         return false;
     }
 
+    abstract Optional<Urn> parentQueryUrn();
+
     @AutoValue
     abstract static class Default extends DiscoveryCard {
         public static DiscoveryCard create(Kind kind) {
-            return new AutoValue_DiscoveryCard_Default(kind);
+            return new AutoValue_DiscoveryCard_Default(kind, Optional.absent());
         }
     }
 
@@ -37,8 +39,6 @@ abstract class DiscoveryCard {
         abstract Urn selectionUrn();
 
         abstract Optional<Urn> queryUrn();
-
-        abstract Optional<Urn> parentQueryUrn();
 
         abstract Optional<String> style();
 
@@ -59,9 +59,9 @@ abstract class DiscoveryCard {
                                                    Optional<String> trackingFeatureName,
                                                    List<SelectionItem> selectionItems) {
             return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD,
+                                                                            parentQueryUrn,
                                                                             selectionUrn,
                                                                             queryUrn,
-                                                                            parentQueryUrn,
                                                                             style,
                                                                             title,
                                                                             description,
@@ -88,8 +88,6 @@ abstract class DiscoveryCard {
 
         abstract Optional<Urn> queryUrn();
 
-        abstract Optional<Urn> parentQueryUrn();
-
         abstract SelectionItem selectionItem();
 
         abstract Optional<String> trackingFeatureName();
@@ -109,12 +107,12 @@ abstract class DiscoveryCard {
                                                  Optional<String> socialProof,
                                                  List<String> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingleContentSelectionCard(Kind.SINGLE_CONTENT_SELECTION_CARD,
+                                                                          parentQueryUrn,
                                                                           selectionUrn,
                                                                           style,
                                                                           title,
                                                                           description,
                                                                           queryUrn,
-                                                                          parentQueryUrn,
                                                                           selectionItem,
                                                                           trackingFeatureName,
                                                                           socialProof,
@@ -133,7 +131,7 @@ abstract class DiscoveryCard {
         abstract Optional<Throwable> throwable();
 
         static EmptyCard create(Optional<Throwable> throwable) {
-            return new AutoValue_DiscoveryCard_EmptyCard(Kind.EMPTY_CARD, throwable);
+            return new AutoValue_DiscoveryCard_EmptyCard(Kind.EMPTY_CARD, Optional.absent(), throwable);
         }
     }
 }

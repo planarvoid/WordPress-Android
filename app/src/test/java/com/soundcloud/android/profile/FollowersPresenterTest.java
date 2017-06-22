@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.subjects.BehaviorSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FollowersPresenterTest {
@@ -32,14 +32,14 @@ public class FollowersPresenterTest {
     @Mock AccountOperations accountOperations;
     @Mock FollowersPresenter.FollowersView view;
 
-    private final BehaviorSubject<Void> enterScreen = BehaviorSubject.create();
+    private final BehaviorSubject<Long> enterScreen = BehaviorSubject.create();
 
     private FollowersPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
         presenter = new FollowersPresenter(eventTracker, referringEventProvider, accountOperations);
-        when(view.enterScreen()).thenReturn(enterScreen);
+        when(view.enterScreenTimestamp()).thenReturn(enterScreen);
         when(view.getUserUrn()).thenReturn(userUrn);
         when(referringEventProvider.getReferringEvent()).thenReturn(referringEventOptional);
     }
@@ -50,7 +50,7 @@ public class FollowersPresenterTest {
 
         presenter.attachView(view);
 
-        enterScreen.onNext(null);
+        enterScreen.onNext(123L);
 
         verify(eventTracker).trackScreen(eq(ScreenEvent.create(currentUserScreen, userUrn)), eq(referringEventOptional));
     }
@@ -61,7 +61,7 @@ public class FollowersPresenterTest {
 
         presenter.attachView(view);
 
-        enterScreen.onNext(null);
+        enterScreen.onNext(123L);
 
         verify(eventTracker).trackScreen(eq(ScreenEvent.create(otherUserScreen, userUrn)), eq(referringEventOptional));
     }
