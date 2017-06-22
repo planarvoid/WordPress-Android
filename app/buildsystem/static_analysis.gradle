@@ -97,7 +97,7 @@ task findbugsChanged(type: FindBugs, dependsOn: "assembleProd${project.('buildTy
 }
 
 pmd {
-  toolVersion '5.6.1'
+  toolVersion rootProject.ext.pmdVersion
 }
 
 tasks.withType(Pmd) {

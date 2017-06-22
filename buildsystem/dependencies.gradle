@@ -23,6 +23,7 @@ ext {
   skippyVersion = '6.3.0'
   flipperVersion = '1.0.4'
   mockitoVersion = '2.7.22'
+  pmdVersion = '5.7.0'
   libraries = [
           // Annotation processors / Annotations
           daggerCompiler               : "com.google.dagger:dagger-compiler:$daggerVersion",

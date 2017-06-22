@@ -33,6 +33,11 @@
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
     </rule>
+    <rule ref="rulesets/java/design.xml/FieldDeclarationsShouldBeAtStartOfClass">
+        <properties>
+            <property name="ignoreInterfaceDeclarations" value="true"/>
+        </properties>
+    </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
     <rule ref="rulesets/java/naming.xml"/>
