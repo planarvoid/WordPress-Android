@@ -5,20 +5,24 @@ import com.android.tools.lint.detector.api.Detector;
 import com.android.tools.lint.detector.api.Issue;
 import org.intellij.lang.annotations.Language;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-public class RxJava2LintDetectorTest extends BaseRxJava2LintDetectorTest {
+public class RxJava2DetectorTest extends BaseRxJava2DetectorTest {
 
     @Override
     protected Detector getDetector() {
-        return new RxJava2LintDetector();
+        return new RxJava2Detector();
     }
 
     @Override
     protected List<Issue> getIssues() {
-        return Collections.singletonList(RxJava2LintDetector.ISSUE_METHOD_MISSING_CHECK_RESULT);
+        return Arrays.asList(RxJava2Detector.ISSUE_METHOD_MISSING_CHECK_RESULT,
+                             RxJava2Detector.ISSUE_MISSING_COMPOSITE_DISPOSABLE_RECYCLED,
+                             RxJava2Detector.ISSUE_DISPOSE_COMPOSITE_DISPOSABLE);
     }
+
+    // ISSUE_METHOD_MISSING_CHECK_RESULT
 
     public void testMethodReturningNonRxType() throws Exception {
         @Language("JAVA") final String source = "package foo;\n" +
@@ -334,6 +338,148 @@ public class RxJava2LintDetectorTest extends BaseRxJava2LintDetectorTest {
               .run()
               .expectClean();
     }
+
+    // ISSUE_MISSING_COMPOSITE_DISPOSABLE_RECYCLED
+
+    public void testNoCompositeDisposable() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expectClean();
+    }
+
+    public void testCompositeDisposableMissingClearSuppressed() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "import java.lang.SuppressWarnings;\n"
+                + "public class Example {\n"
+                + "  @SuppressWarnings(\"sc.MissingCompositeDisposableRecycle\") CompositeDisposable cd;\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expectClean();
+    }
+
+    public void testCompositeDisposableMissingClear() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd;\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expect("src/foo/Example.java:4: Error: cd is never recycled. [sc.MissingCompositeDisposableRecycle]\n"
+                              + "  CompositeDisposable cd;\n"
+                              + "  ~~~~~~~~~~~~~~~~~~~~~~~\n"
+                              + "1 errors, 0 warnings\n");
+    }
+
+    public void testMultipleCompositeDisposableMissingClear() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd1;\n"
+                + "  CompositeDisposable cd2;\n"
+                + "  CompositeDisposable cd3;\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expect("src/foo/Example.java:4: Error: cd1 is never recycled. [sc.MissingCompositeDisposableRecycle]\n"
+                              + "  CompositeDisposable cd1;\n"
+                              + "  ~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                              + "src/foo/Example.java:5: Error: cd2 is never recycled. [sc.MissingCompositeDisposableRecycle]\n"
+                              + "  CompositeDisposable cd2;\n"
+                              + "  ~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                              + "src/foo/Example.java:6: Error: cd3 is never recycled. [sc.MissingCompositeDisposableRecycle]\n"
+                              + "  CompositeDisposable cd3;\n"
+                              + "  ~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                              + "3 errors, 0 warnings\n"
+                              + "");
+    }
+
+    public void testCompositeDisposableHavingClear() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd;\n"
+                + "  public void foo() {\n"
+                + "   cd.clear();\n"
+                + "  }\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expectClean();
+    }
+
+    public void testMultipleCompositeDisposableClear() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd1;\n"
+                + "  CompositeDisposable cd2;\n"
+                + "  CompositeDisposable cd3;\n"
+                + "  public void foo() {\n"
+                + "   cd1.clear();\n"
+                + "  }\n"
+                + "  public void bar() {\n"
+                + "   cd2.clear();\n"
+                + "  }\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expect("src/foo/Example.java:6: Error: cd3 is never recycled. [sc.MissingCompositeDisposableRecycle]\n"
+                              + "  CompositeDisposable cd3;\n"
+                              + "  ~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                              + "1 errors, 0 warnings\n");
+    }
+
+    // ISSUE_DISPOSE_COMPOSITE_DISPOSABLE
+
+    public void testCallingCompositeDisposableDispose() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd = new CompositeDisposable();\n"
+                + "  public void foo() {\n"
+                + "    cd.dispose();\n"
+                + "  }\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expect("src/foo/Example.java:6: "
+                              + "Warning: Usage of clear() instead of dispose(). [sc.DisposeCompositeDisposable]\n"
+                              + "    cd.dispose();\n"
+                              + "       ~~~~~~~\n"
+                              + "0 errors, 1 warnings\n");
+    }
+
+    public void testCallingCompositeDisposableDisposeSuppressed() throws Exception {
+        @Language("JAVA") final String source = ""
+                + "package foo;\n"
+                + "import io.reactivex.disposables.CompositeDisposable;\n"
+                + "public class Example {\n"
+                + "  CompositeDisposable cd = new CompositeDisposable();\n"
+                + "  @SuppressWarnings(\"sc.DisposeCompositeDisposable\") "
+                + "  public void foo() {\n"
+                + "    cd.dispose();\n"
+                + "  }\n"
+                + "}";
+        lint().files(stubCompositeDisposable(), java(source))
+              .run()
+              .expectClean();
+    }
+
+    // Utils
 
     private static TestFile sampleRxSourceProvider() {
         return java("package foo;\n" +

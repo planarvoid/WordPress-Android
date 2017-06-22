@@ -2,7 +2,7 @@ package com.soundcloud.android.lint.rules.checks;
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest;
 
-public abstract class BaseRxJava2LintDetectorTest extends LintDetectorTest {
+public abstract class BaseRxJava2DetectorTest extends LintDetectorTest {
 
     static LintDetectorTest.TestFile stubCompositeDisposable() {
         return java("package io.reactivex.disposables;\n"
