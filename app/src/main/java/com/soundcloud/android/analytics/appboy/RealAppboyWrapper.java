@@ -7,6 +7,7 @@ import com.appboy.models.outgoing.AttributionData;
 import com.appboy.ui.inappmessage.AppboyInAppMessageManager;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Base64;
 
 public class RealAppboyWrapper implements AppboyWrapper {
@@ -41,6 +42,10 @@ public class RealAppboyWrapper implements AppboyWrapper {
 
     public void registerInAppMessageManager(Activity activity) {
         AppboyInAppMessageManager.getInstance().registerInAppMessageManager(activity);
+    }
+
+    public void ensureSubscribedToInAppMessageEvents(Context context) {
+        AppboyInAppMessageManager.getInstance().ensureSubscribedToInAppMessageEvents(context.getApplicationContext());
     }
 
     public boolean closeSession(Activity activity) {

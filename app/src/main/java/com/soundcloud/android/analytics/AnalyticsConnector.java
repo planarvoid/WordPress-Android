@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -34,6 +35,13 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
         if (appboy.openSession(activity)) {
             appboy.requestInAppMessageRefresh();
             appboyPlaySessionState.resetSessionPlayed();
+        }
+    }
+
+    @Override
+    public void onCreate(AppCompatActivity activity, Bundle bundle) {
+        if (!accountOperations.isCrawler()) {
+            appboy.ensureSubscribedToInAppMessageEvents(activity);
         }
     }
 

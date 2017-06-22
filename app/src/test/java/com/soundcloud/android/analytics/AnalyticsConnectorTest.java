@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -74,6 +75,13 @@ public class AnalyticsConnectorTest {
     }
 
     @Test
+    public void shouldEndureListeningToInAppMessagedInOnCreate() {
+        analyticsConnector.onCreate(activity, new Bundle());
+
+        verify(appboyWrapper).ensureSubscribedToInAppMessageEvents(activity);
+    }
+
+    @Test
     public void shouldRegisterInAppMessageManagerOnResume() {
         analyticsConnector.onResume(activity);
 
@@ -97,8 +105,12 @@ public class AnalyticsConnectorTest {
     @Test
     public void shouldNotRegisterForInAppMessagesForCrawlerUsers() {
         when(accountOperations.isCrawler()).thenReturn(true);
+
+        analyticsConnector.onCreate(activity, new Bundle());
         analyticsConnector.onResume(activity);
 
+        verify(appboyWrapper, never()).ensureSubscribedToInAppMessageEvents(activity);
         verify(appboyWrapper, never()).registerInAppMessageManager(activity);
     }
+
 }

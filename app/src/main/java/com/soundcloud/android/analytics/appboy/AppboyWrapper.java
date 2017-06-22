@@ -4,6 +4,7 @@ import com.appboy.AppboyUser;
 import com.appboy.models.outgoing.AppboyProperties;
 
 import android.app.Activity;
+import android.content.Context;
 
 public interface AppboyWrapper {
     void handleRegistration(String token);
@@ -12,6 +13,7 @@ public interface AppboyWrapper {
     void setUserAttribute(String key, boolean value);
     boolean openSession(Activity activity);
     void registerInAppMessageManager(Activity activity);
+    void ensureSubscribedToInAppMessageEvents(Context context);
     boolean closeSession(Activity activity);
     void unregisterInAppMessageManager(Activity activity);
     AppboyUser changeUser(String userId);

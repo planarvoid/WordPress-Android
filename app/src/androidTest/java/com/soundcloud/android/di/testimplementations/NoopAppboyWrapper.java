@@ -5,6 +5,7 @@ import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 
 import android.app.Activity;
+import android.content.Context;
 
 // Empty implementation for acceptance tests
 public class NoopAppboyWrapper implements AppboyWrapper {
@@ -36,6 +37,11 @@ public class NoopAppboyWrapper implements AppboyWrapper {
 
     @Override
     public void registerInAppMessageManager(Activity activity) {
+
+    }
+
+    @Override
+    public void ensureSubscribedToInAppMessageEvents(Context context) {
 
     }
 
