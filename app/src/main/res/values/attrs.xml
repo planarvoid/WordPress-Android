@@ -141,8 +141,4 @@
         <attr name="summaryColor" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="PlayerOverlayBackgroundBehavior">
-        <attr name="player_collapsed_height" format="reference|dimension" />
-    </declare-styleable>
-
 </resources>

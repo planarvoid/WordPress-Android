@@ -2,14 +2,15 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.SlidingPlayerController.EXTRA_EXPAND_PLAYER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -18,10 +19,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.LockableBottomSheetBehavior;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.ui.PlayerFragment;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.view.status.StatusBarColorController;
@@ -33,12 +35,12 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 
 public class SlidingPlayerControllerTest extends AndroidUnitTest {
@@ -47,14 +49,13 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Mock private View layout;
     @Mock private StatusBarColorController statusBarColorController;
     @Mock private AppCompatActivity activity;
-    @Mock private LockableBottomSheetBehavior<View> playerBehavior;
+    @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlayerFragment playerFragment;
     @Mock private ActionBar actionBar;
     @Mock private Window window;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
-    @Mock private LockableBottomSheetBehavior.Factory lockableBottomSheetBehaviorFactory;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -62,16 +63,11 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, performanceMetricsEngine, lockableBottomSheetBehaviorFactory);
-
-        when(lockableBottomSheetBehaviorFactory.from(any())).thenReturn(playerBehavior);
-
+        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, performanceMetricsEngine);
+        when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
-        when(activity.findViewById(R.id.player_root)).thenReturn(playerView);
-
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
-
         when(playerFragment.getActivity()).thenReturn(activity);
         when(activity.getWindow()).thenReturn(window);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
@@ -80,7 +76,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void configuresSlidingPanelOnAttach() {
-        verify(playerBehavior).setBottomSheetCallback(isA(BottomSheetBehavior.BottomSheetCallback.class));
+        verify(slidingPanel).addPanelSlideListener(controller);
     }
 
     @Test
@@ -89,7 +85,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onResume(activity);
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_HIDDEN);
+        verify(slidingPanel).setPanelState(PanelState.HIDDEN);
     }
 
     @Test
@@ -98,28 +94,28 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onResume(activity);
 
-        verify(playerBehavior, never()).setState(BottomSheetBehavior.STATE_HIDDEN);
+        verify(slidingPanel, never()).setPanelState(PanelState.HIDDEN);
     }
 
     @Test
     public void showPanelIfQueueHasItems() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_HIDDEN);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.HIDDEN);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         controller.onResume(activity);
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
     public void restoreCollapsedPlayerStateOnResume() {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_COLLAPSED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
 
         controller.onResume(activity);
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_COLLAPSED);
-        verify(playerBehavior, never()).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -136,29 +132,29 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.hidePlayer());
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_HIDDEN);
+        verify(slidingPanel).setPanelState(PanelState.HIDDEN);
     }
 
     @Test
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
         controller.onResume(activity);
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_COLLAPSED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
     public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_HIDDEN);
-        //when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.HIDDEN);
+        when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
 
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -166,8 +162,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
 
-        verify(playerBehavior).setLocked(true);
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -176,8 +172,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
 
-        verify(playerBehavior).setLocked(true);
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -186,8 +182,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
 
-        verify(playerBehavior).setLocked(false);
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setTouchEnabled(true);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -196,19 +192,19 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
 
-        verify(playerBehavior).setLocked(true);
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
 
     @Test
     public void locksPlayerDoesntExpandAlreadyExpandedPlayerWhenLockEventIsReceived() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
 
-        verify(playerBehavior, never()).setState(BottomSheetBehavior.STATE_EXPANDED);
-        verify(playerBehavior).setLocked(true);
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
     }
 
     @Test
@@ -216,7 +212,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
 
-        verify(playerBehavior).setLocked(false);
+        verify(slidingPanel).setTouchEnabled(true);
     }
 
     @Test
@@ -224,7 +220,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
 
-        verify(playerBehavior, times(2)).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        verify(slidingPanel, times(2)).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -232,7 +228,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerManually());
 
-        verify(playerBehavior, times(2)).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        verify(slidingPanel, times(2)).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -240,12 +236,12 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(playerBehavior, times(0)).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel, times(0)).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
     public void storesExpandingStateInBundle() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         Bundle bundle = new Bundle();
 
         controller.onSaveInstanceState(activity, bundle);
@@ -263,8 +259,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void emitsClosePlayerFromSlideWhenCollapsedAfterDragging() {
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
+        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
+        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
 
         controller.onPanelCollapsed();
 
@@ -276,8 +272,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void emitsOpenPlayerFromFooterSlideWhenExpandedAfterDragging() {
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
+        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
+        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
 
         controller.onPanelExpanded();
 
@@ -299,7 +295,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void onPlayerSlideReportsSlidePositionToPlayerFragment() {
         controller.onCreate(activity, createBundleWithExpandingCommand());
-        controller.onPanelSlide(playerView, .33f);
+        controller.onPanelSlide(slidingPanel, .33f);
 
         verify(playerFragment).onPlayerSlide(.33f);
     }
@@ -310,34 +306,34 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onNewIntent(activity, intent);
         controller.onResume(activity);
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
     public void shouldExpandAndLockPlayerOnResumeIfCurrentItemIsVideoAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
 
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
-        verify(playerBehavior).setLocked(true);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
     }
 
     @Test
     public void shouldExpandAndLockPlayerOnResumeIfPlaylistLock() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
 
-        assertThat(playerBehavior.getState()).isEqualTo(BottomSheetBehavior.STATE_EXPANDED);
-        verify(playerBehavior).setLocked(true);
+        assertThat(slidingPanel.getPanelState()).isEqualTo(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
     }
 
     @Test
     public void onBackPressedShouldDoNothingWhenPlayerIsLocked() {
         assertThat(controller.handleBackPressed()).isFalse();
-        verify(playerBehavior, never()).setState(anyInt());
+        verify(slidingPanel, never()).setPanelState(any(PanelState.class));
     }
 
     @Test
@@ -345,7 +341,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         collapsePanel();
 
         assertThat(controller.handleBackPressed()).isFalse();
-        verify(playerBehavior, never()).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        verify(slidingPanel, never()).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -353,24 +349,24 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         expandPanel();
 
         assertThat(controller.handleBackPressed()).isTrue();
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
     public void onBackPressedShouldCollapsePlayQueue() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
 
         assertThat(controller.handleBackPressed()).isTrue();
 
-        assertThat(playerBehavior.getState()).isEqualTo(BottomSheetBehavior.STATE_EXPANDED);
-        verify(playerBehavior).setLocked(false);
+        assertThat(slidingPanel.getPanelState()).isEqualTo(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(true);
     }
 
     @Test
     public void onBackPressedShouldTrackPlayerClose() {
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
 
@@ -385,7 +381,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     public void shouldNotReceiveEventsAfterPause() {
         controller.onPause(null);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        verify(playerBehavior, never()).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -393,7 +389,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPause(null);
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        verify(playerBehavior).setState(BottomSheetBehavior.STATE_EXPANDED);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -403,39 +399,12 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         verify(performanceMetricsEngine).endMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
-    @Test
-    public void shouldBeHideableWhenToHidden() {
-        controller.onResume(activity);
-
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.hidePlayer());
-
-        verify(playerBehavior).setHideable(true);
-    }
-
-    @Test
-    public void shouldBeNotHideableWhenExpanded() {
-        controller.onResume(activity);
-
-        controller.onPanelExpanded();
-
-        verify(playerBehavior).setHideable(false);
-    }
-
-    @Test
-    public void shouldBeNotHideableWhenCollapsed() {
-        controller.onResume(activity);
-
-        controller.onPanelCollapsed();
-
-        verify(playerBehavior).setHideable(false);
-    }
-
     private void attachController() {
         ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
 
         controller.onCreate(activity, null);
 
-        verify(playerView).setOnTouchListener(touchListenerArgumentCaptor.capture());
+        verify(slidingPanel).setOnTouchListener(touchListenerArgumentCaptor.capture());
 
         touchListener = touchListenerArgumentCaptor.getValue();
     }
@@ -444,14 +413,14 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.3f);
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_COLLAPSED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
     }
 
     private void expandPanel() {
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.7f);
-        when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
     }
 
     private Intent createIntentWithExpandingCommand() {

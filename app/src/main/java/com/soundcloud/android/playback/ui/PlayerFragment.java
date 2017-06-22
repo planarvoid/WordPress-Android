@@ -9,7 +9,6 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,12 +26,7 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.player_fragment, container, false);
-
-        final int elevation = view.getResources().getDimensionPixelSize(R.dimen.player_elevation);
-        ViewCompat.setElevation(view, elevation);
-
-        return view;
+        return inflater.inflate(R.layout.player_fragment, container, false);
     }
 
     public void onPlayerSlide(float slideOffset) {
@@ -49,8 +43,7 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
         return view != null ? (PlayerTrackPager) view.findViewById(R.id.player_track_pager) : null;
     }
 
-    @Override
-    public void onDestroyView() {
+    @Override public void onDestroyView() {
         super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }

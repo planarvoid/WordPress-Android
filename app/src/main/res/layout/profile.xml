@@ -1,79 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout android:id="@+id/sliding_layout"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout android:id="@+id/sliding_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:gravity="bottom"
+    app:umanoDragView="@+id/player_layout"
+    app:umanoPanelHeight="@dimen/player_footer">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/profile_coordinator"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            style="@style/Profile.CollapsingToolbar.Elevation"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white"
+            android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:statusBarScrim="@android:color/transparent">
+            app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
 
-            <include
-                layout="@layout/profile_header"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true"
-                app:layout_collapseMode="none" />
-
-            <View
-                android:id="@+id/header_scrim"
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                style="@style/Profile.CollapsingToolbar.Elevation"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/white"
-                android:fitsSystemWindows="true" />
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:statusBarScrim="@android:color/transparent">
 
-            <include layout="@layout/transparent_toolbar_with_gradient" />
+                <include
+                    layout="@layout/profile_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"
+                    app:layout_collapseMode="none" />
 
-        </android.support.design.widget.CollapsingToolbarLayout>
+                <View
+                    android:id="@+id/header_scrim"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:fitsSystemWindows="true" />
 
-        <com.soundcloud.android.view.CustomFontTabLayout
-            android:id="@+id/tab_indicator_fixed"
-            style="@style/TabsTheme.Fixed.Elevated"
+                <include layout="@layout/transparent_toolbar_with_gradient" />
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+            <com.soundcloud.android.view.CustomFontTabLayout
+                android:id="@+id/tab_indicator_fixed"
+                style="@style/TabsTheme.Fixed.Elevated"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:clipToPadding="false"
+                android:foregroundGravity="bottom"
+                android:visibility="gone"
+                app:layout_collapseMode="pin" />
+
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
-            android:clipToPadding="false"
-            android:foregroundGravity="bottom"
-            android:visibility="gone"
-            app:layout_collapseMode="pin" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    </android.support.design.widget.AppBarLayout>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-    <FrameLayout
+            <View style="@style/ToolbarShadow" />
+
+        </FrameLayout>
+
+        <!-- this just has to exist inside the coordinator layout -->
+        <View
+            android:id="@+id/snackbar_anchor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <fragment
+        android:id="@+id/player_root"
+        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent" />
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <View style="@style/ToolbarShadow" />
-
-    </FrameLayout>
-
-    <!-- this just has to exist inside the coordinator layout -->
-    <View
-        android:id="@+id/snackbar_anchor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <include layout="@layout/player_root" />
-
-</android.support.design.widget.CoordinatorLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
