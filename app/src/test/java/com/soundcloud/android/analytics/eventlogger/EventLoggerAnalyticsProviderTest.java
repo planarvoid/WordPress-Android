@@ -29,6 +29,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
@@ -739,6 +740,18 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("SponsoredSessionStartEvent");
+    }
+
+    @Test
+    public void shouldTrackGoOnboardingTooltipEvent() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("GoOnboardingTooltipEvent");
     }
 
     @Test

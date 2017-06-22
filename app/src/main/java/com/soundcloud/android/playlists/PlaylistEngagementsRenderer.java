@@ -196,7 +196,7 @@ class PlaylistEngagementsRenderer {
                                                                          .targetView(stateButton)
                                                                          .title(R.string.overlay_listen_offline_playlist_title)
                                                                          .description(R.string.overlay_listen_offline_playlist_description)
-                                                                         .event(Optional.of(GoOnboardingTooltipEvent.forListenOfflinePlaylist()))
+                                                                         .event(Optional.of(GoOnboardingTooltipEvent.forListenOfflinePlaylist(item.urn())))
                                                                          .build());
         }
     }

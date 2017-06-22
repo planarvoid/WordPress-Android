@@ -335,7 +335,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackGoOnboardingTooltipEvent() {
         GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
-        AppboyProperties expectedProperties = new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), event.tooltipName());
+        AppboyProperties expectedProperties = new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), event.tooltipName().get());
 
         eventHandler.handleEvent(event);
 

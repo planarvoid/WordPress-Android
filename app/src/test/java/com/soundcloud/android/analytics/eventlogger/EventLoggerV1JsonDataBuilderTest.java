@@ -41,6 +41,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
@@ -2262,6 +2263,19 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .clickSourceQueryPosition(SOURCE_QUERY_POSITION));
+    }
+
+    @Test
+    public void createsGoOnboardingTooltipEvent() throws Exception {
+        final GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflinePlaylist(Urn.forPlaylist(123L));
+
+        jsonDataBuilder.buildForGoOnboardingTooltipEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName("playlists:main")
+                                               .impressionCategory("consumer_subs")
+                                               .impressionName("tooltip::save_playlist_or_album")
+                                               .pageUrn("soundcloud:playlists:123"));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {

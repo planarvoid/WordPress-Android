@@ -69,11 +69,11 @@ class AppboyEventHandler {
     }
 
     void handleEvent(GoOnboardingTooltipEvent event) {
-        tagEvent(AppboyEvents.SUBSCRIPTION_ONBOARDING_TOOLTIP_VIEW, buildTooltipProperties(event));
+        event.tooltipName().ifPresent(tooltipName -> tagEvent(AppboyEvents.SUBSCRIPTION_ONBOARDING_TOOLTIP_VIEW, buildTooltipProperties(tooltipName)));
     }
 
-    private AppboyProperties buildTooltipProperties(GoOnboardingTooltipEvent event) {
-        return new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), event.tooltipName());
+    private AppboyProperties buildTooltipProperties(String tooltipName) {
+        return new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), tooltipName);
     }
 
     void handleEvent(OfflineInteractionEvent event) {

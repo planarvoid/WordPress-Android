@@ -19,6 +19,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableIt
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
@@ -260,6 +261,18 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
+    }
+
+    @Test
+    public void shouldEmitImpressionEventWhenOfflineOnboardingEnabled() {
+        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isOfflineOnboardingEnabled()).thenReturn(true);
+
+        presenter.onCreate(fragment, null);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event).isInstanceOf(GoOnboardingTooltipEvent.class);
     }
 
     @Test

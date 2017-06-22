@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection;
 
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -281,6 +282,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     private List<CollectionItem> collectionWithOfflineOnboarding(List<CollectionItem> collectionItems) {
+        eventBus.publish(EventQueue.TRACKING, GoOnboardingTooltipEvent.forCollectionImpression());
         return prependItemToCollection(CollectionItem.OfflineOnboardingCollectionItem.create(), collectionItems);
     }
 

@@ -10,9 +10,6 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.events.PrestitialAdImpressionEvent;
-import com.soundcloud.android.events.SponsoredSessionStartEvent;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
@@ -23,6 +20,7 @@ import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -30,15 +28,18 @@ import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -613,6 +614,16 @@ class EventLoggerV1JsonDataBuilder {
             eventData.clickTarget(event.target().get().key());
         }
 
+        return transform(eventData);
+    }
+
+    String buildForGoOnboardingTooltipEvent(GoOnboardingTooltipEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(GoOnboardingTooltipEvent.EVENT_NAME, event.getTimestamp())
+                .pageName(event.pageName())
+                .impressionCategory(event.impressionCategory())
+                .impressionName(event.impressionName());
+
+        event.pageUrn().ifPresent(eventData::pageUrn);
         return transform(eventData);
     }
 

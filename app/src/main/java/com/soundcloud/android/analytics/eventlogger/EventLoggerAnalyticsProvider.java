@@ -12,6 +12,7 @@ import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
@@ -108,6 +109,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleScrollDepthEvent((ScrollDepthEvent) event);
         } else if (event instanceof SponsoredSessionStartEvent) {
             handleSponsoredSessionStartEvent((SponsoredSessionStartEvent) event);
+        } else if (event instanceof GoOnboardingTooltipEvent) {
+            handleGoOnboardingTooltipEvent((GoOnboardingTooltipEvent) event);
         }
     }
 
@@ -264,6 +267,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void handleSponsoredSessionStartEvent(SponsoredSessionStartEvent eventData)  {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForSponsoredSessionStartEvent(eventData));
+    }
+
+    private void handleGoOnboardingTooltipEvent(GoOnboardingTooltipEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForGoOnboardingTooltipEvent(eventData));
     }
 
     private void trackEvent(long timeStamp, String data) {
