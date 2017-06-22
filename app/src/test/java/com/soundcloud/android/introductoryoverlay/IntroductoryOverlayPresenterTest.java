@@ -45,6 +45,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     @Test
     public void noOpIfOverlayWasAlreadyShown() {
         when(operations.wasOverlayShown(FAKE_KEY)).thenReturn(true);
+        when(operations.hasDelayDurationPassed()).thenReturn(true);
 
         presenter.showIfNeeded(introductoryOverlay);
 
@@ -52,8 +53,19 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void markOverlayAsShownAfterFirstTimeShown() {
+    public void noOpIfDelayDurationHasNotPassed() {
         when(operations.wasOverlayShown(FAKE_KEY)).thenReturn(false);
+        when(operations.hasDelayDurationPassed()).thenReturn(false);
+
+        presenter.showIfNeeded(introductoryOverlay);
+
+        verify(operations, never()).setOverlayShown(FAKE_KEY);
+    }
+
+    @Test
+    public void markOverlayAsShownAfterFirstTimeShownAndDelayDurationHasPassed() {
+        when(operations.wasOverlayShown(FAKE_KEY)).thenReturn(false);
+        when(operations.hasDelayDurationPassed()).thenReturn(true);
 
         presenter.showIfNeeded(introductoryOverlay);
 
@@ -63,6 +75,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     @Test
     public void noOpIfEventNotPresent() {
         when(operations.wasOverlayShown(FAKE_KEY)).thenReturn(false);
+        when(operations.hasDelayDurationPassed()).thenReturn(true);
 
         presenter.showIfNeeded(introductoryOverlay);
 
@@ -79,6 +92,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
                                                  .event(EVENT)
                                                  .build();
         when(operations.wasOverlayShown(FAKE_KEY)).thenReturn(false);
+        when(operations.hasDelayDurationPassed()).thenReturn(true);
 
         presenter.showIfNeeded(introductoryOverlay);
 

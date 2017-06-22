@@ -38,7 +38,7 @@ public class IntroductoryOverlayPresenter {
 
     public void showIfNeeded(IntroductoryOverlay introductoryOverlay) {
         final String overlayKey = introductoryOverlay.overlayKey();
-        if (!introductoryOverlayOperations.wasOverlayShown(overlayKey)) {
+        if (shouldShowOverlay(overlayKey)) {
             final View targetView = introductoryOverlay.targetView();
             final Activity activity = getActivity(targetView);
             if (activity != null) {
@@ -47,6 +47,11 @@ public class IntroductoryOverlayPresenter {
                 introductoryOverlay.event().ifPresent(event -> eventBus.publish(EventQueue.TRACKING, event));
             }
         }
+    }
+
+    private boolean shouldShowOverlay(String overlayKey) {
+        return !introductoryOverlayOperations.wasOverlayShown(overlayKey)
+                && introductoryOverlayOperations.hasDelayDurationPassed();
     }
 
     private void show(Activity activity, final View targetView,
