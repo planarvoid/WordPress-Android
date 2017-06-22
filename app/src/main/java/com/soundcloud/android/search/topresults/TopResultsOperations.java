@@ -9,7 +9,6 @@ import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.CacheUniversalSearchCommand;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -61,9 +60,9 @@ class TopResultsOperations {
     private io.reactivex.Observable<TopResults> searchDataSource(SearchParams search) {
         final Single<ApiTopResults> searchMaybe = apiSearch(search);
         return searchMaybe.toObservable().flatMap(result -> io.reactivex.Observable.combineLatest(
-                RxJava.toV2Observable(likedStatuses.likedStatuses()),
+                likedStatuses.likedStatuses(),
                 followingStatuses.followingStatuses(),
-                RxJava.toV2Observable(playSessionStateProvider.nowPlayingUrn()),
+                playSessionStateProvider.nowPlayingUrn(),
                 (likedStatuses, followingStatuses, urn) -> ApiTopResultsMapper.toDomainModel(result, entityItemCreator, likedStatuses, followingStatuses, urn)));
     }
 

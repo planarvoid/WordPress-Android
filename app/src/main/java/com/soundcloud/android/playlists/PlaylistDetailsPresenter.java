@@ -627,7 +627,7 @@ public class PlaylistDetailsPresenter {
         }
 
         static Observable<ActionResult> toResult(Urn urn, LikesStateProvider likesStateProvider) {
-            return likesStateProvider.likedStatuses().map(likeStatuses -> new PlaylistLikedResult(likeStatuses.isLiked(urn)));
+            return RxJava.toV1Observable(likesStateProvider.likedStatuses().map(likeStatuses -> new PlaylistLikedResult(likeStatuses.isLiked(urn))));
         }
     }
 

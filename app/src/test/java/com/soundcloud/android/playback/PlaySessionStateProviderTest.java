@@ -16,7 +16,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,7 +36,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Mock private UuidProvider uuidProvider;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackProgressRepository playbackProgressRepository;
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private TestDateProvider dateProvider;
 
     @Before

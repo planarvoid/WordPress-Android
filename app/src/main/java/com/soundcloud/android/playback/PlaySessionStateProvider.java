@@ -5,9 +5,9 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.subjects.BehaviorSubject;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -25,19 +25,19 @@ public class PlaySessionStateProvider {
 
     private final PlaySessionStateStorage playSessionStateStorage;
     private final UuidProvider uuidProvider;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final CurrentDateProvider dateProvider;
     private final PlaybackProgressRepository playbackProgressRepository;
 
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
-    private BehaviorSubject<Urn> nowPlayingUrn = BehaviorSubject.create(currentPlayingUrn);
+    private final BehaviorSubject<Urn> nowPlayingUrn = BehaviorSubject.createDefault(currentPlayingUrn);
     private long lastStateEventTime;
 
     @Inject
     public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage,
                                     UuidProvider uuidProvider,
-                                    EventBus eventBus,
+                                    EventBusV2 eventBus,
                                     CurrentDateProvider dateProvider,
                                     PlaybackProgressRepository playbackProgressRepository) {
         this.playSessionStateStorage = playSessionStateStorage;

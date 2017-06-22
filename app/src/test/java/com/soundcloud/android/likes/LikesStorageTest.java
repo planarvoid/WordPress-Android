@@ -3,9 +3,9 @@ package com.soundcloud.android.likes;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -17,7 +17,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        likesStorage = new LikesStorage(propellerRx());
+        likesStorage = new LikesStorage(propellerRxV2());
     }
 
     @Test
@@ -25,8 +25,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
         testFixtures().insertLike(1, Tables.Sounds.TYPE_TRACK, new Date());
         testFixtures().insertLike(2, Tables.Sounds.TYPE_PLAYLIST, new Date());
 
-        TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-        likesStorage.loadLikes().subscribe(subscriber);
+        final TestObserver<List<Urn>> subscriber = likesStorage.loadLikes().test();
 
         subscriber.assertValue(Arrays.asList(Urn.forTrack(1), Urn.forPlaylist(2)));
 

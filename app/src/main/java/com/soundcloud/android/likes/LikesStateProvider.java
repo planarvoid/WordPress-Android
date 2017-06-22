@@ -4,12 +4,13 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.BehaviorSubject;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,14 +26,14 @@ public class LikesStateProvider {
 
     private final LikesStorage likesStorage;
     private final BehaviorSubject<LikedStatuses> statuses = BehaviorSubject.create();
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
-    private Set<Urn> likes= new HashSet<>();
+    private Set<Urn> likes = new HashSet<>();
 
     @Inject
     public LikesStateProvider(LikesStorage likesStorage,
-                              EventBus eventBus,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                              EventBusV2 eventBus,
+                              @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.likesStorage = likesStorage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
@@ -41,24 +42,20 @@ public class LikesStateProvider {
     public void subscribe() {
         publishSnapshot();
         likesStorage.loadLikes()
-                .subscribeOn(scheduler)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DefaultSubscriber<List<Urn>>(){
-                    @Override
-                    public void onNext(List<Urn> likes) {
-                        setLikes(likes);
-                        publishSnapshot();
-                    }
-                });
+                    .subscribeOn(scheduler)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(LambdaSingleObserver.onNext(likes -> {
+                                                               setLikes(likes);
+                                                               publishSnapshot();
+                                                           }
+                    ));
 
         eventBus.queue(EventQueue.LIKE_CHANGED)
-                .subscribe(new DefaultSubscriber<LikesStatusEvent>(){
-                    @Override
-                    public void onNext(LikesStatusEvent likesEvent) {
-                        updateLikes(likesEvent);
-                        publishSnapshot();
-                    }
-                });
+                .subscribe(LambdaObserver.onNext(likesEvent -> {
+                                                     updateLikes(likesEvent);
+                                                     publishSnapshot();
+                                                 }
+                ));
     }
 
     void setLikes(List<Urn> likesList) {
@@ -80,7 +77,7 @@ public class LikesStateProvider {
     }
 
     public Observable<LikedStatuses> likedStatuses() {
-        return statuses.asObservable();
+        return statuses;
     }
 
     public LikedStatuses latest() {

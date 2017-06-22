@@ -57,9 +57,9 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
     private static final TypeToken<ApiTopResults> TYPE_TOKEN = new TypeToken<ApiTopResults>() {
     };
 
-    private final rx.subjects.BehaviorSubject<LikedStatuses> likesStatuses = rx.subjects.BehaviorSubject.create();
+    private final BehaviorSubject<LikedStatuses> likesStatuses = BehaviorSubject.create();
     private final BehaviorSubject<FollowingStatuses> followingStatuses = BehaviorSubject.create();
-    private final rx.subjects.BehaviorSubject<Urn> nowPlaying = rx.subjects.BehaviorSubject.create();
+    private final BehaviorSubject<Urn> nowPlaying = BehaviorSubject.create();
 
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private ApiClientRxV2 apiClientRx;

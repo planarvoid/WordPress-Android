@@ -76,8 +76,8 @@ import org.mockito.Mock;
 import org.robolectric.shadows.ShadowLog;
 import rx.Observable;
 import rx.observers.AssertableSubscriber;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
 
@@ -132,8 +132,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final Urn playlistUrn = initialPlaylist.urn();
 
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
-    private final io.reactivex.subjects.PublishSubject<RepostStatuses> repostStatuses = io.reactivex.subjects.PublishSubject.create();
-    private final BehaviorSubject<OfflineProperties> offlineProperties = BehaviorSubject.create(OfflineProperties.empty());
+    private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
+    private final rx.subjects.BehaviorSubject<OfflineProperties> offlineProperties = rx.subjects.BehaviorSubject.create(OfflineProperties.empty());
     private final SingleSubject<SyncJobResult> syncPlaylist = SingleSubject.create();
 
     private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), false);
@@ -141,7 +141,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final Playlist otherPlaylistByUser = ModelFixtures.playlist();
     private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(otherPlaylistByUser), false);
 
-    private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
+    private final rx.subjects.BehaviorSubject<PlaylistWithExtrasState> dataSource = rx.subjects.BehaviorSubject.create();
 
     private final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
     private PlaylistDetailsPresenter newPlaylistPresenter;
@@ -260,7 +260,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeAvailableOfflineWithOwnerPlaylistMakesAvailableOffline() throws Exception {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
@@ -281,7 +281,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineDoesNotMakeOtherUsersPlaylistOfflineWithFailedLike() throws Exception {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -299,7 +299,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -319,7 +319,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
@@ -337,7 +337,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineHandlesOfflineContentNotAccessible() {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         final AssertableSubscriber<Void> assertableSubscriber = newPlaylistPresenter.onShowOfflineStorageErrorDialog().test();
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
 
@@ -353,7 +353,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineMakesOfflineUnavailable() throws Exception {
         connect();
 
-        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(offlineSubject);
 
         inputs.onMakeOfflineUnavailable();
@@ -377,7 +377,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(PublishSubject.create());
+        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(rx.subjects.PublishSubject.create());
 
         inputs.onMakeOfflineUnavailable();
 
