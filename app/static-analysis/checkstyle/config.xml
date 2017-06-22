@@ -92,7 +92,7 @@ page at http://checkstyle.sourceforge.net/config.html -->
         </module>
 
         <module name="com.github.sevntu.checkstyle.checks.naming.EnumValueNameCheck">
-            <property name="objFormat" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$" />
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$" />
         </module>
 
         <!-- LENGTH and CODING CHECKS -->
