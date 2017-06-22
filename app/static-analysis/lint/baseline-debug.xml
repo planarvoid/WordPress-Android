@@ -57,28 +57,6 @@
     </issue>
 
     <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onComplete`"
-        errorLine1="        public void onComplete() {"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/more/MoreTabPresenter.java"
-            line="339"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onSuccess`"
-        errorLine1="        public void onSuccess(PlaybackResult result) {"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/stations/StartStationPresenter.java"
-            line="166"
-            column="21"/>
-    </issue>
-
-    <issue
         id="sc.DisposeCompositeDisposable"
         message="Usage of `clear()` instead of `dispose()`."
         errorLine1="        disposable.dispose();"
@@ -3772,94 +3750,6 @@
             file="src/main/java/com/soundcloud/android/analytics/firebase/FirebaseDynamicLinksApi.java"
             line="85"
             column="12"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Observable;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowersPresenter.java"
-            line="11"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Subscription;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowersPresenter.java"
-            line="12"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="        Observable&lt;Void> enterScreen();"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowersPresenter.java"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    private Subscription subscription;"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowersPresenter.java"
-            line="31"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Observable;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowingsPresenter.java"
-            line="11"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Subscription;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowingsPresenter.java"
-            line="12"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="        Observable&lt;Void> enterScreen();"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowingsPresenter.java"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    private Subscription subscription;"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/profile/FollowingsPresenter.java"
-            line="30"
-            column="13"/>
     </issue>
 
     <issue
@@ -12005,28 +11895,6 @@
     <issue
         id="sc.RxJava1Usage"
         message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Observable;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/main/RootActivity.java"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    public Observable&lt;Void> enterScreen() {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/main/RootActivity.java"
-            line="74"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
         errorLine1="    public static &lt;T> rx.Observable&lt;T> toV1Observable(Observable&lt;T> sourceObservable) {"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
@@ -12330,28 +12198,6 @@
             file="src/main/java/com/soundcloud/android/analytics/ScreenProvider.java"
             line="18"
             column="19"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.subjects.BehaviorSubject;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/main/ScreenTracker.java"
-            line="10"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    final BehaviorSubject&lt;Void> enterScreen = BehaviorSubject.create();"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/main/ScreenTracker.java"
-            line="25"
-            column="11"/>
     </issue>
 
     <issue
@@ -12922,7 +12768,18 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/playback/ui/SlidingPlayerController.java"
-            line="17"
+            line="21"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="sc.RxJava1Usage"
+        message="Migrate to RxJava2. RxJava1 should no longer be used."
+        errorLine1="import rx.functions.Func1;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/ui/SlidingPlayerController.java"
+            line="22"
             column="1"/>
     </issue>
 
@@ -12933,19 +12790,30 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/playback/ui/SlidingPlayerController.java"
-            line="18"
+            line="23"
             column="1"/>
     </issue>
 
     <issue
         id="sc.RxJava1Usage"
         message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    private final CompositeSubscription subscription = new CompositeSubscription();"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private Func1 notExpandedAndItemAdded = new Func1&lt;PlayQueueEvent, Boolean>() {"
+        errorLine2="            ~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/playback/ui/SlidingPlayerController.java"
-            line="42"
-            column="19"/>
+            line="37"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.RxJava1Usage"
+        message="Migrate to RxJava2. RxJava1 should no longer be used."
+        errorLine1="    private CompositeSubscription subscription = new CompositeSubscription();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/ui/SlidingPlayerController.java"
+            line="55"
+            column="13"/>
     </issue>
 
     <issue
@@ -13837,50 +13705,6 @@
             file="src/main/java/com/soundcloud/android/sync/timeline/TimelinePresenter.java"
             line="95"
             column="15"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Observable;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsBucketPresenter.java"
-            line="10"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="import rx.Subscription;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsBucketPresenter.java"
-            line="11"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="        Observable&lt;Void> enterScreen();"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsBucketPresenter.java"
-            line="25"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="sc.RxJava1Usage"
-        message="Migrate to RxJava2. RxJava1 should no longer be used."
-        errorLine1="    private Subscription subscription;"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/soundcloud/android/search/topresults/TopResultsBucketPresenter.java"
-            line="30"
-            column="13"/>
     </issue>
 
     <issue
@@ -15397,7 +15221,7 @@
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/MainActivity.java"
-            line="68"
+            line="69"
             column="9"/>
     </issue>
 
@@ -15408,7 +15232,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/MainActivity.java"
-            line="85"
+            line="86"
             column="9"/>
     </issue>
 
@@ -17718,7 +17542,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/soundcloud/android/main/MainActivity.java"
-            line="68"
+            line="69"
             column="23"/>
     </issue>
 
