@@ -27,8 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/artwork"
-        android:layout_toLeftOf="@+id/indicator_views"
-        android:layout_marginRight="4dp" />
+        android:layout_toLeftOf="@+id/indicator_views" />
 
     <LinearLayout
         android:id="@+id/indicator_views"
@@ -43,7 +42,6 @@
             android:id="@+id/like_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
             android:src="@drawable/ic_playlist_like"
             android:visibility="gone" />
 
@@ -51,7 +49,6 @@
             android:id="@+id/private_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
             android:src="@drawable/ic_playlist_private"
             android:visibility="gone" />
 
@@ -60,14 +57,12 @@
             style="@style/DownloadItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
             android:visibility="gone" />
 
         <ImageView
             android:id="@+id/no_network_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
             android:src="@drawable/entity_no_network"
             android:visibility="gone" />
 
@@ -78,7 +73,6 @@
         style="@style/Carousel.ItemArtist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_marginRight="4dp" />
+        android:layout_below="@id/title" />
 
 </RelativeLayout>
