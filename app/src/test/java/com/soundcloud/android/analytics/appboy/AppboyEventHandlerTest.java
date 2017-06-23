@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.TOOLTIP_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -334,12 +333,17 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackGoOnboardingTooltipEvent() {
-        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
-        AppboyProperties expectedProperties = new AppboyProperties().addProperty(TOOLTIP_NAME.getAppBoyKey(), event.tooltipName().get());
+        eventHandler.handleEvent(GoOnboardingTooltipEvent.forListenOfflineLikes());
+        verify(appboy).logCustomEvent("subscription_tooltip_listen_offline_likes");
 
-        eventHandler.handleEvent(event);
+        eventHandler.handleEvent(GoOnboardingTooltipEvent.forSearchGoPlus());
+        verify(appboy).logCustomEvent("subscription_tooltip_search_go_plus");
 
-        expectCustomEvent("subscription_onboarding_tooltip_view", expectedProperties);
+        eventHandler.handleEvent(GoOnboardingTooltipEvent.forListenOfflinePlaylist(Urn.forPlaylist(123L)));
+        verify(appboy).logCustomEvent("subscription_tooltip_listen_offline_playlist");
+
+        eventHandler.handleEvent(GoOnboardingTooltipEvent.forOfflineSettings());
+        verify(appboy).logCustomEvent("subscription_tooltip_offline_settings");
     }
 
     private AppboyProperties enabled(String context) {

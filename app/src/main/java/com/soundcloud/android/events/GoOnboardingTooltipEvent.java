@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.analytics.appboy.AppboyEvents;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
@@ -26,45 +26,45 @@ public abstract class GoOnboardingTooltipEvent extends TrackingEvent {
     }
 
     public static GoOnboardingTooltipEvent forListenOfflineLikes() {
-        return create(Optional.of(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES),
+        return create(Optional.of(AppboyEvents.SUBSCRIPTION_TOOLTIP_LISTEN_OFFLINE_LIKES),
                       Screen.LIKES.get(),
                       Optional.absent(),
                       IMPRESSION_NAME_LISTEN_OFFLINE_LIKES);
     }
 
     public static GoOnboardingTooltipEvent forListenOfflinePlaylist(Urn playlistUrn) {
-        return create(Optional.of(IntroductoryOverlayKey.LISTEN_OFFLINE_PLAYLIST),
+        return create(Optional.of(AppboyEvents.SUBSCRIPTION_TOOLTIP_LISTEN_OFFLINE_PLAYLIST),
                       Screen.PLAYLIST_DETAILS.get(),
                       Optional.of(playlistUrn.toString()),
                       IMPRESSION_NAME_LISTEN_OFFLINE_PLAYLIST);
     }
 
     public static GoOnboardingTooltipEvent forSearchGoPlus() {
-        return create(Optional.of(IntroductoryOverlayKey.SEARCH_GO_PLUS),
+        return create(Optional.of(AppboyEvents.SUBSCRIPTION_TOOLTIP_SEARCH_GO_PLUS),
                       Screen.SEARCH_MAIN.get(),
                       Optional.absent(),
                       IMPRESSION_NAME_SEARCH_GO_PLUS);
     }
 
     public static GoOnboardingTooltipEvent forOfflineSettings() {
-        return create(Optional.of(IntroductoryOverlayKey.OFFLINE_SETTINGS),
+        return create(Optional.of(AppboyEvents.SUBSCRIPTION_TOOLTIP_OFFLINE_SETTINGS),
                       Screen.MORE.get(),
                       Optional.absent(),
                       IMPRESSION_NAME_OFFLINE_SETTINGS);
     }
 
-    private static GoOnboardingTooltipEvent create(Optional<String> tooltipName, String pageName, Optional<String> pageUrn, String impressionName) {
+    private static GoOnboardingTooltipEvent create(Optional<String> appboyEventName, String pageName, Optional<String> pageUrn, String impressionName) {
         return new AutoValue_GoOnboardingTooltipEvent(defaultId(),
                                                       defaultTimestamp(),
                                                       Optional.absent(),
-                                                      tooltipName,
+                                                      appboyEventName,
                                                       pageName,
                                                       pageUrn,
                                                       IMPRESSION_CATEGORY,
                                                       impressionName);
     }
 
-    public abstract Optional<String> tooltipName();
+    public abstract Optional<String> appboyEventName();
     public abstract String pageName();
     public abstract Optional<String> pageUrn();
     public abstract String impressionCategory();
@@ -75,7 +75,7 @@ public abstract class GoOnboardingTooltipEvent extends TrackingEvent {
         return new AutoValue_GoOnboardingTooltipEvent(this.id(),
                                                       this.timestamp(),
                                                       Optional.of(referringEvent),
-                                                      this.tooltipName(),
+                                                      this.appboyEventName(),
                                                       this.pageName(),
                                                       this.pageUrn(),
                                                       this.impressionCategory(),
