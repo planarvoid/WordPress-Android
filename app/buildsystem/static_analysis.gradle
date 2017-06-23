@@ -8,6 +8,7 @@ apply plugin: 'pmd'
 
 def libraries = rootProject.ext.libraries
 def sourceSetMain = rootProject.extensions.getByName('ext').getAt('javaSrcDirs')
+def resourceSetMain = rootProject.extensions.getByName('ext').getAt('resSrcDirs')
 def reportDir = file("$buildDir/reports")
 def staticAnalysisDirPath = "${projectDir}/static-analysis"
 
@@ -21,7 +22,7 @@ tasks.withType(Checkstyle) {
     maven { url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2" }
   }
 
-  dependencies{
+  dependencies {
     checkstyle libraries.checkstyle
     checkstyle libraries.checkstyleSevntu
   }
@@ -32,6 +33,7 @@ tasks.withType(Checkstyle) {
   configProperties.checkstyleSuppressionsPath = file("${staticAnalysisDirPath}/checkstyle/suppressions.xml").absolutePath
 
   source sourceSetMain
+  source resourceSetMain
   exclude excludeSrcPatternRClass
   exclude excludeSrcPatternGeneratedFiles
 
@@ -47,6 +49,7 @@ tasks.withType(Checkstyle) {
 task checkstyle(type: Checkstyle) {
   description 'Checks whether Java source code complies with coding rules.'
 
+  include '**/*.xml'
   include includeSrcPatternApplication
   include includeSrcPatternApi
 }
@@ -176,7 +179,7 @@ def getChangedFiles() {
   for (file in allFiles) {
     Matcher matcher = statusPattern.matcher(file)
     if (matcher.find()) {
-      files.add(matcher.group(2).replace("app/src/main/java/", ""))
+      files.add(matcher.group(2).replaceFirst("app/src/main/(java|res)/", ""))
     }
   }
 
