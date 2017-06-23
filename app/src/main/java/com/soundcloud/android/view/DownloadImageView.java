@@ -73,7 +73,11 @@ public class DownloadImageView extends AppCompatImageView implements OfflineStat
     }
 
     public void setState(OfflineState state) {
-        offlineStateHelper.update(offlineState, state);
+        if (offlineState == null) {
+            onStateTransition(state);
+        } else {
+            offlineStateHelper.update(offlineState, state);
+        }
     }
 
     @Override

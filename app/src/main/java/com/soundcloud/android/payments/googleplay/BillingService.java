@@ -18,7 +18,7 @@ import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
@@ -46,7 +46,7 @@ public class BillingService {
     private final DeviceHelper deviceHelper;
     private final BillingServiceBinder binder;
     private final ResponseProcessor processor;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
 
     private final BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
 
@@ -73,7 +73,7 @@ public class BillingService {
     BillingService(DeviceHelper deviceHelper,
                    BillingServiceBinder binder,
                    ResponseProcessor processor,
-                   EventBus eventBus) {
+                   EventBusV2 eventBus) {
         this.deviceHelper = deviceHelper;
         this.binder = binder;
         this.processor = processor;

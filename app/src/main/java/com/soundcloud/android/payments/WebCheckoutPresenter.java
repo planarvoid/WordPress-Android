@@ -16,7 +16,7 @@ import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Lazy;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -61,7 +61,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final Lazy<WebPaymentOperations> paymentOperations;
     private final PendingPlanOperations pendingPlanOperations;
     private final NavigationExecutor navigationExecutor;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Resources resources;
 
     private Activity activity;
@@ -76,7 +76,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                 Lazy<WebPaymentOperations> paymentOperations,
                                 PendingPlanOperations pendingPlanOperations,
                                 NavigationExecutor navigationExecutor,
-                                EventBus eventBus,
+                                EventBusV2 eventBus,
                                 Resources resources) {
         this.view = view;
         this.operations = operations;

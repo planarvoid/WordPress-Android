@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,7 +20,7 @@ public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
 
     @Mock private FeatureFlags featureFlags;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private TrackQueueItem playQueueItem;
 
     @Before

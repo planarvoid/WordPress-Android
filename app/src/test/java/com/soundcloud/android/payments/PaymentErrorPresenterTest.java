@@ -9,7 +9,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,14 +25,14 @@ public class PaymentErrorPresenterTest extends AndroidUnitTest {
     @Mock private FragmentActivity activity;
     @Mock private PaymentErrorView errorPresenter;
 
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
 
     private ApiRequest apiRequest;
     private ApiResponse apiResponse;
 
     @Before
     public void setUp() {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         apiRequest = ApiRequest.get("/").forPrivateApi().build();
         apiResponse = new ApiResponse(apiRequest, 200, "body");
         paymentErrorPresenter = new PaymentErrorPresenter(errorPresenter, eventBus);

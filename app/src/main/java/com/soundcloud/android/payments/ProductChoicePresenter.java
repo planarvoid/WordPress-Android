@@ -8,7 +8,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Lazy;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -31,7 +31,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final Lazy<ProductChoicePagerView> pagerView;
     private final Lazy<ProductChoiceScrollView> scrollView;
     private final ProductInfoFormatter formatter;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
 
     private Disposable disposable = RxUtils.emptyDisposable();
     private AppCompatActivity activity;
@@ -41,7 +41,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
                            Lazy<ProductChoicePagerView> pagerView,
                            Lazy<ProductChoiceScrollView> scrollView,
                            ProductInfoFormatter formatter,
-                           EventBus eventBus) {
+                           EventBusV2 eventBus) {
         this.operations = operations;
         this.pagerView = pagerView;
         this.scrollView = scrollView;

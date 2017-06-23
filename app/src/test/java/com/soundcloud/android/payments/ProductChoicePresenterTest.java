@@ -12,7 +12,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
     @Mock ProductInfoFormatter formatter;
 
     private AppCompatActivity activity = activity();
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private ProductChoicePresenter presenter;
 
     @Before

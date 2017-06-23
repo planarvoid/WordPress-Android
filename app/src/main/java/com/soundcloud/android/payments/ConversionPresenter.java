@@ -12,7 +12,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
@@ -33,7 +33,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private final WebPaymentOperations operations;
     private final ConversionView view;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final FeatureOperations featureOperations;
 
     private Disposable disposable = RxUtils.emptyDisposable();
@@ -46,7 +46,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     @Inject
     ConversionPresenter(WebPaymentOperations operations,
                         ConversionView view,
-                        EventBus eventBus,
+                        EventBusV2 eventBus,
                         FeatureOperations featureOperations) {
         this.operations = operations;
         this.view = view;

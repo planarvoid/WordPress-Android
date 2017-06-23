@@ -21,7 +21,7 @@ import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import org.json.JSONException;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Mock private IBinder binder;
     @Mock private BillingServiceBinder billingBinder;
     @Mock private IInAppBillingService service;
-    @Mock private EventBus eventBus;
+    @Mock private EventBusV2 eventBus;
 
     @Captor private ArgumentCaptor<ServiceConnection> connectionCaptor;
 

@@ -8,18 +8,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.IntentFactory;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
+import com.soundcloud.android.navigation.IntentFactory;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     private static final AvailableWebProducts HIGH_TIER = AvailableWebProducts.single(TestProduct.highTier());
     private static final AvailableWebProducts MID_TIER = AvailableWebProducts.single(TestProduct.midTier());
 
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private WebCheckoutPresenter presenter;
 
     @Before
@@ -55,7 +55,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
         when(localeFormatter.getLocale()).thenReturn(Optional.of("en-GB"));
 
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, lazyOf(paymentOperations),
                                              pendingPlanOperations, navigationExecutor, eventBus, resources);
     }

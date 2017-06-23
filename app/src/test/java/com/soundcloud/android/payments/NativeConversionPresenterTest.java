@@ -15,7 +15,7 @@ import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
@@ -57,7 +57,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter = new NativeConversionPresenter(paymentOperations,
                                                   paymentErrorPresenter,
                                                   conversionView,
-                                                  new TestEventBus(),
+                                                  new TestEventBusV2(),
                                                   navigationExecutor);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }

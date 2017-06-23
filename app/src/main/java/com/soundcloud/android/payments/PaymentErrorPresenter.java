@@ -3,7 +3,7 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PaymentFailureEvent;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import android.support.v4.app.FragmentActivity;
 
@@ -15,11 +15,11 @@ class PaymentErrorPresenter {
     private static final String ERROR_KEY_WRONG_USER = "wrong_user";
     private static final String ERROR_KEY_UNCONFIRMED_EMAIL = "unconfirmed_email";
 
-    private PaymentErrorView errorView;
-    private EventBus eventBus;
+    private final PaymentErrorView errorView;
+    private final EventBusV2 eventBus;
 
     @Inject
-    PaymentErrorPresenter(PaymentErrorView errorView, EventBus eventBus) {
+    PaymentErrorPresenter(PaymentErrorView errorView, EventBusV2 eventBus) {
         this.errorView = errorView;
         this.eventBus = eventBus;
     }

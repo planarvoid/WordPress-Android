@@ -8,7 +8,7 @@ import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private final NativePaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
     private final ConversionView conversionView;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final NavigationExecutor navigationExecutor;
 
     private Single<String> purchaseSingle;
@@ -38,7 +38,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Inject
     NativeConversionPresenter(NativePaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                              ConversionView conversionView, EventBus eventBus, NavigationExecutor navigationExecutor) {
+                              ConversionView conversionView, EventBusV2 eventBus, NavigationExecutor navigationExecutor) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.conversionView = conversionView;

@@ -15,7 +15,7 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.promoHighTier());
     private static final AvailableWebProducts INVALID = AvailableWebProducts.single(TestProduct.midTier());
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Mock private WebPaymentOperations paymentOperations;
     @Mock private ConversionView view;
