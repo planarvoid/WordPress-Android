@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -26,8 +27,7 @@ class WebCheckoutView {
     }
 
     @Inject
-    public WebCheckoutView() {
-    }
+    WebCheckoutView() {}
 
     void setupContentView(AppCompatActivity activity, final Listener listener) {
         ButterKnife.bind(this, activity);
@@ -44,6 +44,12 @@ class WebCheckoutView {
         settings.setLoadsImagesAutomatically(true);
         webView.setWebViewClient(new WebViewClient() {
             @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return false;
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return false;
             }
@@ -51,11 +57,11 @@ class WebCheckoutView {
     }
 
     @SuppressLint("AddJavascriptInterface")
-    public void setupJavaScriptInterface(String name, WebCheckoutInterface checkoutInterface) {
+    void setupJavaScriptInterface(String name, WebCheckoutInterface checkoutInterface) {
         webView.addJavascriptInterface(checkoutInterface, name);
     }
 
-    public void loadUrl(String url) {
+    void loadUrl(String url) {
         webView.loadUrl(url);
     }
 
@@ -65,12 +71,12 @@ class WebCheckoutView {
         webView.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
     }
 
-    public void setRetry() {
+    void setRetry() {
         loading.setVisibility(View.GONE);
         retry.setVisibility(View.VISIBLE);
     }
 
-    public boolean handleBackPress() {
+    boolean handleBackPress() {
         if (webView.canGoBack()) {
             webView.goBack();
             return true;
