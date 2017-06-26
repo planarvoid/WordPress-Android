@@ -207,8 +207,8 @@
     <string name="onboarding_create_account">Create an account</string>
     <string name="onboarding_indicate_gender">Indicate your gender</string>
     <string name="onboarding_custom_gender_hint">Enter gender</string>
-    <string name="onboarding_gender_option_female">Woman</string>
-    <string name="onboarding_gender_option_male">Man</string>
+    <string name="onboarding_gender_option_female">Female</string>
+    <string name="onboarding_gender_option_male">Male</string>
     <string name="onboarding_gender_option_custom">Custom</string>
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
     <string name="ok_got_it">OK, got it</string>
