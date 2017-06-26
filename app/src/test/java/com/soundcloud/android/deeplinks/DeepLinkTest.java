@@ -43,6 +43,14 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldFlagProUrlsAsWebView() {
+        assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/pro");
+        assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/pro/gifts");
+        assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/pro/buy/pro");
+        assertDeeplink(DeepLink.ENTITY, "https://soundcloud.com/promises");
+    }
+
+    @Test
     public void shouldFlagOtherLinksAsOther() {
         assertDeeplink(DeepLink.ENTITY, "https://soundcloud.com/settings");
     }
