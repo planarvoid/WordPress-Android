@@ -64,6 +64,14 @@ task checkstyleChanged(type: Checkstyle) {
 }
 
 tasks.withType(FindBugs) {
+  dependencies {
+    findbugs libraries.findbugs
+    findbugs configurations.findbugsPlugins.dependencies
+    findbugsPlugins libraries.findbugsContrib
+  }
+
+  pluginClasspath = project.configurations.findbugsPlugins
+
   ignoreFailures true
   effort = 'max'
   reportLevel = 'high'

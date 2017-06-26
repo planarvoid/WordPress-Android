@@ -109,6 +109,8 @@ ext {
           // static analysis
           checkstyle                   : "com.puppycrawl.tools:checkstyle:7.8.2",
           checkstyleSevntu             : "com.github.sevntu-checkstyle:sevntu-checks:1.24.0",
+          findbugs                     : "com.google.code.findbugs:findbugs:3.0.1",
+          findbugsContrib              : "com.mebigfatguy.fb-contrib:fb-contrib:7.0.2",
           lintApi                      : "com.android.tools.lint:lint-api:$androidSupportVersion",
           lintChecks                   : "com.android.tools.lint:lint-checks:$androidSupportVersion"
   ]
