@@ -48,7 +48,9 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
         super.onCreate(savedInstanceState);
     }
 
-    public abstract Screen getScreen();
+    public Screen getScreen() {
+        return Screen.UNKNOWN;
+    }
 
     @Override
     protected void onResume() {

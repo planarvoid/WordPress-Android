@@ -6,6 +6,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Collections.emptyList;
+import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
 import static rx.Observable.just;
 
@@ -15,6 +16,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.associations.RepostStatuses;
 import com.soundcloud.android.associations.RepostsStateProvider;
@@ -23,6 +25,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
@@ -45,6 +48,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -72,10 +76,6 @@ import java.util.List;
 @AutoFactory
 public class PlaylistDetailsPresenter {
 
-    interface ActionResult {
-        AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous);
-    }
-
     private final Resources resources;
     private final PlaylistOperations playlistOperations;
     private final PlaylistUpsellOperations playlistUpsellOperations;
@@ -95,6 +95,7 @@ public class PlaylistDetailsPresenter {
     private final String screen;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final TrackingStateProvider trackingStateProvider;
 
     private final EntityItemCreator entityItemCreator;
 
@@ -138,7 +139,8 @@ public class PlaylistDetailsPresenter {
                              @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                              @Provided EntityItemCreator entityItemCreator,
                              @Provided FeatureOperations featureOperations,
-                             @Provided OfflineSettingsStorage offlineSettingsStorage) {
+                             @Provided OfflineSettingsStorage offlineSettingsStorage,
+                             @Provided TrackingStateProvider trackingStateProvider) {
         this.resources = resources;
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
@@ -161,12 +163,13 @@ public class PlaylistDetailsPresenter {
         this.featureOperations = featureOperations;
         this.offlineSettingsStorage = offlineSettingsStorage;
         this.dataSourceProvider = dataSourceProvider;
+        this.trackingStateProvider = trackingStateProvider;
     }
 
-    public void connect(PlaylistDetailsInputs inputs, Urn playlistUrn) {
+    public void connect(PlaylistDetailsInputs inputs, PlaylistDetailView view, Urn playlistUrn) {
         subscription.unsubscribe();
         subscription = new CompositeSubscription(
-                subscribeToCommands(inputs),
+                subscribeToCommands(inputs, view),
                 emitViewModel(inputs, playlistUrn).subscribe(new CrashOnTerminateSubscriber<>())
         );
 
@@ -207,9 +210,11 @@ public class PlaylistDetailsPresenter {
         return result.apply(previous);
     }
 
-    private Subscription subscribeToCommands(PlaylistDetailsInputs inputs) {
+    private Subscription subscribeToCommands(PlaylistDetailsInputs inputs, PlaylistDetailView view) {
 
         return new CompositeSubscription(
+                // Track pageview event on screen enter
+                trackPageViewEvent(view),
                 // -> Show playlist deletion confirmation
                 actionDeletePlaylist(inputs.delete).subscribe(showPlaylistDeletionConfirmation),
                 // -> Share playlist
@@ -314,6 +319,19 @@ public class PlaylistDetailsPresenter {
         if (!playbackResult.isSuccess()) {
             playbackError.onNext(playbackResult.getErrorReason());
         }
+    }
+
+    private Subscription trackPageViewEvent(PlaylistDetailView view) {
+        return combineLatest(
+                RxJava.toV1Observable(view.onEnterScreenTimestamp()),
+                viewModel().filter(viewModel -> viewModel.data().isPresent()),
+                (timestamp, viewModel) -> viewModel
+        ).first()
+         .subscribe(LambdaSubscriber.onNext(viewModel -> {
+             PlaylistDetailsViewModel playlistDetailsViewModel = viewModel.data().get();
+             ScreenEvent pageviewEvent = ScreenEvent.createForPlaylist(Screen.PLAYLIST_DETAILS, Optional.fromNullable(playlistDetailsViewModel.metadata().urn()));
+             eventTracker.trackScreen(pageviewEvent, trackingStateProvider.getLastEvent());
+         }));
     }
 
     private Observable<android.util.Pair<Urn, UrnStateChangedEvent>> onPlaylistDeleted() {
@@ -604,7 +622,15 @@ public class PlaylistDetailsPresenter {
                        playSessionSource.getPromotedSourceInfo());
     }
 
-    static class LikeStateChangedIntent {
+    interface PlaylistDetailView {
+        io.reactivex.Observable<Long> onEnterScreenTimestamp();
+    }
+
+    static final class LikeStateChangedIntent {
+
+        private LikeStateChangedIntent() {
+            // hide utility class
+        }
 
         static class PlaylistLikedResult implements ActionResult {
             final boolean isPlaylistLiked;
@@ -631,7 +657,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class EditModeChangedIntent {
+    static final class EditModeChangedIntent {
+
+        private EditModeChangedIntent() {
+            // hide utility class
+        }
 
         static class EditModeResult implements ActionResult {
             final boolean isEditMode;
@@ -671,7 +701,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class OfflineStateChangedIntent {
+    static final class OfflineStateChangedIntent {
+
+        private OfflineStateChangedIntent() {
+            // hide utility class
+        }
 
         static class OfflineStateResult implements ActionResult {
             final OfflineProperties offlineProperties;
@@ -734,7 +768,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class PlaylistRepostedIntent {
+    static final class PlaylistRepostedIntent {
+
+        private PlaylistRepostedIntent() {
+            // hide utility class
+        }
 
         static class PlaylistRepostedResult implements ActionResult {
             final boolean isPlaylistReposted;
@@ -762,7 +800,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class NowPlayingIntent {
+    static final class NowPlayingIntent {
+
+        private NowPlayingIntent() {
+            // hide utility class
+        }
 
         static class NowPlayingResult implements ActionResult {
             final Urn track;
@@ -805,7 +847,12 @@ public class PlaylistDetailsPresenter {
 
     }
 
-    static class DismissUpsellIntent {
+    static final class DismissUpsellIntent {
+
+        private DismissUpsellIntent() {
+            // hide utility class
+        }
+
         static class DismissUpsellResult implements ActionResult {
 
             @Override
@@ -822,7 +869,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class UpdateTrackListIntent {
+    static final class UpdateTrackListIntent {
+
+        private UpdateTrackListIntent() {
+            // hide utility class
+        }
 
         static class UpdateTrackListResult implements ActionResult {
 
@@ -863,8 +914,11 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    static class PlaylistWithExtrasStateIntent {
+    static final class PlaylistWithExtrasStateIntent {
 
+        private PlaylistWithExtrasStateIntent() {
+            // hide utility class
+        }
 
         static class PlaylistWithExtrasStateResult implements ActionResult {
             private final PlaylistWithExtrasState playlistWithExtrasState;
@@ -984,6 +1038,7 @@ public class PlaylistDetailsPresenter {
         }
 
 
+        @SuppressWarnings("sc.RxJava1Usage")
         static Observable<PlaylistWithExtrasStateResult> dataSource(PlaylistDetailsInputs inputs,
                                                                     Urn playlistUrn,
                                                                     DataSourceProvider dataSourceProvider,
@@ -995,5 +1050,9 @@ public class PlaylistDetailsPresenter {
                     .dataWith(playlistUrn, inputs.refresh)
                     .map((playlistWithExtrasState) -> new PlaylistWithExtrasStateResult(playlistWithExtrasState, resources, entityItemCreator, featureOperations, playlistUpsellOperations));
         }
+    }
+
+    interface ActionResult {
+        AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous);
     }
 }

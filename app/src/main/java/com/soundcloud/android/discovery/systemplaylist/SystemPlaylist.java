@@ -27,8 +27,10 @@ public abstract class SystemPlaylist {
 
     public abstract Optional<Date> lastUpdated();
 
-    public static SystemPlaylist create(Urn urn, Optional<Urn> queryUrn, Optional<String> title, Optional<String> description, List<Track> tracks, Optional<Date> lastUpdated, Optional<String> artworkUrlTemplate) {
-        return new AutoValue_SystemPlaylist(urn, queryUrn, title, description, artworkUrlTemplate, tracks, lastUpdated);
+    public abstract Optional<String> trackingFeatureName();
+
+    public static SystemPlaylist create(Urn urn, Optional<Urn> queryUrn, Optional<String> title, Optional<String> description, List<Track> tracks, Optional<Date> lastUpdated, Optional<String> artworkUrlTemplate, Optional<String> trackingFeatureName) {
+        return new AutoValue_SystemPlaylist(urn, queryUrn, title, description, artworkUrlTemplate, tracks, lastUpdated, trackingFeatureName);
     }
 
     public Optional<ImageResource> imageResource() {
@@ -40,4 +42,5 @@ public abstract class SystemPlaylist {
             return Optional.of(SimpleImageResource.create(tracks().get(0)));
         }
     }
+
 }

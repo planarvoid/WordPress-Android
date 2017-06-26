@@ -11,7 +11,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import javax.inject.Inject;
 
 /**
- * Should be deleted after Rx2 migration.
+ * Should be deleted after RxJava2 migration.
  *
  * @deprecated Use {@link ExpandPlayerObserver} instead.
  */

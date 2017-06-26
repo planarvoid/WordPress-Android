@@ -76,8 +76,7 @@ public enum Screen {
     // discover / new home
     DISCOVER("discovery:main"),
 
-    // TODO (REC-1174): Set proper trackingTag for system playlists
-    SYSTEM_PLAYLIST("foo"),
+    SYSTEM_PLAYLIST("system-playlist:main"),
 
     // search
     SEARCH_MAIN("search:main"),

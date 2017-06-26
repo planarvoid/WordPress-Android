@@ -12,12 +12,12 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import io.reactivex.subjects.BehaviorSubject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FollowingsPresenterTest {

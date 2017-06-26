@@ -32,6 +32,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPR
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_FOREGROUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_SYSTEM_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ITEM;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LINK_TYPE;
@@ -374,6 +375,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData inPlaylist(Urn playlistUrn) {
         addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
+        return this;
+    }
+
+    public EventLoggerEventData inSystemPlaylist(Urn systemPlaylistUrn) {
+        addToPayload(IN_SYSTEM_PLAYLIST, String.valueOf(systemPlaylistUrn));
         return this;
     }
 

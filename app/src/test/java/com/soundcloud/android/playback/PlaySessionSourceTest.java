@@ -29,6 +29,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
     private static final Urn USER_URN = Urn.forUser(2);
     private static final int TRACK_COUNT = 5;
+    public static final String PLAYLIST = "playlist";
 
     @Mock SharedPreferences sharedPreferences;
 
@@ -64,7 +65,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(PLAYLIST);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
-        assertThat(playSessionSource.getInitialSource()).isEmpty();
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(PLAYLIST);
     }
 
     @Test

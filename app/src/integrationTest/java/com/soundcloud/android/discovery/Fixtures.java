@@ -108,5 +108,6 @@ class Fixtures {
                                                                               Optional.of("title"),
                                                                               Optional.of("description"),
                                                                               Optional.of("http://fancy.jpg"),
+                                                                              Optional.of("The Upload"),
                                                                               new ModelCollection<>(Collections.singletonList(new ApiTrack(Urn.forTrack(123L)))));
 }

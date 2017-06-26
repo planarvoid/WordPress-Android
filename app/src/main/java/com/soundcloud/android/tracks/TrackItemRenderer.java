@@ -124,7 +124,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent());
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
     }
 
     public void bindChartTrackView(final ChartTrackItem chartTrackItem,
@@ -136,6 +136,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       position,
                       trackSourceInfo,
                       Optional.absent(),
+                      Optional.absent(),
                       chartTrackItem.chartType() == ChartType.TRENDING ? Optional.of(ActiveFooter.POSTED) : Optional.absent());
 
         showChartPosition(itemView, position);
@@ -144,12 +145,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     public void bindSystemPlaylistTrackView(final TrackItem track,
                                             View itemView,
                                             final int position,
+                                            Optional<Urn> pageUrn,
                                             Optional<TrackSourceInfo> trackSourceInfo) {
         bindTrackView(track,
                       itemView,
                       position,
                       trackSourceInfo,
                       Optional.absent(),
+                      pageUrn,
                       Optional.of(ActiveFooter.PLAYS_AND_POSTED));
     }
 
@@ -163,6 +166,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       position,
                       trackSourceInfo,
                       module,
+                      Optional.absent(),
                       Optional.of(ActiveFooter.OFFLINE_STATE));
     }
 
@@ -171,7 +175,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent());
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
         showGoPlusIntroductoryOverlayIfNeeded(itemView, track);
     }
 
@@ -200,6 +204,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                final int position,
                                Optional<TrackSourceInfo> trackSourceInfo,
                                Optional<Module> module,
+                               Optional<Urn> pageUrn,
                                Optional<ActiveFooter> activeFooter) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(trackItem.creatorName());
@@ -216,7 +221,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoBottom(trackItemView, trackItem, activeFooter);
 
         bindArtwork(trackItemView, trackItem);
-        bindOverFlow(trackItemView, trackItem, position, trackSourceInfo, module);
+        bindOverFlow(trackItemView, trackItem, position, pageUrn, trackSourceInfo, module);
     }
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
@@ -234,24 +239,27 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void bindOverFlow(final TrackItemView itemView,
                               final TrackItem track,
                               final int position,
+                              final Optional<Urn> pageUrn,
                               final Optional<TrackSourceInfo> trackSourceInfo,
                               final Optional<Module> module) {
-        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module));
+        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, pageUrn, trackSourceInfo, module));
     }
 
     protected void showTrackItemMenu(View button,
                                      TrackItem track,
                                      int position,
+                                     Optional<Urn> pageUrn,
                                      Optional<TrackSourceInfo> trackSourceInfo,
                                      Optional<Module> module) {
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
-                                    getEventContextMetaDataBuilder(track, module, trackSourceInfo));
+                                    getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo));
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(TrackItem item,
                                                                         Optional<Module> module,
+                                                                        Optional<Urn> pageUrn,
                                                                         Optional<TrackSourceInfo> trackSourceInfo) {
         final String screen = screenProvider.getLastScreenTag();
 
@@ -266,6 +274,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
         if (trackSourceInfo.isPresent()) {
             builder.trackSourceInfo(trackSourceInfo.get());
+        }
+
+        if (pageUrn.isPresent()) {
+            builder.pageUrn(pageUrn.get());
         }
 
         return builder;

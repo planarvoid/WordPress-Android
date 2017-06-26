@@ -11,6 +11,7 @@ public abstract class ScreenEvent extends TrackingEvent {
     public static final String EVENT_NAME = "pageview";
 
     public static final String KIND = "screen";
+    public static final String PLAYLIST = "playlist";
 
     public String getKind() {
         return KIND;
@@ -24,6 +25,8 @@ public abstract class ScreenEvent extends TrackingEvent {
 
     public abstract Optional<Urn> pageUrn();
 
+    public abstract Optional<String> source();
+
     public abstract Builder toBuilder();
 
     public static ScreenEvent create(Screen screen) {
@@ -32,6 +35,20 @@ public abstract class ScreenEvent extends TrackingEvent {
 
     public static ScreenEvent create(String screen) {
         return builder(screen).build();
+    }
+
+    public static ScreenEvent createForSystemPlaylist(Screen screen, Urn pageUrn, Optional<String> name) {
+        return builder(screen.get())
+                .source(name)
+                .pageUrn(Optional.of(pageUrn))
+                .build();
+    }
+
+    public static ScreenEvent createForPlaylist(Screen screen, Optional<Urn> pageUrn) {
+        return builder(screen.get())
+                .source(Optional.of(PLAYLIST))
+                .pageUrn(pageUrn)
+                .build();
     }
 
     public static ScreenEvent create(String screen, SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -56,6 +73,7 @@ public abstract class ScreenEvent extends TrackingEvent {
                                                   .referringEvent(Optional.absent())
                                                   .screen(screen)
                                                   .genre(Optional.absent())
+                                                  .source(Optional.absent())
                                                   .queryUrn(Optional.absent())
                                                   .pageUrn(Optional.absent());
     }
@@ -81,6 +99,9 @@ public abstract class ScreenEvent extends TrackingEvent {
 
         public abstract Builder pageUrn(Optional<Urn> pageUrn);
 
+        public abstract Builder source(Optional<String> name);
+
         public abstract ScreenEvent build();
+
     }
 }

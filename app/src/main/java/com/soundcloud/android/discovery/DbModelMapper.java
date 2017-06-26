@@ -34,7 +34,8 @@ final class DbModelMapper {
                                            Optional.fromNullable(systemPlaylist.description()),
                                            trackUrns,
                                            Optional.fromNullable(systemPlaylist.last_updated()),
-                                           Optional.fromNullable(systemPlaylist.artwork_url_template())
+                                           Optional.fromNullable(systemPlaylist.artwork_url_template()),
+                                           Optional.fromNullable(systemPlaylist.tracking_feature_name())
         );
     }
 

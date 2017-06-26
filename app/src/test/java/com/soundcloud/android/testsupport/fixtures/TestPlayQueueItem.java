@@ -26,7 +26,14 @@ public class TestPlayQueueItem {
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn) {
-        return builder(itemUrn).build();
+        return builder(itemUrn)
+                .build();
+    }
+
+    public static TrackQueueItem createTrack(Urn itemUrn, String source) {
+        return builder(itemUrn)
+                .fromSource(source)
+                .build();
     }
 
     @NonNull
@@ -37,6 +44,13 @@ public class TestPlayQueueItem {
 
     public static TrackQueueItem createBlockedTrack(Urn itemUrn) {
         return builder(itemUrn).blocked(true).build();
+    }
+
+    public static TrackQueueItem createBlockedTrack(Urn itemUrn, String source) {
+        return builder(itemUrn)
+                .blocked(true)
+                .fromSource(source)
+                .build();
     }
 
     public static TrackQueueItem createTrack(Urn itemUrn, VisualAdData adData) {

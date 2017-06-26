@@ -23,6 +23,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.associations.RepostStatuses;
 import com.soundcloud.android.associations.RepostsStateProvider;
@@ -71,7 +72,6 @@ import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowLog;
 import rx.Observable;
@@ -103,10 +103,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private DataSourceProvider dataSourceProvider;
     @Mock private RepostOperations repostOperations;
     @Mock private RepostsStateProvider repostsStateProvider;
-    @Mock private SharePresenter shareOperations;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
-
-    @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
+    @Mock private TrackingStateProvider trackingStateProvider;
+    @Mock private PlaylistDetailsPresenter.PlaylistDetailView playlistDetailView;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -123,7 +122,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final Playlist initialPlaylist = ModelFixtures.playlistBuilder().build();
     private final Playlist updatedPlaylist = initialPlaylist.toBuilder().urn(initialPlaylist.urn()).title("new-title").build();
 
-    private final String screen = "screen";
+    private final String screen = Screen.PLAYLIST_DETAILS.get();
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forGenre("asdf"), "querystring");
     private final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad-urn", Urn.forTrack(1), absent(), emptyList());
 
@@ -150,6 +149,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         ShadowLog.stream = System.out;
 
+        when(playlistDetailView.onEnterScreenTimestamp()).thenReturn(io.reactivex.Observable.just(123L));
         when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
@@ -185,7 +185,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                             expandPlayerSubscriberProvider,
                                                             ModelFixtures.entityItemCreator(),
                                                             featureOperations,
-                                                            offlineSettingsStorage);
+                                                            offlineSettingsStorage,
+                                                            trackingStateProvider);
     }
 
     private void connect() {
@@ -193,7 +194,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private void connect(PlaylistWithExtras initialEmission) {
-        newPlaylistPresenter.connect(inputs, playlistUrn);
+        newPlaylistPresenter.connect(inputs, playlistDetailView, playlistUrn);
         emitLikedEntities();
         emitRepostedEntities();
         emitOfflineEntities(Collections.<Urn, OfflineState>emptyMap());

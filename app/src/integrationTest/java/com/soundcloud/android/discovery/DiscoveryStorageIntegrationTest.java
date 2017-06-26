@@ -110,7 +110,8 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
                 apiSystemPlaylist.description(),
                 apiSystemPlaylist.tracks().transform(ApiTrack::getUrn).getCollection(),
                 apiSystemPlaylist.lastUpdated(),
-                apiSystemPlaylist.artworkUrlTemplate());
+                apiSystemPlaylist.artworkUrlTemplate(),
+                apiSystemPlaylist.trackingFeatureName());
     }
 
     @Override

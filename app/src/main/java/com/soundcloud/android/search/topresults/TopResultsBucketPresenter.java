@@ -18,17 +18,6 @@ public class TopResultsBucketPresenter {
     private final ReferringEventProvider referringEventProvider;
     private Disposable disposable;
 
-    interface TopResultsBucketView {
-
-        TopResults.Bucket.Kind getKind();
-
-        boolean isPremium();
-
-        Optional<Urn> getQueryUrn();
-
-        Observable<Long> enterScreenTimestamp();
-    }
-
     @Inject
     public TopResultsBucketPresenter(EventTracker eventTracker, ReferringEventProvider referringEventProvider) {
         this.eventTracker = eventTracker;
@@ -45,5 +34,16 @@ public class TopResultsBucketPresenter {
 
     public void detachView() {
         disposable.dispose();
+    }
+
+    interface TopResultsBucketView {
+
+        TopResults.Bucket.Kind getKind();
+
+        boolean isPremium();
+
+        Optional<Urn> getQueryUrn();
+
+        Observable<Long> enterScreenTimestamp();
     }
 }

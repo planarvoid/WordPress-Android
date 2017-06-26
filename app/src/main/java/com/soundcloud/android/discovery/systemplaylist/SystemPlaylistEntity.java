@@ -20,6 +20,8 @@ public abstract class SystemPlaylistEntity {
 
     public abstract Optional<String> artworkUrlTemplate();
 
+    public abstract Optional<String> trackingFeatureName();
+
     public abstract List<Urn> trackUrns();
 
     public abstract Optional<Date> lastUpdated();
@@ -30,7 +32,8 @@ public abstract class SystemPlaylistEntity {
                                               Optional<String> description,
                                               List<Urn> trackUrns,
                                               Optional<Date> lastUpdated,
-                                              Optional<String> artworkUrlTemplate) {
-        return new AutoValue_SystemPlaylistEntity(urn, queryUrn, title, description, artworkUrlTemplate, trackUrns, lastUpdated);
+                                              Optional<String> artworkUrlTemplate,
+                                              Optional<String> trackingFeatureName) {
+        return new AutoValue_SystemPlaylistEntity(urn, queryUrn, title, description, artworkUrlTemplate, trackingFeatureName, trackUrns, lastUpdated);
     }
 }

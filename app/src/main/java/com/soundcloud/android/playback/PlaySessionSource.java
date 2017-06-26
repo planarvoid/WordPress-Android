@@ -4,11 +4,12 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.olddiscovery.charts.ChartSourceInfo;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.charts.ChartSourceInfo;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +36,7 @@ public class PlaySessionSource implements Parcelable {
     static final String PREF_KEY_COLLECTION_SIZE = "collection_size";
 
     private final String originScreen;
+    private Optional<String> source = Optional.absent();
     private Urn collectionUrn = Urn.NOT_SET;
     private Urn collectionOwnerUrn = Urn.NOT_SET;
     private int collectionSize = Consts.NOT_SET;
@@ -54,6 +56,7 @@ public class PlaySessionSource implements Parcelable {
         source.collectionUrn = playlist;
         source.collectionOwnerUrn = playlistOwner;
         source.collectionSize = playlistSize;
+        source.source = Optional.of("playlist");
         return source;
     }
 
@@ -111,11 +114,13 @@ public class PlaySessionSource implements Parcelable {
         return playSessionSource;
     }
 
-    public static PlaySessionSource forSystemPlaylist(String screenTag) {
-        // TODO (REC-1174): Use proper tracking information
-        // playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
-        // playSessionSource.discoverySource = DiscoverySource.NEW_FOR_YOU;
-        return new PlaySessionSource(screenTag);
+    public static PlaySessionSource forSystemPlaylist(String screenTag, Optional<String> source, int queryPosition, Urn queryUrn, Urn systemPlaylistUrn, int systemPlaylistSize) {
+        PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
+        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        playSessionSource.collectionUrn = systemPlaylistUrn;
+        playSessionSource.collectionSize = systemPlaylistSize;
+        playSessionSource.source = source;
+        return playSessionSource;
     }
 
     public static PlaySessionSource forHistory(Screen screen) {
@@ -196,6 +201,8 @@ public class PlaySessionSource implements Parcelable {
             return discoverySource.value();
         } else if (isFromNewForYou()) {
             return DiscoverySource.NEW_FOR_YOU.value();
+        } else if (source.isPresent()) {
+            return source.get();
         }
         return Strings.EMPTY;
     }

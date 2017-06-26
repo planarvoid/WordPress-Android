@@ -3,7 +3,6 @@ package com.soundcloud.android.discovery.systemplaylist;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
@@ -35,12 +34,6 @@ public class SystemPlaylistActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             attachFragment();
         }
-    }
-
-    @Override
-    public Screen getScreen() {
-        final boolean forNewForYou = getIntent().getBooleanExtra(EXTRA_FOR_NEW_FOR_YOU, false);
-        return forNewForYou ? Screen.NEW_FOR_YOU : Screen.SYSTEM_PLAYLIST;
     }
 
     private void attachFragment() {

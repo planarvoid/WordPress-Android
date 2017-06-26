@@ -73,6 +73,7 @@ public class PlaylistTrackItemRenderer extends TrackItemRenderer {
     protected void showTrackItemMenu(View button,
                                      TrackItem track,
                                      int position,
+                                     Optional<Urn> pageUrn,
                                      Optional<TrackSourceInfo> trackSourceInfo,
                                      Optional<Module> module) {
         trackItemMenuPresenter.show(getFragmentActivity(button),
@@ -82,10 +83,11 @@ public class PlaylistTrackItemRenderer extends TrackItemRenderer {
                                     ownerUrn,
                                     removeTrackListener,
                                     promotedSourceInfo,
-                                    getEventContextMetaDataBuilder(module, trackSourceInfo));
+                                    getEventContextMetaDataBuilder(module, pageUrn, trackSourceInfo));
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(Optional<Module> module,
+                                                                        Optional<Urn> pageUrn,
                                                                         Optional<TrackSourceInfo> trackSourceInfo) {
         final String screen = screenProvider.getLastScreenTag();
 
@@ -97,6 +99,10 @@ public class PlaylistTrackItemRenderer extends TrackItemRenderer {
 
         if (trackSourceInfo.isPresent()) {
             builder.trackSourceInfo(trackSourceInfo.get());
+        }
+
+        if (pageUrn.isPresent()) {
+            builder.pageUrn(pageUrn.get());
         }
 
         return builder;

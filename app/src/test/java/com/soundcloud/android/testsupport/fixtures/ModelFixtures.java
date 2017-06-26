@@ -139,6 +139,7 @@ public class ModelFixtures {
                                         Optional.of("title"),
                                         Optional.of("description"),
                                         Optional.of("http://fancy.jpg"),
+                                        Optional.of("The Upload"),
                                         new ModelCollection<>(apiTracks(1)));
     }
 

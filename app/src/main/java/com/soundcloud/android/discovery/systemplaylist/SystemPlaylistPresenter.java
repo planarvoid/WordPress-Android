@@ -3,6 +3,9 @@ package com.soundcloud.android.discovery.systemplaylist;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingStateProvider;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
@@ -14,6 +17,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -28,6 +32,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
+import io.reactivex.subjects.PublishSubject;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -58,7 +63,10 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     private final EventBusV2 eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final EntityItemCreator entityItemCreator;
+    private final EventTracker eventTracker;
+    private final TrackingStateProvider trackingStateProvider;
 
+    private final PublishSubject<SystemPlaylist> onData = PublishSubject.create();
     private final CompositeDisposable disposables = new CompositeDisposable();
     private boolean forNewForYou;
     private Urn urn;
@@ -74,7 +82,9 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                             Resources resources,
                             EventBusV2 eventBus,
                             PlaySessionStateProvider playSessionStateProvider,
-                            EntityItemCreator entityItemCreator) {
+                            EntityItemCreator entityItemCreator,
+                            EventTracker eventTracker,
+                            TrackingStateProvider trackingStateProvider) {
         super(swipeRefreshAttacher, Options.list().build());
 
         this.systemPlaylistOperations = systemPlaylistOperations;
@@ -86,6 +96,8 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
         this.eventBus = eventBus;
         this.playSessionStateProvider = playSessionStateProvider;
         this.entityItemCreator = entityItemCreator;
+        this.eventTracker = eventTracker;
+        this.trackingStateProvider = trackingStateProvider;
     }
 
     @Override
@@ -118,6 +130,21 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
         super.onViewCreated(fragment, view, savedInstanceState);
 
         disposables.add(eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackObserver(adapter)));
+        disposables.add(
+                Observable.combineLatest(
+                        ((SystemPlaylistView) fragment).onEnterScreenTimestamp(),
+                        onData,
+                        (timestamp, systemPlaylist) -> systemPlaylist)
+                          .firstOrError()
+                          .map(systemPlaylist -> {
+                              if (forNewForYou) {
+                                  return ScreenEvent.create(Screen.NEW_FOR_YOU);
+                              } else {
+                                  return ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName());
+                              }
+                          })
+                          .subscribeWith(LambdaSingleObserver.onNext(screenEvent -> eventTracker.trackScreen(screenEvent, trackingStateProvider.getLastEvent())))
+        );
     }
 
     @Override
@@ -131,21 +158,22 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
             systemPlaylistObservable = systemPlaylistOperations.fetchSystemPlaylist(urn)
                                                                .toObservable();
         }
+
         return buildCollectionBinding(systemPlaylistObservable);
     }
 
     @Override
     protected CollectionBinding<SystemPlaylist, SystemPlaylistItem> onRefreshBinding() {
-        final Observable<SystemPlaylist> systemPlaylistObservable;
+        final Observable<SystemPlaylist> refreshObservable;
         if (forNewForYou) {
-            systemPlaylistObservable = newForYouOperations.refreshNewForYou()
-                                                          .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
-                                                          .toObservable();
+            refreshObservable = newForYouOperations.refreshNewForYou()
+                                                   .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
+                                                   .toObservable();
         } else {
-            systemPlaylistObservable = systemPlaylistOperations.fetchSystemPlaylist(urn)
-                                                               .toObservable();
+            refreshObservable = systemPlaylistOperations.fetchSystemPlaylist(urn)
+                                                        .toObservable();
         }
-        return buildCollectionBinding(systemPlaylistObservable);
+        return buildCollectionBinding(refreshObservable);
     }
 
     private CollectionBinding<SystemPlaylist, SystemPlaylistItem> buildCollectionBinding(Observable<SystemPlaylist> systemPlaylistObservable) {
@@ -162,15 +190,18 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     @VisibleForTesting
     Function<SystemPlaylist, ? extends Iterable<SystemPlaylistItem>> toSystemPlaylistItems() {
         return systemPlaylist -> {
+            onData.onNext(systemPlaylist);
             final List<SystemPlaylistItem> items = new ArrayList<>(systemPlaylist.tracks().size() + NUM_EXTRA_ITEMS);
 
             setTitle(systemPlaylist);
-            items.add(SystemPlaylistItem.Header.create(systemPlaylist.title(),
+            items.add(SystemPlaylistItem.Header.create(systemPlaylist.urn(),
+                                                       systemPlaylist.title(),
                                                        systemPlaylist.description(),
                                                        formatMetadata(systemPlaylist.tracks()),
                                                        formatUpdatedAt(systemPlaylist.lastUpdated()),
                                                        systemPlaylist.imageResource(),
-                                                       systemPlaylist.queryUrn()));
+                                                       systemPlaylist.queryUrn(),
+                                                       systemPlaylist.trackingFeatureName()));
 
             for (Track track : systemPlaylist.tracks()) {
                 final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(track.urn());
@@ -183,9 +214,9 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                 final TrackItem trackItem = trackItemBuilder.build();
 
                 if (forNewForYou) {
-                    items.add(SystemPlaylistItem.Track.createNewForYouTrack(trackItem, systemPlaylist.queryUrn()));
+                    items.add(SystemPlaylistItem.Track.createNewForYouTrack(systemPlaylist.urn(), trackItem, systemPlaylist.queryUrn(), systemPlaylist.trackingFeatureName()));
                 } else {
-                    items.add(SystemPlaylistItem.Track.create(trackItem, systemPlaylist.queryUrn()));
+                    items.add(SystemPlaylistItem.Track.create(systemPlaylist.urn(), trackItem, systemPlaylist.queryUrn(), systemPlaylist.trackingFeatureName()));
                 }
             }
 
@@ -254,12 +285,29 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     }
 
     private PlaySessionSource getPlaySessionSource(int adapterPosition, int playbackPosition) {
+        SystemPlaylistItem item = adapter.getItem(adapterPosition);
         if (forNewForYou) {
             return PlaySessionSource.forNewForYou(Screen.NEW_FOR_YOU.get(),
                                                   playbackPosition,
-                                                  adapter.getItem(adapterPosition).queryUrn().get());
+                                                  item.queryUrn().get());
         } else {
-            return PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get());
+            // .kt: val count = adapter.items.filter { it.isTrack() }.count()
+            int count = 0;
+            for (SystemPlaylistItem systemPlaylistItem : adapter.getItems()) {
+                if (systemPlaylistItem.isTrack()) {
+                    count++;
+                }
+            }
+            return PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
+                                                       item.trackingFeatureName(),
+                                                       playbackPosition,
+                                                       item.queryUrn().orNull(),
+                                                       item.systemPlaylistUrn(),
+                                                       count);
         }
+    }
+
+    interface SystemPlaylistView {
+        Observable<Long> onEnterScreenTimestamp();
     }
 }

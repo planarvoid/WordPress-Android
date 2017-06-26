@@ -20,15 +20,6 @@ class FollowersPresenter {
     private final AccountOperations accountOperations;
     private Disposable disposable;
 
-    interface FollowersView {
-        Urn getUserUrn();
-
-        Observable<Long> enterScreenTimestamp();
-
-        void visitFollowersScreenForCurrentUser(Screen trackingScreen);
-
-        void visitFollowersScreenForOtherUser(Screen trackingScreen);
-    }
 
     @Inject
     FollowersPresenter(EventTracker eventTracker, ReferringEventProvider referringEventProvider, AccountOperations accountOperations) {
@@ -67,4 +58,13 @@ class FollowersPresenter {
         return isLoggedInUser(userUrn) ? Screen.YOUR_FOLLOWERS : Screen.USER_FOLLOWERS;
     }
 
+    interface FollowersView {
+        Urn getUserUrn();
+
+        Observable<Long> enterScreenTimestamp();
+
+        void visitFollowersScreenForCurrentUser(Screen trackingScreen);
+
+        void visitFollowersScreenForOtherUser(Screen trackingScreen);
+    }
 }

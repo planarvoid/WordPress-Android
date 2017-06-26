@@ -27,6 +27,7 @@ import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +43,8 @@ import java.util.List;
 public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
 
     private static final String PLAYLIST_TWO_TRACKS = "playlist-two-tracks.json";
+
+    private final PlaylistDetailsPresenter.PlaylistDetailView playlistDetailView = Observable::never;
 
     public PlaylistDetailsPresenterIntegrationTest() {
         super(TestUser.playlistUser);
@@ -64,7 +67,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create(), Urn.forPlaylist(123L));
+        presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
         screen.assertState(contains(AsyncViewModel.<Object>builder()
                                             .data(Optional.absent())
@@ -82,7 +85,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create(), Urn.forPlaylist(123L));
+        presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
         screen.assertState(contains(AsyncViewModel.<Object>builder()
                                             .data(Optional.absent())
@@ -110,7 +113,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create(), playlistUrn);
+        presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, playlistUrn);
 
         screen.assertLastState(this::lastPlaylistUrn, equalTo(playlistUrn));
         screen.assertLastState(AsyncViewModel::isRefreshing, equalTo(false));
@@ -130,7 +133,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final Screen screen = new Screen(presenter);
 
         final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
-        presenter.connect(inputs, playlistWith2Tracks);
+        presenter.connect(inputs, playlistDetailView, playlistWith2Tracks);
 
         screen.assertLastState(this::lastPlaylistUrn, equalTo(playlistWith2Tracks));
         screen.assertLastState(state -> state.data().get().tracks().size(), is(2));

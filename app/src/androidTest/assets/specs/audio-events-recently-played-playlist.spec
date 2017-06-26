@@ -27,4 +27,5 @@ expected_events:
     policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
     monetization_model: (\w|-)+
+    source: playlist
   version: '1'

@@ -24,6 +24,8 @@ public abstract class ApiSystemPlaylist {
 
     public abstract Optional<String> artworkUrlTemplate();
 
+    public abstract Optional<String> trackingFeatureName();
+
     public abstract ModelCollection<ApiTrack> tracks();
 
     @JsonCreator
@@ -33,7 +35,8 @@ public abstract class ApiSystemPlaylist {
                                            @JsonProperty("title") Optional<String> title,
                                            @JsonProperty("description") Optional<String> description,
                                            @JsonProperty("artwork_url_template") Optional<String> artworkUrlTemplate,
+                                           @JsonProperty("tracking_feature_name") Optional<String> trackingFeatureName,
                                            @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
-        return new AutoValue_ApiSystemPlaylist(urn, trackCount, lastUpdated, title, description, artworkUrlTemplate, tracks);
+        return new AutoValue_ApiSystemPlaylist(urn, trackCount, lastUpdated, title, description, artworkUrlTemplate, trackingFeatureName, tracks);
     }
 }

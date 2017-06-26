@@ -19,6 +19,7 @@ public class TrackSourceInfo {
     private Urn reposter = Urn.NOT_SET;
     private Urn collectionUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
+    private Urn pageUrn = Urn.NOT_SET;
     private int playlistPosition;
 
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -40,6 +41,12 @@ public class TrackSourceInfo {
         this.collectionUrn = playlistUrn;
         this.playlistPosition = position;
         this.playlistOwnerUrn = playlistOwnerUrn;
+    }
+
+    public void setOriginSystemPlaylist(Urn systemPlaylistUrn, int position) {
+        this.collectionUrn = systemPlaylistUrn;
+        this.pageUrn = systemPlaylistUrn;
+        this.playlistPosition = position;
     }
 
     public void setStationSourceInfo(Urn stationUrn, StationsSourceInfo sourceInfo) {
@@ -103,6 +110,10 @@ public class TrackSourceInfo {
         return collectionUrn;
     }
 
+    public Urn getPageUrn() {
+        return pageUrn;
+    }
+
     public boolean hasCollectionUrn() {
         return !collectionUrn.equals(Urn.NOT_SET);
     }
@@ -121,6 +132,10 @@ public class TrackSourceInfo {
 
     public boolean isFromPlaylist() {
         return collectionUrn != Urn.NOT_SET && collectionUrn.isPlaylist();
+    }
+
+    public boolean isFromSystemPlaylists() {
+        return collectionUrn != Urn.NOT_SET && collectionUrn.isSystemPlaylist();
     }
 
     public boolean isFromStation() {

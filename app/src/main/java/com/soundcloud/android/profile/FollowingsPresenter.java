@@ -18,17 +18,7 @@ class FollowingsPresenter {
     private final EventTracker eventTracker;
     private final ReferringEventProvider referringEventProvider;
     private final AccountOperations accountOperations;
-    private Disposable subscription;
-
-    interface FollowingsView {
-        Urn getUserUrn();
-
-        Observable<Long> enterScreenTimestamp();
-
-        void visitFollowingsScreenForCurrentUser(Screen trackingScreen);
-
-        void visitFollowingsScreenForOtherUser(Screen trackingScreen);
-    }
+    private Disposable disposable;
 
     @Inject
     FollowingsPresenter(EventTracker eventTracker, ReferringEventProvider referringEventProvider, AccountOperations accountOperations) {
@@ -39,13 +29,13 @@ class FollowingsPresenter {
 
     void attachView(FollowingsPresenter.FollowingsView followingsView) {
         final Urn userUrn = followingsView.getUserUrn();
-        subscription = followingsView.enterScreenTimestamp()
-                                     .subscribeWith(LambdaObserver.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(getTrackingScreen(userUrn), userUrn),
-                                                                                                            referringEventProvider.getReferringEvent())));
+        disposable = followingsView.enterScreenTimestamp()
+                                    .subscribeWith(LambdaObserver.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(getTrackingScreen(userUrn), userUrn),
+                                                                                                         referringEventProvider.getReferringEvent())));
     }
 
     void detachView() {
-        subscription.dispose();
+        disposable.dispose();
     }
 
     void visitFollowingsScreen(FollowingsPresenter.FollowingsView followingsView) {
@@ -65,5 +55,15 @@ class FollowingsPresenter {
 
     private Screen getTrackingScreen(Urn userUrn) {
         return isLoggedInUser(userUrn) ? Screen.YOUR_FOLLOWINGS : Screen.USER_FOLLOWINGS;
+    }
+
+    interface FollowingsView {
+        Urn getUserUrn();
+
+        Observable<Long> enterScreenTimestamp();
+
+        void visitFollowingsScreenForCurrentUser(Screen trackingScreen);
+
+        void visitFollowingsScreenForOtherUser(Screen trackingScreen);
     }
 }

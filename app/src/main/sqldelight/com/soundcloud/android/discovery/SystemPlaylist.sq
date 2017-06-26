@@ -7,6 +7,7 @@ CREATE TABLE system_playlist (
     title TEXT,
     description TEXT,
     artwork_url_template TEXT,
+    tracking_feature_name TEXT,
     last_updated INTEGER AS Date
 );
 
@@ -26,5 +27,5 @@ dropTable:
 DROP TABLE IF EXISTS system_playlist;
 
 insertRow:
-INSERT INTO system_playlist(urn, query_urn, title, description, artwork_url_template, last_updated)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO system_playlist(urn, query_urn, title, description, artwork_url_template, tracking_feature_name, last_updated)
+VALUES (?, ?, ?, ?, ?, ?, ?);

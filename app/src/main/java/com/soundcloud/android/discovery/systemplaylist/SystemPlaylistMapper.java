@@ -21,7 +21,8 @@ final class SystemPlaylistMapper {
                 apiSystemPlaylist.description(),
                 Lists.transform(apiSystemPlaylist.tracks().getCollection(), Track::from),
                 apiSystemPlaylist.lastUpdated(),
-                apiSystemPlaylist.artworkUrlTemplate()
+                apiSystemPlaylist.artworkUrlTemplate(),
+                apiSystemPlaylist.trackingFeatureName()
         );
     }
 
@@ -33,6 +34,7 @@ final class SystemPlaylistMapper {
                 Optional.of(resources.getString(R.string.new_for_you_intro)),
                 newForYou.tracks(),
                 Optional.of(newForYou.lastUpdate()),
+                Optional.absent(),
                 Optional.absent()
         );
     }
@@ -45,7 +47,8 @@ final class SystemPlaylistMapper {
                 systemPlaylistEntity.description(),
                 tracks,
                 systemPlaylistEntity.lastUpdated(),
-                systemPlaylistEntity.artworkUrlTemplate()
+                systemPlaylistEntity.artworkUrlTemplate(),
+                systemPlaylistEntity.trackingFeatureName()
         );
     }
 

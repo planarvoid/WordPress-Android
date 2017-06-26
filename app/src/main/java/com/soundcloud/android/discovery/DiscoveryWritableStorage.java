@@ -43,6 +43,7 @@ public class DiscoveryWritableStorage {
                                          systemPlaylist.title().orNull(),
                                          systemPlaylist.description().orNull(),
                                          systemPlaylist.artworkUrlTemplate().orNull(),
+                                         systemPlaylist.trackingFeatureName().orNull(),
                                          systemPlaylist.lastUpdated().orNull());
             discoveryDatabase.insert(DbModel.SystemPlaylist.TABLE_NAME, insertSystemPlaylistRow.program);
 

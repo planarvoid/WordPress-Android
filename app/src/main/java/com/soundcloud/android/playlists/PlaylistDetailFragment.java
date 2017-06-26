@@ -3,25 +3,25 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
-import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
@@ -32,6 +32,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import io.reactivex.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -54,7 +55,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment>
-        implements TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsAdapter.PlaylistDetailView {
+        implements TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsAdapter.PlaylistDetailView,
+        PlaylistDetailsPresenter.PlaylistDetailView {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
@@ -64,7 +66,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject PlaylistDetailsPresenterFactory playlistPresenterFactory;
     @Inject PlaylistEngagementsRenderer playlistEngagementsRenderer;
     @Inject PlaylistCoverRenderer playlistCoverRenderer;
-    @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistEditionItemTouchCallbackFactory touchCallbackFactory;
     @Inject PlaylistDetailsAdapterFactory newPlaylistDetailsAdapterFactory;
     @Inject NavigationExecutor navigationExecutor;
@@ -91,7 +92,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
-        final PlaylistDetailFragment fragment = new PlaylistDetailFragment();
+        PlaylistDetailFragment fragment = new PlaylistDetailFragment();
         fragment.setArguments(createBundle(playlistUrn, screen, searchInfo, promotedInfo, autoplay));
         return fragment;
     }
@@ -101,7 +102,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
                                        SearchQuerySourceInfo searchInfo,
                                        PromotedSourceInfo promotedInfo,
                                        boolean autoplay) {
-        final Bundle bundle = new Bundle();
+        Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
         bundle.putParcelable(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
@@ -113,7 +114,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public PlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        this.skipModelUpdates = false;
+        skipModelUpdates = false;
     }
 
     @Override
@@ -128,6 +129,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     }
 
+    @Override
+    public Observable<Long> onEnterScreenTimestamp() {
+        return ((RootActivity) getActivity()).enterScreenTimestamp();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -138,16 +144,16 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        this.inputs = PlaylistDetailsInputs.create();
-        this.adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(inputs));
-        this.collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true);
-        this.collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
-        this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
+        inputs = PlaylistDetailsInputs.create();
+        adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(inputs));
+        collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true);
+        collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
+        itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
 
-        final View detailView = view.findViewById(R.id.playlist_details);
-        final boolean showInlineHeader = detailView == null;
+        View detailView = view.findViewById(R.id.playlist_details);
+        boolean showInlineHeader = detailView == null;
 
-        presenter.connect(inputs, getArguments().getParcelable(EXTRA_URN));
+        presenter.connect(inputs, this, getArguments().getParcelable(EXTRA_URN));
         subscription = new CompositeSubscription();
         subscription.addAll(
 
@@ -244,7 +250,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     }
 
     private void bindItemsGestures(AsyncViewModel<PlaylistDetailsViewModel> syncModel) {
-        final Optional<PlaylistDetailsViewModel> data = syncModel.data();
+        Optional<PlaylistDetailsViewModel> data = syncModel.data();
         if (data.isPresent() && data.get().metadata().isInEditMode()) {
             itemTouchHelper.attachToRecyclerView(recyclerView());
         } else {
@@ -318,7 +324,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public void onUpsellItemDismissed(PlaylistDetailUpsellItem item) {
         inputs.onItemDismissed(item);
 
-        final int position = adapter.getItems().indexOf(item);
+        int position = adapter.getItems().indexOf(item);
         adapter.removeItem(position);
         adapter.notifyItemRemoved(position);
     }
@@ -349,7 +355,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onPlaylistTrackRemoved(Urn trackUrn) {
-        final List<Urn> urns = transform(trackItems(), PlaylistDetailTrackItem::getUrn);
+        List<Urn> urns = transform(trackItems(), PlaylistDetailTrackItem::getUrn);
         removeTrackAtPosition(urns.indexOf(trackUrn));
     }
 
@@ -370,11 +376,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     }
 
     private List<PlaylistDetailTrackItem> trackItems() {
-        final List<PlaylistDetailItem> items = adapter.getItems();
-        final List<PlaylistDetailTrackItem> tracks = new ArrayList<>(items.size());
+        List<PlaylistDetailItem> items = adapter.getItems();
+        List<PlaylistDetailTrackItem> tracks = new ArrayList<>(items.size());
         for (PlaylistDetailItem item : items) {
             if (item.isTrackItem()) {
-                tracks.add(((PlaylistDetailTrackItem) item));
+                tracks.add((PlaylistDetailTrackItem) item);
             }
         }
         return tracks;
@@ -385,14 +391,18 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
      */
     static class LegacyModelConverter {
 
+        private LegacyModelConverter() {
+            // hide
+        }
+
         static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-            final CollectionLoadingState loadingState = CollectionLoadingState
+            CollectionLoadingState loadingState = CollectionLoadingState
                     .builder()
                     .nextPageError(asyncViewModel.error())
                     .isRefreshing(asyncViewModel.isRefreshing())
                     .hasMorePages(false)
                     .build();
-            final List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
+            List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
             return CollectionRendererState.create(loadingState, items);
         }
 

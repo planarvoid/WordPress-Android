@@ -32,6 +32,7 @@ public class SystemPlaylistMapperTest {
     private static final Optional<String> TITLE = Optional.of("Title 1");
     private static final Optional<String> DESCRIPTION = Optional.of("Desc");
     private static final Optional<String> ARTWORK_URL_TEMPLATE = Optional.of("hht://test.com");
+    private static final Optional<String> TRACKING_FEATURE_NAME = Optional.of("The Upload");
     private static final List<ApiTrack> API_TRACKS = ModelFixtures.apiTracks(TRACK_COUNT.get());
     private static final ModelCollection<ApiTrack> API_TRACK_MODEL_COLLECTION = new ModelCollection<>(API_TRACKS);
     private static final List<Track> TRACKS = ModelFixtures.tracks(TRACK_COUNT.get());
@@ -40,7 +41,7 @@ public class SystemPlaylistMapperTest {
 
     @Test
     public void map() throws Exception {
-        final ApiSystemPlaylist input = ApiSystemPlaylist.create(URN, TRACK_COUNT, LAST_UPDATED, TITLE, DESCRIPTION, ARTWORK_URL_TEMPLATE, API_TRACK_MODEL_COLLECTION);
+        final ApiSystemPlaylist input = ApiSystemPlaylist.create(URN, TRACK_COUNT, LAST_UPDATED, TITLE, DESCRIPTION, ARTWORK_URL_TEMPLATE, TRACKING_FEATURE_NAME, API_TRACK_MODEL_COLLECTION);
 
         final SystemPlaylist result = SystemPlaylistMapper.map(input);
 
@@ -75,7 +76,7 @@ public class SystemPlaylistMapperTest {
 
     @Test
     public void mapNoTracks() throws Exception {
-        final ApiSystemPlaylist input = ApiSystemPlaylist.create(URN, Optional.of(0), LAST_UPDATED, TITLE, DESCRIPTION, ARTWORK_URL_TEMPLATE, new ModelCollection<>());
+        final ApiSystemPlaylist input = ApiSystemPlaylist.create(URN, Optional.of(0), LAST_UPDATED, TITLE, DESCRIPTION, ARTWORK_URL_TEMPLATE, TRACKING_FEATURE_NAME, new ModelCollection<>());
 
         final SystemPlaylist result = SystemPlaylistMapper.map(input);
 
@@ -109,7 +110,7 @@ public class SystemPlaylistMapperTest {
     @Test
     public void mapSystemPlaylistEntity() throws Exception {
         final Optional<Urn> queryUrn = Optional.of(Urn.forSystemPlaylist("456"));
-        final SystemPlaylistEntity systemPlaylistEntity = SystemPlaylistEntity.create(URN, queryUrn, TITLE, DESCRIPTION, new ArrayList<>(), LAST_UPDATED, ARTWORK_URL_TEMPLATE);
+        final SystemPlaylistEntity systemPlaylistEntity = SystemPlaylistEntity.create(URN, queryUrn, TITLE, DESCRIPTION, new ArrayList<>(), LAST_UPDATED, ARTWORK_URL_TEMPLATE, TRACKING_FEATURE_NAME);
 
         final SystemPlaylist result = SystemPlaylistMapper.map(systemPlaylistEntity, TRACKS);
 

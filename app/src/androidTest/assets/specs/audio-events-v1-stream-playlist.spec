@@ -28,6 +28,7 @@ expected_events:
     app_version: '[0-9]+'
     client_event_id: (\w|-)+
     monetization_model: (\w|-)+
+    source: playlist
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -56,4 +57,5 @@ expected_events:
     app_version: '[0-9]+'
     client_event_id: (\w|-)+
     monetization_model: (\w|-)+
+    source: playlist
   version: '0'

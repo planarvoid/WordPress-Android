@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYou;
@@ -48,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SystemPlaylistPresenterTest extends AndroidUnitTest {
-    private static final Optional<Urn> QUERY_URN = Optional.of(new Urn("my:fake:urn"));
+    private static final Optional<Urn> QUERY_URN = Optional.of(new Urn("my:fake:systemPlaylistUrn"));
     private static final Optional<Date> DATE = Optional.of(new TestDateProvider().getCurrentDate());
     private static final List<Track> TRACKS = ModelFixtures.tracks(3);
     private static final TrackItem FIRST_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(0));
@@ -58,29 +60,30 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     private static final Optional<String> TITLE = Optional.of("Title");
     private static final Optional<String> DESCRIPTION = Optional.of("Description");
     private static final Optional<String> ARTWORK_URL = Optional.of("https://cool.artwork/url.jpg");
+    private static final Optional<String> TRACKING_FEATURE_NAME = Optional.of("The Upload");
     private static final Optional<String> NEW_FOR_YOU_TITLE = Optional.of("The Upload");
     private static final Optional<String> NEW_FOR_YOU_DESCRIPTION = Optional.of("Something uploaded");
     private static final NewForYou NEW_FOR_YOU = NewForYou.create(DATE.get(), QUERY_URN.get(), TRACKS);
-    private static final SystemPlaylist SYSTEM_PLAYLIST = SystemPlaylist.create(URN, QUERY_URN, TITLE, DESCRIPTION, TRACKS, DATE, ARTWORK_URL);
-    private static final SystemPlaylist NEW_FOR_YOU_SYSTEM_PLAYLIST = SystemPlaylist.create(Urn.NOT_SET, QUERY_URN, NEW_FOR_YOU_TITLE, NEW_FOR_YOU_DESCRIPTION, TRACKS, DATE, Optional.absent());
+    private static final SystemPlaylist SYSTEM_PLAYLIST = SystemPlaylist.create(URN, QUERY_URN, TITLE, DESCRIPTION, TRACKS, DATE, ARTWORK_URL, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylist NEW_FOR_YOU_SYSTEM_PLAYLIST = SystemPlaylist.create(Urn.NOT_SET, QUERY_URN, NEW_FOR_YOU_TITLE, NEW_FOR_YOU_DESCRIPTION, TRACKS, DATE, Optional.absent(), Optional.absent());
     private static final String METADATA = "duration";
     private static final Optional<String> LAST_UPDATED = Optional.of("last_updated");
 
-    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(TITLE, DESCRIPTION, METADATA, LAST_UPDATED, SYSTEM_PLAYLIST.imageResource(), QUERY_URN);
-    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(NEW_FOR_YOU_TITLE,
+    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(URN, TITLE, DESCRIPTION, METADATA, LAST_UPDATED, SYSTEM_PLAYLIST.imageResource(), QUERY_URN, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(Urn.NOT_SET, NEW_FOR_YOU_TITLE,
                                                                                                          NEW_FOR_YOU_DESCRIPTION,
                                                                                                          METADATA,
                                                                                                          LAST_UPDATED,
                                                                                                          NEW_FOR_YOU_SYSTEM_PLAYLIST.imageResource(),
-                                                                                                         QUERY_URN);
+                                                                                                         QUERY_URN, Optional.absent());
 
-    private static final SystemPlaylistItem.Track FIRST = SystemPlaylistItem.Track.create(FIRST_TRACK_ITEM, QUERY_URN);
-    private static final SystemPlaylistItem.Track SECOND = SystemPlaylistItem.Track.create(SECOND_TRACK_ITEM, QUERY_URN);
-    private static final SystemPlaylistItem.Track THIRD = SystemPlaylistItem.Track.create(THIRD_TRACK_ITEM, QUERY_URN);
+    private static final SystemPlaylistItem.Track FIRST = SystemPlaylistItem.Track.create(URN, FIRST_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylistItem.Track SECOND = SystemPlaylistItem.Track.create(URN, SECOND_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylistItem.Track THIRD = SystemPlaylistItem.Track.create(URN, THIRD_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
 
-    private static final SystemPlaylistItem.Track NEW_FOR_YOU_FIRST = SystemPlaylistItem.Track.createNewForYouTrack(FIRST_TRACK_ITEM, QUERY_URN);
-    private static final SystemPlaylistItem.Track NEW_FOR_YOU_SECOND = SystemPlaylistItem.Track.createNewForYouTrack(SECOND_TRACK_ITEM, QUERY_URN);
-    private static final SystemPlaylistItem.Track NEW_FOR_YOU_THIRD = SystemPlaylistItem.Track.createNewForYouTrack(THIRD_TRACK_ITEM, QUERY_URN);
+    private static final SystemPlaylistItem.Track NEW_FOR_YOU_FIRST = SystemPlaylistItem.Track.createNewForYouTrack(Urn.NOT_SET, FIRST_TRACK_ITEM, QUERY_URN, Optional.absent());
+    private static final SystemPlaylistItem.Track NEW_FOR_YOU_SECOND = SystemPlaylistItem.Track.createNewForYouTrack(Urn.NOT_SET, SECOND_TRACK_ITEM, QUERY_URN, Optional.absent());
+    private static final SystemPlaylistItem.Track NEW_FOR_YOU_THIRD = SystemPlaylistItem.Track.createNewForYouTrack(Urn.NOT_SET, THIRD_TRACK_ITEM, QUERY_URN, Optional.absent());
 
     private static final ArrayList<SystemPlaylistItem> ADAPTER_ITEMS = newArrayList(HEADER, FIRST, SECOND, THIRD);
     private static final ArrayList<SystemPlaylistItem> NEW_FOR_YOU_ADAPTER_ITEMS = newArrayList(NEW_FOR_YOU_HEADER, NEW_FOR_YOU_FIRST, NEW_FOR_YOU_SECOND, NEW_FOR_YOU_THIRD);
@@ -95,6 +98,8 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock Resources resources;
     @Mock PlaySessionStateProvider playSessionStateProvider;
+    @Mock EventTracker eventTracker;
+    @Mock TrackingStateProvider trackingStateProvider;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
     private final Provider<ExpandPlayerObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver(eventBus);
@@ -123,7 +128,9 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
                                                 resources,
                                                 eventBus,
                                                 playSessionStateProvider,
-                                                ModelFixtures.entityItemCreator());
+                                                ModelFixtures.entityItemCreator(),
+                                                eventTracker,
+                                                trackingStateProvider);
     }
 
     @Test
@@ -142,7 +149,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
     }
 
-    @Test()
+    @Test
     public void mapsSystemPlaylistToViewModels() {
         when(bundle.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false)).thenReturn(false);
         when(bundle.getParcelable(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN);
@@ -199,7 +206,12 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
 
         final int position = 1;
         final int finalPosition = 0;
-        final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
+                                                                                        TRACKING_FEATURE_NAME,
+                                                                                        finalPosition,
+                                                                                        QUERY_URN.get(),
+                                                                                        URN,
+                                                                                        3);
 
         when(systemPlaylistAdapter.getItems()).thenReturn(ADAPTER_ITEMS);
         when(systemPlaylistAdapter.getItem(position)).thenReturn(FIRST);
@@ -218,7 +230,12 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
 
         final int adapterPosition = 0;
         final int playbackPosition = 0;
-        final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
+                                                                                        TRACKING_FEATURE_NAME,
+                                                                                        playbackPosition,
+                                                                                        QUERY_URN.get(),
+                                                                                        URN,
+                                                                                        3);
 
         when(systemPlaylistAdapter.getItems()).thenReturn(ADAPTER_ITEMS);
         when(systemPlaylistAdapter.getItem(adapterPosition)).thenReturn(FIRST);

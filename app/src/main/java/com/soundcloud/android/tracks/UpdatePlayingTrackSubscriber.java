@@ -6,7 +6,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 /**
- * Once Rx2 migration is completed, this class should be removed.
+ * Once RxJava2 migration is completed, this class should be removed.
  *
  * @deprecated Use {@link UpdatePlayingTrackObserver} instead.
  */

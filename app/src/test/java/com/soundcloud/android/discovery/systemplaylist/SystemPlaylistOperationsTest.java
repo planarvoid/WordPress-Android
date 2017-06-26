@@ -56,6 +56,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
             Optional.absent(),
             trackUrns,
             Optional.absent(),
+            Optional.absent(),
             Optional.absent()
     );
 

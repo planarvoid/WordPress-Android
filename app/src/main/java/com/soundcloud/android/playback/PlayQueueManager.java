@@ -626,6 +626,10 @@ public class PlayQueueManager {
                                               playSessionSource.getCollectionOwnerUrn());
         }
 
+        if (collectionUrn.isSystemPlaylist()) {
+            trackSourceInfo.setOriginSystemPlaylist(collectionUrn, getCurrentPosition());
+        }
+
         return trackSourceInfo;
     }
 

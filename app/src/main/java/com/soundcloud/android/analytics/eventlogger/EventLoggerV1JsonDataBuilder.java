@@ -363,6 +363,10 @@ class EventLoggerV1JsonDataBuilder {
             if (event.pageUrn().isPresent()) {
                 eventData.pageUrn(event.pageUrn().get().toString());
             }
+
+            if (event.source().isPresent()) {
+                eventData.source(event.source().get());
+            }
             if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
                 if (event.referringEvent().isPresent()) {
                     eventData.referringEvent(event.referringEvent().get().getId(), event.referringEvent().get().getKind());
@@ -812,6 +816,10 @@ class EventLoggerV1JsonDataBuilder {
         if (event.playId().isPresent()) {
             data.playId(event.playId().get());
         }
+        Urn pageUrn = event.trackSourceInfo().getPageUrn();
+        if (pageUrn != Urn.NOT_SET) {
+            data.pageUrn(event.trackSourceInfo().getPageUrn().toString());
+        }
         addTrackSourceInfoToSessionEvent(data, event.trackSourceInfo(), urn);
 
         return data;
@@ -874,8 +882,14 @@ class EventLoggerV1JsonDataBuilder {
             data.source(sourceInfo.getSource());
             data.sourceVersion(sourceInfo.getSourceVersion());
         }
+
         if (sourceInfo.isFromPlaylist() && !sourceInfo.getCollectionUrn().isLocal()) {
             data.inPlaylist(sourceInfo.getCollectionUrn());
+            data.playlistPosition(sourceInfo.getPlaylistPosition());
+        }
+
+        if (sourceInfo.isFromSystemPlaylists() && !sourceInfo.getCollectionUrn().isLocal()) {
+            data.inSystemPlaylist(sourceInfo.getCollectionUrn());
             data.playlistPosition(sourceInfo.getPlaylistPosition());
         }
 

@@ -99,9 +99,4 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         return showFullscreenPlaylistDetails;
     }
 
-    @Override
-    public Screen getScreen() {
-        return Screen.PLAYLIST_DETAILS;
-    }
-
 }

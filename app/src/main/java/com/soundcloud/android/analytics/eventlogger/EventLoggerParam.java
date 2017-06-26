@@ -21,6 +21,7 @@ class EventLoggerParam {
     static final String SOURCE_QUERY_POSITION = "source_query_position";
     static final String SOURCE_QUERY_URN = "source_query_urn";
     static final String IN_PLAYLIST = "in_playlist";
+    static final String IN_SYSTEM_PLAYLIST = "in_system_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
     static final String POLICY = "policy";
