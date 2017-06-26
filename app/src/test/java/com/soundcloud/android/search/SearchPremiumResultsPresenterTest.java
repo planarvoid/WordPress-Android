@@ -40,7 +40,6 @@ import java.util.List;
 
 public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
 
-    private static final Urn PREMIUM_TRACK_URN_ONE = Urn.forTrack(1L);
     private static final Urn PREMIUM_TRACK_URN_TWO = Urn.forTrack(2L);
     private static final Urn TRACK_URN = Urn.forTrack(3L);
     private static final Urn QUERY_URN = Urn.forUser(3L);

@@ -116,7 +116,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
             trackDisposable = trackRepository.track(trackUrn).subscribeWith(LambdaMaybeObserver.onNext(track -> navigationExecutor.openTrackComments(view.getContext(), trackUrn)));
         } else {
             // in all other cases we simply go to the user profile
-            navigator.navigateTo(NavigationTarget.forProfile(ViewUtils.getFragmentActivity(view), item.getUrn()));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forProfile(item.getUrn()));
         }
     }
 

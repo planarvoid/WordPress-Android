@@ -7,9 +7,12 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Pair;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 
+import android.app.Activity;
 import android.support.annotation.CallSuper;
 
 import javax.inject.Inject;
@@ -23,19 +26,23 @@ import javax.inject.Singleton;
 public class Navigator {
 
     private final NavigationResolver navigationResolver;
-    private final PublishSubject<NavigationTarget> subject = PublishSubject.create();
+    private final PublishSubject<Pair<Activity, NavigationTarget>> subject = PublishSubject.create();
 
     @Inject
     Navigator(NavigationResolver navigationResolver) {
         this.navigationResolver = navigationResolver;
     }
 
-    public void navigateTo(NavigationTarget navigationTarget) {
-        subject.onNext(navigationTarget);
+    public void navigateTo(Activity activity, NavigationTarget navigationTarget) {
+        subject.onNext(Pair.of(activity, navigationTarget));
     }
 
     public Observable<NavigationResult> listenToNavigation() {
-        return subject.flatMapSingle(navigationResolver::resolveNavigationResult);
+        return subject.flatMapSingle(this::performNavigation);
+    }
+
+    private Single<NavigationResult> performNavigation(Pair<Activity, NavigationTarget> navigationTarget) {
+        return navigationResolver.resolveNavigationResult(navigationTarget.first(), navigationTarget.second());
     }
 
     @AutoFactory

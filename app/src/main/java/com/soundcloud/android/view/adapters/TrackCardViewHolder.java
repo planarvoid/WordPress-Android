@@ -193,7 +193,7 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
 
         @Override
         public void onClick(View v) {
-            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), userUrn));
+            navigator.navigateTo(getFragmentActivity(v), NavigationTarget.forProfile(userUrn));
         }
     }
 }

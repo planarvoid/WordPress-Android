@@ -297,7 +297,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
         final Activity context = mock(Activity.class);
         actionCaptor.getValue().run(context);
-        verify(navigator).navigateTo(NavigationTarget.forSearchViewAll(context, of(QUERY_URN), QUERY, Kind.TRACKS, false));
+        verify(navigator).navigateTo(context, NavigationTarget.forSearchViewAll(of(QUERY_URN), QUERY, Kind.TRACKS, false));
     }
 
     @Test

@@ -62,7 +62,7 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
         final EventContextMetadata eventContextMetadata = getEventContextMetadata(module, screen);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromMorePlaylistsByUser(playlistUrn, eventContextMetadata));
-        navigator.navigateTo(NavigationTarget.forPlaylist(ViewUtils.getFragmentActivity(context), playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

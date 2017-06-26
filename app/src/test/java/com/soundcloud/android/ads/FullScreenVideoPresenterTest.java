@@ -74,7 +74,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onLearnMoreClick(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, VIDEO_AD.clickThroughUrl()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(VIDEO_AD.clickThroughUrl()));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }

@@ -47,7 +47,6 @@ import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -390,7 +389,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
         eventBus.publish(EventQueue.TRACKING, event);
-        navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), clickthrough));
+        navigator.navigateTo(fragment.getActivity(), NavigationTarget.forAdClickthrough(clickthrough));
     }
 
     @Override
@@ -408,6 +407,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
-        navigator.navigateTo(NavigationTarget.forFullscreenVideoAd(ViewUtils.getFragmentActivity(context), videoAd.adUrn()));
+        navigator.navigateTo(fragment.getActivity(), NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
     }
 }

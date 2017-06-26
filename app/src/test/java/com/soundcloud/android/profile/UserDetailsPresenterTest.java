@@ -2,10 +2,10 @@ package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -37,9 +37,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.io.IOException;
@@ -77,6 +77,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     private UserProfileInfo fullUserProfileInfo;
     private UserProfileInfo emptyUserProfileInfo;
     private List<SocialMediaLinkItem> links;
+    private AppCompatActivity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -90,8 +91,8 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         fullUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(links), of(BIO), fullUser());
         emptyUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(newArrayList()), Optional.absent(), emptyUser());
         when(fragment.getArguments()).thenReturn(value);
-        when(fragment.getActivity()).thenReturn(activity());
-        when(view.getContext()).thenReturn(activity());
+        when(fragment.getActivity()).thenReturn(activity);
+        when(view.getContext()).thenReturn(activity);
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -225,7 +226,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         listenerCaptor.getValue().onLinkClicked(socialMediaLink);
 
         ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
         assertThat(resultNavigationTarget.linkNavigationParameters().get().target()).isEqualTo(url);
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.USER_INFO);
@@ -238,7 +239,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowersClicked();
-        verify(navigator).navigateTo(NavigationTarget.forFollowers(getFragmentActivity(view), USER_URN, Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forFollowers(USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -248,7 +249,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
-        verify(navigator).navigateTo(NavigationTarget.forFollowings(getFragmentActivity(view), USER_URN, Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forFollowings(USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test

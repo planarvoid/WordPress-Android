@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 
 public class AdPageListenerTest extends AndroidUnitTest {
@@ -73,7 +72,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, adData.clickThroughUrl().get()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(adData.clickThroughUrl().get()));
     }
 
     @Test
@@ -85,7 +84,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()));
     }
 
     @Test
@@ -159,7 +158,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, Urn.forUser(42L)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(Urn.forUser(42L)));
     }
 
     @Test
@@ -174,7 +173,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).navigateTo(NavigationTarget.forLegacyPlaylist(activity, Urn.forPlaylist(42L), Screen.STREAM));
+        verify(navigator).navigateTo(activity, NavigationTarget.forLegacyPlaylist(Urn.forPlaylist(42L), Screen.STREAM));
     }
 
     @Test

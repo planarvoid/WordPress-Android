@@ -80,6 +80,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
+    private AppCompatActivity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -104,6 +105,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(USER));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        activity = activity();
     }
 
     @Test
@@ -160,10 +162,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onActivitiesClickedNavigatesToActivities() {
         initFragment();
-        listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity()));
+        listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity));
 
         ArgumentCaptor<NavigationTarget> targetCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigator).navigateTo(targetCaptor.capture());
+        verify(navigator).navigateTo(same(activity), targetCaptor.capture());
         NavigationTarget target = targetCaptor.getValue();
         assertThat(target.deeplink().orNull()).isEqualTo(DeepLink.ACTIVITIES);
     }
@@ -179,10 +181,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onProfileClickedNavigatesToProfile() {
         initFragment();
-        AppCompatActivity viewActivity = activity();
+        AppCompatActivity viewActivity = activity;
         listenerArgumentCaptor.getValue().onProfileClicked(new View(viewActivity));
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, accountOperations.getLoggedInUserUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(accountOperations.getLoggedInUserUrn()));
     }
 
     @Test
@@ -363,7 +365,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartMeasuringActivitiesLoadMetricOnActivitiesClicked() {
-        presenter.onActivitiesClicked(new View(activity()));
+        presenter.onActivitiesClicked(new View(activity));
         verify(performanceMetricsEngine).startMeasuring(MetricType.ACTIVITIES_LOAD);
     }
 

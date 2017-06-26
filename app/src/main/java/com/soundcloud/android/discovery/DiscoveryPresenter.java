@@ -112,8 +112,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     private void selectionItemClick(Activity activity, SelectionItem selectionItem) {
         selectionItem.link()
-                     .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(activity,
-                                                                                            link,
+                     .ifPresent(link -> navigator.navigateTo(activity, NavigationTarget.forNavigation(link,
                                                                                             selectionItem.webLink(),
                                                                                             SCREEN,
                                                                                             Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
@@ -170,7 +169,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     @Override
     public void onSearchClicked(Context context) {
-        navigator.navigateTo(NavigationTarget.forSearchAutocomplete(ViewUtils.getFragmentActivity(context), Screen.DISCOVER));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forSearchAutocomplete(Screen.DISCOVER));
     }
 
     private void showErrorMessage(DiscoveryResult discoveryResult) {

@@ -126,7 +126,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         View artistName = itemView.findViewById(R.id.recommendation_artist);
         artistName.performClick();
-        verify(navigator).navigateTo(NavigationTarget.forProfile(getFragmentActivity(artistName), recommendedTrack.creatorUrn()));
+        verify(navigator).navigateTo(getFragmentActivity(artistName), NavigationTarget.forProfile(recommendedTrack.creatorUrn()));
     }
 
 }

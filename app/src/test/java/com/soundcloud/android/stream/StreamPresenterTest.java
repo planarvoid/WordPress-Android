@@ -67,6 +67,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,7 +75,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import rx.Observer;
-import io.reactivex.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
@@ -127,6 +127,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     private PublishSubject<Urn> unfollowSubject = PublishSubject.create();
     private final Date DATE = new Date(123L);
     private StreamPresenter presenter;
+    private Activity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -164,6 +165,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject);
         when(streamDepthPublisherFactory.create(any(StaggeredGridLayoutManager.class), anyBoolean())).thenReturn(streamDepthPublisher);
         when(streamAdsController.isInFullscreen()).thenReturn(false);
+        activity = fragmentRule.getActivity();
     }
 
     @Test
@@ -669,10 +671,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        Activity activity = activity();
         presenter.onAdItemClicked(activity, appInstall);
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, appInstall.clickThroughUrl()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -684,10 +685,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        Activity activity = activity();
         presenter.onAdItemClicked(activity, videoAd);
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(fragmentRule.getActivity(), NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -760,10 +760,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
     public void shouldSetFullscreenEnabledAndOpenFullscreenVideoAdOnVideoFullscreenClicked() {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
-        Activity activity = activity();
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onVideoFullscreenClicked(activity, videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigator).navigateTo(NavigationTarget.forFullscreenVideoAd(activity, videoAd.adUrn()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
     }
 }

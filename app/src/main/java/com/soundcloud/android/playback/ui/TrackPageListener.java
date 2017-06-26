@@ -91,7 +91,7 @@ class TrackPageListener extends PageListener {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                navigator.navigateTo(NavigationTarget.forProfile((Activity) activityContext, userUrn));
+                navigator.navigateTo((Activity) activityContext, NavigationTarget.forProfile(userUrn));
             }
         };
     }

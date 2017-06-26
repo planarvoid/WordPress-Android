@@ -122,7 +122,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, visualPrestitialAd.clickthroughUrl().toString()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(visualPrestitialAd.clickthroughUrl().toString()));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, sponsoredSessionAd.clickthroughUrl().toString()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(sponsoredSessionAd.clickthroughUrl().toString()));
     }
 
     @Test
@@ -447,7 +447,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(2);
 
         presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, activity);
-        verify(navigator).navigateTo(NavigationTarget.forAdClickthrough(activity, sponsoredSessionAd.optInCard().clickthroughUrl()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(sponsoredSessionAd.optInCard().clickthroughUrl()));
     }
 
     @Test

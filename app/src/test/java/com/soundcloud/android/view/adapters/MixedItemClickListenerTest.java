@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -143,7 +144,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view.getContext(), 2);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -158,7 +159,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(playables, view, 0, playlistItem);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -179,7 +180,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, activity, 2);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -205,7 +206,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -219,7 +220,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -238,7 +239,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -265,7 +266,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.legacyOnPostClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -283,7 +284,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final Module module = Module.create(Module.USER_ALBUMS, modulePosition);
         listener.onPostClick(Observable.just(items), view, 1, playlistItem, module);
 
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         NavigationTarget value = navigationTargetArgumentCaptor.getValue();
         assertThat(value.targetUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(value.screen()).isEqualTo(screen);
@@ -301,7 +302,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.legacyOnPostClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userItem.getUrn(), Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
     }
 
     @NonNull

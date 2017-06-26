@@ -69,7 +69,7 @@ public class SearchClickListenerTest {
         final Activity context = mock(Activity.class);
         clickResultAction.run(context);
 
-        verify(navigator).navigateTo(NavigationTarget.forPlaylist(context, playlistUrn, SCREEN, Optional.of(clickParams.searchQuerySourceInfo()), Optional.absent(),Optional.of(clickParams.uiEvent())));
+        verify(navigator).navigateTo(context, NavigationTarget.forPlaylist(playlistUrn, SCREEN, Optional.of(clickParams.searchQuerySourceInfo()), Optional.absent(),Optional.of(clickParams.uiEvent())));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SearchClickListenerTest {
         final Activity activity = mock(Activity.class);
         clickResultAction.run(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn, Optional.of(clickParams.uiEvent()), Optional.of(SCREEN), Optional.absent()));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userUrn, Optional.of(clickParams.uiEvent()), Optional.of(SCREEN), Optional.absent()));
     }
 
     @Test

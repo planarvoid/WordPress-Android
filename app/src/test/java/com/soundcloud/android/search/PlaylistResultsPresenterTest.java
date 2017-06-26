@@ -72,9 +72,8 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forLegacyPlaylist(fragmentRule.getActivity(),
-                                                                        clickedPlaylist.getUrn(),
-                                                                        Screen.SEARCH_PLAYLIST_DISCO));
+        verify(navigator).navigateTo(fragmentRule.getActivity(), NavigationTarget.forLegacyPlaylist(
+                clickedPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
     }
 
     @Test

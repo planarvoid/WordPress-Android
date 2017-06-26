@@ -81,7 +81,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfileReposts(activity, USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfileReposts(USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfileTracks(activity, USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfileTracks(USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfileAlbums(activity, USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfileAlbums(USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfileLikes(activity, USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfileLikes(USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfilePlaylists(activity, USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfilePlaylists(USER_URN, Optional.of(searchSourceInfo)));
     }
 
     @Test

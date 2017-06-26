@@ -152,7 +152,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onLearnMoreClick(Context context) {
         ad.ifPresent(video -> {
-            navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), video.clickThroughUrl()));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forAdClickthrough(video.clickThroughUrl()));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayableClickThrough(video, trackSourceInfo));
         });
     }

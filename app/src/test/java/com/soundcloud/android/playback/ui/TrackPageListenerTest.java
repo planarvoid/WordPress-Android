@@ -122,7 +122,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onGotoUser(activity, userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(activity, userUrn));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userUrn));
     }
 
     @Test

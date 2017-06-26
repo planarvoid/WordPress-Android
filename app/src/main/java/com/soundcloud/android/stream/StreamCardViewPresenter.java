@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -14,12 +13,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -194,12 +193,12 @@ class StreamCardViewPresenter {
 
         @Override
         public void onClick(View v) {
-            navigator.navigateTo(
-                    NavigationTarget.forProfile(getFragmentActivity(v),
-                                                userUrn,
-                                                Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
-                                                Optional.absent(),
-                                                Optional.absent()));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(v),
+                                 NavigationTarget.forProfile(
+                                         userUrn,
+                                         Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
+                                         Optional.absent(),
+                                         Optional.absent()));
         }
     }
 }

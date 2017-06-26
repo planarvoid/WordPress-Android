@@ -15,6 +15,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -106,7 +107,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void navigatesToSearchWhenClicked() {
         presenter.onSearchClicked(activity);
 
-        verify(navigator).navigateTo(NavigationTarget.forSearchAutocomplete(activity, Screen.DISCOVER));
+        verify(navigator).navigateTo(activity, NavigationTarget.forSearchAutocomplete(Screen.DISCOVER));
     }
 
     @Test
@@ -130,7 +131,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(rootActivity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(same(rootActivity), eq(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
     }
 
     @Test
@@ -146,7 +147,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(rootActivity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(same(rootActivity), eq(NavigationTarget.forNavigation(MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
     }
 
     @Test

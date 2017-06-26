@@ -8,6 +8,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -57,15 +58,15 @@ public class NavigatorTest {
     @Test
     public void callsNavigationActions() throws Exception {
         Action action = mock(Action.class);
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
-        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, action)));
+        NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
+        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, action)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(feedbackController));
 
-        navigator.navigateTo(target);
+        navigator.navigateTo(activity, target);
 
         verify(action).run();
-        verify(navigationResolver).resolveNavigationResult(target);
+        verify(navigationResolver).resolveNavigationResult(activity, target);
     }
 
     @SuppressLint("CheckResult")
@@ -73,15 +74,15 @@ public class NavigatorTest {
     public void doesNotCrashDuringActionExecution() throws Exception {
         Action action = mock(Action.class);
         doThrow(new ActivityNotFoundException("Test")).when(action).run();
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
-        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, action)));
+        NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
+        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, action)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(feedbackController));
 
-        navigator.navigateTo(target);
+        navigator.navigateTo(activity, target);
 
         verify(action).run();
-        verify(navigationResolver).resolveNavigationResult(target);
+        verify(navigationResolver).resolveNavigationResult(activity, target);
         ArgumentCaptor<Feedback> feedbackCaptor = ArgumentCaptor.forClass(Feedback.class);
         verify(feedbackController).showFeedback(feedbackCaptor.capture());
         assertThat(feedbackCaptor.getValue().getMessage()).isEqualTo(R.string.error_unknown_navigation);
@@ -89,16 +90,16 @@ public class NavigatorTest {
 
     @Test
     public void crashesOnResolverError() throws Exception {
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
+        NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         IOException exception = new IOException();
-        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.error(exception));
+        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.error(exception));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(feedbackController));
         expectedException.expect(NullPointerException.class);
         expectedException.expectCause(allOf(instanceOf(IllegalStateException.class),
                                             hasCause(equalTo(exception)),
                                             hasMessage(containsString("Complete in Navigation Subscription. This should never happen since navigation won\'t work in the app anymore. Thus we\'ll force close the app."))));
-        navigator.navigateTo(target);
+        navigator.navigateTo(activity, target);
     }
 
     @Test

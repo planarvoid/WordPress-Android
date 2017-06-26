@@ -102,7 +102,8 @@ class AdPageListener extends PageListener {
                 openUserOrPlaylistDeeplink(activityContext, deepLink, clickThrough);
                 break;
             default:
-                navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(activityContext), clickThrough.toString()));
+                navigator.navigateTo(ViewUtils.getFragmentActivity(activityContext),
+                                     NavigationTarget.forAdClickthrough(clickThrough.toString()));
                 break;
         }
 
@@ -155,9 +156,9 @@ class AdPageListener extends PageListener {
             public void onNext(PlayerUIEvent playerUIEvent) {
                 if (urn.isPlaylist()) {
                     final Screen originScreen = Screen.fromTag(playQueueManager.getScreenTag());
-                    navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(activityContext), urn, originScreen));
+                    navigator.navigateTo(getFragmentActivity(activityContext), NavigationTarget.forLegacyPlaylist(urn, originScreen));
                 } else if (urn.isUser()) {
-                    navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(activityContext), urn));
+                    navigator.navigateTo(getFragmentActivity(activityContext), NavigationTarget.forProfile(urn));
                 }
             }
         };

@@ -31,6 +31,7 @@ import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -224,13 +225,13 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onProfileClicked(View view) {
-        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), accountOperations.getLoggedInUserUrn()));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forProfile(accountOperations.getLoggedInUserUrn()));
     }
 
     @Override
     public void onActivitiesClicked(View view) {
         performanceMetricsEngine.startMeasuring(MetricType.ACTIVITIES_LOAD);
-        navigator.navigateTo(NavigationTarget.forActivities(getFragmentActivity(view)));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forActivities());
     }
 
     @Override

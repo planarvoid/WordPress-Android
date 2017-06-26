@@ -62,7 +62,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        navigator.navigateTo(NavigationTarget.forProfile(getActivity(), adapter.getItem(position).getUserUrn()));
+        navigator.navigateTo(getActivity(), NavigationTarget.forProfile(adapter.getItem(position).getUserUrn()));
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -20,6 +19,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListObserver;
 import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
@@ -144,7 +144,9 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .module(Module.create(Module.USER_FOLLOWING, position))
                                                                         .build();
 
-        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, Optional.of(UIEvent.fromNavigation(urn, eventContextMetadata)), Optional.absent(), Optional.absent()));
+        UIEvent event = UIEvent.fromNavigation(urn, eventContextMetadata);
+        NavigationTarget target = NavigationTarget.forProfile(urn, Optional.of(event), Optional.absent(), Optional.absent());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), target);
     }
 
     @Override

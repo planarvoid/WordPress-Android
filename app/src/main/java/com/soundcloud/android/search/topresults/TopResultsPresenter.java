@@ -205,7 +205,7 @@ public class TopResultsPresenter {
 
     private ClickResultAction toAction(UiAction.ViewAllClick viewAllClick, Optional<Urn> queryUrn) {
         final boolean isPremium = viewAllClick.bucketKind() == Bucket.Kind.GO_TRACKS;
-        return activity -> navigator.navigateTo(NavigationTarget.forSearchViewAll(activity, queryUrn, viewAllClick.searchQuery(), viewAllClick.bucketKind(), isPremium));
+        return activity -> navigator.navigateTo(activity, NavigationTarget.forSearchViewAll(queryUrn, viewAllClick.searchQuery(), viewAllClick.bucketKind(), isPremium));
     }
 
     private int getPosition(SearchItem searchItem, TopResultsBucketViewModel itemBucket, List<TopResultsBucketViewModel> buckets) {

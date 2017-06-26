@@ -181,7 +181,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void onClickThrough(Context context, Uri clickthroughUrl, AdData ad) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(ad));
-        navigator.navigateTo(NavigationTarget.forAdClickthrough(ViewUtils.getFragmentActivity(context), clickthroughUrl.toString()));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forAdClickthrough(clickthroughUrl.toString()));
         endActivity();
     }
 

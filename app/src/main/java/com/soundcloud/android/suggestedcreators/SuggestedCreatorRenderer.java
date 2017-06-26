@@ -1,6 +1,8 @@
 package com.soundcloud.android.suggestedcreators;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+import static com.soundcloud.java.optional.Optional.absent;
+import static com.soundcloud.java.optional.Optional.of;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
@@ -17,7 +19,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.profile.ProfileImageHelper;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.users.User;
-import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -107,11 +108,13 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
-        textView.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v),
-                                                                                          creator.urn(),
-                                                                                          Optional.of(UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))),
-                                                                                          Optional.absent(),
-                                                                                          Optional.absent())));
+        textView.setOnClickListener(v -> goToProfile(creator, position, v));
+    }
+
+    private void goToProfile(User creator, int position, View v) {
+        UIEvent uiEvent = UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position));
+        NavigationTarget navigationTarget = NavigationTarget.forProfile(creator.urn(), of(uiEvent), absent(), absent());
+        navigator.navigateTo(getFragmentActivity(v), navigationTarget);
     }
 
     private EventContextMetadata buildEventContextMetadata(int position) {

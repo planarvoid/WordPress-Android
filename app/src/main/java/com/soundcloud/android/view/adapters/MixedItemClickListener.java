@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -144,20 +142,19 @@ public class MixedItemClickListener {
     private void handleNonTrackItemClick(Context context, ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
-            navigator.navigateTo(NavigationTarget.forPlaylist(ViewUtils.getFragmentActivity(context),
-                                                              entityUrn,
-                                                              screen,
-                                                              Optional.fromNullable(searchQuerySourceInfo),
-                                                              Optional.fromNullable(promotedPlaylistInfo(item)),
-                                                              Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(entityUrn,
+                                                                        screen,
+                                                                        Optional.fromNullable(searchQuerySourceInfo),
+                                                                        Optional.fromNullable(promotedPlaylistInfo(item)),
+                                                                        Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
-            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(context),
-                                                                    entityUrn,
+            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forLegacyPlaylist(
+                    entityUrn,
                                                                     screen,
                                                                     Optional.of(searchQuerySourceInfo),
                                                                     Optional.of(promotedPlaylistInfo(item))));
         } else if (entityUrn.isUser()) {
-            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(context), entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {
             throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
                                                                                                 .getSimpleName() + ": " + entityUrn);

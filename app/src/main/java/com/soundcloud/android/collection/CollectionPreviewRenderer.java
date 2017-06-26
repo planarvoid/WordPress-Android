@@ -70,7 +70,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     @VisibleForTesting
     void onGoToPlaylistsAndAlbumsClick(Activity activity) {
         performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
-        navigator.navigateTo(NavigationTarget.forPlaylistsAndAlbumsCollection(activity));
+        navigator.navigateTo(activity, NavigationTarget.forPlaylistsAndAlbumsCollection());
     }
 
     @VisibleForTesting
@@ -98,7 +98,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
         item.getPlaylists().ifPresent(playlists -> {
             CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header,
-                                                                            v -> navigator.navigateTo(NavigationTarget.forPlaylistsCollection(activity)));
+                                                                            v -> navigator.navigateTo(activity, NavigationTarget.forPlaylistsCollection()));
             removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlists, playlistsPreviewView);
         });

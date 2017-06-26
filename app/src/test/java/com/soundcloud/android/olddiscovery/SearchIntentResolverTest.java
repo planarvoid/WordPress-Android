@@ -3,6 +3,7 @@ package com.soundcloud.android.olddiscovery;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,7 @@ import org.mockito.Mock;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v7.app.AppCompatActivity;
 
 public class SearchIntentResolverTest extends AndroidUnitTest {
 
@@ -36,11 +38,13 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     @Mock private SearchIntentResolver.DeepLinkListener listener;
     @Mock private Navigator navigator;
     @Mock private ReferrerResolver referrerResolver;
+    private AppCompatActivity activity;
 
     @Before
     public void setUp() {
         intentResolver = new SearchIntentResolver(listener, navigator, referrerResolver, tracker);
         intent = new Intent();
+        activity = activity();
     }
 
     @Test
@@ -48,7 +52,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
         intent.setAction(SearchIntentResolver.ACTION_PLAY_FROM_SEARCH);
         intent.putExtra(SearchManager.QUERY, SEARCH_QUERY);
 
-        intentResolver.handle(activity(), intent);
+        intentResolver.handle(activity, intent);
 
         verify(listener).onDeepLinkExecuted(SEARCH_QUERY);
     }
@@ -58,7 +62,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
         intent.setAction(Intent.ACTION_SEARCH);
         intent.putExtra(SearchManager.QUERY, SEARCH_QUERY);
 
-        intentResolver.handle(activity(), intent);
+        intentResolver.handle(activity, intent);
 
         verify(listener).onDeepLinkExecuted(SEARCH_QUERY);
     }
@@ -67,7 +71,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     public void shouldInterceptSearchUrlWithQueryParam() throws Exception {
         intent.setData(Uri.parse("https://soundcloud.com/search/people?q=" + SEARCH_QUERY));
 
-        intentResolver.handle(activity(), intent);
+        intentResolver.handle(activity, intent);
 
         verify(listener).onDeepLinkExecuted(SEARCH_QUERY);
     }
@@ -79,10 +83,10 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
 
-        intentResolver.handle(activity(), intent);
+        intentResolver.handle(activity, intent);
 
         final ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.DEEPLINK);
         assertThat(resultNavigationTarget.referrer()).isEqualTo(Optional.of(Referrer.STREAM_NOTIFICATION.value()));
@@ -91,7 +95,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackScreen() throws Exception {
-        intentResolver.handle(activity(), intent);
+        intentResolver.handle(activity, intent);
 
         verify(tracker).trackMainScreenEvent();
     }

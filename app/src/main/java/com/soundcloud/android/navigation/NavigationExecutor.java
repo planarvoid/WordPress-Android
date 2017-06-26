@@ -214,8 +214,8 @@ public class NavigationExecutor {
         }
     }
 
-    void openSearchViewAll(NavigationTarget navigationTarget) {
-        navigationTarget.activity().startActivity(createSearchViewAllIntent(navigationTarget.activity(), navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
+    void openSearchViewAll(Context context, NavigationTarget navigationTarget) {
+        context.startActivity(createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
     }
 
     private boolean hasMicrophonePermission(Context context) {

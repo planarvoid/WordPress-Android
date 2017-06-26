@@ -108,7 +108,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     @Override
     protected void onItemClicked(View view, int position) {
         PlaylistItem playlist = adapter.getItem(position);
-        navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(view.getContext()), playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegacyPlaylist(playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
         eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

@@ -80,7 +80,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(VISIBLE);
-            artist.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(artist), creatorUrn)));
+            artist.setOnClickListener(v -> navigator.navigateTo(getFragmentActivity(artist), NavigationTarget.forProfile(creatorUrn)));
         }
     }
 

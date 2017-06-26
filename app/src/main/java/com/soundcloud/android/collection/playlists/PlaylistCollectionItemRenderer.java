@@ -88,6 +88,6 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
-        return view -> navigator.navigateTo(NavigationTarget.forLegacyPlaylist(ViewUtils.getFragmentActivity(view.getContext()), playlistItem.getUrn(), Screen.PLAYLISTS));
+        return view -> navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegacyPlaylist(playlistItem.getUrn(), Screen.PLAYLISTS));
     }
 }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -78,8 +76,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
             public void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem) {
-                navigator.navigateTo(NavigationTarget.forNavigation(fragment.getActivity(),
-                                                                    socialMediaLinkItem.url(),
+                navigator.navigateTo(fragment.getActivity(), NavigationTarget.forNavigation(socialMediaLinkItem.url(),
                                                                     Optional.absent(),
                                                                     screenProvider.getLastScreen(),
                                                                     Optional.of(DiscoverySource.RECOMMENDATIONS))); // TODO (REC-1302): Use correct one
@@ -87,12 +84,12 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
             @Override
             public void onViewFollowersClicked() {
-                navigator.navigateTo(NavigationTarget.forFollowers(getFragmentActivity(view), userUrn, searchQuerySourceInfo));
+                navigator.navigateTo(fragment.getActivity(), NavigationTarget.forFollowers(userUrn, searchQuerySourceInfo));
             }
 
             @Override
             public void onViewFollowingClicked() {
-                navigator.navigateTo(NavigationTarget.forFollowings(getFragmentActivity(view), userUrn, searchQuerySourceInfo));
+                navigator.navigateTo(fragment.getActivity(), NavigationTarget.forFollowings(userUrn, searchQuerySourceInfo));
             }
         });
 

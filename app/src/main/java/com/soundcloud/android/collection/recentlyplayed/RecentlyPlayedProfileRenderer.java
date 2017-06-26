@@ -102,7 +102,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
             Urn urn = user.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(view), urn, Optional.absent(), Optional.of(lastScreen), Optional.absent()));
+            navigator.navigateTo(getFragmentActivity(view), NavigationTarget.forProfile(urn, Optional.absent(), Optional.of(lastScreen), Optional.absent()));
         };
     }
 

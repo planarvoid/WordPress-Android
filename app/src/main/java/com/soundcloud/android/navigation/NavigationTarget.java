@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 @AutoValue
 @SuppressWarnings("PMD.GodClass")
 public abstract class NavigationTarget {
-    public abstract Activity activity();
 
     public abstract Optional<DeepLink> deeplink();
 
@@ -68,9 +67,8 @@ public abstract class NavigationTarget {
      * Used for internal navigation using deeplink's (e.g. provided through Discovery Backend) and external links.
      * Similar to {@link #forExternalDeeplink(Activity, String, String)} but for in app navigation.
      */
-    public static NavigationTarget forNavigation(Activity activity, @Nullable String target, Optional<String> fallback, Screen screen, Optional<DiscoverySource> discoverySource) {
-        return newBuilder().activity(activity)
-                           .linkNavigationParameters(LinkNavigationParameters.create(target, fallback))
+    public static NavigationTarget forNavigation(@Nullable String target, Optional<String> fallback, Screen screen, Optional<DiscoverySource> discoverySource) {
+        return newBuilder().linkNavigationParameters(LinkNavigationParameters.create(target, fallback))
                            .screen(screen)
                            .discoverySource(discoverySource)
                            .build();
@@ -80,9 +78,8 @@ public abstract class NavigationTarget {
      * Used for internal navigation using deeplink's.
      * Similar to {@link #forExternalDeeplink(Activity, String, String)} but for in app navigation.
      */
-    private static NavigationTarget forNavigationDeeplink(Activity activity, DeepLink deepLink, Screen screen) {
-        return newBuilder().activity(activity)
-                           .deeplink(Optional.of(deepLink))
+    private static NavigationTarget forNavigationDeeplink(DeepLink deepLink, Screen screen) {
+        return newBuilder().deeplink(Optional.of(deepLink))
                            .screen(screen)
                            .build();
     }
@@ -91,9 +88,8 @@ public abstract class NavigationTarget {
      * Used for navigation from a real deeplink.
      * Similar to {@link #forNavigation(Activity, String, Optional, Screen, Optional)} but for real deeplink navigation.
      */
-    public static NavigationTarget forExternalDeeplink(Activity activity, @Nullable String target, String referrer) {
-        return newBuilder().activity(activity)
-                           .linkNavigationParameters(LinkNavigationParameters.create(target))
+    public static NavigationTarget forExternalDeeplink(@Nullable String target, String referrer) {
+        return newBuilder().linkNavigationParameters(LinkNavigationParameters.create(target))
                            .screen(Screen.DEEPLINK)
                            .referrer(Optional.of(referrer))
                            .build();
@@ -109,27 +105,27 @@ public abstract class NavigationTarget {
      */
     public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
         Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
-        return forNavigation(activity, urn.toString(), Optional.absent(), screen, Optional.absent());
+        return forNavigation(urn.toString(), Optional.absent(), screen, Optional.absent());
     }
 
-    public static NavigationTarget forPlaylistsAndAlbumsCollection(Activity activity) {
-        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS_AND_ALBUMS_COLLECTION, Screen.PLAYLISTS);
+    public static NavigationTarget forPlaylistsAndAlbumsCollection() {
+        return forNavigationDeeplink(DeepLink.PLAYLISTS_AND_ALBUMS_COLLECTION, Screen.PLAYLISTS);
     }
 
-    public static NavigationTarget forPlaylistsCollection(Activity activity) {
-        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS_COLLECTION, Screen.PLAYLISTS);
+    public static NavigationTarget forPlaylistsCollection() {
+        return forNavigationDeeplink(DeepLink.PLAYLISTS_COLLECTION, Screen.PLAYLISTS);
     }
 
-    public static NavigationTarget forLegacyPlaylist(Activity activity, Urn urn, Screen screen) {
-        return forPlaylist(activity, urn, screen, Optional.absent(), Optional.absent(), Optional.absent());
+    public static NavigationTarget forLegacyPlaylist(Urn urn, Screen screen) {
+        return forPlaylist(urn, screen, Optional.absent(), Optional.absent(), Optional.absent());
     }
 
-    public static NavigationTarget forLegacyPlaylist(Activity activity, Urn urn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, Optional<PromotedSourceInfo> promotedSourceInfo) {
-        return forPlaylist(activity, urn, screen, searchQuerySourceInfo, promotedSourceInfo, Optional.absent());
+    public static NavigationTarget forLegacyPlaylist(Urn urn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, Optional<PromotedSourceInfo> promotedSourceInfo) {
+        return forPlaylist(urn, screen, searchQuerySourceInfo, promotedSourceInfo, Optional.absent());
     }
 
-    public static NavigationTarget forPlaylist(Activity activity, Urn entityUrn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo,  Optional<PromotedSourceInfo> promotedSourceInfo, Optional<UIEvent> uiEvent) {
-        return forNavigationDeeplink(activity, DeepLink.PLAYLISTS, screen)
+    public static NavigationTarget forPlaylist(Urn entityUrn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo,  Optional<PromotedSourceInfo> promotedSourceInfo, Optional<UIEvent> uiEvent) {
+        return forNavigationDeeplink(DeepLink.PLAYLISTS, screen)
                 .toBuilder()
                 .uiEvent(uiEvent)
                 .targetUrn(Optional.of(entityUrn))
@@ -138,62 +134,62 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public static NavigationTarget forActivities(Activity activity) {
-        return forNavigationDeeplink(activity, DeepLink.ACTIVITIES, Screen.UNKNOWN);
+    public static NavigationTarget forActivities() {
+        return forNavigationDeeplink(DeepLink.ACTIVITIES, Screen.UNKNOWN);
     }
 
-    public static NavigationTarget forFollowers(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forNavigationDeeplink(activity, DeepLink.FOLLOWERS, Screen.UNKNOWN)
+    public static NavigationTarget forFollowers(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forNavigationDeeplink(DeepLink.FOLLOWERS, Screen.UNKNOWN)
                 .toBuilder()
                 .targetUrn(Optional.of(userUrn))
                 .searchQuerySourceInfo(searchQuerySourceInfo)
                 .build();
     }
 
-    public static NavigationTarget forFollowings(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forNavigationDeeplink(activity, DeepLink.FOLLOWINGS, Screen.UNKNOWN)
+    public static NavigationTarget forFollowings(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forNavigationDeeplink(DeepLink.FOLLOWINGS, Screen.UNKNOWN)
                 .toBuilder()
                 .targetUrn(Optional.of(userUrn))
                 .searchQuerySourceInfo(searchQuerySourceInfo)
                 .build();
     }
 
-    public static NavigationTarget forFullscreenVideoAd(Activity activity, Urn adUrn) {
-        return forNavigationDeeplink(activity, DeepLink.AD_FULLSCREEN_VIDEO, Screen.UNKNOWN)
+    public static NavigationTarget forFullscreenVideoAd(Urn adUrn) {
+        return forNavigationDeeplink(DeepLink.AD_FULLSCREEN_VIDEO, Screen.UNKNOWN)
                 .toBuilder()
                 .targetUrn(Optional.of(adUrn))
                 .build();
     }
 
-    public static NavigationTarget forAdClickthrough(Activity activity, String url) {
-        return forNavigationDeeplink(activity, DeepLink.AD_CLICKTHROUGH, Screen.UNKNOWN)
+    public static NavigationTarget forAdClickthrough(String url) {
+        return forNavigationDeeplink(DeepLink.AD_CLICKTHROUGH, Screen.UNKNOWN)
                 .toBuilder()
                 .deeplinkTarget(Optional.of(url))
                 .build();
     }
 
-    public static NavigationTarget forPrestitialAd(Activity activity) {
-        return forNavigationDeeplink(activity, DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
+    public static NavigationTarget forPrestitialAd() {
+        return forNavigationDeeplink(DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
     }
 
-    public static NavigationTarget forSearchViewAll(Activity activity, Optional<Urn> queryUrn, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
-        return forNavigationDeeplink(activity, DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
+    public static NavigationTarget forSearchViewAll(Optional<Urn> queryUrn, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
+        return forNavigationDeeplink(DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
                 .toBuilder()
                 .queryUrn(queryUrn)
                 .topResultsMetaData(Optional.of(TopResultsMetaData.create(query, kind, isPremium)))
                 .build();
     }
 
-    public static NavigationTarget forSearchAutocomplete(Activity activity, Screen screen) {
-        return forNavigationDeeplink(activity, DeepLink.SEARCH_AUTOCOMPLETE, screen);
+    public static NavigationTarget forSearchAutocomplete(Screen screen) {
+        return forNavigationDeeplink(DeepLink.SEARCH_AUTOCOMPLETE, screen);
     }
 
-    public static NavigationTarget forProfile(Activity activity, Urn userUrn) {
-        return forProfile(activity, userUrn, Optional.absent(), Optional.absent(), Optional.absent());
+    public static NavigationTarget forProfile(Urn userUrn) {
+        return forProfile(userUrn, Optional.absent(), Optional.absent(), Optional.absent());
     }
 
-    public static NavigationTarget forProfile(Activity activity, Urn userUrn, Optional<UIEvent> uiEvent, Optional<Screen> screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forNavigationDeeplink(activity, DeepLink.PROFILE, screen.or(Screen.UNKNOWN))
+    public static NavigationTarget forProfile(Urn userUrn, Optional<UIEvent> uiEvent, Optional<Screen> screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forNavigationDeeplink(DeepLink.PROFILE, screen.or(Screen.UNKNOWN))
                 .toBuilder()
                 .targetUrn(Optional.of(userUrn))
                 .uiEvent(uiEvent)
@@ -201,28 +197,28 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public static NavigationTarget forProfileReposts(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_REPOSTS, Screen.USERS_REPOSTS);
+    public static NavigationTarget forProfileReposts(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(userUrn, searchQuerySourceInfo, DeepLink.PROFILE_REPOSTS, Screen.USERS_REPOSTS);
     }
 
-    public static NavigationTarget forProfileTracks(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_TRACKS, Screen.USER_TRACKS);
+    public static NavigationTarget forProfileTracks(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(userUrn, searchQuerySourceInfo, DeepLink.PROFILE_TRACKS, Screen.USER_TRACKS);
     }
 
-    public static NavigationTarget forProfileLikes(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_LIKES, Screen.USER_LIKES);
+    public static NavigationTarget forProfileLikes(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(userUrn, searchQuerySourceInfo, DeepLink.PROFILE_LIKES, Screen.USER_LIKES);
     }
 
-    public static NavigationTarget forProfileAlbums(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_ALBUMS, Screen.USER_ALBUMS);
+    public static NavigationTarget forProfileAlbums(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(userUrn, searchQuerySourceInfo, DeepLink.PROFILE_ALBUMS, Screen.USER_ALBUMS);
     }
 
-    public static NavigationTarget forProfilePlaylists(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return forProfileSubScreen(activity, userUrn, searchQuerySourceInfo, DeepLink.PROFILE_PLAYLISTS, Screen.USER_PLAYLISTS);
+    public static NavigationTarget forProfilePlaylists(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forProfileSubScreen(userUrn, searchQuerySourceInfo, DeepLink.PROFILE_PLAYLISTS, Screen.USER_PLAYLISTS);
     }
 
-    private static NavigationTarget forProfileSubScreen(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, DeepLink deepLink, Screen screen) {
-        return forNavigationDeeplink(activity, deepLink, screen)
+    private static NavigationTarget forProfileSubScreen(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, DeepLink deepLink, Screen screen) {
+        return forNavigationDeeplink(deepLink, screen)
                 .toBuilder()
                 .targetUrn(Optional.of(userUrn))
                 .searchQuerySourceInfo(searchQuerySourceInfo)
@@ -243,8 +239,6 @@ public abstract class NavigationTarget {
 
     @AutoValue.Builder
     abstract static class Builder {
-        abstract Builder activity(Activity activity);
-
         abstract Builder screen(Screen screen);
 
         abstract Builder linkNavigationParameters(Optional<LinkNavigationParameters> linkNavigationParameters);

@@ -89,7 +89,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(NavigationTarget.forProfile(viewActivity, activity.getUrn()));
+        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
     }
 
     @Test

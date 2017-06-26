@@ -50,7 +50,7 @@ public class ResolveActivity extends RootActivity {
             ErrorUtils.handleSilentException(e);
         }
         adsStorage.preventPrestitialFetchForTimeInterval(); // prevent prestitial from launching when DeepLink
-        navigator.navigateTo(NavigationTarget.forExternalDeeplink(this, uri.toString(), referrer));
+        navigator.navigateTo(this, NavigationTarget.forExternalDeeplink(uri.toString(), referrer));
     }
 
     @Override

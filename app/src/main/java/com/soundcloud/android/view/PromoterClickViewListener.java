@@ -31,7 +31,7 @@ public class PromoterClickViewListener implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        navigator.navigateTo(NavigationTarget.forProfile(getFragmentActivity(v), item.promoterUrn().get()));
+        navigator.navigateTo(getFragmentActivity(v), NavigationTarget.forProfile(item.promoterUrn().get()));
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(item, screenProvider.getLastScreenTag());
         eventBus.publish(EventQueue.TRACKING, event);
     }

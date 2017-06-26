@@ -165,7 +165,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.goToCreator()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigator.navigateTo(NavigationTarget.forProfile(getActivity(), urn))),
+                         .subscribe(urn -> navigator.navigateTo(getActivity(), NavigationTarget.forProfile(urn))),
 
                 presenter.goToContentUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
