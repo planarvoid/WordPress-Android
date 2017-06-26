@@ -24,7 +24,7 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         // gender is optional, so done button should stay enabled
-        signUpBasicsScreen.chooseGender("Female");
+        signUpBasicsScreen.chooseGender("Woman");
         assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         signUpBasicsScreen.chooseGender("Custom");
