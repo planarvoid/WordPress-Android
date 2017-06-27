@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -547,9 +548,9 @@ public class PlayQueueManager {
     Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
-        return playQueueOperations.getLastStoredPlayQueue()
-                                  .observeOn(AndroidSchedulers.mainThread())
-                                  .doOnNext(onPlayQueueLoaded);
+        return RxJava.toV1Observable(playQueueOperations.getLastStoredPlayQueue())
+                     .observeOn(AndroidSchedulers.mainThread())
+                     .doOnNext(onPlayQueueLoaded);
     }
 
     private void publishPositionUpdate() {
@@ -684,8 +685,8 @@ public class PlayQueueManager {
             final PlayQueueItem item = playQueue.getPlayQueueItem(i);
             if (item.getAdData().isPresent() && item.isTrack()) {
                 final TrackQueueItem track = new TrackQueueItem.Builder((TrackQueueItem) item)
-                                                               .withoutAdData()
-                                                               .build();
+                        .withoutAdData()
+                        .build();
                 playQueue.replaceItem(i, Collections.singletonList(track));
                 queueUpdated = true;
             }
@@ -772,9 +773,9 @@ public class PlayQueueManager {
 
 
     private void saveQueueAndPublishEvent(PlayQueueEvent event) {
-        playQueueOperations.saveQueue(playQueue.copy())
-                           .observeOn(AndroidSchedulers.mainThread())
-                           .subscribe(new SaveQueueSubscriber(event));
+        RxJava.toV1Observable(playQueueOperations.saveQueue(playQueue.copy()))
+              .observeOn(AndroidSchedulers.mainThread())
+              .subscribe(new SaveQueueSubscriber(event));
     }
 
     private class SaveQueueSubscriber extends DefaultSubscriber<TxnResult> {

@@ -24,15 +24,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import io.reactivex.Single;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,7 +48,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     private final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private final PlayQueue recommendedPlayQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L),
                                                                           playSessionSource);
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
@@ -61,7 +59,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(playSessionSource);
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
         when(playQueueOperations.relatedTracksPlayQueue(eq(LAST_URN), anyBoolean(), any(PlaySessionSource.class)))
-                .thenReturn(Observable.just(recommendedPlayQueue));
+                .thenReturn(Single.just(recommendedPlayQueue));
         when(castConnectionHelper.isCasting()).thenReturn(false);
 
         PlayQueueExtender extender = new PlayQueueExtender(playQueueManager,
@@ -99,8 +97,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
         when(playQueueManager.getQueueSize()).thenReturn(queueSize);
         when(playQueueManager.getCollectionUrn()).thenReturn(station);
-        when(stationsOperations.fetchUpcomingTracks(station, queueSize, playSessionSource))
-                .thenReturn(Single.just(playQueue));
+        when(stationsOperations.fetchUpcomingTracks(station, queueSize, playSessionSource)).thenReturn(Single.just(playQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, station, 0));
 
@@ -149,8 +146,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void retriesToAppendRecommendedTracksAfterError() {
         setWithinToleranceAtEnd();
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true, playQueueManager.getCurrentPlaySessionSource()))
-                .thenReturn(Observable.error(new IOException()))
-                .thenReturn(Observable.just(recommendedPlayQueue));
+                .thenReturn(Single.error(new IOException()))
+                .thenReturn(Single.just(recommendedPlayQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
@@ -164,8 +161,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         setWithinToleranceAtEnd();
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true, playSessionSource))
-                .thenReturn(Observable.just(playQueue))
-                .thenReturn(Observable.just(recommendedPlayQueue));
+                .thenReturn(Single.just(playQueue))
+                .thenReturn(Single.just(recommendedPlayQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
@@ -175,8 +172,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesFromRecommendedTracksLoadWhenQueueChangesAndLoadsNewRecommendations() {
-        final PublishSubject<PlayQueue> recommendedSubject = PublishSubject.create();
-        final PublishSubject<PlayQueue> secondRecommendedSubject = PublishSubject.create();
+        final SingleSubject<PlayQueue> recommendedSubject = SingleSubject.create();
+        final SingleSubject<PlayQueue> secondRecommendedSubject = SingleSubject.create();
 
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true, playSessionSource))
                 .thenReturn(recommendedSubject)

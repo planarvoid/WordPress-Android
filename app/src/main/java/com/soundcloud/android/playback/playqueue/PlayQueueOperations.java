@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.collections.ListsFunctions.cast;
 
@@ -9,14 +9,13 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.DiffUtils;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Predicate;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,15 +25,13 @@ import java.util.Map;
 
 public class PlayQueueOperations {
 
-    private static final Predicate<PlayQueueItem> IS_TRACK = input -> input != null && input.isTrack() && input.getUrn().isTrack();
-
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
     private final PlayQueueManager playQueueManager;
     private final TrackItemRepository trackItemRepository;
     private final PlayQueueStorage playQueueStorage;
 
     @Inject
-    public PlayQueueOperations(@Named(HIGH_PRIORITY) Scheduler scheduler,
+    public PlayQueueOperations(@Named(RX_HIGH_PRIORITY) Scheduler scheduler,
                                PlayQueueManager playQueueManager,
                                TrackItemRepository trackItemRepository,
                                PlayQueueStorage playQueueStorage) {
@@ -44,25 +41,29 @@ public class PlayQueueOperations {
         this.playQueueStorage = playQueueStorage;
     }
 
-    public Observable<List<TrackAndPlayQueueItem>> getTracks() {
-        return Observable.defer(this::loadTracks);
+    public Single<List<TrackAndPlayQueueItem>> getTracks() {
+        return Single.defer(this::loadTracks);
     }
 
-    Observable<Map<Urn, String>> getContextTitles() {
+    Single<Map<Urn, String>> getContextTitles() {
         return playQueueStorage.contextTitles().subscribeOn(scheduler);
     }
 
-    private Observable<List<TrackAndPlayQueueItem>> loadTracks() {
-        final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(IS_TRACK), cast(TrackQueueItem.class));
+    private Single<List<TrackAndPlayQueueItem>> loadTracks() {
+        final List<TrackQueueItem> playQueueItems = Lists.transform(playQueueManager.getPlayQueueItems(input -> input != null && input.isTrack() && input.getUrn().isTrack()),
+                                                                    cast(TrackQueueItem.class));
 
+        final Function<Map<Urn, TrackItem>, List<TrackAndPlayQueueItem>> fulfillWithKnownProperties = urnTrackMap -> toTrackAndPlayQueueItem(playQueueItems, urnTrackMap);
         final List<Urn> uniqueTrackUrns = DiffUtils.deduplicate(transform(playQueueItems, PlayQueueItem.TO_URN));
-        return RxJava.toV1Observable(trackItemRepository.fromUrns(uniqueTrackUrns))
-                     .map(urnTrackMap -> toTrackAndPlayQueueItem(playQueueItems, urnTrackMap))
-                     .subscribeOn(scheduler);
+
+        return trackItemRepository
+                .fromUrns(uniqueTrackUrns)
+                .map(fulfillWithKnownProperties)
+                .subscribeOn(scheduler);
     }
 
     private List<TrackAndPlayQueueItem> toTrackAndPlayQueueItem(List<TrackQueueItem> playQueueItems,
-                                                                     Map<Urn, TrackItem> knownProperties) {
+                                                                Map<Urn, TrackItem> knownProperties) {
         final ArrayList<TrackAndPlayQueueItem> trackItems = new ArrayList<>(playQueueItems.size());
 
         for (TrackQueueItem item : playQueueItems) {
@@ -79,5 +80,4 @@ public class PlayQueueOperations {
             trackItems.add(new TrackAndPlayQueueItem(urnTrackMap.get(urn), item));
         }
     }
-
 }

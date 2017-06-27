@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -21,14 +20,13 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.functions.Predicate;
 import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,8 +42,6 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Mock private PlayQueueStorage storage;
     @Captor private ArgumentCaptor<Predicate<PlayQueueItem>> predicateCaptor;
 
-    private TestSubscriber<List<TrackAndPlayQueueItem>> subscriber = new TestSubscriber<>();
-
     private final TrackItem trackItem1 = ModelFixtures.trackItem();
     private final TrackItem trackItem2 = ModelFixtures.trackItem();
     private final Urn track1Urn = trackItem1.getUrn();
@@ -57,7 +53,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new PlayQueueOperations(Schedulers.immediate(),
+        operations = new PlayQueueOperations(Schedulers.trampoline(),
                                              playQueueManager,
                                              trackRepository,
                                              storage);
@@ -74,10 +70,10 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueue);
         when(trackRepository.fromUrns(asList(track1Urn, track2Urn))).thenReturn(Single.just(tracksFromStorage));
 
-        operations.getTracks().subscribe(subscriber);
+        TestObserver<List<TrackAndPlayQueueItem>> testObserver = operations.getTracks().test();
 
-        subscriber.assertValue(expected);
-        subscriber.assertTerminalEvent();
+        testObserver.assertValue(expected);
+        testObserver.assertTerminated();
     }
 
     @Test
@@ -86,24 +82,24 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(Single.just(singletonMap(track2Urn, trackItem2)));
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem1));
-        final Observable<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
+        final Single<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem2));
 
-        operation.subscribe(subscriber);
+        TestObserver<List<TrackAndPlayQueueItem>> testObserver = operation.test();
 
-        for (Throwable throwable : subscriber.getOnErrorEvents()) {
+        for (Throwable throwable : testObserver.errors()) {
             throwable.printStackTrace();
         }
 
-        subscriber.assertValue(singletonList(trackAndPlayQueueItem2));
-        subscriber.assertTerminalEvent();
+        testObserver.assertValue(singletonList(trackAndPlayQueueItem2));
+        testObserver.assertTerminated();
     }
 
     @Test
     public void getTrackItemsFiltersOutNonTracksFromPlayQueueManager() {
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(Collections.emptyList());
 
-        operations.getTracks().subscribe(subscriber);
+        operations.getTracks().test();
 
         verify(playQueueManager).getPlayQueueItems(predicateCaptor.capture());
 
@@ -124,9 +120,9 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueueItems);
         when(trackRepository.fromUrns(requestedTracks)).thenReturn(Single.just(knownTrack));
 
-        operations.getTracks().subscribe(subscriber);
+        TestObserver<List<TrackAndPlayQueueItem>> testObserver = operations.getTracks().test();
 
-        subscriber.assertValue(expectedTrackItems);
+        testObserver.assertValue(expectedTrackItems);
     }
 
     public TrackQueueItem trackQueueItem(Urn urn) {

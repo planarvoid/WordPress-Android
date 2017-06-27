@@ -1,16 +1,16 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.propeller.TxnResult;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -26,13 +26,13 @@ public class PlayQueueOperations {
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final StoreTracksCommand storeTracksCommand;
-    private final ApiClientRx apiClientRx;
+    private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
 
     @Inject
     PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                        StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
-                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                        StoreTracksCommand storeTracksCommand, ApiClientRxV2 apiClientRx,
+                        @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.scheduler = scheduler;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
@@ -48,18 +48,18 @@ public class PlayQueueOperations {
         return new PlaySessionSource(sharedPreferences);
     }
 
-    Observable<PlayQueue> getLastStoredPlayQueue() {
+    Maybe<PlayQueue> getLastStoredPlayQueue() {
         if (!sharedPreferences.contains(Keys.PLAY_POSITION.name())) {
-            return Observable.empty();
+            return Maybe.empty();
         }
 
         return playQueueStorage.load()
-                               .toList()
                                .map(PlayQueue::fromPlayQueueItems)
+                               .toMaybe()
                                .subscribeOn(scheduler);
     }
 
-    Observable<TxnResult> saveQueue(PlayQueue playQueue) {
+    Single<TxnResult> saveQueue(PlayQueue playQueue) {
         return playQueueStorage.store(playQueue).subscribeOn(scheduler);
     }
 
@@ -75,12 +75,10 @@ public class PlayQueueOperations {
         editor.remove(Keys.PLAY_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
-        fireAndForget(
-                playQueueStorage.clear().subscribeOn(scheduler)
-        );
+        playQueueStorage.clear().subscribeOn(scheduler).subscribeWith(new DefaultSingleObserver<>());
     }
 
-    public Observable<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {
+    Single<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), seedTrack.toEncodedString());
         final ApiRequest request = ApiRequest.get(endpoint)
                                              .forPrivateApi()
@@ -88,24 +86,23 @@ public class PlayQueueOperations {
                                              .build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
-                          .doOnNext(storeTracksCommand.toAction1())
+                          .doOnSuccess(storeTracksCommand.toConsumer())
                           .subscribeOn(scheduler);
     }
 
-    public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack,
-                                                        final boolean continuousPlay,
-                                                        final PlaySessionSource playSessionSource) {
+    Single<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack,
+                                             final boolean continuousPlay,
+                                             final PlaySessionSource playSessionSource) {
         return relatedTracks(seedTrack, continuousPlay).map(recommendedTracks -> {
             if (recommendedTracks.getCollection().isEmpty()) {
                 return PlayQueue.empty();
+            } else {
+                return PlayQueue.fromRecommendations(seedTrack, continuousPlay, recommendedTracks, playSessionSource);
             }
-
-            return PlayQueue.fromRecommendations(seedTrack, continuousPlay, recommendedTracks, playSessionSource);
         });
     }
 
     enum Keys {
         PLAY_POSITION
     }
-
 }

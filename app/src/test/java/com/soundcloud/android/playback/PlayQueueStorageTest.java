@@ -26,8 +26,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.playback.TrackQueueItem.Builder;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.storage.Tables;
@@ -36,15 +36,16 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.test.assertions.QueryAssertions;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
 
 import android.content.ContentValues;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class PlayQueueStorageTest extends StorageIntegrationTest {
 
@@ -66,7 +67,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlayQueueStorage(propellerRx());
+        storage = new PlayQueueStorage(propellerRxV2());
     }
 
     @Test
@@ -81,7 +82,6 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        TestObserver<TxnResult> observer = new TestObserver<>();
         PlayableQueueItem playableQueueItem1 = new Builder(forTrack(123L))
                 .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
@@ -98,12 +98,10 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.asList(playableQueueItem1,
                                                                          playableQueueItem2));
 
-        storage.store(playQueue).subscribe(observer);
+        TestObserver<TxnResult> observer = storage.store(playQueue).test();
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-
-        TxnResult txnResult = observer.getOnNextEvents().get(0);
-        assertThat(txnResult.success()).isTrue();
+        observer.assertValueCount(1);
+        observer.assertValue(TxnResult::success);
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
@@ -150,7 +148,6 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldDeleteAllPlayQueueItems() {
-        TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
         insertPlayableQueueItem(new Builder(forTrack(123L), forUser(123L))
                                         .fromSource("source",
                                                     "source_version",
@@ -160,16 +157,15 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                                         .build());
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.clear().subscribe(subscriber);
+        TestObserver<ChangeResult> testObserver = storage.clear().test();
 
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getNumRowsAffected()).isEqualTo(1);
+        testObserver.assertValueCount(1);
+        assertThat(testObserver.values().get(0).getNumRowsAffected()).isEqualTo(1);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).isEmpty();
     }
 
     @Test
     public void shouldLoadAllPlayQueueItems() {
-        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem1 = new Builder(forTrack(123L), forUser(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
@@ -186,14 +182,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem2);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
 
-        storage.load().subscribe(subscriber);
+        TestObserver<List<PlayQueueItem>> testObserver = storage.load().test();
 
-        assertPlayQueueItemsEqual(Arrays.asList(expectedItem1, expectedItem2), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem1, expectedItem2), testObserver.values().get(0));
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutReposter() {
-        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
@@ -202,14 +197,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.load().subscribe(subscriber);
+        TestObserver<List<PlayQueueItem>> testObserver = storage.load().test();
 
-        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), testObserver.values().get(0));
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutRelatedEntities() {
-        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
@@ -217,14 +211,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.load().subscribe(subscriber);
+        TestObserver<List<PlayQueueItem>> testObserver = storage.load().test();
 
-        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), testObserver.values().get(0));
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutSourceOrQueryUrn() {
-        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
                 // From a source with no source_urn or query_urn
                 .fromSource("source", "source_version")
@@ -233,14 +226,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.load().subscribe(subscriber);
+        TestObserver<List<PlayQueueItem>> testObserver = storage.load().test();
 
-        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), testObserver.values().get(0));
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutPlaybackContextUrnOrQuery() {
-        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .relatedEntity(RELATED_ENTITY)
@@ -249,126 +241,108 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayableQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.load().subscribe(subscriber);
+        TestObserver<List<PlayQueueItem>> testObserver = storage.load().test();
 
-        assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Collections.singletonList(expectedItem), testObserver.values().get(0));
     }
 
     @Test
     public void contextTitlesReturnsEmptyValueWhenPlayQueueIsEmpty() {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(emptyMap());
+        testObserver.assertValue(emptyMap());
     }
 
     @Test
     public void contextTitlesReturnsEmptyValueWhenContextUrnIsAbsent() {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final TrackQueueItem trackQueueItem = new Builder(forTrack(123L))
                 .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))
                 .build();
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(emptyMap());
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(emptyMap());
     }
 
     @Test
     public void contextTitlesReturnsPlaylistTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         final TrackQueueItem trackQueueItem = createTrackQueueItem(playlist.getUrn(), PlaybackContext.Bucket.PLAYLIST);
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(playlist.getUrn(), playlist.getTitle()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(playlist.getUrn(), playlist.getTitle()));
     }
 
     @Test
     public void contextTitlesReturnsProfileTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final ApiUser user = testFixtures().insertUser();
         final TrackQueueItem trackQueueItem = createTrackQueueItem(user.getUrn(), PlaybackContext.Bucket.PROFILE);
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(user.getUrn(), user.getUsername()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(user.getUrn(), user.getUsername()));
     }
 
     @Test
     public void contextTitlesReturnsStationTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final ApiStation station = testFixtures().insertStation();
         final TrackQueueItem trackQueueItem = createTrackQueueItem(station.getUrn(),
                                                                    PlaybackContext.Bucket.TRACK_STATION);
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(station.getUrn(), station.getTitle()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(station.getUrn(), station.getTitle()));
     }
 
     @Test
     public void contextTitlesReturnsChartTopMusicTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TOP, ChartCategory.MUSIC);
         final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
                                                                    PlaybackContext.Bucket.CHARTS_TOP);
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
     }
 
     @Test
     public void contextTitlesReturnsChartTrendingMusicTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TRENDING, ChartCategory.MUSIC);
         final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
                                                                    PlaybackContext.Bucket.CHARTS_TRENDING);
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
     }
 
     @Test
     public void contextTitlesReturnsChartTopAudioTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TOP, ChartCategory.AUDIO);
         final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
                                                                    PlaybackContext.Bucket.CHARTS_TOP);
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
     }
 
     @Test
     public void contextTitlesReturnsChartTrendingAudioTitle() throws Exception {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Chart chartTopMusic = testFixtures().insertChart(ChartType.TRENDING, ChartCategory.AUDIO);
         final TrackQueueItem trackQueueItem = createTrackQueueItem(chartTopMusic.genre(),
                                                                    PlaybackContext.Bucket.CHARTS_TRENDING);
 
         insertPlayableQueueItem(trackQueueItem);
 
-        storage.contextTitles().subscribe(subscriber);
-
-        subscriber.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
+        TestObserver<Map<Urn, String>> testObserver = storage.contextTitles().test();
+        testObserver.assertValue(singletonMap(chartTopMusic.genre(), chartTopMusic.displayName()));
     }
 
     private TrackQueueItem createTrackQueueItem(Urn contextUrn, PlaybackContext.Bucket bucket) {

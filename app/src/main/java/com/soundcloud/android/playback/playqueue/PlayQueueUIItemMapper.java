@@ -11,7 +11,7 @@ import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.functions.Func2;
+import io.reactivex.functions.BiFunction;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Urn, String>, List<PlayQueueUIItem>> {
+class PlayQueueUIItemMapper implements BiFunction<List<TrackAndPlayQueueItem>, Map<Urn, String>, List<PlayQueueUIItem>> {
 
     private final Context context;
     private final PlayQueueManager playQueueManager;
@@ -40,7 +40,7 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
     }
 
     @Override
-    public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> items, Map<Urn, String> urnStringMap) {
+    public List<PlayQueueUIItem> apply(List<TrackAndPlayQueueItem> items, Map<Urn, String> urnStringMap) {
         return new Mapper(urnStringMap).map(items);
     }
 

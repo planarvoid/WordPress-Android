@@ -49,6 +49,10 @@ public final class RxUtils {
         return Subscriptions.unsubscribed();
     }
 
+    public static Disposable invalidDisposable() {
+        return Disposables.disposed();
+    }
+
     public static Disposable emptyDisposable() {
         return Disposables.empty();
     }

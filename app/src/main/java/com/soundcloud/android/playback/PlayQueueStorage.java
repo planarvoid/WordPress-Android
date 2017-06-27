@@ -10,20 +10,20 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
+import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Column;
 import com.soundcloud.propeller.schema.Table;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -35,20 +35,18 @@ public class PlayQueueStorage {
 
     private static final Table TABLE = Tables.PlayQueue.TABLE;
 
-    private final PropellerRx propellerRx;
-
-    private Func1<QueryResult, Map<Urn, String>> toMapOfUrnAndTitles = cursorReaders -> toMapOfUrnAndTitles(cursorReaders);
+    private final PropellerRxV2 propellerRx;
 
     @Inject
-    public PlayQueueStorage(PropellerRx propellerRx) {
+    public PlayQueueStorage(PropellerRxV2 propellerRx) {
         this.propellerRx = propellerRx;
     }
 
-    Observable<ChangeResult> clear() {
-        return propellerRx.truncate(TABLE);
+    Single<ChangeResult> clear() {
+        return propellerRx.truncate(TABLE).singleOrError();
     }
 
-    Observable<TxnResult> store(final PlayQueue playQueue) {
+    Single<TxnResult> store(final PlayQueue playQueue) {
         final BulkInsertValues.Builder bulkValues = new BulkInsertValues.Builder(getColumns());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
@@ -67,7 +65,7 @@ public class PlayQueueStorage {
                 step(propeller.truncate(TABLE));
                 step(propeller.bulkInsert(TABLE.name(), bulkValues.build()));
             }
-        });
+        }).firstOrError();
     }
 
 
@@ -92,67 +90,26 @@ public class PlayQueueStorage {
 
     private List<Column> getColumns() {
         return Arrays.asList(
-        Tables.PlayQueue.ENTITY_ID,
-        Tables.PlayQueue.ENTITY_TYPE,
-        Tables.PlayQueue.REPOSTER_ID,
-        Tables.PlayQueue.RELATED_ENTITY,
-        Tables.PlayQueue.SOURCE,
-        Tables.PlayQueue.SOURCE_VERSION,
-        Tables.PlayQueue.SOURCE_URN,
-        Tables.PlayQueue.QUERY_URN,
-        Tables.PlayQueue.CONTEXT_TYPE,
-        Tables.PlayQueue.CONTEXT_URN,
-        Tables.PlayQueue.CONTEXT_QUERY,
-        Tables.PlayQueue.PLAYED
+                Tables.PlayQueue.ENTITY_ID,
+                Tables.PlayQueue.ENTITY_TYPE,
+                Tables.PlayQueue.REPOSTER_ID,
+                Tables.PlayQueue.RELATED_ENTITY,
+                Tables.PlayQueue.SOURCE,
+                Tables.PlayQueue.SOURCE_VERSION,
+                Tables.PlayQueue.SOURCE_URN,
+                Tables.PlayQueue.QUERY_URN,
+                Tables.PlayQueue.CONTEXT_TYPE,
+                Tables.PlayQueue.CONTEXT_URN,
+                Tables.PlayQueue.CONTEXT_QUERY,
+                Tables.PlayQueue.PLAYED
         );
     }
 
-    Observable<PlayQueueItem> load() {
-        return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
-            @Override
-            public PlayQueueItem map(CursorReader reader) {
-                final Urn relatedEntity = hasRelatedEntity(reader) ?
-                                          new Urn(reader.getString(Tables.PlayQueue.RELATED_ENTITY)) :
-                                          Urn.NOT_SET;
-                final Urn reposter = hasReposter(reader) ?
-                                     Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) :
-                                     Urn.NOT_SET;
-                final String source = reader.getString(Tables.PlayQueue.SOURCE);
-                final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
-                final Urn sourceUrn = hasSourceUrn(reader) ?
-                                      new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) :
-                                      Urn.NOT_SET;
-                final Urn queryUrn = hasQueryUrn(reader) ?
-                                     new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) :
-                                     Urn.NOT_SET;
-
-                final boolean played = reader.getBoolean(Tables.PlayQueue.PLAYED);
-
-                final PlaybackContext playbackContext = PlaybackContext.builder()
-                                                                       .bucket(getPlaybackContextBucket(reader))
-                                                                       .urn(getPlaybackContextUrn(reader))
-                                                                       .query(getPlaybackContextQuery(reader))
-                                                                       .build();
-
-                if (reader.getInt(Tables.PlayQueue.ENTITY_TYPE.name()) == ENTITY_TYPE_PLAYLIST) {
-                    final Urn playlist = Urn.forPlaylist(reader.getLong(Tables.PlayQueue.ENTITY_ID));
-                    return new PlaylistQueueItem.Builder(playlist)
-                            .relatedEntity(relatedEntity)
-                            .fromSource(source, sourceVersion, sourceUrn, queryUrn)
-                            .withPlaybackContext(playbackContext)
-                            .played(played)
-                            .build();
-                } else {
-                    final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
-                    return new TrackQueueItem.Builder(track, reposter)
-                            .relatedEntity(relatedEntity)
-                            .withPlaybackContext(playbackContext)
-                            .fromSource(source, sourceVersion, sourceUrn, queryUrn)
-                            .played(played)
-                            .build();
-                }
-            }
-        });
+    Single<List<PlayQueueItem>> load() {
+        return propellerRx.queryResult(Query.from(TABLE.name()))
+                          .map(queryResult -> queryResult.toList(new PlayableQueueItemMapper()))
+                          .map(playableQueueItems -> Lists.transform(playableQueueItems, input -> (PlayQueueItem) input))
+                          .singleOrError();
     }
 
     private Bucket getPlaybackContextBucket(CursorReader reader) {
@@ -173,9 +130,10 @@ public class PlayQueueStorage {
                Optional.absent();
     }
 
-    public Observable<Map<Urn, String>> contextTitles() {
+    public Single<Map<Urn, String>> contextTitles() {
         return propellerRx.queryResult(loadContextsQuery())
-                          .map(toMapOfUrnAndTitles);
+                          .singleOrError()
+                          .map(this::toMapOfUrnAndTitles);
     }
 
     private boolean hasRelatedEntity(CursorReader reader) {
@@ -221,4 +179,49 @@ public class PlayQueueStorage {
         return titles;
     }
 
+    private class PlayableQueueItemMapper implements ResultMapper<PlayableQueueItem> {
+        @Override
+        public PlayableQueueItem map(CursorReader reader) {
+            final Urn relatedEntity = hasRelatedEntity(reader) ?
+                                      new Urn(reader.getString(Tables.PlayQueue.RELATED_ENTITY)) :
+                                      Urn.NOT_SET;
+            final Urn reposter = hasReposter(reader) ?
+                                 Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) :
+                                 Urn.NOT_SET;
+            final String source = reader.getString(Tables.PlayQueue.SOURCE);
+            final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
+            final Urn sourceUrn = hasSourceUrn(reader) ?
+                                  new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) :
+                                  Urn.NOT_SET;
+            final Urn queryUrn = hasQueryUrn(reader) ?
+                                 new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) :
+                                 Urn.NOT_SET;
+
+            final boolean played = reader.getBoolean(Tables.PlayQueue.PLAYED);
+
+            final PlaybackContext playbackContext = PlaybackContext.builder()
+                                                                   .bucket(getPlaybackContextBucket(reader))
+                                                                   .urn(getPlaybackContextUrn(reader))
+                                                                   .query(getPlaybackContextQuery(reader))
+                                                                   .build();
+
+            if (reader.getInt(Tables.PlayQueue.ENTITY_TYPE.name()) == ENTITY_TYPE_PLAYLIST) {
+                final Urn playlist = Urn.forPlaylist(reader.getLong(Tables.PlayQueue.ENTITY_ID));
+                return new PlaylistQueueItem.Builder(playlist)
+                        .relatedEntity(relatedEntity)
+                        .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                        .withPlaybackContext(playbackContext)
+                        .played(played)
+                        .build();
+            } else {
+                final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
+                return new TrackQueueItem.Builder(track, reposter)
+                        .relatedEntity(relatedEntity)
+                        .withPlaybackContext(playbackContext)
+                        .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                        .played(played)
+                        .build();
+            }
+        }
+    }
 }

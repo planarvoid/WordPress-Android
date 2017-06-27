@@ -7,15 +7,16 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -31,16 +32,17 @@ public class PlayQueueExtender {
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final StationsOperations stationsOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final CastConnectionHelper castConnectionHelper;
 
-    private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
+    private Disposable loadRecommendedDisposable = RxUtils.invalidDisposable();
+    private boolean isLoadingRecommendations;
 
     @Inject
     PlayQueueExtender(PlayQueueManager playQueueManager,
                       PlayQueueOperations playQueueOperations,
                       StationsOperations stationsOperations,
-                      EventBus eventBus,
+                      EventBusV2 eventBus,
                       CastConnectionHelper castConnectionHelper) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
@@ -49,16 +51,18 @@ public class PlayQueueExtender {
         this.castConnectionHelper = castConnectionHelper;
     }
 
+    @SuppressLint("sc.CheckResult")
     public void subscribe() {
-        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackObserver());
+        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueObserver());
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueObserver extends DefaultObserver<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
             if (event.isNewQueue()) {
-                loadRecommendedSubscription.unsubscribe();
+                isLoadingRecommendations = false;
+                loadRecommendedDisposable.dispose();
                 extendPlayQueue(event.getCollectionUrn());
             } else if (event.isAutoPlayEnabled()) {
                 loadRecommendations(event.getCollectionUrn());
@@ -66,7 +70,7 @@ public class PlayQueueExtender {
         }
     }
 
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+    private class PlayQueueTrackObserver extends DefaultObserver<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             loadRecommendations(event.getCollectionUrn());
@@ -74,7 +78,7 @@ public class PlayQueueExtender {
     }
 
     private void loadRecommendations(Urn collectionUrn) {
-        if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
+        if (!isLoadingRecommendations && withinRecommendedFetchTolerance()) {
             extendPlayQueue(collectionUrn);
         }
     }
@@ -84,35 +88,34 @@ public class PlayQueueExtender {
 
         if (!castConnectionHelper.isCasting()) {
             if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
-                loadRecommendedSubscription = playQueueOperations
+                loadRecommendedDisposable = playQueueOperations
                         .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(),
                                                 fromContinuousPlay(),
                                                 playQueueManager.getCurrentPlaySessionSource())
+                        .doOnSubscribe(__ -> isLoadingRecommendations = true)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new UpcomingTracksSubscriber());
+                        .doFinally(() -> isLoadingRecommendations = false)
+                        .subscribeWith(new UpcomingTracksObserver());
             } else if (collectionUrn.isStation()) {
-                loadRecommendedSubscription = RxJava.toV1Observable(stationsOperations
+                loadRecommendedDisposable = stationsOperations
                         .fetchUpcomingTracks(collectionUrn,
                                              playQueueManager.getQueueSize(),
-                                             playQueueManager.getCurrentPlaySessionSource()))
+                                             playQueueManager.getCurrentPlaySessionSource())
+                        .doOnSubscribe(__ -> isLoadingRecommendations = true)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new UpcomingTracksSubscriber());
+                        .doFinally(() -> isLoadingRecommendations = false)
+                        .subscribeWith(new UpcomingTracksObserver());
             }
         }
     }
 
     private boolean currentQueueAllowsRecommendations() {
-        final boolean isStation = playQueueManager.getCollectionUrn().isStation();
-        return !isStation;
+        return !playQueueManager.getCollectionUrn().isStation();
     }
 
     private boolean withinRecommendedFetchTolerance() {
         return !playQueueManager.isQueueEmpty() &&
                 playQueueManager.getPlayableQueueItemsRemaining() <= RECOMMENDED_LOAD_TOLERANCE;
-    }
-
-    private boolean isNotAlreadyLoadingRecommendations() {
-        return loadRecommendedSubscription.isUnsubscribed();
     }
 
     // Hacky, but the similar sounds service needs to know if it is allowed to not fulfill this request. This should
@@ -124,9 +127,10 @@ public class PlayQueueExtender {
                 currentPlaySessionSource.originatedInSearchSuggestions());
     }
 
-    private class UpcomingTracksSubscriber extends DefaultSubscriber<PlayQueue> {
+    private class UpcomingTracksObserver extends DefaultSingleObserver<PlayQueue> {
         @Override
-        public void onNext(PlayQueue playQueue) {
+        public void onSuccess(PlayQueue playQueue) {
+            super.onSuccess(playQueue);
             checkArgument(!playQueueManager.isQueueEmpty(), "Should not append to empty queue");
             playQueueManager.appendPlayQueueItems(playQueue);
         }

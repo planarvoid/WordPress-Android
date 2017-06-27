@@ -18,17 +18,16 @@ import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
-import rx.subscriptions.CompositeSubscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -46,11 +45,11 @@ class PlayQueuePresenter {
     private final PlaySessionController playSessionController;
     private final PlaylistExploder playlistExploder;
     private final PlayQueueDataProvider playQueueDataProvider;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
     private final PerformanceMetricsEngine performanceMetricsEngine;
-    private final CompositeSubscription subscriptions = new CompositeSubscription();
-    private final Subject<Boolean, Boolean> rebuildSubject = PublishSubject.create();
+    private final CompositeDisposable disposables = new CompositeDisposable();
+    private final Subject<Boolean> rebuildSubject = PublishSubject.create();
 
     private Optional<PlayQueueView> playQueueView = Optional.absent();
     private Optional<UndoHolder> undoHolder = Optional.absent();
@@ -64,7 +63,7 @@ class PlayQueuePresenter {
                        PlaySessionController playSessionController,
                        PlayQueueDataProvider dataProvider,
                        PlaylistExploder playlistExploder,
-                       EventBus eventBus,
+                       EventBusV2 eventBus,
                        PlayQueueUIItemMapper playQueueUIItemMapper,
                        PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
@@ -86,48 +85,48 @@ class PlayQueuePresenter {
         if (items.isEmpty()) {
             this.playQueueView.get().showLoadingIndicator();
         }
-        subscriptions.add(playQueueDataProvider.playQueueUIItemsUpdate()
-                                               .observeOn(AndroidSchedulers.mainThread())
-                                               .doOnNext(update -> items = update.items())
-                                               .doOnNext(this::endMeasureShuffleIfNecessary)
-                                               .map(PlayQueueUIItemsUpdate::items)
-                                               .subscribe(new PlayQueueSubscriber()));
+        disposables.add(playQueueDataProvider.playQueueUIItemsUpdate()
+                                             .observeOn(AndroidSchedulers.mainThread())
+                                             .doOnNext(update -> items = update.items())
+                                             .doOnNext(this::endMeasureShuffleIfNecessary)
+                                             .map(PlayQueueUIItemsUpdate::items)
+                                             .subscribeWith(new PlayQueueObserver()));
         setUpPlaybackStream();
         setUpRebuildStream();
     }
 
     void detachContract() {
         playQueueView = Optional.absent();
-        subscriptions.clear();
+        disposables.clear();
         resetUI = true;
     }
 
     private void setUpPlaybackStream() {
-        subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                                  .skip(1)
-                                  .observeOn(AndroidSchedulers.mainThread())
-                                  .map(event -> items)
-                                  .subscribe(new PlayQueueSubscriber()));
+        disposables.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                                .skip(1)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .map(event -> items)
+                                .subscribeWith(new PlayQueueObserver()));
     }
 
     private void setUpRebuildStream() {
-        subscriptions.add(rebuildSubject.map(ignored -> items)
-                                        .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
-                                        .doOnNext(newItems -> items = newItems)
-                                        .doOnNext(items -> setNowPlaying())
-                                        .subscribe(new PlayQueueSubscriber()));
+        disposables.add(rebuildSubject.map(ignored -> items)
+                                      .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
+                                      .doOnNext(newItems -> items = newItems)
+                                      .doOnNext(items -> setNowPlaying())
+                                      .subscribeWith(new PlayQueueObserver()));
     }
 
-    Observable<List<TrackAndPlayQueueItem>> createTracksFromItems(List<PlayQueueUIItem> playQueueUIItems) {
+    private Observable<List<TrackAndPlayQueueItem>> createTracksFromItems(List<PlayQueueUIItem> playQueueUIItems) {
         return Observable.just(playQueueUIItems)
-                         .map(items -> Iterables.filter(items, input -> input.isTrack()))
+                         .map(items -> Iterables.filter(items, PlayQueueUIItem::isTrack))
                          .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
                              TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
                              return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
                          })));
     }
 
-    public void undoClicked() {
+    void undoClicked() {
         if (playQueueView.isPresent() && undoHolder.isPresent()) {
             UndoHolder undoHolder = this.undoHolder.get();
             items.addAll(undoHolder.adapterPosition, undoHolder.playQueueUIItems);
@@ -147,7 +146,7 @@ class PlayQueuePresenter {
         playQueueView.ifPresent(view -> view.scrollTo(getCurrentPlayQueueItemPosition(), true));
     }
 
-    public void trackClicked(int listPosition) {
+    void trackClicked(int listPosition) {
         if (items.get(listPosition).isTrack()) {
             TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) items.get(listPosition);
             PerformanceMetric performanceMetric = PerformanceMetric.create(MetricType.TIME_TO_PLAY);
@@ -363,36 +362,32 @@ class PlayQueuePresenter {
 
     private Observable<Map<Urn, String>> createTitlesFromItems(List<PlayQueueUIItem> items) {
         return Observable.just(items)
-                .map(playQueueUIItems -> {
-                    final Map<Urn, String> titles = new HashMap<>();
+                         .map(playQueueUIItems -> {
+                             final Map<Urn, String> titles = new HashMap<>();
 
-                    for (PlayQueueUIItem item : items) {
-                        if (item.isTrack()) {
-                            final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
-                            final Optional<String> contextTitle = trackUIItem.getContextTitle();
-                            if (contextTitle.isPresent()) {
-                                final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
-                                final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
-                                if (urn.isPresent()) {
-                                    titles.put(urn.get(), contextTitle.get());
-                                }
-                            }
-                        }
-                    }
-                    return titles;
-                });
+                             for (PlayQueueUIItem item : items) {
+                                 if (item.isTrack()) {
+                                     final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
+                                     final Optional<String> contextTitle = trackUIItem.getContextTitle();
+                                     if (contextTitle.isPresent()) {
+                                         final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
+                                         final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
+                                         if (urn.isPresent()) {
+                                             titles.put(urn.get(), contextTitle.get());
+                                         }
+                                     }
+                                 }
+                             }
+                             return titles;
+                         });
     }
 
     private int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
-        return Iterables.indexOf(items, getPositionForItemPredicate(currentPlayQueueItem));
+        return Iterables.indexOf(items, input -> input.isTrack() &&
+                ((TrackPlayQueueUIItem) input).getPlayQueueItem().equals(currentPlayQueueItem));
     }
 
-    private static Predicate<PlayQueueUIItem> getPositionForItemPredicate(final PlayQueueItem currentPlayQueueItem) {
-        return input -> input.isTrack() &&
-                ((TrackPlayQueueUIItem) input).getPlayQueueItem().equals(currentPlayQueueItem);
-    }
-
-    private class PlayQueueSubscriber extends DefaultSubscriber<List<PlayQueueUIItem>> {
+    private class PlayQueueObserver extends DefaultObserver<List<PlayQueueUIItem>> {
 
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
@@ -477,13 +472,11 @@ class PlayQueuePresenter {
         private final List<PlayQueueUIItem> playQueueUIItems;
         private final int adapterPosition;
 
-        public UndoHolder(List<PlayQueueItem> playQueueItems, int playQueuePosition, List<PlayQueueUIItem> playQueueUIItems, int adapterPosition) {
+        UndoHolder(List<PlayQueueItem> playQueueItems, int playQueuePosition, List<PlayQueueUIItem> playQueueUIItems, int adapterPosition) {
             this.playQueueItems = playQueueItems;
             this.playQueuePosition = playQueuePosition;
             this.playQueueUIItems = playQueueUIItems;
             this.adapterPosition = adapterPosition;
         }
-
     }
-
 }

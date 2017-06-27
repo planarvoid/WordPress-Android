@@ -33,7 +33,9 @@ import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,8 +43,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
-import rx.Observable;
-import rx.subjects.BehaviorSubject;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
@@ -71,7 +71,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
     private PlayQueuePresenter presenter;
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private PlayQueueUIItemsUpdate loadQueueUpdate;
 
     @Before
@@ -298,8 +298,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveATrack() {
         List<PlayQueueUIItem> items = Lists.newArrayList(trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                                trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                                trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
         uiSubject.onNext(loadQueueUpdate.withItems(items));
         reset(playQueueViewContract);
 
@@ -315,9 +315,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveSectionWhenHeaderRemoved() {
         List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
-                                             trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
-                                             headerPlayQueueUIItem(true),
-                                             trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                                         headerPlayQueueUIItem(true),
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
         uiSubject.onNext(loadQueueUpdate.withItems(items));
         presenter.trackClicked(1);
 
@@ -332,7 +332,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldNotRemoveAHeaderWhenSectionPlaying() {
         List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
-                                             trackPlayQueueUIItemWithPlayState(PlayState.PLAYING));
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.PLAYING));
         uiSubject.onNext(loadQueueUpdate.withItems(items));
         presenter.trackClicked(1);
 
@@ -348,8 +348,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveHeadersWhenOneTrackInSection() {
         List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
-                                             trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                             headerPlayQueueUIItem(false));
+                                                         trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                                         headerPlayQueueUIItem(false));
         uiSubject.onNext(loadQueueUpdate.withItems(items));
         reset(playQueueViewContract);
 

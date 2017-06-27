@@ -44,7 +44,6 @@ public class TrackItemRepository {
 
     public Single<List<TrackItem>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
         return trackRepository.forPlaylist(playlistUrn, staleTimeMillis).map(t -> Lists.transform(t, entityItemCreator::trackItem));
-
     }
 
     Observable<TrackItem> fullTrackWithUpdate(final Urn trackUrn) {

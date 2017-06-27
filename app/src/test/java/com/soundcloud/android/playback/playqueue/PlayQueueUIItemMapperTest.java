@@ -77,7 +77,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         final List<TrackAndPlayQueueItem> noTracks = Collections.emptyList();
         final Map<Urn, String> noUrnTitles = Collections.emptyMap();
 
-        assertThat(mapper.call(noTracks, noUrnTitles)).isEmpty();
+        assertThat(mapper.apply(noTracks, noUrnTitles)).isEmpty();
     }
 
     @Test
@@ -86,7 +86,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                                        EMPTY_CONTEXT));
         final Map<Urn, String> noUrnTitles = Collections.emptyMap();
 
-        final List<PlayQueueUIItem> uiItems = mapper.call(aTrack, noUrnTitles);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(aTrack, noUrnTitles);
         assertThat(uiItems).hasSize(3);
 
         assertThat(uiItems.get(0).isHeader()).isTrue();
@@ -100,7 +100,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                                        PLAYLIST_CONTEXT));
         final Map<Urn, String> urnTitle = singletonMap(PLAYLIST_URN, "some title");
 
-        final List<PlayQueueUIItem> uiItems = mapper.call(aTrack, urnTitle);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(aTrack, urnTitle);
         assertThat(uiItems).hasSize(3);
 
         final HeaderPlayQueueUIItem header = header(uiItems, 0);
@@ -115,7 +115,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
 
         final Map<Urn, String> urnTitle = singletonMap(PLAYLIST_URN, "some title");
 
-        final List<PlayQueueUIItem> uiItems = mapper.call(tracks, urnTitle);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(tracks, urnTitle);
 
         assertThat(uiItems).hasSize(4);
         assertThat(uiItems.get(0).isHeader()).isTrue();
@@ -134,7 +134,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         urnTitle.put(PLAYLIST_URN, "some playlist");
         urnTitle.put(PROFILE_URN, "some profile");
 
-        final List<PlayQueueUIItem> uiItems = mapper.call(tracks, urnTitle);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(tracks, urnTitle);
 
         assertThat(uiItems).hasSize(5);
         assertThat(header(uiItems, 0).getHeader()).isEqualTo("some playlist");
@@ -155,7 +155,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
 
         when(playQueueManager.isShuffled()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(tracks.get(1).playQueueItem);
-        final List<PlayQueueUIItem> uiItems = mapper.call(tracks, noUrnTitles);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(tracks, noUrnTitles);
 
         assertThat(uiItems).hasSize(7);
         assertThat(uiItems.get(0).isHeader()).isTrue();
@@ -175,7 +175,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         final Map<Urn, String> noUrnTitles = Collections.emptyMap();
         when(playQueueManager.getCollectionUrn()).thenReturn(STATION_URN);
 
-        final List<PlayQueueUIItem> uiItems = mapper.call(tracks, noUrnTitles);
+        final List<PlayQueueUIItem> uiItems = mapper.apply(tracks, noUrnTitles);
 
         assertThat(uiItems.size()).isEqualTo(3);
         assertThat(uiItems.get(0).isHeader()).isTrue();

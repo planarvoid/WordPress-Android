@@ -2,8 +2,9 @@ package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import android.support.annotation.NonNull;
 
@@ -14,26 +15,26 @@ public class PlayQueueDataProvider {
 
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
 
     @Inject
-    public PlayQueueDataProvider(PlayQueueOperations playQueueOperations, PlayQueueUIItemMapper playQueueUIItemMapper, EventBus eventBus) {
+    PlayQueueDataProvider(PlayQueueOperations playQueueOperations, PlayQueueUIItemMapper playQueueUIItemMapper, EventBusV2 eventBus) {
         this.playQueueOperations = playQueueOperations;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
         this.eventBus = eventBus;
     }
 
-    public Observable<PlayQueueUIItemsUpdate> playQueueUIItemsUpdate() {
+    Observable<PlayQueueUIItemsUpdate> playQueueUIItemsUpdate() {
         return Observable.merge(trackChangedEvent(), queueShuffledEvent(), itemsAddedEvent())
                          .startWith(PlayQueueUIItemsUpdate.forQueueLoad())
-                         .flatMap(event -> getTracksAndTitles().map(event::withItems));
+                         .flatMapSingle(event -> getTracksAndTitles().map(event::withItems));
     }
 
     @NonNull
-    private Observable<List<PlayQueueUIItem>> getTracksAndTitles() {
-        return Observable.zip(playQueueOperations.getTracks(),
-                              playQueueOperations.getContextTitles(),
-                              playQueueUIItemMapper);
+    private Single<List<PlayQueueUIItem>> getTracksAndTitles() {
+        return Single.zip(playQueueOperations.getTracks(),
+                          playQueueOperations.getContextTitles(),
+                          playQueueUIItemMapper);
     }
 
     //receives event when magic box is clicked

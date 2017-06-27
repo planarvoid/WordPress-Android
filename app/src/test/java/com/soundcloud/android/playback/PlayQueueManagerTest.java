@@ -40,6 +40,8 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -84,7 +86,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Observable.just(new TxnResult()));
+        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
 
         playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS,
                                                               PLAYLIST_URN,
@@ -186,7 +188,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void appendPlayQueueItemsSavesQueue() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource);
         Mockito.reset(playQueueOperations);
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Observable.just(new TxnResult()));
+        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
 
         playQueueManager.appendPlayQueueItems(createPlayQueue(TestUrns.createTrackUrns(4L, 5L)));
 
@@ -754,7 +756,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)),
                                          playlistSessionSource,
                                          1);
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(PlayQueue.empty()));
 
         playQueueManager.loadPlayQueueAsync();
 
@@ -765,7 +767,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetCurrentPositionIfPQIsNotLoaded() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.empty());
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.empty());
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
         playQueueManager.loadPlayQueueAsync();
@@ -776,7 +778,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void shouldSetCurrentPositionIfPQIsLoaded() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(playQueue));
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
@@ -789,15 +791,15 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
 
         when(playQueueOperations.getLastStoredPlaySessionSource()).thenReturn(playlistSessionSource);
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
-        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(playQueue));
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<>());
 
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
     }
 
     @Test
     public void reloadedPlayQueueIsNotSavedWhenSet() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(playQueue));
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.loadPlayQueueAsync();
         verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
@@ -1516,7 +1518,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
 
         Mockito.reset(playQueueOperations);
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Observable.just(new TxnResult()));
+        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
 
         playQueueManager.removeItem(item1);
         assertPlayQueueSaved(new SimplePlayQueue(singletonList(item2)));

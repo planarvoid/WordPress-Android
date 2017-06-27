@@ -5,38 +5,34 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Observer;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 
 public class PlayQueueOperationsTest extends AndroidUnitTest {
 
@@ -52,8 +48,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueue playQueue;
-    @Mock private ApiClientRx apiClientRx;
-    @Mock private Observer observer;
+    @Mock private ApiClientRxV2 apiClientRx;
 
     private PlaySessionSource playSessionSource;
 
@@ -66,11 +61,11 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                                                       playQueueStorage,
                                                       storeTracksCommand,
                                                       apiClientRx,
-                                                      Schedulers.immediate());
+                                                      Schedulers.trampoline());
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Observable.empty());
+        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Single.never());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
                 "origin:page");
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN),
@@ -98,24 +93,20 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
 
-        Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
-        when(playQueueStorage.load()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(Single.just(Collections.singletonList(playQueueItem)));
 
-        ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
-        playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
-        verify(observer).onNext(captor.capture());
-        assertThat(captor.getValue()).containsExactly(playQueueItem);
+        TestObserver<PlayQueue> testObserver = playQueueOperations.getLastStoredPlayQueue().test();
+        testObserver.assertValueCount(1);
+        testObserver.assertValue(PlayQueue.fromPlayQueueItems(Collections.singletonList(playQueueItem)));
     }
 
     @Test
     public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
-        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
+        when(playQueueStorage.load()).thenReturn(Single.never());
+        TestObserver<PlayQueue> testObserver = playQueueOperations.getLastStoredPlayQueue().test();
 
-        when(playQueueStorage.load()).thenReturn(Observable.empty());
-        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).isEmpty();
-        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
+        testObserver.assertValueCount(0);
+        testObserver.assertTerminated();
     }
 
     @Test
@@ -129,11 +120,10 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .fromSource("source2", "version2")
                 .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
-        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
 
-        when(playQueueStorage.load()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(Single.just(Arrays.asList(playQueueItem1, playQueueItem2)));
 
-        PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlocking().lastOrDefault(null);
+        PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().test().values().get(0);
         assertThat(playQueue).containsExactly(playQueueItem1, playQueueItem2);
     }
 
@@ -143,16 +133,15 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
                 .fromSource("source1", "version1")
                 .withPlaybackContext(PlaybackContext.create(playSessionSource))
                 .build();
-        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1));
 
-        when(playQueueStorage.load()).thenReturn(itemObservable);
+        when(playQueueStorage.load()).thenReturn(Single.just(Collections.singletonList(playQueueItem1)));
 
-        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Maybe.empty());
     }
 
     @Test
     public void shouldReturnEmptyObservableWhenReloadingWithNoValidStoredLastTrack() throws Exception {
-        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Maybe.empty());
     }
 
     @Test
@@ -165,7 +154,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
-        final PublishSubject<TxnResult> subject = PublishSubject.create();
+        final SingleSubject<TxnResult> subject = SingleSubject.create();
         when(playQueueStorage.store(playQueue)).thenReturn(subject);
 
         playQueueOperations.saveQueue(playQueue);
@@ -175,7 +164,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
-        when(playQueueStorage.clear()).thenReturn(Observable.empty());
+        when(playQueueStorage.clear()).thenReturn(Single.never());
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);
@@ -186,58 +175,49 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.empty());
-        playQueueOperations.relatedTracks(Urn.forTrack(123), true).subscribe(observer);
+                .thenReturn(Single.never());
+        playQueueOperations.relatedTracks(Urn.forTrack(123), true).test();
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(RecommendedTracksCollection.class));
         assertThat(argumentCaptor.getValue().getMethod()).isEqualTo("GET");
         assertThat(argumentCaptor.getValue().getQueryParameters().get("continuous_play")).containsExactly("true");
-        assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(
-                123L).toString()));
+        assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
 
     @Test
     public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
-        Observer<ModelCollection<ApiTrack>> relatedObserver = mock(Observer.class);
-
         ApiTrack suggestion1 = ModelFixtures.create(ApiTrack.class);
         ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(collection));
+                .thenReturn(Single.just(collection));
 
-        playQueueOperations.relatedTracks(Urn.forTrack(123), false).subscribe(relatedObserver);
+        TestObserver<RecommendedTracksCollection> testObserver = playQueueOperations.relatedTracks(Urn.forTrack(123), false).test();
 
-        ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
-        verify(relatedObserver).onNext(argumentCaptor.capture());
-        Iterator iterator = argumentCaptor.getValue().iterator();
-        assertThat(iterator.next()).isEqualTo(suggestion1);
-        assertThat(iterator.next()).isEqualTo(suggestion2);
-        verify(relatedObserver).onCompleted();
-        verify(relatedObserver, never()).onError(any(Throwable.class));
+        testObserver.assertValueCount(1);
+        testObserver.assertValue(collection);
+        testObserver.assertTerminated();
+        testObserver.assertNoErrors();
     }
 
     @Test
     public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.emptyList(),
-                                                                            "version")));
+                .thenReturn(Single.just(new RecommendedTracksCollection(Collections.emptyList(), "version")));
 
-        TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
-        playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false, playSessionSource).subscribe(testSubscriber);
+        TestObserver<PlayQueue> testObserver = playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false, playSessionSource).test();
 
-        testSubscriber.assertValues(PlayQueue.empty());
+        testObserver.assertValue(PlayQueue.empty());
     }
 
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(ModelFixtures.create(ApiTrack.class));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class))).thenReturn(Single.just(collection));
 
-        playQueueOperations.relatedTracks(Urn.forTrack(1), false).subscribe(observer);
+        playQueueOperations.relatedTracks(Urn.forTrack(1), false).test();
 
         verify(storeTracksCommand).call(collection);
     }
