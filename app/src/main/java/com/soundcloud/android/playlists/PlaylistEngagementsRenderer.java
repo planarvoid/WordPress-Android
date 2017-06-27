@@ -11,7 +11,6 @@ import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
@@ -190,7 +189,7 @@ class PlaylistEngagementsRenderer {
         setOfflineButtonState(stateButton, item.offlineState());
         stateButton.setOnClickListener(v -> toggleOffline(item, listener));
 
-        if (canShowListenOfflineOverlay(item.creatorUrn())) {
+        if (canShowListenOfflineOverlay(item)) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlay.builder()
                                                                          .overlayKey(IntroductoryOverlayKey.LISTEN_OFFLINE_PLAYLIST)
                                                                          .targetView(stateButton)
@@ -201,8 +200,9 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private boolean canShowListenOfflineOverlay(Urn creatorUrn) {
-        return !accountOperations.isLoggedInUser(creatorUrn)
+    private boolean canShowListenOfflineOverlay(PlaylistDetailsMetadata item) {
+        return !accountOperations.isLoggedInUser(item.creatorUrn())
+                && !item.isLikedByUser()
                 && goOnboardingTooltipExperiment.isEnabled()
                 && canSyncOfflineOnCurrentConnection();
     }
