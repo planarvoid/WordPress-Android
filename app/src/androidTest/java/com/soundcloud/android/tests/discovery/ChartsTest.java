@@ -8,7 +8,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.AllGenresScreen;
 import com.soundcloud.android.screens.discovery.ChartsScreen;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class ChartsTest extends ActivityTest<MainActivity> {
     private static final String CHARTS_TRACKING_SCENARIO = "specs/charts-tracking.spec";
-    private DiscoveryScreen discoveryScreen;
+    private OldDiscoveryScreen discoveryScreen;
 
     public ChartsTest() {
         super(MainActivity.class);
@@ -30,7 +30,7 @@ public class ChartsTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        discoveryScreen = mainNavHelper.goToDiscovery();
+        discoveryScreen = mainNavHelper.goToOldDiscovery();
         discoveryScreen.waitForContentAndRetryIfLoadingFailed();
     }
 

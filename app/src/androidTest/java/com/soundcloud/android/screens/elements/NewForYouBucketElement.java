@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.discovery.NewForYouScreen;
+import com.soundcloud.android.screens.discovery.SystemPlaylistScreen;
 
 public class NewForYouBucketElement {
     private final Han testDriver;
@@ -20,10 +20,10 @@ public class NewForYouBucketElement {
         return wrapped.isOnScreen();
     }
 
-    public NewForYouScreen clickViewAll() {
+    public SystemPlaylistScreen clickViewAll() {
         viewAll().click();
 
-        return new NewForYouScreen(testDriver);
+        return new SystemPlaylistScreen(testDriver);
     }
 
     private ViewElement viewAll() {

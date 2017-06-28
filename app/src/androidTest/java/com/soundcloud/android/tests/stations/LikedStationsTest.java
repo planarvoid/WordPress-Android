@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.stations.LikedStationsScreen;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
@@ -31,7 +31,7 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeAndUnlikeStation() {
-        final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
+        final OldDiscoveryScreen discoveryScreen = mainNavHelper.goToOldDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
 
         final String title = stationsBucketElement.getFirstStation().getTitle();

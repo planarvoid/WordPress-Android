@@ -126,7 +126,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
         final RootActivity rootActivity = initRootActivity();
 
-        presenter.onStart(fragment);
+        presenter.onCreate(fragment, null);
 
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
@@ -142,7 +142,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
         final RootActivity rootActivity = initRootActivity();
 
-        presenter.onStart(fragment);
+        presenter.onCreate(fragment, null);
 
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
@@ -155,7 +155,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.selectionItemClick()).thenReturn(PublishSubject.create());
         initRootActivity();
 
-        presenter.onStart(fragment);
+        presenter.onCreate(fragment, null);
 
         enterScreen.onNext(123L);
 

@@ -213,7 +213,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     protected FeatureFlagsHelper getFeatureFlags() {
-        return FeatureFlagsHelper.create(getActivity().getApplicationContext());
+        return FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
     }
 
     protected ExperimentsHelper getExperiments() {

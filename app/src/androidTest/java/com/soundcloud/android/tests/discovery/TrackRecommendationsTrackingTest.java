@@ -20,7 +20,7 @@ public class TrackRecommendationsTrackingTest extends ActivityTest<MainActivity>
     public void testStartPlaybackFromReasonOnDiscoveryScreen() throws Exception {
         mrLocalLocal.startEventTracking();
 
-        mainNavHelper.goToDiscovery()
+        mainNavHelper.goToOldDiscovery()
                      .trackRecommendationsBucket()
                      .clickReason()
                      .waitForExpandedPlayerToStartPlaying()
@@ -32,7 +32,7 @@ public class TrackRecommendationsTrackingTest extends ActivityTest<MainActivity>
     public void testStartPlaybackFromRecommendationOnViewAllScreen() throws Exception {
         mrLocalLocal.startEventTracking();
 
-        mainNavHelper.goToDiscovery()
+        mainNavHelper.goToOldDiscovery()
                      .trackRecommendationsBucket()
                      .clickViewAll()
                      .trackRecommendationsBucket()

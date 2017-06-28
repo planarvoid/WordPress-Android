@@ -1,7 +1,10 @@
 package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistFragment;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.Screen;
@@ -12,15 +15,15 @@ import com.soundcloud.java.functions.Function;
 
 import java.util.List;
 
-public class NewForYouScreen extends Screen {
-    private static final Class ACTIVITY = NewForYouScreen.class;
+public class SystemPlaylistScreen extends Screen {
+    private static final Class ACTIVITY = SystemPlaylistActivity.class;
 
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
 
-    public NewForYouScreen(Han solo) {
+    public SystemPlaylistScreen(Han solo) {
         super(solo);
         waitForFragment();
     }
@@ -31,13 +34,18 @@ public class NewForYouScreen extends Screen {
     }
 
     private boolean waitForFragment() {
-        return waiter.waitForFragmentByTag("SystemPlaylistFragment");
+        return waiter.waitForFragmentByTag(SystemPlaylistFragment.TAG);
     }
 
     public VisualPlayerElement clickHeaderPlay() {
         headerPlayButton().click();
         waiter.waitForPlaybackToBePlaying();
         return new VisualPlayerElement(testDriver);
+    }
+
+    public TextElement title() {
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.system_playlist_title)));
+
     }
 
     public TrackItemElement toggleTrackLike(int index) {

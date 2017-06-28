@@ -5,20 +5,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
-import com.soundcloud.android.screens.discovery.NewForYouScreen;
+import com.soundcloud.android.screens.discovery.SystemPlaylistScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class NewForYouTest extends ActivityTest<MainActivity> {
-    private DiscoveryScreen discoveryScreen;
+import android.content.Intent;
+
+public class NewForYouTest extends ActivityTest<SystemPlaylistActivity> {
+
+    private static final Intent START_PARAM_INTENT = new Intent().putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
 
     public NewForYouTest() {
-        super(MainActivity.class);
+        super(SystemPlaylistActivity.class);
     }
 
     @Override
@@ -27,35 +27,21 @@ public class NewForYouTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        discoveryScreen = mainNavHelper.goToDiscovery();
-    }
-
-    @Override
     protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).enable(Flag.NEW_FOR_YOU_FIRST);
-    }
+        mrLocalLocal.startEventTracking();
 
-    @Override
-    protected void tearDown() throws Exception {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).reset(Flag.NEW_FOR_YOU_FIRST);
-        super.tearDown();
+        setActivityIntent(START_PARAM_INTENT);
     }
 
     public void testNewForYouPlayback() throws Exception {
-        mrLocalLocal.startEventTracking();
+        final SystemPlaylistScreen systemPlaylistScreen = new SystemPlaylistScreen(solo);
 
-        final NewForYouScreen newForYouScreen = discoveryScreen.newForYouBucket()
-                                                               .clickViewAll();
-
-        assertThat(newForYouScreen, is(visible()));
+        assertThat(systemPlaylistScreen, is(visible()));
         assertThat("New for you screen title should be 'The Upload'",
-                   newForYouScreen.getActionBarTitle(),
+                   systemPlaylistScreen.getActionBarTitle(),
                    equalTo("The Upload"));
 
-        final VisualPlayerElement player = newForYouScreen.clickHeaderPlay();
+        final VisualPlayerElement player = systemPlaylistScreen.clickHeaderPlay();
 
         assertTrue(player.isExpanded());
 
@@ -66,15 +52,14 @@ public class NewForYouTest extends ActivityTest<MainActivity> {
     public void testNewForYouEngagement() throws Exception {
         mrLocalLocal.startEventTracking();
 
-        final NewForYouScreen newForYouScreen = discoveryScreen.newForYouBucket()
-                                                               .clickViewAll();
+        final SystemPlaylistScreen systemPlaylistScreen = new SystemPlaylistScreen(solo);
 
-        assertThat(newForYouScreen, is(visible()));
+        assertThat(systemPlaylistScreen, is(visible()));
         assertThat("New for you screen title should be 'The Upload'",
-                   newForYouScreen.getActionBarTitle(),
+                   systemPlaylistScreen.getActionBarTitle(),
                    equalTo("The Upload"));
 
-        newForYouScreen.toggleTrackLike(0);
+        systemPlaylistScreen.toggleTrackLike(0);
 
         mrLocalLocal.verify("specs/new_for_you_engagement3.spec");
     }

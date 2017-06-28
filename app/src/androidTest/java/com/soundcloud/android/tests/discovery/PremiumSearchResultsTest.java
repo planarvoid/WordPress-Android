@@ -42,7 +42,7 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         searchResultsScreen = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch(PREMIUM_SEARCH_QUERY);
     }

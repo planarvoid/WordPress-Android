@@ -1,0 +1,62 @@
+{
+  "collection": [{
+    "single_content_selection_card": {
+      "selection_urn": "soundcloud:selections:the-upload",
+      "query_urn": "soundcloud:queries:ht3r3rhtr3",
+      "title": "The Upload",
+      "description": "New to SoundCloud. Selected for you.",
+      "social_proof": "Featuring from LouBerry, MrWestman",
+      "tracking_feature_name": "the-upload",
+      "selection_item": {
+        "urn": "soundcloud:system-playlists:the-upload:soundcloud:users:183",
+        "artwork_url_template": "https://i1.sndcdn.com/artworks-000024916496-q9opo6-{size}.jpg",
+        "artwork_style": "unsupported",
+        "count": 24,
+        "short_title": "The Upload",
+        "short_subtitle": "New to SoundCloud. Selected for you.",
+        "app_link": "soundcloud://system-playlists/soundcloud:system-playlists:the-upload:soundcloud:users:183",
+        "web_link": "https://soundcloud.com/system-playlists/soundcloud:system-playlists:the-upload:soundcloud:users:183"
+      },
+      "social_proof_avatar_url_templates": ["https://i1.sndcdn.com/avatars-000012778523-59quu3-{size}.jpg", "https://i1.sndcdn.com/avatars-000158207739-j29lav-{size}.jpg"]
+    }
+  }, {
+    "multiple_content_selection_card": {
+      "selection_urn": "soundcloud:selections:go-beyond",
+      "title": "Go Beyond",
+      "description": "Recommendations based on what you’ve liked or played.",
+      "tracking_feature_name": "go-beyond",
+      "selection_items": {
+        "collection": [{
+          "urn": "soundcloud:system-playlists:related-tracks:soundcloud:tracks:46361966",
+          "artwork_url_template": "https://i1.sndcdn.com/artworks-c2Nb1yecOU1z-0-{size}.jpg",
+          "count": 8,
+          "short_title": "Starman (2012 Remastered Version)",
+          "short_subtitle": "DavidBowieOfficial",
+          "app_link": "soundcloud://system-playlists/soundcloud:system-playlists:the-upload:soundcloud:users:183"
+        }, {
+          "urn": "soundcloud:system-playlists:related-tracks:soundcloud:tracks:294362589",
+          "artwork_url_template": "https://i1.sndcdn.com/artworks-UhxoZ363JP8i-0-{size}.jpg",
+          "artwork_style": "square",
+          "count": 9,
+          "short_title": "Rocket Man (03)",
+          "short_subtitle": "Elton John",
+          "app_link": "soundcloud://system-playlists/soundcloud:system-playlists:related-tracks:soundcloud:tracks:294362589",
+          "web_link": "https://soundcloud.com/system-playlists/soundcloud:system-playlists:related-tracks:soundcloud:tracks:294362589"
+        }, {
+          "urn": "soundcloud:system-playlists:related-tracks:soundcloud:tracks:252802654",
+          "artwork_url_template": "https://i1.sndcdn.com/artworks-xpTgianfmOn3-0-{size}.jpg",
+          "artwork_style": "square",
+          "count": 10,
+          "short_title": "Jungle Man",
+          "short_subtitle": "Red Hot Chili Peppers",
+          "app_link": "soundcloud://system-playlists/soundcloud:system-playlists:related-tracks:soundcloud:tracks:252802654",
+          "web_link": "https://soundcloud.com/system-playlists/soundcloud:system-playlists:related-tracks:soundcloud:tracks:252802654"
+        }],
+        "_links": {},
+        "query_urn": "soundcloud:queries:17b5d160422643dfgt423tg3eb4"
+      }
+    }
+  }],
+  "_links": {},
+  "query_urn": "soundcloud:queries:top-level-discovery-cards-list"
+}

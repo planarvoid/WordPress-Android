@@ -39,21 +39,21 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
 
-        mainNavHelper.goToDiscovery();
+        mainNavHelper.goToOldDiscovery();
 
         assertThat(player(), is(visible()));
         assertThat(player(), is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() {
-        mainNavHelper.goToDiscovery();
+        mainNavHelper.goToOldDiscovery();
 
         assertThat(player(), is(not(visible())));
     }
 
     public void testTapingATrackFromSearchOpenVisualPlayer() {
         final VisualPlayerElement player = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("nasa")
                 .goToTracksTab()

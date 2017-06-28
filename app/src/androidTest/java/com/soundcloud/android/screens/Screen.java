@@ -87,6 +87,11 @@ public abstract class Screen {
         );
     }
 
+    public <T> T goBack(Function<Han, T> toPreviousScreen) {
+        testDriver.goBack();
+        return toPreviousScreen.apply(testDriver);
+    }
+
     protected ViewElement scrollToItem(final With with) {
         return testDriver.scrollToItem(with);
     }

@@ -4,12 +4,13 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.CollectionScreen;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.MoreScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.MainTabs;
 import com.soundcloud.android.screens.record.RecordScreen;
 
@@ -23,6 +24,14 @@ public class MainNavigationHelper {
 
     public StreamScreen goToStream() {
         return mainTabs().clickHome();
+    }
+
+    public DiscoveryScreen goToDiscovery() {
+        return mainTabs().clickDiscovery();
+    }
+
+    public DiscoveryScreen discoveryScreen() {
+        return mainTabs().discovery();
     }
 
     public ActivitiesScreen goToActivities() {
@@ -41,7 +50,7 @@ public class MainNavigationHelper {
         return mainTabs().clickMore().clickMyProfileLink();
     }
 
-    public DiscoveryScreen goToDiscovery() {
+    public OldDiscoveryScreen goToOldDiscovery() {
         // TODO: Fix horrible hack after Support Library bump.
         // Bug: When Robotium clicks on the Search Icon in the main nav, the app switches to the Discovery screen
         // then performs a sudden scrollDown. This leads all tests that search for the `search_text` view to fail.
@@ -49,9 +58,9 @@ public class MainNavigationHelper {
         // As a quick fix, simply double-tap the discovery tab. This will force the search screen to scroll to the top.
         final MainTabs mainTabs = mainTabs();
 
-        mainTabs.clickDiscovery();
+        mainTabs.clickOldDiscovery();
 
-        return mainTabs.clickDiscovery();
+        return mainTabs.clickOldDiscovery();
     }
 
     public MoreScreen goToMore() {

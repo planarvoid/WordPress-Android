@@ -6,7 +6,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
@@ -26,7 +26,7 @@ public class RecommendedStationsTest extends ActivityTest<MainActivity> {
 
     public void testOpenSuggestedStationFromDiscovery() throws Exception {
         mrLocalLocal.startEventTracking();
-        final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
+        final OldDiscoveryScreen discoveryScreen = mainNavHelper.goToOldDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
 
         final String title = stationsBucketElement.getFirstStation().getTitle();

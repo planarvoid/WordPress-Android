@@ -23,7 +23,7 @@ public class NotFollowingAsTooYoungUser extends ActivityTest<LauncherActivity> {
     // *** Disabling until Github Issue #2877 is fixed ***/
     public void ignore_testBelow18UsersAreNotAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("annoymouse")
                 .findAndClickFirstUserItem()

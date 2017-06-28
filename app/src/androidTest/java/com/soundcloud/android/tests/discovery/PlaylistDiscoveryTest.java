@@ -9,13 +9,13 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.PlaylistResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
 
-    private DiscoveryScreen discoveryScreen;
+    private OldDiscoveryScreen discoveryScreen;
 
     public PlaylistDiscoveryTest() {
         super(MainActivity.class);
@@ -34,7 +34,7 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        discoveryScreen = mainNavHelper.goToDiscovery();
+        discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
     @Override
@@ -53,7 +53,7 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     }
 
     private void assertBackNavigationToDiscovery(PlaylistResultsScreen resultsScreen) {
-        resultsScreen.pressBack();
+        resultsScreen.goBack(OldDiscoveryScreen::new);
         assertThat("Main screen should be visible", discoveryScreen.isVisible());
         assertThat("Playlist tags should be visible", discoveryScreen.isDisplayingTags());
     }

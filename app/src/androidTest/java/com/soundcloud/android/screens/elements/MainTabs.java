@@ -5,9 +5,10 @@ import static com.soundcloud.android.framework.with.With.contentDescription;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.CollectionScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.MoreScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 
 public class MainTabs extends Tabs {
 
@@ -22,7 +23,12 @@ public class MainTabs extends Tabs {
 
     public DiscoveryScreen clickDiscovery() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
-        return new DiscoveryScreen(testDriver);
+        return discovery();
+    }
+
+    public OldDiscoveryScreen clickOldDiscovery() {
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
+        return new OldDiscoveryScreen(testDriver);
     }
 
     public CollectionScreen clickCollections() {
@@ -33,5 +39,9 @@ public class MainTabs extends Tabs {
     public MoreScreen clickMore() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_more))).click();
         return new MoreScreen(testDriver);
+    }
+
+    public DiscoveryScreen discovery() {
+        return new DiscoveryScreen(testDriver);
     }
 }

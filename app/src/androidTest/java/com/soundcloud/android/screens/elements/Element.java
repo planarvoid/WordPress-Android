@@ -24,4 +24,8 @@ public abstract class Element {
     public ViewElement getRootViewElement() {
         return testDriver.findOnScreenElement(matcher);
     }
+
+    public ViewElement scrollTo() {
+        return testDriver.scrollToItem(matcher);
+    }
 }

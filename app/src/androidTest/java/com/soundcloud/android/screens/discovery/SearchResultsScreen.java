@@ -95,11 +95,6 @@ public class SearchResultsScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
-    public DiscoveryScreen goBack() {
-        testDriver.goBack();
-        return new DiscoveryScreen(testDriver);
-    }
-
     public List<PlaylistElement> getPlaylists() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);

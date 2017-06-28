@@ -24,7 +24,7 @@ public class NotFollowingForAgeUnspecifiedUser extends ActivityTest<LauncherActi
     // *** Disabling until Github Issue #2877 is fixed ***
     public void ignore_testUsersWithUnspecifiedAgeAreNotAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("annoymouse")
                 .findAndClickFirstUserItem()

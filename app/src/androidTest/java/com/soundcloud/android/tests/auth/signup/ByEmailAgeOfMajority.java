@@ -28,7 +28,7 @@ public class ByEmailAgeOfMajority extends SignUpTest {
                 .acceptTerms()
                 .saveSignUpDetails();
 
-        final ProfileScreen profileScreen = mainNavHelper.goToDiscovery()
+        final ProfileScreen profileScreen = mainNavHelper.goToOldDiscovery()
                                                          .clickSearch()
                                                          .doSearch("annoymouse")
                                                          .goToPeopleTab()

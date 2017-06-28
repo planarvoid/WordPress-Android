@@ -16,7 +16,6 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
@@ -82,19 +81,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
-    }
 
-    @Override
-    public void onStart(Fragment fragment) {
-        super.onStart(fragment);
         final Observable<SelectionItem> selectionItemObservable = adapter.selectionItemClick().doOnNext(item -> discoveryTrackingManager.trackSelectionItemClick(item, adapter.getItems()));
-        disposable.add(selectionItemObservable.subscribeWith(new DefaultObserver<SelectionItem>() {
-            @Override
-            public void onNext(SelectionItem item) {
-                selectionItemClick(fragment.getActivity(), item);
-            }
-        }));
-
+        disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(item -> selectionItemClick(fragment.getActivity(), item))));
         disposable.add(Observable.combineLatest(((RootActivity) fragment.getActivity()).enterScreenTimestamp(), queryUrn, Pair::of)
                                  .distinctUntilChanged(Pair::first)
                                  .subscribeWith(LambdaObserver.onNext(pair -> this.trackPageView(pair.second()))));
@@ -105,17 +94,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     }
 
     @Override
-    public void onStop(Fragment fragment) {
+    public void onDestroy(Fragment fragment) {
         disposable.clear();
-        super.onStop(fragment);
+        super.onDestroy(fragment);
     }
 
     private void selectionItemClick(Activity activity, SelectionItem selectionItem) {
         selectionItem.link()
                      .ifPresent(link -> navigator.navigateTo(activity, NavigationTarget.forNavigation(link,
-                                                                                            selectionItem.webLink(),
-                                                                                            SCREEN,
-                                                                                            Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
+                                                                                                      selectionItem.webLink(),
+                                                                                                      SCREEN,
+                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
     }
 
     @Override

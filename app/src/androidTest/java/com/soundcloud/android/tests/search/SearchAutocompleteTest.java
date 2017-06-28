@@ -9,14 +9,14 @@ import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
 
     private static final String SEARCH_AUTOCOMPLETE = "specs/search_autocomplete2.spec";
-    private DiscoveryScreen discoveryScreen;
+    private OldDiscoveryScreen discoveryScreen;
 
     public SearchAutocompleteTest() {
         super(MainActivity.class);
@@ -43,7 +43,7 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
 
         followingsScreen.goBackToProfile().goBack();
 
-        discoveryScreen = mainNavHelper.goToDiscovery();
+        discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
     @Ignore

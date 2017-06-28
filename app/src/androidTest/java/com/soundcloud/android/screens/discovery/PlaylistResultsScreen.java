@@ -38,11 +38,6 @@ public class PlaylistResultsScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public DiscoveryScreen pressBack() {
-        testDriver.goBack();
-        return new DiscoveryScreen(testDriver);
-    }
-
     private RecyclerViewElement resultList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/multiple_selection_card"
+<LinearLayout
+    android:id="@+id/discovery_multiple_selection_card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Discovery.Selection.Card"
     android:orientation="vertical"

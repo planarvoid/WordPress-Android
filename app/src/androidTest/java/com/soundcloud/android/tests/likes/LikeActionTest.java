@@ -27,7 +27,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
         final TrackItemElement expectedTrack = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("Acceptance")
                 .goToTracksTab()
@@ -55,7 +55,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("Acceptance")
                 .goToPlaylistsTab()

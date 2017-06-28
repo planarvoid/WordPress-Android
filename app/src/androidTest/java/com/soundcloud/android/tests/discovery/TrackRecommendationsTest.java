@@ -8,14 +8,14 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.ViewAllTrackRecommendationsScreen;
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
-    private DiscoveryScreen discoveryScreen;
+    private OldDiscoveryScreen discoveryScreen;
 
     public TrackRecommendationsTest() {
         super(MainActivity.class);
@@ -30,7 +30,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        discoveryScreen = mainNavHelper.goToDiscovery();
+        discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
     public void testClickOnViewAllTrackRecommendations() {

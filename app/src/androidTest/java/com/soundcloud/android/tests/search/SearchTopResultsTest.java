@@ -10,7 +10,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchTopResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchTrackResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -18,7 +18,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class SearchTopResultsTest extends ActivityTest<MainActivity> {
 
-    private DiscoveryScreen discoveryScreen;
+    private OldDiscoveryScreen discoveryScreen;
     private FeatureFlagsHelper featureFlagsHelper;
 
     public SearchTopResultsTest() {
@@ -35,7 +35,7 @@ public class SearchTopResultsTest extends ActivityTest<MainActivity> {
         super.setUp();
         featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
         featureFlagsHelper.enable(Flag.SEARCH_TOP_RESULTS);
-        discoveryScreen = mainNavHelper.goToDiscovery();
+        discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
     @Override

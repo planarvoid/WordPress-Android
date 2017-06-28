@@ -25,7 +25,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
     // synced, thus the next time this test is run, the user is still listed as being followed.
     public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = mainNavHelper
-                .goToDiscovery()
+                .goToOldDiscovery()
                 .clickSearch()
                 .doSearch("annoymouse")
                 .findAndClickFirstUserItem()

@@ -1,0 +1,71 @@
+{
+  "urn": "soundcloud:system-playlists:the-upload:soundcloud:users:183",
+  "track_count": 50,
+  "last_updated": "2017/06/27 06:51:59 +0000",
+  "title": "Ambient: New & Hot",
+  "description": "Up-and-coming Ambient tracks on SoundCloud.",
+  "artwork_url_template": "https://i1.sndcdn.com/artworks-000229882181-scclyl-{size}.jpg",
+  "tracking_feature_name": "ambient-new-and-hot",
+  "tracks": {
+    "collection": [{
+      "monetizable": true,
+      "snipped": false,
+      "blocked": false,
+      "syncable": true,
+      "ad_supported": false,
+      "sub_mid_tier": false,
+      "sub_high_tier": false,
+      "monetization_model": "BLACKBOX",
+      "policy": "MONETIZE",
+      "urn": "soundcloud:tracks:329382206",
+      "title": "FAIR GAME - FALLING",
+      "created_at": "2017/06/21 20:19:05 +0000",
+      "duration": 254195,
+      "full_duration": 254195,
+      "snip_duration": 30000,
+      "commentable": true,
+      "genre": "Electronic",
+      "sharing": "public",
+      "waveform_url": "https://wis.sndcdn.com/Ns40iqVvAQv6_m.json",
+      "permalink_url": "https://soundcloud.com/chill/fair-game-falling",
+      "stream_url": "https://api.soundcloud.com/tracks/329382206/stream",
+      "user_tags": ["Chillwave", "Chillout", "Ambient", "Melodic", "Instrumental", "Beats", "Daydream", "Sexy", "Free Download"],
+      "station_urns": ["soundcloud:track-stations:329382206"],
+      "description": "♫  The Best Playlists on Spotify: http://spotify.aia.ag/AIA_Spotify ♫\r\n\r\nStream or Free Download: https://fanlink.to/n94\r\n\r\nPromos / Submissions: https://aia.ag/Music-Submissions\r\n--------------------------------------------------------------------------------\r\n➥ Follow FAIR GAME:\r\nhttp://soundcloud.com/fairgamesongs\r\nhttp://facebook.com/fairgamesongs/\r\nhttp://instagram.com/fairgamesongs/\r\nhttp://youtube.com/channel/UCZUzZbHKDFPibScL_qABr2Q\r\n\r\n♫ Listen on Spotify:\r\nhttp://spotify.aia.ag/AIA_Spotify\r\n\r\n♫ Follow AIA:\r\nhttps://soundcloud.com/AiAPresents\r\nhttps://facebook.com/AiAgency\r\nhttps://instagram.com/AiAgency\r\nhttps://twitter.comAiAgency\r\n--------------------------------------------------------------------------------\r\nBusiness / Licensing Inquires: licensing@artistintelligence.agency\r\n",
+      "artwork_url_template": "https://i1.sndcdn.com/artworks-000229882181-scclyl-{size}.jpg",
+      "_embedded": {
+        "stats": {
+          "playback_count": 15723,
+          "comments_count": 27,
+          "reposts_count": 113,
+          "likes_count": 681
+        },
+        "user": {
+          "urn": "soundcloud:users:74594593",
+          "permalink": "chill",
+          "username": "chinchilla",
+          "first_name": "chinchilla | Artist Intelligence Agency",
+          "last_name": "",
+          "avatar_url": "https://i1.sndcdn.com/avatars-000290901590-msa1vl-large.jpg",
+          "city": "",
+          "tracks_count": 275,
+          "followers_count": 183670,
+          "followings_count": 12,
+          "verified": false,
+          "is_pro": true,
+          "description": "AIA - Artist Intelligence Agency\n\nSubmissions: aia.ag/Music-Submissions\nSpotify: aia.ag/AIA-Spotify\n\nTastemaker Brands:\n@EDM\n@XXX\n@IvoryOasis\n@Your_Secret\n@Lavish\n@DeepSounds\n@Future\n@Type91\n\nDiscovery Channels:\n@Dubstep\n@TrapMusic\n@HouseMusic\n@Chill\n@Hip-hop\n@Hardstyle\n\nArtist Collectives:\n@Hegemon\n@WeArePantheon\n@ThisIsEchelon\n\nArtist Intelligence Agency :\n@AIAPresents\nhttp://facebook.com/aiagency\nhttp://twitter.com/aiagency\nhttp://instagram.com/aiagency",
+          "avatar_url_template": "https://i1.sndcdn.com/avatars-000290901590-msa1vl-{size}.jpg",
+          "station_urns": ["soundcloud:artist-stations:74594593"],
+          "created_at": "2014/01/11 18:12:13 +0000"
+        }
+      },
+      "_links": {
+        "related": {
+          "href": "https://api-mobile-beta.soundcloud.com/tracks/soundcloud:tracks:329382206/related"
+        }
+      }
+    }],
+    "_links": {},
+    "query_urn": "soundcloud:charts:e6c087565bc5464781f9e45f2911aea3"
+  }
+}
