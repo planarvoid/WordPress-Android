@@ -66,8 +66,8 @@ import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
@@ -330,7 +330,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     @Named(BUG_REPORTER)
-    protected rx.Scheduler provideBugReporterExecutor() {
+    protected Scheduler provideBugReporterExecutor() {
         return Schedulers.from(Executors.newSingleThreadExecutor(r -> new Thread(r, "bugReporterThread")));
     }
 

@@ -3,14 +3,15 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.ApplicationModule.BUG_REPORTER;
 import static java.lang.String.format;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.java.strings.Charsets;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import okio.Okio;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.ArrayRes;
+import android.support.v4.content.FileProvider;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -56,21 +58,21 @@ public class BugReporter {
     public AlertDialog getFeedbackDialog(final Context context, @ArrayRes int options) {
         final String[] feedbackOptions = resources.getStringArray(options);
         return new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
-                                        .setItems(feedbackOptions, (dialog, which) -> {
-                                            final String feedbackOption = feedbackOptions[which];
-                                            final String subject = resources.getString(R.string.feedback_email_subject,
-                                                                                       feedbackOption);
-                                            final String actionChooser = resources.getString(R.string.feedback_action_chooser);
-                                            final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
-                                                                         applicationProperties.getPlaybackFeedbackEmail() :
-                                                                         applicationProperties.getFeedbackEmail();
+                                               .setItems(feedbackOptions, (dialog, which) -> {
+                                                   final String feedbackOption = feedbackOptions[which];
+                                                   final String subject = resources.getString(R.string.feedback_email_subject,
+                                                                                              feedbackOption);
+                                                   final String actionChooser = resources.getString(R.string.feedback_action_chooser);
+                                                   final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
+                                                                                applicationProperties.getPlaybackFeedbackEmail() :
+                                                                                applicationProperties.getFeedbackEmail();
 
-                                            sendLogs(context,
-                                                     feedbackEmail,
-                                                     subject,
-                                                     deviceHelper.getUserAgent(),
-                                                     actionChooser);
-                                        }).create();
+                                                   sendLogs(context,
+                                                            feedbackEmail,
+                                                            subject,
+                                                            deviceHelper.getUserAgent(),
+                                                            actionChooser);
+                                               }).create();
     }
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
@@ -87,9 +89,21 @@ public class BugReporter {
             return;
         }
 
-        Observable.fromCallable(() -> {
+        collectLogCat(context, outputFile).subscribeOn(scheduler)
+                                          .observeOn(AndroidSchedulers.mainThread())
+                                          .subscribeWith(LambdaSingleObserver.onNext((uri) -> {
+                                              if (!Uri.EMPTY.equals(uri)) {
+                                                  intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                              }
+                                              context.startActivity(Intent.createChooser(intent, chooserText));
+                                          }));
+    }
+
+    private Single<Uri> collectLogCat(Context context, File outputFile) {
+        return Single.fromCallable(() -> {
             if (outputFile.exists() && !outputFile.delete()) {
-                throw new RuntimeException("Failed to delete file: " + outputFile.getAbsolutePath());
+                Log.e("Failed to delete file: " + outputFile.getAbsolutePath());
+                return Uri.EMPTY;
             }
             Process logcatProcess = new ProcessBuilder()
                     .redirectErrorStream(true)
@@ -98,12 +112,10 @@ public class BugReporter {
             int exitCode = logcatProcess.waitFor();
             if (exitCode != 0) {
                 String output = Okio.buffer(Okio.source(logcatProcess.getInputStream())).readString(Charsets.UTF_8);
-                throw new RuntimeException(format(Locale.US, "logcat failed with exit code %d. Output: %s", exitCode, output));
+                Log.e(format(Locale.US, "logcat failed with exit code %d. Output: %s", exitCode, output));
+                return Uri.EMPTY;
             }
-            return null;
-        }).subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(LambdaSubscriber.onNext(t -> {
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
-            context.startActivity(Intent.createChooser(intent, chooserText));
-        }));
+            return FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITY, outputFile);
+        }).onErrorReturnItem(Uri.EMPTY);
     }
 }
