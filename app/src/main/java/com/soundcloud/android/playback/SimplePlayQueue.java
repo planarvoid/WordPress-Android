@@ -22,7 +22,7 @@ class SimplePlayQueue extends PlayQueue {
     private final List<PlayQueueItem> playQueueItems;
 
     SimplePlayQueue(List<PlayQueueItem> playQueueItems) {
-        this.playQueueItems = playQueueItems;
+        this.playQueueItems = new ArrayList<>(playQueueItems);
     }
 
     @Override
