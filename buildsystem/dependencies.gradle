@@ -13,7 +13,8 @@ ext {
 
   // Dependency versions
   androidMultiDex = "1.0.1"
-  androidSupportVersion = '25.3.0'
+  androidSupportVersion = '25.4.0'
+  lintVersion = '25.3.3'
   androidKitVersion = '0.58'
   googleServicesVersion = '10.2.6'
   lightCycleVersion = '1.6.1'
@@ -111,8 +112,8 @@ ext {
           checkstyleSevntu             : "com.github.sevntu-checkstyle:sevntu-checks:1.24.0",
           findbugs                     : "com.google.code.findbugs:findbugs:3.0.1",
           findbugsContrib              : "com.mebigfatguy.fb-contrib:fb-contrib:7.0.2",
-          lintApi                      : "com.android.tools.lint:lint-api:$androidSupportVersion",
-          lintChecks                   : "com.android.tools.lint:lint-checks:$androidSupportVersion"
+          lintApi                      : "com.android.tools.lint:lint-api:$lintVersion",
+          lintChecks                   : "com.android.tools.lint:lint-checks:$lintVersion"
   ]
 
   gradlePlugins = [
@@ -143,8 +144,8 @@ ext {
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
           compileTesting                  : 'com.google.testing.compile:compile-testing:0.10',
-          lintTests                       : "com.android.tools.lint:lint-tests:$androidSupportVersion",
-          lint                            : "com.android.tools.lint:lint:$androidSupportVersion"
+          lintTests                       : "com.android.tools.lint:lint-tests:$lintVersion",
+          lint                            : "com.android.tools.lint:lint:$lintVersion"
   ]
 
   acceptanceTestLibraries = [

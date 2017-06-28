@@ -10,11 +10,11 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.TestFragmentController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.shadows.support.v4.SupportFragmentController;
 import rx.Observable;
 import rx.Observer;
 import rx.subjects.PublishSubject;
@@ -23,19 +23,21 @@ import android.support.v4.app.FragmentActivity;
 
 public class LogoutFragmentTest extends AndroidUnitTest {
 
-    private TestFragmentController fragmentController;
+    private SupportFragmentController<LogoutFragment> fragmentController;
 
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private Observer observer;
 
     private TestEventBus eventBus = new TestEventBus();
+    private LogoutFragment logoutFragment;
 
     @Before
     public void setup() {
         when(accountOperations.logout()).thenReturn(Observable.empty());
         LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
-        fragmentController = TestFragmentController.of(fragment);
+        fragmentController = SupportFragmentController.of(fragment);
+        logoutFragment = fragmentController.get();
     }
 
     @Test
@@ -58,30 +60,32 @@ public class LogoutFragmentTest extends AndroidUnitTest {
 
     @Test
     public void shouldFinishActivityAndTriggerLoginOnCurrentUserRemovedEvent() {
-        FragmentActivity activity = fragmentController.getActivity();
         fragmentController.create();
 
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-        verify(accountOperations).triggerLoginFlow(activity);
 
+        FragmentActivity activity = logoutFragment.getActivity();
+        verify(accountOperations).triggerLoginFlow(activity);
         assertThat(activity.isFinishing()).isTrue();
     }
 
     @Test
     public void shouldFinishCurrentActivityWhenAccountRemoveFails() {
         when(accountOperations.logout()).thenReturn(Observable.error(new Exception()));
-        FragmentActivity activity = fragmentController.getActivity();
+
         fragmentController.create();
 
+        FragmentActivity activity = logoutFragment.getActivity();
         assertThat(activity.isFinishing()).isTrue();
     }
 
     @Test
     public void shouldStopOfflineContentServiceIfFeatureEnabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        FragmentActivity activity = fragmentController.getActivity();
+
         fragmentController.create();
 
+        FragmentActivity activity = logoutFragment.getActivity();
         assertThat(activity).nextStartedService()
                             .containsAction("action_stop_download")
                             .startsService(OfflineContentService.class);
