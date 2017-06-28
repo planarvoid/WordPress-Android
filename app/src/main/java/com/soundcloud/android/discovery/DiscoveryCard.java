@@ -16,6 +16,10 @@ abstract class DiscoveryCard {
 
     abstract Kind kind();
 
+    boolean isEmpty() {
+        return Kind.EMPTY_CARD.equals(kind());
+    }
+
     static DiscoveryCard forSearchItem() {
         return DiscoveryCard.Default.create(Kind.SEARCH_ITEM);
     }

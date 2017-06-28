@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,9 +15,12 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 6;
 
+    private final SyncStateStorage syncStateStorage;
+
     @Inject
-    DiscoveryDatabaseOpenHelper(Context context) {
+    DiscoveryDatabaseOpenHelper(Context context, SyncStateStorage syncStateStorage) {
         super(context, "discovery.db", null, DATABASE_VERSION);
+        this.syncStateStorage = syncStateStorage;
     }
 
     @Override
@@ -29,6 +35,8 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // this probably won't work due to a race-condition with NewSyncOperations, but we should try anyways :)
+        syncStateStorage.clear(Syncable.DISCOVERY_CARDS);
         try {
             db.beginTransaction();
             recreateDb(db);
@@ -40,6 +48,7 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
     /**
      * Drops and recreates all discovery tables
+     *
      * @param db
      */
     private void recreateDb(SQLiteDatabase db) {

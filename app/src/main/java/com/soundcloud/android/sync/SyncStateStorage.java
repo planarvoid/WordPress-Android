@@ -29,6 +29,10 @@ public class SyncStateStorage {
         preferences.edit().clear().apply();
     }
 
+    public void clear(Syncable syncable) {
+        preferences.edit().remove(syncable.name()).apply();
+    }
+
     public void synced(Syncable syncable) {
         preferences.edit().putLong(syncable.name(), dateProvider.getCurrentTime()).apply();
     }

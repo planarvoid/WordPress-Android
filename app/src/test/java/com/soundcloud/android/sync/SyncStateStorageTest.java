@@ -47,6 +47,15 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void clearsEntryForSpecifiedSyncable() throws Exception {
+        storage.synced(Syncable.DISCOVERY_CARDS);
+        dateProvider.advanceBy(1, TimeUnit.SECONDS);
+        storage.clear(Syncable.DISCOVERY_CARDS);
+
+        assertThat(storage.hasSyncedWithin(Syncable.DISCOVERY_CARDS, TimeUnit.HOURS.toMillis(1))).isFalse();
+    }
+
+    @Test
     public void hasSyncedBeforeShouldReturnFalseWhenNotSynced() {
         assertThat(storage.hasSyncedBefore("test")).isFalse();
     }

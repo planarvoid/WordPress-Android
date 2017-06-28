@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
@@ -91,6 +92,21 @@ public class DiscoveryOperationsTest {
                            .test()
                            .assertNoErrors()
                            .assertValue(DiscoveryResult.create(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+    }
+
+    @Test
+    public void discoveryCardsPerformsRefreshIfSyncWasSuccessfulButResultContainsAnEmptyCard() throws Exception {
+        final List<DiscoveryCard> emptyCardList = discoveryCards.subList(0, discoveryCards.size() - 1);
+        emptyCardList.add(DiscoveryCard.EmptyCard.create(Optional.absent()));
+        setUpDiscoveryCards(SyncResult.synced(), Maybe.just(emptyCardList));
+        setUpRefreshDiscoveryCards(SyncResult.synced(), Maybe.just(discoveryCards));
+
+        discoveryOperations.discoveryCards()
+                           .test()
+                           .assertNoErrors()
+                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
+
+        verify(syncOperations).sync(Syncable.DISCOVERY_CARDS);
     }
 
     @Test
