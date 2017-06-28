@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:showIn="@layout/base_no_toolbar"
-    tools:ignore="MergeRootFrame">
+    app:layout_behavior="@string/content_bottom_padding_behavior"
+    tools:ignore="MergeRootFrame"
+    tools:showIn="@layout/base_no_toolbar">
 
     <FrameLayout
         android:id="@+id/container"

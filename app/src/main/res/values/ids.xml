@@ -2,6 +2,7 @@
 <resources>
     <item name="toolbar_id" type="id" />
     <item name="legacy_elevation" type="id" />
+    <item name="content_view_bottom_padded" type="id" />
 
     <!-- list item views -->
     <item name="list_item_header" type="id" />

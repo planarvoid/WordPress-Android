@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
+<android.support.design.widget.CoordinatorLayout android:id="@+id/sliding_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom"
-    app:umanoDragView="@+id/player_layout"
-    app:umanoPanelHeight="@dimen/player_footer">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/content_bottom_padding_behavior">
 
         <View
             android:id="@+id/search_screen_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/translucent_background"/>
+            android:background="@color/translucent_background" />
 
         <include layout="@layout/toolbar" />
 
@@ -25,8 +22,8 @@
             android:id="@+id/search_view_flipper"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
             android:layout_below="@id/toolbar_id"
+            android:background="@android:color/white"
             android:visibility="invisible">
 
             <FrameLayout
@@ -40,14 +37,11 @@
                 android:layout_height="match_parent" />
         </ViewFlipper>
 
-        <View style="@style/ToolbarShadow"
+        <View
+            style="@style/ToolbarShadow"
             android:layout_below="@id/toolbar_id" />
     </RelativeLayout>
 
-    <fragment
-        android:id="@+id/player_root"
-        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <include layout="@layout/player_root" />
 
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</android.support.design.widget.CoordinatorLayout>

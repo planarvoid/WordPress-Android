@@ -42,4 +42,9 @@
     <!-- EDIT PLAYLIST -->
     <string name="edit_validate">Validate</string>
 
+    <!-- BEHAVIOR CLASSES -->
+    <string name="player_overlay_background_behavior">com.soundcloud.android.main.PlayerOverlayBackgroundBehavior</string>
+    <string name="fullscreenable_bottomsheet_behavior">com.soundcloud.android.main.FullscreenablePlayerBehavior</string>
+    <string name="scrollingview_content_bottom_padding_behavior">com.soundcloud.android.view.behavior.ScrollingViewContentBottomPaddingBehavior</string>
+    <string name="content_bottom_padding_behavior">com.soundcloud.android.view.behavior.ContentBottomPaddingBehavior</string>
 </resources>

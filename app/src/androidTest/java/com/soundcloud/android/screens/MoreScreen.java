@@ -60,6 +60,10 @@ public class MoreScreen extends Screen {
         return username().getText();
     }
 
+    public ViewElement appVersionText() {
+        return scrollToItem(With.id(R.id.more_version_text));
+    }
+
     private ViewElement headerLayout() {
         return testDriver.findOnScreenElement(With.id(R.id.header_layout));
     }

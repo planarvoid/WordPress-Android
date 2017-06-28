@@ -241,4 +241,6 @@
     
     <!-- SummaryRadioButton -->
     <dimen name="summary_radio_button_summary_size">14sp</dimen>
+    
+    <dimen name="player_elevation">16dp</dimen>
 </resources>

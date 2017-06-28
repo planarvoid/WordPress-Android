@@ -152,6 +152,8 @@ import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.android.upgrade.UnrecoverableErrorDialog;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.GlassLinearLayout;
+import com.soundcloud.android.view.behavior.ContentBottomPaddingBehavior;
+import com.soundcloud.android.view.behavior.ScrollingViewContentBottomPaddingBehavior;
 import dagger.Component;
 
 import javax.inject.Singleton;
@@ -374,8 +376,12 @@ public interface ApplicationComponent {
     void inject(RecentlyPlayedFragment recentlyPlayedFragmen);
     void inject(MoreFragment moreFragment);
 
+    //Behaviors
+    void inject(ContentBottomPaddingBehavior behaviour);
+    void inject(ScrollingViewContentBottomPaddingBehavior behaviour);
+
     //Features Module --------
-    
+
     // For testing purpose
     PlaylistDetailsPresenterFactory playlistDetailsPresenterFactory();
     DiscoveryReadableStorage discoveryReadableStorage();
