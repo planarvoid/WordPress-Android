@@ -11,7 +11,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
-class ConfigurationSettingsStorage {
+public class ConfigurationSettingsStorage {
     private static final String LAST_CONFIG_UPDATE_TIME = "last_config_check_time";
     private static final String KEY_PLAN_UPGRADE = "pending_plan_upgrade";
     private static final String KEY_PLAN_DOWNGRADE = "pending_plan_downgrade";

@@ -6,14 +6,11 @@ import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.groupie.ExperimentConfiguration;
 import com.soundcloud.java.optional.Optional;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -25,20 +22,16 @@ import java.util.Collections;
 public class ExperimentOperationsTest {
 
     @Mock private ExperimentStorage experimentStorage;
-    @Mock private ApplicationProperties applicationProperties;
     @Mock private Assignment assignment;
 
     private ExperimentOperations operations;
 
-    @Before
-    public void setUp() throws Exception {
-        when(experimentStorage.readAssignment()).thenReturn(assignment);
-        when(applicationProperties.isDevelopmentMode()).thenReturn(false);
-        operations = new ExperimentOperations(experimentStorage, applicationProperties);
-    }
-
     @Test
     public void shouldLoadAssignmentWhenCreated() {
+        when(experimentStorage.readAssignment()).thenReturn(assignment);
+
+        operations = new ExperimentOperations(experimentStorage);
+
         assertThat(operations.getAssignment()).isSameAs(assignment);
     }
 
@@ -46,10 +39,9 @@ public class ExperimentOperationsTest {
     public void shouldGetEmptyAssignmentIfNoAssignmentIsStored() {
         when(experimentStorage.readAssignment()).thenReturn(Assignment.empty());
 
-        operations.loadAssignment();
-        Assignment assignment = operations.getAssignment();
+        operations = new ExperimentOperations(experimentStorage);
 
-        assertThat(assignment.isEmpty()).isTrue();
+        assertThat(operations.getAssignment().isEmpty()).isTrue();
     }
 
     @Test
@@ -57,24 +49,28 @@ public class ExperimentOperationsTest {
         Assignment reloadedAssignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.readAssignment()).thenReturn(reloadedAssignment);
 
-        operations.loadAssignment();
+        operations = new ExperimentOperations(experimentStorage);
 
         assertThat(operations.getAssignment()).isSameAs(reloadedAssignment);
     }
 
     @Test
     public void updateShouldSaveAssignment() {
-        Assignment assignment = ModelFixtures.create(Assignment.class);
+        when(experimentStorage.readAssignment()).thenReturn(assignment);
+        Assignment newAssignment = ModelFixtures.create(Assignment.class);
 
-        operations.update(assignment);
+        operations = new ExperimentOperations(experimentStorage);
+        operations.update(newAssignment);
 
-        verify(experimentStorage).storeAssignment(eq(assignment));
+        verify(experimentStorage).storeAssignment(eq(newAssignment));
     }
 
     @Test
     public void shouldReturnUpdatedAssignmentAfterUpdate() {
+        when(experimentStorage.readAssignment()).thenReturn(assignment);
         Assignment assignment = ModelFixtures.create(Assignment.class);
 
+        operations = new ExperimentOperations(experimentStorage);
         operations.update(assignment);
 
         assertThat(operations.getAssignment()).isSameAs(assignment);
@@ -87,7 +83,8 @@ public class ExperimentOperationsTest {
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
         when(experimentStorage.readAssignment()).thenReturn(assignment);
 
-        operations.loadAssignment();
+        operations = new ExperimentOperations(experimentStorage);
+
         assertThat(operations.findLayer(configuration).get()).isEqualTo(layer);
     }
 
@@ -96,7 +93,9 @@ public class ExperimentOperationsTest {
         final Layer layer = new Layer("layerName", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layer.getLayerName(), layer.getExperimentName(), Collections.emptyList());
+        when(experimentStorage.readAssignment()).thenReturn(assignment);
 
+        operations = new ExperimentOperations(experimentStorage);
         operations.update(assignment);
 
         assertThat(operations.findLayer(configuration).get()).isEqualTo(layer);
@@ -107,10 +106,10 @@ public class ExperimentOperationsTest {
         final String layerName = "layerName";
         final Assignment assignment = createAssignment(layerName);
         final ExperimentConfiguration configuration = ExperimentConfiguration.fromName(layerName, "unknown", Collections.emptyList());
-
         when(experimentStorage.readAssignment()).thenReturn(assignment);
 
-        operations.loadAssignment();
+        operations = new ExperimentOperations(experimentStorage);
+
         assertThat(operations.findLayer(configuration).isPresent()).isFalse();
     }
 
@@ -127,21 +126,13 @@ public class ExperimentOperationsTest {
     @Test
     public void getSerializedActiveVariants() throws Exception {
         final String expectedVariantIds = "123,456";
+        when(experimentStorage.readAssignment()).thenReturn(assignment);
         when(assignment.commaSeparatedVariantIds()).thenReturn(of(expectedVariantIds));
 
+        operations = new ExperimentOperations(experimentStorage);
         final Optional<String> activeVariants = operations.getSerializedActiveVariants();
 
         assertThat(activeVariants.get()).isEqualTo(expectedVariantIds);
-    }
-
-    @Test
-    public void noSerializedActiveVariantsWhenDeveloperMode() throws Exception {
-        when(applicationProperties.isDevelopmentMode()).thenReturn(true);
-
-        final Optional<String> activeVariants = operations.getSerializedActiveVariants();
-
-        assertThat(activeVariants).isEqualTo(absent());
-        verifyZeroInteractions(assignment);
     }
 
     private Assignment createAssignment(String layerName) {

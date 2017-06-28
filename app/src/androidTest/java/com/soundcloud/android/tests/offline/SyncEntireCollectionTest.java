@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -28,9 +27,6 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
-
         Context context = getInstrumentation().getTargetContext();
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);

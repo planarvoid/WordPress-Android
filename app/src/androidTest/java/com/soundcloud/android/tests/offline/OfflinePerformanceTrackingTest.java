@@ -9,7 +9,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
@@ -39,8 +38,6 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
 
         context = getInstrumentation().getTargetContext();
         offlineContentHelper = new OfflineContentHelper();

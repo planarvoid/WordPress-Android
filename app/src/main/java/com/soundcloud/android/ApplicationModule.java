@@ -6,11 +6,20 @@ import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.comments.CommentsModule;
+import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationSettingsStorage;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.ForceUpdateHandler;
+import com.soundcloud.android.configuration.PendingPlanOperations;
+import com.soundcloud.android.configuration.PlanChangeDetector;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -45,6 +54,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
@@ -165,6 +175,29 @@ public class ApplicationModule {
     @Singleton
     public ConnectionHelper provideConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager, EventBus eventBus) {
         return new NetworkConnectionHelper(connectivityManager, telephonyManager);
+    }
+
+    @Provides
+    public ConfigurationOperations provideConfigurationOperations(ApiClientRx apiClientRx,
+                                                                  ExperimentOperations experimentOperations,
+                                                                  FeatureOperations featureOperations,
+                                                                  PendingPlanOperations pendingPlanOperations,
+                                                                  ConfigurationSettingsStorage configurationSettingsStorage,
+                                                                  TryWithBackOff.Factory tryWithBackOffFactory,
+                                                                  @Named(HIGH_PRIORITY) rx.Scheduler scheduler,
+                                                                  PlanChangeDetector planChangeDetector,
+                                                                  ForceUpdateHandler forceUpdateHandler,
+                                                                  ImageConfigurationStorage imageConfigurationStorage) {
+        return new ConfigurationOperations(apiClientRx,
+                                           experimentOperations,
+                                           featureOperations,
+                                           pendingPlanOperations,
+                                           configurationSettingsStorage,
+                                           tryWithBackOffFactory,
+                                           scheduler,
+                                           planChangeDetector,
+                                           forceUpdateHandler,
+                                           imageConfigurationStorage);
     }
 
     @Provides

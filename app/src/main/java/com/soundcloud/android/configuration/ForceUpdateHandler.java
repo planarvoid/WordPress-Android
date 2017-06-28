@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-class ForceUpdateHandler {
+public class ForceUpdateHandler {
 
     private final EventBus eventBus;
     private final BuildHelper buildHelper;

@@ -25,7 +25,6 @@ import rx.functions.Func1;
 
 import android.support.annotation.NonNull;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -61,7 +60,6 @@ public class ConfigurationOperations {
         return configuration -> configuration.getUserPlan().currentPlan.equals(plan);
     }
 
-    @Inject
     public ConfigurationOperations(ApiClientRx apiClientRx,
                                    ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations,
@@ -134,14 +132,14 @@ public class ConfigurationOperations {
 
     Observable<Configuration> awaitConfigurationFromPendingUpgrade() {
         return pendingPlanOperations.isPendingUpgrade()
-                ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingUpgrade())
-                : noPlanChange();
+               ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingUpgrade())
+               : noPlanChange();
     }
 
     Observable<Configuration> awaitConfigurationFromPendingDowngrade() {
         return pendingPlanOperations.isPendingDowngrade()
-                ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingDowngrade())
-                : noPlanChange();
+               ? awaitConfigurationWithPlan(pendingPlanOperations.getPendingDowngrade())
+               : noPlanChange();
     }
 
     Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {

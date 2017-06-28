@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration.experiments;
 
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.groupie.ExperimentConfiguration;
 import com.soundcloud.java.optional.Optional;
@@ -18,15 +17,13 @@ public class ExperimentOperations {
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 
     private final ExperimentStorage experimentStorage;
-    private final ApplicationProperties applicationProperties;
 
     private Assignment assignment;
 
     @Inject
-    public ExperimentOperations(ExperimentStorage experimentStorage, ApplicationProperties applicationProperties) {
+    public ExperimentOperations(ExperimentStorage experimentStorage) {
         this.experimentStorage = experimentStorage;
-        this.applicationProperties = applicationProperties;
-        loadAssignment();
+        this.assignment = experimentStorage.readAssignment();
     }
 
     public String[] getActiveLayers() {
@@ -36,10 +33,6 @@ public class ExperimentOperations {
     public void update(Assignment updatedAssignment) {
         assignment = updatedAssignment;
         experimentStorage.storeAssignment(updatedAssignment);
-    }
-
-    void loadAssignment() {
-        this.assignment = experimentStorage.readAssignment();
     }
 
     public Assignment getAssignment() {
@@ -55,7 +48,7 @@ public class ExperimentOperations {
         }
     }
 
-    public Optional<String> getOptionalExperimentVariant(ExperimentConfiguration experiment) {
+    Optional<String> getOptionalExperimentVariant(ExperimentConfiguration experiment) {
         return findLayer(experiment).transform(Layer::getVariantName);
     }
 
@@ -69,10 +62,10 @@ public class ExperimentOperations {
     }
 
     /**
-     * @return active experiments separated by commas, absent if development mode
+     * @return active experiments separated by commas
      */
     public Optional<String> getSerializedActiveVariants() {
-        return applicationProperties.isDevelopmentMode() ? Optional.absent() : assignment.commaSeparatedVariantIds();
+        return assignment.commaSeparatedVariantIds();
     }
 
     @VisibleForTesting

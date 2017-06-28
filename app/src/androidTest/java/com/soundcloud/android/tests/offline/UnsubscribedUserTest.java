@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -34,13 +33,6 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.likesUser;
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        getExperiments().set(PlaylistAndAlbumsPreviewsExperiment.CONFIGURATION, PlaylistAndAlbumsPreviewsExperiment.VARIANT_CONTROL);
     }
 
     @Ignore
