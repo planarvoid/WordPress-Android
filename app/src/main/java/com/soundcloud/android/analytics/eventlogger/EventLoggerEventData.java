@@ -53,6 +53,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_INTERFACE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
@@ -322,6 +323,11 @@ class EventLoggerEventData {
     public EventLoggerEventData modulePosition(int position) {
         addToPayload(MODULE_POSITION, position);
 
+        return this;
+    }
+
+    public EventLoggerEventData playerInterface(String playerInterface) {
+        addToPayload(PLAYER_INTERFACE, playerInterface);
         return this;
     }
 

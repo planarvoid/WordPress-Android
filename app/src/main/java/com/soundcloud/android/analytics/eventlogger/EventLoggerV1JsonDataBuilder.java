@@ -722,6 +722,9 @@ class EventLoggerV1JsonDataBuilder {
         if (event.shareLinkType().isPresent()) {
             eventData.shareLinkType(event.shareLinkType().get().key());
         }
+        if (event.playerInterface().isPresent()) {
+            eventData.playerInterface(event.playerInterface().get().key());
+        }
         return eventData;
     }
 

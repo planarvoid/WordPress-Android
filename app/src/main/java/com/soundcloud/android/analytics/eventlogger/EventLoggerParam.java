@@ -91,6 +91,7 @@ class EventLoggerParam {
     static final String CLICK_ATTRIBUTES = "click_attributes";
     static final String PAUSE_REASON = "pause_reason";
     static final String OVERFLOW_MENU = "overflow_menu";
+    static final String PLAYER_INTERFACE = "player_interface";
 
     // HTI Params
     static final String UUID = "client_event_id";

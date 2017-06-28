@@ -187,6 +187,24 @@ public abstract class UIEvent extends TrackingEvent {
         }
     }
 
+    public enum PlayerInterface {
+        FULLSCREEN("fullscreen"),
+        MINI("mini"),
+        NOTIFICATION("notification"),
+        WIDGET("widget"),
+        OTHER("other");
+
+        private final String key;
+
+        PlayerInterface(String key) {
+            this.key = key;
+        }
+
+        public String key() {
+            return key;
+        }
+    }
+
     public abstract Kind kind();
 
     public abstract Optional<Trigger> trigger();
@@ -253,7 +271,9 @@ public abstract class UIEvent extends TrackingEvent {
 
     public abstract Optional<Action> action();
 
-    public abstract Builder toBuilder();
+    public abstract Optional<PlayerInterface> playerInterface();
+
+    abstract Builder toBuilder();
 
     public static UIEvent fromPlayerOpen(boolean manual) {
         return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
@@ -541,7 +561,8 @@ public abstract class UIEvent extends TrackingEvent {
                                               .promoterUrn(Optional.absent())
                                               .playQueueRepeatMode(Optional.absent())
                                               .shareLinkType(Optional.absent())
-                                              .action(Optional.absent());
+                                              .action(Optional.absent())
+                                              .playerInterface(Optional.absent());
     }
 
     @Override
@@ -626,6 +647,8 @@ public abstract class UIEvent extends TrackingEvent {
         abstract Builder shareLinkType(Optional<ShareLinkType> shareLinkType);
 
         abstract Builder action(Optional<Action> action);
+
+        abstract Builder playerInterface(Optional<PlayerInterface> playerInterface);
 
         Builder entityMetadata(EntityMetadata entityMetadata) {
             creatorName(Optional.of(entityMetadata.creatorName));
