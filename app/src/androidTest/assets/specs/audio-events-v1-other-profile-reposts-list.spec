@@ -20,7 +20,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:reposts
     monetization_model: NOT_APPLICABLE
@@ -45,7 +45,7 @@ expected_events:
     client_id: 3152
     action: pause
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:reposts
     monetization_model: NOT_APPLICABLE
@@ -72,7 +72,7 @@ expected_events:
     client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:reposts
     monetization_model: NOT_APPLICABLE
@@ -98,7 +98,7 @@ expected_events:
     client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:reposts
     monetization_model: NOT_APPLICABLE

@@ -10,7 +10,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     client_id: '3152'
     action: play_start
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (\w|-)+
     page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
@@ -37,7 +37,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     client_id: '3152'
     action: pause
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (\w|-)+
     page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
@@ -66,7 +66,7 @@ expected_events:
     client_id: '3152'
     source_version: (\w|-)+
     action: play_start
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: collection:overview
     in_playlist: soundcloud:playlists:[0-9]+
@@ -95,7 +95,7 @@ expected_events:
     client_id: '3152'
     source_version: (\w|-)+
     action: pause
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: collection:main
     in_playlist: soundcloud:playlists:[0-9]+

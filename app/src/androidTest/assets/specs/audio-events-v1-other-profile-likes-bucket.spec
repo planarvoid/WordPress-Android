@@ -9,7 +9,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:main
     monetization_model: NOT_APPLICABLE
@@ -34,7 +34,7 @@ expected_events:
     client_id: 3152
     action: pause
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:main
     monetization_model: NOT_APPLICABLE
@@ -61,7 +61,7 @@ expected_events:
     client_id: 3152
     action: play
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:main
     monetization_model: NOT_APPLICABLE
@@ -87,7 +87,7 @@ expected_events:
     client_id: 3152
     action: pause
     policy: ALLOW
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:main
     monetization_model: NOT_APPLICABLE

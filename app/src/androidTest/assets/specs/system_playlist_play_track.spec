@@ -11,7 +11,7 @@
       action: play_start
       in_system_playlist: soundcloud:system-playlists:the-upload:soundcloud:users:183
       page_urn: soundcloud:system-playlists:the-upload:soundcloud:users:183
-      player_type: Flipper
+      player_type: Skippy|Flipper|MediaPlayer
       consumer_subs_plan: high_tier
       monetization_model: BLACKBOX
       user: soundcloud:users:18173653

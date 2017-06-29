@@ -9,7 +9,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: SNIP
-    player_type: Skippy|MediaPlayer
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:posts
     user: soundcloud:users:147986827
@@ -34,7 +34,7 @@ expected_events:
     client_id: 3152
     action: pause
     policy: SNIP
-    player_type: Skippy|MediaPlayer
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: none
     page_name: users:posts
     user: soundcloud:users:147986827

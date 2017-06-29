@@ -34,7 +34,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: (ALLOW|MONETIZE)
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
@@ -62,7 +62,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: (ALLOW|MONETIZE)
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
@@ -92,7 +92,7 @@ expected_events:
     action: play
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: (ALLOW|MONETIZE)
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)
@@ -121,7 +121,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: (ALLOW|MONETIZE)
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: (NOT_APPLICABLE|AD_SUPPORTED|SUB_MID_TIER|SUB_HIGH_TIER|BLACKBOX)

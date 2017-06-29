@@ -13,7 +13,7 @@ expected_events:
     protocol: hls
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     action: play_start
     client_id: '3152'
     anonymous_id: (\w|-)+
@@ -43,7 +43,7 @@ expected_events:
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+
-    player_type: Flipper|Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     action: pause
     client_id: '3152'
     page_name: stream:main

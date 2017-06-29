@@ -10,7 +10,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     client_id: '3152'
     action: play_start
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (\w|-)+
     page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
@@ -37,7 +37,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     client_id: '3152'
     action: pause
-    player_type: Skippy
+    player_type: Skippy|Flipper|MediaPlayer
     consumer_subs_plan: (\w|-)+
     page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
