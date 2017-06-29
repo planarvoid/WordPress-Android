@@ -1,8 +1,6 @@
 package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.createAlbumsCollectionIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createCollectionAsRootIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createConversionIntent;
@@ -52,8 +50,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -290,18 +286,6 @@ public class NavigationExecutor {
 
     public void openViewAllRecommendations(Context context) {
         context.startActivity(createViewAllRecommendationsIntent(context));
-    }
-
-    public void openChart(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
-        context.startActivity(createChartsIntent(context, genre, type, category, header));
-    }
-
-    public void openAllGenres(Context context) {
-        context.startActivity(createAllGenresIntent(context, null));
-    }
-
-    public void openAllGenres(Context context, ChartCategory category) {
-        context.startActivity(createAllGenresIntent(context, category));
     }
 
     public void openLikedStations(Context context) {

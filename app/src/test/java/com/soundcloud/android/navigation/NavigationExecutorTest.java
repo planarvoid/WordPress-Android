@@ -462,38 +462,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensChartTracks() {
-        final Urn genreUrn = new Urn("soundcloud:genre:123");
-        final ChartType chartType = ChartType.TOP;
-        final String header = "header";
-        final ChartCategory chartCategory = ChartCategory.AUDIO;
-        navigationExecutor.openChart(activityContext, genreUrn, chartType, chartCategory, header);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
-                                   .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
-                                   .containsExtra(ChartTracksFragment.EXTRA_HEADER, header)
-                                   .opensActivity(ChartActivity.class);
-    }
-
-    @Test
-    public void opensAllGenres() {
-        navigationExecutor.openAllGenres(activityContext);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(AllGenresActivity.class);
-    }
-
-    @Test
-    public void opensAllGenresFromDeeplink() throws Exception {
-        navigationExecutor.openAllGenres(activityContext, ChartCategory.MUSIC);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
-                                   .opensActivity(AllGenresActivity.class);
-    }
-
-    @Test
     public void legacyOpenStationInfo() {
         final Urn someStation = Urn.forArtistStation(123L);
         navigationExecutor.legacyOpenStationInfo(activityContext, someStation, DiscoverySource.STATIONS);

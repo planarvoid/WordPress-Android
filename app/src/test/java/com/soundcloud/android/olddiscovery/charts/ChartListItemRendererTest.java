@@ -3,12 +3,13 @@ package com.soundcloud.android.olddiscovery.charts;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackArtwork;
 import org.junit.Before;
@@ -25,7 +26,7 @@ import java.util.Collections;
 
 public class ChartListItemRendererTest extends AndroidUnitTest {
     private final String DEFAULT_DISPLAY_NAME = "displayName";
-    @Mock private NavigationExecutor navigationExecutor;
+    @Mock private Navigator navigator;
     @Mock private ImageOperations imageOperations;
     private View itemView;
     private ChartListItemRenderer renderer;
@@ -36,7 +37,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
         activity = activity();
         itemView = LayoutInflater.from(activity).inflate(
                 R.layout.chart_list_item, new FrameLayout(activity), false);
-        renderer = new ChartListItemRenderer(resources(), navigationExecutor, imageOperations);
+        renderer = new ChartListItemRenderer(resources(), navigator, imageOperations);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigationExecutor).openChart(activity, genre, ChartType.TOP, ChartCategory.MUSIC, "Rock charts");
+        verify(navigator).navigateTo(activity, NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "Rock charts"));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigationExecutor).openChart(activity, genre, ChartType.TOP, ChartCategory.MUSIC, "SoundCloud charts");
+        verify(navigator).navigateTo(activity, NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "SoundCloud charts"));
     }
 
     private ChartListItem createChartListItem(ChartBucketType chartBucketType, Urn genre) {

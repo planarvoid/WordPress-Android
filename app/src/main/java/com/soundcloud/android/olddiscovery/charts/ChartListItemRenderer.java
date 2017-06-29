@@ -4,11 +4,13 @@ import static com.soundcloud.android.olddiscovery.charts.ChartBucketType.GLOBAL;
 import static com.soundcloud.android.utils.ScTextUtils.toResourceKey;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -20,13 +22,13 @@ import java.util.List;
 
 class ChartListItemRenderer implements CellRenderer<ChartListItem> {
     private final Resources resources;
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ImageOperations imageOperations;
 
     @Inject
-    ChartListItemRenderer(Resources resources, NavigationExecutor navigationExecutor, ImageOperations imageOperations) {
+    ChartListItemRenderer(Resources resources, Navigator navigator, ImageOperations imageOperations) {
         this.resources = resources;
-        this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.imageOperations = imageOperations;
     }
 
@@ -47,11 +49,11 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
         chartListItemView.setTitle(headingFor(chartListItem, itemView, chartListItem.getChartType().value()));
         chartListItemView.refreshThumbnails(imageOperations, chartListItem.getTrackArtworks(),
                                             resources.getInteger(R.integer.collection_preview_thumbnail_count));
-        chartListItemView.setOnClickListener(view -> navigationExecutor.openChart(view.getContext(),
-                                                                                  chartListItem.getGenre(),
-                                                                                  chartListItem.getChartType(),
-                                                                                  chartListItem.getChartCategory(),
-                                                                                  appendCharts(headingFor(chartListItem, view, "soundcloud"))));
+        chartListItemView.setOnClickListener(view -> navigator.navigateTo(ViewUtils.getFragmentActivity(view),
+                                                                          NavigationTarget.forChart(chartListItem.getChartType(),
+                                                                                                    chartListItem.getGenre(),
+                                                                                                    chartListItem.getChartCategory(),
+                                                                                                    appendCharts(headingFor(chartListItem, view, "soundcloud")))));
     }
 
     private String headingFor(ChartListItem chartListItem, View view, String globalSuffix) {

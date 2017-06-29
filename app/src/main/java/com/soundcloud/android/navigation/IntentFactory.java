@@ -19,6 +19,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.creators.upload.UploadService;
+import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -387,8 +388,8 @@ public final class IntentFactory {
         return new Intent(context, ViewAllRecommendedTracksActivity.class);
     }
 
-    static Intent createChartsIntent(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
-        return ChartActivity.createIntent(context, genre, type, category, header);
+    static Intent createChartsIntent(Context context, ChartDetails chartDetails) {
+        return ChartActivity.createIntent(context, chartDetails);
     }
 
     static Intent createAllGenresIntent(Context context, @Nullable ChartCategory category) {

@@ -2,11 +2,9 @@ package com.soundcloud.android.olddiscovery.charts;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -20,13 +18,13 @@ public class ChartActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject @LightCycle ChartPresenter presenter;
 
-    public static Intent createIntent(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
+    public static Intent createIntent(Context context, ChartDetails chartDetails) {
         return new Intent(context, ChartActivity.class)
                 .setAction(Intent.ACTION_VIEW)
-                .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, genre)
-                .putExtra(ChartTracksFragment.EXTRA_TYPE, type)
-                .putExtra(ChartTracksFragment.EXTRA_CATEGORY, category)
-                .putExtra(ChartTracksFragment.EXTRA_HEADER, header);
+                .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, chartDetails.genre())
+                .putExtra(ChartTracksFragment.EXTRA_TYPE, chartDetails.type())
+                .putExtra(ChartTracksFragment.EXTRA_CATEGORY, chartDetails.category())
+                .putExtra(ChartTracksFragment.EXTRA_HEADER, chartDetails.title().or(""));
 
     }
 

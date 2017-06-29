@@ -2,9 +2,11 @@ package com.soundcloud.android.olddiscovery.charts;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.view.LayoutInflater;
@@ -15,12 +17,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class ChartsBucketItemRenderer implements CellRenderer<ChartsBucketItem> {
-    private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final ChartListItemRenderer chartListItemRenderer;
 
     @Inject
-    ChartsBucketItemRenderer(NavigationExecutor navigationExecutor, ChartListItemRenderer chartListItemRenderer) {
-        this.navigationExecutor = navigationExecutor;
+    ChartsBucketItemRenderer(Navigator navigator, ChartListItemRenderer chartListItemRenderer) {
+        this.navigator = navigator;
         this.chartListItemRenderer = chartListItemRenderer;
     }
 
@@ -54,6 +56,6 @@ public class ChartsBucketItemRenderer implements CellRenderer<ChartsBucketItem> 
 
     @OnClick(R.id.charts_genre_view_all)
     void onViewAllClicked(View item) {
-        navigationExecutor.openAllGenres(item.getContext());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(item), NavigationTarget.forAllGenres());
     }
 }

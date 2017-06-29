@@ -3,6 +3,9 @@ package com.soundcloud.android.navigation;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -44,6 +47,8 @@ public abstract class NavigationTarget {
 
     public abstract Optional<PromotedSourceInfo> promotedSourceInfo();
 
+    public abstract Optional<ChartsMetaData> chartsMetaData();
+
     public abstract Optional<UIEvent> uiEvent();
 
     public abstract Builder toBuilder();
@@ -57,6 +62,7 @@ public abstract class NavigationTarget {
                 .queryUrn(Optional.absent())
                 .targetUrn(Optional.absent())
                 .discoverySource(Optional.absent())
+                .chartsMetaData(Optional.absent())
                 .searchQuerySourceInfo(Optional.absent())
                 .promotedSourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent())
@@ -225,6 +231,24 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forChart(ChartType type, Urn genre, ChartCategory category, @Nullable String header) {
+        return forNavigationDeeplink(DeepLink.CHARTS, Screen.UNKNOWN)
+                .toBuilder()
+                .chartsMetaData(Optional.of(ChartsMetaData.create(type, genre, category, Optional.fromNullable(header))))
+                .build();
+    }
+
+    public static NavigationTarget forAllGenres() {
+        return forAllGenres(null);
+    }
+
+    public static NavigationTarget forAllGenres(@Nullable ChartCategory category) {
+        return forNavigationDeeplink(DeepLink.CHARTS_ALL_GENRES, Screen.UNKNOWN)
+                .toBuilder()
+                .chartsMetaData(Optional.of(ChartsMetaData.create(Optional.fromNullable(category))))
+                .build();
+    }
+
     NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }
@@ -264,6 +288,8 @@ public abstract class NavigationTarget {
         abstract Builder searchQuerySourceInfo(Optional<SearchQuerySourceInfo> searchQuerySourceInfo);
 
         abstract Builder promotedSourceInfo(Optional<PromotedSourceInfo> promotedSourceInfo);
+
+        abstract Builder chartsMetaData(Optional<ChartsMetaData> chartsMetaData);
 
         abstract Builder uiEvent(Optional<UIEvent> uiEvent);
 
@@ -305,6 +331,21 @@ public abstract class NavigationTarget {
 
         Uri targetUri() {
             return Uri.parse(target());
+        }
+    }
+
+    @AutoValue
+    abstract static class ChartsMetaData {
+        abstract Optional<ChartCategory> category();
+
+        abstract Optional<ChartDetails> chartDetails();
+
+        static ChartsMetaData create(Optional<ChartCategory> category) {
+            return new AutoValue_NavigationTarget_ChartsMetaData(category, Optional.absent());
+        }
+
+        static ChartsMetaData create(ChartType type, Urn genre, ChartCategory category, Optional<String> title) {
+            return new AutoValue_NavigationTarget_ChartsMetaData(Optional.absent(), Optional.of(ChartDetails.create(type, genre, category, title)));
         }
     }
 

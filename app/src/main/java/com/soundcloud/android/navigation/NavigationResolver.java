@@ -2,6 +2,8 @@ package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
@@ -24,6 +26,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.deeplinks.AllGenresUriResolver;
@@ -557,17 +560,30 @@ public class NavigationResolver {
     private Single<Action> showCharts(Activity activity, NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            ChartDetails chartDetails = chartsUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
-            navigationExecutor.openChart(activity, chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
+            Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
+            final ChartDetails chartDetails;
+            if (chartsMetaData.isPresent()) {
+                chartDetails = chartsMetaData.get().chartDetails().get();
+            } else {
+                chartDetails = chartsUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
+            }
+            activity.startActivity(createChartsIntent(activity, chartDetails));
         });
     }
 
     @CheckResult
     private Single<Action> showAllGenresCharts(Activity activity, NavigationTarget navigationTarget) {
-        return Single.just(() -> {
-            trackForegroundEvent(navigationTarget);
-            navigationExecutor.openAllGenres(activity, AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri()));
-        });
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget);
+                Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
+                ChartCategory category;
+                if (chartsMetaData.isPresent()) {
+                    category = chartsMetaData.get().category().orNull();
+                } else {
+                    category = AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
+                }
+                activity.startActivity(createAllGenresIntent(activity, category));
+            });
     }
 
     @CheckResult

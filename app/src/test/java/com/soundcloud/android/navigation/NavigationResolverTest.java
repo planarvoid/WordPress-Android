@@ -931,11 +931,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openChart(activity,
-                                             Chart.GLOBAL_GENRE,
-                                             ChartType.TOP,
-                                             ChartCategory.MUSIC,
-                                             TOP_FIFTY);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
+                                                                                                  Chart.GLOBAL_GENRE,
+                                                                                                  ChartCategory.MUSIC,
+                                                                                                  Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -946,11 +946,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openChart(activity,
-                                             Chart.GLOBAL_GENRE,
-                                             ChartType.TOP,
-                                             ChartCategory.MUSIC,
-                                             TOP_FIFTY);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
+                                                                                                  Chart.GLOBAL_GENRE,
+                                                                                                  ChartCategory.MUSIC,
+                                                                                                  Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1616,11 +1616,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openChart(activity,
-                                             Chart.GLOBAL_GENRE,
-                                             ChartType.TOP,
-                                             ChartCategory.MUSIC,
-                                             TOP_FIFTY);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
+                                                                                                  Chart.GLOBAL_GENRE,
+                                                                                                  ChartCategory.MUSIC,
+                                                                                                  Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1631,11 +1631,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openChart(activity,
-                                             Chart.GLOBAL_GENRE,
-                                             ChartType.TOP,
-                                             ChartCategory.MUSIC,
-                                             TOP_FIFTY);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
+                                                                                                  Chart.GLOBAL_GENRE,
+                                                                                                  ChartCategory.MUSIC,
+                                                                                                  Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1975,6 +1975,44 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Assertions.assertThat(activity).nextStartedIntent()
                   .isEqualToIntent(IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
     }
+
+    @Test
+    public void opensChartTracks() {
+        final Urn genreUrn = new Urn("soundcloud:genre:123");
+        final ChartType chartType = ChartType.TOP;
+        final String header = "header";
+        final ChartCategory chartCategory = ChartCategory.AUDIO;
+        final ChartDetails chartDetails = ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header));
+        NavigationTarget navigationTarget = NavigationTarget.forChart(chartType, genreUrn, chartCategory, header);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, chartDetails));
+    }
+
+    @Test
+    public void opensAllGenres() {
+        NavigationTarget navigationTarget = NavigationTarget.forAllGenres();
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createAllGenresIntent(activity, null));
+    }
+
+    @Test
+    public void opensAllGenresFromDeeplink() throws Exception {
+        ChartCategory chartCategory = ChartCategory.MUSIC;
+        NavigationTarget navigationTarget = NavigationTarget.forAllGenres(chartCategory);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createAllGenresIntent(activity, chartCategory));
+    }
+
+
 
     @Test
     public void navigationDeeplink_shouldOpenPlaylistsAndAlbums() throws Exception {
