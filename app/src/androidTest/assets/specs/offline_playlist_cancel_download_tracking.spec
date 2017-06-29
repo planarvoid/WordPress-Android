@@ -23,9 +23,9 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     app_version: .*
-    track_owner: soundcloud:users:16945945
+    track_owner: soundcloud:users:[0-9]+
     event_stage: start
-    track: soundcloud:tracks:146350105
+    track: soundcloud:tracks:[0-9]+
     client_id: 3152
     connection_type: wifi
     in_likes: false
@@ -52,9 +52,9 @@ expected_events:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
     app_version: .*
-    track_owner: soundcloud:users:16945945
+    track_owner: soundcloud:users:[0-9]+
     event_stage: user_cancelled
-    track: soundcloud:tracks:146350105
+    track: soundcloud:tracks:[0-9]+
     client_id: 3152
     connection_type: wifi
     in_likes: false
