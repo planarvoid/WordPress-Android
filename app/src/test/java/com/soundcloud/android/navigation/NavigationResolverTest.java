@@ -31,6 +31,7 @@ import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ChartsUriResolver;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.events.DeeplinkReportEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -52,6 +53,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -91,7 +93,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private SignInOperations signInOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackServiceController playbackServiceController;
-    @Mock private StartStationHandler startStationHandler;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private Optional<PromotedSourceInfo> promotedSourceInfo;
@@ -115,7 +116,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           featureOperations,
                                           chartsUriResolver,
                                           signInOperations,
-                                          startStationHandler,
                                           stationsUriResolver,
                                           applicationProperties,
                                           InjectionSupport.providerOf(expandPlayerSubscriber),
@@ -1025,7 +1025,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forArtistStation(123L), DiscoverySource.DEEPLINK);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1036,7 +1037,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forTrackStation(123L), DiscoverySource.DEEPLINK);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1059,7 +1061,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forArtistStation(123L), DiscoverySource.DEEPLINK);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1070,7 +1073,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forTrackStation(123L), DiscoverySource.DEEPLINK);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
 
@@ -1700,7 +1704,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forArtistStation(123L), DiscoverySource.RECOMMENDATIONS);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1711,7 +1716,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forTrackStation(123L), DiscoverySource.RECOMMENDATIONS);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1722,7 +1728,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forArtistStation(123L), DiscoverySource.RECOMMENDATIONS);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1733,7 +1740,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(startStationHandler).startStation(activity, Urn.forTrackStation(123L), DiscoverySource.RECOMMENDATIONS);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -2025,6 +2033,33 @@ public class NavigationResolverTest extends AndroidUnitTest {
                   .containsExtra(PlaylistsActivity.EXTRA_PLAYLISTS_AND_ALBUMS, true);
     }
 
+    @Test
+    public void navigationDeeplink_shouldOpenStationInfo() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        NavigationTarget navigationTarget = NavigationTarget.forStationInfo(someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS), Optional.absent());
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS)));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenStationInfoWithSeedtrack() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        final Urn seedTrack = Urn.forTrack(123L);
+        final UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
+        NavigationTarget navigationTarget = NavigationTarget.forStationInfo(someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS), Optional.of(navigationEvent));
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)));
+
+        verify(eventTracker).trackNavigation(navigationEvent);
+    }
+
+
     // Fallback Errors
 
     @Test
@@ -2153,6 +2188,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
             } catch (Exception e) {
                 fail("Exception during execution", e);
             }
+            super.onSuccess(navigationResult);
         }
     }
 }

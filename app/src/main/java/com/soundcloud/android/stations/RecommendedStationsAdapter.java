@@ -8,6 +8,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.support.v4.view.PagerAdapter;
@@ -25,7 +26,7 @@ class RecommendedStationsAdapter extends PagerAdapter {
         @Override
         public void onClick(View view) {
             if (listener != null) {
-                listener.onRecommendedStationClicked(view.getContext(), (StationRecord) view.getTag());
+                listener.onRecommendedStationClicked(ViewUtils.getFragmentActivity(view), (StationRecord) view.getTag());
             }
         }
     };

@@ -7,6 +7,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
@@ -18,6 +19,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createProfilePlayl
 import static com.soundcloud.android.navigation.IntentFactory.createProfileRepostsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileTracksIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createStationsInfoIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSystemPlaylistIntent;
 
 import com.soundcloud.android.BuildConfig;
@@ -48,7 +50,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -86,7 +87,6 @@ public class NavigationResolver {
     private final ChartsUriResolver chartsUriResolver;
     private final SignInOperations signInOperations;
     private final LocalEntityUriResolver localEntityUriResolver;
-    private final StartStationHandler startStationHandler;
     private final StationsUriResolver stationsUriResolver;
     private final ApplicationProperties applicationProperties;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -105,7 +105,6 @@ public class NavigationResolver {
                        FeatureOperations featureOperations,
                        ChartsUriResolver chartsUriResolver,
                        SignInOperations signInOperations,
-                       StartStationHandler startStationHandler,
                        StationsUriResolver stationsUriResolver,
                        ApplicationProperties applicationProperties,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
@@ -122,7 +121,6 @@ public class NavigationResolver {
         this.chartsUriResolver = chartsUriResolver;
         this.signInOperations = signInOperations;
         this.localEntityUriResolver = localEntityUriResolver;
-        this.startStationHandler = startStationHandler;
         this.stationsUriResolver = stationsUriResolver;
         this.applicationProperties = applicationProperties;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -245,6 +243,8 @@ public class NavigationResolver {
                 return showCharts(activity, navigationTarget);
             case CHARTS_ALL_GENRES:
                 return showAllGenresCharts(activity, navigationTarget);
+            case LIKED_STATIONS:
+                return showLikedStations(activity, navigationTarget);
             case STATION:
                 return showStation(activity, navigationTarget);
             case SEARCH:
@@ -587,22 +587,34 @@ public class NavigationResolver {
     }
 
     @CheckResult
+    private Single<Action> showLikedStations(Activity activity, NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            activity.startActivity(createLikedStationsIntent(activity));
+        });
+    }
+
+    @CheckResult
     private Single<Action> showStation(Activity activity, NavigationTarget navigationTarget) throws UriResolveException {
-        Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.linkNavigationParameters().get().targetUri());
-        if (urn.isPresent()) {
-            return showStation(activity, navigationTarget, urn.get());
+        Optional<NavigationTarget.StationsInfoMetaData> stationsInfoMetaData = navigationTarget.stationsInfoMetaData();
+        if (stationsInfoMetaData.isPresent()) {
+            return showStation(activity, navigationTarget, navigationTarget.targetUrn().get(), stationsInfoMetaData.get().seedTrack());
         } else {
-            throw new UriResolveException("Station " + navigationTarget.linkNavigationParameters().get().target() + " could not be resolved locally");
+            Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.linkNavigationParameters().get().targetUri());
+            if (urn.isPresent()) {
+                return showStation(activity, navigationTarget, urn.get(), Optional.absent());
+            } else {
+                throw new UriResolveException("Station " + navigationTarget.linkNavigationParameters().get().target() + " could not be resolved locally");
+            }
         }
     }
 
     @CheckResult
-    private Single<Action> showStation(Activity activity, NavigationTarget navigationTarget, Urn urn) {
+    private Single<Action> showStation(Activity activity, NavigationTarget navigationTarget, Urn urn, Optional<Urn> seedTrack) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            startStationHandler.startStation(activity,
-                                             urn,
-                                             navigationTarget.discoverySource().or(DiscoverySource.DEEPLINK)); // TODO (REC-1302): Shall this be part of `forDeeplink` already?
+            trackNavigationEvent(navigationTarget.uiEvent());
+            activity.startActivity(createStationsInfoIntent(activity, urn, seedTrack, navigationTarget.discoverySource().or(Optional.of(DiscoverySource.DEEPLINK))));
         });
     }
 
@@ -785,7 +797,7 @@ public class NavigationResolver {
         } else if (urn.isSystemPlaylist()) {
             return showSystemPlaylist(activity, navigationTarget, urn);
         } else if (urn.isArtistStation() || urn.isTrackStation()) {
-            return showStation(activity, navigationTarget, urn);
+            return showStation(activity, navigationTarget, urn, Optional.absent());
         } else {
             ErrorUtils.handleSilentException(new IllegalArgumentException("Trying to navigate to unsupported urn: " + urn + " in version: " + BuildConfig.VERSION_CODE));
             return Single.never();

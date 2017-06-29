@@ -11,7 +11,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createMoreIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNotificationPreferencesFromDeeplinkIntent;
@@ -35,7 +34,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent
 import static com.soundcloud.android.navigation.IntentFactory.createSearchPremiumContentResultsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchViewAllIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSettingsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createStationsInfoIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamWithExpandedPlayerIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackCommentsIntent;
@@ -53,11 +51,9 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
@@ -286,28 +282,6 @@ public class NavigationExecutor {
 
     public void openViewAllRecommendations(Context context) {
         context.startActivity(createViewAllRecommendationsIntent(context));
-    }
-
-    public void openLikedStations(Context context) {
-        context.startActivity(createLikedStationsIntent(context));
-    }
-
-    public void openStationInfo(Context context,
-                                Urn stationUrn,
-                                Urn seedTrack,
-                                DiscoverySource source,
-                                UIEvent navigationEvent) {
-        eventTracker.trackNavigation(navigationEvent);
-
-        context.startActivity(createStationsInfoIntent(context, stationUrn, Optional.of(seedTrack), Optional.of(source)));
-    }
-
-    public void legacyOpenStationInfo(Context context, Urn stationUrn, Urn seedTrack, DiscoverySource source) {
-        context.startActivity(createStationsInfoIntent(context, stationUrn, Optional.of(seedTrack), Optional.of(source)));
-    }
-
-    public void legacyOpenStationInfo(Context context, Urn stationUrn, DiscoverySource source) {
-        context.startActivity(createStationsInfoIntent(context, stationUrn, Optional.absent(), Optional.of(source)));
     }
 
     public void openTrackLikes(Context context) {

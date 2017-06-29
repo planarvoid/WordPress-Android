@@ -13,21 +13,26 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.SharePresenter;
-import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
@@ -46,7 +51,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
 
-    @Mock private StartStationHandler stationHandler;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private Navigator navigator;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
     @Mock private AccountOperations accountOperations;
@@ -78,10 +84,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller = new TrackPageMenuController.Factory(playQueueManager,
                                                          repostOperations,
                                                          popupMenuWrapperFactory,
-                                                         stationHandler,
                                                          accountOperations,
                                                          eventBus,
-                                                         sharePresenter).create(textView);
+                                                         sharePresenter,
+                                                         performanceMetricsEngine,
+                                                         navigator).create(textView);
     }
 
     @Test
@@ -91,7 +98,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(stationHandler).startStationFromPlayer(activityContext, track.getUrn(), false);
+        verify(navigator).navigateTo(activityContext,
+                                     NavigationTarget.forStationInfo(Urn.forTrackStation(track.getUrn().getNumericId()),
+                                                                     Optional.of(track.getUrn()),
+                                                                     Optional.of(DiscoverySource.STATIONS),
+                                                                     Optional.absent()));
     }
 
     @Test
@@ -103,7 +114,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(updatedPlayerTrackState);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(stationHandler).startStationFromPlayer(activityContext, updatedPlayerTrackState.getUrn(), true);
+        verify(navigator).navigateTo(activityContext,
+                                     NavigationTarget.forStationInfo(Urn.forTrackStation(updatedPlayerTrackState.getUrn().getNumericId()),
+                                                                     Optional.absent(),
+                                                                     Optional.of(DiscoverySource.STATIONS),
+                                                                     Optional.absent()));
     }
 
     @Test

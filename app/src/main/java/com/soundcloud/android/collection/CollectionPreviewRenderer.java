@@ -15,6 +15,7 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.annotations.VisibleForTesting;
 import android.app.Activity;
 import android.content.res.Resources;
@@ -74,9 +75,9 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     @VisibleForTesting
-    void onGoToStationsClick(View v) {
+    void onGoToStationsClick(Activity activity) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
-        navigationExecutor.openLikedStations(v.getContext());
+        navigator.navigateTo(activity, NavigationTarget.forLikedStations());
     }
 
     private CollectionPreviewView getLikesPreviewView(View view) {
@@ -157,7 +158,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         final CollectionPreviewView stationsView = (CollectionPreviewView) parent.findViewById(R.id.collection_stations_preview);
         stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
         stationsView.setVisibility(View.VISIBLE);
-        stationsView.setOnClickListener(this::onGoToStationsClick);
+        stationsView.setOnClickListener(view -> onGoToStationsClick(ViewUtils.getFragmentActivity(view)));
         return stationsView;
     }
 }

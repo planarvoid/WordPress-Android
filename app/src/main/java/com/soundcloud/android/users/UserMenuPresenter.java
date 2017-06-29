@@ -11,7 +11,7 @@ import com.soundcloud.android.stations.StartStationHandler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -58,8 +58,8 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     }
 
     @Override
-    public void handleOpenStation(Context context, User user) {
-        stationHandler.startStation(context, Urn.forArtistStation(user.urn().getNumericId()));
+    public void handleOpenStation(Activity activity, User user) {
+        stationHandler.startStation(activity, Urn.forArtistStation(user.urn().getNumericId()));
     }
 
     @Override

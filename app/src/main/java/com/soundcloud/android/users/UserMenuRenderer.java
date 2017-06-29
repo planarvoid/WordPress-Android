@@ -3,8 +3,10 @@ package com.soundcloud.android.users;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +20,7 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
 
         void handleToggleFollow(User user);
 
-        void handleOpenStation(Context context, User user);
+        void handleOpenStation(Activity activity, User user);
 
         void onDismiss();
 
@@ -68,7 +70,7 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
                 listener.handleToggleFollow(user);
                 return true;
             case R.id.open_station:
-                listener.handleOpenStation(context, user);
+                listener.handleOpenStation(ViewUtils.getFragmentActivity(context), user);
                 return true;
             default:
                 return false;

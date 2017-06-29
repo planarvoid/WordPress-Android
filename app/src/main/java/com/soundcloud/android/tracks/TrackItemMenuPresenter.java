@@ -256,7 +256,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                   });
                 return true;
             case R.id.start_station:
-                handleStation(context);
+                handleStation();
                 return true;
             case R.id.play_next:
                 playNext(track.getUrn());
@@ -266,8 +266,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
     }
 
-    private void handleStation(Context context) {
-        stationHandler.openStationWithSeedTrack(context,
+    private void handleStation() {
+        stationHandler.openStationWithSeedTrack(activity,
                                                 track.getUrn(),
                                                 UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));
     }

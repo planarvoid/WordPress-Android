@@ -4,6 +4,7 @@ import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.model.Urn.forUser;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.PrestitialActivity;
@@ -12,18 +13,22 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.deeplinks.ChartDetails;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
+import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.assertions.IntentAssert;
 import com.soundcloud.java.optional.Optional;
@@ -159,6 +164,26 @@ public class IntentFactoryTest extends AndroidUnitTest {
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserPlaylistsActivity.class);
+    }
+
+    @Test
+    public void legacyOpenStationInfo() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        assertThat(IntentFactory.createStationsInfoIntent(context, someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS)))
+                .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
+                .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
+                .opensActivity(StationInfoActivity.class);
+    }
+
+    @Test
+    public void openStationInfo() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        final Urn seedTrack = Urn.forTrack(123L);
+        assertThat(IntentFactory.createStationsInfoIntent(context, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)))
+                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
+                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
+                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack)
+                                   .opensActivity(StationInfoActivity.class);
     }
 
     private IntentAssert assertIntent(Intent intent) {

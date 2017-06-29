@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
 import com.soundcloud.java.optional.Optional;
@@ -189,7 +190,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         if (hasArtistStation) {
             stationButton.setOnClickListener(v -> {
                 updateStationButton();
-                stationHandler.startStation(v.getContext(), user.artistStation().get());
+                stationHandler.startStation(ViewUtils.getFragmentActivity(v), user.artistStation().get());
             });
             stationButton.setVisibility(View.VISIBLE);
             updateStationButton();

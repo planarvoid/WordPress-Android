@@ -38,12 +38,6 @@ public enum DeepLink {
     SHARE_APP,
     SYSTEM_SETTINGS,
     REMOTE_SIGN_IN,
-    PROFILE,
-    PROFILE_REPOSTS,
-    PROFILE_TRACKS,
-    PROFILE_LIKES,
-    PROFILE_ALBUMS,
-    PROFILE_PLAYLISTS,
     UNKNOWN,
 
     // Navigation Target Deeplinks
@@ -59,7 +53,14 @@ public enum DeepLink {
     SYSTEM_PLAYLIST,
     PLAYLISTS_AND_ALBUMS_COLLECTION,
     PLAYLISTS_COLLECTION,
-    PLAYLISTS;
+    PLAYLISTS,
+    PROFILE,
+    PROFILE_REPOSTS,
+    PROFILE_TRACKS,
+    PROFILE_LIKES,
+    PROFILE_ALBUMS,
+    PROFILE_PLAYLISTS,
+    LIKED_STATIONS;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
@@ -97,7 +98,8 @@ public enum DeepLink {
                        PROFILE_TRACKS,
                        PROFILE_LIKES,
                        PROFILE_ALBUMS,
-                       PROFILE_PLAYLISTS);
+                       PROFILE_PLAYLISTS,
+                       LIKED_STATIONS);
 
     @VisibleForTesting
     static final EnumSet<DeepLink> RESOLVE_REQUIRED =

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class UserMenuPresenterTest extends AndroidUnitTest {
@@ -66,11 +67,12 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsStation() {
+        AppCompatActivity activity = activity();
         presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);
 
-        presenter.handleOpenStation(context(), USER);
+        presenter.handleOpenStation(activity, USER);
 
-        verify(stationHandler).startStation(context(), Urn.forArtistStation(USER.urn().getNumericId()));
+        verify(stationHandler).startStation(activity, Urn.forArtistStation(USER.urn().getNumericId()));
     }
 
 }

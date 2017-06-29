@@ -43,6 +43,8 @@ public abstract class NavigationTarget {
 
     public abstract Optional<TopResultsMetaData> topResultsMetaData();
 
+    public abstract Optional<StationsInfoMetaData> stationsInfoMetaData();
+
     public abstract Optional<SearchQuerySourceInfo> searchQuerySourceInfo();
 
     public abstract Optional<PromotedSourceInfo> promotedSourceInfo();
@@ -66,12 +68,13 @@ public abstract class NavigationTarget {
                 .searchQuerySourceInfo(Optional.absent())
                 .promotedSourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent())
+                .stationsInfoMetaData(Optional.absent())
                 .uiEvent(Optional.absent());
     }
 
     /**
      * Used for internal navigation using deeplink's (e.g. provided through Discovery Backend) and external links.
-     * Similar to {@link #forExternalDeeplink(Activity, String, String)} but for in app navigation.
+     * Similar to {@link #forExternalDeeplink(String, String)} but for in app navigation.
      */
     public static NavigationTarget forNavigation(@Nullable String target, Optional<String> fallback, Screen screen, Optional<DiscoverySource> discoverySource) {
         return newBuilder().linkNavigationParameters(LinkNavigationParameters.create(target, fallback))
@@ -82,7 +85,7 @@ public abstract class NavigationTarget {
 
     /**
      * Used for internal navigation using deeplink's.
-     * Similar to {@link #forExternalDeeplink(Activity, String, String)} but for in app navigation.
+     * Similar to {@link #forExternalDeeplink(String, String)} but for in app navigation.
      */
     private static NavigationTarget forNavigationDeeplink(DeepLink deepLink, Screen screen) {
         return newBuilder().deeplink(Optional.of(deepLink))
@@ -92,7 +95,7 @@ public abstract class NavigationTarget {
 
     /**
      * Used for navigation from a real deeplink.
-     * Similar to {@link #forNavigation(Activity, String, Optional, Screen, Optional)} but for real deeplink navigation.
+     * Similar to {@link #forNavigation(String, Optional, Screen, Optional)} but for real deeplink navigation.
      */
     public static NavigationTarget forExternalDeeplink(@Nullable String target, String referrer) {
         return newBuilder().linkNavigationParameters(LinkNavigationParameters.create(target))
@@ -107,7 +110,7 @@ public abstract class NavigationTarget {
      * @param urn that should be open
      * @return a {@link NavigationTarget} to open the desired urn
      * @throws IllegalArgumentException if the passed in URN is not suppred
-     * @see {@link NavigationResolver#navigateToResource(NavigationTarget, Urn)} for supported URNs
+     * @see NavigationResolver#navigateToResource(Activity, NavigationTarget, Urn) for supported URNs
      */
     public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
         Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
@@ -130,7 +133,11 @@ public abstract class NavigationTarget {
         return forPlaylist(urn, screen, searchQuerySourceInfo, promotedSourceInfo, Optional.absent());
     }
 
-    public static NavigationTarget forPlaylist(Urn entityUrn, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo,  Optional<PromotedSourceInfo> promotedSourceInfo, Optional<UIEvent> uiEvent) {
+    public static NavigationTarget forPlaylist(Urn entityUrn,
+                                               Screen screen,
+                                               Optional<SearchQuerySourceInfo> searchQuerySourceInfo,
+                                               Optional<PromotedSourceInfo> promotedSourceInfo,
+                                               Optional<UIEvent> uiEvent) {
         return forNavigationDeeplink(DeepLink.PLAYLISTS, screen)
                 .toBuilder()
                 .uiEvent(uiEvent)
@@ -249,6 +256,20 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forLikedStations() {
+        return forNavigationDeeplink(DeepLink.LIKED_STATIONS, Screen.UNKNOWN);
+    }
+
+    public static NavigationTarget forStationInfo(Urn stationUrn, Optional<Urn> seedTrack, Optional<DiscoverySource> source, Optional<UIEvent> uiEvent) {
+        return forNavigationDeeplink(DeepLink.STATION, Screen.UNKNOWN)
+                .toBuilder()
+                .discoverySource(source)
+                .uiEvent(uiEvent)
+                .targetUrn(Optional.of(stationUrn))
+                .stationsInfoMetaData(Optional.of(StationsInfoMetaData.create(seedTrack)))
+                .build();
+    }
+
     NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }
@@ -276,6 +297,8 @@ public abstract class NavigationTarget {
         // Optional arguments depending on the started context
 
         abstract Builder topResultsMetaData(Optional<TopResultsMetaData> metaData);
+
+        abstract Builder stationsInfoMetaData(Optional<StationsInfoMetaData> metaData);
 
         abstract Builder deeplink(Optional<DeepLink> deepLink);
 
@@ -359,6 +382,15 @@ public abstract class NavigationTarget {
 
         static TopResultsMetaData create(String query, TopResults.Bucket.Kind kind, boolean isPremium) {
             return new AutoValue_NavigationTarget_TopResultsMetaData(query, kind, isPremium);
+        }
+    }
+
+    @AutoValue
+    abstract static class StationsInfoMetaData {
+        abstract Optional<Urn> seedTrack();
+
+        static StationsInfoMetaData create(Optional<Urn> seedTrack) {
+            return new AutoValue_NavigationTarget_StationsInfoMetaData(seedTrack);
         }
     }
 }

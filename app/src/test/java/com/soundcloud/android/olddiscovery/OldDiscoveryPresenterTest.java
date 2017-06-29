@@ -49,6 +49,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.util.Collections;
@@ -120,9 +121,10 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnRecommendedStationStartsPlayingStation() {
-        presenter.onRecommendedStationClicked(context(), STATION);
+        AppCompatActivity activity = activity();
+        presenter.onRecommendedStationClicked(activity, STATION);
 
-        verify(startStationHandler).startStation(context(), STATION.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
+        verify(startStationHandler).startStation(activity, STATION.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     @Test

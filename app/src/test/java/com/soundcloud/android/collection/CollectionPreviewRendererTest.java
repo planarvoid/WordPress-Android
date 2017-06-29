@@ -49,7 +49,7 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartMeasuringikedStationsLoadingOnGotToLikedStations() {
-        collectionPreviewRenderer.onGoToStationsClick(view);
+        collectionPreviewRenderer.onGoToStationsClick(activity);
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.LIKED_STATIONS_LOAD);
     }

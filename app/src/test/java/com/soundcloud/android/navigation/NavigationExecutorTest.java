@@ -462,34 +462,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void legacyOpenStationInfo() {
-        final Urn someStation = Urn.forArtistStation(123L);
-        navigationExecutor.legacyOpenStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
-                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
-                                   .opensActivity(StationInfoActivity.class);
-    }
-
-    @Test
-    public void openStationInfo() {
-        final Urn someStation = Urn.forArtistStation(123L);
-        final Urn seedTrack = Urn.forTrack(123L);
-        final UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
-
-        navigationExecutor.openStationInfo(activityContext, someStation, seedTrack, DiscoverySource.STATIONS, navigationEvent);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
-                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
-                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack)
-                                   .opensActivity(StationInfoActivity.class);
-
-        verify(eventTracker).trackNavigation(navigationEvent);
-    }
-
-    @Test
     public void openActivities() {
         activityContext.startActivity(createActivitiesIntent((Context) activityContext));
         assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);

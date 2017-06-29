@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.pageindicator.CirclePageIndicator;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +33,7 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
     }
 
     public interface Listener {
-        void onRecommendedStationClicked(Context context, StationRecord station);
+        void onRecommendedStationClicked(Activity activity, StationRecord station);
     }
 
     @Inject
