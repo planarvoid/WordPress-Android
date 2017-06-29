@@ -46,6 +46,8 @@ public abstract class ViewElement {
 
     public abstract boolean isEnabled();
 
+    public abstract boolean isSelected();
+
     public abstract boolean isChecked();
 
     public abstract int getId();

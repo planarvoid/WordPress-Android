@@ -32,16 +32,24 @@
     </style>
 
     <style name="PlayerQueue" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:src">@drawable/btn_player_play_queue</item>
         <item name="android:background">@drawable/circular_ripple</item>
         <item name="android:stateListAnimator">@null</item>
-        <item name="android:layout_marginRight">@dimen/player_queue_margin_right</item>
-        <item name="android:layout_width">@dimen/player_engagement</item>
-        <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:layout_alignParentRight">true</item>
         <item name="android:scaleType">center</item>
         <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="PlayerQueue.Full">
+        <item name="android:src">@drawable/ic_added_to_queue_light</item>
+        <item name="android:tint">@color/playqueue_button_tint</item>
         <item name="android:padding">18dp</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:layout_marginRight">@dimen/player_queue_margin_right</item>
+    </style>
+
+    <style name="PlayerQueue.MiniPlayer">
+        <item name="android:src">@drawable/ic_added_to_queue_dark</item>
+        <item name="android:tint">@color/charcoal</item>
     </style>
 
     <style name="PlayerPlayQueueButton" parent="Widget.AppCompat.Button.Borderless">

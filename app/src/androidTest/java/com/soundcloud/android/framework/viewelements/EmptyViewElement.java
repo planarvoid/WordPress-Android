@@ -153,6 +153,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isSelected() {
+        return false;
+    }
+
+    @Override
     public boolean isChecked() {
         return false;
     }

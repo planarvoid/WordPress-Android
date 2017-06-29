@@ -166,7 +166,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        assertThat(getHolder(trackView).footerPlayToggle).isChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isSelected();
     }
 
     @Test
@@ -212,7 +212,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        assertThat(getHolder(trackView).footerPlayToggle).isNotChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isNotSelected();
     }
 
     @Test

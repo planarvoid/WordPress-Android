@@ -382,7 +382,7 @@ public class VisualPlayerElement extends Element {
         if (isExpanded()) {
             return waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
         } else {
-            return waiter.waitForElementToBeChecked(With.id(R.id.footer_toggle));
+            return waiter.waitForElementToBeSelected(With.id(R.id.footer_toggle));
         }
     }
 

@@ -17,8 +17,10 @@
             android:layout_height="match_parent" />
 
         <View
-            android:id="@+id/artwork_overlay_dark"
-            style="@style/PlayerTrackArtworkOverlay" />
+            android:id="@+id/artwork_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black_60" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"

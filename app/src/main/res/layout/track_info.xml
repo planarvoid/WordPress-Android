@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/artwork_overlay"
+    android:background="@color/artwork_overlay_full"
     android:paddingBottom="@dimen/track_info_margin_vertical"
     android:paddingLeft="@dimen/track_info_margin_horizontal"
     android:paddingRight="@dimen/track_info_margin_horizontal"

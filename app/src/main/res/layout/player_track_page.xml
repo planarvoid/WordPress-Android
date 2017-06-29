@@ -18,9 +18,11 @@
         android:layout_below="@id/player_strip" />
 
     <View
-        android:id="@+id/artwork_overlay_dark"
-        style="@style/PlayerTrackArtworkOverlay"
-        android:layout_below="@id/player_strip" />
+        android:id="@+id/artwork_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/player_strip"
+        android:background="@color/artwork_overlay_mini" />
 
     <include layout="@layout/player_gradient" />
 
@@ -84,7 +86,7 @@
 
         <ImageView
             android:id="@+id/play_queue_button"
-            style="@style/PlayerQueue"
+            style="@style/PlayerQueue.Full"
             tools:visibility="visible" />
 
         <com.soundcloud.android.view.OverflowAnchorImageView

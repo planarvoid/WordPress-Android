@@ -2,14 +2,13 @@
 <resources>
 
     <!-- player_footer is player_footer_control + player_strip -->
-    <dimen name="player_footer">68dp</dimen>
-    <dimen name="player_footer_control">64dp</dimen>
+    <dimen name="player_footer">50dp</dimen>
+    <dimen name="player_footer_control">48dp</dimen>
     <dimen name="player_ad_engagement">64dp</dimen>
     <dimen name="player_engagement">88dp</dimen>
     <dimen name="player_title_top">20dp</dimen>
     <dimen name="player_skip">52dp</dimen>
     <dimen name="player_gradient_height">180dp</dimen>
-    <dimen name="player_footer_margin">10dp</dimen>
     <dimen name="player_pager_spacing">2dp</dimen>
     <dimen name="player_waveform_height">108dp</dimen>
     <dimen name="player_skip_margin">24dp</dimen>

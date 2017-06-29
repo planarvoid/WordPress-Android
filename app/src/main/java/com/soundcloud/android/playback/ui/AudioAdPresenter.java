@@ -12,7 +12,6 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-
 import rx.Subscription;
 
 import android.content.res.Resources;
@@ -20,9 +19,9 @@ import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -132,7 +131,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         } else {
             holder.companionlessText.setVisibility(View.GONE);
         }
-        holder.footerPlayToggle.setChecked(playSessionIsActive);
+        holder.footerPlayToggle.setSelected(playSessionIsActive);
         holder.playerOverlayController.setPlayState(playStateEvent);
     }
 
@@ -235,7 +234,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private final View artworkIdleOverlay;
         private final View companionlessText;
 
-        private final ToggleButton footerPlayToggle;
+        private final ImageButton footerPlayToggle;
         private final View close;
 
         private final View footer;
@@ -259,7 +258,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
             companionlessText = adView.findViewById(R.id.companionless_ad_text);
 
-            footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
+            footerPlayToggle = (ImageButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_expanded_top_bar);
 
             footer = adView.findViewById(R.id.footer_controls);

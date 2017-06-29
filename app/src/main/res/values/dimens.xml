@@ -233,7 +233,7 @@
     <dimen name="conversion_divider_height">2dp</dimen>
 
     <!-- Player -->
-    <dimen name="collapsed_player_strip">3dp</dimen>
+    <dimen name="collapsed_player_strip">2dp</dimen>
     <dimen name="expanded_player_strip">20dp</dimen>
 
     <!-- Suggested Creators -->

@@ -6,6 +6,7 @@
     <color name="sc_dark_orange_solid">#e36711</color>
     <color name="sc_dark_orange">#cce36711</color>
 
+    <color name="white_85">#D9ffffff</color>
     <color name="white_80">#ccffffff</color>
     <color name="white_70">#b3ffffff</color>
     <color name="white_50">#80ffffff</color>
@@ -19,6 +20,8 @@
     <color name="black_30">#4d000000</color>
     <color name="black_20">#33000000</color>
     <color name="black_15">#26000000</color>
+
+    <color name="charcoal_80">#CC666666</color>
 
     <color name="translucent_status_bar">@color/white_12</color>
     <color name="translucent_white">@color/white_80</color>
@@ -61,7 +64,8 @@
 
     <!-- Player -->
     <color name="dark_gradient_start">@color/black_30</color>
-    <color name="player_user_text">@color/platinum</color>
+    <color name="player_user_text">@color/charcoal</color>
+
 
     <color name="wave_above">@color/mist</color>
     <color name="wave_below">@color/silver</color>
@@ -69,18 +73,22 @@
     <color name="wave_progress_end">@color/scarlet</color>
     <color name="wave_progress_below">@color/peach</color>
 
-    <color name="artwork_overlay">@color/smoke</color>
+    <color name="artwork_overlay_mini">@color/white_85</color>
+    <color name="artwork_overlay_full">@color/black_60</color>
+
     <color name="timestamp_primary">@color/white</color>
     <color name="timestamp_secondary">@color/platinum</color>
 
     <!-- Play Queue -->
-    <color name="play_queue_background">@color/dark_bg</color>
+    <color name="play_queue_background">@color/black</color>
     <color name="play_queue_remove">@color/scarlet</color>
     <color name="play_queue_playing_background">@color/white_20</color>
     <color name="play_queue_higlighted_background">@color/white_10</color>
     <color name="play_queue_shadow_top">@color/black_15</color>
     <color name="play_queue_shadow_center">@color/milkglass</color>
     <color name="play_queue_shadow_bottom">@color/black</color>
+    <color name="play_queue_button_focused">#FFE5E5E5</color>
+    <color name="play_queue_button_pressed">#FFCCCCCC</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">@color/black_30</color>

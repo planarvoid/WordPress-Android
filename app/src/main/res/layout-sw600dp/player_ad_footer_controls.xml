@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_footer_control">
 
-    <com.soundcloud.android.view.CustomFontToggleButton
+    <ImageButton
             android:id="@+id/footer_toggle"
             style="@style/FooterToggle"
             android:layout_marginRight="8dp" />

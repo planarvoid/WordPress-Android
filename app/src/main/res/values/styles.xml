@@ -102,11 +102,6 @@
 
     <!-- Misc -->
 
-    <style name="CustomToggle" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:textOn">@null</item>
-        <item name="android:textOff">@null</item>
-    </style>
-
     <style name="BaseToolbarShadow">
         <item name="android:id">@id/legacy_elevation</item>
         <item name="android:background">@drawable/toolbar_shadow</item>

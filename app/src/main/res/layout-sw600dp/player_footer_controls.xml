@@ -5,32 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/player_footer_control">
 
-    <com.soundcloud.android.view.CustomFontToggleButton
+    <ImageButton
         android:id="@+id/footer_toggle"
         style="@style/FooterToggle"
         android:layout_marginRight="8dp" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/footer_user"
-        style="@style/FooterUser"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/player_footer_margin"
-        android:layout_toRightOf="@id/footer_toggle"
-        android:gravity="center_horizontal" />
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/footer_toggle">
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/footer_title"
-        style="@style/FooterTitle"
-        android:layout_width="match_parent"
-        android:layout_below="@id/footer_user"
-        android:layout_toRightOf="@id/footer_toggle"
-        android:gravity="center_horizontal" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/footer_user"
+            style="@style/FooterUser"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/footer_title"
+            style="@style/FooterTitle"
+            android:layout_width="match_parent"
+            android:layout_below="@id/footer_user"
+            android:gravity="center_horizontal" />
+
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/footer_play_queue_button"
-        style="@style/PlayerQueue"
-        android:layout_height="@dimen/player_footer_control"
+        style="@style/PlayerQueue.MiniPlayer"
         android:layout_width="@dimen/player_footer_control"
+        android:layout_height="@dimen/player_footer_control"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="12dp" />
 </RelativeLayout>
