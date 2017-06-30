@@ -4,5 +4,7 @@
     android:tint="@color/miniplayer_button_tint"
     android:viewportHeight="18.0"
     android:viewportWidth="16.0">
-    <path android:pathData="M0,0h5v18L0,18L0,0zM11,0h5v18h-5L11,0z" />
+    <path
+        android:fillColor="#666"
+        android:pathData="M0,0h5v18L0,18L0,0zM11,0h5v18h-5L11,0z" />
 </vector>
