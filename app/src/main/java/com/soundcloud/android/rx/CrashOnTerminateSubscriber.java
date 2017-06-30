@@ -1,8 +1,8 @@
 package com.soundcloud.android.rx;
 
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 
-public class CrashOnTerminateSubscriber<T> extends DefaultSubscriber<T> {
+public class CrashOnTerminateSubscriber<T> extends DefaultObserver<T> {
 
     @Override
     public void onError(Throwable e) {
@@ -10,7 +10,7 @@ public class CrashOnTerminateSubscriber<T> extends DefaultSubscriber<T> {
     }
 
     @Override
-    public void onCompleted() {
+    public void onComplete() {
         throw new IllegalStateException("Subscription should not terminate");
     }
 }

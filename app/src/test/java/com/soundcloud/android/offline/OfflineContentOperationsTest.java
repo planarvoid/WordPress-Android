@@ -218,7 +218,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() {
-        TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
                 changeResult));

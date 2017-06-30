@@ -21,6 +21,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -153,9 +154,9 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
     private void subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            subscription = offlinePropertiesProvider.states()
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe(new OfflineContentSubscriber(adapter));
+            subscription = RxJava.toV1Observable(offlinePropertiesProvider.states())
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribe(new OfflineContentSubscriber(adapter));
         } else {
             subscription = eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new CurrentDownloadSubscriber(adapter));
         }

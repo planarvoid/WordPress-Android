@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -47,27 +47,29 @@ import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackResult.ErrorReason;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import edu.emory.mathcs.backport.java.util.Collections;
 import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,13 +77,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowLog;
 import rx.Observable;
-import rx.observers.AssertableSubscriber;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
 
-import javax.inject.Provider;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +105,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private TrackingStateProvider trackingStateProvider;
     @Mock private PlaylistDetailsPresenter.PlaylistDetailView playlistDetailView;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     private final Track track1 = ModelFixtures.track();
     private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
@@ -132,7 +130,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
     private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
-    private final rx.subjects.BehaviorSubject<OfflineProperties> offlineProperties = rx.subjects.BehaviorSubject.create(OfflineProperties.empty());
+    private final BehaviorSubject<OfflineProperties> offlineProperties = BehaviorSubject.createDefault(OfflineProperties.empty());
     private final SingleSubject<SyncJobResult> syncPlaylist = SingleSubject.create();
 
     private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), false);
@@ -140,10 +138,11 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final Playlist otherPlaylistByUser = ModelFixtures.playlist();
     private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(otherPlaylistByUser), false);
 
-    private final rx.subjects.BehaviorSubject<PlaylistWithExtrasState> dataSource = rx.subjects.BehaviorSubject.create();
+    private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
 
     private final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
     private PlaylistDetailsPresenter newPlaylistPresenter;
+
 
     @Before
     public void setUp() throws Exception {
@@ -153,9 +152,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
-
         when(dataSourceProvider.dataWith(any(Urn.class), eq(inputs.refresh))).thenReturn(dataSource);
-
         when(likesStateProvider.likedStatuses()).thenReturn(likeStatuses);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(repostsStateProvider.repostedStatuses()).thenReturn(repostStatuses);
@@ -163,7 +160,6 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlinePropertiesProvider.states()).thenReturn(offlineProperties);
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
-        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
         newPlaylistPresenter = new PlaylistDetailsPresenter(screen,
                                                             searchQuerySourceInfo,
                                                             promotedSourceInfo,
@@ -182,7 +178,6 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                             dataSourceProvider,
                                                             repostOperations,
                                                             accountOperations,
-                                                            expandPlayerSubscriberProvider,
                                                             ModelFixtures.entityItemCreator(),
                                                             featureOperations,
                                                             offlineSettingsStorage,
@@ -227,18 +222,16 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void goesToCreatorOnCreatorClick() throws Exception {
         connect();
 
-        AssertableSubscriber<Urn> test = newPlaylistPresenter.goToCreator().test();
-
         inputs.onCreatorClicked();
 
-        test.assertReceivedOnNext(singletonList(initialPlaylist.creatorUrn()));
+        verify(playlistDetailView).goToCreator(initialPlaylist.creatorUrn());
     }
 
     @Test
     public void onEnterEditModeGoesToEditMode() throws Exception {
         connect();
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onEnterEditMode();
 
@@ -249,7 +242,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onExitEditModeGoesBackToEditMode() throws Exception {
         connect();
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onEnterEditMode();
         inputs.onExitEditMode();
@@ -261,18 +254,18 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeAvailableOfflineWithOwnerPlaylistMakesAvailableOffline() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED)); // should not be called, but just being safe
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(null);
+        offlineSubject.onNext(RxSignal.SIGNAL);
 
         assertThat(offlineSubject.hasObservers()).isTrue();
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
@@ -282,13 +275,13 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineDoesNotMakeOtherUsersPlaylistOfflineWithFailedLike() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED));
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
@@ -300,17 +293,17 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(null);
+        offlineSubject.onNext(RxSignal.SIGNAL);
 
         assertThat(offlineSubject.hasObservers()).isTrue();
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
@@ -320,7 +313,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
@@ -338,15 +331,14 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineHandlesOfflineContentNotAccessible() {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
-        final AssertableSubscriber<Void> assertableSubscriber = newPlaylistPresenter.onShowOfflineStorageErrorDialog().test();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
 
         inputs.onMakeOfflineAvailable();
 
         offlineSubject.onNext(null);
 
-        assertableSubscriber.assertValue(null);
+        verify(playlistDetailView).showOfflineStorageErrorDialog(any());
         verifyZeroInteractions(offlineContentOperations);
     }
 
@@ -354,7 +346,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineMakesOfflineUnavailable() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<Void> offlineSubject = rx.subjects.PublishSubject.create();
+        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(offlineSubject);
 
         inputs.onMakeOfflineUnavailable();
@@ -367,11 +359,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
         connect();
 
-        AssertableSubscriber<Pair<Urn, PlaySessionSource>> goToUpsell = newPlaylistPresenter.onShowDisableOfflineCollectionConfirmation().test();
-
         inputs.onMakeOfflineUnavailable();
 
-        goToUpsell.assertValue(Pair.of(playlistUrn, createPlaySessionSource()));
+        verify(playlistDetailView).showDisableOfflineCollectionConfirmation(Pair.of(playlistUrn, createPlaySessionSource()));
     }
 
     @Test
@@ -398,7 +388,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         inputs.onHeaderPlayButtonClicked();
 
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
+        verify(playlistDetailView).showPlaybackResult(PlaybackResult.success());
     }
 
     @Test
@@ -409,11 +399,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Observable.just(trackUrns));
         when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(Single.just(PlaybackResult.error(ErrorReason.MISSING_PLAYABLE_TRACKS)));
 
-        AssertableSubscriber<ErrorReason> test = newPlaylistPresenter.onPlaybackError().test();
-
         inputs.onHeaderPlayButtonClicked();
 
-        test.assertReceivedOnNext(singletonList(ErrorReason.MISSING_PLAYABLE_TRACKS));
+        verify(playlistDetailView).showPlaybackResult(PlaybackResult.error(ErrorReason.MISSING_PLAYABLE_TRACKS));
     }
 
     @Test
@@ -432,11 +420,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         LikeOperations.LikeResult likeResult = LikeOperations.LikeResult.LIKE_SUCCEEDED;
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(likeResult));
 
-        AssertableSubscriber<LikeOperations.LikeResult> subscriber = newPlaylistPresenter.onLikeResult().test();
-
         inputs.onToggleLike(true);
 
-        subscriber.assertValue(likeResult);
+        verify(playlistDetailView).showLikeResult(likeResult);
     }
 
     @Test
@@ -457,11 +443,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         LikeOperations.LikeResult likeResult = LikeOperations.LikeResult.UNLIKE_SUCCEEDED;
         when(likeOperations.toggleLike(playlistUrn, false)).thenReturn(Single.just(likeResult));
 
-        AssertableSubscriber<LikeOperations.LikeResult> subscriber = newPlaylistPresenter.onLikeResult().test();
-
         inputs.onToggleLike(false);
 
-        subscriber.assertValue(likeResult);
+        verify(playlistDetailView).showLikeResult(likeResult);
     }
 
     @Test
@@ -481,11 +465,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(Single.just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
 
-        AssertableSubscriber<RepostOperations.RepostResult> subscriber = newPlaylistPresenter.onRepostResult().test();
-
         inputs.onToggleRepost(true);
 
-        subscriber.assertValue(RepostOperations.RepostResult.REPOST_SUCCEEDED);
+        verify(playlistDetailView).showRepostResult(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
@@ -494,11 +476,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(Single.just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
 
-        AssertableSubscriber<RepostOperations.RepostResult> subscriber = newPlaylistPresenter.onRepostResult().test();
-
         inputs.onToggleRepost(false);
 
-        subscriber.assertValue(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+        verify(playlistDetailView).showRepostResult(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
@@ -527,8 +507,6 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void upsellsOfflineFromMakeOffline() {
         connect();
 
-        AssertableSubscriber<Urn> goToUpsell = newPlaylistPresenter.goToOfflineUpsell().test();
-
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistPageClick(playlistUrn);
 
         inputs.onMakeOfflineUpsell();
@@ -536,7 +514,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
 
-        goToUpsell.assertValue(playlistUrn);
+        verify(playlistDetailView).goToOfflineUpsell(playlistUrn);
     }
 
     @Test
@@ -546,7 +524,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsMetadata likedHeader = initialModel.metadata().toBuilder().isLikedByUser(true).build();
         final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().metadata(likedHeader).build();
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitLikedEntities(Urn.forTrack(123L));
@@ -565,7 +543,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                   .offlineState(OfflineState.DOWNLOADED).build();
         final PlaylistDetailsViewModel offlinePlaylist = initialModel.toBuilder().metadata(offlineHeader).build();
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
@@ -579,7 +557,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void doesNotEmitsUpdatedPlaylistAfterOfflineStateChangeWhileEditing() throws Exception {
         connect();
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
@@ -594,7 +572,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Test
     public void emitsRefreshSequence() {
         connect();
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         dataSource.onNext(PlaylistWithExtrasState.builder()
                                                  .playlistWithExtras(of(initialPlaylistWithTrackExtras))
@@ -621,26 +599,18 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void goesBackWhenDeleted() throws Exception {
         connect();
 
-        AssertableSubscriber<Object> subscriber = newPlaylistPresenter.onGoBack().test();
-
-        subscriber.assertNoValues();
-
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntitiesDeleted(singleton(playlistUrn)));
 
-        subscriber.assertValueCount(1);
+        verify(playlistDetailView).goBack(any());
     }
 
     @Test
     public void ignoresDeletionOfOtherPlaylist() throws Exception {
         connect();
 
-        AssertableSubscriber<Object> subscriber = newPlaylistPresenter.onGoBack().test();
-
-        subscriber.assertNoValues();
-
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntitiesDeleted(singleton(Urn.forPlaylist(8765))));
 
-        subscriber.assertNoValues();
+        verify(playlistDetailView, never()).goBack(any());
     }
 
     @Test
@@ -649,7 +619,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlistUrn);
 
-        newPlaylistPresenter.firePlaylistTracksUpsellImpression();
+        inputs.firstTrackUpsellImpression.onNext(RxSignal.SIGNAL);
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
@@ -676,7 +646,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel modelWithoutUpsell = initialModelWithUpsell.toBuilder().upsell(absent()).build();
 
         connect();
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         modelUpdates.assertValues(getIdleViewModel(initialModelWithUpsell));
 
@@ -711,29 +681,24 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void shareShares() throws Exception {
         connect();
 
-        AssertableSubscriber<SharePresenter.ShareOptions> testSubscriber = newPlaylistPresenter.onShare().test();
-
         inputs.onShareClicked();
 
-
-        testSubscriber.assertValue(SharePresenter.ShareOptions.create(initialPlaylist.permalinkUrl().get(),
-                                                                      eventContext(initialPlaylist),
-                                                                      promotedSourceInfo,
-                                                                      createEntityMetadata(initialPlaylist)));
+        verify(playlistDetailView).sharePlaylist(SharePresenter.ShareOptions.create(initialPlaylist.permalinkUrl().get(),
+                                                                                    eventContext(initialPlaylist),
+                                                                                    promotedSourceInfo,
+                                                                                    createEntityMetadata(initialPlaylist)));
     }
 
     @Test
     public void overflowUpsellTracksAndGoesToOfflineUpsell() {
         connect();
 
-        AssertableSubscriber<Urn> testSubscriber = newPlaylistPresenter.goToOfflineUpsell().test();
-
         inputs.onOverflowUpsell();
-
-        testSubscriber.assertValue(playlistUrn);
 
         TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent).isEqualTo(UpgradeFunnelEvent.forPlaylistOverflowClick(playlistUrn));
+
+        verify(playlistDetailView).goToOfflineUpsell(playlistUrn);
     }
 
     @Test
@@ -750,31 +715,13 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void playShuffledPlaysShuffled() {
         connect();
 
-        AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
-
         ArgumentCaptor<Single<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Single.class);
         when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(Single.just(PlaybackResult.success()));
 
         inputs.onPlayShuffled();
 
-        tracklistCaptor.getValue().test().assertValue(transform(trackItems, PlayableItem::getUrn));
-        testSubscriber.assertNoValues();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND)).isEqualTo(PlayerUICommand.expandPlayer());
-    }
-
-    @Test
-    public void playShuffledHandlesError() {
-        connect();
-
-        AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
-
-        ArgumentCaptor<Single<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Single.class);
-        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(Single.just(PlaybackResult.error(ErrorReason.TRACK_UNAVAILABLE_CAST)));
-
-        inputs.onPlayShuffled();
-
-        tracklistCaptor.getValue().test().assertValue(transform(trackItems, PlayableItem::getUrn));
-        testSubscriber.assertValue(ErrorReason.TRACK_UNAVAILABLE_CAST);
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isEqualTo(UIEvent.fromShuffle(eventContext(initialPlaylist)));
     }
 
     private PlaylistDetailTrackItem getPlaylistDetailTrackItem(TrackItem trackItem) {

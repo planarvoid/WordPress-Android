@@ -7,8 +7,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
@@ -17,6 +19,10 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
@@ -26,15 +32,17 @@ import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import io.reactivex.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -75,6 +83,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject FeedbackController feedbackController;
     @Inject Navigator navigator;
+    @Inject ExpandPlayerObserver expandPlayerObserver;
     @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -85,7 +94,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     private PlaylistDetailsAdapter adapter;
 
     private boolean skipModelUpdates;
-    private CompositeSubscription subscription;
+    private CompositeDisposable disposable;
 
     private CollectionRenderer<PlaylistDetailItem, RecyclerView.ViewHolder> collectionRenderer;
     private PlaylistDetailsInputs inputs;
@@ -134,6 +143,66 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         return ((RootActivity) getActivity()).enterScreenTimestamp();
     }
 
+    @Override
+    public void goToCreator(Urn urn) {
+        navigator.navigateTo(getActivity(), NavigationTarget.forProfile(urn));
+    }
+
+    @Override
+    public void goBack(Object ignored) {
+        getActivity().onBackPressed();
+    }
+
+    @Override
+    public void showRepostResult(RepostOperations.RepostResult result) {
+        // no-op. Handled by feedback Controller for now
+    }
+
+    @Override
+    public void showLikeResult(LikeOperations.LikeResult result) {
+        // no-op. Handled by feedback Controller for now
+    }
+
+    @Override
+    public void showPlaylistDetailConfirmation(Urn urn) {
+        DeletePlaylistDialogFragment.show(getFragmentManager(), urn);
+    }
+
+    @Override
+    public void showDisableOfflineCollectionConfirmation(Pair<Urn, PlaySessionSource> params) {
+        ConfirmRemoveOfflineDialogFragment.showForPlaylist(getFragmentManager(), params.first(), params.second().getPromotedSourceInfo());
+    }
+
+    @Override
+    public void showOfflineStorageErrorDialog(Object ignored) {
+        OfflineStorageErrorDialog.show(getActivity().getSupportFragmentManager());
+    }
+
+    @Override
+    public void sharePlaylist(SharePresenter.ShareOptions options) {
+        shareOperations.share(getContext(), options);
+    }
+
+    @Override
+    public void goToContentUpsell(Urn urn) {
+        navigationExecutor.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT);
+    }
+
+    @Override
+    public void goToOfflineUpsell(Urn urn) {
+        navigationExecutor.openUpgrade(getContext(), UpsellContext.OFFLINE);
+    }
+
+    @Override
+    public void showRefreshError(ViewError refreshError) {
+        feedbackController.showFeedback(Feedback.create(ErrorUtils.emptyMessageFromViewError(refreshError)));
+    }
+
+    @Override
+    public void showPlaybackResult(PlaybackResult playbackResult) {
+        expandPlayerObserver.onNext(playbackResult);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -154,8 +223,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         boolean showInlineHeader = detailView == null;
 
         presenter.connect(inputs, this, getArguments().getParcelable(EXTRA_URN));
-        subscription = new CompositeSubscription();
-        subscription.addAll(
+        disposable = new CompositeDisposable();
+        disposable.addAll(
 
                 presenter.viewModel()
                          .observeOn(AndroidSchedulers.mainThread())
@@ -167,47 +236,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 collectionRenderer.onRefresh()
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(aVoid -> inputs.refresh()),
-
-                presenter.goToCreator()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigator.navigateTo(getActivity(), NavigationTarget.forProfile(urn))),
-
-                presenter.goToContentUpsell()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> navigationExecutor.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT)),
-
-                presenter.goToOfflineUpsell()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> navigationExecutor.openUpgrade(getContext(), UpsellContext.OFFLINE)),
-
-                presenter.onRepostResult()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(new RepostResultSubscriber(view.getContext())),
-
-                presenter.onRequestingPlaylistDeletion()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> DeletePlaylistDialogFragment.show(getFragmentManager(), urn)),
-
-                presenter.onShowDisableOfflineCollectionConfirmation()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(data -> ConfirmRemoveOfflineDialogFragment.showForPlaylist(getFragmentManager(), data.first(), data.second().getPromotedSourceInfo())),
-
-                presenter.onGoBack()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> getActivity().onBackPressed()),
-
-                presenter.onShare()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions)),
-
-                presenter.onShowOfflineStorageErrorDialog()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> OfflineStorageErrorDialog.show(getActivity().getSupportFragmentManager())),
-
-                presenter.onRefreshError()
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(error -> feedbackController.showFeedback(Feedback.create(ErrorUtils.emptyMessageFromViewError(error))))
+                                  .subscribe(signal -> inputs.refresh())
 
         );
 
@@ -291,7 +320,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Override
     public void onDestroyView() {
         presenter.disconnect();
-        subscription.unsubscribe();
+        disposable.clear();
         collectionRenderer.detach();
 
         if (headerAnimator != null) {
@@ -336,7 +365,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onUpsellItemPresented() {
-        presenter.firePlaylistTracksUpsellImpression();
+        inputs.firstTrackUpsellImpression.onNext(RxSignal.SIGNAL);
     }
 
     public void onDragStarted() {

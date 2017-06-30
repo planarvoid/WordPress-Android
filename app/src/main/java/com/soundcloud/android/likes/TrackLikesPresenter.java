@@ -232,7 +232,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     private Subscription subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
+            return RxJava.toV1Observable(offlinePropertiesProvider.states())
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribe(new OfflinePropertiesSubscriber<>(adapter));
         } else {

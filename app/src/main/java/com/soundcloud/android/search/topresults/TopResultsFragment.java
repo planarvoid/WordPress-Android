@@ -11,7 +11,6 @@ import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
@@ -136,8 +135,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public Observable<Refresh> refreshIntent() {
-        return RxJava.toV2Observable(collectionRenderer.onRefresh()
-                                                       .map(ignore -> Refresh.create(SearchParams.createRefreshing(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition()))));
+        return collectionRenderer.onRefresh().map(ignore -> Refresh.create(SearchParams.createRefreshing(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition())));
     }
 
     @Override

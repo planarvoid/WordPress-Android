@@ -5,12 +5,12 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.rx.eventbus.EventBusV2;
 
 import javax.inject.Inject;
 
-public class ExpandPlayerObserver extends DefaultSingleObserver<PlaybackResult> {
+public class ExpandPlayerObserver extends DefaultObserver<PlaybackResult> {
 
     private final EventBusV2 eventBus;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
@@ -26,14 +26,13 @@ public class ExpandPlayerObserver extends DefaultSingleObserver<PlaybackResult> 
     }
 
     @Override
-    public void onSuccess(PlaybackResult result) {
+    public void onNext(PlaybackResult result) {
         if (result.isSuccess()) {
             expandPlayer();
         } else {
             onPlaybackError();
             playbackFeedbackHelper.showFeedbackOnPlaybackError(result.getErrorReason());
         }
-        super.onSuccess(result);
     }
 
     protected void onPlaybackError() {

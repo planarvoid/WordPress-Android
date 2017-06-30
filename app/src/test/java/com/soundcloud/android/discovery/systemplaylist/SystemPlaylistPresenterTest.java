@@ -16,7 +16,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYou;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -102,7 +102,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Mock TrackingStateProvider trackingStateProvider;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
-    private final Provider<ExpandPlayerObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver(eventBus);
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver(eventBus);
     private SystemPlaylistPresenter presenter;
 
     @Before

@@ -17,7 +17,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -48,7 +48,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private SwipeRefreshAttacher swipeRrefreshAttacher;
-    @Mock private ExpandPlayerObserver expandPlayerObserver;
+    @Mock private ExpandPlayerSingleObserver expandPlayerObserver;
     @Mock private PlayHistoryAdapter adapter;
     @Mock private FeedbackController feedbackController;
     @Mock private Fragment fragment;
@@ -59,7 +59,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
-    private Provider<ExpandPlayerObserver> expandPlayerObserverProvider = providerOf(expandPlayerObserver);
+    private Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider = providerOf(expandPlayerObserver);
 
     private PlayHistoryPresenter playHistoryPresenter;
 

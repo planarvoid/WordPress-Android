@@ -30,6 +30,7 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -209,7 +210,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSaveOfflineIfPlaylistOwnedByCurrentUser() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
         when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -223,7 +224,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSaveOfflineIfPlaylistLikedByCurrentUser() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
         final PlaylistItem likedPlaylist = playlistItem.updateLikeState(true);
         when(offlineOperations.makePlaylistAvailableOffline(likedPlaylist.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -249,7 +250,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLikeAndSaveOffline() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -278,7 +279,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistUnavailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 

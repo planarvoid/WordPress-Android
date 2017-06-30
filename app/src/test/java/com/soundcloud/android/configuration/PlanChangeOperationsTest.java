@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -189,7 +190,7 @@ public class PlanChangeOperationsTest {
 
     @Test
     public void downgradeToFreeResetsOfflineFeature() {
-        final PublishSubject<Void> clearObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> clearObservable = PublishSubject.create();
         when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.free()));
         when(offlineContentOperations.disableOfflineFeature()).thenReturn(clearObservable);
 

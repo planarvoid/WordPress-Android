@@ -18,14 +18,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.MaybeSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
     private PublishSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader = PublishSubject.create();
     private MaybeSubject<List<Playlist>> offlinePlaylistsLoader = MaybeSubject.create();
     private PublishSubject<OfflineState> offlineLikesTracksStateLoader = PublishSubject.create();
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
@@ -53,7 +53,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
                 offlineStateOperations,
                 myPlaylistsOperations,
                 eventBus,
-                Schedulers.immediate(),
+                Schedulers.trampoline(),
                 accountOperations
         );
 

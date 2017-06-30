@@ -13,6 +13,8 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;
@@ -22,12 +24,18 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.hamcrest.TestAsyncState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.Supplier;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,10 +52,31 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
     private static final String PLAYLIST_TWO_TRACKS = "playlist-two-tracks.json";
 
-    private final PlaylistDetailsPresenter.PlaylistDetailView playlistDetailView = Observable::never;
+    private final PlaylistDetailsPresenter.PlaylistDetailView playlistDetailView = mock(PlaylistDetailsPresenter.PlaylistDetailView.class);
+    private Disposable disposable = RxUtils.invalidDisposable();
+    private PlaylistDetailsPresenter presenter;
+    private Screen screen;
 
     public PlaylistDetailsPresenterIntegrationTest() {
         super(TestUser.playlistUser);
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        when(playlistDetailView.onEnterScreenTimestamp()).thenReturn(Observable.empty());
+
+        presenter = createPresenter();
+        screen = new Screen(presenter);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        disposable.dispose();
+        super.tearDown();
     }
 
     @Test
@@ -55,7 +84,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         noNetwork();
 
         final PlaylistDetailsPresenter presenter = createPresenter();
-        final Screen screen = new Screen(presenter);
+        disposable = presenter.viewModel().subscribe(screen);
 
         screen.assertState(empty());
     }
@@ -64,8 +93,8 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
     public void presenterStartsWithEmptyModel() {
         unrespondingNetwork();
 
-        final PlaylistDetailsPresenter presenter = createPresenter();
-        final Screen screen = new Screen(presenter);
+
+        disposable = presenter.viewModel().subscribe(screen);
 
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
@@ -83,7 +112,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         noNetwork();
 
         final PlaylistDetailsPresenter presenter = createPresenter();
-        final Screen screen = new Screen(presenter);
+        disposable = presenter.viewModel().subscribe(screen);
 
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
@@ -111,7 +140,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
         final Urn playlistUrn = Urn.forPlaylist(id);
         final PlaylistDetailsPresenter presenter = createPresenter();
-        final Screen screen = new Screen(presenter);
+        disposable = presenter.viewModel().subscribe(screen);
 
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, playlistUrn);
 
@@ -130,7 +159,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
         final Urn playlistWith2Tracks = Urn.forPlaylist(id);
         final PlaylistDetailsPresenter presenter = createPresenter();
-        final Screen screen = new Screen(presenter);
+        disposable = presenter.viewModel().subscribe(screen);
 
         final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
         presenter.connect(inputs, playlistDetailView, playlistWith2Tracks);
@@ -166,12 +195,12 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         }
     }
 
-    static class Screen extends TestAsyncState<AsyncViewModel<PlaylistDetailsViewModel>> {
+    static class Screen extends TestAsyncState<AsyncViewModel<PlaylistDetailsViewModel>> implements Consumer<AsyncViewModel<PlaylistDetailsViewModel>>{
 
         final List<AsyncViewModel<PlaylistDetailsViewModel>> models = new ArrayList<>();
 
         Screen(PlaylistDetailsPresenter presenter) {
-            presenter.viewModel().subscribe(this::updateModel);
+
         }
 
         public AsyncViewModel<PlaylistDetailsViewModel> currentState() {
@@ -186,12 +215,13 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
             models.clear();
         }
 
-        private boolean hasTracks(Optional<PlaylistDetailsViewModel> data) {
-            return data.isPresent() && !data.get().tracks().isEmpty();
+        @Override
+        public void accept(@NonNull AsyncViewModel<PlaylistDetailsViewModel> playlistDetailsViewModelAsyncViewModel) throws Exception {
+            models.add(playlistDetailsViewModelAsyncViewModel);
         }
 
-        private void updateModel(AsyncViewModel<PlaylistDetailsViewModel> update) {
-            models.add(update);
+        private boolean hasTracks(Optional<PlaylistDetailsViewModel> data) {
+            return data.isPresent() && !data.get().tracks().isEmpty();
         }
 
         @Override

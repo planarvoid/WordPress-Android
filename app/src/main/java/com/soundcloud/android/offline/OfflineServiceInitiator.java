@@ -29,10 +29,10 @@ class OfflineServiceInitiator {
         return ignored -> OfflineContentService.startFromUserAction(context);
     }
 
-    Subscriber<Void> startSubscriber() {
-        return new DefaultSubscriber<Void>() {
+    Subscriber<Object> startSubscriber() {
+        return new DefaultSubscriber<Object>() {
             @Override
-            public void onNext(Void ignored) {
+            public void onNext(Object ignored) {
                 OfflineContentService.start(context);
             }
         };

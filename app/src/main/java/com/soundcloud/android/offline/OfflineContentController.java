@@ -8,6 +8,7 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.Lists;
@@ -28,16 +29,16 @@ public class OfflineContentController {
     private final EventBus eventBus;
     private final Observable<Boolean> syncWifiOnlyToggled;
 
-    private final Func1<Set<Urn>, Observable<Void>> addOfflinePlaylist = new Func1<Set<Urn>, Observable<Void>>() {
+    private final Func1<Set<Urn>, Observable<RxSignal>> addOfflinePlaylist = new Func1<Set<Urn>, Observable<RxSignal>>() {
         @Override
-        public Observable<Void> call(final Set<Urn> newPlaylists) {
+        public Observable<RxSignal> call(final Set<Urn> newPlaylists) {
             return offlineContentOperations.makePlaylistAvailableOffline(Lists.newArrayList(newPlaylists));
         }
     };
 
-    private final Func1<Set<Urn>, Observable<Void>> removeOfflinePlaylist = new Func1<Set<Urn>, Observable<Void>>() {
+    private final Func1<Set<Urn>, Observable<RxSignal>> removeOfflinePlaylist = new Func1<Set<Urn>, Observable<RxSignal>>() {
         @Override
-        public Observable<Void> call(final Set<Urn> playlists) {
+        public Observable<RxSignal> call(final Set<Urn> playlists) {
             return offlineContentOperations.makePlaylistUnavailableOffline(Lists.newArrayList(playlists));
         }
     };
@@ -70,15 +71,14 @@ public class OfflineContentController {
         subscription.unsubscribe();
     }
 
-    private Observable<Void> offlineContentEvents() {
+    private Observable<Object> offlineContentEvents() {
         return Observable
                 .merge(offlinePlaylistChanged(),
                        offlineTrackLikedChanged(),
                        networkOrWifiOnlySettingChanged(),
                        policyUpdates(),
                        offlineCollectionChanged()
-                )
-                .map(RxUtils.TO_VOID);
+                );
     }
 
     private Observable<Object> offlinePlaylistChanged() {

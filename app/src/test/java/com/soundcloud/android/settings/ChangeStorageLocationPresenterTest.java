@@ -13,6 +13,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class ChangeStorageLocationPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
         when(offlineContentOperations.resetOfflineContent(any(OfflineContentLocation.class))).thenReturn(offlineObservable);
 
         activity.setContentView(R.layout.change_storage_location_activity);

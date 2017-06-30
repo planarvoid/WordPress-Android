@@ -30,6 +30,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
@@ -130,9 +131,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupSubscription() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            subscription.add(offlinePropertiesProvider.states()
-                                                      .observeOn(AndroidSchedulers.mainThread())
-                                                      .subscribe(new CurrentDownloadSubscriber()));
+            subscription.add(RxJava.toV1Observable(offlinePropertiesProvider.states())
+                                                             .observeOn(AndroidSchedulers.mainThread())
+                                                             .subscribe(new CurrentDownloadSubscriber()));
         } else {
             subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                                      .filter(event -> event.state == OfflineState.DOWNLOADED)
@@ -267,9 +268,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
                                  .subscribe(new ClearOfflineContentSubscriber()));
     }
 
-    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Void> {
+    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(Void ignored) {
+        public void onNext(Object ignored) {
             setOfflineCollectionChecked(false);
             refreshStoragePreference();
         }

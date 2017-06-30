@@ -6,13 +6,14 @@ import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
-import rx.functions.Func2;
-import rx.subjects.PublishSubject;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.subjects.PublishSubject;
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -32,18 +33,18 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     private Unbinder unbinder;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
-    private final PublishSubject<Void> onRefresh = PublishSubject.create();
+    private final PublishSubject<RxSignal> onRefresh = PublishSubject.create();
 
     private final RecyclerItemAdapter<ItemT, VH> adapter;
-    private final Func2<ItemT, ItemT, Boolean> areItemsTheSame;
-    private final Func2<ItemT, ItemT, Boolean> areContentsTheSame;
+    private final BiFunction<ItemT, ItemT, Boolean> areItemsTheSame;
+    private final BiFunction<ItemT, ItemT, Boolean> areContentsTheSame;
+    private final boolean animateLayoutChangesInItems;
+    private final boolean showDividers;
     private EmptyAdapter emptyAdapter;
-    private boolean animateLayoutChangesInItems;
-    private boolean showDividers;
 
     public CollectionRenderer(RecyclerItemAdapter<ItemT, VH> adapter,
-                              Func2<ItemT, ItemT, Boolean> areItemsTheSame,
-                              Func2<ItemT, ItemT, Boolean> areContentsTheSame,
+                              BiFunction<ItemT, ItemT, Boolean> areItemsTheSame,
+                              BiFunction<ItemT, ItemT, Boolean> areContentsTheSame,
                               EmptyStateProvider emptyStateProvider,
                               boolean animateLayoutChangesInItems, boolean showDividers) {
         this.adapter = adapter;
@@ -65,10 +66,10 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
         // handle swipe to refresh
         swipeRefreshLayout.setSwipeableChildren(recyclerView);
-        swipeRefreshLayout.setOnRefreshListener(() -> onRefresh.onNext(null));
+        swipeRefreshLayout.setOnRefreshListener(() -> onRefresh.onNext(RxSignal.SIGNAL));
     }
 
-    public PublishSubject<Void> onRefresh() {
+    public PublishSubject<RxSignal> onRefresh() {
         return onRefresh;
     }
 
@@ -181,14 +182,24 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
             final ItemT oldItem = oldItems.get(oldItemPosition);
             final ItemT newItem = newItems.get(newItemPosition);
-            return areItemsTheSame.call(oldItem, newItem);
+            try {
+                return areItemsTheSame.apply(oldItem, newItem);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
             final ItemT oldItem = oldItems.get(oldItemPosition);
             final ItemT newItem = newItems.get(newItemPosition);
-            return areContentsTheSame.call(oldItem, newItem);
+            try {
+                return areContentsTheSame.apply(oldItem, newItem);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 

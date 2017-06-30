@@ -13,7 +13,6 @@ import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
 import java.util.List;
@@ -24,19 +23,11 @@ public final class RxUtils {
 
     public static final Predicate<Boolean> TRUE = isTrue -> isTrue;
 
-    public static final Func1<Boolean, Boolean> IS_FALSE = isTrue -> !isTrue;
-
-    public static final Func1<Object, Void> TO_VOID = ignore -> null;
-
-    public static final Func2<Object, Object, Void> ZIP_TO_VOID = (ignored, ignored2) -> null;
-
     public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = ts -> ts != Consts.NOT_SET;
 
     public static final Object EMPTY_VALUE = new Object();
 
-    public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = list -> !list.isEmpty();
-
-    public static final Func1<Object, Boolean> IS_NOT_NULL = obj -> obj != null;
+    public static final Func1<Object, RxSignal> TO_SIGNAL = ignore -> RxSignal.SIGNAL;
 
     private RxUtils() {
     }

@@ -22,7 +22,7 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -62,7 +62,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final TrackLikesHeaderViewFactory headerViewFactory;
     private final OfflineStateOperations offlineStateOperations;
     private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
     private final FeatureOperations featureOperations;
     private final EventBusV2 eventBus;
     private final TrackLikeOperations likeOperations;
@@ -110,7 +110,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      TrackLikeOperations likeOperations,
                                      final FeatureOperations featureOperations,
                                      PlaybackInitiator playbackInitiator,
-                                     Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
+                                     Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider,
                                      Provider<OfflineLikesDialog> syncLikesDialogProvider,
                                      NavigationExecutor navigationExecutor,
                                      EventBusV2 eventBus,

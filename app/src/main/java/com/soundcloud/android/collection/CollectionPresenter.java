@@ -21,7 +21,7 @@ import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -96,7 +96,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CollectionOperations collectionOperations;
-    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
     private final PlayHistoryOperations playHistoryOperations;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -108,7 +108,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         CollectionAdapter adapter,
                         Resources resources,
                         EventBusV2 eventBus,
-                        Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
+                        Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider,
                         PlayHistoryOperations playHistoryOperations,
                         FeatureOperations featureOperations,
                         NavigationExecutor navigationExecutor,
@@ -269,7 +269,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.statesV2()
+            return offlinePropertiesProvider.states()
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribeWith(new OfflinePropertiesSubscriber(adapter));
         } else {

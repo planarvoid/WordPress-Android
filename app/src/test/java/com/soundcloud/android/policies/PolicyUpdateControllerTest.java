@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -113,7 +114,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate30DaysAgo() {
-        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<RxSignal> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())
@@ -126,7 +127,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate33DaysAgo() {
-        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<RxSignal> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())

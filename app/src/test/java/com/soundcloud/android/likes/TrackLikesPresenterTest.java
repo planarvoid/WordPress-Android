@@ -66,7 +66,7 @@ import java.util.List;
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
-    private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();
+    private final io.reactivex.subjects.PublishSubject<OfflineProperties> offlinePropertiesSubject = io.reactivex.subjects.PublishSubject.create();
 
     private TrackLikesPresenter presenter;
 

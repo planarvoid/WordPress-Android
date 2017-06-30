@@ -9,7 +9,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -58,7 +58,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     private final NewForYouOperations newForYouOperations;
     private final SystemPlaylistAdapter adapter;
     private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerObserver> expandPlayerObserverProvider;
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
     private final Resources resources;
     private final EventBusV2 eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
@@ -78,7 +78,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                             NewForYouOperations newForYouOperations,
                             SystemPlaylistAdapterFactory adapterFactory,
                             PlaybackInitiator playbackInitiator,
-                            Provider<ExpandPlayerObserver> expandPlayerObserverProvider,
+                            Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider,
                             Resources resources,
                             EventBusV2 eventBus,
                             PlaySessionStateProvider playSessionStateProvider,

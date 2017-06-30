@@ -10,7 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -72,11 +72,11 @@ public class StartStationPresenter {
                              final DiscoverySource discoverySource,
                              final int position) {
         disposable = station.flatMapSingle(toPlaybackResult(discoverySource, position))
-                            .subscribeWith(new ExpandAndDismissDialogObserver(context,
-                                                                              eventBus,
-                                                                              playbackFeedbackHelper,
-                                                                              getLoadingDialogPresenter(context),
-                                                                              performanceMetricsEngine));
+                            .subscribeWith(new ExpandAndDismissDialogSingleObserver(context,
+                                                                                    eventBus,
+                                                                                    playbackFeedbackHelper,
+                                                                                    getLoadingDialogPresenter(context),
+                                                                                    performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -104,11 +104,11 @@ public class StartStationPresenter {
                      final Maybe<StationRecord> station,
                      final DiscoverySource discoverySource) {
         disposable = station.flatMapSingle(toPlaybackResult(discoverySource))
-                            .subscribeWith(new ExpandAndDismissDialogObserver(context,
-                                                                              eventBus,
-                                                                              playbackFeedbackHelper,
-                                                                              getLoadingDialogPresenter(context),
-                                                                              performanceMetricsEngine));
+                            .subscribeWith(new ExpandAndDismissDialogSingleObserver(context,
+                                                                                    eventBus,
+                                                                                    playbackFeedbackHelper,
+                                                                                    getLoadingDialogPresenter(context),
+                                                                                    performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -141,16 +141,16 @@ public class StartStationPresenter {
         };
     }
 
-    private static class ExpandAndDismissDialogObserver extends ExpandPlayerObserver {
+    private static class ExpandAndDismissDialogSingleObserver extends ExpandPlayerSingleObserver {
 
         private final Context context;
         private final DelayedLoadingDialogPresenter delayedLoadingDialogPresenter;
 
-        ExpandAndDismissDialogObserver(Context context,
-                                       EventBusV2 eventBus,
-                                       PlaybackFeedbackHelper playbackFeedbackHelper,
-                                       DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
-                                       PerformanceMetricsEngine performanceMetricsEngine) {
+        ExpandAndDismissDialogSingleObserver(Context context,
+                                             EventBusV2 eventBus,
+                                             PlaybackFeedbackHelper playbackFeedbackHelper,
+                                             DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
+                                             PerformanceMetricsEngine performanceMetricsEngine) {
             super(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;

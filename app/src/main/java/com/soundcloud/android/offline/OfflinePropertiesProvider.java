@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
@@ -12,11 +11,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.Subject;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,7 +32,7 @@ public class OfflinePropertiesProvider {
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final OfflineStateOperations offlineStateOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private final AccountOperations accountOperations;
     private final BehaviorSubject<OfflineProperties> subject = BehaviorSubject.create();
@@ -41,8 +41,8 @@ public class OfflinePropertiesProvider {
     public OfflinePropertiesProvider(TrackDownloadsStorage trackDownloadsStorage,
                                      OfflineStateOperations offlineStateOperations,
                                      MyPlaylistsOperations myPlaylistsOperations,
-                                     EventBus eventBus,
-                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                                     EventBusV2 eventBus,
+                                     @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                                      AccountOperations accountOperations) {
         this.trackDownloadsStorage = trackDownloadsStorage;
         this.offlineStateOperations = offlineStateOperations;
@@ -53,12 +53,12 @@ public class OfflinePropertiesProvider {
     }
 
     public void subscribe() {
-        fireAndForget(userSessionStart().switchMap(trigger -> notifyStateChanges()));
+        userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribe(new DefaultObserver<>());
     }
 
     private Observable<Boolean> userSessionStart() {
         return eventBus
-                .queue(EventQueue.CURRENT_USER_CHANGED).asObservable()
+                .queue(EventQueue.CURRENT_USER_CHANGED)
                 .map(CurrentUserChangedEvent::isUserUpdated)
                 .startWith(accountOperations.isUserLoggedIn())
                 .filter(isSessionStarted -> isSessionStarted);
@@ -82,7 +82,7 @@ public class OfflinePropertiesProvider {
 
     private Observable<OfflineProperties> loadOfflineStates() {
         return Observable.zip(
-                trackDownloadsStorage.getOfflineStates(),
+                RxJava.toV2Observable(trackDownloadsStorage.getOfflineStates()),
                 loadPlaylistCollectionOfflineStates(),
                 this::aggregateOfflineProperties
         );
@@ -99,7 +99,7 @@ public class OfflinePropertiesProvider {
     }
 
     private Observable<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
-        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY))
+        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY).toObservable()
                                     .map(this::loadPlaylistsOfflineStatesSync);
     }
 
@@ -117,7 +117,7 @@ public class OfflinePropertiesProvider {
         return playlistToState;
     }
 
-    private Subject<OfflineContentChangedEvent, OfflineContentChangedEvent> listenToUpdates() {
+    private Subject<OfflineContentChangedEvent> listenToUpdates() {
         return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED);
     }
 
@@ -142,11 +142,7 @@ public class OfflinePropertiesProvider {
     }
 
     public Observable<OfflineProperties> states() {
-        return subject.asObservable();
-    }
-
-    public io.reactivex.Observable<OfflineProperties> statesV2() {
-        return RxJava.toV2Observable(subject.asObservable());
+        return subject;
     }
 
 }

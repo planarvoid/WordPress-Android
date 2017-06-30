@@ -35,7 +35,6 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -308,9 +307,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
     private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return RxJava.toV2Observable(offlinePropertiesProvider.states())
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribeWith(new OfflinePropertiesObserver(adapter));
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeWith(new OfflinePropertiesObserver());
         } else {
             return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadObserver());
         }
@@ -359,13 +358,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private class OfflinePropertiesObserver extends DefaultObserver<OfflineProperties> {
-
-        private final PlaylistsAdapter adapter;
-
-        private OfflinePropertiesObserver(PlaylistsAdapter adapter) {
-            this.adapter = adapter;
-        }
-
         @Override
         public void onNext(OfflineProperties properties) {
             for (int position = 0; position < adapter.getItems().size(); position++) {

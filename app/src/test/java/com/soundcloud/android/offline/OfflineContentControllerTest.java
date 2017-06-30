@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -49,7 +50,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     private TestEventBus eventBus;
     private io.reactivex.subjects.PublishSubject<Boolean> wifiOnlyToggleSetting;
     private PublishSubject<Void> onCollectionChanged;
-    private TestSubscriber<Void> startServiceSubscriber;
+    private TestSubscriber<Object> startServiceSubscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -244,7 +245,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         Urn playlist1 = Urn.forPlaylist(123L);
         Urn playlist2 = Urn.forPlaylist(456L);
 
-        PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
+        PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
@@ -261,7 +262,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         Urn playlist1 = Urn.forPlaylist(123L);
         Urn playlist2 = Urn.forPlaylist(456L);
 
-        PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
+        PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
@@ -278,7 +279,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
-        PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
+        PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
                 makeAvailableOffline);
@@ -294,7 +295,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
-        PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
+        PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
                 makeAvailableOffline);

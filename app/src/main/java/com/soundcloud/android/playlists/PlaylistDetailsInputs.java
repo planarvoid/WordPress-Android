@@ -1,33 +1,40 @@
 package com.soundcloud.android.playlists;
 
-import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
+import static com.soundcloud.android.rx.RxSignal.SIGNAL;
+
+import com.soundcloud.android.rx.RxSignal;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import java.util.List;
 
+@SuppressWarnings({"PMD.ExcessiveParameterList"})
 class PlaylistDetailsInputs {
+
     final BehaviorSubject<Boolean> editMode;
-    final PublishSubject<Void> refresh;
-    final PublishSubject<Void> playNext;
-    final PublishSubject<Void> delete;
-    final PublishSubject<Void> share;
-    final PublishSubject<Void> overflowUpsellImpression;
-    final PublishSubject<Void> playShuffled;
-    final PublishSubject<Void> makeOfflineAvailable;
-    final PublishSubject<Void> offlineUnavailable;
-    final PublishSubject<Void> onCreatorClicked;
-    final PublishSubject<Void> onMakeOfflineUpsell;
-    final PublishSubject<Void> onOverflowMakeOfflineUpsell;
+    final PublishSubject<RxSignal> refresh;
+    final PublishSubject<RxSignal> playNext;
+    final PublishSubject<RxSignal> delete;
+    final PublishSubject<RxSignal> share;
+    final PublishSubject<RxSignal> overflowUpsellImpression;
+    final PublishSubject<RxSignal> firstTrackUpsellImpression;
+    final PublishSubject<RxSignal> playShuffled;
+    final PublishSubject<RxSignal> makeOfflineAvailable;
+    final PublishSubject<RxSignal> offlineUnavailable;
+    final PublishSubject<RxSignal> onCreatorClicked;
+    final PublishSubject<RxSignal> onMakeOfflineUpsell;
+    final PublishSubject<RxSignal> onOverflowMakeOfflineUpsell;
     final PublishSubject<PlaylistDetailUpsellItem> onUpsellItemClicked;
     final PublishSubject<PlaylistDetailUpsellItem> onUpsellDismissed;
-    final PublishSubject<Void> headerPlayClicked;
+    final PublishSubject<RxSignal> headerPlayClicked;
     final PublishSubject<Boolean> like;
     final PublishSubject<Boolean> repost;
     final PublishSubject<PlaylistDetailTrackItem> playFromTrack;
     final PublishSubject<List<PlaylistDetailTrackItem>> tracklistUpdated;
 
     public static PlaylistDetailsInputs create() {
-        return new PlaylistDetailsInputs(BehaviorSubject.create(false),
+        return new PlaylistDetailsInputs(BehaviorSubject.createDefault(false),
+                                         PublishSubject.create(),
                                          PublishSubject.create(),
                                          PublishSubject.create(),
                                          PublishSubject.create(),
@@ -49,20 +56,21 @@ class PlaylistDetailsInputs {
     }
 
     PlaylistDetailsInputs(BehaviorSubject<Boolean> editMode,
-                          PublishSubject<Void> refresh,
-                          PublishSubject<Void> playNext,
-                          PublishSubject<Void> delete,
-                          PublishSubject<Void> share,
-                          PublishSubject<Void> overflowUpsellImpression,
-                          PublishSubject<Void> playShuffled,
-                          PublishSubject<Void> makeOfflineAvailable,
-                          PublishSubject<Void> offlineUnavailable,
-                          PublishSubject<Void> onCreatorClicked,
-                          PublishSubject<Void> onMakeOfflineUpsell,
-                          PublishSubject<Void> onOverflowMakeOfflineUpsell,
+                          PublishSubject<RxSignal> refresh,
+                          PublishSubject<RxSignal> playNext,
+                          PublishSubject<RxSignal> delete,
+                          PublishSubject<RxSignal> share,
+                          PublishSubject<RxSignal> overflowUpsellImpression,
+                          PublishSubject<RxSignal> firstTrackUpsellImpression,
+                          PublishSubject<RxSignal> playShuffled,
+                          PublishSubject<RxSignal> makeOfflineAvailable,
+                          PublishSubject<RxSignal> offlineUnavailable,
+                          PublishSubject<RxSignal> onCreatorClicked,
+                          PublishSubject<RxSignal> onMakeOfflineUpsell,
+                          PublishSubject<RxSignal> onOverflowMakeOfflineUpsell,
                           PublishSubject<PlaylistDetailUpsellItem> onUpsellItemClicked,
                           PublishSubject<PlaylistDetailUpsellItem> onUpsellDismissed,
-                          PublishSubject<Void> headerPlayClicked,
+                          PublishSubject<RxSignal> headerPlayClicked,
                           PublishSubject<Boolean> like,
                           PublishSubject<Boolean> repost,
                           PublishSubject<PlaylistDetailTrackItem> playFromTrack,
@@ -73,6 +81,7 @@ class PlaylistDetailsInputs {
         this.delete = delete;
         this.share = share;
         this.overflowUpsellImpression = overflowUpsellImpression;
+        this.firstTrackUpsellImpression = firstTrackUpsellImpression;
         this.playShuffled = playShuffled;
         this.makeOfflineAvailable = makeOfflineAvailable;
         this.offlineUnavailable = offlineUnavailable;
@@ -93,7 +102,7 @@ class PlaylistDetailsInputs {
     }
 
     void onCreatorClicked() {
-        onCreatorClicked.onNext(null);
+        onCreatorClicked.onNext(SIGNAL);
     }
 
     void onItemTriggered(PlaylistDetailTrackItem item) {
@@ -109,19 +118,19 @@ class PlaylistDetailsInputs {
     }
 
     void onMakeOfflineUnavailable() {
-        offlineUnavailable.onNext(null);
+        offlineUnavailable.onNext(SIGNAL);
     }
 
     void onMakeOfflineUpsell() {
-        onMakeOfflineUpsell.onNext(null);
+        onMakeOfflineUpsell.onNext(SIGNAL);
     }
 
     void onHeaderPlayButtonClicked() {
-        headerPlayClicked.onNext(null);
+        headerPlayClicked.onNext(SIGNAL);
     }
 
     void onPlayNext() {
-        playNext.onNext(null);
+        playNext.onNext(SIGNAL);
     }
 
     void onToggleLike(boolean isLiked) {
@@ -133,23 +142,23 @@ class PlaylistDetailsInputs {
     }
 
     void onShareClicked() {
-        share.onNext(null);
+        share.onNext(SIGNAL);
     }
 
     void onMakeOfflineAvailable() {
-        makeOfflineAvailable.onNext(null);
+        makeOfflineAvailable.onNext(SIGNAL);
     }
 
     void onOverflowUpsell() {
-        onOverflowMakeOfflineUpsell.onNext(null);
+        onOverflowMakeOfflineUpsell.onNext(SIGNAL);
     }
 
     void onOverflowUpsellImpression() {
-        overflowUpsellImpression.onNext(null);
+        overflowUpsellImpression.onNext(SIGNAL);
     }
 
     void onPlayShuffled() {
-        playShuffled.onNext(null);
+        playShuffled.onNext(SIGNAL);
     }
 
     void onItemTriggered(PlaylistDetailUpsellItem item) {
@@ -161,10 +170,10 @@ class PlaylistDetailsInputs {
     }
 
     void onDeletePlaylist() {
-        delete.onNext(null);
+        delete.onNext(SIGNAL);
     }
 
     void refresh() {
-        refresh.onNext(null);
+        refresh.onNext(SIGNAL);
     }
 }
