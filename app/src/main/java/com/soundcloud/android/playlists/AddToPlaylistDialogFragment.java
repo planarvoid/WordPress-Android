@@ -163,7 +163,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         private final Context context;
         private final FeatureOperations featureOperations;
 
-        public MyPlaylistsAdapter(Context c, FeatureOperations featureOperations) {
+        MyPlaylistsAdapter(Context c, FeatureOperations featureOperations) {
             this.context = c;
             this.featureOperations = featureOperations;
         }
