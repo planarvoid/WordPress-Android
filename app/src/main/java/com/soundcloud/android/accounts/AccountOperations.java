@@ -184,6 +184,15 @@ public class AccountOperations {
             }
 
             accountExists = accountManager.addAccountExplicitly(account, null, null);
+
+            // workaround for Sony Xperia XZ devices that corrupted their AccountManager databases
+            // for Accounts that were added prior to the OS update to Android 7.1.1.
+            // Adding this different account should relieve users facing this issue.
+            // See: https://stackoverflow.com/questions/43664484/accountmanager-fails-to-add-account-on-sony-xz-7-1-1/44824516#44824516
+            if (!accountExists) {
+                Account fallbackAccount = new Account(permalink + "\n", accountType);
+                accountExists = accountManager.addAccountExplicitly(fallbackAccount, null, null);
+            }
         }
 
         if (accountExists) {
