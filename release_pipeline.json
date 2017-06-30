@@ -12,8 +12,6 @@
               "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease",
               "plugins": {
                 "androidLint": {
-                  "failedTotalHigh": 0,
-                  "failedTotalNormal": 0,
                   "pattern": "app/build/reports/lint-results-prodDebug.xml"
                 },
                 "findbugs": {

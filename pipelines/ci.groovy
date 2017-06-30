@@ -144,7 +144,6 @@ def compileStage() {
     updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
     throw e
   }
-  // TODO
   stash name: 'ui-test', useDefaultExcludes: false
 }
 
@@ -206,7 +205,7 @@ def staticAnalysisStage() {
   pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/pmd/pmd.xml', unHealthy: ''
   checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/checkstyle/checkstyle.xml', unHealthy: ''
   findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'app/build/reports/findbugs/findbugs.xml', unHealthy: ''
-  androidLint canComputeNew: false, defaultEncoding: '', failedTotalHigh: '0', failedTotalNormal: '0', healthy: '', pattern: 'app/build/reports/lint-results-*.xml', unHealthy: ''
+  androidLint canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/lint-results-*.xml', unHealthy: ''
 }
 
 def reportingStage(def isSuccess, def error) {
