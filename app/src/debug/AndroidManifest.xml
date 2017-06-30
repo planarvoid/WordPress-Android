@@ -6,7 +6,7 @@
     <!-- Leak canary needs access to External storage to save heap dumps -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-    <application tools:ignore="AllowBackup">
+    <application tools:ignore="AllowBackup" android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Disabled due to a bug causing an ANR: https://groups.google.com/forum/#!topic/firebase-talk/Z4vqS1Ml3N4 -->
         <service
