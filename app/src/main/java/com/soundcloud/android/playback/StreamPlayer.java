@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.configuration.experiments.FlipperExperiment;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -10,8 +11,6 @@ import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -55,7 +54,7 @@ class StreamPlayer implements PlayerListener {
                  Provider<FlipperAdapter> flipperAdapterProvider,
                  ConnectionHelper connectionHelper,
                  EventBus eventBus,
-                 FeatureFlags featureFlags) {
+                 FlipperExperiment flipperExperiment) {
 
         this.connectionHelper = connectionHelper;
         this.eventBus = eventBus;
@@ -64,7 +63,7 @@ class StreamPlayer implements PlayerListener {
         this.videoPlayer = mediaPlayerAdapter;
 
         this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
-        this.flipperPlayerDelegate = featureFlags.isEnabled(Flag.FLIPPER) ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
+        this.flipperPlayerDelegate = flipperExperiment.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
         this.offlineContentPlayer = flipperPlayerDelegate.isPresent() ? flipperPlayerDelegate : skippyPlayerDelegate;
         this.defaultPlayer = defaultPlayer();
         this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;

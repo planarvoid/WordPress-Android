@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.configuration.experiments.FlipperExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
@@ -41,7 +42,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private FlipperAdapter flipperAdapter;
     @Mock private Player.PlayerListener playerListener;
     @Mock private ConnectionHelper connectionHelper;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private FlipperExperiment flipperExperiment;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -63,7 +64,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), connectionHelper, eventBus, featureFlags);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), connectionHelper, eventBus, flipperExperiment);
         streamPlayerWrapper.setListener(playerListener);
     }
 
@@ -123,7 +124,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playWithAudioAdPlaybackItemCallsDoesNotPlayOnFlipper() {
-        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+        when(flipperExperiment.isEnabled()).thenReturn(true);
 
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
         final AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(audioAd);
@@ -156,7 +157,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playOfflineCallsPlayOfflineOnFlipperWhenFlipperEnabled() {
-        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+        when(flipperExperiment.isEnabled()).thenReturn(true);
 
         instantiateStreamPlaya();
 
