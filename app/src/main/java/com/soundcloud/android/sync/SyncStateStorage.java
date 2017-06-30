@@ -66,7 +66,7 @@ public class SyncStateStorage {
         preferences.edit().putInt(getMissesKey(syncable), getSyncMisses(syncable) + 1).apply();
     }
 
-    void resetSyncMisses(Syncable syncable) {
+    public void resetSyncMisses(Syncable syncable) {
         preferences.edit().putInt(getMissesKey(syncable), 0).apply();
     }
 

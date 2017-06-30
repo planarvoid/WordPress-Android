@@ -142,7 +142,7 @@ public class DiscoveryOperationsTest {
     }
 
     private void setUpDiscoveryCards(SyncResult syncResult, Maybe<List<DiscoveryCard>> storageResult) {
-        when(syncOperations.lazySyncIfStale(discoveryCardsSyncable)).thenReturn(Single.just(syncResult));
+        when(syncOperations.syncIfStale(discoveryCardsSyncable)).thenReturn(Single.just(syncResult));
         when(storage.discoveryCards()).thenReturn(storageResult);
     }
 

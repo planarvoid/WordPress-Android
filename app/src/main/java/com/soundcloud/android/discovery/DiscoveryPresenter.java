@@ -19,6 +19,8 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
+import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -54,6 +56,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     private final StreamSwipeRefreshAttacher swipeRefreshAttacher;
     private final EventTracker eventTracker;
     private final ReferringEventProvider referringEventProvider;
+    private final SyncStateStorage syncStateStorage;
     private final CompositeDisposable disposable = new CompositeDisposable();
     private final BehaviorSubject<Optional<Urn>> queryUrn = BehaviorSubject.create();
 
@@ -65,7 +68,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
                        DiscoveryTrackingManager discoveryTrackingManager,
                        FeedbackController feedbackController,
                        EventTracker eventTracker,
-                       ReferringEventProvider referringEventProvider) {
+                       ReferringEventProvider referringEventProvider,
+                       SyncStateStorage syncStateStorage) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         adapter = adapterFactory.create(this);
@@ -75,12 +79,16 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
+        this.syncStateStorage = syncStateStorage;
     }
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+
+        // reset our backoff. This is a cheap way of doing it for now.
+        syncStateStorage.resetSyncMisses(Syncable.DISCOVERY_CARDS);
 
         final Observable<SelectionItem> selectionItemObservable = adapter.selectionItemClick().doOnNext(item -> discoveryTrackingManager.trackSelectionItemClick(item, adapter.getItems()));
         disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(item -> selectionItemClick(fragment.getActivity(), item))));

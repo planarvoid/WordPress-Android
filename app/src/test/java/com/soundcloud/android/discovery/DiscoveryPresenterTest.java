@@ -32,6 +32,8 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
+import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -67,6 +69,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private FeedbackController feedbackController;
     @Mock private EventTracker eventTracker;
     @Mock private ReferringEventProvider referringEventProvider;
+    @Mock private SyncStateStorage syncStateStorage;
     @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
     private static final Screen SCREEN = Screen.DISCOVER;
@@ -78,7 +81,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(adapterFactory.create(any(DiscoveryPresenter.class))).thenReturn(adapter);
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController, eventTracker, referringEventProvider);
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController, eventTracker, referringEventProvider, syncStateStorage);
         when(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(fragment.getActivity()).thenReturn(activity);
@@ -87,11 +90,22 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateAddsSearchItemToAdapter() {
+
         CollectionBinding<List<DiscoveryCard>, DiscoveryCard> binding = presenter.onBuildBinding(bundle);
         binding.connect();
         binding.items().subscribe(itemObserver);
 
         verify(itemObserver).onNext(singletonList(DiscoveryCard.forSearchItem()));
+    }
+
+    @Test
+    public void onCreateResetsSyncMisses() {
+        when(adapter.selectionItemClick()).thenReturn(PublishSubject.create());
+        initRootActivity();
+
+        presenter.onCreate(fragment, null);
+
+        verify(syncStateStorage).resetSyncMisses(Syncable.DISCOVERY_CARDS);
     }
 
     @Test

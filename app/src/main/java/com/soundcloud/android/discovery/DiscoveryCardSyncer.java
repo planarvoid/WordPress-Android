@@ -33,6 +33,8 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
         final ApiRequest apiRequest = builder.forPrivateApi().build();
         final ModelCollection<ApiDiscoveryCard> apiDiscoveryCards = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiDiscoveryCard>>() {});
         discoveryWritableStorage.storeDiscoveryCards(apiDiscoveryCards);
-        return true;
+
+        // we always want to say nothing has changed. We reset the backoff in DiscoveryPresenter
+        return false;
     }
 }

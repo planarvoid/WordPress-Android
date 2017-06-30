@@ -40,19 +40,26 @@ public class NewSyncOperations {
 
     public Single<SyncResult> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
-            if (!isContentStale(syncable)) {
+            if (isContentFresh(syncable)) {
+                return Single.just(SyncResult.noOp());
+            } else {
                 fireAndForget(syncInitiator.sync(syncable).toObservable());
                 return Single.just(SyncResult.syncing());
-            } else {
-                return Single.just(SyncResult.noOp());
             }
         } else {
             return sync(syncable);
         }
     }
 
+    public Single<SyncResult> syncIfStale(Syncable syncable) {
+        if (syncStateStorage.hasSyncedBefore(syncable) && isContentFresh(syncable)) {
+            return Single.just(SyncResult.noOp());
+        } else {
+            return sync(syncable);
+        }
+    }
 
-    private boolean isContentStale(Syncable syncable) {
+    private boolean isContentFresh(Syncable syncable) {
         return syncStateStorage.hasSyncedWithin(syncable, syncerRegistry.get(syncable).staleTime());
     }
 }

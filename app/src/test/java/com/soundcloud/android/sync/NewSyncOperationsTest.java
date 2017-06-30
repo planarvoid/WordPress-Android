@@ -5,14 +5,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,5 +91,46 @@ public class NewSyncOperationsTest {
 
         observer.assertValue(SyncResult.noOp());
         verify(syncInitiator, never()).sync(any());
+    }
+
+    @Test
+    public void syncIfStaleDoesNotSyncAndEmitsNoOpStateWhenContentNotStale() {
+        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(true);
+
+        syncOperations.syncIfStale(SYNCABLE).subscribe(observer);
+
+        observer.assertValue(SyncResult.noOp());
+        verify(syncInitiator, never()).sync(any());
+    }
+
+    @Test
+    public void syncIfStaleWaitsForSyncIfStale() {
+        SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(syncSubject);
+        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(false);
+
+        syncOperations.syncIfStale(SYNCABLE).subscribe(observer);
+
+        observer.assertNoValues();
+        syncSubject.onSuccess(TestSyncJobResults.successWithChange());
+        observer.assertValue(SyncResult.synced());
+    }
+
+    @Test
+    public void syncIfStaleWaitsForSyncIfStaleAndReportsError() {
+        SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(syncSubject);
+        when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(false);
+
+        syncOperations.syncIfStale(SYNCABLE).subscribe(observer);
+
+        observer.assertNoValues();
+
+        IOException ioException = new IOException();
+        syncSubject.onError(ioException);
+        observer.assertValue(SyncResult.error(ioException));
     }
 }

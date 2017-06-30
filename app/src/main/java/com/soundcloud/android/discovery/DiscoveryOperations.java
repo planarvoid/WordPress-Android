@@ -29,7 +29,7 @@ class DiscoveryOperations {
     }
 
     Single<DiscoveryResult> discoveryCards() {
-        return syncOperations.lazySyncIfStale(Syncable.DISCOVERY_CARDS)
+        return syncOperations.syncIfStale(Syncable.DISCOVERY_CARDS)
                              .flatMap(this::cardsFromStorage)
                              .flatMap(this::mitigateDatabaseUpgradeIssue)
                              .subscribeOn(scheduler);
