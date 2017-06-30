@@ -5,6 +5,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 public class ProgressLineDrawable extends Drawable {
 
@@ -29,7 +30,7 @@ public class ProgressLineDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         canvas.drawRect(getBounds().left,
                         baseline,
                         getBounds().right * playableProportion,

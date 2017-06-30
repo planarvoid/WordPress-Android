@@ -52,7 +52,7 @@ public class SystemPlaylistArtworkView extends FrameLayout {
         if (item.image().isPresent()) {
             imageOperations.displayWithPlaceholder(item.image().get(), ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
         } else {
-            imageOperations.displayPlaceholder(String.valueOf(item.hashCode()), imageView);
+            imageOperations.displayDefaultPlaceholder(imageView);
         }
     }
 

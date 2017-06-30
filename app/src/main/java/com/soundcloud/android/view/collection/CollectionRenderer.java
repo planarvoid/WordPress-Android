@@ -16,7 +16,6 @@ import rx.subjects.PublishSubject;
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -123,7 +122,6 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         recyclerView.addItemDecoration(new NewDividerItemDecoration(divider, dividerHeight));
     }
 
-    @NonNull
     private void updateEmptyView(CollectionRendererState<ItemT> state) {
         Optional<ViewError> viewErrorOptional = state.collectionLoadingState().nextPageError();
         emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.collectionLoadingState().isLoadingNextPage()));

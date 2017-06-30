@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
@@ -21,7 +22,7 @@ public class CircularPlaceholderGenerator extends PlaceholderGenerator {
     }
 
     @Override
-    public GradientDrawable generateDrawable(String key) {
+    public GradientDrawable generateDrawable(@NonNull String key) {
         final GradientDrawable gradientDrawable = super.generateDrawable(key);
         gradientDrawable.setShape(GradientDrawable.OVAL);
         return gradientDrawable;

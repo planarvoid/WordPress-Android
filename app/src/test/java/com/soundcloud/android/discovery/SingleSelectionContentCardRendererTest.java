@@ -96,7 +96,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
         assertThat(count).isVisible();
         verify(imageOperations).displayInAdapterView(
-                String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), imageView);
+                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), imageView);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
         assertThat(count).isNotVisible();
         verify(imageOperations).displayInAdapterView(
-                String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), imageView);
+                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), imageView);
     }
 
     @Test

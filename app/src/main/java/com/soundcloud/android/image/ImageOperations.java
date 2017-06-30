@@ -58,6 +58,8 @@ public class ImageOperations {
 
     private static final String TAG = ImageLoader.TAG;
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
+    @VisibleForTesting
+    static final String DEFAULT_CACHE_KEY = "default_cache_key";
     private static final Func1<Bitmap, Observable<Palette>> BITMAP_TO_PALETTE = bitmap -> Observable.create(new Observable.OnSubscribe<Palette>() {
         @Override
         public void call(final Subscriber<? super Palette> subscriber) {
@@ -167,17 +169,15 @@ public class ImageOperations {
      * If no URL is provided, the indirect resolution via the image resolver is used.
      */
     public void displayInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(imageResource.getUrn(),
-                             apiImageSize,
-                             imageView,
-                             buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
-                             notFoundListener,
-                             Optional.absent());
+        displayInAdapterView(Optional.of(imageResource.getUrn()), imageResource.getImageUrlTemplate(), apiImageSize, imageView);
     }
 
-    public void displayInAdapterView(String cacheKey, Optional<String> imageUrlTemplate, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(cacheKey, apiImageSize, imageView,
-                               buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize), notFoundListener, Optional.absent());
+    public void displayInAdapterView(Optional<Urn> urn, Optional<String> imageUrlTemplate, ApiImageSize apiImageSize, ImageView imageView) {
+        displayInAdapterView(apiImageSize,
+                             imageView,
+                             buildUrlIfNotPreviouslyMissing(imageUrlTemplate, urn, apiImageSize),
+                             notFoundListener,
+                             Optional.absent());
     }
 
     public Observable<Bitmap> displayInAdapterView(final ImageResource imageResource,
@@ -187,8 +187,7 @@ public class ImageOperations {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                displayInAdapterView(imageResource.getUrn(),
-                                     apiImageSize,
+                displayInAdapterView(apiImageSize,
                                      imageView,
                                      buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
                                      buildFallbackImageListener(fromBitmapSubscriber(subscriber)),
@@ -228,31 +227,11 @@ public class ImageOperations {
         };
     }
 
-    /**
-     * Load an image for a list item by using the image resolver on the given URN.
-     * <p/>
-     * This kind of resolution puts more pressure on our backends, so always prefer to load via {@link ImageResource}
-     * if possible.
-     */
-    @Deprecated // use the ImageResource variant instead
-    public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), notFoundListener, Optional.absent());
-    }
-
-    private void displayInAdapterView(String cacheKey, ApiImageSize apiImageSize, ImageView imageView, String imageUrl, FallbackImageListener imageListener, Optional<Drawable> placeholderDrawable) {
+    private void displayInAdapterView(ApiImageSize apiImageSize, ImageView imageView, String imageUrl, FallbackImageListener imageListener, Optional<Drawable> placeholderDrawable) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable drawable = placeholderDrawable.isPresent() ?
                                   placeholderDrawable.get() :
-                                  getPlaceholderDrawable(cacheKey, imageAware);
-        final DisplayImageOptions options = ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper);
-        imageLoader.displayImage(imageUrl, imageAware, options, imageListener);
-    }
-
-    private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl, FallbackImageListener imageListener, Optional<Drawable> placeholderDrawable) {
-        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        final Drawable drawable = placeholderDrawable.isPresent() ?
-                                  placeholderDrawable.get() :
-                                  getPlaceholderDrawable(urn, imageAware);
+                                  getPlaceholderDrawable(imageUrl, imageAware);
         final DisplayImageOptions options = ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper);
         imageLoader.displayImage(imageUrl, imageAware, options, imageListener);
     }
@@ -263,16 +242,14 @@ public class ImageOperations {
     public void displayCircularInAdapterView(ImageResource imageResource,
                                              ApiImageSize apiImageSize,
                                              ImageView imageView) {
-        final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
-        displayCircularInAdapterView(imageResource.getUrn().toString(), apiImageSize, imageView, imageUrl, notFoundListener);
+        displayCircularInAdapterView(Optional.of(imageResource.getUrn()), imageResource.getImageUrlTemplate(), apiImageSize, imageView);
     }
 
-    public void displayCircularInAdapterView(String cacheKey,
+    public void displayCircularInAdapterView(Optional<Urn> urn,
                                              Optional<String> imageUrlTemplate,
                                              ApiImageSize apiImageSize,
                                              ImageView imageView) {
-        final String imageUrl = buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize);
-        displayCircularInAdapterView(cacheKey, apiImageSize, imageView, imageUrl, notFoundListener);
+        displayCircularInAdapterView(apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(imageUrlTemplate, urn, apiImageSize), notFoundListener);
     }
 
     public Observable<Palette> displayCircularInAdapterViewAndGeneratePalette(final ImageResource imageResource,
@@ -282,8 +259,7 @@ public class ImageOperations {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
                 final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
-                displayCircularInAdapterView(imageResource.getUrn().toString(),
-                                             apiImageSize,
+                displayCircularInAdapterView(apiImageSize,
                                              imageView,
                                              imageUrl,
                                              buildFallbackImageListener(fromBitmapSubscriber(
@@ -292,22 +268,12 @@ public class ImageOperations {
         }).flatMap(BITMAP_TO_PALETTE);
     }
 
-    /**
-     * @see {@link #displayInAdapterView(Urn, ApiImageSize, ImageView)}
-     */
-    @Deprecated // use the ImageResource variant instead
-    public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        final String imageUrl = buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
-        displayCircularInAdapterView(urn.toString(), apiImageSize, imageView, imageUrl, notFoundListener);
-    }
-
-    private void displayCircularInAdapterView(String cacheKey,
-                                              ApiImageSize apiImageSize,
+    private void displayCircularInAdapterView(ApiImageSize apiImageSize,
                                               ImageView imageView,
                                               String imageUrl,
                                               ImageLoadingListener listener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(cacheKey,
+        final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(imageUrl,
                                                                                       imageAware.getWidth(),
                                                                                       imageAware.getHeight());
         imageLoader.displayImage(
@@ -317,62 +283,60 @@ public class ImageOperations {
                 listener);
     }
 
-    public void displayPlaceholder(String cacheKey, ImageView imageView) {
-        displayWithPlaceholder(cacheKey, imageView, null, Optional.absent());
+    public void displayDefaultPlaceholder(ImageView imageView) {
+        displayWithPlaceholder(imageView, null, Optional.absent());
     }
 
     public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
-        displayWithPlaceholder(imageResource.getUrn(), imageView,
-                               buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize), Optional.absent());
+        displayWithPlaceholder(Optional.of(imageResource.getUrn()), imageResource.getImageUrlTemplate(), apiImageSize, imageView);
     }
 
-    public void displayWithPlaceholder(String cacheKey, Optional<String> imageUrlTemplate, ApiImageSize apiImageSize, ImageView imageView) {
-        displayWithPlaceholder(cacheKey, imageView,
-                               buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize), Optional.absent());
+    public void displayWithPlaceholder(Optional<Urn> urn, Optional<String> imageUrlTemplate, ApiImageSize apiImageSize, ImageView imageView) {
+        displayWithPlaceholder(imageView, buildUrlIfNotPreviouslyMissing(imageUrlTemplate, urn, apiImageSize), Optional.absent());
     }
 
     public Observable<Bitmap> displayWithPlaceholderObservable(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                displayWithPlaceholder(imageResource.getUrn(),
-                                       imageView,
+                displayWithPlaceholder(imageView,
                                        buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
                                        Optional.of(buildFallbackImageListener(bitmapAdapterFactory.create(subscriber))));
             }
         });
     }
 
-    @Deprecated // use the ImageResource variant instead
+    /**
+     * @deprecated  use {@see #displayWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
+     */
+    @Deprecated
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        displayWithPlaceholder(urn, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), Optional.absent());
+        displayWithPlaceholder(Optional.of(urn), Optional.absent(), apiImageSize, imageView);
     }
 
-    private void displayWithPlaceholder(Urn urn, ImageView imageView, String imageUrl, Optional<ImageLoadingListener> imageListener) {
-        displayWithPlaceholder(urn.toString(), imageView, imageUrl, imageListener);
-    }
-
-    private void displayWithPlaceholder(String cacheKey, ImageView imageView, String imageUrl, Optional<ImageLoadingListener> imageListener) {
+    private void displayWithPlaceholder(ImageView imageView, @Nullable String imageUrl, Optional<ImageLoadingListener> imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
-                ImageOptionsFactory.placeholder(getPlaceholderDrawable(cacheKey, imageAware)),
+                ImageOptionsFactory.placeholder(getPlaceholderDrawable(imageUrl, imageAware)),
                 imageListener.isPresent() ? imageListener.get() : notFoundListener);
     }
 
+    /**
+     * @deprecated  use {@see #displayCircularWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
+     */
     @Deprecated
     public void displayCircularWithPlaceholder(ImageResource imageResource,
                                                ApiImageSize apiImageSize,
                                                ImageView imageView) {
-        displayCircularWithPlaceholder(imageResource.getUrn(), imageView,
-                                       buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+        displayCircularWithPlaceholder(Optional.of(imageResource.getUrn()), imageResource.getImageUrlTemplate(), apiImageSize, imageView);
     }
 
-    private void displayCircularWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
+    private void displayCircularWithPlaceholder(ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final DisplayImageOptions options = ImageOptionsFactory.placeholderCircular(
-                getCircularPlaceholderDrawable(urn, imageAware.getWidth(), imageAware.getHeight()));
+                getCircularPlaceholderDrawable(imageUrl, imageAware.getWidth(), imageAware.getHeight()));
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
@@ -380,22 +344,10 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    private void displayCircularWithPlaceholder(String cacheKey, ImageView imageView, String imageUrl) {
-        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        final DisplayImageOptions options = ImageOptionsFactory.placeholderCircular(
-                getCircularPlaceholderDrawable(cacheKey, imageAware.getWidth(), imageAware.getHeight()));
-        imageLoader.displayImage(
-                imageUrl,
-                imageAware,
-                options,
-                notFoundListener);
-    }
-
-    public void displayCircularWithPlaceholder(String cacheKey, Optional<String> imageUrlTemplate,
+    public void displayCircularWithPlaceholder(Optional<Urn> urn, Optional<String> imageUrlTemplate,
                                                ApiImageSize apiImageSize,
                                                ImageView imageView) {
-        displayCircularWithPlaceholder(cacheKey, imageView,
-                                       buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize));
+        displayCircularWithPlaceholder(imageView, buildUrlIfNotPreviouslyMissing(imageUrlTemplate, urn, apiImageSize));
     }
 
     public void displayInPlayer(ImageResource imageResource,
@@ -439,13 +391,12 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    @Deprecated // use the ImageResource variant instead
-    public void displayInFullDialogView(Urn urn,
+    public void displayInFullDialogView(ImageResource imageResource,
                                         ApiImageSize apiImageSize,
                                         ImageView imageView,
                                         ImageListener imageListener) {
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.fullImageDialog(),
                 new ImageListenerUILAdapter(imageListener));
@@ -594,7 +545,7 @@ public class ImageOperations {
                                   ApiImageSize apiImageSize,
                                   int targetWidth,
                                   int targetHeight) {
-        final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
+        final String imageUrl = imageUrlBuilder.buildUrl(imageResource.getImageUrlTemplate(), Optional.of(imageResource.getUrn()), apiImageSize);
         final String key = MemoryCacheUtils.generateKey(imageUrl, new ImageSize(targetWidth, targetHeight));
         return imageLoader.getMemoryCache().get(key);
     }
@@ -634,46 +585,39 @@ public class ImageOperations {
         return getPlaceholderDrawable(urn.toString(), imageViewAware.getWidth(), imageViewAware.getHeight());
     }
 
-    private Drawable getPlaceholderDrawable(final String cacheKey, ImageViewAware imageViewAware) {
-        return getPlaceholderDrawable(cacheKey, imageViewAware.getWidth(), imageViewAware.getHeight());
+    private Drawable getPlaceholderDrawable(@Nullable final String imageUrl, ImageViewAware imageViewAware) {
+        return getPlaceholderDrawable(imageUrl, imageViewAware.getWidth(), imageViewAware.getHeight());
     }
 
     /**
-     * We have to store these so so we don't animate on every load attempt. this prevents flickering
+     * We have to store these so we don't animate on every load attempt. this prevents flickering
      */
     @Nullable
-    private TransitionDrawable getPlaceholderDrawable(final String cacheKey, int width, int height) {
-        final String widthHeightSpecificKey = String.format(PLACEHOLDER_KEY_BASE, cacheKey, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(widthHeightSpecificKey, key1 -> placeholderGenerator.generateTransitionDrawable(cacheKey));
+    private TransitionDrawable getPlaceholderDrawable(@Nullable final String imageUrl, int width, int height) {
+        final String widthHeightSpecificKey = String.format(PLACEHOLDER_KEY_BASE, cacheKeyForImageUrl(imageUrl), String.valueOf(width), String.valueOf(height));
+        return placeholderCache.get(widthHeightSpecificKey, placeholderGenerator::generateTransitionDrawable);
     }
 
     @Nullable
-    private TransitionDrawable getCircularPlaceholderDrawable(final Urn urn, int width, int height) {
-        final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(key, key1 -> circularPlaceholderGenerator.generateTransitionDrawable(urn.toString()));
-    }
-
-    @Nullable
-    private TransitionDrawable getCircularPlaceholderDrawable(final String cacheKey, int width, int height) {
-        final String key = String.format(PLACEHOLDER_KEY_BASE, cacheKey, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(key, key1 -> circularPlaceholderGenerator.generateTransitionDrawable(cacheKey));
+    private TransitionDrawable getCircularPlaceholderDrawable(@Nullable final String imageUrl, int width, int height) {
+        final String key = String.format(PLACEHOLDER_KEY_BASE, cacheKeyForImageUrl(imageUrl), String.valueOf(width), String.valueOf(height));
+        return placeholderCache.get(key, circularPlaceholderGenerator::generateTransitionDrawable);
     }
 
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(ImageResource imageResource, ApiImageSize apiImageSize) {
-        final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
-        return notFoundUris.contains(imageUrl) ? null : imageUrl;
+        return buildUrlIfNotPreviouslyMissing(imageResource.getImageUrlTemplate(), Optional.of(imageResource.getUrn()), apiImageSize);
     }
 
     @Nullable
-    private String buildUrlIfNotPreviouslyMissing(Optional<String> imageUrlTemplate, ApiImageSize apiImageSize) {
-        final String imageUrl = imageUrlBuilder.buildUrl(imageUrlTemplate, apiImageSize);
+    private String buildUrlIfNotPreviouslyMissing(Optional<String> imageUrlTemplate, Optional<Urn> urn, ApiImageSize apiImageSize) {
+        final String imageUrl = imageUrlBuilder.buildUrl(imageUrlTemplate, urn, apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
-        final String imageUrl = imageUrlBuilder.imageResolverUrl(urn, apiImageSize);
+        final String imageUrl = imageUrlBuilder.buildUrl(Optional.absent(), Optional.of(urn), apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
@@ -685,6 +629,10 @@ public class ImageOperations {
     @Nullable
     public String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
         return buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
+    }
+
+    private String cacheKeyForImageUrl(@Nullable String imageUrl) {
+        return Optional.fromNullable(imageUrl).or(DEFAULT_CACHE_KEY);
     }
 
     @VisibleForTesting

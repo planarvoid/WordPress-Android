@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.graphics.Palette;
 
@@ -36,7 +37,7 @@ public class PlaceholderGenerator {
         this.resources = resources;
     }
 
-    public TransitionDrawable generateTransitionDrawable(String key) {
+    public TransitionDrawable generateTransitionDrawable(@NonNull String key) {
         return ImageUtils.createTransitionDrawable(getLoadingDrawable(), generateDrawable(key));
     }
 
@@ -44,13 +45,13 @@ public class PlaceholderGenerator {
         return resources.getDrawable(R.color.gray_background);
     }
 
-    public GradientDrawable generateDrawable(String key) {
+    public GradientDrawable generateDrawable(@NonNull String key) {
         int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
         int[] colors = {resources.getColor(colorIds[0]), resources.getColor(colorIds[1])};
         return new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
     }
 
-    public GradientDrawable generateDrawableFromPalette(String key, Palette palette) {
+    public GradientDrawable generateDrawableFromPalette(@NonNull String key, Palette palette) {
         int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
         final int darkMutedColor = palette.getDarkMutedColor(resources.getColor(colorIds[0]));
         final int lightMutedColor = palette.getLightMutedColor(resources.getColor(colorIds[1]));
@@ -59,7 +60,7 @@ public class PlaceholderGenerator {
     }
 
     @VisibleForTesting
-    protected int pickCombination(String key) {
+    protected int pickCombination(@NonNull String key) {
         return (key.hashCode() & Integer.MAX_VALUE) % COLOR_COMBINATIONS.length;
     }
 

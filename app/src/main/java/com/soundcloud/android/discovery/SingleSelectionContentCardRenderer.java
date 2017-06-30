@@ -62,7 +62,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
     private void bindSelectionItem(View parentView, int resource, SelectionItem selectionItem) {
         final ImageView view = (ImageView) parentView.findViewById(resource);
         imageOperations.displayInAdapterView(
-                String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view);
+                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view);
 
         bindText(parentView, R.id.single_card_track_count, selectionItem.count().transform(String::valueOf));
     }
@@ -90,7 +90,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
 
         if (userArtworkUrls.size() > position) {
             imageView.setVisibility(View.VISIBLE);
-            imageOperations.displayCircularWithPlaceholder(String.valueOf(userArtworkUrls.get(position).hashCode()),
+            imageOperations.displayCircularWithPlaceholder(Optional.absent(),
                                                            Optional.of(userArtworkUrls.get(position)),
                                                            ApiImageSize.getListItemImageSize(resources),
                                                            imageView);

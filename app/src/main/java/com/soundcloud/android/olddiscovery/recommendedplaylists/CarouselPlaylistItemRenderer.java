@@ -72,7 +72,7 @@ public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> 
 
     private void setImage(View view, ImageResource imageResource) {
         final StyledImageView styledImageView = findById(view, R.id.artwork);
-        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), imageResource.getUrn().toString(), imageOperations);
+        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), Optional.of(imageResource.getUrn()), imageOperations);
     }
 
     private void setTrackCount(View view, PlaylistItem playlist) {

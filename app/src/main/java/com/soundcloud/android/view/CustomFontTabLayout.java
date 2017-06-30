@@ -4,6 +4,7 @@ import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.util.AttributeSet;
 import android.view.View;
@@ -24,7 +25,7 @@ public class CustomFontTabLayout extends TabLayout {
     }
 
     @Override
-    public void addTab(Tab tab) {
+    public void addTab(@NonNull Tab tab) {
         super.addTab(tab);
 
         ViewGroup mainView = (ViewGroup) getChildAt(0);

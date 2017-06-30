@@ -4,9 +4,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
+import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
@@ -22,28 +22,18 @@ class ImageUrlBuilder {
     }
 
     @Nullable
-    String buildUrl(ImageResource imageResource, ApiImageSize apiImageSize) {
-        final Optional<String> urlTemplate = imageResource.getImageUrlTemplate();
+    String buildUrl(Optional<String> urlTemplate, Optional<Urn> urn, ApiImageSize apiImageSize) {
         if (urlTemplate.isPresent()) {
             return buildUrlFromTemplate(apiImageSize, urlTemplate.get());
-        } else if (!imageResource.getUrn().isUser()) {
-            return imageResolverUrl(imageResource.getUrn(), apiImageSize);
-        } else {
-            return null;
-        }
-    }
-
-    @Nullable
-    String buildUrl(Optional<String> urlTemplate, ApiImageSize apiImageSize) {
-        if (urlTemplate.isPresent()) {
-            return buildUrlFromTemplate(apiImageSize, urlTemplate.get());
+        } else if (urn.isPresent() && !urn.get().isUser()) {
+            return imageResolverUrl(urn.get(), apiImageSize);
         } else {
             return null;
         }
     }
 
     @NonNull
-    String imageResolverUrl(Urn urn, ApiImageSize apiImageSize) {
+    private String imageResolverUrl(Urn urn, ApiImageSize apiImageSize) {
         return apiUrlBuilder
                 .from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec)
                 .build();

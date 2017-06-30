@@ -13,6 +13,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
@@ -22,7 +23,6 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.os.Bundle;
@@ -92,7 +92,6 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                                                   engagementsTracking));
         }
         stationButton.setVisibility(View.GONE);
-        image.setOnClickListener(view -> FullImageDialog.show(activity.getSupportFragmentManager(), user));
     }
 
     @Override
@@ -131,30 +130,21 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
     private void setUserImage(User user) {
         if (!user.urn().equals(lastUser)) {
             lastUser = user.urn();
-
+            final ImageResource imageResource = getImageResource(user);
             if (banner != null) {
                 profileImageHelper.bindImages(new ProfileImageSource(user), banner, image);
             } else {
-                imageOperations.displayCircularWithPlaceholder(getImageResource(user),
+                imageOperations.displayCircularWithPlaceholder(imageResource,
                                                                ApiImageSize.getFullImageSize(image.getResources()),
                                                                image);
             }
+            image.setOnClickListener(view -> FullImageDialog.show(ViewUtils.getFragmentActivity(view).getSupportFragmentManager(), imageResource));
         }
     }
 
     @NonNull
     private ImageResource getImageResource(final User user) {
-        return new ImageResource() {
-            @Override
-            public Urn getUrn() {
-                return user.urn();
-            }
-
-            @Override
-            public Optional<String> getImageUrlTemplate() {
-                return user.avatarUrl();
-            }
-        };
+        return SimpleImageResource.create(user.urn(), user.avatarUrl());
     }
 
     private void setFollowerCount(User user) {

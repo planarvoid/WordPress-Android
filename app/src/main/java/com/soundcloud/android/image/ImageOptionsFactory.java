@@ -7,7 +7,6 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -15,6 +14,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView;
 
@@ -197,15 +198,15 @@ final class ImageOptionsFactory {
             TransitionDrawable tDrawable = ImageUtils.createTransitionDrawable(from, to);
             tDrawable.setCallback(new Drawable.Callback() {
                 @Override
-                public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
+                public void scheduleDrawable(@NonNull Drawable drawable, @NonNull Runnable runnable, long l) {
                 }
 
                 @Override
-                public void unscheduleDrawable(Drawable drawable, Runnable runnable) {
+                public void unscheduleDrawable(@NonNull Drawable drawable, @NonNull Runnable runnable) {
                 }
 
                 @Override
-                public void invalidateDrawable(Drawable drawable) {
+                public void invalidateDrawable(@NonNull Drawable drawable) {
                     imageView.invalidate();
                 }
             });

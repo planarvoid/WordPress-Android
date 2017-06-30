@@ -56,7 +56,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
         verify(imageOperations).displayCircularWithPlaceholder(
-                String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(context().getResources()), circularImageView);
+                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(context().getResources()), circularImageView);
     }
 
     @Test

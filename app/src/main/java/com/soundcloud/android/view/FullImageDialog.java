@@ -9,8 +9,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -36,6 +38,7 @@ public class FullImageDialog extends DialogFragment {
 
     private static final String TAG = "FullImage";
     private static final String KEY_URN = "urn";
+    private static final String KEY_IMAGE_URL_TEMPLATE = "imageUrlTemplate";
 
     @Inject Context context;
     @Inject ImageOperations imageOperations;
@@ -44,9 +47,10 @@ public class FullImageDialog extends DialogFragment {
     @BindView(R.id.progress) ProgressBar progress;
     private Unbinder unbinder;
 
-    public static void show(FragmentManager fragmentManager, Urn resourceUrn) {
+    public static void show(FragmentManager fragmentManager, ImageResource imageResource) {
         Bundle args = new Bundle();
-        args.putParcelable(KEY_URN, resourceUrn);
+        args.putParcelable(KEY_URN, imageResource.getUrn());
+        args.putString(KEY_IMAGE_URL_TEMPLATE, imageResource.getImageUrlTemplate().orNull());
         DialogFragment dialog = new FullImageDialog();
         dialog.setArguments(args);
         dialog.show(fragmentManager, TAG);
@@ -62,8 +66,13 @@ public class FullImageDialog extends DialogFragment {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         setupWindow(dialog);
         setupLayout(dialog);
-        displayImage(getArguments().getParcelable(KEY_URN));
+        displayImage(getImageResource(getArguments()));
         return dialog;
+    }
+
+    private ImageResource getImageResource(Bundle bundle) {
+        return SimpleImageResource.create(bundle.getParcelable(KEY_URN),
+                                          Optional.fromNullable(bundle.getString(KEY_IMAGE_URL_TEMPLATE)));
     }
 
     @SuppressLint("InflateParams")
@@ -92,8 +101,8 @@ public class FullImageDialog extends DialogFragment {
         super.onDestroyView();
     }
 
-    private void displayImage(Urn urn) {
-        imageOperations.displayInFullDialogView(urn, ApiImageSize.T500, image, new ImageListener() {
+    private void displayImage(ImageResource imageResource) {
+        imageOperations.displayInFullDialogView(imageResource, ApiImageSize.T500, image, new ImageListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 progress.setVisibility(View.VISIBLE);

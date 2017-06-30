@@ -64,7 +64,7 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private void bindImage(View view, SelectionItem selectionItem) {
         final StyledImageView styledImageView = findById(view, R.id.artwork);
-        styledImageView.showWithPlaceholder(selectionItem.artworkUrlTemplate(), selectionItem.artworkStyle(), String.valueOf(selectionItem.hashCode()), imageOperations);
+        styledImageView.showWithPlaceholder(selectionItem.artworkUrlTemplate(), selectionItem.artworkStyle(), selectionItem.urn(), imageOperations);
     }
 
     private void bindTitle(View view, Optional<String> title) {

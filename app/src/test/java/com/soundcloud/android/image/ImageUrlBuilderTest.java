@@ -19,7 +19,6 @@ public class ImageUrlBuilderTest {
     private ImageUrlBuilder builder;
 
     @Mock private ApiUrlBuilder apiUrlBuilder;
-    @Mock private ImageResource imageResource;
 
     private final String artworkTemplate = "https://sndcdn.com/path-{size}.jpg";
     private final String resolveEndpoint = "https://fake-resolve-endpoint";
@@ -34,30 +33,31 @@ public class ImageUrlBuilderTest {
 
     @Test
     public void shouldUseArtworkFromUrlTemplateIfAvailable() {
-        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.of(artworkTemplate));
 
-        String imageUrl = builder.buildUrl(imageResource, ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.of(artworkTemplate), Optional.absent(), ApiImageSize.T500);
 
         assertThat(imageUrl).isEqualTo("https://sndcdn.com/path-t500x500.jpg");
     }
 
     @Test
     public void shouldUseResolveEndpointIfArtworkNotAvailable() {
-        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.absent());
-        when(imageResource.getUrn()).thenReturn(trackUrn);
         when(apiUrlBuilder.from(ApiEndpoints.IMAGES, trackUrn, "t500x500")).thenReturn(apiUrlBuilder);
 
-        String imageUrl = builder.buildUrl(imageResource, ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.absent(), Optional.of(trackUrn), ApiImageSize.T500);
 
         assertThat(imageUrl).isEqualTo(resolveEndpoint);
     }
 
     @Test
     public void shouldNotUseResolveEndpointForUsersSinceTheyDontHaveFallbacks() {
-        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.absent());
-        when(imageResource.getUrn()).thenReturn(userUrn);
+        String imageUrl = builder.buildUrl(Optional.absent(), Optional.of(userUrn), ApiImageSize.T500);
 
-        String imageUrl = builder.buildUrl(imageResource, ApiImageSize.T500);
+        assertThat(imageUrl).isNull();
+    }
+
+    @Test
+    public void shouldBeNullWhenNoUrlTemplateOrUrnProvided() {
+        String imageUrl = builder.buildUrl(Optional.absent(), Optional.absent(), ApiImageSize.T500);
 
         assertThat(imageUrl).isNull();
     }

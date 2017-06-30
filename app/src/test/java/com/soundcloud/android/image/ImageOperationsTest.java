@@ -1,5 +1,6 @@
 package com.soundcloud.android.image;
 
+import static com.soundcloud.android.image.ImageOperations.DEFAULT_CACHE_KEY;
 import static com.soundcloud.android.image.ImageOptionsFactory.DELAY_BEFORE_LOADING;
 import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +94,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock ImageListener imageListener;
     @Mock ImageView imageView;
     @Mock Resources resources;
-    @Mock TransitionDrawable transitionDrawable;
+    @Mock TransitionDrawable cachedTransitionDrawable;
+    @Mock TransitionDrawable generatedTransitionDrawable;
     @Mock GradientDrawable gradientDrawable;
     @Mock View parentView;
     @Mock FailReason failReason;
@@ -112,6 +114,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
     @Captor ArgumentCaptor<ImageLoadingListener> imageLoadingListenerCaptor;
+    @Captor ArgumentCaptor<ValueProvider<String, TransitionDrawable>> cacheValueProviderCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -132,8 +135,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
-        when(placeholderGenerator.generateTransitionDrawable(any(String.class))).thenReturn(transitionDrawable);
-        when(placeholderGenerator.generateDrawable(any(String.class))).thenReturn(gradientDrawable);
+        when(placeholderGenerator.generateDrawable(anyString())).thenReturn(gradientDrawable);
         when(apiUrlBuilder.from(eq(ApiEndpoints.IMAGES), eq(URN), anyString())).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(RESOLVER_URL);
         when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
@@ -144,34 +146,18 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader)
                .displayImage(eq(RESOLVER_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
                              imageLoadingListenerCaptor.capture());
+
+        // trigger loading failed
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage(isNull(), any(ImageViewAware.class),
-                                                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
-        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
-    }
-
-    @Test
-    public void IOExceptionDuringAdapterViewLoadAllowsRetryWithUrl() {
-        when(failReason.getCause()).thenReturn(new IOException());
-
-        // 1st load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
-        InOrder inOrder = Mockito.inOrder(imageLoader);
-        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
-                                                 any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
-        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
-
-        // 2nd load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
-        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                                                  any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
@@ -180,21 +166,42 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayWithPlaceholder(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                                                  any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+
+        // trigger loading failed
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayWithPlaceholder(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage(isNull(), any(ImageViewAware.class),
                                                  any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
     @Test
+    public void IOExceptionDuringAdapterViewLoadAllowsRetryWithUrl() {
+        when(failReason.getCause()).thenReturn(new IOException());
+
+        // 1st load
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
+        InOrder inOrder = Mockito.inOrder(imageLoader);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
+                                                 any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+
+        // trigger loading failed
+        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
+
+        // 2nd load
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
+                                                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
+    }
+
+    @Test
     public void displayImageInAdapterViewShouldRequestImagesThroughMobileImageResolver() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
         verify(imageLoader).displayImage(
                 eq(RESOLVER_URL), any(ImageAware.class),
                 any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
@@ -202,7 +209,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayImageInAdapterViewShouldWrapAndForwardTheGivenImageView() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(
                 anyString(), imageViewAwareCaptor.capture(),
@@ -211,20 +218,21 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void displayImageInAdapterViewShouldShouldUseCorrectDisplayOptions() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+    public void displayImageInAdapterViewShouldUseCorrectDisplayOptions() {
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(anyString(), any(ImageAware.class),
                                          displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
         assertThat(displayOptionsCaptor.getValue().isResetViewBeforeLoading()).isTrue();
         assertThat(displayOptionsCaptor.getValue().getDisplayer()).isInstanceOf(PlaceholderTransitionDisplayer.class);
-        verifyFullCacheOptions();
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
     }
 
     @Test
     public void displayInFullDialogViewShouldLoadImageFromMobileImageResolver() {
-        imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(SimpleImageResource.create(URN, Optional.absent()), ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 eq(RESOLVER_URL), any(ImageAware.class),
@@ -233,7 +241,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayInFullDialogViewShouldWrapAndForwardTheGivenImageView() {
-        imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(imageResource, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 anyString(), imageViewAwareCaptor.capture(),
@@ -243,7 +251,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayInFullDialogViewShouldUseCorrectDisplayOptions() {
-        imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(imageResource, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageListenerUILAdapter.class));
@@ -253,23 +261,29 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
-        final String imageUrl = RESOLVER_URL;
-        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
+    public void displayWithPlaceholderShouldLoadImageWithMobileApiUrl() throws Exception {
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        when(placeholderCache.get(eq(RESOLVER_URL + "_100_100"), cacheValueProviderCaptor.capture())).thenReturn(cachedTransitionDrawable);
+        when(placeholderGenerator.generateTransitionDrawable(RESOLVER_URL + "_100_100")).thenReturn(generatedTransitionDrawable);
 
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
+        imageOperations.displayWithPlaceholder(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
 
-        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
-                                         displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
+        verify(imageLoader).displayImage(eq(RESOLVER_URL),
+                                         imageViewAwareCaptor.capture(),
+                                         displayOptionsCaptor.capture(),
+                                         any(ImageOperations.FallbackImageListener.class));
 
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
-        verifyFallbackDrawableOptions(RES_ID);
-        verifyFullCacheOptions();
+        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
     }
 
     @Test
     public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
-        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(cachedTransitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(imageResource, ApiImageSize.T120, imageView, bitmap, true);
@@ -277,7 +291,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
         verify(imageLoader).displayImage(eq(CDN_URL), imageViewAwareCaptor.capture(),
                                          displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));
 
-        verifyFullCacheOptions();
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
         assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
         assertThat(displayOptionsCaptor.getValue().getDelayBeforeLoading()).isEqualTo(0);
         assertThat(((BitmapDrawable) displayOptionsCaptor.getValue()
@@ -286,7 +301,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayInPlayerShouldDelayLoadingIfHighPriorityFlagIsNotSet() throws ExecutionException {
-        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(cachedTransitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(imageResource, ApiImageSize.T120, imageView, bitmap, false);
@@ -338,32 +353,17 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(
-                transitionDrawable);
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
+        when(placeholderCache.get(eq(RESOLVER_URL + "_100_100"), any(ValueProvider.class))).thenReturn(
+                cachedTransitionDrawable);
+        imageOperations.displayInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageAware.class),
                                          displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
-        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(transitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(cachedTransitionDrawable);
     }
 
-    @Test
-    public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
-        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(
-                transitionDrawable);
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
-
-        verify(imageLoader).displayImage(eq(RESOLVER_URL),
-                                         any(ImageAware.class),
-                                         displayOptionsCaptor.capture(),
-                                         any(ImageLoadingListener.class));
-        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(transitionDrawable);
-    }
 
     @Test
     public void displayWithPlaceholderObservablePassesBitmapFromLoadCompleteToAdapter() {
@@ -507,15 +507,76 @@ public class ImageOperationsTest extends AndroidUnitTest {
         assertThat(imageOperations.getUrlForLargestImage(resources, URN)).isEqualTo(RESOLVER_URL);
     }
 
-    private void verifyFullCacheOptions() {
+    @Test
+    public void displayCircularInAdapterViewShouldRequestImagesThroughMobileImageResolver() {
+        imageOperations.displayCircularInAdapterView(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
+        verify(imageLoader)
+               .displayImage(eq(RESOLVER_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
+                             any(ImageLoadingListener.class));
+    }
+
+    @Test
+    public void displayCircularInAdapterViewCalledWithoutUrnShouldUseUrl() {
+        imageOperations.displayCircularInAdapterView(Optional.absent(), ARTWORK_TEMPLATE_URL, ApiImageSize.T120, imageView);
+        verify(imageLoader)
+                .displayImage(eq(CDN_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
+                              any(ImageLoadingListener.class));
+    }
+
+    @Test
+    public void displayCircularInAdapterViewWithAbsentImageUrlAndAbsentUrnResolvesInPlaceholder() {
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        when(placeholderCache.get(eq(DEFAULT_CACHE_KEY + "_100_100"), cacheValueProviderCaptor.capture())).thenReturn(cachedTransitionDrawable);
+
+        imageOperations.displayCircularInAdapterView(Optional.absent(), Optional.absent(), ApiImageSize.T120, imageView);
+
+        verify(imageLoader).displayImage(eq(null),
+                                         imageViewAwareCaptor.capture(),
+                                         displayOptionsCaptor.capture(),
+                                         any(ImageOperations.FallbackImageListener.class));
+
+        assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
+        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(cachedTransitionDrawable);
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
     }
 
-    private void verifyFallbackDrawableOptions(int fallbackImageResId) {
-        when(resources.getDrawable(fallbackImageResId)).thenReturn(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources)).isEqualTo(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources)).isEqualTo(transitionDrawable);
-        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources)).isEqualTo(transitionDrawable);
+    @Test
+    public void displayCircularWithPlaceholderShouldRequestImagesThroughMobileImageResolver() {
+        imageOperations.displayCircularWithPlaceholder(Optional.of(URN), Optional.absent(), ApiImageSize.T120, imageView);
+        verify(imageLoader)
+                .displayImage(eq(RESOLVER_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
+                              any(ImageLoadingListener.class));
     }
+
+    @Test
+    public void displayCircularWithPlaceholderCalledWithoutUrnShouldUseUrl() {
+        imageOperations.displayCircularWithPlaceholder(Optional.absent(), ARTWORK_TEMPLATE_URL, ApiImageSize.T120, imageView);
+        verify(imageLoader)
+                .displayImage(eq(CDN_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
+                              any(ImageLoadingListener.class));
+    }
+
+    @Test
+    public void displayCircularWithPlaceholderWithAbsentImageUrlAndAbsentUrnResolvesInPlaceholder() {
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        when(placeholderCache.get(eq(DEFAULT_CACHE_KEY + "_100_100"), cacheValueProviderCaptor.capture())).thenReturn(cachedTransitionDrawable);
+
+        imageOperations.displayCircularWithPlaceholder(Optional.absent(), Optional.absent(), ApiImageSize.T120, imageView);
+
+        verify(imageLoader).displayImage(eq(null),
+                                         imageViewAwareCaptor.capture(),
+                                         displayOptionsCaptor.capture(),
+                                         any(ImageOperations.FallbackImageListener.class));
+
+        assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
+        assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(cachedTransitionDrawable);
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
+    }
+
 }

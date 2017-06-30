@@ -6,6 +6,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.text.TextUtils;
@@ -56,7 +57,8 @@ public class CommentRenderer implements CellRenderer<Comment> {
 
     private void setUserAvatar(View itemView, Urn userUrn) {
         imageOperations.displayCircularInAdapterView(
-                userUrn,
+                Optional.of(userUrn),
+                Optional.absent(),
                 ApiImageSize.getListItemImageSize(resources),
                 (ImageView) itemView.findViewById(R.id.image));
     }

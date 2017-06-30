@@ -4,6 +4,7 @@ import static butterknife.ButterKnife.findById;
 import static com.soundcloud.android.image.ImageStyle.SQUARE;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -28,30 +29,30 @@ public class StyledImageView extends FrameLayout {
         stationIndicator = findById(this, R.id.station_indicator);
     }
 
-    public void showWithoutPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, String cacheKey, ImageOperations imageOperations) {
-        show(imageUrlTemplate, imageStyle, cacheKey, imageOperations, false);
+    public void showWithoutPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, Optional<Urn> urn, ImageOperations imageOperations) {
+        show(urn, imageUrlTemplate, imageStyle, imageOperations, false);
     }
 
-    public void showWithPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, String cacheKey, ImageOperations imageOperations) {
-        show(imageUrlTemplate, imageStyle, cacheKey, imageOperations, true);
+    public void showWithPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, Optional<Urn> urn, ImageOperations imageOperations) {
+        show(urn, imageUrlTemplate, imageStyle, imageOperations, true);
     }
 
-    public void show(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, String cacheKey, ImageOperations imageOperations, boolean usePlaceholder) {
+    private void show(Optional<Urn> urn, Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, ImageOperations imageOperations, boolean usePlaceholder) {
         switch (imageStyle.or(SQUARE)) {
             case SQUARE:
-                displaySquare(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
+                displaySquare(urn, imageUrlTemplate, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
                 circularArtwork.setVisibility(GONE);
                 stationIndicator.setVisibility(GONE);
                 break;
             case CIRCULAR:
-                displayCircular(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
+                displayCircular(urn, imageUrlTemplate, imageOperations, usePlaceholder);
                 circularArtwork.setVisibility(VISIBLE);
                 squareArtwork.setVisibility(GONE);
                 stationIndicator.setVisibility(GONE);
                 break;
             case STATION:
-                displaySquare(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
+                displaySquare(urn, imageUrlTemplate, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
                 stationIndicator.setVisibility(VISIBLE);
                 circularArtwork.setVisibility(GONE);
@@ -61,19 +62,19 @@ public class StyledImageView extends FrameLayout {
         }
     }
 
-    private void displayCircular(Optional<String> imageUrlTemplate, String cacheKey, ImageOperations imageOperations, boolean usePlaceholder) {
+    private void displayCircular(Optional<Urn> urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
         if (usePlaceholder) {
-            imageOperations.displayCircularWithPlaceholder(cacheKey, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
+            imageOperations.displayCircularWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
         } else {
-            imageOperations.displayCircularInAdapterView(cacheKey, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
+            imageOperations.displayCircularInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
         }
     }
 
-    private void displaySquare(Optional<String> imageUrlTemplate, String cacheKey, ImageOperations imageOperations, boolean usePlaceholder) {
+    private void displaySquare(Optional<Urn> urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
         if (usePlaceholder) {
-            imageOperations.displayWithPlaceholder(cacheKey, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
+            imageOperations.displayWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
         } else {
-            imageOperations.displayInAdapterView(cacheKey, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
+            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
         }
     }
 }
