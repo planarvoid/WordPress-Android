@@ -85,7 +85,15 @@ public class AnalyticsConnectorTest {
     public void shouldRegisterInAppMessageManagerOnResume() {
         analyticsConnector.onResume(activity);
 
-        verify(appboyWrapper).registerInAppMessageManager(activity);
+        verify(appboyWrapper).registerInAppMessageManager(activity, false);
+    }
+
+    @Test
+    public void shouldRegisterInAppMessageManagerWithMessagesSuppressed() {
+        analyticsConnector.suppressInAppMessages();
+        analyticsConnector.onResume(activity);
+
+        verify(appboyWrapper).registerInAppMessageManager(activity, true);
     }
 
     @Test
@@ -110,7 +118,7 @@ public class AnalyticsConnectorTest {
         analyticsConnector.onResume(activity);
 
         verify(appboyWrapper, never()).ensureSubscribedToInAppMessageEvents(activity);
-        verify(appboyWrapper, never()).registerInAppMessageManager(activity);
+        verify(appboyWrapper, never()).registerInAppMessageManager(activity, false);
     }
 
 }

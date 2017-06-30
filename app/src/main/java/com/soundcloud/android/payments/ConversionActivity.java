@@ -14,6 +14,7 @@ public class ConversionActivity extends LoggedInActivity {
 
     public ConversionActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        analyticsConnector.suppressInAppMessages();
     }
 
     @Override

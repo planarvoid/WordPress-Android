@@ -40,8 +40,12 @@ public class RealAppboyWrapper implements AppboyWrapper {
         return appboy.openSession(activity);
     }
 
-    public void registerInAppMessageManager(Activity activity) {
-        AppboyInAppMessageManager.getInstance().registerInAppMessageManager(activity);
+    public void registerInAppMessageManager(Activity activity, boolean delayMessages) {
+        AppboyInAppMessageManager inAppMessageManager = AppboyInAppMessageManager.getInstance();
+        inAppMessageManager.setCustomInAppMessageManagerListener(delayMessages
+                                                                 ? AppboyInAppMessageListenerFactory.forDisplayLater()
+                                                                 : AppboyInAppMessageListenerFactory.forImmediateDisplay());
+        inAppMessageManager.registerInAppMessageManager(activity);
     }
 
     public void ensureSubscribedToInAppMessageEvents(Context context) {

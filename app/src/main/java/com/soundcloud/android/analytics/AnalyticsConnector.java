@@ -22,6 +22,8 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final AccountOperations accountOperations;
 
+    private boolean shouldDelayInAppMessages;
+
     @Inject
     public AnalyticsConnector(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState,
                               AccountOperations accountOperations) {
@@ -48,7 +50,7 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
     @Override
     public void onResume(AppCompatActivity activity) {
         if (!accountOperations.isCrawler()) {
-            appboy.registerInAppMessageManager(activity);
+            appboy.registerInAppMessageManager(activity, shouldDelayInAppMessages);
         }
     }
 
@@ -61,4 +63,9 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
     public void onStop(AppCompatActivity activity) {
         appboy.closeSession(activity);
     }
+
+    public void suppressInAppMessages() {
+        shouldDelayInAppMessages = true;
+    }
+
 }

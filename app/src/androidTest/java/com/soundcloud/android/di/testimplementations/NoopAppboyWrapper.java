@@ -36,7 +36,7 @@ public class NoopAppboyWrapper implements AppboyWrapper {
     }
 
     @Override
-    public void registerInAppMessageManager(Activity activity) {
+    public void registerInAppMessageManager(Activity activity, boolean delayMessages) {
 
     }
 
@@ -79,4 +79,5 @@ public class NoopAppboyWrapper implements AppboyWrapper {
     public boolean logCustomEvent(String eventName) {
         return false;
     }
+
 }

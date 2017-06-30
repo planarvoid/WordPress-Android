@@ -15,6 +15,7 @@ public class WebCheckoutActivity extends LoggedInActivity {
 
     public WebCheckoutActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        analyticsConnector.suppressInAppMessages();
     }
 
     @Override

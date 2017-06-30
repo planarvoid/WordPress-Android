@@ -12,7 +12,7 @@ public interface AppboyWrapper {
     void setAttribution(String network, String campaign, String adGroup, String creative);
     void setUserAttribute(String key, boolean value);
     boolean openSession(Activity activity);
-    void registerInAppMessageManager(Activity activity);
+    void registerInAppMessageManager(Activity activity, boolean delayMessages);
     void ensureSubscribedToInAppMessageEvents(Context context);
     boolean closeSession(Activity activity);
     void unregisterInAppMessageManager(Activity activity);

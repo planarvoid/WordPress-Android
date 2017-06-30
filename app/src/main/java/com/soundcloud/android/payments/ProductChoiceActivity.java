@@ -17,6 +17,7 @@ public class ProductChoiceActivity extends LoggedInActivity {
 
     public ProductChoiceActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        analyticsConnector.suppressInAppMessages();
     }
 
     @Override
