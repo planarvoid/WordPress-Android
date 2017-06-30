@@ -230,8 +230,9 @@ public class PlayerAdsController {
     }
 
     void clearAds() {
+        final boolean clearOverlays = true;
         adsForNextTrack = Optional.absent();
-        adsOperations.clearAllAdsFromQueue();
+        adsOperations.clearAllAdsFromQueue(clearOverlays);
     }
 
     private Urn getUpcomingMonetizableUrn() {

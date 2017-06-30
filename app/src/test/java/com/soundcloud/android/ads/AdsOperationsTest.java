@@ -10,6 +10,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -466,14 +467,22 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clearAllAdsFromQueueWithNoArgsDoesNotRemoveOverlays() {
+        AdsOperations adOpsSpy = spy(adsOperations);
+        adOpsSpy.clearAllAdsFromQueue();
+        verify(adOpsSpy).clearAllAdsFromQueue(false);
+    }
+
+    @Test
     public void sendsEventWhenClearingPlayableAdsFromQueue() {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.removeItems(any())).thenReturn(true);
         when(playQueueManager.removeOverlayAds()).thenReturn(false);
 
-        adsOperations.clearAllAdsFromQueue();
+        adsOperations.clearAllAdsFromQueue(false);
 
         verify(playQueueManager).removeItems(eq(AdUtils.IS_PLAYER_AD_ITEM));
+        verify(playQueueManager, never()).removeOverlayAds();
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
     }
 
@@ -483,7 +492,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.removeItems(any())).thenReturn(false);
         when(playQueueManager.removeOverlayAds()).thenReturn(true);
 
-        adsOperations.clearAllAdsFromQueue();
+        adsOperations.clearAllAdsFromQueue(true);
 
         verify(playQueueManager).removeOverlayAds();
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
@@ -494,9 +503,10 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.removeItems(any())).thenReturn(false);
 
-        adsOperations.clearAllAdsFromQueue();
+        adsOperations.clearAllAdsFromQueue(false);
 
         verify(playQueueManager).removeItems(eq(AdUtils.IS_PLAYER_AD_ITEM));
+        verify(playQueueManager, never()).removeOverlayAds();
         eventBus.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
     }
 

@@ -812,7 +812,7 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
     public void clearingAdsInControllerShouldForwardCallToAdsOperation() {
         adsController.clearAds();
 
-        verify(adsOperations).clearAllAdsFromQueue();
+        verify(adsOperations).clearAllAdsFromQueue(true);
 
         adsController.reconfigureAdForNextTrack();
         verifyNoMoreInteractions(playQueueManager);
