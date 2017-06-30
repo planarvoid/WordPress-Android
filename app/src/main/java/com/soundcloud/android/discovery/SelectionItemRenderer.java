@@ -34,7 +34,7 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.discovery_carousel_playlist_item_fixed_width, parent, false);
+                             .inflate(R.layout.carousel_playlist_item_fixed_width, parent, false);
     }
 
     @Override

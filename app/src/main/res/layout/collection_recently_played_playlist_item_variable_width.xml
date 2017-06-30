@@ -6,7 +6,7 @@
     android:clipToPadding="false">
 
     <include
-        layout="@layout/carousel_playlist_item"
+        layout="@layout/collection_recently_played_playlist_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/collection_recently_played_item_padding" />

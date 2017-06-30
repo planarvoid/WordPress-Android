@@ -17,15 +17,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/artwork"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="4dp" />
+        android:layout_marginTop="8dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/secondary_text"
         style="@style/Carousel.ItemArtist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_marginRight="4dp" />
+        android:layout_below="@id/title" />
 
 </RelativeLayout>
