@@ -4,7 +4,10 @@ task runUnitTests(dependsOn: [':app:runUnitTests',
                               ':modules:android-kit:core:test',
                               ':modules:android-kit:platform:test',
                               ':modules:lint:rules:test',
-                              ':modules:lint:integTest:integrationTest']) {
+                              ':modules:lint:integTest:integrationTest',
+                              ':modules:lint:memento:compiler:test',
+                              ':modules:lint:memento:plugin:test',
+                              ':modules:lint:memento:plugin:integrationTest']) {
 
 }
 

@@ -1,0 +1,53 @@
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'maven-publish'
+apply plugin: 'groovy'
+apply plugin: 'nebula.integtest'
+
+buildscript {
+  repositories {
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+  }
+  dependencies {
+    classpath gradlePlugins.nebulatest
+  }
+}
+
+def newVersion = '0.2-SNAPSHOT'
+
+group 'com.soundcloud'
+version newVersion
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+
+  testCompile gradleTestKit()
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.nebulatest
+}
+
+gradlePlugin {
+  plugins {
+    memento {
+      id = "com.soundcloud.memento"
+      implementationClass = "com.soundcloud.memento.plugin.MementoPlugin"
+    }
+  }
+}
+
+publishing {
+  repositories {
+    maven {
+      url "http://maven.int.s-cloud.net/content/repositories/snapshots"
+    }
+  }
+  publications {
+    release(MavenPublication) {
+      groupId 'com.soundcloud'
+      artifactId 'memento'
+      version "${version}"
+      from components.java
+    }
+  }
+}

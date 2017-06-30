@@ -25,6 +25,7 @@ ext {
   flipperVersion = '1.0.4'
   mockitoVersion = '2.7.22'
   pmdVersion = '5.7.0'
+  mementoVersion = '0.1-SNAPSHOT'
   libraries = [
           // Annotation processors / Annotations
           daggerCompiler               : "com.google.dagger:dagger-compiler:$daggerVersion",
@@ -50,6 +51,8 @@ ext {
           groupieCompiler              : project(':modules:groupie:groupie-compiler'),
           groupie                      : project(':modules:groupie:groupie'),
           lintlib                      : project(':modules:lint:lib'),
+          mementoAnnotation            : project(':modules:lint:memento:memento'),
+          mementoCompiler              : project(':modules:lint:memento:compiler'),
 
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",
@@ -122,7 +125,10 @@ ext {
           frodo      : 'com.fernandocejas.frodo:frodo-plugin:0.8.2',
           retrolambda: 'me.tatarka:gradle-retrolambda:3.6.1',
           sqlDelight : 'com.squareup.sqldelight:gradle-plugin:0.6.1',
-          firebase   : 'com.google.firebase:firebase-plugins:1.1.0'
+          firebase   : 'com.google.firebase:firebase-plugins:1.1.0',
+          apt        : 'net.ltgt.gradle:gradle-apt-plugin:0.10',
+          memento    : "com.soundcloud:memento:$mementoVersion",
+          nebulatest : 'com.netflix.nebula:nebula-project-plugin:3.4.0',
   ]
 
   devLibraries = [
@@ -144,7 +150,8 @@ ext {
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
           compileTesting                  : 'com.google.testing.compile:compile-testing:0.10',
           lintTests                       : "com.android.tools.lint:lint-tests:$lintVersion",
-          lint                            : "com.android.tools.lint:lint:$lintVersion"
+          lint                            : "com.android.tools.lint:lint:$lintVersion",
+          nebulatest                      : "com.netflix.nebula:nebula-test:6.0.1",
   ]
 
   acceptanceTestLibraries = [

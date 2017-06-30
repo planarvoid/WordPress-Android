@@ -1,6 +1,7 @@
 include ':app'
 
 include ':modules:lint:lib', ':modules:lint:rules', ':modules:lint:integTest'
+include ':modules:lint:memento:memento', ':modules:lint:memento:compiler', ':modules:lint:memento:plugin'
 include ':modules:groupie:groupie-compiler', ':modules:groupie:groupie-annotation', ':modules:groupie:groupie'
 include ':modules:mrlocallocal'
 include ':modules:android-kit:core', ':modules:android-kit:platform'

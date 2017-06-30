@@ -27,6 +27,7 @@ import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiStatement;
 import com.intellij.psi.PsiType;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+@LintDetector
 public class RxJava2Detector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_METHOD_MISSING_CHECK_RESULT =

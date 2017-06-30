@@ -19,11 +19,13 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiNewExpression;
 import com.intellij.psi.PsiType;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@LintDetector
 public class IntentFactoryDetector extends Detector implements Detector.JavaPsiScanner {
     public static final Issue ISSUE_CREATE_OUTSIDE = Issue.create("sc.CreateIntent",
                                                                   "Intents should not be created directly.",

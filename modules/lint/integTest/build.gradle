@@ -6,14 +6,14 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.netflix.nebula:nebula-project-plugin:3.4.0'
+    classpath gradlePlugins.nebulatest
   }
 }
 
 dependencies {
   testCompile localGroovy()
   testCompile gradleTestKit()
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.assertj:assertj-core:3.6.2'
-  testCompile 'com.netflix.nebula:nebula-test:6.0.1'
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.nebulatest
 }

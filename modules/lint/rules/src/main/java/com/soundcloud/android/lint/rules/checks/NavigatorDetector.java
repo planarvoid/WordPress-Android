@@ -13,10 +13,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiReferenceExpression;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.List;
 
+@LintDetector
 public final class NavigatorDetector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_START_INTENT = Issue.create("sc.StartIntent",

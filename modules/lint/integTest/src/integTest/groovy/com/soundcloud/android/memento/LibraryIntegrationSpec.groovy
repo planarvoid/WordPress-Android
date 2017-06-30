@@ -1,11 +1,13 @@
-package com.soundcloud.android.lint
+package com.soundcloud.android.memento
 
 import nebula.test.IntegrationSpec
 
 class LibraryIntegrationSpec extends IntegrationSpec {
 
+  private def rootPath;
+
   void setup() {
-    settingsFile << settingsGradle()
+    rootPath = new File(".").absolutePath.replace("/modules/lint/integTest/.", "")
     buildFile << androidBuild("com.example.android")
     writeAndroidManifestWithActivity("com.example.android", "MainActivity")
 
@@ -15,6 +17,12 @@ class LibraryIntegrationSpec extends IntegrationSpec {
     addSubproject(":modules:groupie:groupie", "")
     addSubproject(":modules:lint:lib", "")
     addSubproject(":modules:mrlocallocal", "")
+    addSubproject(":modules:lint:memento:memento", "")
+    addSubproject(":modules:lint:memento:compiler", "")
+    addSubproject(":modules:lint:rules", "")
+    addSubproject(":integTest", "")
+    addSubproject(":lib", "")
+    settingsFile << settingsGradle()
   }
 
   def 'lint rules picked up'() {
@@ -29,19 +37,20 @@ class LibraryIntegrationSpec extends IntegrationSpec {
 
   protected String settingsGradle() {
     return """
-              include ':lib', ':modules:lint:rules', ':integTest'
-              project(':lib').projectDir = file('../../../../../lib')
-              project(':modules:lint:rules').projectDir = file('../../../../../rules')
+              project(':lib').projectDir = file('$rootPath/modules/lint/lib')
+              project(':modules:lint:rules').projectDir = file('$rootPath/modules/lint/rules')
+              project(':modules:lint:memento:memento').projectDir = file('$rootPath/modules/lint/memento/memento')
+              project(':modules:lint:memento:compiler').projectDir = file('$rootPath/modules/lint/memento/compiler')
            """.stripIndent()
   }
 
   protected String androidBuild(String applicationId) {
     return """\
-            apply from: '../../../../../../../buildsystem/dependencies.gradle'
+            apply from: '$rootPath/buildsystem/dependencies.gradle'
             apply plugin: 'com.android.application'
 
             buildscript {
-                apply from: '../../../../../../../buildsystem/dependencies.gradle'
+                apply from: '$rootPath/buildsystem/dependencies.gradle'
                 def gradlePlugins = rootProject.ext.gradlePlugins
                 
                 repositories {

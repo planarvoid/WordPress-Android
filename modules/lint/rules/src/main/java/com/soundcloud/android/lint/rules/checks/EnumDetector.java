@@ -20,11 +20,13 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@LintDetector
 public class EnumDetector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_ENUM_USAGE = Issue.create("sc.EnumUsage",

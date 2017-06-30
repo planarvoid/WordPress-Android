@@ -19,11 +19,13 @@ import com.intellij.psi.PsiImportStatement;
 import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+@LintDetector
 public final class RxJava1Detector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_RXJAVA_1_USAGE = Issue.create("sc.RxJava1Usage",

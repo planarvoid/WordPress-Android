@@ -12,10 +12,12 @@ import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.soundcloud.android.memento.annotation.LintDetector;
 
 import java.util.Arrays;
 import java.util.List;
 
+@LintDetector
 public final class LogDetector extends Detector implements Detector.JavaPsiScanner {
 
     public static final Issue ISSUE_ANDROID_LOG = Issue.create("sc.AndroidLog",
