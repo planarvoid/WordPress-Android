@@ -56,8 +56,9 @@ public class StreamFragment extends LightCycleSupportFragment<StreamFragment>
         presenter.onFocusChange(hasFocus);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

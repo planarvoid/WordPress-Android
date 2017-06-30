@@ -117,8 +117,9 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
         return (PromotedSourceInfo) getArguments().getParcelable(PROMOTED_SOURCE_INFO);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

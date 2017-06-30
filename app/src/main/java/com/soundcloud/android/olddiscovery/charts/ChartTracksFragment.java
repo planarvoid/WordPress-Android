@@ -82,8 +82,9 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
         super.onStop();
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

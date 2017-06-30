@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +37,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
     @Before
     public void setup() {
         when(accountOperations.logout()).thenReturn(Observable.empty());
-        LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
+        LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations, mock(LeakCanaryWrapper.class));
         fragmentController = SupportFragmentController.of(fragment);
         logoutFragment = fragmentController.get();
     }

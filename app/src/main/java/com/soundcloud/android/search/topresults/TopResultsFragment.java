@@ -126,6 +126,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onDestroy() {
         presenter.detachView();
         super.onDestroy();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override
@@ -205,7 +206,5 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onDestroyView() {
         collectionRenderer.detach();
         super.onDestroyView();
-        leakCanaryWrapper.watch(this);
     }
-
 }

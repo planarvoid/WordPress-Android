@@ -39,8 +39,9 @@ public class RecordFragment extends LightCycleSupportFragment<RecordFragment> {
         return inflater.inflate(R.layout.sc_create, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

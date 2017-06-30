@@ -41,8 +41,9 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
         return inflater.inflate(R.layout.recyclerview_with_emptyview, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

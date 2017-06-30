@@ -58,6 +58,11 @@ public class GcmDebugDialogFragment extends DialogFragment implements GcmMessage
     public void onDestroyView() {
         gcmMessageHandler.setListener(null);
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

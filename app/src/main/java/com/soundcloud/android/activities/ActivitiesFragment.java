@@ -44,8 +44,9 @@ public class ActivitiesFragment extends LightCycleSupportFragment<ActivitiesFrag
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

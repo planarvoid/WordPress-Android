@@ -56,8 +56,9 @@ public class MetadataFragment extends LightCycleSupportFragment<MetadataFragment
         metadataPresenter.onRequestPermissionsResult(requestCode, grantResults);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

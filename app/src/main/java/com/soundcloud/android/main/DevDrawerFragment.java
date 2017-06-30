@@ -86,10 +86,6 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
         introductoryOverlayOperations.unregisterOnStateChangedListener(this);
         subscription.unsubscribe();
         super.onDestroy();
-    }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }
 

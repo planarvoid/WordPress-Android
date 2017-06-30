@@ -139,6 +139,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         addTrackSubscription.unsubscribe();
         loadPlaylistSubscription.unsubscribe();
         super.onDestroy();
+        leakCanaryWrapper.watch(this);
     }
 
     private final class TrackAddedSubscriber extends DefaultSubscriber<Integer> {
@@ -240,10 +241,5 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             }
             adapter.notifyDataSetChanged();
         }
-    }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        leakCanaryWrapper.watch(this);
     }
 }

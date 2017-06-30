@@ -86,8 +86,9 @@ public class AddCommentDialogFragment extends DialogFragment {
         activity.addComment(AddCommentArguments.create(trackTitle, trackUrn, creatorName, creatorUrn, position, commentText, originScreen));
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

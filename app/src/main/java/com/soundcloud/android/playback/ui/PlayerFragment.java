@@ -50,8 +50,8 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

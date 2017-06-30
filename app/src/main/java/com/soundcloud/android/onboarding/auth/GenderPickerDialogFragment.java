@@ -40,8 +40,9 @@ public class GenderPickerDialogFragment extends DialogFragment {
                 .create();
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

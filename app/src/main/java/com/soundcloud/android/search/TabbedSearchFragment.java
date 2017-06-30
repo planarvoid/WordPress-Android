@@ -127,6 +127,11 @@ public class TabbedSearchFragment extends Fragment {
         // Avoid leaking context through internal dataset observer in adapter
         pager = null;
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

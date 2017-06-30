@@ -59,8 +59,9 @@ public class LegalFragment extends PreferenceFragment implements OnPreferenceCli
         return true;
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

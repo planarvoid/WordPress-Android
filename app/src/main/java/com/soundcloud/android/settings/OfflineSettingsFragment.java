@@ -151,6 +151,11 @@ public class OfflineSettingsFragment extends PreferenceFragment
         subscription.unsubscribe();
         disposables.clear();
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

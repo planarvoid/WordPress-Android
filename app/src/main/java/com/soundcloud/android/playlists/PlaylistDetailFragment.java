@@ -330,13 +330,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         itemTouchHelper = null;
 
         super.onDestroyView();
-        leakCanaryWrapper.watch(this);
     }
 
     @Override
     public void onDestroy() {
         toolbarView = null;
         super.onDestroy();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

@@ -43,8 +43,9 @@ public class UserAlbumsFragment extends LightCycleSupportFragment<UserAlbumsFrag
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

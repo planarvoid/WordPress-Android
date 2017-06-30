@@ -103,11 +103,6 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     public void onDestroy() {
         subscription.unsubscribe();
         super.onDestroy();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }
 }

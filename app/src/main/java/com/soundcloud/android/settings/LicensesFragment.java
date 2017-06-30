@@ -27,8 +27,9 @@ public class LicensesFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.licenses);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

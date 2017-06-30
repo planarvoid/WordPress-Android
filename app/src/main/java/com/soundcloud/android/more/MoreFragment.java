@@ -42,8 +42,9 @@ public class MoreFragment extends LightCycleSupportFragment<MoreFragment> implem
         presenter.onFocusChange(hasFocus);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

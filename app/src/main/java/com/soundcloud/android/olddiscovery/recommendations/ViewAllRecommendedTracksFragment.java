@@ -32,8 +32,9 @@ public class ViewAllRecommendedTracksFragment extends LightCycleSupportFragment<
         return inflater.inflate(R.layout.discovery_recycler_view, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

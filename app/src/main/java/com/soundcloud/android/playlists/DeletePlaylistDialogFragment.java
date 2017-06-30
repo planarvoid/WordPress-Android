@@ -60,8 +60,9 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
         return (Urn) getArguments().getParcelable(PLAYLIST_URN);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

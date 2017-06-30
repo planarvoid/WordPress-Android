@@ -34,8 +34,9 @@ public class PlayQueueFragment extends LightCycleSupportFragment<PlayQueueFragme
         return inflater.inflate(R.layout.player_play_queue, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

@@ -56,8 +56,9 @@ public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFr
         return new View[]{stationInfoPresenter.getRecyclerView(), stationInfoPresenter.getEmptyView()};
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

@@ -34,8 +34,9 @@ public class GoOffboardingFragment extends LightCycleSupportFragment<GoOffboardi
         return inflater.inflate(R.layout.go_offboarding_fragment, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

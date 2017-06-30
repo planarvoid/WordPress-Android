@@ -64,8 +64,9 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
         return new View[]{ presenter.getRecyclerView() };
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

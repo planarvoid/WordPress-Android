@@ -44,8 +44,9 @@ public class LikedStationsFragment extends LightCycleSupportFragment<LikedStatio
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

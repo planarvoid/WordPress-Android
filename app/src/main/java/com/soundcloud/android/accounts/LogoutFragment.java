@@ -38,10 +38,11 @@ public class LogoutFragment extends Fragment {
     }
 
     @VisibleForTesting
-    LogoutFragment(EventBus eventBus, AccountOperations accountOperations, FeatureOperations featureOperations) {
+    LogoutFragment(EventBus eventBus, AccountOperations accountOperations, FeatureOperations featureOperations, LeakCanaryWrapper leakCanaryWrapper) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
+        this.leakCanaryWrapper = leakCanaryWrapper;
     }
 
     @Override
@@ -63,10 +64,6 @@ public class LogoutFragment extends Fragment {
     public void onDestroy() {
         subscription.unsubscribe();
         super.onDestroy();
-    }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }
 

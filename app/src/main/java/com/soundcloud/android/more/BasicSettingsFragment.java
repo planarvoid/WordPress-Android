@@ -50,8 +50,9 @@ public class BasicSettingsFragment extends PreferenceFragment {
                              .setSummary(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PREF_SYNC_WIFI_ONLY_DESCRIPTION));
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

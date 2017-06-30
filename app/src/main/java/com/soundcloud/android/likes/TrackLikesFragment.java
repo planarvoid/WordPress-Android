@@ -32,8 +32,8 @@ public class TrackLikesFragment extends LightCycleSupportFragment<TrackLikesFrag
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

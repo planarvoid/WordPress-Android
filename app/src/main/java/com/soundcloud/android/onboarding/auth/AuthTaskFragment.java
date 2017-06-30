@@ -117,6 +117,11 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
 
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 

@@ -92,13 +92,13 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             getDialog().setDismissMessage(null);
         }
         super.onDestroyView();
-        leakCanaryWrapper.watch(this);
     }
 
     @Override
     public void onDestroy() {
         disposable.dispose();
         super.onDestroy();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

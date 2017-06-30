@@ -50,8 +50,9 @@ public class CollectionFragment extends LightCycleSupportFragment<CollectionFrag
         presenter.scrollToTop();
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

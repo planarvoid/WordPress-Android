@@ -52,8 +52,9 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
                 view.findViewById(R.id.user_details_holder)};
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

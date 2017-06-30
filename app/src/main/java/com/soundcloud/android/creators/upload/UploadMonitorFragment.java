@@ -40,8 +40,9 @@ public class UploadMonitorFragment extends LightCycleSupportFragment<UploadMonit
         return inflater.inflate(R.layout.upload_monitor, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 }

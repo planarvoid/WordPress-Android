@@ -48,8 +48,9 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
         return inflater.inflate(R.layout.user_info_view, container, false);
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 
