@@ -9,6 +9,7 @@ public enum MetricType {
     //App Instrumentation Metrics
     DEV_APP_ON_CREATE("dev_app_on_create"),
     DEV_APP_UI_VISIBLE("dev_app_ui_visible"),
+    DEV_THREAD_POOL_TASK_WAIT_TIME("dev_thread_pool_task_wait_time"),
 
     //App Performance Metrics
     TIME_TO_EXPAND_PLAYER("time_to_expand_player"),

@@ -1,5 +1,10 @@
 package com.soundcloud.android.rx;
 
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
@@ -34,7 +39,6 @@ public final class ScSchedulers {
 
     public static final Scheduler RX_HIGH_PRIORITY_SCHEDULER;
     public static final Scheduler RX_LOW_PRIORITY_SCHEDULER;
-
 
     private static final long QUEUE_WAIT_WARNING_THRESHOLD = TimeUnit.SECONDS.toMillis(1);
     private static final long QUEUE_SIZE_WARNING_THRESHOLD = 3;
@@ -73,20 +77,32 @@ public final class ScSchedulers {
         public void execute(@NonNull final Runnable command) {
             logExecuteWarning();
             final long startTime = System.currentTimeMillis();
-            target.execute(() -> {
-                logExecutingWarning(startTime);
-                command.run();
-            });
+
+            if (ApplicationProperties.isBetaOrBelow()) {
+                //We only track wait time for alpha, beta and debug.
+                final WaitTimeTaskTrace waitTimeTaskTrace = new WaitTimeTaskTrace();
+                waitTimeTaskTrace.startMeasuring();
+                target.execute(() -> {
+                    waitTimeTaskTrace.stopMeasuring();
+                    logExecutingWarning(startTime);
+                    command.run();
+                });
+            } else {
+                target.execute(() -> {
+                    logExecutingWarning(startTime);
+                    command.run();
+                });
+            }
         }
 
-        void logExecuteWarning() {
+        private void logExecuteWarning() {
             final int size = target.getQueue().size();
             if (size > QUEUE_SIZE_WARNING_THRESHOLD) {
                 ErrorUtils.log(Log.WARN, OperationsInstrumentation.TAG, "Execute Command [queuedCount = " + size + "]");
             }
         }
 
-        void logExecutingWarning(long startTime) {
+        private void logExecutingWarning(long startTime) {
             final long waitTime = System.currentTimeMillis() - startTime;
             if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
                 ErrorUtils.log(Log.WARN, OperationsInstrumentation.TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
@@ -159,6 +175,37 @@ public final class ScSchedulers {
                                long timeout,
                                TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
             return target.invokeAny(tasks, timeout, unit);
+        }
+    }
+
+
+    /**
+     * <p>This class is meant to be used only HERE to measure how much time each task in the pool of threads waits
+     * before execution.</p>
+     *
+     * <p>The reason of its existence is because {@link PerformanceMetricsEngine} is an injectable class (which should
+     * be used for any performance measurement across the project) but at the time we instantiate our pool of threads
+     * (at class loading time using blocks), our dependency injector is not ready.</p>
+     *
+     * <p>Refer to {@link PerformanceMetricsEngine}.</p>
+     */
+    private static class WaitTimeTaskTrace {
+        private final Trace trace;
+
+        private WaitTimeTaskTrace() {
+            this.trace = FirebasePerformance.getInstance().newTrace(MetricType.DEV_THREAD_POOL_TASK_WAIT_TIME.toString());
+        }
+
+        private void startMeasuring() {
+            if (trace != null) {
+                trace.start();
+            }
+        }
+
+        private void stopMeasuring() {
+            if (trace != null) {
+                trace.stop();
+            }
         }
     }
 }
