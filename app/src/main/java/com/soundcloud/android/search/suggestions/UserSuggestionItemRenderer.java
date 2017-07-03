@@ -5,7 +5,9 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 
+import android.content.res.Resources;
 import android.view.View;
+import android.widget.ImageView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -23,9 +25,9 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
         bindView(itemView, userSuggestionItem, R.drawable.ic_search_user);
     }
 
-    protected void loadIcon(View itemView, ImageResource imageResource) {
+    protected void loadIcon(ImageView icon, ImageResource imageResource, Resources resources) {
         imageOperations.displayCircularInAdapterView(imageResource,
-                                                     ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                                     ApiImageSize.getListItemImageSize(resources),
                                                      icon);
     }
 }

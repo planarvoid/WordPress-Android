@@ -3,12 +3,12 @@ package com.soundcloud.android.search.suggestions;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.findHighlight;
 import static com.soundcloud.android.search.suggestions.SuggestionHighlighter.setHighlightSpans;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.search.suggestions.SuggestionItem.AutocompletionItem;
 
+import android.content.Context;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 class AutocompletionItemRenderer implements CellRenderer<AutocompletionItem> {
-    @BindView(R.id.search_title) TextView titleText;
 
     @Inject
     AutocompletionItemRenderer() {
@@ -32,15 +31,14 @@ class AutocompletionItemRenderer implements CellRenderer<AutocompletionItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<AutocompletionItem> items) {
-        ButterKnife.bind(this, itemView);
-
-        titleText.setText(highlight(items.get(position)));
+        TextView titleText = ButterKnife.findById(itemView, R.id.search_title);
+        titleText.setText(highlight(items.get(position), itemView.getContext()));
     }
 
-    private SpannableString highlight(AutocompletionItem autocompletion) {
+    private SpannableString highlight(AutocompletionItem autocompletion, Context context) {
         final SuggestionHighlight textHighlight = findHighlight(autocompletion.userQuery(), autocompletion.output());
         final SpannableString spanned = new SpannableString(autocompletion.output());
-        setHighlightSpans(titleText.getContext(), spanned, textHighlight);
+        setHighlightSpans(context, spanned, textHighlight);
         return spanned;
     }
 
