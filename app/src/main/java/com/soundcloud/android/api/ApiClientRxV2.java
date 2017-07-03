@@ -25,7 +25,9 @@ public class ApiClientRxV2 {
             if (response.isSuccess()) {
                 emitter.onSuccess(response);
             } else {
-                emitter.onError(response.getFailure());
+                if (!emitter.isDisposed()) {
+                    emitter.onError(response.getFailure());
+                }
             }
         });
     }
@@ -41,7 +43,9 @@ public class ApiClientRxV2 {
                 if (response.isSuccess()) {
                     emitter.onSuccess(apiClient.mapResponse(response, resourceType));
                 } else {
-                    emitter.onError(response.getFailure());
+                    if (!emitter.isDisposed()) {
+                        emitter.onError(response.getFailure());
+                    }
                 }
             } catch (ApiRequestException | ApiMapperException | IOException e) {
                 emitter.onError(e);

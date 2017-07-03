@@ -339,12 +339,10 @@ public class SoundCloudApplication extends MultiDexApplication {
     // Uncaught Exception Handler. By default this crashes our app. These errors happen when we don't
     // properly wrap a non-RX api with an Rx Api. For example, converting our non-Rx API calls into
     // Observables / Singles.
-    //
-    // Generally speaking, these aren't critical errors that should crash our app, but they are code
-    // smells that should be fixed. In RxJava1, no error was thrown, so these underlying issues were
-    // never exposed.
     private void setupRxErrorHandling() {
         RxJavaPlugins.setErrorHandler(e -> {
+            // Some blocking code was interrupted by a dispose call
+            // https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0#error-handling
             if (!applicationProperties.isDevelopmentMode()) {
                 ErrorUtils.handleSilentException("RxError", e);
             } else {
