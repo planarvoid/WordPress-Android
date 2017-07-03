@@ -13,16 +13,15 @@ import static android.support.v4.media.session.PlaybackStateCompat.STATE_PLAYING
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.external.PlaybackActionController;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
@@ -72,7 +71,8 @@ public class MediaSessionController {
                                   @Provided PlayQueueManager playQueueManager,
                                   @Provided AdsOperations adsOperations,
                                   @Provided NavigationExecutor navigationExecutor,
-                                  @Provided EventBus eventBus) {
+                                  @Provided EventBus eventBus,
+                                  @Provided PlayerInteractionsTracker playerInteractionsTracker) {
         this.context = context;
         this.listener = listener;
         this.mediaSessionWrapper = mediaSessionWrapper;
@@ -87,7 +87,8 @@ public class MediaSessionController {
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
         mediaSession.setCallback(new MediaSessionListener(this,
                                                           playbackActionController,
-                                                          context.getApplicationContext()));
+                                                          context.getApplicationContext(),
+                                                          playerInteractionsTracker));
         mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         updatePlaybackState();
     }
@@ -126,7 +127,6 @@ public class MediaSessionController {
     }
 
     public void onSkip() {
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromSystemSkip());
         final PlayQueueItem queueItem = playQueueManager.getCurrentPlayQueueItem();
 
         if (!queueItem.isEmpty()) {

@@ -7,8 +7,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -22,7 +22,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.model.Urn;
@@ -30,10 +29,13 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.PlaybackActionSource;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
+import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector.SwipeDirection;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -87,6 +89,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final PlayerInteractionsTracker playerInteractionsTracker;
     private final TrackPageRecycler trackPageRecycler;
     private final VideoSurfaceProvider videoSurfaceProvider;
 
@@ -142,7 +145,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                          VideoSurfaceProvider videoSurfaceProvider,
                          PlayerPagerOnboardingPresenter onboardingPresenter,
                          EventBus eventBus,
-                         PerformanceMetricsEngine performanceMetricsEngine) {
+                         PerformanceMetricsEngine performanceMetricsEngine,
+                         PlayerInteractionsTracker playerInteractionsTracker) {
         this.playQueueManager = playQueueManager;
         this.trackItemRepository = trackItemRepository;
         this.trackPagePresenter = trackPagePresenter;
@@ -157,6 +161,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.playerInteractionsTracker = playerInteractionsTracker;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -344,20 +349,14 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         return new SkipListener() {
             @Override
             public void onNext() {
-                sendTrackingEvent();
-
+                playerInteractionsTracker.clickForward(PlaybackActionSource.FULL);
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
             }
 
             @Override
             public void onPrevious() {
-                sendTrackingEvent();
-
+                playerInteractionsTracker.clickBackward(PlaybackActionSource.FULL);
                 trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
-            }
-
-            private void sendTrackingEvent() {
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromButtonSkip());
             }
         };
     }
@@ -373,9 +372,18 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     @Override
-    public void onSwipe() {
+    public void onSwipe(SwipeDirection swipeDirection) {
         startMeasuringTimeToSkip();
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromSwipeSkip());
+        trackPlayerSwipe(swipeDirection);
+    }
+
+    private void trackPlayerSwipe(SwipeDirection swipeDirection) {
+        PlaybackActionSource playerType = isExpanded() ? PlaybackActionSource.FULL : PlaybackActionSource.MINI;
+        if (swipeDirection == SwipeDirection.RIGHT) {
+            playerInteractionsTracker.swipeForward(playerType);
+        } else {
+            playerInteractionsTracker.swipeBackward(playerType);
+        }
     }
 
     private void populateScrapViews(PlayerTrackPager trackPager) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.external;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ public class PlaybackActionController {
         this.adsController = adsController;
     }
 
-    public void handleAction(String action, String source) {
+    public void handleAction(String action, PlaybackActionSource source) {
         Log.d(TAG, "Handling Playback action " + action + " from " + source);
         if (PlaybackAction.PLAY.equals(action)) {
             playSessionController.play();
@@ -42,10 +43,10 @@ public class PlaybackActionController {
         }
     }
 
-    private void reconfigureAdIfBackgroundSkip(String source) {
+    private void reconfigureAdIfBackgroundSkip(PlaybackActionSource source) {
         switch (source) {
-            case PlaybackActionReceiver.SOURCE_REMOTE:
-            case PlaybackActionReceiver.SOURCE_WIDGET:
+            case NOTIFICATION:
+            case WIDGET:
                 adsController.reconfigureAdForNextTrack();
                 adsController.publishAdDeliveryEventIfUpcoming();
                 break;

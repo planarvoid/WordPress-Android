@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.widget;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.MainActivity;
@@ -8,7 +7,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.playback.external.PlaybackAction;
-import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.java.optional.Optional;
@@ -117,7 +115,6 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
     private Intent createIntent(String playbackAction) {
         return new Intent(playbackAction)
-                .putExtra(PlaybackActionReceiver.EXTRA_EVENT_SOURCE, PlaybackActionReceiver.SOURCE_WIDGET)
                 .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
     }
 }

@@ -11,17 +11,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.external.PlaybackActionController;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -69,6 +68,8 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     @Mock MediaMetadataCompat currentMediaMetadata;
     @Mock MediaDescriptionCompat currentMediaDescription;
     @Mock NavigationExecutor navigationExecutor;
+    @Mock PlayerInteractionsTracker playerInteractionsTracker;
+
     private TestEventBus eventBus = new TestEventBus();
 
     private MediaSessionController controller;
@@ -81,7 +82,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
                                                 actionController, metadataOperations, playQueueManager, adsOperations,
-                                                navigationExecutor, eventBus);
+                                                navigationExecutor, eventBus, playerInteractionsTracker);
 
         setupMetadataMocks();
     }
@@ -203,13 +204,6 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
         controller.onStop();
 
         verify(mediaSession).setActive(false);
-    }
-
-    @Test
-    public void onSkipSendsTrackingEvent() {
-        controller.onSkip();
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromSystemSkip().getKind());
     }
 
     @Test

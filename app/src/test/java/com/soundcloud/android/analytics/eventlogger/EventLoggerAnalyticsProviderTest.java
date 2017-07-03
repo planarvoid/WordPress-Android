@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.events.UIEvent.PlayerInterface.FULLSCREEN;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -172,35 +173,40 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSwipeSkipEvent() {
-        assertSwipeEvent(UIEvent.fromSwipeSkip());
+    public void shouldTrackPlayerClickForward() {
+        assertPlayerEvent(UIEvent.fromPlayerClickForward(FULLSCREEN));
     }
 
     @Test
-    public void shouldButtonSkipEvent() {
-        assertSwipeEvent(UIEvent.fromButtonSkip());
+    public void shouldTrackPlayerClickBackward() {
+        assertPlayerEvent(UIEvent.fromPlayerClickBackward(FULLSCREEN));
     }
 
     @Test
-    public void shouldSystemSkipEvent() {
-        assertSwipeEvent(UIEvent.fromSystemSkip());
+    public void shouldTrackPlayerSwipeForward() {
+        assertPlayerEvent(UIEvent.fromPlayerSwipeForward(FULLSCREEN));
     }
 
-    private void assertSwipeEvent(UIEvent uiEvent) {
+    @Test
+    public void shouldTrackPlayerSwipeBackward() {
+        assertPlayerEvent(UIEvent.fromPlayerSwipeBackward(FULLSCREEN));
+    }
+
+    private void assertPlayerEvent(UIEvent uiEvent) {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        when(dataBuilder.buildForUIEvent(uiEvent)).thenReturn("ForSkip");
+        when(dataBuilder.buildForUIEvent(uiEvent)).thenReturn("player");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(uiEvent);
 
         verify(eventTrackingManager).trackEvent(captor.capture());
-        assertThat(captor.getValue().getData()).isEqualTo("ForSkip");
+        assertThat(captor.getValue().getData()).isEqualTo("player");
     }
 
     @Test
     public void shouldTrackInteractionEventWhenIsInteractionEvent() {
         when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
 
-        final UIEvent event = UIEvent.fromSystemSkip();
+        final UIEvent event = UIEvent.fromPlayQueueShuffle(true);
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         when(dataBuilder.isInteractionEvent(event)).thenReturn(true);
@@ -217,7 +223,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackInteractionEvent() {
         when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
-        final UIEvent event = UIEvent.fromSystemSkip();
+        final UIEvent event = UIEvent.fromPlayQueueShuffle(true);
 
         when(dataBuilder.isInteractionEvent(event)).thenReturn(false);
         when(dataBuilder.buildForInteractionEvent(event)).thenReturn("holistic tracking");

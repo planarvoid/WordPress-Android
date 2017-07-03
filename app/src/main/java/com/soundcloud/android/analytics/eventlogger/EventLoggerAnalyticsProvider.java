@@ -206,6 +206,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case RECOMMENDED_PLAYLISTS:
             case MORE_PLAYLISTS_BY_USER:
             case DISCOVERY_CARD:
+            case PLAYER_INTERACTION:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

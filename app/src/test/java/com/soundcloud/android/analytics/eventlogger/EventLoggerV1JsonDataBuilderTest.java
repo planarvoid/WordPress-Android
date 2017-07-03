@@ -62,6 +62,7 @@ import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UIEvent.PlayerInterface;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
@@ -1216,35 +1217,50 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsJsonForSwipeSkipUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromSwipeSkip();
+    public void createsJsonForPlayerSkipToNext() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayerClickForward(PlayerInterface.FULLSCREEN);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("swipe_skip")
+                                               .clickName("click_forward")
+                                               .playerInterface("fullscreen")
                                                .clickCategory("player_interaction"));
     }
 
     @Test
-    public void createsJsonForSystemSkipUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromSystemSkip();
+    public void createsJsonForPlayerSkipToPrevious() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayerClickBackward(PlayerInterface.FULLSCREEN);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("system_skip")
+                                               .clickName("click_backward")
+                                               .playerInterface("fullscreen")
                                                .clickCategory("player_interaction"));
     }
 
     @Test
-    public void createsJsonForButtonSkipUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromButtonSkip();
+    public void createsJsonForPlayerSwipeToNext() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayerSwipeForward(PlayerInterface.FULLSCREEN);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("button_skip")
+                                               .clickName("swipe_forward")
+                                               .playerInterface("fullscreen")
+                                               .clickCategory("player_interaction"));
+    }
+
+    @Test
+    public void createsJsonForPlayerSwipeToPrevious() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromPlayerSwipeBackward(PlayerInterface.FULLSCREEN);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName("swipe_backward")
+                                               .playerInterface("fullscreen")
                                                .clickCategory("player_interaction"));
     }
 

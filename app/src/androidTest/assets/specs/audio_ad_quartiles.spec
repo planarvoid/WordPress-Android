@@ -10,8 +10,9 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
-    click_name: swipe_skip
+    click_name: swipe_forward
     click_category: player_interaction
+    player_interface: fullscreen
     user: soundcloud:users:[0-9]+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event

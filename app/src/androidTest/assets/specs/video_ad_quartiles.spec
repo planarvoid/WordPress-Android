@@ -10,7 +10,8 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
-    click_name: swipe_skip
+    click_name: swipe_forward
+    player_interface: fullscreen
     click_category: player_interaction
     user: soundcloud:users:[0-9]+
   version: '1'

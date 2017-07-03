@@ -13,14 +13,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playback.PlaybackActionSource;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.external.PlaybackActionController;
-import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.schedulers.TestScheduler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.schedulers.TestScheduler;
 
 import android.content.Intent;
 import android.view.KeyEvent;
@@ -34,13 +35,14 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
 
     @Mock MediaSessionController controller;
     @Mock PlaybackActionController actionController;
+    @Mock PlayerInteractionsTracker playerInteractionsTracker;
 
     private TestScheduler scheduler = new TestScheduler();
     private MediaSessionListener listener;
 
     @Before
     public void setUp() {
-        listener = new MediaSessionListener(controller, actionController, context(), scheduler);
+        listener = new MediaSessionListener(controller, actionController, context(), scheduler, playerInteractionsTracker);
     }
 
     @Test
@@ -99,6 +101,20 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
         listener.onSkipToPrevious();
 
         verify(controller).onSkip();
+    }
+
+    @Test
+    public void onSkipToPreviousTracksClickBackwardFromNotification() {
+        listener.onSkipToPrevious();
+
+        verify(playerInteractionsTracker).clickBackward(PlaybackActionSource.NOTIFICATION);
+    }
+
+    @Test
+    public void onSkipToPreviousTracksClickForwardFromNotification() {
+        listener.onSkipToNext();
+
+        verify(playerInteractionsTracker).clickForward(PlaybackActionSource.NOTIFICATION);
     }
 
     @Test
@@ -202,7 +218,7 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
 
     private void verifyNoAction(String action) {
         verify(actionController, never())
-                .handleAction(action, PlaybackActionReceiver.SOURCE_REMOTE);
+                .handleAction(action, PlaybackActionSource.NOTIFICATION);
     }
 
     private void verifyAction(String action) {
@@ -211,7 +227,7 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
 
     private void verifyAction(String action, int count) {
         verify(actionController, times(count))
-                .handleAction(action, PlaybackActionReceiver.SOURCE_REMOTE);
+                .handleAction(action, PlaybackActionSource.NOTIFICATION);
     }
 
     private void clickHeadsetHook() {

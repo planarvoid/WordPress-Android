@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,47 +26,47 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToPreviousTrackWhenPreviousPlaybackAction() throws Exception {
-        controller.handleAction(PlaybackAction.PREVIOUS, "source");
+        controller.handleAction(PlaybackAction.PREVIOUS, PlaybackActionSource.NOTIFICATION);
 
         verify(playSessionController).previousTrack();
     }
 
     @Test
     public void shouldGoToNextTrackWhenNextPlaybackActionIsHandled() {
-        controller.handleAction(PlaybackAction.NEXT, "source");
+        controller.handleAction(PlaybackAction.NEXT, PlaybackActionSource.NOTIFICATION);
 
         verify(playSessionController).nextTrack();
     }
 
     @Test
     public void closeActionCallsStopServiceOnPlaybackOperations() {
-        controller.handleAction(PlaybackAction.CLOSE, "source");
+        controller.handleAction(PlaybackAction.CLOSE, PlaybackActionSource.NOTIFICATION);
 
         verify(serviceInitiator).stopPlaybackService();
     }
 
     @Test
     public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() {
-        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
+        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, PlaybackActionSource.NOTIFICATION);
 
         verify(playSessionController).togglePlayback();
     }
 
     @Test
     public void shouldPlayWhenPlayActionIsHandled() {
-        controller.handleAction(PlaybackAction.PLAY, "source");
+        controller.handleAction(PlaybackAction.PLAY, PlaybackActionSource.NOTIFICATION);
         verify(playSessionController).play();
     }
 
     @Test
     public void shouldPauseWhenPauseActionIsHandled() {
-        controller.handleAction(PlaybackAction.PAUSE, "source");
+        controller.handleAction(PlaybackAction.PAUSE, PlaybackActionSource.NOTIFICATION);
         verify(playSessionController).pause();
     }
 
     @Test
     public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromNotification() {
-        controller.handleAction(PlaybackAction.NEXT, PlaybackActionReceiver.SOURCE_REMOTE);
+        controller.handleAction(PlaybackAction.NEXT, PlaybackActionSource.NOTIFICATION);
 
         verify(adsController).reconfigureAdForNextTrack();
         verify(adsController).publishAdDeliveryEventIfUpcoming();
@@ -73,7 +74,7 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromWidget() {
-        controller.handleAction(PlaybackAction.NEXT, PlaybackActionReceiver.SOURCE_WIDGET);
+        controller.handleAction(PlaybackAction.NEXT, PlaybackActionSource.WIDGET);
 
         verify(adsController).reconfigureAdForNextTrack();
         verify(adsController).publishAdDeliveryEventIfUpcoming();

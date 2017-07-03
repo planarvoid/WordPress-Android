@@ -27,7 +27,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.Urn;
@@ -35,10 +34,13 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector.SwipeDirection;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -111,6 +113,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private PlayerFragment playerFragment;
     @Mock private PlayerActivity playerActivity;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private PlayerInteractionsTracker playerInteractionsTracker;
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
@@ -150,7 +153,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              videoSurfaceProvider,
                                              onboardingPresenter,
                                              eventBus,
-                                             performanceMetricsEngine);
+                                             performanceMetricsEngine,
+                                             playerInteractionsTracker);
         when(playerFragment.getPlayerPager()).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
         presenter.onViewCreated(playerFragment, container, null);
@@ -200,7 +204,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         skipListenerArgumentCaptor.getValue().onPrevious();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromButtonSkip().getKind());
+        verify(playerInteractionsTracker).clickBackward(PlaybackActionSource.FULL);
     }
 
     @Test
@@ -209,21 +213,50 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         skipListenerArgumentCaptor.getValue().onNext();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromButtonSkip().getKind());
+        verify(playerInteractionsTracker).clickForward(PlaybackActionSource.FULL);
     }
 
     @Test
-    public void onSwipeSendsTrackingEvent() {
-        presenter.onSwipe();
+    public void onSwipeForwardWithPlayerExpandedSendsFullPlayerSwipeForwardEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromSwipeSkip().getKind());
+        presenter.onSwipe(SwipeDirection.RIGHT);
+
+        verify(playerInteractionsTracker).swipeForward(PlaybackActionSource.FULL);
+    }
+
+    @Test
+    public void onSwipeBackwardWithPlayerExpandedSendsFullPlayerSwipeBackwardEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        presenter.onSwipe(SwipeDirection.LEFT);
+
+        verify(playerInteractionsTracker).swipeBackward(PlaybackActionSource.FULL);
+    }
+
+    @Test
+    public void onSwipeForwardWithPlayerCollapsedSendsMiniPlayerSwipeForwardEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        presenter.onSwipe(SwipeDirection.LEFT);
+
+        verify(playerInteractionsTracker).swipeBackward(PlaybackActionSource.MINI);
+    }
+
+    @Test
+    public void onSwipeBackwardWithPlayerCollapsedSendsMiniPlayerSwipeBackwardEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        presenter.onSwipe(SwipeDirection.LEFT);
+
+        verify(playerInteractionsTracker).swipeBackward(PlaybackActionSource.MINI);
     }
 
     @Test
     public void onSwipeDuringPlaybackStartsMeasuring() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        presenter.onSwipe();
+        presenter.onSwipe(SwipeDirection.RIGHT);
 
         verify(performanceMetricsEngine).startMeasuring(performanceMetricArgumentCaptor.capture());
         PerformanceMetric performanceMetric = performanceMetricArgumentCaptor.getValue();
@@ -235,7 +268,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onSwipeWhenNotPlayingDoesNotStartMeasuring() {
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
 
-        presenter.onSwipe();
+        presenter.onSwipe(SwipeDirection.RIGHT);
 
         verify(performanceMetricsEngine, never()).startMeasuring(any(PerformanceMetric.class));
     }

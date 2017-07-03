@@ -500,6 +500,7 @@ class EventLoggerV1JsonDataBuilder {
             case PLAY_QUEUE_TRACK_REMOVE_UNDO:
             case PLAY_QUEUE_REPEAT:
             case PLAY_NEXT:
+            case PLAYER_INTERACTION:
                 return transform(buildClickEvent(event));
             case RECOMMENDED_PLAYLISTS:
             case MORE_PLAYLISTS_BY_USER:

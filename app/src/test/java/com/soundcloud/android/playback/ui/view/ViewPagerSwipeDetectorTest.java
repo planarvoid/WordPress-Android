@@ -80,7 +80,7 @@ public class ViewPagerSwipeDetectorTest extends AndroidUnitTest {
         public boolean hasSwiped;
 
         @Override
-        public void onSwipe() {
+        public void onSwipe(ViewPagerSwipeDetector.SwipeDirection swipeDirection) {
             hasSwiped = true;
         }
     }

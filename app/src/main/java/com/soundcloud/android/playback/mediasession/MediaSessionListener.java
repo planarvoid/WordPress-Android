@@ -2,18 +2,19 @@ package com.soundcloud.android.playback.mediasession;
 
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_HEADSETHOOK;
+import static com.soundcloud.android.rx.observers.LambdaObserver.onNext;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlaybackActionSource;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.external.PlaybackActionController;
-import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 public class MediaSessionListener extends MediaSessionCompat.Callback {
+
     @VisibleForTesting
     public static final int HEADSET_DELAY_MS = 300;
 
@@ -32,16 +34,19 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     private final PlaybackActionController playbackActionController;
     private final Scheduler scheduler;
     private final Context context;
+    private final PlayerInteractionsTracker playerInteractionsTracker;
 
     private int clicks;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
 
     public MediaSessionListener(MediaSessionController mediaSessionController,
                                 PlaybackActionController playbackActionController,
-                                Context context) {
+                                Context context,
+                                PlayerInteractionsTracker playerInteractionsTracker) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
         this.context = context;
+        this.playerInteractionsTracker = playerInteractionsTracker;
         this.scheduler = Schedulers.io();
     }
 
@@ -49,11 +54,13 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     public MediaSessionListener(MediaSessionController mediaSessionController,
                                 PlaybackActionController playbackActionController,
                                 Context context,
-                                Scheduler scheduler) {
+                                Scheduler scheduler,
+                                PlayerInteractionsTracker playerInteractionsTracker) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
         this.context = context;
         this.scheduler = scheduler;
+        this.playerInteractionsTracker = playerInteractionsTracker;
     }
 
     @Override
@@ -92,12 +99,22 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToNext() {
+        skipToNext(PlaybackActionSource.NOTIFICATION);
+    }
+
+    private void skipToNext(PlaybackActionSource playerType) {
+        playerInteractionsTracker.clickForward(playerType);
         handleAction(PlaybackAction.NEXT);
         mediaSessionController.onSkip();
     }
 
     @Override
     public void onSkipToPrevious() {
+        skipToPrevious(PlaybackActionSource.NOTIFICATION);
+    }
+
+    private void skipToPrevious(PlaybackActionSource playerType) {
+        playerInteractionsTracker.clickBackward(playerType);
         handleAction(PlaybackAction.PREVIOUS);
         mediaSessionController.onSkip();
     }
@@ -117,32 +134,29 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     }
 
     private void onHeadsetHook() {
-        subscription.unsubscribe();
+        disposable.dispose();
         clicks += 1;
 
         if (clicks == 3) {
-            onSkipToPrevious();
+            skipToPrevious(PlaybackActionSource.OTHER);
         }
 
-        subscription = Observable
+        disposable = Observable
                 .timer(HEADSET_DELAY_MS, TimeUnit.MILLISECONDS, scheduler)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OnHeadsetTimeoutSubscriber());
+                .subscribeWith(onNext(__ -> handleHeadsetTimeout()));
     }
 
     private void handleAction(String action) {
-        playbackActionController.handleAction(action, PlaybackActionReceiver.SOURCE_REMOTE);
+        playbackActionController.handleAction(action, PlaybackActionSource.NOTIFICATION);
     }
 
-    private class OnHeadsetTimeoutSubscriber extends DefaultSubscriber<Long> {
-        @Override
-        public void onNext(Long ignored) {
-            if (clicks == 1) {
-                onTogglePlayback();
-            } else if (clicks == 2) {
-                onSkipToNext();
-            }
-            clicks = 0;
+    private void handleHeadsetTimeout() {
+        if (clicks == 1) {
+            onTogglePlayback();
+        } else if (clicks == 2) {
+            skipToNext(PlaybackActionSource.OTHER);
         }
+        clicks = 0;
     }
 }

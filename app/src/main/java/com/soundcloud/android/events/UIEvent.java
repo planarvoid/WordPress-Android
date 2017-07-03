@@ -2,7 +2,12 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_ADD;
 import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_REMOVE;
+import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_FORWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_BACKWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_FORWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_BACKWARD;
 import static com.soundcloud.android.events.UIEvent.Kind.FOLLOW;
+import static com.soundcloud.android.events.UIEvent.Kind.PLAYER_INTERACTION;
 import static com.soundcloud.android.events.UIEvent.Kind.UNFOLLOW;
 
 import com.google.auto.value.AutoValue;
@@ -64,7 +69,8 @@ public abstract class UIEvent extends TrackingEvent {
         PLAY_NEXT("play_next"),
         RECOMMENDED_PLAYLISTS("playlist_discovery"),
         MORE_PLAYLISTS_BY_USER("more_playlists_by_user"),
-        DISCOVERY_CARD("discovery_card");
+        DISCOVERY_CARD("discovery_card"),
+        PLAYER_INTERACTION("player_interaction");
         private final String key;
 
         Kind(String key) {
@@ -139,7 +145,14 @@ public abstract class UIEvent extends TrackingEvent {
         PLAY_NEXT("play_next"),
         ITEM_NAVIGATION("item_navigation"),
         SHUFFLE_ON("shuffle::on"),
-        SHUFFLE_OFF("shuffle::off");
+        SHUFFLE_OFF("shuffle::off"),
+        SWIPE_FORWARD("swipe_forward"),
+        SWIPE_BACKWARD("swipe_backward"),
+        CLICK_FORWARD("click_forward"),
+        CLICK_BACKWARD("click_backward"),
+        PLAY("play"),
+        PAUSE("pause");
+
         private final String key;
 
         ClickName(String key) {
@@ -336,18 +349,6 @@ public abstract class UIEvent extends TrackingEvent {
         return event(Kind.SHUFFLE, ClickName.SHUFFLE).clickCategory(Optional.of(ClickCategory.PLAYBACK)).eventContextMetadata(contextMetadata).build();
     }
 
-    public static UIEvent fromSystemSkip() {
-        return event(Kind.SYSTEM_SKIP, ClickName.SYSTEM_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
-    }
-
-    public static UIEvent fromButtonSkip() {
-        return event(Kind.BUTTON_SKIP, ClickName.BUTTON_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
-    }
-
-    public static UIEvent fromSwipeSkip() {
-        return event(Kind.SWIPE_SKIP, ClickName.SWIPE_SKIP).clickCategory(Optional.of(ClickCategory.PLAYER)).build();
-    }
-
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
         return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.fullScreenUrls())).build();
     }
@@ -362,6 +363,30 @@ public abstract class UIEvent extends TrackingEvent {
 
     public static UIEvent fromVideoUnmute(VideoAd videoAd, TrackSourceInfo sourceInfo) {
         return event(Kind.VIDEO_AD_UNMUTE, ClickName.VIDEO_AD_UNMUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.unmuteUrls())).build();
+    }
+
+    public static UIEvent fromPlayerClickForward(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, CLICK_FORWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                       .playerInterface(Optional.of(playerInterface))
+                                                       .build();
+    }
+
+    public static UIEvent fromPlayerClickBackward(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, CLICK_BACKWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                        .playerInterface(Optional.of(playerInterface))
+                                                        .build();
+    }
+
+    public static UIEvent fromPlayerSwipeForward(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, SWIPE_FORWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                       .playerInterface(Optional.of(playerInterface))
+                                                       .build();
+    }
+
+    public static UIEvent fromPlayerSwipeBackward(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, SWIPE_BACKWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                        .playerInterface(Optional.of(playerInterface))
+                                                        .build();
     }
 
     public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {

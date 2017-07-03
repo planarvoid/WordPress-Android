@@ -377,7 +377,7 @@
         </service>
 
         <!-- receivers -->
-        <receiver android:name=".playback.external.PlaybackActionReceiver">
+        <receiver android:name=".playback.widget.WidgetPlaybackActionReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.playback.external.toggleplayback"/>
                 <action android:name="${applicationId}.playback.external.play"/>

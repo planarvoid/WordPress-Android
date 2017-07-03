@@ -20,9 +20,25 @@ import java.util.concurrent.TimeUnit;
  * `PagerSwipeDetector` tries to bridge the gap.
  */
 public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener {
-    public static final SwipeListener EMPTY_LISTENER = () -> {
+
+    private static final SwipeListener EMPTY_LISTENER = (SwipeDirection swipeDirection) -> {
         // no-op
     };
+
+    private static final int NOT_SET = 0;
+
+    private final DateProvider dateProvider;
+    private final long threshold;
+
+    private SwipeListener listener = EMPTY_LISTENER;
+    private long gestureFinishedTime;
+    private int previousSelectedPage;
+
+    ViewPagerSwipeDetector(int value, TimeUnit unit, DateProvider dateProvider) {
+        this.dateProvider = dateProvider;
+        this.threshold = unit.toMillis(value);
+        reset();
+    }
 
     public static ViewPagerSwipeDetector forPager(ViewPager pager) {
         final CurrentDateProvider dateProvider = new CurrentDateProvider();
@@ -30,24 +46,6 @@ public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener
         pager.addOnPageChangeListener(detector);
 
         return detector;
-    }
-
-    private static final int NOT_SET = 0;
-
-    public interface SwipeListener {
-        void onSwipe();
-    }
-
-    private final DateProvider dateProvider;
-    private final long threshold;
-
-    private SwipeListener listener = EMPTY_LISTENER;
-    private long gestureFinishedTime;
-
-    ViewPagerSwipeDetector(int value, TimeUnit unit, DateProvider dateProvider) {
-        this.dateProvider = dateProvider;
-        this.threshold = unit.toMillis(value);
-        reset();
     }
 
     public void onTouchEvent(MotionEvent event) {
@@ -71,8 +69,13 @@ public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener
     public void onPageSelected(int position) {
         if (matchSwipeGesture()) {
             reset();
-            listener.onSwipe();
+            if (position > previousSelectedPage) {
+                listener.onSwipe(SwipeDirection.RIGHT);
+            } else {
+                listener.onSwipe(SwipeDirection.LEFT);
+            }
         }
+        previousSelectedPage = position;
     }
 
     private void reset() {
@@ -87,4 +90,13 @@ public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener
         final long delay = dateProvider.getCurrentTime() - gestureFinishedTime;
         return delay <= threshold;
     }
+
+    public interface SwipeListener {
+        void onSwipe(SwipeDirection swipeDirection);
+    }
+
+    public enum SwipeDirection {
+        LEFT, RIGHT;
+    }
+
 }
