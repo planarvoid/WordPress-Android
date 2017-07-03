@@ -80,7 +80,7 @@ page at http://checkstyle.sourceforge.net/config.html -->
         </module>
 
         <module name="ParameterName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+            <property name="format" value="^([a-z]|__)[a-zA-Z0-9]*$" />
             <property name="ignoreOverridden" value="true" />
         </module>
 
