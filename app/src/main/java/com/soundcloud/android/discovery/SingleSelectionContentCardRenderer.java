@@ -78,11 +78,22 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
 
     private void bindSocialProofAvatars(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
         List<String> imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates();
-        bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_1, imageUrls, 0);
-        bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_2, imageUrls, 1);
-        bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_3, imageUrls, 2);
-        bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_4, imageUrls, 3);
-        bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_5, imageUrls, 4);
+
+        if (imageUrls.size() == 1) {
+            container.findViewById(R.id.single_card_user_artwork_1).setVisibility(View.GONE);
+            container.findViewById(R.id.single_card_user_artwork_2).setVisibility(View.GONE);
+            container.findViewById(R.id.single_card_user_artwork_3).setVisibility(View.GONE);
+            container.findViewById(R.id.single_card_user_artwork_4).setVisibility(View.GONE);
+            container.findViewById(R.id.single_card_user_artwork_5).setVisibility(View.GONE);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_single, imageUrls, 0);
+        } else {
+            container.findViewById(R.id.single_card_user_artwork_single).setVisibility(View.GONE);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_1, imageUrls, 0);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_2, imageUrls, 1);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_3, imageUrls, 2);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_4, imageUrls, 3);
+            bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_5, imageUrls, 4);
+        }
     }
 
     private void bindSocialProofUserArtwork(View itemView, int resId, List<String> userArtworkUrls, int position) {

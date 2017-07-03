@@ -9,7 +9,7 @@
     android:foreground="?attr/selectableItemBackground">
 
     <View
-        android:id="@+id/view2"
+        android:id="@+id/top_border"
         style="@style/Divider.Section"
         sc:layout_constraintEnd_toEndOf="parent"
         sc:layout_constraintStart_toStartOf="parent"
@@ -23,10 +23,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="36dp"
-        android:paddingLeft="0dp"
+        android:padding="0dp"
         sc:layout_constraintEnd_toEndOf="parent"
         sc:layout_constraintStart_toStartOf="@+id/guideline"
-        sc:layout_constraintTop_toTopOf="parent"
+        sc:layout_constraintTop_toTopOf="@id/top_border"
         tools:text="Title" />
 
     <com.soundcloud.android.view.CustomFontTextView
@@ -37,7 +37,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="4dp"
-        android:paddingLeft="0dp"
+        android:padding="0dp"
         sc:layout_constraintEnd_toEndOf="parent"
         sc:layout_constraintStart_toStartOf="@+id/guideline"
         sc:layout_constraintTop_toBottomOf="@+id/single_card_title"
@@ -52,9 +52,9 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         sc:foreground="@drawable/artwork_border"
-        sc:layout_constraintBottom_toTopOf="@+id/view"
+        sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
         sc:layout_constraintStart_toStartOf="parent"
-        sc:layout_constraintTop_toTopOf="parent" />
+        sc:layout_constraintTop_toTopOf="@id/top_border" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/single_card_track_count"
@@ -71,15 +71,16 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="6dp"
         android:orientation="horizontal"
-        sc:layout_constraintBottom_toTopOf="@+id/single_card_social_proof"
+        sc:layout_constraintBottom_toTopOf="@+id/social_proof_line"
         sc:layout_constraintStart_toStartOf="@+id/guideline">
 
         <com.soundcloud.android.view.CircularBorderImageView
             android:id="@+id/single_card_user_artwork_1"
             style="@style/Discovery.Selection.SocialProofImage"
             android:layout_weight="0"
+            android:padding="0dp"
             sc:layout_constraintBottom_toTopOf="@+id/single_card_social_proof"
             sc:layout_constraintStart_toStartOf="@+id/single_card_social_proof" />
 
@@ -88,6 +89,7 @@
             style="@style/Discovery.Selection.SocialProofImageOverlap"
             android:layout_marginTop="0dp"
             android:layout_weight="0"
+            android:padding="0dp"
             sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_1"
             sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_1" />
 
@@ -96,6 +98,7 @@
             style="@style/Discovery.Selection.SocialProofImageOverlap"
             android:layout_marginTop="0dp"
             android:layout_weight="0"
+            android:padding="0dp"
             sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_2"
             sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_2" />
 
@@ -104,6 +107,7 @@
             style="@style/Discovery.Selection.SocialProofImageOverlap"
             android:layout_marginTop="0dp"
             android:layout_weight="0"
+            android:padding="0dp"
             sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_3"
             sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_3" />
 
@@ -112,34 +116,53 @@
             style="@style/Discovery.Selection.SocialProofImageOverlap"
             android:layout_marginTop="0dp"
             android:layout_weight="0"
+            android:padding="0dp"
             sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_4"
             sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_4" />
+
     </LinearLayout>
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/single_card_social_proof"
-        style="@style/Discovery.Selection.SocialProofText"
+    <LinearLayout
+        android:id="@+id/social_proof_line"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginStart="0dp"
-        sc:layout_constraintBottom_toTopOf="@+id/view"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
         sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintStart_toStartOf="@+id/guideline"
-        tools:text="Artists in the playlist" />
+        sc:layout_constraintStart_toStartOf="@+id/guideline">
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_single"
+            style="@style/Discovery.Selection.SocialProofImage"
+            cbiv_borderWidth="0dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginRight="6dp"
+            android:padding="0dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/single_card_social_proof"
+            style="@style/Discovery.Selection.SocialProofText"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            tools:text="Artists in the playlist" />
+    </LinearLayout>
 
     <View
-        android:id="@+id/view3"
+        android:id="@+id/bottom_border"
         style="@style/Divider.Section"
         android:layout_marginBottom="0dp"
-        sc:layout_constraintBottom_toTopOf="@id/view"
+        sc:layout_constraintBottom_toTopOf="@+id/gap"
         sc:layout_constraintEnd_toEndOf="parent"
         sc:layout_constraintHorizontal_bias="0.0"
         sc:layout_constraintStart_toStartOf="parent" />
 
     <View
-        android:id="@+id/view"
+        android:id="@+id/gap"
         style="@style/Divider.Background"
         sc:layout_constraintBottom_toBottomOf="parent"
         sc:layout_constraintEnd_toEndOf="parent"

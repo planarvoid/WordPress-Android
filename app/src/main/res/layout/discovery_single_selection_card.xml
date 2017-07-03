@@ -61,6 +61,12 @@
         android:gravity="center_vertical">
 
         <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_single"
+            style="@style/Discovery.Selection.SocialProofImage"
+            cbiv_borderWidth="0dp"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CircularBorderImageView
             android:id="@+id/single_card_user_artwork_1"
             style="@style/Discovery.Selection.SocialProofImage"
             android:layout_weight="0" />
