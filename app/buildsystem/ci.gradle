@@ -1,5 +1,16 @@
+import se.bjurr.violations.comments.github.plugin.gradle.ViolationCommentsToGitHubGradlePlugin
+import se.bjurr.violations.comments.github.plugin.gradle.ViolationCommentsToGitHubTask
 import se.bjurr.violations.lib.model.SEVERITY
-import com.soundcloud.gradle.violations.ViolationCommentsTask
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+  dependencies {
+    classpath 'se.bjurr.violations:violation-comments-to-github-gradle-plugin:1.26'
+  }
+}
 
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
@@ -23,7 +34,8 @@ task staticAnalysisChanged(dependsOn: ['checkstyleChanged', 'pmdChanged', 'findb
 }
 
 if (System.env.containsKey('JENKINS_URL')) {
-  task violationCommentsToGitHub(type: ViolationCommentsTask) {
+  apply plugin: ViolationCommentsToGitHubGradlePlugin
+  task violationCommentsToGitHub(type: ViolationCommentsToGitHubTask) {
     description "Finds report files from static code analysis and comment pull requests in GitHub with them."
 
     repositoryOwner = "soundcloud"
@@ -33,7 +45,7 @@ if (System.env.containsKey('JENKINS_URL')) {
     oAuth2Token = System.getenv('GITHUB_ACCESS_TOKEN')
     gitHubUrl = "https://api.github.com/"
 
-    minSeverity = SEVERITY.INFO // INFO, WARN, ERROR
+    minSeverity = SEVERITY.INFO //ERROR, INFO, WARN
     violations = [
             ["FINDBUGS",    "app/build/reports", ".*/findbugs/.*\\.xml\$"],
             ["PMD",         "app/build/reports", ".*/pmd/.*\\.xml\$"],

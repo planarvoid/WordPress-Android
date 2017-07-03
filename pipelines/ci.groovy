@@ -144,6 +144,7 @@ def compileStage() {
     updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
     throw e
   }
+  // TODO
   stash name: 'ui-test', useDefaultExcludes: false
 }
 

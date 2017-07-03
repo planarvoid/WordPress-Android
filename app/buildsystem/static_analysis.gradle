@@ -147,6 +147,8 @@ android {
   lintOptions {
     abortOnError false
     lintConfig file("${staticAnalysisDirPath}/lint/config.xml")
+    // To update the baseline file, just delete the existing one and execute lintProdPreRelease on top
+    baseline file("${staticAnalysisDirPath}/lint/baseline-debug.xml")
   }
 }
 
