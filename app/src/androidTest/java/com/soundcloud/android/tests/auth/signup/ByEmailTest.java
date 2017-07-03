@@ -22,7 +22,7 @@ public class ByEmailTest extends SignUpTest {
                 .typeEmail(generateEmail())
                 .typePassword("password123")
                 .typeAge(21)
-                .chooseGender("Custom")
+                .chooseGenderCustom()
                 .typeCustomGender("Genderqueer");
 
         assertTrue(signUpBasicsScreen.isDoneButtonEnabled());

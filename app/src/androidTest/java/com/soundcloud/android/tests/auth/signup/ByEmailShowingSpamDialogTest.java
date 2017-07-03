@@ -17,7 +17,7 @@ public class ByEmailShowingSpamDialogTest extends SignUpTest {
                 .typeEmail("blocked-mail-test-sc@yopmail.com")
                 .typePassword("password123")
                 .typeAge(21)
-                .chooseGender("Custom")
+                .chooseGenderCustom()
                 .typeCustomGender("Genderqueer");
 
         assertTrue(signUpBasicsScreen.isDoneButtonEnabled());

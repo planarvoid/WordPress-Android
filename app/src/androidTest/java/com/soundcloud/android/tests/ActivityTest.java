@@ -23,11 +23,14 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.ProgressBar;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -89,10 +92,22 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         observeToasts();
         beforeStartActivity();
         getActivity();
+        setDefaultLocale();
 
         mainNavHelper = new MainNavigationHelper(solo);
 
         super.setUp(); // do not move, this has to run after the above
+    }
+
+    private void setDefaultLocale() {
+        setLocale(Locale.US, getActivity().getResources());
+    }
+
+    private void setLocale(Locale locale, Resources resources) {
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.locale = locale;
+        resources.updateConfiguration(configuration, resources.getDisplayMetrics());
     }
 
     private void configureWiremock() {

@@ -83,10 +83,18 @@ public class SignUpBasicsScreen extends Screen {
         ageInputField().clearText();
     }
 
-    public SignUpBasicsScreen chooseGender(String genderChoice) {
+    private SignUpBasicsScreen chooseGender(String genderChoice) {
         genderText().click();
         testDriver.findOnScreenElement(With.text(genderChoice)).click();
         return this;
+    }
+
+    public SignUpBasicsScreen chooseGenderFemale() {
+        return chooseGender(testDriver.getString(R.string.onboarding_gender_option_female));
+    }
+
+    public SignUpBasicsScreen chooseGenderCustom() {
+        return chooseGender(testDriver.getString(R.string.onboarding_gender_option_custom));
     }
 
     public SignUpBasicsScreen typeCustomGender(String customGender) {
