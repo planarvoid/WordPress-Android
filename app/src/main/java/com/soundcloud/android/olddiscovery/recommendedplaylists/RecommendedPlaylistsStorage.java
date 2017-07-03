@@ -3,6 +3,7 @@ package com.soundcloud.android.olddiscovery.recommendedplaylists;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
@@ -50,8 +51,8 @@ public class RecommendedPlaylistsStorage {
     }
 
     public void clear() {
-        propellerRx.delete(Tables.RecommendedPlaylistBucket.TABLE);
-        propellerRx.delete(Tables.RecommendedPlaylist.TABLE);
+        propellerRx.delete(Tables.RecommendedPlaylistBucket.TABLE).subscribe(new DefaultSubscriber<>());
+        propellerRx.delete(Tables.RecommendedPlaylist.TABLE).subscribe(new DefaultSubscriber<>());
     }
 
     Observable<List<RecommendedPlaylistsEntity>> recommendedPlaylists() {
