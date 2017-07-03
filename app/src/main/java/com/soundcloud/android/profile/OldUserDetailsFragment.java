@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -23,7 +24,7 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
     public static OldUserDetailsFragment create(Urn userUrn) {
         final OldUserDetailsFragment oldUserDetailsFragment = new OldUserDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ProfileArguments.USER_URN_KEY, userUrn);
+        Urns.writeToBundle(args, ProfileArguments.USER_URN_KEY, userUrn);
         oldUserDetailsFragment.setArguments(args);
         return oldUserDetailsFragment;
     }
@@ -37,7 +38,7 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        oldUserDetailsView.setUrn(getArguments().getParcelable(ProfileArguments.USER_URN_KEY));
+        oldUserDetailsView.setUrn(Urns.urnFromBundle(getArguments(), ProfileArguments.USER_URN_KEY));
     }
 
     @Override

@@ -4,7 +4,6 @@ import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.model.Urn.forUser;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.PrestitialActivity;
@@ -13,8 +12,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.deeplinks.ChartDetails;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
@@ -56,7 +53,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
     public void openVideoFullScreen() {
         final Urn urn = forAd("network", "123");
         assertIntent(IntentFactory.createFullscreenVideoAdIntent(context, urn))
-                .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn)
+                .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn.getContent())
                 .opensActivity(FullScreenVideoActivity.class);
     }
 
@@ -73,7 +70,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final String header = "header";
         final ChartCategory chartCategory = ChartCategory.AUDIO;
         assertThat(IntentFactory.createChartsIntent(context, ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header))))
-                .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
+                .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn.getContent())
                 .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
                 .containsExtra(ChartTracksFragment.EXTRA_HEADER, header)
                 .opensActivity(ChartActivity.class);
@@ -99,7 +96,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         final Referrer referrer = Referrer.PLAYBACK_WIDGET;
         assertIntent(IntentFactory.createProfileIntent(context, urn, Optional.of(screen), Optional.of(searchQuerySourceInfo), Optional.of(referrer)))
-                .containsExtra(ProfileActivity.EXTRA_USER_URN, urn)
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .containsReferrer(referrer)
@@ -112,7 +109,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         assertIntent(IntentFactory.createProfileRepostsIntent(context, urn, screen, Optional.of(searchQuerySourceInfo)))
-                .containsExtra(UserRepostsActivity.EXTRA_USER_URN, urn)
+                .containsExtra(UserRepostsActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserRepostsActivity.class);
@@ -124,7 +121,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         assertIntent(IntentFactory.createProfileTracksIntent(context, urn, screen, Optional.of(searchQuerySourceInfo)))
-                .containsExtra(UserTracksActivity.EXTRA_USER_URN, urn)
+                .containsExtra(UserTracksActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserTracksActivity.class);
@@ -136,7 +133,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         assertIntent(IntentFactory.createProfileLikesIntent(context, urn, screen, Optional.of(searchQuerySourceInfo)))
-                .containsExtra(UserLikesActivity.EXTRA_USER_URN, urn)
+                .containsExtra(UserLikesActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserLikesActivity.class);
@@ -148,7 +145,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         assertIntent(IntentFactory.createProfileAlbumsIntent(context, urn, screen, Optional.of(searchQuerySourceInfo)))
-                .containsExtra(UserAlbumsActivity.EXTRA_USER_URN, urn)
+                .containsExtra(UserAlbumsActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserAlbumsActivity.class);
@@ -160,7 +157,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         final SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
         assertIntent(IntentFactory.createProfilePlaylistsIntent(context, urn, screen, Optional.of(searchQuerySourceInfo)))
-                .containsExtra(UserPlaylistsActivity.EXTRA_USER_URN, urn)
+                .containsExtra(UserPlaylistsActivity.EXTRA_USER_URN, urn.getContent())
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo)
                 .containsScreen(screen)
                 .opensActivity(UserPlaylistsActivity.class);
@@ -171,7 +168,7 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Urn someStation = Urn.forArtistStation(123L);
         assertThat(IntentFactory.createStationsInfoIntent(context, someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS)))
                 .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
-                .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
+                .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
                 .opensActivity(StationInfoActivity.class);
     }
 
@@ -181,8 +178,8 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Urn seedTrack = Urn.forTrack(123L);
         assertThat(IntentFactory.createStationsInfoIntent(context, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)))
                                    .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
-                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
-                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack)
+                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
+                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack.getContent())
                                    .opensActivity(StationInfoActivity.class);
     }
 

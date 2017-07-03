@@ -25,6 +25,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
@@ -92,9 +93,9 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
 
-        arguments.putParcelable(UserFollowingsFragment.USER_URN_KEY, user);
-        arguments.putSerializable(UserFollowingsFragment.SCREEN_KEY, screen);
-        arguments.putParcelable(UserFollowingsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
+        Urns.writeToBundle(arguments, ProfileArguments.USER_URN_KEY, user);
+        arguments.putSerializable(ProfileArguments.SCREEN_KEY, screen);
+        arguments.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         createPresenter();
         presenter.onCreate(fragment, null);
     }

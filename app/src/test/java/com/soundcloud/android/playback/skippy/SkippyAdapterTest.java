@@ -898,8 +898,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
             }
 
             @Override
-            public Urn getUrn() {
-                return trackUrn;
+            protected String stringUrn() {
+                return trackUrn.getContent();
             }
 
             @Override

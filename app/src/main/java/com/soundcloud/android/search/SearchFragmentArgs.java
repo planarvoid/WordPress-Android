@@ -15,8 +15,12 @@ public abstract class SearchFragmentArgs implements Parcelable {
 
     public abstract String userQuery();
 
+    abstract Optional<String> stringQueryUrn();
+
     @Nullable
-    abstract Urn nullableQueryUrn();
+    Urn nullableQueryUrn() {
+        return stringQueryUrn().transform(Urn::new).orNull();
+    }
 
     public abstract Optional<Integer> queryPosition();
 
@@ -35,6 +39,6 @@ public abstract class SearchFragmentArgs implements Parcelable {
                                             Optional<Integer> queryPosition,
                                             boolean publishSearchSubmissionEvent,
                                             boolean isPremium) {
-        return new AutoValue_SearchFragmentArgs(type, apiQuery, userQuery, queryUrn.orNull(), queryPosition, publishSearchSubmissionEvent, isPremium);
+        return new AutoValue_SearchFragmentArgs(type, apiQuery, userQuery, queryUrn.transform(Urn::toString), queryPosition, publishSearchSubmissionEvent, isPremium);
     }
 }

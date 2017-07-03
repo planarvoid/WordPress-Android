@@ -17,7 +17,7 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
 
     public static AudioAdPlaybackItem create(AudioAd audioAd) {
         return new AutoValue_AudioAdPlaybackItem(
-                audioAd.adUrn(),
+                audioAd.adUrn().getContent(),
                 audioAd.audioSources(),
                 POSITION_START,
                 PlaybackType.AUDIO_AD,
@@ -26,7 +26,11 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
     }
 
     @Override
-    public abstract Urn getUrn();
+    public Urn getUrn() {
+        return new Urn(stringUrn());
+    }
+
+    abstract String stringUrn();
 
     public abstract List<AudioAdSource> getSources();
 

@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
@@ -12,10 +11,12 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -49,7 +50,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
     public static TrackInfoFragment create(Urn trackUrn) {
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_URN, trackUrn);
+        Urns.writeToBundle(args, EXTRA_URN, trackUrn);
         TrackInfoFragment fragment = new TrackInfoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -68,7 +69,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYER_INFO));
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
-        loadTrack = trackRepository.fullTrackWithUpdate(getArguments().getParcelable(EXTRA_URN))
+        loadTrack = trackRepository.fullTrackWithUpdate(Urns.urnFromBundle(getArguments(), EXTRA_URN))
                                    .observeOn(mainThread())
                                    .cache();
     }

@@ -4,7 +4,6 @@ import static com.soundcloud.java.collections.Iterables.addAll;
 
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -75,7 +74,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getWebsiteName().orNull(),
                     user.getDiscogsName().orNull(),
                     user.getMyspaceName().orNull(),
-                    user.getArtistStationUrn().transform(Urns.TO_STRING).orNull(),
+                    user.getArtistStationUrn().transform(urn -> urn.getContent()).orNull(),
                     user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null
             ));
         }

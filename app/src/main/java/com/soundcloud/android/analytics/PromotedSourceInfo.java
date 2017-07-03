@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stream.PromotedProperties;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
@@ -13,8 +14,6 @@ import android.support.annotation.VisibleForTesting;
 import java.util.List;
 
 public final class PromotedSourceInfo implements Parcelable {
-
-    private static final int NO_FLAGS = 0;
 
     public static final Parcelable.Creator<PromotedSourceInfo> CREATOR = new Parcelable.Creator<PromotedSourceInfo>() {
         public PromotedSourceInfo createFromParcel(Parcel in) {
@@ -54,9 +53,8 @@ public final class PromotedSourceInfo implements Parcelable {
         ClassLoader loader = PromotedSourceInfo.class.getClassLoader();
         playbackStarted = in.readByte() != 0;
         adUrn = in.readString();
-        promotedItemUrn = in.readParcelable(loader);
-        Urn nullableUrn = in.readParcelable(loader);
-        promoterUrn = Optional.fromNullable(nullableUrn);
+        promotedItemUrn = Urns.urnFromParcel(in);
+        promoterUrn = Urns.optionalUrnFromParcel(in);
         trackingUrls = in.readArrayList(loader);
     }
 
@@ -92,8 +90,8 @@ public final class PromotedSourceInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte((byte) (playbackStarted ? 1 : 0));
         dest.writeString(adUrn);
-        dest.writeParcelable(promotedItemUrn, NO_FLAGS);
-        dest.writeParcelable(promoterUrn.isPresent() ? promoterUrn.get() : null, NO_FLAGS);
+        Urns.writeToParcel(dest, promotedItemUrn);
+        Urns.writeToParcel(dest, promoterUrn);
         dest.writeList(trackingUrls);
     }
 

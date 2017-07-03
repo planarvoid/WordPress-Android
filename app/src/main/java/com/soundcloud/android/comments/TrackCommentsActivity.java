@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -52,7 +53,7 @@ public class TrackCommentsActivity extends PlayerActivity {
 
         ButterKnife.bind(this);
 
-        final Urn trackUrn = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK_URN);
+        final Urn trackUrn = Urns.urnFromIntent(getIntent(), EXTRA_COMMENTED_TRACK_URN);
         trackDisposable = trackRepository.track(trackUrn)
                                          .observeOn(AndroidSchedulers.mainThread())
                                          .subscribeWith(new TrackObserver());

@@ -8,7 +8,11 @@ import android.os.Parcelable;
 @AutoValue
 public abstract class PreloadItem implements Parcelable {
 
-    public abstract Urn getUrn();
+    public Urn getUrn() {
+        return new Urn(stringUrn());
+    }
+
+    protected abstract String stringUrn();
 
     public abstract PlaybackType getPlaybackType();
 }

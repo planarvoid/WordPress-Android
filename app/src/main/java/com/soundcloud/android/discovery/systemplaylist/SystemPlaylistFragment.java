@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -37,7 +38,7 @@ public class SystemPlaylistFragment extends LightCycleSupportFragment<SystemPlay
         final SystemPlaylistFragment fragment = new SystemPlaylistFragment();
         final Bundle args = new Bundle();
         args.putBoolean(EXTRA_FOR_NEW_FOR_YOU, false);
-        args.putParcelable(EXTRA_PLAYLIST_URN, urn);
+        Urns.writeToBundle(args, EXTRA_PLAYLIST_URN, urn);
         fragment.setArguments(args);
         return fragment;
     }

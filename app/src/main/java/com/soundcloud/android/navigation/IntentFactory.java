@@ -9,7 +9,6 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsActivity;
@@ -61,6 +60,7 @@ import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
@@ -68,10 +68,8 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("PMD.GodClass")
@@ -133,8 +131,8 @@ public final class IntentFactory {
 
     public static Intent createProfileIntent(Context context, Urn user, Optional<Screen> screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo, Optional<Referrer> referrer) {
         Intent intent = new Intent(context, ProfileActivity.class)
-                .putExtra(ProfileActivity.EXTRA_USER_URN, user)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
+        Urns.writeToIntent(intent, ProfileActivity.EXTRA_USER_URN, user);
         screen.ifPresent(s -> s.addToIntent(intent));
         referrer.ifPresent(r -> r.addToIntent(intent));
         return intent;
@@ -189,16 +187,16 @@ public final class IntentFactory {
                                                        Class<? extends Activity> cls,
                                                        String userUrnKey) {
         Intent intent = new Intent(context, cls)
-                .putExtra(userUrnKey, user)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
+        Urns.writeToIntent(intent, userUrnKey, user);
         screen.addToIntent(intent);
         return intent;
     }
 
     static Intent createSystemPlaylistIntent(Context context, Urn playlist, Screen screen) {
         Intent intent = new Intent(context, SystemPlaylistActivity.class)
-                .putExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, playlist)
                 .putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false);
+        Urns.writeToIntent(intent, SystemPlaylistActivity.EXTRA_PLAYLIST_URN, playlist);
         screen.addToIntent(intent);
         return intent;
     }
@@ -260,8 +258,7 @@ public final class IntentFactory {
     }
 
     static Intent createFullscreenVideoAdIntent(Context context, Urn adUrn) {
-        return new Intent(context, FullScreenVideoActivity.class)
-                .putExtra(FullScreenVideoActivity.EXTRA_AD_URN, adUrn);
+        return Urns.writeToIntent(new Intent(context, FullScreenVideoActivity.class), FullScreenVideoActivity.EXTRA_AD_URN, adUrn);
     }
 
     static Intent createPrestititalAdIntent(Context context) {
@@ -305,13 +302,12 @@ public final class IntentFactory {
     }
 
     static Intent createSearchPremiumContentResultsIntent(Context context, String searchQuery, SearchType searchType, List<Urn> premiumContentList, Optional<Link> nextHref, Urn queryUrn) {
-        final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
-        return new Intent(context, SearchPremiumResultsActivity.class)
+        final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
-                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn)
-                .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
+        Urns.writeToIntent(intent, SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn);
+        return Urns.writeToIntent(intent, SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, premiumContentList);
     }
 
     static Intent createPerformSearchIntent(String query) {
@@ -336,15 +332,15 @@ public final class IntentFactory {
     }
 
     static Intent createFollowersIntent(Context context, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return new Intent(context, FollowersActivity.class)
-                .putExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
+        final Intent intent = new Intent(context, FollowersActivity.class)
                 .putExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
+        return Urns.writeToIntent(intent, FollowersActivity.EXTRA_USER_URN, userUrn);
     }
 
     static Intent createFollowingsIntent(Context context, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
-        return new Intent(context, FollowingsActivity.class)
-                .putExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
+        final Intent intent = new Intent(context, FollowingsActivity.class)
                 .putExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
+        return Urns.writeToIntent(intent, FollowingsActivity.EXTRA_USER_URN, userUrn);
     }
 
     static Intent createSettingsIntent(Context context) {
@@ -354,7 +350,7 @@ public final class IntentFactory {
     static Intent createSearchViewAllIntent(Context context, NavigationTarget.TopResultsMetaData metaData, Optional<Urn> queryUrn) {
         Intent intent = new Intent(context, TopResultsBucketActivity.class);
         intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY, metaData.query());
-        queryUrn.ifPresent(urn -> intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY_URN, urn));
+        Urns.writeToIntent(intent, TopResultsBucketActivity.EXTRA_QUERY_URN, queryUrn);
         intent.putExtra(TopResultsBucketActivity.EXTRA_BUCKET_KIND, metaData.kind());
         intent.putExtra(TopResultsBucketActivity.EXTRA_IS_PREMIUM, metaData.isPremium());
         return intent;
@@ -406,9 +402,9 @@ public final class IntentFactory {
 
     static Intent createStationsInfoIntent(Context context, Urn stationUrn, Optional<Urn> seedTrack, Optional<DiscoverySource> source) {
         Intent intent = new Intent(context, StationInfoActivity.class);
-        intent.putExtra(StationInfoActivity.EXTRA_URN, stationUrn);
+        Urns.writeToIntent(intent, StationInfoActivity.EXTRA_URN, stationUrn);
         source.ifPresent(it -> intent.putExtra(StationInfoActivity.EXTRA_SOURCE, it.value()));
-        seedTrack.ifPresent(it -> intent.putExtra(StationInfoActivity.EXTRA_SEED_URN, it));
+        Urns.writeToIntent(intent, StationInfoActivity.EXTRA_SEED_URN, seedTrack);
         return intent;
     }
 
@@ -433,8 +429,7 @@ public final class IntentFactory {
     }
 
     static Intent createTrackCommentsIntent(Context context, Urn trackUrn) {
-        return new Intent(context, TrackCommentsActivity.class)
-                .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
+        return Urns.writeToIntent(new Intent(context, TrackCommentsActivity.class), TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
     }
 
     static Intent createOfflineSettingsOnboardingIntent(Context context) {

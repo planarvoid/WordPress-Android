@@ -41,7 +41,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     private final TestEventBusV2 eventBus = new TestEventBusV2();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
     private TrackItem track;
-    private final PreloadItem preloadItem = new AutoValue_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
+    private final PreloadItem preloadItem = new AutoValue_PreloadItem(nextTrackUrn.getContent(), PlaybackType.AUDIO_SNIPPET);
 
     @Before
     public void setUp() throws Exception {

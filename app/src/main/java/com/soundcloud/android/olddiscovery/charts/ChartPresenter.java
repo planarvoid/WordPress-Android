@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
@@ -48,7 +49,7 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
         final Intent intent = activity.getIntent();
         final ChartType chartType = (ChartType) intent.getSerializableExtra(EXTRA_TYPE);
         final ChartCategory chartCategory = (ChartCategory) intent.getSerializableExtra(EXTRA_CATEGORY);
-        final Urn chartGenreUrn = intent.getParcelableExtra(EXTRA_GENRE_URN);
+        final Urn chartGenreUrn = Urns.urnFromIntent(intent, EXTRA_GENRE_URN);
         final String title = intent.getStringExtra(EXTRA_HEADER);
         if (Strings.isNullOrEmpty(title)) {
             activity.setTitle(R.string.charts_header);
@@ -82,7 +83,7 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
     public void onEnterScreen(RootActivity activity) {
         if (activity instanceof ChartActivity) {
             final Intent intent = activity.getIntent();
-            final Urn chartGenreUrn = intent.getParcelableExtra(EXTRA_GENRE_URN);
+            final Urn chartGenreUrn = Urns.urnFromIntent(intent, EXTRA_GENRE_URN);
             final ChartCategory chartCategory = (ChartCategory) intent.getSerializableExtra(EXTRA_CATEGORY);
             final ChartType type = adapter.getType(pager.getCurrentItem());
             chartsTracker.chartPageSelected(chartGenreUrn, chartCategory, type);

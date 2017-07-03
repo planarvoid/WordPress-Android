@@ -1,5 +1,7 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.VerifyAgeActivity.EXTRA_USER_TO_FOLLOW_URN;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -14,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +58,7 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
 
         ButterKnife.bind(this, activity);
 
-        userToFollowUrn = activity.getIntent().getParcelableExtra(VerifyAgeActivity.EXTRA_USER_TO_FOLLOW_URN);
+        userToFollowUrn = Urns.urnFromIntent(activity.getIntent(), EXTRA_USER_TO_FOLLOW_URN);
 
         submitButton.setEnabled(false);
         yearInput.requestFocus();

@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -28,9 +29,9 @@ public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFr
     public static Fragment create(Urn stationUrn, Urn seedTrack, String source) {
         final Fragment fragment = new StationInfoFragment();
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_URN, stationUrn);
+        Urns.writeToBundle(bundle, EXTRA_URN, stationUrn);
         bundle.putString(EXTRA_SOURCE, source);
-        bundle.putParcelable(EXTRA_SEED_TRACK, seedTrack);
+        Urns.writeToBundle(bundle, EXTRA_SEED_TRACK, seedTrack);
         fragment.setArguments(bundle);
 
         return fragment;

@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
     public static void show(FragmentManager fragmentManager, Urn playlist) {
         DeletePlaylistDialogFragment fragment = new DeletePlaylistDialogFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(PLAYLIST_URN, playlist);
+        Urns.writeToBundle(bundle, PLAYLIST_URN, playlist);
         fragment.setArguments(bundle);
         fragment.show(fragmentManager, TAG);
     }
@@ -57,7 +58,7 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
     }
 
     private Urn urn() {
-        return (Urn) getArguments().getParcelable(PLAYLIST_URN);
+        return Urns.urnFromBundle(getArguments(), PLAYLIST_URN);
     }
 
     @Override

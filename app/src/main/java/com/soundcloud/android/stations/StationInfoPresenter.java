@@ -1,9 +1,9 @@
 package com.soundcloud.android.stations;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
@@ -20,23 +20,22 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import io.reactivex.Maybe;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
-import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
-import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
-import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, StationInfoItem>
         implements StationInfoClickListener {
@@ -89,7 +88,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     protected CollectionBinding<List<StationInfoItem>, StationInfoItem> onBuildBinding(Bundle fragmentArgs) {
         discoverySource = getDiscoverySource(fragmentArgs);
         seedTrack = getSeedTrackUrn(fragmentArgs);
-        stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
+        stationUrn = Urns.urnFromBundle(fragmentArgs, EXTRA_URN);
 
         return CollectionBinding.fromV2(getStation(stationUrn))
                                 .withAdapter(adapter)
@@ -117,7 +116,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     }
 
     private Optional<Urn> getSeedTrackUrn(Bundle fragmentArgs) {
-        return Optional.fromNullable(fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACK));
+        return Urns.optionalUrnFromBundle(fragmentArgs, StationInfoFragment.EXTRA_SEED_TRACK);
     }
 
     private Maybe<List<StationInfoItem>> getStation(final Urn stationUrn) {

@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.os.Bundle;
@@ -54,7 +55,7 @@ public class FollowersActivity extends PlayerActivity implements FollowersPresen
 
     @Override
     public Urn getUserUrn() {
-        return getIntent().getParcelableExtra(EXTRA_USER_URN);
+        return Urns.urnFromIntent(getIntent(), EXTRA_USER_URN);
     }
 
     @Override

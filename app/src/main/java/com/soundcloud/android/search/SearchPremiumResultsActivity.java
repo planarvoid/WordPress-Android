@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.checks.Preconditions;
 
@@ -49,7 +50,7 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
     }
 
     private void checkIntentArguments(Intent intent) {
-        final List<Urn> premiumContentList = intent.getParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS);
+        final List<Urn> premiumContentList = Urns.urnsFromIntent(intent, EXTRA_PREMIUM_CONTENT_RESULTS);
         Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(),
                                  "Invalid search premium content list");
     }

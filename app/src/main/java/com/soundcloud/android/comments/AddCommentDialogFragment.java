@@ -9,6 +9,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.strings.Strings;
 
 import android.app.Dialog;
@@ -36,9 +37,9 @@ public class AddCommentDialogFragment extends DialogFragment {
 
     public static AddCommentDialogFragment create(TrackItem track, long position, String originScreen) {
         Bundle b = new Bundle();
-        b.putParcelable(EXTRA_TRACK_URN, track.getUrn());
+        Urns.writeToBundle(b, EXTRA_TRACK_URN, track.getUrn());
         b.putString(EXTRA_TRACK_TITLE, track.title());
-        b.putParcelable(EXTRA_CREATOR_URN, track.creatorUrn());
+        Urns.writeToBundle(b, EXTRA_CREATOR_URN, track.creatorUrn());
         b.putString(EXTRA_CREATOR_NAME, track.creatorName());
         b.putLong(EXTRA_POSITION, position);
         b.putString(EXTRA_ORIGIN_SCREEN, originScreen);
@@ -53,9 +54,9 @@ public class AddCommentDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Urn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
+        final Urn trackUrn = Urns.urnFromBundle(getArguments(), EXTRA_TRACK_URN);
         final String trackTitle = getArguments().getString(EXTRA_TRACK_TITLE);
-        final Urn creatorUrn = getArguments().getParcelable(EXTRA_CREATOR_URN);
+        final Urn creatorUrn = Urns.urnFromBundle(getArguments(), EXTRA_CREATOR_URN);
         final String creatorName = getArguments().getString(EXTRA_CREATOR_NAME);
         final long position = getArguments().getLong(EXTRA_POSITION);
         final String timeFormatted = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);

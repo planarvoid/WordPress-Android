@@ -2,6 +2,7 @@ package com.soundcloud.android.olddiscovery.charts;
 
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
+import static com.soundcloud.android.olddiscovery.charts.ChartTracksFragment.EXTRA_GENRE_URN;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -15,11 +16,12 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -161,7 +163,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     @Override
     protected CollectionBinding<ApiChart<ApiTrack>, ChartTrackListItem> onBuildBinding(Bundle bundle) {
         final ChartType chartType = (ChartType) bundle.getSerializable(ChartTracksFragment.EXTRA_TYPE);
-        final Urn chartUrn = bundle.getParcelable(ChartTracksFragment.EXTRA_GENRE_URN);
+        final Urn chartUrn = Urns.urnFromBundle(bundle, EXTRA_GENRE_URN);
         final Observable<ApiChart<ApiTrack>> chartTracks = RxJava.toV1Observable(chartsOperations.tracks(chartType, chartUrn.getStringId()));
         return CollectionBinding
                 .from(chartTracks.doOnNext(trackChart), toChartTrackListItems())

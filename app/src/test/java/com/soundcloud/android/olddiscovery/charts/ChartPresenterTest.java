@@ -15,6 +15,7 @@ import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.Urns;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -45,10 +46,10 @@ public class ChartPresenterTest extends AndroidUnitTest {
         viewPager = new ViewPager(context());
         presenter = new ChartPresenter(resources(), chartsTracker, enterScreenDispatcher);
         intent = new Intent()
-                .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, CHART_GENRE_URN)
                 .putExtra(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE)
                 .putExtra(ChartTracksFragment.EXTRA_CATEGORY, CHART_CATEGORY)
                 .putExtra(ChartTracksFragment.EXTRA_HEADER, "Header");
+        Urns.writeToIntent(intent, ChartTracksFragment.EXTRA_GENRE_URN, CHART_GENRE_URN);
 
         when(rootActivity.getIntent()).thenReturn(intent);
         when(rootActivity.findViewById(R.id.pager)).thenReturn(viewPager);

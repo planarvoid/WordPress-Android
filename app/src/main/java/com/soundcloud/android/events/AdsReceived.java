@@ -43,7 +43,7 @@ public class AdsReceived {
     private AdsReceived put(String key, Urn adUrn) {
         if (adUrn.isAd()) {
             final HashMap<String, String> adData = new HashMap<>(1);
-            adData.put(URN_KEY, adUrn.toString());
+            adData.put(URN_KEY, adUrn.getContent());
             ads.put(key, adData);
         }
         return this;

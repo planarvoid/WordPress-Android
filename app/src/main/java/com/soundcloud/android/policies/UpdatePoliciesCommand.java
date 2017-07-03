@@ -8,7 +8,6 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.Urns;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
@@ -83,7 +82,7 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
 
     private ApiRequest buildApiRequest(Collection<Urn> trackUrns) {
         return ApiRequest.post(ApiEndpoints.POLICIES.path())
-                         .withContent(MoreCollections.transform(trackUrns, Urns.toStringFunc()))
+                         .withContent(MoreCollections.transform(trackUrns, input -> input.getContent()))
                          .forPrivateApi()
                          .build();
     }

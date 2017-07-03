@@ -10,6 +10,7 @@ import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -38,7 +39,7 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
     static ChartTracksFragment create(ChartType type, Urn genreUrn) {
         final Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_TYPE, type);
-        bundle.putParcelable(EXTRA_GENRE_URN, genreUrn);
+        Urns.writeToBundle(bundle, EXTRA_GENRE_URN, genreUrn);
 
         final ChartTracksFragment fragment = new ChartTracksFragment();
         fragment.setArguments(bundle);

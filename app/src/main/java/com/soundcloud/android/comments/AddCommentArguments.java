@@ -9,16 +9,24 @@ import android.os.Parcelable;
 public abstract class AddCommentArguments implements Parcelable {
 
     public static AddCommentArguments create(String trackTitle, Urn trackUrn, String creatorName, Urn creatorUrn, long position, String commentText, String originScreen) {
-        return new AutoValue_AddCommentArguments(trackTitle, trackUrn, creatorName, creatorUrn, position, commentText, originScreen);
+        return new AutoValue_AddCommentArguments(trackTitle, trackUrn.getContent(), creatorName, creatorUrn.getContent(), position, commentText, originScreen);
     }
 
     public abstract String trackTitle();
 
-    public abstract Urn trackUrn();
+    public Urn trackUrn() {
+        return new Urn(stringTrackUrn());
+    }
+
+    abstract String stringTrackUrn();
 
     public abstract String creatorName();
 
-    public abstract Urn creatorUrn();
+    public Urn creatorUrn() {
+        return new Urn(stringCreatorUrn());
+    }
+
+    abstract String stringCreatorUrn();
 
     public abstract long getPosition();
 

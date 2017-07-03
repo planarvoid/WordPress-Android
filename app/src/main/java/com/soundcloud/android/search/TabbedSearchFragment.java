@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
@@ -43,9 +44,7 @@ public class TabbedSearchFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_API_QUERY, apiQuery);
         bundle.putString(KEY_USER_QUERY, userQuery);
-        if (queryUrn.isPresent()) {
-            bundle.putParcelable(KEY_QUERY_URN, queryUrn.get());
-        }
+        Urns.writeToBundle(bundle, KEY_QUERY_URN, queryUrn);
 
         if (queryPosition.isPresent()) {
             bundle.putInt(KEY_QUERY_POSITION, queryPosition.get());
@@ -115,7 +114,7 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     private Optional<Urn> getSearchQueryUrn() {
-        return Optional.fromNullable(getArguments().<Urn>getParcelable(KEY_QUERY_URN));
+        return Urns.optionalUrnFromBundle(getArguments(), KEY_QUERY_URN);
     }
 
     private Optional<Integer> getSearchQueryPosition() {

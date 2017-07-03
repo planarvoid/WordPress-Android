@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.os.Bundle;
@@ -29,8 +30,8 @@ public class StationInfoActivity extends PlayerActivity {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            final Urn stationUrn = getIntent().getParcelableExtra(EXTRA_URN);
-            final Urn seedTrackUrn = getIntent().getParcelableExtra(EXTRA_SEED_URN);
+            final Urn stationUrn = Urns.urnFromIntent(getIntent(), EXTRA_URN);
+            final Urn seedTrackUrn = Urns.urnFromIntent(getIntent(), EXTRA_SEED_URN);
             final String source = getIntent().getStringExtra(EXTRA_SOURCE);
 
             final Fragment fragment = StationInfoFragment.create(stationUrn, seedTrackUrn, source);

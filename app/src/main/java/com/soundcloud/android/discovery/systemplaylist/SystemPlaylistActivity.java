@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 
@@ -43,7 +44,7 @@ public class SystemPlaylistActivity extends PlayerActivity {
             fragment = SystemPlaylistFragment.newNewForYouInstance();
             setTitle(R.string.new_for_you_title);
         } else {
-            final Urn urn = getIntent().getParcelableExtra(EXTRA_PLAYLIST_URN);
+            final Urn urn = Urns.urnFromIntent(getIntent(), EXTRA_PLAYLIST_URN);
             fragment = SystemPlaylistFragment.newInstance(urn);
             setTitle(Strings.EMPTY);
         }

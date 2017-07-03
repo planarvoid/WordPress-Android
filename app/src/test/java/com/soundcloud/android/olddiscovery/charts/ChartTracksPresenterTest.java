@@ -25,6 +25,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Single;
@@ -178,8 +179,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     private Bundle getChartArguments() {
         Bundle bundle = new Bundle();
         bundle.putSerializable(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE);
-        final Urn urn = new Urn("soundcloud:genre:" + GENRE);
-        bundle.putParcelable(ChartTracksFragment.EXTRA_GENRE_URN, urn);
+        Urns.writeToBundle(bundle, ChartTracksFragment.EXTRA_GENRE_URN, new Urn("soundcloud:genre:" + GENRE));
         return bundle;
     }
 }

@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigator);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
-        intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
+        Urns.writeToIntent(intent, FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
 
         when(activity.getIntent()).thenReturn(intent);
         when(adPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));

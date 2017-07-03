@@ -6,6 +6,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.strings.Strings;
@@ -42,7 +43,7 @@ class OldUserDetailsPresenter extends DefaultSupportFragmentLightCycle<Scrollabl
     @Override
     public void onCreate(ScrollableProfileFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        userUrn = Urns.urnFromBundle(fragment.getArguments(), ProfileArguments.USER_URN_KEY);
 
         userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
                                                  .cache();

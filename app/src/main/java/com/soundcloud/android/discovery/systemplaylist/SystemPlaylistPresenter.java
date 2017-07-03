@@ -24,6 +24,7 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
@@ -236,7 +237,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     @SuppressWarnings("ConstantConditions")
     private void init(Bundle fragmentArgs) {
         forNewForYou = fragmentArgs.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false);
-        urn = fragmentArgs.getParcelable(SystemPlaylistFragment.EXTRA_PLAYLIST_URN);
+        urn = Urns.urnFromBundle(fragmentArgs, SystemPlaylistFragment.EXTRA_PLAYLIST_URN);
         if (!forNewForYou) {
             Preconditions.checkNotNull(urn, "Urn must not be null if not displaying NewForYou");
         }

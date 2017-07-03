@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -76,7 +77,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (extras.containsKey(FullScreenVideoActivity.EXTRA_AD_URN)) {
             ad = adPlayer.getCurrentAd();
             activityRef = new WeakReference<>(activity);
-            bindView((Urn) extras.get(FullScreenVideoActivity.EXTRA_AD_URN), activity);
+            bindView(Urns.urnFromBundle(extras, FullScreenVideoActivity.EXTRA_AD_URN), activity);
         } else {
             activity.finish();
         }

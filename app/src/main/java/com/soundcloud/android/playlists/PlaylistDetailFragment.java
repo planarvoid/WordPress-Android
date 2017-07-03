@@ -27,6 +27,7 @@ import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
@@ -111,8 +112,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
                                        SearchQuerySourceInfo searchInfo,
                                        PromotedSourceInfo promotedInfo,
                                        boolean autoplay) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_URN, playlistUrn);
+        final Bundle bundle = new Bundle();
+        Urns.writeToBundle(bundle, EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
         bundle.putParcelable(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
         bundle.putBoolean(EXTRA_AUTOPLAY, autoplay);
@@ -222,7 +223,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         View detailView = view.findViewById(R.id.playlist_details);
         boolean showInlineHeader = detailView == null;
 
-        presenter.connect(inputs, this, getArguments().getParcelable(EXTRA_URN));
+        presenter.connect(inputs, this, Urns.urnFromBundle(getArguments(), EXTRA_URN));
         disposable = new CompositeDisposable();
         disposable.addAll(
 

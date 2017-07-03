@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +10,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SearchQuerySourceInfo implements Parcelable {
@@ -44,10 +44,10 @@ public class SearchQuerySourceInfo implements Parcelable {
     }
 
     public SearchQuerySourceInfo(Parcel in) {
-        queryUrn = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
+        queryUrn = Urns.urnFromParcel(in);
         clickPosition = in.readInt();
-        clickUrn = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
-        queryResults = in.readArrayList(getClass().getClassLoader());
+        clickUrn = Urns.urnFromParcel(in);
+        queryResults = Urns.urnsFromParcel(in);
         queryString = in.readString();
     }
 
@@ -65,7 +65,7 @@ public class SearchQuerySourceInfo implements Parcelable {
     }
 
     public void setQueryResults(@NotNull List<Urn> queryResults) {
-        this.queryResults = new ArrayList<>(queryResults);
+        this.queryResults = queryResults;
     }
 
     public int getUpdatedResultPosition(Urn currentTrack) {
@@ -88,10 +88,10 @@ public class SearchQuerySourceInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(queryUrn, 0);
+        Urns.writeToParcel(dest, queryUrn);
         dest.writeInt(clickPosition);
-        dest.writeParcelable(clickUrn, 0);
-        dest.writeList(queryResults);
+        Urns.writeToParcel(dest, clickUrn);
+        Urns.writeToParcel(dest, queryResults);
         dest.writeString(queryString);
     }
 

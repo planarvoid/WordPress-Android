@@ -60,6 +60,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -593,7 +594,7 @@ public class OnboardActivity extends FragmentActivity
 
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, state);
-        outState.putParcelable(BUNDLE_USER, userUrn);
+        Urns.writeToBundle(outState, BUNDLE_USER, userUrn);
         outState.putInt(BACKGROUND_IMAGE_IDX, backgroundImageIdx);
 
         if (deepLinkUri.isPresent()) {
@@ -618,7 +619,7 @@ public class OnboardActivity extends FragmentActivity
     protected void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        userUrn = savedInstanceState.getParcelable(BUNDLE_USER);
+        userUrn = Urns.urnFromBundle(savedInstanceState, BUNDLE_USER);
         lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
         loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
         signUpBasicsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_BASICS);

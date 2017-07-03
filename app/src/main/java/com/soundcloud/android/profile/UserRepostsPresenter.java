@@ -9,6 +9,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
@@ -35,7 +36,7 @@ class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollectio
 
     @Override
     protected CollectionBinding<PagedRemoteCollection<PlayableItem>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
+        final Urn userUrn = Urns.urnFromBundle(fragmentArgs, ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(operations.userReposts(userUrn))
                                 .withAdapter(adapter)
                                 .withPager(operations.repostsPagingFunction())

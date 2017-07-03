@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -48,9 +49,8 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
 
         checkNotNull(playlistUrn, "Playlist URN may no be null. " +
                 "Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], autoPlay = [" + autoPlay + "], queryInfo = [" + queryInfo + "], promotedInfo = [" + promotedInfo + "]");
-
+        Urns.writeToIntent(intent, EXTRA_URN, playlistUrn);
         return intent
-                .putExtra(EXTRA_URN, playlistUrn)
                 .putExtra(EXTRA_AUTO_PLAY, autoPlay)
                 .putExtra(EXTRA_QUERY_SOURCE_INFO, queryInfo.orNull())
                 .putExtra(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo.orNull());
@@ -73,7 +73,7 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         Intent intent = getIntent();
         Screen screen = Screen.fromIntent(intent);
 
-        Urn urn = intent.getParcelableExtra(EXTRA_URN);
+        Urn urn = Urns.urnFromIntent(intent, EXTRA_URN);
         PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
         SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);

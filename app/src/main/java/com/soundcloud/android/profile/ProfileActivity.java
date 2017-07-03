@@ -6,15 +6,14 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.FullscreenablePlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 public class ProfileActivity extends FullscreenablePlayerActivity {
 
@@ -53,7 +52,7 @@ public class ProfileActivity extends FullscreenablePlayerActivity {
 
     static Urn getUserUrnFromIntent(Intent intent) {
         if (intent.hasExtra(EXTRA_USER_URN)) {
-            return intent.getParcelableExtra(EXTRA_USER_URN);
+            return Urns.urnFromIntent(intent, EXTRA_USER_URN);
         } else if (intent.getData() != null) {
             return Urn.forUser(UriUtils.getLastSegmentAsLong(intent.getData()));
         } else {

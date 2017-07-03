@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS_SUGGESTIONS;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrack;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -24,19 +23,16 @@ import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListen
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
-
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-
-import io.reactivex.Maybe;
-import io.reactivex.subjects.PublishSubject;
 
 import android.os.Bundle;
 
@@ -170,14 +166,14 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
     private static Bundle fragmentArgs() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(StationInfoFragment.EXTRA_URN, TRACK_STATION);
+        Urns.writeToBundle(bundle, StationInfoFragment.EXTRA_URN, TRACK_STATION);
         bundle.putString(StationInfoFragment.EXTRA_SOURCE, STATIONS_SUGGESTIONS.value());
         return bundle;
     }
 
     private static Bundle fragmentArgsNoDiscoverySource() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(StationInfoFragment.EXTRA_URN, TRACK_STATION);
+        Urns.writeToBundle(bundle, StationInfoFragment.EXTRA_URN, TRACK_STATION);
         return bundle;
     }
 }

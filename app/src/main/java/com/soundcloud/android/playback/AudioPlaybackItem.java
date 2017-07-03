@@ -10,14 +10,14 @@ import android.os.Parcelable;
 public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
 
     private static AudioPlaybackItem create(Track track, long startPosition, PlaybackType playbackType) {
-        return new AutoValue_AudioPlaybackItem(track.urn(),
-                                                startPosition,
-                                                Durations.getTrackPlayDuration(track),
-                                                playbackType);
+        return new AutoValue_AudioPlaybackItem(track.urn().getContent(),
+                                               startPosition,
+                                               Durations.getTrackPlayDuration(track),
+                                               playbackType);
     }
 
     public static AudioPlaybackItem create(Urn trackUrn, long startPosition, long duration, PlaybackType playbackType) {
-        return new AutoValue_AudioPlaybackItem(trackUrn, startPosition, duration, playbackType);
+        return new AutoValue_AudioPlaybackItem(trackUrn.getContent(), startPosition, duration, playbackType);
     }
 
     public static AudioPlaybackItem create(Track track, long startPosition) {
@@ -33,7 +33,11 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
     }
 
     @Override
-    public abstract Urn getUrn();
+    public Urn getUrn() {
+        return new Urn(stringUrn());
+    }
+
+    abstract String stringUrn();
 
     @Override
     public abstract long getStartPosition();

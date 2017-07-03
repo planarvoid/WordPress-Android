@@ -8,6 +8,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.content.Intent;
@@ -48,7 +49,7 @@ public class UserLikesActivity extends PlayerActivity {
     }
 
     private void attachFragment() {
-        final Urn userUrn = getIntent().getParcelableExtra(EXTRA_USER_URN);
+        final Urn userUrn = Urns.urnFromIntent(getIntent(), EXTRA_USER_URN);
         final Intent intent = getIntent();
         final Screen screen = Screen.fromIntent(intent);
         final SearchQuerySourceInfo searchQuerySourceInfo = intent

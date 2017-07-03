@@ -85,7 +85,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void preloadCallsPreloadOnSkippy() {
-        final AutoValue_PreloadItem preloadItem = new AutoValue_PreloadItem(trackUrn, PlaybackType.AUDIO_SNIPPET);
+        final AutoValue_PreloadItem preloadItem = new AutoValue_PreloadItem(trackUrn.getContent(), PlaybackType.AUDIO_SNIPPET);
         instantiateStreamPlaya();
 
         streamPlayerWrapper.preload(preloadItem);

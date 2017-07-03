@@ -13,6 +13,7 @@ import com.soundcloud.android.users.SocialMediaLinkItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -62,7 +63,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     @Override
     public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        userUrn = Urns.urnFromBundle(fragment.getArguments(), ProfileArguments.USER_URN_KEY);
         searchQuerySourceInfo = Optional.fromNullable(fragment.getArguments().getParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY));
 
         userDetailsObservable = profileOperations.userProfileInfo(userUrn).cache();

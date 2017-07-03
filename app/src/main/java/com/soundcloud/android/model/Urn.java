@@ -1,16 +1,16 @@
 package com.soundcloud.android.model;
 
-import android.os.Parcel;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Arrays;
 
+@SuppressWarnings("PMD.GodClass")
 public final class Urn extends ContentStringHelper<Urn> {
 
     public static final Function<String, Urn> STRING_TO_URN = input -> new Urn(input);
@@ -18,18 +18,6 @@ public final class Urn extends ContentStringHelper<Urn> {
     public static final Urn NOT_SET = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.UNKNOWN, Consts.NOT_SET);
 
     private static final String SEPARATOR = ":";
-
-    public static final Creator<Urn> CREATOR = new Creator<Urn>() {
-        @Override
-        public Urn createFromParcel(Parcel source) {
-            return new Urn(source.readString());
-        }
-
-        @Override
-        public Urn[] newArray(int size) {
-            return new Urn[size];
-        }
-    };
 
     @NonNull private final String content;
 
@@ -54,7 +42,7 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     @Override
     @NonNull
-    String getContent() {
+    public String getContent() {
         return content;
     }
 

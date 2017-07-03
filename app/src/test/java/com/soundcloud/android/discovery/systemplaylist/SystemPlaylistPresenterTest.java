@@ -152,7 +152,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void mapsSystemPlaylistToViewModels() {
         when(bundle.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false)).thenReturn(false);
-        when(bundle.getParcelable(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN);
+        when(bundle.getString(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN.getContent());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -202,7 +202,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void trackItemClickedStartsPlaybackFromCorrectPosition() {
         when(bundle.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false)).thenReturn(false);
-        when(bundle.getParcelable(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN);
+        when(bundle.getString(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN.getContent());
 
         final int position = 1;
         final int finalPosition = 0;
@@ -226,7 +226,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void playClickedStartsPlaybackFromBeginning() {
         when(bundle.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false)).thenReturn(false);
-        when(bundle.getParcelable(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN);
+        when(bundle.getString(SystemPlaylistFragment.EXTRA_PLAYLIST_URN)).thenReturn(URN.getContent());
 
         final int adapterPosition = 0;
         final int playbackPosition = 0;

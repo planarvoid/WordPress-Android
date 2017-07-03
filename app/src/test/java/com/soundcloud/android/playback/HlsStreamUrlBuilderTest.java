@@ -49,7 +49,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls?client_id=" +
                 CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN + "&can_snip=false";
 
-        String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN, PlaybackType.AUDIO_DEFAULT));
+        String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN.getContent(), PlaybackType.AUDIO_DEFAULT));
         assertThat(streamUrl).isEqualTo(expected);
     }
 
@@ -58,7 +58,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls/snippet?client_id=" +
                 CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN;
 
-        String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN, PlaybackType.AUDIO_SNIPPET));
+        String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN.getContent(), PlaybackType.AUDIO_SNIPPET));
         assertThat(streamUrl).isEqualTo(expected);
     }
 

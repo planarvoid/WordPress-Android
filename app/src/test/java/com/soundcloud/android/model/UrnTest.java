@@ -6,8 +6,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
-import android.os.Parcel;
-
 public class UrnTest extends AndroidUnitTest {
 
     @Test
@@ -188,17 +186,6 @@ public class UrnTest extends AndroidUnitTest {
         assertThat(trackUrn.isAd()).isFalse();
         assertThat(trackStationUrn.isAd()).isFalse();
         assertThat(Urn.NOT_SET.isAd()).isFalse();
-    }
-
-    @Test
-    public void shouldBeParcelable() {
-        Parcel parcel = Parcel.obtain();
-        Urn urn = new Urn("soundcloud:tracks:1");
-        urn.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-
-        Urn unparceled = Urn.CREATOR.createFromParcel(parcel);
-        assertThat(unparceled).isEqualTo(urn);
     }
 
     @Test

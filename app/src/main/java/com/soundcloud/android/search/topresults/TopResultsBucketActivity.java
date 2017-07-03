@@ -7,6 +7,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.topresults.TopResults.Bucket;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 
@@ -30,7 +31,7 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
     }
 
     public Optional<Urn> getQueryUrn() {
-        return Optional.fromNullable(getIntent().getParcelableExtra(EXTRA_QUERY_URN));
+        return Urns.optionalUrnFromIntent(getIntent(), EXTRA_QUERY_URN);
     }
 
     @Override

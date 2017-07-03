@@ -25,6 +25,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
@@ -98,7 +99,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
     @Override
     protected CollectionBinding<UserProfile, UserSoundsItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
+        final Urn userUrn = Urns.urnFromBundle(fragmentArgs, ProfileArguments.USER_URN_KEY);
 
         return CollectionBinding
                 .from(operations.userProfile(userUrn), userSoundsItemMapper)
@@ -117,7 +118,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        userUrn = Urns.urnFromBundle(fragment.getArguments(), ProfileArguments.USER_URN_KEY);
         searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
         clickListener = this.clickListenerFactory.create(Screen.fromTag(screenProvider.getOriginScreen()), searchQuerySourceInfo);
         getBinding().connect();

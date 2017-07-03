@@ -35,6 +35,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -91,7 +92,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentArgs = new Bundle();
         profileUser = ModelFixtures.user();
 
-        fragmentArgs.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        Urns.writeToBundle(fragmentArgs, ProfileArguments.USER_URN_KEY, USER_URN);
         fragmentArgs.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, SEARCH_QUERY_SOURCE_INFO);
         fragmentRule.setFragmentArguments(fragmentArgs);
 

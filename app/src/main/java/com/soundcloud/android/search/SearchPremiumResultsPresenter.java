@@ -25,6 +25,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.FollowEntityListSubscriber;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -156,10 +157,9 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
-        final List<Urn> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
-        final Optional<Link> nextHref = Optional.fromNullable(bundle.getParcelable(
-                EXTRA_PREMIUM_CONTENT_NEXT_HREF));
-        final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);
+        final List<Urn> premiumContentList = Urns.urnsFromBundle(bundle, EXTRA_PREMIUM_CONTENT_RESULTS);
+        final Optional<Link> nextHref = Optional.fromNullable(bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
+        final Urn queryUrn = Urns.urnFromBundle(bundle, EXTRA_SEARCH_QUERY_URN);
         return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList,
                                                                                 nextHref,
                                                                                 queryUrn));

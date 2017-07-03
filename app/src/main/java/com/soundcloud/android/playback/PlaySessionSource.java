@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.olddiscovery.charts.ChartSourceInfo;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
@@ -138,8 +139,8 @@ public class PlaySessionSource implements Parcelable {
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         collectionSize = in.readInt();
-        collectionUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
-        collectionOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        collectionUrn = Urns.urnFromParcel(in);
+        collectionOwnerUrn = Urns.urnFromParcel(in);
         searchQuerySourceInfo = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
         promotedSourceInfo = in.readParcelable(PromotedSourceInfo.class.getClassLoader());
         discoverySource = (DiscoverySource) in.readSerializable();
@@ -260,8 +261,8 @@ public class PlaySessionSource implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(originScreen);
         dest.writeInt(collectionSize);
-        dest.writeParcelable(collectionUrn, 0);
-        dest.writeParcelable(collectionOwnerUrn, 0);
+        Urns.writeToParcel(dest, collectionUrn);
+        Urns.writeToParcel(dest, collectionOwnerUrn);
         dest.writeParcelable(searchQuerySourceInfo, 0);
         dest.writeParcelable(promotedSourceInfo, 0);
         dest.writeSerializable(discoverySource);

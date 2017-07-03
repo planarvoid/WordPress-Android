@@ -11,6 +11,7 @@ import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestSyncer;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,10 +50,9 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Test
     public void createSyncSinglePlaylistRequestFromSyncPlaylistIntent() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(playlistUrn));
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.PLAYLIST)
-                                          .putExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        Urns.writeToIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES, Arrays.asList(playlistUrn));
         syncRequestFactory.create(intent);
         verify(singlePlaylistSyncerFactory).create(playlistUrn);
     }
@@ -61,8 +61,8 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     public void createSyncTrackEntitesRequestFromSyncableTracksIntent() throws Exception {
         final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forTrack(123L)));
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.TRACKS)
-                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        Urns.writeToIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities);
         syncRequestFactory.create(intent);
         verify(entitySyncRequestFactory).create(Syncable.TRACKS, entities, resultReceiverAdapter);
     }
@@ -71,8 +71,8 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     public void createSyncPlaylistEntitesRequestFromSyncablePlaylistsIntent() throws Exception {
         final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forPlaylist(123L)));
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.PLAYLISTS)
-                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        Urns.writeToIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities);
         syncRequestFactory.create(intent);
         verify(entitySyncRequestFactory).create(Syncable.PLAYLISTS, entities, resultReceiverAdapter);
     }
@@ -81,8 +81,8 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     public void createSyncUserEntitesRequestFromSyncableUsersIntent() throws Exception {
         final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forUser(123L)));
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.USERS)
-                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        Urns.writeToIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities);
         syncRequestFactory.create(intent);
         verify(entitySyncRequestFactory).create(Syncable.USERS, entities, resultReceiverAdapter);
     }

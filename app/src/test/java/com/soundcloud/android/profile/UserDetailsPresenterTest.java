@@ -26,6 +26,7 @@ import com.soundcloud.android.users.SocialMediaLinkItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -82,7 +83,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         final Bundle value = new Bundle();
-        value.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        Urns.writeToBundle(value, ProfileArguments.USER_URN_KEY, USER_URN);
         value.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         links = newArrayList(
                 SocialMediaLinkItem.create(Optional.of("firstTitle"), "firstNetwork", "http://www.first.com"),

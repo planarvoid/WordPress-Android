@@ -12,6 +12,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
@@ -49,7 +50,7 @@ public class FullImageDialog extends DialogFragment {
 
     public static void show(FragmentManager fragmentManager, ImageResource imageResource) {
         Bundle args = new Bundle();
-        args.putParcelable(KEY_URN, imageResource.getUrn());
+        Urns.writeToBundle(args, KEY_URN, imageResource.getUrn());
         args.putString(KEY_IMAGE_URL_TEMPLATE, imageResource.getImageUrlTemplate().orNull());
         DialogFragment dialog = new FullImageDialog();
         dialog.setArguments(args);
@@ -71,7 +72,7 @@ public class FullImageDialog extends DialogFragment {
     }
 
     private ImageResource getImageResource(Bundle bundle) {
-        return SimpleImageResource.create(bundle.getParcelable(KEY_URN),
+        return SimpleImageResource.create(Urns.urnFromBundle(getArguments(), KEY_URN),
                                           Optional.fromNullable(bundle.getString(KEY_IMAGE_URL_TEMPLATE)));
     }
 

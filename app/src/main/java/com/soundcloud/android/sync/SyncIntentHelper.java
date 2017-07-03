@@ -4,9 +4,9 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 
 import android.content.Intent;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,15 +32,14 @@ final class SyncIntentHelper {
 
     static List<Urn> getSyncEntities(Intent intent) {
         if (intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES)) {
-            return intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES);
+            return Urns.urnsFromIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES);
         } else {
             return Collections.emptyList();
         }
     }
 
     static Intent putSyncEntities(Intent intent, Collection<Urn> entities) {
-        intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, new ArrayList<Parcelable>(entities));
-        return intent;
+        return Urns.writeToIntent(intent, ApiSyncService.EXTRA_SYNCABLE_ENTITIES, new ArrayList<>(entities));
     }
 
     static List<Syncable> getSyncables(Intent intent) {

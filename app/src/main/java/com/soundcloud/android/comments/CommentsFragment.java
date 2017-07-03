@@ -11,6 +11,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.lightcycle.LightCycle;
@@ -44,7 +45,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     public static CommentsFragment create(Urn trackUrn) {
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_TRACK_URN, trackUrn);
+        Urns.writeToBundle(bundle, EXTRA_TRACK_URN, trackUrn);
         CommentsFragment fragment = new CommentsFragment();
         fragment.setArguments(bundle);
         return fragment;
@@ -67,7 +68,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Override
     public Observable<List<Comment>> buildObservable() {
-        final Urn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
+        final Urn trackUrn = Urns.urnFromBundle(getArguments(), EXTRA_TRACK_URN);
         comments = operations.pager().page(operations.comments(trackUrn))
                              .map(TO_COMMENT_VIEW_MODEL)
                              .observeOn(mainThread())

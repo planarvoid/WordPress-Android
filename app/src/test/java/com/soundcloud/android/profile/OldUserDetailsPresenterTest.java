@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -57,7 +58,7 @@ public class OldUserDetailsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         presenter = new OldUserDetailsPresenter(profileOperations, oldUserDetailsView);
         final Bundle value = new Bundle();
-        value.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        Urns.writeToBundle(value, ProfileArguments.USER_URN_KEY, USER_URN);
         when(fragment.getArguments()).thenReturn(value);
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);

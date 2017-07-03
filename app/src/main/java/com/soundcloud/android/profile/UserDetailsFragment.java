@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -32,7 +33,7 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
                                              SearchQuerySourceInfo searchQuerySourceInfo) {
         final UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ProfileArguments.USER_URN_KEY, userUrn);
+        Urns.writeToBundle(args, ProfileArguments.USER_URN_KEY, userUrn);
         args.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         userDetailsFragment.setArguments(args);
         return userDetailsFragment;

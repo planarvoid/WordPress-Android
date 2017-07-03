@@ -2,13 +2,13 @@ package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
@@ -70,7 +70,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import java.util.Collections;
 import java.util.List;
 
 public class NavigationExecutorTest extends AndroidUnitTest {
@@ -212,7 +211,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getContent())
                                    .containsExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, true)
                                    .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
@@ -224,7 +223,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         pendingIntent.send();
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN.getContent())
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                                    .containsScreen(Screen.NOTIFICATION)
                                    .opensActivity(ProfileActivity.class);
@@ -237,7 +236,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         pendingIntent.send();
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN.getContent())
                                    .containsScreen(Screen.WIDGET)
                                    .containsReferrer(Referrer.PLAYBACK_WIDGET)
                                    .opensActivity(ProfileActivity.class);
@@ -372,7 +371,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
 
     @Test
     public void opensSearchPremiumContentResults() {
-        final List<Urn> urns = Collections.emptyList();
+        final List<Urn> urns = emptyList();
         final String searchQuery = "query";
         final SearchType searchType = SearchType.ALL;
         final Optional<Link> nextHref = Optional.absent();
@@ -389,8 +388,8 @@ public class NavigationExecutorTest extends AndroidUnitTest {
                                    .opensActivity(SearchPremiumResultsActivity.class)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
-                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, urns)
-                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn)
+                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, emptyList())
+                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn.getContent())
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF,
                                                   nextHref.orNull());
     }
@@ -412,7 +411,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackCommentsActivity.class)
-                                   .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
+                                   .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn.getContent());
     }
 
     @Test

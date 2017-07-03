@@ -270,7 +270,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(resolveOperations, never()).resolve(anyString());
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
                   .containsScreen(DEEPLINK_SCREEN);
     }
 
@@ -284,7 +284,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(resolveOperations, never()).resolve(anyString());
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
                   .containsScreen(DEEPLINK_SCREEN);
     }
 
@@ -1220,7 +1220,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(resolveOperations, never()).resolve(anyString());
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
                   .containsScreen(NAVIGATION_SCREEN);
     }
 
@@ -1234,7 +1234,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(resolveOperations, never()).resolve(anyString());
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123))
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
                   .containsScreen(NAVIGATION_SCREEN);
 
     }
@@ -1767,7 +1767,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Assertions.assertThat(activity).nextStartedIntent()
                   .opensActivity(SystemPlaylistActivity.class)
                   .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false)
-                  .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn)
+                  .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn.getContent())
                   .containsScreen(Screen.DEEPLINK);
     }
 
@@ -1780,7 +1780,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
                   .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
 
@@ -1797,7 +1797,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity).nextStartedIntent()
                   .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
                   .containsScreen(Screen.SEARCH_PLAYLISTS);
@@ -1816,7 +1816,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
                                    .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
                                    .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
                                    .containsScreen(Screen.SEARCH_PLAYLISTS);

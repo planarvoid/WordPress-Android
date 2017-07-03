@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Lists;
@@ -65,9 +66,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         Bundle bundle = new Bundle();
         bundle.putString(KEY_API_QUERY, apiQuery);
         bundle.putString(KEY_USER_QUERY, userQuery);
-        if (queryUrn.isPresent()) {
-            bundle.putParcelable(KEY_QUERY_URN, queryUrn.get());
-        }
+        Urns.writeToBundle(bundle, KEY_QUERY_URN, queryUrn);
 
         if (queryPosition.isPresent()) {
             bundle.putInt(KEY_QUERY_POSITION, queryPosition.get());
@@ -183,7 +182,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     private Optional<Urn> searchQueryUrn() {
-        return Optional.fromNullable(getArguments().<Urn>getParcelable(KEY_QUERY_URN));
+        return Urns.optionalUrnFromBundle(getArguments(), KEY_QUERY_URN);
     }
 
     private Optional<Integer> searchQueryPosition() {

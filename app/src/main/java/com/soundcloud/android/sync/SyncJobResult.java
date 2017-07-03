@@ -4,13 +4,13 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.objects.MoreObjects;
 import rx.functions.Func1;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,9 +41,7 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
         this.action = in.readString();
         this.wasChanged = in.readByte() != 0;
         this.exception = (Exception) in.readSerializable();
-
-        this.entitiesSynced = new ArrayList<>();
-        in.readTypedList(this.entitiesSynced, Urn.CREATOR);
+        this.entitiesSynced = Urns.urnsFromParcel(in);
     }
 
     private SyncJobResult(String action, boolean wasChanged, Exception exception, List<Urn> entities) {
@@ -108,7 +106,7 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
         dest.writeString(this.action);
         dest.writeByte(wasChanged ? (byte) 1 : (byte) 0);
         dest.writeSerializable(this.exception);
-        dest.writeTypedList(this.entitiesSynced);
+        Urns.writeToParcel(dest, this.entitiesSynced);
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.discovery.SystemPlaylistScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.utils.Urns;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -23,7 +24,7 @@ import android.content.res.Resources;
 public class SystemPlaylistTest extends ActivityTest<SystemPlaylistActivity> {
 
     private static final Urn SYSTEM_PLAYLIST_URN = Urn.forSystemPlaylist("123");
-    private static final Intent START_PARAM_INTENT = new Intent().putExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, SYSTEM_PLAYLIST_URN);
+    private static final Intent START_PARAM_INTENT = Urns.writeToIntent(new Intent(), SystemPlaylistActivity.EXTRA_PLAYLIST_URN, SYSTEM_PLAYLIST_URN);
 
     public SystemPlaylistTest() {
         super(SystemPlaylistActivity.class);

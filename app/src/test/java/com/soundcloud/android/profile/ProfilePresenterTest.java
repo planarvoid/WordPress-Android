@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -72,7 +73,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         profileUser = createProfileUser();
 
-        intent.putExtra(ProfileActivity.EXTRA_USER_URN, USER_URN);
+        Urns.writeToIntent(intent, ProfileActivity.EXTRA_USER_URN, USER_URN);
 
         when(screenProvider.getLastScreen()).thenReturn(Screen.USER_MAIN);
         when(activity.getIntent()).thenReturn(intent);

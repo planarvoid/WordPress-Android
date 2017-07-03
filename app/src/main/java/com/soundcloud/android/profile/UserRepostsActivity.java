@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public class UserRepostsActivity extends PlayerActivity {
     }
 
     private void attachFragment() {
-        final Urn userUrn = getIntent().getParcelableExtra(EXTRA_USER_URN);
+        final Urn userUrn = Urns.urnFromIntent(getIntent(), EXTRA_USER_URN);
         final Screen screen = Screen.fromIntent(getIntent());
         final SearchQuerySourceInfo searchQuerySourceInfo = getIntent()
                 .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO);
