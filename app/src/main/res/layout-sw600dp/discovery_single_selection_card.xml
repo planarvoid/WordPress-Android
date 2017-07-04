@@ -1,165 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout style="@style/Discovery.Selection.Card"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sc="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/discovery_single_content_selection_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground">
+    android:orientation="vertical">
 
-    <View
-        android:id="@+id/top_border"
-        style="@style/Divider.Section"
-        sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintStart_toStartOf="parent"
-        sc:layout_constraintTop_toTopOf="parent" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/single_card_title"
-        style="@style/Discovery.Selection.Title"
-        android:layout_width="0dp"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/discovery_single_content_selection_card"
+        style="@style/Discovery.Selection.Card"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="36dp"
-        android:padding="0dp"
-        sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintStart_toStartOf="@+id/guideline"
-        sc:layout_constraintTop_toTopOf="@id/top_border"
-        tools:text="Title" />
+        android:foreground="?attr/selectableItemBackground">
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/single_card_description"
-        style="@style/Discovery.Selection.Description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="4dp"
-        android:padding="0dp"
-        sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintStart_toStartOf="@+id/guideline"
-        sc:layout_constraintTop_toBottomOf="@+id/single_card_title"
-        tools:text="Description" />
-
-    <com.soundcloud.android.view.ParallaxImageView
-        android:id="@+id/single_card_artwork"
-        style="@style/Stream.Image.Track"
-        android:layout_width="343dp"
-        android:layout_height="172dp"
-        android:layout_marginBottom="24dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        sc:foreground="@drawable/artwork_border"
-        sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
-        sc:layout_constraintStart_toStartOf="parent"
-        sc:layout_constraintTop_toTopOf="@id/top_border" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/single_card_track_count"
-        style="@style/Collections.SmallTrackCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/single_card_artwork"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        sc:layout_constraintBottom_toBottomOf="@+id/single_card_artwork"
-        sc:layout_constraintStart_toStartOf="@+id/single_card_artwork"
-        tools:text="12" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
-        android:orientation="horizontal"
-        sc:layout_constraintBottom_toTopOf="@+id/social_proof_line"
-        sc:layout_constraintStart_toStartOf="@+id/guideline">
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_1"
-            style="@style/Discovery.Selection.SocialProofImage"
-            android:layout_weight="0"
-            android:padding="0dp"
-            sc:layout_constraintBottom_toTopOf="@+id/single_card_social_proof"
-            sc:layout_constraintStart_toStartOf="@+id/single_card_social_proof" />
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_2"
-            style="@style/Discovery.Selection.SocialProofImageOverlap"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0"
-            android:padding="0dp"
-            sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_1"
-            sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_1" />
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_3"
-            style="@style/Discovery.Selection.SocialProofImageOverlap"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0"
-            android:padding="0dp"
-            sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_2"
-            sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_2" />
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_4"
-            style="@style/Discovery.Selection.SocialProofImageOverlap"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0"
-            android:padding="0dp"
-            sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_3"
-            sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_3" />
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_5"
-            style="@style/Discovery.Selection.SocialProofImageOverlap"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0"
-            android:padding="0dp"
-            sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_4"
-            sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_4" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/social_proof_line"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
-        sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintStart_toStartOf="@+id/guideline">
-
-        <com.soundcloud.android.view.CircularBorderImageView
-            android:id="@+id/single_card_user_artwork_single"
-            style="@style/Discovery.Selection.SocialProofImage"
-            cbiv_borderWidth="0dp"
-            android:layout_marginEnd="6dp"
-            android:layout_marginRight="6dp"
-            android:padding="0dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
+        <View
+            android:id="@+id/top_border"
+            style="@style/Divider.Section"
+            sc:layout_constraintEnd_toEndOf="parent"
+            sc:layout_constraintStart_toStartOf="parent"
+            sc:layout_constraintTop_toTopOf="parent" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/single_card_social_proof"
-            style="@style/Discovery.Selection.SocialProofText"
+            android:id="@+id/single_card_title"
+            style="@style/Discovery.Selection.Title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="36dp"
             android:padding="0dp"
-            tools:text="Artists in the playlist" />
-    </LinearLayout>
+            sc:layout_constraintEnd_toEndOf="parent"
+            sc:layout_constraintStart_toStartOf="@+id/guideline"
+            sc:layout_constraintTop_toTopOf="@id/top_border"
+            tools:text="Title" />
 
-    <View
-        android:id="@+id/bottom_border"
-        style="@style/Divider.Section"
-        android:layout_marginBottom="0dp"
-        sc:layout_constraintBottom_toTopOf="@+id/gap"
-        sc:layout_constraintEnd_toEndOf="parent"
-        sc:layout_constraintHorizontal_bias="0.0"
-        sc:layout_constraintStart_toStartOf="parent" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/single_card_description"
+            style="@style/Discovery.Selection.Description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="4dp"
+            android:padding="0dp"
+            sc:layout_constraintEnd_toEndOf="parent"
+            sc:layout_constraintStart_toStartOf="@+id/guideline"
+            sc:layout_constraintTop_toBottomOf="@+id/single_card_title"
+            tools:text="Description" />
+
+        <com.soundcloud.android.view.ParallaxImageView
+            android:id="@+id/single_card_artwork"
+            style="@style/Stream.Image.Track"
+            android:layout_width="343dp"
+            android:layout_height="172dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            sc:foreground="@drawable/artwork_border"
+            sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
+            sc:layout_constraintStart_toStartOf="parent"
+            sc:layout_constraintTop_toTopOf="@id/top_border" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/single_card_track_count"
+            style="@style/Collections.SmallTrackCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/single_card_artwork"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            sc:layout_constraintBottom_toBottomOf="@+id/single_card_artwork"
+            sc:layout_constraintStart_toStartOf="@+id/single_card_artwork"
+            tools:text="12" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal"
+            sc:layout_constraintBottom_toTopOf="@+id/social_proof_line"
+            sc:layout_constraintStart_toStartOf="@+id/guideline">
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_1"
+                style="@style/Discovery.Selection.SocialProofImage"
+                android:layout_weight="0"
+                android:padding="0dp"
+                sc:layout_constraintBottom_toTopOf="@+id/single_card_social_proof"
+                sc:layout_constraintStart_toStartOf="@+id/single_card_social_proof" />
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_2"
+                style="@style/Discovery.Selection.SocialProofImageOverlap"
+                android:layout_marginTop="0dp"
+                android:layout_weight="0"
+                android:padding="0dp"
+                sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_1"
+                sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_1" />
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_3"
+                style="@style/Discovery.Selection.SocialProofImageOverlap"
+                android:layout_marginTop="0dp"
+                android:layout_weight="0"
+                android:padding="0dp"
+                sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_2"
+                sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_2" />
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_4"
+                style="@style/Discovery.Selection.SocialProofImageOverlap"
+                android:layout_marginTop="0dp"
+                android:layout_weight="0"
+                android:padding="0dp"
+                sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_3"
+                sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_3" />
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_5"
+                style="@style/Discovery.Selection.SocialProofImageOverlap"
+                android:layout_marginTop="0dp"
+                android:layout_weight="0"
+                android:padding="0dp"
+                sc:layout_constraintStart_toEndOf="@+id/single_card_user_artwork_4"
+                sc:layout_constraintTop_toTopOf="@+id/single_card_user_artwork_4" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/social_proof_line"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="24dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            sc:layout_constraintBottom_toTopOf="@+id/bottom_border"
+            sc:layout_constraintEnd_toEndOf="parent"
+            sc:layout_constraintStart_toStartOf="@+id/guideline">
+
+            <com.soundcloud.android.view.CircularBorderImageView
+                android:id="@+id/single_card_user_artwork_single"
+                style="@style/Discovery.Selection.SocialProofImage"
+                cbiv_borderWidth="0dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginRight="6dp"
+                android:padding="0dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/single_card_social_proof"
+                style="@style/Discovery.Selection.SocialProofText"
+                android:layout_height="wrap_content"
+                android:padding="0dp"
+                tools:text="Artists in the playlist" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/bottom_border"
+            style="@style/Divider.Section"
+            android:layout_marginBottom="0dp"
+            sc:layout_constraintBottom_toBottomOf="parent"
+            sc:layout_constraintEnd_toEndOf="parent"
+            sc:layout_constraintHorizontal_bias="0.0"
+            sc:layout_constraintStart_toStartOf="parent" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            sc:layout_constraintGuide_begin="375dp" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <View
         android:id="@+id/gap"
@@ -168,11 +182,4 @@
         sc:layout_constraintEnd_toEndOf="parent"
         sc:layout_constraintStart_toStartOf="parent" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        sc:layout_constraintGuide_begin="375dp" />
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
