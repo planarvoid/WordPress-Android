@@ -69,6 +69,9 @@
   <string name="ads_watch_now">Nu kijken</string>
   <string name="ads_no_thanks">Nee, bedankt</string>
   <string name="ads_learn_more">Meer informatie</string>
+  <string name="ads_opt_in_text">Ontsnap aan de reclames: bekijk deze video en ontgrendel %s minuten non-stopmuziek</string>
+  <string name="ads_start_session">Sessie starten</string>
+  <string name="ads_sponsored_session_unlocked">Je hebt je reclamevrije luistersessie ontgrendeld.</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Wachtwoord vergeten?</string>
   <string name="authentication_add_info_add_image_msg">Cheese! Deze foto komt in je profiel te staan.</string>
@@ -372,6 +375,8 @@
   <string name="dialog_cancel_upload_message">Uploaden annuleren?</string>
   <string name="sc_upload_private">\u00A0Privé</string>
   <string name="sc_upload_public">\u00A0Openbaar</string>
+  <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_retry_button">Opnieuw proberen</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">ALLES</string>
   <string name="search_type_tracks">TRACKS</string>
@@ -508,6 +513,8 @@
   <string name="stations_tracks_in_this_station">Tracks op deze zender</string>
   <string name="stations_see_all_tracks">Alle tracks weergeven</string>
   <string name="suggested_stations">Voorgestelde zenders</string>
+  <string name="stations_home_station_based_on_track">Trackzender op basis van</string>
+  <string name="stations_home_station_based_on_artist">Artiestenzender op basis van</string>
   <string name="stations_home_description">Een eindeloze mix van muziek inclusief %1$s en anderen</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -780,6 +787,9 @@
   <string name="offline_no_connection">Geen verbinding</string>
   <string name="sd_card_cannot_be_found">SD-kaart is niet gevonden</string>
   <string name="tap_here_to_change_storage_location">Tik hier om de opslaglocatie te wijzigen</string>
+  <string name="overlay_listen_offline_likes_title">Offline luisteren</string>
+  <string name="overlay_search_go_plus_title">SoundCloud Go+-tracks</string>
+  <string name="overlay_listen_offline_playlist_title">Offline luisteren</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welkom bij SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Welkom bij SoundCloud Go!</string>
@@ -927,7 +937,7 @@
   <string name="playback_upsell_button">Abonneer je op SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">De upload</string>
+  <string name="new_for_you_title">The Upload</string>
   <string name="new_for_you_intro">Recent geposte tracks. Speciaal voor jou.</string>
   <string name="new_for_you_action">Afspeellijst weergeven</string>
   <string name="system_playlist_duration">%1$d tracks, %2$s</string>
@@ -1002,7 +1012,7 @@
   <string name="play_queue_header_magic_box_subtitle">Nieuwe muziek op basis van wat er wordt afgespeeld</string>
   <string name="play_queue_header_auto_play_toggle">Zender automatisch afspelen</string>
   <string name="play_queue_header_cast">Casten</string>
-  <string name="play_queue_header_new_for_you">Van de upload</string>
+  <string name="play_queue_header_new_for_you">Van The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Voorgestelde artiesten</string>
   <string name="suggested_creators_blurb">Volg je favoriete artiesten zodat je hun laatste tracks nooit meer misloopt</string>
@@ -1019,10 +1029,44 @@
   <string name="btn_remove_from_collection">Verwijderen uit verzameling</string>
   <string name="accessibility_stats_user_added">Toegevoegd door jou</string>
   <string name="accessibility_add_action">Toevoegen</string>
+  <plurals name="accessibility_stats_adds">
+    <item quantity="one">%d toegevoegd</item>
+    <item quantity="other">%d toegevoegd</item>
+  </plurals>
+  <string name="shortcut_play_tracks">Tracks afspelen</string>
+  <string name="list_empty_you_tracks_message">Voeg je favoriete tracks toe om ze opnieuw te beluisteren.</string>
+  <string name="add_snackbar_overflow_action">Toegevoegd aan mijn verzameling</string>
+  <string name="remove_snackbar_overflow_action">Verwijderd uit mijn verzameling</string>
+  <string name="add_error_snackbar_overflow_action">Trackstatus is niet gewijzigd</string>
   <string name="tab_title_user_tracks">TRACKS</string>
+  <string name="recommendation_reason_because_you_added_tracktitle">Omdat je %1$s in je verzameling hebt</string>
+  <string name="pref_sync_wifi_only_description_tracks">Nieuwe tracks enz. alleen updaten via wifi</string>
+  <string name="added_stations_empty_view_message">Je hebt nog geen zenders toegevoegd</string>
   <string name="collections_tracks_header">Tracks</string>
   <string name="track_added_title">Tracks</string>
   <string name="collections_options_toggle_added">Toegevoegd</string>
+  <string name="collections_empty_playlists_added">Afspeellijsten en albums die je hebt toegevoegd of aangemaakt, worden hier weergegeven.</string>
+  <string name="collections_onboarding_title_tracks">Jouw tracks, afspeellijsten, albums en zenders.\nAllemaal op één locatie.</string>
+  <string name="collections_upsell_body_tracks">Luister naar je tracks, afspeellijsten en albums, offline en reclamevrij</string>
+  <string name="notification_username_added_tracktitle">%s toegevoegd</string>
+  <string name="offline_tracks_dialog_title">Je tracks offline opslaan</string>
+  <string name="offline_tracks_dialog_message">Hiermee worden je huidige en toekomstige tracks offline opgeslagen zodat je zonder wifi of gegevensverbinding kunt luisteren.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Wanneer je dit selecteert, worden al je huidige en toekomstige tracks, afspeellijsten en albums automatisch offline beschikbaar.</string>
+  <string name="pref_offline_offline_collection_description_off_tracks">Wanneer je dit inschakelt, worden al je huidige en toekomstige tracks, afspeellijsten en albums offline opgeslagen.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">Je staat op het punt alles van offline luisteren te verwijderen. Ook worden nieuwe tracks, afspeellijsten en albums die je toevoegt, niet meer automatisch opgeslagen.</string>
+  <string name="disable_offline_collection_body_tracks">Je nieuwe tracks, afspeellijsten en albums worden niet meer automatisch opgeslagen en bestaande opgeslagen tracks worden verwijderd van offline luisteren.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">Je staat op het punt dit van offline luisteren te verwijderen. Ook worden nieuwe afspeellijsten die je aanmaakt of toevoegt, niet meer automatisch offline opgeslagen.</string>
+  <string name="empty_you_sounds_message_secondary_add">Tracks die je toevoegt, repost of uploadt, worden hier weergegeven.</string>
+  <string name="user_profile_sounds_header_tracks_in_collection">Tracks in zijn/haar verzameling</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">Alle tracks in zijn/haar verzameling weergeven</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">Deze gebruiker heeft nog geen tracks aan zijn/haar verzameling toegevoegd.</string>
   <string name="user_tracks_label">Tracks</string>
+  <string name="push_notifications_add">Post toegevoegd aan verzameling</string>
+  <string name="email_notifications_add">Post toegevoegd aan verzameling</string>
+  <string name="play_queue_header_tracks">Uit jouw tracks</string>
+  <string name="suggested_creators_relation_added">Je hebt zijn/haar track onlangs toegevoegd aan je verzameling</string>
   <string name="like_your_favorite_tracks_title">Like je favoriete tracks</string>
+  <string name="like_your_favorite_tracks_description">Tik om je verzameling op te slaan en steun te betuigen aan je favoriete artiesten.</string>
+  <string name="add_your_favorite_tracks_title">Toevoegen aan je verzameling</string>
+  <string name="add_your_favorite_tracks_description">Tik om tracks, afspeellijsten en albums toe te voegen aan je verzameling.</string>
 </resources>

@@ -69,6 +69,9 @@
   <string name="ads_watch_now">Regarder maintenant</string>
   <string name="ads_no_thanks">Non, merci</string>
   <string name="ads_learn_more">En savoir plus</string>
+  <string name="ads_opt_in_text">Interrompez les publicités : visionnez cette vidéo et bénéficiez de %s minutes de musique sans interruption</string>
+  <string name="ads_start_session">Lancer la session</string>
+  <string name="ads_sponsored_session_unlocked">Vous avez débloqué une session d\'écoute sans publicité.</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Vous avez oublié votre mot de passe ?</string>
   <string name="authentication_add_info_add_image_msg">Souriez ! Cette image apparaîtra sur votre profil.</string>
@@ -377,6 +380,8 @@
   <string name="dialog_cancel_upload_message">Annuler l\'upload ?</string>
   <string name="sc_upload_private">\u00A0Privé</string>
   <string name="sc_upload_public">\u00A0Public</string>
+  <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_retry_button">Veuillez réessayer</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TOUT</string>
   <string name="search_type_tracks">TITRES</string>
@@ -513,6 +518,8 @@
   <string name="stations_tracks_in_this_station">Titres de cette station</string>
   <string name="stations_see_all_tracks">Voir tous les titres</string>
   <string name="suggested_stations">Stations suggérées</string>
+  <string name="stations_home_station_based_on_track">Station de titres basée sur</string>
+  <string name="stations_home_station_based_on_artist">Station de l\'artiste basée sur</string>
   <string name="stations_home_description">Un mix de musique infini avec %1$s et bien d\'autres</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
@@ -785,6 +792,9 @@
   <string name="offline_no_connection">Aucune connexion</string>
   <string name="sd_card_cannot_be_found">Carte SD introuvable</string>
   <string name="tap_here_to_change_storage_location">Appuyez ici pour modifier l\'emplacement de stockage</string>
+  <string name="overlay_listen_offline_likes_title">Écoutez hors connexion</string>
+  <string name="overlay_search_go_plus_title">Titres SoundCloud Go+</string>
+  <string name="overlay_listen_offline_playlist_title">Écoutez hors connexion</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenue dans SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Bienvenue sur SoundCloud Go !</string>
@@ -932,7 +942,7 @@
   <string name="playback_upsell_button">Obtenir SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Essayez SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">L\'upload</string>
+  <string name="new_for_you_title">The Upload</string>
   <string name="new_for_you_intro">Titres récemment postés, spécialement pour vous.</string>
   <string name="new_for_you_action">Afficher la playlist</string>
   <string name="system_playlist_duration">%1$d titres, %2$s</string>
@@ -1007,7 +1017,7 @@
   <string name="play_queue_header_magic_box_subtitle">Nouveaux titres sélectionnés en fonction de ce que vous écoutez</string>
   <string name="play_queue_header_auto_play_toggle">Lecture automatique de la station</string>
   <string name="play_queue_header_cast">Diffusion</string>
-  <string name="play_queue_header_new_for_you">Depuis l\'Upload</string>
+  <string name="play_queue_header_new_for_you">Depuis The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistes suggérés</string>
   <string name="suggested_creators_blurb">Suivez vos artistes préférés pour ne plus manquer aucun titre</string>
@@ -1024,10 +1034,40 @@
   <string name="btn_remove_from_collection">Supprimer de la collection</string>
   <string name="accessibility_stats_user_added">Ajouté par vous</string>
   <string name="accessibility_add_action">Add</string>
+  <string name="shortcut_play_tracks">Écouter des titres</string>
+  <string name="list_empty_you_tracks_message">Ajoutez vos titres favoris pour les écouter à nouveau.</string>
+  <string name="add_snackbar_overflow_action">Ajouté à ma collection</string>
+  <string name="remove_snackbar_overflow_action">Supprimé de ma collection</string>
+  <string name="add_error_snackbar_overflow_action">L\'état du titre n\'a pas été modifié</string>
   <string name="tab_title_user_tracks">TITRES</string>
+  <string name="recommendation_reason_because_you_added_tracktitle">Parce que %1$s est dans votre collection </string>
+  <string name="pref_sync_wifi_only_description_tracks">Mise à jour des nouveaux titres, etc. par Wifi uniquement</string>
+  <string name="added_stations_empty_view_message">Vous n\'avez ajouté aucune station pour l\'instant</string>
   <string name="collections_tracks_header">Titres</string>
   <string name="track_added_title">Titres</string>
   <string name="collections_options_toggle_added">Ajouté</string>
+  <string name="collections_empty_playlists_added">Les playlists et albums que vous avez ajoutés ou créés apparaîtront ici.</string>
+  <string name="collections_onboarding_title_tracks">Vos titres, playlists, albums et stations.\nLe tout au même endroit.</string>
+  <string name="collections_upsell_body_tracks">Écoutez vos titres, vos playlists et vos albums hors connexion et sans publicité</string>
+  <string name="notification_username_added_tracktitle">%s ajouté</string>
+  <string name="offline_tracks_dialog_title">Sauvegardez vos titres hors connexion</string>
+  <string name="offline_tracks_dialog_message">Cette option vous permettra de sauvegarder vos titres actuels et à venir hors connexion pour que vous puissiez les écouter sans connexion Wifi ou connexion de données.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Cette option vous permettra de sauvegarder automatiquement vos titres actuels et à venir ainsi que vos playlists et albums hors connexion.</string>
+  <string name="pref_offline_offline_collection_description_off_tracks">Activez cette option pour sauvegarder tous vos titres et playlists actuels et futurs hors connexion.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">Vous êtes sur le point de tout supprimer de l\'écoute hors connexion. De plus, vos nouveaux titres, albums et playlists ne seront plus sauvegardés automatiquement.</string>
+  <string name="disable_offline_collection_body_tracks">Vos nouveaux titres, playlists et albums ne seront plus sauvegardés automatiquement et les titres déjà sauvegardés seront supprimés de l\'écoute hors connexion.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">Vous êtes sur le point de supprimer cet élément de l\'écoute hors connexion. De plus, vos nouvelles playlists créées ou ajoutées ne seront plus sauvegardées hors connexion automatiquement.</string>
+  <string name="empty_you_sounds_message_secondary_add">Les titres que vous ajoutez, repostez ou uploadez s\'afficheront ici.</string>
+  <string name="user_profile_sounds_header_tracks_in_collection">Titres de leur collection</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">Afficher tous les titres de leur collection</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">Cette personne n\'a aucun titre ajouté dans sa collection pour l\'instant.</string>
   <string name="user_tracks_label">Titres</string>
+  <string name="push_notifications_add">Post ajouté à la collection</string>
+  <string name="email_notifications_add">Post ajouté à la collection</string>
+  <string name="play_queue_header_tracks">Depuis vos titres</string>
+  <string name="suggested_creators_relation_added">Vous avez récemment ajouté leur titre à votre collection</string>
   <string name="like_your_favorite_tracks_title">Aimez vos titres préférés</string>
+  <string name="like_your_favorite_tracks_description">Appuyez pour sauvegarder votre collection et soutenir vos artistes favoris.</string>
+  <string name="add_your_favorite_tracks_title">Ajouter à votre collection</string>
+  <string name="add_your_favorite_tracks_description">Appuyez pour ajouter des titres, playlists et albums à votre collection.</string>
 </resources>

@@ -66,7 +66,12 @@
     <item quantity="one">%s valutazione</item>
     <item quantity="other">%s valutazioni</item>
   </plurals>
+  <string name="ads_watch_now">Guarda ora</string>
+  <string name="ads_no_thanks">No grazie</string>
   <string name="ads_learn_more">Scopri di più</string>
+  <string name="ads_opt_in_text">Basta pubblicità: guarda questo video e sblocca %s minuti di musica senza interruzioni</string>
+  <string name="ads_start_session">Inizia sessione</string>
+  <string name="ads_sponsored_session_unlocked">Hai sbloccato la tua sessione di ascolto senza pubblicità.</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Password dimenticata?</string>
   <string name="authentication_add_info_add_image_msg">Sorridi! Questa sarà la tua immagine del profilo.</string>
@@ -370,6 +375,8 @@
   <string name="dialog_cancel_upload_message">Annullare il caricamento?</string>
   <string name="sc_upload_private">\u00A0Privata</string>
   <string name="sc_upload_public">\u00A0Pubblica</string>
+  <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_retry_button">Riprova</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TUTTO</string>
   <string name="search_type_tracks">TRACCE</string>
@@ -506,6 +513,8 @@
   <string name="stations_tracks_in_this_station">Tracce in questa stazione</string>
   <string name="stations_see_all_tracks">Visualizza tutte le tracce</string>
   <string name="suggested_stations">Stazioni consigliate</string>
+  <string name="stations_home_station_based_on_track">Stazione traccia basata su</string>
+  <string name="stations_home_station_based_on_artist">Stazione artista basata su</string>
   <string name="stations_home_description">Un mix infinito di musica tra cui %1$s e altri ancora</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -778,6 +787,9 @@
   <string name="offline_no_connection">Nessuna connessione</string>
   <string name="sd_card_cannot_be_found">Impossibile trovare la scheda SD</string>
   <string name="tap_here_to_change_storage_location">Tocca qui per modificare il percorso di archiviazione</string>
+  <string name="overlay_listen_offline_likes_title">Ascolta offline</string>
+  <string name="overlay_search_go_plus_title">Tracce di SoundCloud Go+</string>
+  <string name="overlay_listen_offline_playlist_title">Ascolta offline</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Benvenuto in SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Benvenuto in SoundCloud Go!</string>
@@ -927,7 +939,7 @@ Riavvia l\'applicazione.</string>
   <string name="playback_upsell_button">Passa a SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Prova SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">Caricamenti</string>
+  <string name="new_for_you_title">The Upload</string>
   <string name="new_for_you_intro">Tracce pubblicate di recente. Solo per te.</string>
   <string name="new_for_you_action">Visualizza la playlist</string>
   <string name="system_playlist_duration">%1$d tracce, %2$s</string>
@@ -1002,7 +1014,7 @@ Riavvia l\'applicazione.</string>
   <string name="play_queue_header_magic_box_subtitle">Nuova musica basata su quello che stai ascoltando</string>
   <string name="play_queue_header_auto_play_toggle">Riproduzione automatica stazione</string>
   <string name="play_queue_header_cast">Trasmissione</string>
-  <string name="play_queue_header_new_for_you">Dal caricamento</string>
+  <string name="play_queue_header_new_for_you">Da The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artisti consigliati</string>
   <string name="suggested_creators_blurb">Segui i tuoi artisti preferiti per essere sempre aggiornato sulle loro nuove tracce</string>
@@ -1019,10 +1031,44 @@ Riavvia l\'applicazione.</string>
   <string name="btn_remove_from_collection">Rimuovi dalla libreria</string>
   <string name="accessibility_stats_user_added">Aggiunta da te</string>
   <string name="accessibility_add_action">Aggiungi</string>
+  <plurals name="accessibility_stats_adds">
+    <item quantity="one">%d aggiunta</item>
+    <item quantity="other">%d aggiunte</item>
+  </plurals>
+  <string name="shortcut_play_tracks">Riproduci tracce</string>
+  <string name="list_empty_you_tracks_message">Aggiungi le tue tracce preferite per ascoltarle ancora.</string>
+  <string name="add_snackbar_overflow_action">Aggiunta alla mia libreria</string>
+  <string name="remove_snackbar_overflow_action">Rimossa dalla mia libreria</string>
+  <string name="add_error_snackbar_overflow_action">Lo stato della traccia non è stato modificato</string>
   <string name="tab_title_user_tracks">TRACCE</string>
+  <string name="recommendation_reason_because_you_added_tracktitle">In quanto %1$s si trova nella tua libreria</string>
+  <string name="pref_sync_wifi_only_description_tracks">Aggiorna solo le nuove tracce e simili tramite Wi-Fi</string>
+  <string name="added_stations_empty_view_message">Non hai ancora aggiunto alcuna stazione</string>
   <string name="collections_tracks_header">Tracce</string>
   <string name="track_added_title">Tracce</string>
-  <string name="collections_options_toggle_added">Aggiunta</string>
+  <string name="collections_options_toggle_added">Aggiunti</string>
+  <string name="collections_empty_playlists_added">Le playlist e gli album aggiunti o creati saranno visualizzati qui.</string>
+  <string name="collections_onboarding_title_tracks">Le tue tracce, playlist, album e stazioni.\nTutto in un solo posto.</string>
+  <string name="collections_upsell_body_tracks">Ascolta le tue tracce, playlist e album offline e senza pubblicità</string>
+  <string name="notification_username_added_tracktitle">ha aggiunto %s</string>
+  <string name="offline_tracks_dialog_title">Salva le tue tracce offline</string>
+  <string name="offline_tracks_dialog_message">In questo modo le tracce attuali e future verranno salvate offline, così potrai ascoltarle anche senza Wi-Fi o connessione dati.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Seleziona questa opzione per salvare automaticamente offline tutte le tue tracce, playlist e album attuali e futuri.</string>
+  <string name="pref_offline_offline_collection_description_off_tracks">Attiva questa opzione per salvare offline tutte le tracce, playlist e album attuali e futuri.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">Stai per rimuovere tutto dall\'ascolto offline. Inoltre le tue nuove tracce, playlist e album non verranno più salvati automaticamente.</string>
+  <string name="disable_offline_collection_body_tracks">Le tue nuove tracce, playlist e album non verranno più salvati automaticamente e le tracce esistenti salvate verranno rimosse dall\'ascolto offline.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">Stai per rimuovere questo contenuto dall\'ascolto offline. Inoltre le playlist appena create o aggiunte non verranno più salvate automaticamente.</string>
+  <string name="empty_you_sounds_message_secondary_add">Le tracce aggiunte, ripubblicate o caricate verranno visualizzate qui.</string>
+  <string name="user_profile_sounds_header_tracks_in_collection">Tracce nella loro libreria</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">Visualizza tutte le tracce nella loro libreria</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">Questa persona non ha ancora aggiunto tracce alla propria libreria.</string>
   <string name="user_tracks_label">Tracce</string>
+  <string name="push_notifications_add">Post aggiunto alla libreria</string>
+  <string name="email_notifications_add">Post aggiunto alla libreria</string>
+  <string name="play_queue_header_tracks">Dalle tue tracce</string>
+  <string name="suggested_creators_relation_added">Hai recentemente aggiunto le loro tracce alla tua libreria</string>
   <string name="like_your_favorite_tracks_title">Metti Mi piace alle tue tracce preferite</string>
+  <string name="like_your_favorite_tracks_description">Tocca per salvare la tua libreria e supportare i tuoi artisti preferiti.</string>
+  <string name="add_your_favorite_tracks_title">Aggiunta alla tua libreria</string>
+  <string name="add_your_favorite_tracks_description">Tocca per salvare tracce, playlist e album nella tua libreria</string>
 </resources>

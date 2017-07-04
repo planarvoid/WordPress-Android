@@ -62,7 +62,7 @@ public class ExperimentOperations {
     }
 
     /**
-     * @return active experiments separated by commas
+     * @return optional list of active experiments separated by commas
      */
     public Optional<String> getSerializedActiveVariants() {
         return assignment.commaSeparatedVariantIds();

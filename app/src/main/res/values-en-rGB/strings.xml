@@ -66,7 +66,12 @@
     <item quantity="one">%s rating</item>
     <item quantity="other">%s ratings</item>
   </plurals>
+  <string name="ads_watch_now">Watch Now</string>
+  <string name="ads_no_thanks">No Thanks</string>
   <string name="ads_learn_more">Learn More</string>
+  <string name="ads_opt_in_text">Put a pause on adverts: watch this video and unlock %s minutes of non-stop music</string>
+  <string name="ads_start_session">Start Session</string>
+  <string name="ads_sponsored_session_unlocked">You’ve unlocked your advert-free listening session.</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Forgot your password?</string>
   <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
@@ -372,6 +377,10 @@
   <string name="dialog_cancel_upload_message">Cancel upload?</string>
   <string name="sc_upload_private">\u00A0Private</string>
   <string name="sc_upload_public">\u00A0Public</string>
+  <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Oops… looks like you\'re offline.</string>
+  <string name="discovery_error_failed_to_load">Oops… failed to load.</string>
+  <string name="discovery_error_retry_button">Try again</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">ALL</string>
   <string name="search_type_tracks">TRACKS</string>
@@ -508,6 +517,10 @@
   <string name="stations_tracks_in_this_station">Tracks in this station</string>
   <string name="stations_see_all_tracks">See all tracks</string>
   <string name="suggested_stations">Suggested stations</string>
+  <string name="stations_home_station_based_on_track">Track station based on</string>
+  <string name="stations_home_station_based_on_genre">Genre station based on</string>
+  <string name="stations_home_station_based_on_curator">Curator station based on</string>
+  <string name="stations_home_station_based_on_artist">Artist station based on</string>
   <string name="stations_home_description">An endless mix of music including %1$s and more</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d sec.</string>
@@ -641,6 +654,9 @@
   <string name="collections_recently_played_profile">profile</string>
   <string name="collections_upsell_title">Get SoundCloud Go</string>
   <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
+  <string name="collections_offline_onboarding_title">Take your music offline</string>
+  <string name="collections_offline_onboarding_body">Tap into Liked Tracks or Playlists &amp; Albums to download your favourite music to your device.</string>
+  <string name="collections_offline_onboarding_body_tracks">Tap into Tracks or Playlists &amp; Albums to download your favourite music to your device.</string>
   <string name="collections_recently_played_clear_action">Clear recently played</string>
   <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
   <string name="collections_recently_played_clear_dialog_message">Are you sure you want to clear your recently played? You won’t be able to undo this action.</string>
@@ -780,6 +796,14 @@
   <string name="offline_no_connection">No connection</string>
   <string name="sd_card_cannot_be_found">SD card cannot be found</string>
   <string name="tap_here_to_change_storage_location">Tap here to change storage location</string>
+  <string name="overlay_listen_offline_likes_title">Listen offline</string>
+  <string name="overlay_listen_offline_likes_description">Tap the arrow to download your liked tracks to your device.</string>
+  <string name="overlay_search_go_plus_title">SoundCloud Go+ tracks</string>
+  <string name="overlay_search_go_plus_description">Your new subscription gives you access to these premium tracks.</string>
+  <string name="overlay_listen_offline_playlist_title">Listen offline</string>
+  <string name="overlay_listen_offline_playlist_description">Tap the arrow to download a playlist or album to your device.</string>
+  <string name="overlay_offline_settings_title">Manage your storage</string>
+  <string name="overlay_offline_settings_description">Tap to change your offline listening and storage settings.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Welcome to SoundCloud Go!</string>
@@ -1019,10 +1043,44 @@
   <string name="btn_remove_from_collection">Remove from collection</string>
   <string name="accessibility_stats_user_added">Added by you</string>
   <string name="accessibility_add_action">Add</string>
+  <plurals name="accessibility_stats_adds">
+    <item quantity="one">%d Add</item>
+    <item quantity="other">%d Added</item>
+  </plurals>
+  <string name="shortcut_play_tracks">Play tracks</string>
+  <string name="list_empty_you_tracks_message">Add your favourite tracks to hear them again.</string>
+  <string name="add_snackbar_overflow_action">Added to my collection</string>
+  <string name="remove_snackbar_overflow_action">Removed from my collection</string>
+  <string name="add_error_snackbar_overflow_action">Track status was not changed</string>
   <string name="tab_title_user_tracks">TRACKS</string>
+  <string name="recommendation_reason_because_you_added_tracktitle">Because %1$s is in your collection</string>
+  <string name="pref_sync_wifi_only_description_tracks">Only update new tracks etc. over Wi-Fi</string>
+  <string name="added_stations_empty_view_message">You have not added any stations yet</string>
   <string name="collections_tracks_header">Tracks</string>
   <string name="track_added_title">Tracks</string>
   <string name="collections_options_toggle_added">Added</string>
+  <string name="collections_empty_playlists_added">Playlists and albums you have added or created will show up here.</string>
+  <string name="collections_onboarding_title_tracks">Your tracks, playlists, albums and stations.\nAll in one place.</string>
+  <string name="collections_upsell_body_tracks">Listen to your tracks, playlists &amp; albums offline and advert‑free</string>
+  <string name="notification_username_added_tracktitle">added %s</string>
+  <string name="offline_tracks_dialog_title">Save your tracks offline</string>
+  <string name="offline_tracks_dialog_message">This will save your current and future tracks offline so you can listen without Wi-Fi or a data connection.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Selecting this will save all your current and future tracks, playlists and albums offline automatically.</string>
+  <string name="pref_offline_offline_collection_description_off_tracks">Turn this on to save all your current and future tracks, playlists and albums offline.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">You’re about to remove everything from offline listening. Additionally, your newly added tracks, playlists and albums won’t save automatically anymore.</string>
+  <string name="disable_offline_collection_body_tracks">Your new tracks, playlists and albums won’t save automatically anymore and existing saved tracks will be removed from offline listening.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">You’re about to remove this from offline. Additionally, your newly created or added playlists won’t save offline automatically anymore.</string>
+  <string name="empty_you_sounds_message_secondary_add">Tracks you add, repost or upload will appear here.</string>
+  <string name="user_profile_sounds_header_tracks_in_collection">Tracks in their collection</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">View all tracks in their collection</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">This person doesn’t have any added tracks in their collection yet.</string>
   <string name="user_tracks_label">Tracks</string>
+  <string name="push_notifications_add">Post added to collection</string>
+  <string name="email_notifications_add">Post added to collection</string>
+  <string name="play_queue_header_tracks">From your tracks</string>
+  <string name="suggested_creators_relation_added">You recently added their track to your collection</string>
   <string name="like_your_favorite_tracks_title">Like your favourite tracks</string>
+  <string name="like_your_favorite_tracks_description">Tap to save to your collection and show support for your favourite artists.</string>
+  <string name="add_your_favorite_tracks_title">Add to your collection</string>
+  <string name="add_your_favorite_tracks_description">Tap to add tracks, playlists, and albums to your collection.</string>
 </resources>
