@@ -52,8 +52,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
-import com.soundcloud.android.stations.StartStationHandler;
-import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -72,7 +70,6 @@ import org.robolectric.shadows.ShadowToast;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 
 public class NavigationResolverTest extends AndroidUnitTest {
     private static final String TOP_FIFTY = "Top 50";
@@ -95,7 +92,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private PlaybackServiceController playbackServiceController;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
-    @Mock private Optional<PromotedSourceInfo> promotedSourceInfo;
     @Mock private EventTracker eventTracker;
     @Mock private DefaultHomeScreenConfiguration homeScreenConfiguration;
 
@@ -910,17 +906,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openViewAllRecommendations(activity);
-    }
-
-    @Test
-    public void deeplink_shouldOpenDiscoveryFromUri() throws Exception {
-        String target = "soundcloud://discovery";
-        NavigationTarget navigationTarget = getTargetForDeeplink(target);
-
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
+        verify(navigationExecutor).openDiscovery(activity, Screen.DEEPLINK);
     }
 
     @Test
@@ -1599,17 +1585,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openViewAllRecommendations(activity);
-    }
-
-    @Test
-    public void navigation_shouldOpenDiscoveryFromUri() throws Exception {
-        String target = "soundcloud://discovery";
-        NavigationTarget navigationTarget = getTargetForNavigation(target);
-
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, NAVIGATION_SCREEN);
+        verify(navigationExecutor).openDiscovery(activity, Screen.DISCOVER);
     }
 
     @Test
@@ -2183,12 +2159,12 @@ public class NavigationResolverTest extends AndroidUnitTest {
     private static final class TestSubscriber extends DefaultSingleObserver<NavigationResult> {
         @Override
         public void onSuccess(NavigationResult navigationResult) {
+            super.onSuccess(navigationResult);
             try {
                 navigationResult.action().run();
             } catch (Exception e) {
                 fail("Exception during execution", e);
             }
-            super.onSuccess(navigationResult);
         }
     }
 }

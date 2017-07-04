@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 public enum DeepLink {
     HOME,
     STREAM,
-    TRACK_RECOMMENDATIONS,
     DISCOVERY,
     SEARCH,
     RECORD,
@@ -66,8 +65,7 @@ public enum DeepLink {
 
     @VisibleForTesting
     static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(TRACK_RECOMMENDATIONS,
-                       REMOTE_SIGN_IN,
+            EnumSet.of(REMOTE_SIGN_IN,
                        DISCOVERY,
                        SEARCH,
                        RECORD,
@@ -120,6 +118,11 @@ public enum DeepLink {
             Pattern.compile("^/jobs(/.*)?$")
     };
 
+    private static final Pattern[] LEGACY_DEEPLINKS = {
+            Pattern.compile(".*suggestedtracks_all/*$"),
+            Pattern.compile(".*suggested_tracks/all/*$"),
+    };
+
     public boolean requiresLoggedInUser() {
         return LOGGED_IN_REQUIRED.contains(this);
     }
@@ -131,6 +134,8 @@ public enum DeepLink {
     @NonNull
     public static DeepLink fromUri(@Nullable Uri uri) {
         if (uri == null) {
+            return HOME;
+        } else if (isLegacyDeeplink(uri)) {
             return HOME;
         } else if (isHierarchicalSoundCloudScheme(uri)) {
             return fromHierarchicalSoundCloudScheme(uri);
@@ -150,6 +155,15 @@ public enum DeepLink {
     public static Uri extractClickTrackingRedirectUrl(@NonNull Uri uri) {
         String url = uri.getQueryParameter("url");
         return TextUtils.isEmpty(url) ? Uri.EMPTY : Uri.parse(url);
+    }
+
+    private static boolean isLegacyDeeplink(Uri uri) {
+        for (Pattern pattern : LEGACY_DEEPLINKS) {
+            if (pattern.matcher(uri.toString()).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isWebViewUrl(Uri uri) {
@@ -178,21 +192,12 @@ public enum DeepLink {
                 switch (uri.getPath()) {
                     case "":
                     case "/":
-                        return TRACK_RECOMMENDATIONS;
+                        return DISCOVERY;
                     case "/new-tracks-for-you":
                         return THE_UPLOAD;
                     default:
                         return ENTITY;
                 }
-            case "suggestedtracks_all":
-                return TRACK_RECOMMENDATIONS;
-            case "suggested_tracks":
-                if ("/all".equals(uri.getPath())) {
-                    return TRACK_RECOMMENDATIONS;
-                }
-                return ENTITY;
-            case "discovery":
-                return DISCOVERY;
             case "search":
             case "search:people":
             case "search:sounds":
@@ -290,14 +295,10 @@ public enum DeepLink {
                 return STREAM;
             case "/upload":
                 return RECORD;
-            case "/discover":
-            case "/suggestedtracks_all":
-            case "/suggested_tracks/all":
-                return TRACK_RECOMMENDATIONS;
             case "/discover/new-tracks-for-you":
             case "/the-upload":
                 return THE_UPLOAD;
-            case "/discovery":
+            case "/discover":
                 return DISCOVERY;
             case "/charts":
                 return CHARTS;

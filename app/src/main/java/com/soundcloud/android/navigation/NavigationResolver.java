@@ -237,8 +237,6 @@ public class NavigationResolver {
                 return showRecordScreen(activity, navigationTarget);
             case DISCOVERY:
                 return showDiscoveryScreen(activity, navigationTarget);
-            case TRACK_RECOMMENDATIONS:
-                return showTrackRecommendationsScreen(activity, navigationTarget);
             case CHARTS:
                 return showCharts(activity, navigationTarget);
             case CHARTS_ALL_GENRES:

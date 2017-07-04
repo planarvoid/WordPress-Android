@@ -68,7 +68,6 @@ public class DeepLinkTest extends AndroidUnitTest {
             assertThat(deepLink.requiresResolve()).isTrue();
         }
 
-        assertThat(DeepLink.TRACK_RECOMMENDATIONS.requiresResolve()).isFalse();
         assertThat(DeepLink.DISCOVERY.requiresResolve()).isFalse();
         assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
         assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
@@ -113,11 +112,10 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search:playlists");
         assertDeeplink(DeepLink.RECORD, "soundcloud://record");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover/");
+        assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discover");
+        assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discover/");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://discover/unsupported");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggestedtracks_all");
-        assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discovery");
+        assertDeeplink(DeepLink.ENTITY, "soundcloud://discovery");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://go");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_CHOICE, "soundcloud://soundcloudgo/soundcloudgo");
@@ -137,10 +135,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.USER_ENTITY, "soundcloud://users/123");
         assertDeeplink(DeepLink.SHARE_APP, "soundcloud://share/app");
         assertDeeplink(DeepLink.SYSTEM_SETTINGS, "soundcloud://open-notification-settings");
-
         assertDeeplink(DeepLink.OFFLINE_SETTINGS, "soundcloud://settings/offline_listening");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://settings/notification_preferences");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggested_tracks/all");
         assertDeeplink(DeepLink.SHARE_APP, "soundcloud://share_app");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://ht_modal");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_BUY, "soundcloud://buy_mt");
@@ -159,8 +155,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/home");
         assertDeeplink(DeepLink.STREAM, "https://www.soundcloud.com/stream");
         assertDeeplink(DeepLink.RECORD, "https://www.soundcloud.com/upload");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/discover");
-        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/suggestedtracks_all");
+        assertDeeplink(DeepLink.DISCOVERY, "https://www.soundcloud.com/discover");
         assertDeeplink(DeepLink.CHARTS, "https://www.soundcloud.com/charts");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/sounds");
@@ -255,6 +250,13 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.REMOTE_SIGN_IN, "soundcloud://remote-sign-in");
 
         assertDeeplink(DeepLink.ENTITY, "https://soundcloud.com/activate-whatever");
+    }
+
+    @Test
+    public void shouldHandleLegacyDeeplinks() throws Exception {
+        assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/suggestedtracks_all");
+        assertDeeplink(DeepLink.HOME, "soundcloud://suggestedtracks_all");
+        assertDeeplink(DeepLink.HOME, "soundcloud://suggested_tracks/all");
     }
 
     private void assertDeeplink(DeepLink deepLink, String url) {
