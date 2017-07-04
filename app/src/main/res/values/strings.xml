@@ -1178,4 +1178,12 @@
     <string name="add_your_favorite_tracks_title">Add to your collection</string>
     <string name="add_your_favorite_tracks_description">Tap to add tracks, playlists, and albums to your collection.</string>
 
+    <!-- ALPHA / BETA Feedback strings -->
+    <string name="select_feedback_category">What would you like to report?</string>
+    <string name="feedback_playback_issue">Playback issue</string>
+    <string name="feedback_sign_in_issue">Sign in issue</string>
+    <string name="feedback_other_issue">Other issue</string>
+    <string name="feedback_email_subject">Report: %1$s</string>
+    <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+
 </resources>
