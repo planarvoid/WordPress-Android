@@ -30,16 +30,17 @@ public class FlipperExperimentTest extends AndroidUnitTest {
 
     @Test
     public void disabledIfExperimentDisabled() throws Exception {
-        whenVariant("nope");
+        whenVariant("control");
 
         assertThat(config.isEnabled()).isFalse();
     }
 
     @Test
-    public void enabledWhenFeatureFlagIsManuallySet() {
+    public void ignoresFeatureFlagIfInControlVariant() {
+        whenVariant("control");
         when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
 
-        assertThat(config.isEnabled()).isTrue();
+        assertThat(config.isEnabled()).isFalse();
     }
 
     private void whenVariant(String variant) {

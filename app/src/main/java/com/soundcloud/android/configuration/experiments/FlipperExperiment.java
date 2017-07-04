@@ -31,10 +31,14 @@ public class FlipperExperiment {
     }
 
     public boolean isEnabled() {
-        return isFlipper() || featureFlags.isEnabled(Flag.FLIPPER);
+        return !isControlVariant() && (isFlipperVariant() || featureFlags.isEnabled(Flag.FLIPPER));
     }
 
-    private boolean isFlipper() {
+    private boolean isControlVariant() {
+        return VARIANT_CONTROL.equals(getVariant());
+    }
+
+    private boolean isFlipperVariant() {
         return VARIANT_FLIPPER.equals(getVariant());
     }
 
