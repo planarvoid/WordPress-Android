@@ -37,7 +37,7 @@ android {
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "http://eventgateway-staging.k2.lb.s-cloud.net/v1/events"
-      resValue "bool",   "log_queries", "false"
+      resValue "bool",   "log_queries", "true"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "true"
 
       resValue "string", "cast_v3_receiver_app_id", "4A41D106"
@@ -57,7 +57,7 @@ android {
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
-      resValue "bool",   "log_queries", "false"
+      resValue "bool",   "log_queries", "true"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "true"
 
       resValue "string", "cast_v3_receiver_app_id", "BCFFBE3E"
@@ -77,7 +77,7 @@ android {
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
-      resValue "bool",   "log_queries", "false"
+      resValue "bool",   "log_queries", "true"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "false"
 
       resValue "string", "cast_v3_receiver_app_id", "9A5289F5"

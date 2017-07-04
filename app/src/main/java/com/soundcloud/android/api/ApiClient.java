@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.android.utils.Log;
@@ -80,7 +81,7 @@ public class ApiClient {
         }
         try {
             final Request.Builder builder = new Request.Builder();
-
+            final long startTime = System.currentTimeMillis();
             final MultiMap<String, String> existingParams = request.getQueryParameters();
             builder.url(urlBuilder.from(request).withQueryParams(existingParams).build());
             setHttpHeaders(request, builder);
@@ -104,6 +105,7 @@ public class ApiClient {
             final Request httpRequest = builder.build();
             logRequest(httpRequest);
             final Response response = httpClient.newCall(httpRequest).execute();
+            logRequestCompleted(httpRequest, System.currentTimeMillis() - startTime);
             if (response.code() == HttpStatus.UNAUTHORIZED) {
                 if (accountOperations.hasValidToken()) {
                     unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
@@ -124,6 +126,14 @@ public class ApiClient {
     private void logRequest(Request request) {
         Log.d(TAG, "[Req][" + Thread.currentThread().getName() + "] " + request.method() + " "
                 + request.url().toString() + "; headers = " + request.headers().toString().replaceAll("\\n", " | "));
+    }
+
+    private void logRequestCompleted(Request request, long elapsedTime) {
+        if (ApplicationProperties.isBetaOrBelow()) {
+            Log.w(TAG, "[Req][" + Thread.currentThread().getName() + "] " + request.method() + " "
+                    + request.url().toString() + "; headers = " + request.headers().toString().replaceAll("\\n", " | ") + "; response time = " + elapsedTime);
+        }
+
     }
 
     private void logResponse(Response response) {
