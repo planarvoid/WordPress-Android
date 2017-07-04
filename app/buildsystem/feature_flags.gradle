@@ -56,6 +56,7 @@ android {
 
   buildTypes {
     debug {
+      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
@@ -73,6 +74,7 @@ android {
     }
 
     alpha {
+      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -94,6 +96,7 @@ android {
     }
 
     beta {
+      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
