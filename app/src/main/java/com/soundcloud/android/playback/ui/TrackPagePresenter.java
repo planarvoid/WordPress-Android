@@ -8,8 +8,8 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
-import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.cast.CastButtonInstaller;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
@@ -47,19 +47,15 @@ import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.Animator;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.ColorInt;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -94,7 +90,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
-    private final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
     @Inject
     TrackPagePresenter(WaveformOperations waveformOperations,
@@ -421,7 +416,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = playStateEvent.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.footerPlayToggle.setSelected(playSessionIsActive);
+        holder.footerPlayToggle.setChecked(playSessionIsActive);
         setWaveformPlayState(holder, playStateEvent, isCurrentTrack);
         setViewPlayState(holder, playStateEvent, isCurrentTrack);
 
@@ -614,17 +609,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                             holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
 
-        setArtworkOverlayColorTransition(holder.artworkOverlay, slideOffset);
-
-        holder.closeIndicator.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
-        holder.footer.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
-    }
-
-    private void setArtworkOverlayColorTransition(View view, float slideOffset) {
-        int fromColor = ContextCompat.getColor(view.getContext(), R.color.artwork_overlay_mini);
-        int toColor = ContextCompat.getColor(view.getContext(), R.color.artwork_overlay_full);
-        @ColorInt int color = (int) argbEvaluator.evaluate(slideOffset, fromColor, toColor);
-        view.setBackgroundColor(color);
+        getViewHolder(trackView).closeIndicator.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
+        getViewHolder(trackView).footer.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
     }
 
     private Iterable<View> getFullScreenViews(TrackPageHolder holder) {
@@ -693,7 +679,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.trackContext = (JaggedTextView) trackView.findViewById(R.id.track_page_context);
 
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
-        holder.artworkOverlay = trackView.findViewById(R.id.artwork_overlay);
+        holder.artworkOverlayDark = trackView.findViewById(R.id.artwork_overlay_dark);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
@@ -714,7 +700,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
-        holder.footerPlayToggle = (ImageButton) trackView.findViewById(R.id.footer_toggle);
+        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
         holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
         holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
         holder.footerQueueButton = trackView.findViewById(R.id.footer_play_queue_button);
@@ -724,7 +710,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final WaveformView waveformView = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveformView);
         holder.playerOverlayControllers = new PlayerOverlayController[]{
-                playerOverlayControllerFactory.create(holder.artworkOverlay),
+                playerOverlayControllerFactory.create(holder.artworkOverlayDark),
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
         };
 
@@ -797,7 +783,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         JaggedTextView trackContext;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
-        View artworkOverlay;
+        View artworkOverlayDark;
         ToggleButton likeToggle;
         MediaRouteButton mediaRouteButton;
         View more;
@@ -830,7 +816,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         // Footer player
         View footer;
-        ImageButton footerPlayToggle;
+        ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
         View footerQueueButton;

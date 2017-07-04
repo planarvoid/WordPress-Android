@@ -7,39 +7,33 @@
     android:layout_height="@dimen/player_footer_control"
     tools:showIn="@layout/player_track_page">
 
-    <ImageButton
+    <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/footer_toggle"
         style="@style/FooterToggle"
         android:layout_marginRight="8dp" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/footer_user"
+        style="@style/FooterUser"
+        android:layout_marginTop="@dimen/player_footer_margin"
+        android:layout_toLeftOf="@+id/footer_play_queue_button"
+        android:layout_toRightOf="@id/footer_toggle"
+        tools:text="Track user" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/footer_title"
+        style="@style/FooterTitle"
+        android:layout_below="@id/footer_user"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/footer_play_queue_button"
-        android:layout_toRightOf="@id/footer_toggle">
-
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/footer_user"
-            style="@style/FooterUser"
-            tools:text="Track user" />
-
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/footer_title"
-            style="@style/FooterTitle"
-            android:layout_below="@id/footer_user"
-            android:layout_centerVertical="true"
-            tools:text="Track title" />
-
-    </RelativeLayout>
+        android:layout_toRightOf="@id/footer_toggle"
+        tools:text="Track title" />
 
     <ImageView
         android:id="@+id/footer_play_queue_button"
-        style="@style/PlayerQueue.MiniPlayer"
-        android:layout_width="@dimen/player_footer_control"
+        style="@style/PlayerQueue"
         android:layout_height="@dimen/player_footer_control"
-        android:layout_alignParentRight="true"
+        android:layout_width="@dimen/player_footer_control"
         android:layout_marginRight="12dp" />
-
 
 </RelativeLayout>

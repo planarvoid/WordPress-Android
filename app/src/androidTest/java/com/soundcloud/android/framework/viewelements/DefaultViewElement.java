@@ -283,11 +283,6 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isSelected() {
-        return view.isSelected();
-    }
-
-    @Override
     public boolean isChecked() {
         return ((ToggleButton) view).isChecked();
     }

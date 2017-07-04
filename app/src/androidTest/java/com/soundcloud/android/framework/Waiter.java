@@ -101,10 +101,6 @@ public class Waiter {
         return solo.waitForCondition(condition, timeout);
     }
 
-    public boolean waitForElementToBeSelected(With matcher) {
-        return solo.waitForCondition(new SelectedViewCondition(matcher), ELEMENT_TIMEOUT);
-    }
-
     public boolean waitForElementToBeChecked(With matcher) {
         return solo.waitForCondition(new CheckedViewCondition(matcher), ELEMENT_TIMEOUT);
     }
@@ -401,19 +397,6 @@ public class Waiter {
                                 activity.getSimpleName(),
                                 solo.getCurrentActivity().toString()));
             return solo.getCurrentActivity().getClass().getSimpleName().equals(activity.getSimpleName());
-        }
-    }
-
-    private class SelectedViewCondition implements Condition {
-        private final With matcher;
-
-        public SelectedViewCondition(With matcher) {
-            this.matcher = matcher;
-        }
-
-        @Override
-        public boolean isSatisfied() {
-            return solo.findOnScreenElement(matcher).isSelected();
         }
     }
 

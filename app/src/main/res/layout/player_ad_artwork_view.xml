@@ -16,7 +16,7 @@
             android:id="@+id/artwork_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/artwork_overlay_full"/>
+            android:background="@color/artwork_overlay"/>
     <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
             android:id="@+id/centered_ad_clickable_overlay"
             style="@style/PlayerIABAdArtwork"
