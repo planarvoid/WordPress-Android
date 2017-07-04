@@ -12,12 +12,16 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.lightcycle.ActivityLightCycle;
+import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -38,6 +42,8 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
     @Inject FeatureFlags featureFlags;
     @Inject NavigationExecutor navigationExecutor;
     @Inject @Named(PlaylistsModule.FULLSCREEN_PLAYLIST_DETAILS) boolean showFullscreenPlaylistDetails;
+    // Chasing https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/594beedebe077a4dcc7a2de0?time=last-thirty-days
+    @LightCycle ActivityLightCycle<Activity> logger = LightCycleLogger.forActivity("PlaylistDetailActivity");
 
     public static Intent getIntent(@NotNull Urn playlistUrn,
                                    Screen screen,
@@ -47,7 +53,7 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
 
-        checkNotNull(playlistUrn, "Playlist URN may no be null. " +
+        checkNotNull(playlistUrn, "Playlist URN may not be null. " +
                 "Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], autoPlay = [" + autoPlay + "], queryInfo = [" + queryInfo + "], promotedInfo = [" + promotedInfo + "]");
         Urns.writeToIntent(intent, EXTRA_URN, playlistUrn);
         return intent
@@ -74,6 +80,7 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         Screen screen = Screen.fromIntent(intent);
 
         Urn urn = Urns.urnFromIntent(intent, EXTRA_URN);
+        checkNotNull(urn, "Playlist URN may not be null. " + intent.toString());
         PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
         SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);

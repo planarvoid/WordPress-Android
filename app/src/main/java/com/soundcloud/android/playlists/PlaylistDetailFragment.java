@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import butterknife.ButterKnife;
@@ -27,6 +28,7 @@ import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -44,6 +46,7 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -87,6 +90,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject ExpandPlayerObserver expandPlayerObserver;
     @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
+    // Chasing https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/594beedebe077a4dcc7a2de0?time=last-thirty-days
+    @LightCycle SupportFragmentLightCycle<Fragment> logger = LightCycleLogger.forSupportFragment("PlaylistDetailFragment");
 
     @Nullable private ItemTouchHelper itemTouchHelper;
     @Nullable private PlaylistDetailsHeaderAnimator headerAnimator;
@@ -103,6 +108,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
+        checkNotNull(playlistUrn, "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
         fragment.setArguments(createBundle(playlistUrn, screen, searchInfo, promotedInfo, autoplay));
         return fragment;
     }
@@ -223,7 +229,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         View detailView = view.findViewById(R.id.playlist_details);
         boolean showInlineHeader = detailView == null;
 
-        presenter.connect(inputs, this, Urns.urnFromBundle(getArguments(), EXTRA_URN));
+        final Urn playlistUrn = Urns.urnFromBundle(getArguments(), EXTRA_URN);
+        presenter.connect(inputs, this, playlistUrn);
+        checkNotNull(playlistUrn, "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "]");
         disposable = new CompositeDisposable();
         disposable.addAll(
 
