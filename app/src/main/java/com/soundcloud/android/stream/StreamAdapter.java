@@ -11,14 +11,9 @@ import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsItemRenderer;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.checks.Preconditions;
-import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -72,45 +67,14 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         return new ViewHolder(itemView);
     }
 
-    @Override
-    public void addItem(StreamItem item) {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "Add item = [" + item + "]");
-        checkMainThread();
-        super.addItem(item);
-    }
-
     public void addItem(int position, StreamItem item) {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "Add item at " + "position = [" + position + "], item = [" + item + "]");
-        checkMainThread();
         if (position < getItemCount()) {
             items.add(position, item);
             notifyItemInserted(position);
         }
     }
 
-    @Override
-    public void clear() {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "Clear");
-        checkMainThread();
-        super.clear();
-    }
-
-    @Override
-    public void prependItem(StreamItem item) {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "Prepend item = [" + item + "]");
-        checkMainThread();
-        super.prependItem(item);
-    }
-
-    @Override
-    public void removeItem(int position) {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "Remove position = [" + position + "]");
-        checkMainThread();
-        super.removeItem(position);
-    }
-
     public void removeAds() {
-        checkMainThread();
         final ListIterator<StreamItem> iterator = items.listIterator();
         while (iterator.hasNext()) {
             if (iterator.next().isAd()) {
@@ -121,13 +85,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     }
 
     @Override
-    public void onNext(Iterable<StreamItem> items) {
-        ErrorUtils.log(Log.INFO, "StreamAdapter", "On Next= [" + Iterables.size(items) + " items]");
-        checkMainThread();
-        super.onNext(items);
-    }
-
-    @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
 
@@ -135,12 +92,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
             final Optional<AdData> item = getItem(holder.getAdapterPosition()).getAdData();
             videoAdItemRenderer.onViewAttachedToWindow(holder.itemView, item);
         }
-    }
-
-    // debugging https://github.com/soundcloud/android-listeners/issues/6323
-    private void checkMainThread() {
-        Preconditions.checkState(Looper.myLooper() == Looper.getMainLooper(),
-                                 "Altering adapter off main thread");
     }
 
     public VideoAdItemRenderer getVideoAdItemRenderer() {

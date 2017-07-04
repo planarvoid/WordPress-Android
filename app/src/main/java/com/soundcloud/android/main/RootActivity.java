@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.AnalyticsConnector;
+import com.soundcloud.android.analytics.OrientationLogger;
 import com.soundcloud.android.configuration.ConfigurationUpdateLightCycle;
 import com.soundcloud.android.configuration.ForceUpdateLightCycle;
 import com.soundcloud.android.configuration.experiments.ItalianExperiment;
@@ -28,6 +29,7 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     @Inject @LightCycle protected AnalyticsConnector analyticsConnector;
     @Inject @LightCycle protected ScreenTracker screenTracker;
     @Inject @LightCycle ForceUpdateLightCycle forceUpdateLightCycle;
+    @Inject @LightCycle OrientationLogger orientationLogger;
     @Inject ConfigurationUpdateLightCycle configurationUpdateLightCycle;
     @Inject ItalianExperiment italianExperiment;
     @Inject Navigator navigator;
