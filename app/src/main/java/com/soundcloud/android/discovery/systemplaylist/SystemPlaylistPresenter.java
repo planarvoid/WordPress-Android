@@ -302,7 +302,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
             return PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
                                                        item.trackingFeatureName(),
                                                        playbackPosition,
-                                                       item.queryUrn().orNull(),
+                                                       item.queryUrn(),
                                                        item.systemPlaylistUrn(),
                                                        count);
         }

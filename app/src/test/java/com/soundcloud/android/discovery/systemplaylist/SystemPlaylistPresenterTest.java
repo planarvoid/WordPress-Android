@@ -209,7 +209,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
                                                                                         TRACKING_FEATURE_NAME,
                                                                                         finalPosition,
-                                                                                        QUERY_URN.get(),
+                                                                                        QUERY_URN,
                                                                                         URN,
                                                                                         3);
 
@@ -233,7 +233,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         final PlaySessionSource playSessionSource = PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
                                                                                         TRACKING_FEATURE_NAME,
                                                                                         playbackPosition,
-                                                                                        QUERY_URN.get(),
+                                                                                        QUERY_URN,
                                                                                         URN,
                                                                                         3);
 

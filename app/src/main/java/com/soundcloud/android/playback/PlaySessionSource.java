@@ -115,9 +115,11 @@ public class PlaySessionSource implements Parcelable {
         return playSessionSource;
     }
 
-    public static PlaySessionSource forSystemPlaylist(String screenTag, Optional<String> source, int queryPosition, Urn queryUrn, Urn systemPlaylistUrn, int systemPlaylistSize) {
+    public static PlaySessionSource forSystemPlaylist(String screenTag, Optional<String> source, int queryPosition, Optional<Urn> queryUrn, Urn systemPlaylistUrn, int systemPlaylistSize) {
         PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
-        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        queryUrn.ifPresent(urn -> {
+            playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, urn);
+        });
         playSessionSource.collectionUrn = systemPlaylistUrn;
         playSessionSource.collectionSize = systemPlaylistSize;
         playSessionSource.source = source;
