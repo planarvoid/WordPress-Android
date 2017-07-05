@@ -31,7 +31,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
-import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
@@ -282,12 +281,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         return ButterKnife.findById(getActivity(), R.id.ak_recycler_view);
     }
 
-    private void bindItems(boolean showInlineHeader, AsyncViewModel<PlaylistDetailsViewModel> data) {
+    private void bindItems(boolean showInlineHeader, PlaylistAsyncViewModel<PlaylistDetailsViewModel> data) {
         collectionRenderer.render(LegacyModelConverter.convert(showInlineHeader, data));
         bindItemsGestures(data);
     }
 
-    private void bindItemsGestures(AsyncViewModel<PlaylistDetailsViewModel> syncModel) {
+    private void bindItemsGestures(PlaylistAsyncViewModel<PlaylistDetailsViewModel> syncModel) {
         Optional<PlaylistDetailsViewModel> data = syncModel.data();
         if (data.isPresent() && data.get().metadata().isInEditMode()) {
             itemTouchHelper.attachToRecyclerView(recyclerView());
@@ -296,9 +295,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         }
     }
 
-    private void bindViews(@Nullable View detailView, AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-        if (asyncViewModel.data().isPresent()) {
-            PlaylistDetailsViewModel data = asyncViewModel.data().get();
+    private void bindViews(@Nullable View detailView, PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistAsyncViewModel) {
+        if (playlistAsyncViewModel.data().isPresent()) {
+            PlaylistDetailsViewModel data = playlistAsyncViewModel.data().get();
             bindToolBar(data);
             bindHeader(data.metadata().isInEditMode());
 
@@ -433,28 +432,28 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
             // hide
         }
 
-        static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
+        static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistAsyncViewModel) {
             CollectionLoadingState loadingState = CollectionLoadingState
                     .builder()
-                    .nextPageError(asyncViewModel.error())
-                    .isRefreshing(asyncViewModel.isRefreshing())
+                    .nextPageError(playlistAsyncViewModel.error())
+                    .isRefreshing(playlistAsyncViewModel.isRefreshing())
                     .hasMorePages(false)
                     .build();
-            List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
+            List<PlaylistDetailItem> items = toLegacyModelItems(playlistAsyncViewModel, useInlineHeader);
             return CollectionRendererState.create(loadingState, items);
         }
 
-        private static List<PlaylistDetailItem> toLegacyModelItems(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel, boolean inlineHeader) {
-            Optional<PlaylistDetailsViewModel> viewModelOpt = asyncViewModel.data();
+        private static List<PlaylistDetailItem> toLegacyModelItems(PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistAsyncViewModel, boolean inlineHeader) {
+            Optional<PlaylistDetailsViewModel> viewModelOpt = playlistAsyncViewModel.data();
             if (viewModelOpt.isPresent()) {
                 PlaylistDetailsViewModel viewModel = viewModelOpt.get();
-                EmptyStatus emptyStatus = EmptyStatus.fromErrorAndLoading(asyncViewModel.error(), asyncViewModel.isLoadingNextPage());
+                EmptyStatus emptyStatus = EmptyStatus.fromErrorAndLoading(playlistAsyncViewModel.error(), playlistAsyncViewModel.isLoadingNextPage());
                 PlaylistDetailEmptyItem emptyItem = new PlaylistDetailEmptyItem(emptyStatus, viewModel.metadata().isOwner());
                 return viewModel.metadata().isInEditMode() || !inlineHeader ? viewModel.itemsWithoutHeader(emptyItem)
                                                                             : viewModel.itemsWithHeader(emptyItem);
 
             } else {
-                EmptyStatus emptyStatus = EmptyStatus.fromErrorAndLoading(asyncViewModel.error(), true);
+                EmptyStatus emptyStatus = EmptyStatus.fromErrorAndLoading(playlistAsyncViewModel.error(), true);
                 PlaylistDetailEmptyItem emptyItem = new PlaylistDetailEmptyItem(emptyStatus, false);
 
                 return inlineHeader ? Arrays.asList(new PlaylistDetailsHeaderItem(Optional.absent()), emptyItem)

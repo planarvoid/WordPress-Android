@@ -1,14 +1,14 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.playlists;
 
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 
-@Deprecated // use CollectionLoaderState
 @AutoValue
-public abstract class AsyncViewModel<ViewModelType> {
+abstract class PlaylistAsyncViewModel<ViewModelType> {
 
     public abstract Optional<ViewModelType> data();
 
@@ -24,11 +24,11 @@ public abstract class AsyncViewModel<ViewModelType> {
     public abstract Builder<ViewModelType> toBuilder();
 
     public static <ViewModelType> Builder<ViewModelType> builder() {
-        return new AutoValue_AsyncViewModel.Builder<>();
+        return new AutoValue_PlaylistAsyncViewModel.Builder<>();
     }
 
-    public static <T> AsyncViewModel<T> initial() {
-        return AsyncViewModel.<T>builder()
+    public static <T> PlaylistAsyncViewModel<T> initial() {
+        return PlaylistAsyncViewModel.<T>builder()
                 .data(absent())
                 .isLoadingNextPage(true)
                 .isRefreshing(false)
@@ -53,6 +53,6 @@ public abstract class AsyncViewModel<ViewModelType> {
 
         public abstract Builder<ViewModelType> refreshError(Optional<ViewError> error);
 
-        public abstract AsyncViewModel<ViewModelType> build();
+        public abstract PlaylistAsyncViewModel<ViewModelType> build();
     }
 }

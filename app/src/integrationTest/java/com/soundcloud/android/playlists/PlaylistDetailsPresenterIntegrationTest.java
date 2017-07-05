@@ -26,7 +26,6 @@ import com.soundcloud.android.hamcrest.TestAsyncState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.Supplier;
-import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
@@ -98,7 +97,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
-        screen.assertState(contains(AsyncViewModel.<Object>builder()
+        screen.assertState(contains(PlaylistAsyncViewModel.<Object>builder()
                                             .data(Optional.absent())
                                             .isLoadingNextPage(true)
                                             .isRefreshing(false)
@@ -116,14 +115,14 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, Urn.forPlaylist(123L));
 
-        screen.assertState(contains(AsyncViewModel.<Object>builder()
+        screen.assertState(contains(PlaylistAsyncViewModel.<Object>builder()
                                             .data(Optional.absent())
                                             .isLoadingNextPage(true)
                                             .isRefreshing(false)
                                             .error(Optional.absent())
                                             .refreshError(absent())
                                             .build(),
-                                    AsyncViewModel.<Object>builder()
+                                    PlaylistAsyncViewModel.<Object>builder()
                                             .data(Optional.absent())
                                             .isLoadingNextPage(false)
                                             .isRefreshing(false)
@@ -145,7 +144,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         presenter.connect(PlaylistDetailsInputs.create(), playlistDetailView, playlistUrn);
 
         screen.assertLastState(this::lastPlaylistUrn, equalTo(playlistUrn));
-        screen.assertLastState(AsyncViewModel::isRefreshing, equalTo(false));
+        screen.assertLastState(PlaylistAsyncViewModel::isRefreshing, equalTo(false));
         screen.assertLastState(state -> state.data().get().tracks(), not(empty()));
 
         verify(getRequestedFor(urlPathEqualTo(requestUrl)));
@@ -186,7 +185,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         return presenterFactory.create(screen, searchQuerySourceInfo, promotedSourceInfo);
     }
 
-    private Urn lastPlaylistUrn(AsyncViewModel<PlaylistDetailsViewModel> state) {
+    private Urn lastPlaylistUrn(PlaylistAsyncViewModel<PlaylistDetailsViewModel> state) {
         final Optional<PlaylistDetailsViewModel> data = state.data();
         if (data.isPresent()) {
             return data.get().metadata().urn();
@@ -195,15 +194,15 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         }
     }
 
-    static class Screen extends TestAsyncState<AsyncViewModel<PlaylistDetailsViewModel>> implements Consumer<AsyncViewModel<PlaylistDetailsViewModel>>{
+    static class Screen extends TestAsyncState<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> implements Consumer<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> {
 
-        final List<AsyncViewModel<PlaylistDetailsViewModel>> models = new ArrayList<>();
+        final List<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> models = new ArrayList<>();
 
         Screen(PlaylistDetailsPresenter presenter) {
 
         }
 
-        public AsyncViewModel<PlaylistDetailsViewModel> currentState() {
+        public PlaylistAsyncViewModel<PlaylistDetailsViewModel> currentState() {
             return Iterables.getLast(models);
         }
 
@@ -216,8 +215,8 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         }
 
         @Override
-        public void accept(@NonNull AsyncViewModel<PlaylistDetailsViewModel> playlistDetailsViewModelAsyncViewModel) throws Exception {
-            models.add(playlistDetailsViewModelAsyncViewModel);
+        public void accept(@NonNull PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistDetailsViewModelPlaylistAsyncViewModel) throws Exception {
+            models.add(playlistDetailsViewModelPlaylistAsyncViewModel);
         }
 
         private boolean hasTracks(Optional<PlaylistDetailsViewModel> data) {
@@ -225,7 +224,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         }
 
         @Override
-        public Supplier<List<AsyncViewModel<PlaylistDetailsViewModel>>> states() {
+        public Supplier<List<PlaylistAsyncViewModel<PlaylistDetailsViewModel>>> states() {
             return () -> models;
         }
     }

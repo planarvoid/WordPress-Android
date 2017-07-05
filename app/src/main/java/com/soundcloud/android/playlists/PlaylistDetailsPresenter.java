@@ -51,7 +51,6 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.transformers.Transformers;
-import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -101,7 +100,7 @@ public class PlaylistDetailsPresenter {
     private CompositeDisposable disposable = new CompositeDisposable();
 
     // outputs
-    private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
+    private final BehaviorSubject<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final DataSourceProvider dataSourceProvider;
     private final FeatureOperations featureOperations;
 
@@ -163,10 +162,10 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> emitViewModel(PlaylistDetailsInputs inputs, Urn playlistUrn) {
+    private Observable<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> emitViewModel(PlaylistDetailsInputs inputs, Urn playlistUrn) {
         return PlaylistWithExtrasStateIntent.dataSource(inputs, playlistUrn, dataSourceProvider, resources, featureOperations, playlistUpsellOperations, entityItemCreator)
                                             .flatMap(data -> actions(inputs, data))
-                                            .scan(AsyncViewModel.initial(), this::toViewModel)
+                                            .scan(PlaylistAsyncViewModel.initial(), this::toViewModel)
                                             .distinctUntilChanged()
                                             .doOnNext(viewModelSubject::onNext);
     }
@@ -192,7 +191,7 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    private AsyncViewModel<PlaylistDetailsViewModel> toViewModel(AsyncViewModel<PlaylistDetailsViewModel> previous, ActionResult result) {
+    private PlaylistAsyncViewModel<PlaylistDetailsViewModel> toViewModel(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous, ActionResult result) {
         return result.apply(previous);
     }
 
@@ -342,20 +341,20 @@ public class PlaylistDetailsPresenter {
                       .filter(__ -> offlineContentOperations.isOfflineCollectionEnabled());
     }
 
-    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> actionMakeAvailableOffline(PublishSubject<RxSignal> trigger) {
+    private Observable<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> actionMakeAvailableOffline(PublishSubject<RxSignal> trigger) {
         return viewModelSubject.compose(Transformers.takeWhenV2(trigger))
                                .withLatestFrom(playSessionSource(), Pair::of)
                                .filter(__ -> offlineSettingsStorage.isOfflineContentAccessible())
                                .flatMap(pair -> makePlaylistAvailableOffline(pair).doOnNext(viewModelSubject::onNext));
     }
 
-    private Observable<Pair<AsyncViewModel<PlaylistDetailsViewModel>, PlaySessionSource>> actionMakeAvailableOfflineFailed(PublishSubject<RxSignal> trigger) {
+    private Observable<Pair<PlaylistAsyncViewModel<PlaylistDetailsViewModel>, PlaySessionSource>> actionMakeAvailableOfflineFailed(PublishSubject<RxSignal> trigger) {
         return viewModelSubject.compose(Transformers.takeWhenV2(trigger))
                                .withLatestFrom(playSessionSource(), Pair::of)
                                .filter(__ -> !offlineSettingsStorage.isOfflineContentAccessible());
     }
 
-    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> makePlaylistAvailableOffline(Pair<AsyncViewModel<PlaylistDetailsViewModel>, PlaySessionSource> pair) {
+    private Observable<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> makePlaylistAvailableOffline(Pair<PlaylistAsyncViewModel<PlaylistDetailsViewModel>, PlaySessionSource> pair) {
         final PlaylistDetailsViewModel model = pair.first().data().get();
         final Urn playlistUrn = model.metadata().urn();
         final Urn creatorUrn = model.metadata().creatorUrn();
@@ -375,13 +374,13 @@ public class PlaylistDetailsPresenter {
         }
     }
 
-    private Function<LikeOperations.LikeResult, Observable<? extends AsyncViewModel<PlaylistDetailsViewModel>>> whenLikeSucceeded(Observable<RxSignal> action) {
+    private Function<LikeOperations.LikeResult, Observable<? extends PlaylistAsyncViewModel<PlaylistDetailsViewModel>>> whenLikeSucceeded(Observable<RxSignal> action) {
         return likeResult -> likeResult == LikeOperations.LikeResult.LIKE_SUCCEEDED ?
                              action.flatMap(ignored -> submitUpdateViewModel(true)) :
                              submitUpdateViewModel(false);
     }
 
-    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> submitUpdateViewModel(boolean isMarkedForOffline) {
+    private Observable<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> submitUpdateViewModel(boolean isMarkedForOffline) {
         return viewModelSubject
                 .firstElement()
                 .map(model -> model.toBuilder().data(model.data().get().updateWithMarkedForOffline(isMarkedForOffline)).build()).toObservable();
@@ -469,7 +468,7 @@ public class PlaylistDetailsPresenter {
         disposable.clear();
     }
 
-    public Observable<AsyncViewModel<PlaylistDetailsViewModel>> viewModel() {
+    public Observable<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> viewModel() {
         return viewModelSubject;
     }
 
@@ -595,7 +594,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final Optional<PlaylistDetailsViewModel> data = previous.data();
                 final PlaylistDetailsMetadata previousMetadata = data.get().metadata();
                 final PlaylistDetailsMetadata metadata = previousMetadata
@@ -628,7 +627,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final PlaylistDetailsViewModel previousModel = previous.data().get();
                 final PlaylistDetailsMetadata previousMetadata = previousModel.metadata();
                 final PlaylistDetailsMetadata metadata = previousMetadata
@@ -642,7 +641,7 @@ public class PlaylistDetailsPresenter {
                         .metadata(metadata)
                         .tracks(updatedTracks)
                         .build();
-                final AsyncViewModel<PlaylistDetailsViewModel> updated = previous.toBuilder().data(of(data)).build();
+                final PlaylistAsyncViewModel<PlaylistDetailsViewModel> updated = previous.toBuilder().data(of(data)).build();
                 return OfflineStateChangedIntent.toModel(updated, this.offlineProperties);
             }
         }
@@ -670,7 +669,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 return OfflineStateChangedIntent.toModel(previous, this.offlineProperties);
             }
         }
@@ -681,7 +680,7 @@ public class PlaylistDetailsPresenter {
                     .map(OfflineStateResult::new);
         }
 
-        static AsyncViewModel<PlaylistDetailsViewModel> toModel(AsyncViewModel<PlaylistDetailsViewModel> previous, OfflineProperties offlineProperties) {
+        static PlaylistAsyncViewModel<PlaylistDetailsViewModel> toModel(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous, OfflineProperties offlineProperties) {
             final Optional<PlaylistDetailsViewModel> data = previous.data();
             final PlaylistDetailsViewModel previousModel = data.get();
             final PlaylistDetailsMetadata previousMetadata = previousModel.metadata();
@@ -737,7 +736,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final Optional<PlaylistDetailsViewModel> data = previous.data();
                 final PlaylistDetailsMetadata previousMetadata = data.get().metadata();
                 final PlaylistDetailsMetadata metadata = previousMetadata
@@ -770,7 +769,7 @@ public class PlaylistDetailsPresenter {
 
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final PlaylistDetailsViewModel previousData = previous.data().get();
                 final List<PlaylistDetailTrackItem> updateTracks = toModel(previousData, this.track);
                 final PlaylistDetailsViewModel updatedData = previousData.toBuilder().tracks(updateTracks).build();
@@ -811,7 +810,7 @@ public class PlaylistDetailsPresenter {
         static class DismissUpsellResult implements ActionResult {
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final PlaylistDetailsViewModel updatedDetailsModel = previous.data().get().toBuilder().upsell(absent()).build();
                 return previous.toBuilder().data(updatedDetailsModel).build();
             }
@@ -842,7 +841,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final List<TrackItem> tracksList = transform(this.updatedTracksList, TrackItem::from);
                 final PlaylistDetailsViewModel previewViewModel = previous.data().get();
 
@@ -854,7 +853,7 @@ public class PlaylistDetailsPresenter {
                                                                              .metadata(updatedMetadata)
                                                                              .tracks(updatedTracksList)
                                                                              .build();
-                final AsyncViewModel<PlaylistDetailsViewModel> build = previous.toBuilder().data(updatedData).build();
+                final PlaylistAsyncViewModel<PlaylistDetailsViewModel> build = previous.toBuilder().data(updatedData).build();
                 System.out.println("### apply > " + build);
                 System.out.println("### apply > track:" + build.data().get().tracks());
                 return build;
@@ -896,7 +895,7 @@ public class PlaylistDetailsPresenter {
             }
 
             @Override
-            public AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 if (playlistWithExtrasState.playlistWithExtras().isPresent()) {
                     return modelWithPlaylist(previous);
                 } else {
@@ -906,7 +905,7 @@ public class PlaylistDetailsPresenter {
 
 
             // TODO: Use featureOperations, playlistUpsellOperations when building the Result in the `dataSource` function
-            private AsyncViewModel<PlaylistDetailsViewModel> modelWithPlaylist(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            private PlaylistAsyncViewModel<PlaylistDetailsViewModel> modelWithPlaylist(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final PlaylistWithExtras updatedPlaylistWithExtras = this.playlistWithExtrasState.playlistWithExtras().get();
                 final Optional<PlaylistDetailsViewModel> data = previous.data();
                 final List<TrackItem> updatedTrackItems = toTrackItems(updatedPlaylistWithExtras.tracks());
@@ -961,7 +960,7 @@ public class PlaylistDetailsPresenter {
                                .build();
             }
 
-            private AsyncViewModel<PlaylistDetailsViewModel> modelWithoutPlaylist(AsyncViewModel<PlaylistDetailsViewModel> previous) {
+            private PlaylistAsyncViewModel<PlaylistDetailsViewModel> modelWithoutPlaylist(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 return previous.toBuilder()
                                .isRefreshing(this.playlistWithExtrasState.isRefreshing())
                                .isLoadingNextPage(!this.playlistWithExtrasState.viewError().isPresent())
@@ -1008,6 +1007,6 @@ public class PlaylistDetailsPresenter {
     }
 
     interface ActionResult {
-        AsyncViewModel<PlaylistDetailsViewModel> apply(AsyncViewModel<PlaylistDetailsViewModel> previous);
+        PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous);
     }
 }

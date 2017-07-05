@@ -62,7 +62,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -231,7 +230,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onEnterEditModeGoesToEditMode() throws Exception {
         connect();
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onEnterEditMode();
 
@@ -242,7 +241,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onExitEditModeGoesBackToEditMode() throws Exception {
         connect();
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onEnterEditMode();
         inputs.onExitEditMode();
@@ -261,7 +260,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED)); // should not be called, but just being safe
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
@@ -281,7 +280,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_FAILED));
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
@@ -299,7 +298,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
         when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         inputs.onMakeOfflineAvailable();
 
@@ -524,7 +523,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsMetadata likedHeader = initialModel.metadata().toBuilder().isLikedByUser(true).build();
         final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().metadata(likedHeader).build();
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitLikedEntities(Urn.forTrack(123L));
@@ -543,7 +542,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                   .offlineState(OfflineState.DOWNLOADED).build();
         final PlaylistDetailsViewModel offlinePlaylist = initialModel.toBuilder().metadata(offlineHeader).build();
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
@@ -557,7 +556,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void doesNotEmitsUpdatedPlaylistAfterOfflineStateChangeWhileEditing() throws Exception {
         connect();
 
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
         modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
@@ -572,7 +571,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Test
     public void emitsRefreshSequence() {
         connect();
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         dataSource.onNext(PlaylistWithExtrasState.builder()
                                                  .playlistWithExtras(of(initialPlaylistWithTrackExtras))
@@ -646,7 +645,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel modelWithoutUpsell = initialModelWithUpsell.toBuilder().upsell(absent()).build();
 
         connect();
-        final TestObserver<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+        final TestObserver<PlaylistAsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         modelUpdates.assertValues(getIdleViewModel(initialModelWithUpsell));
 
@@ -775,8 +774,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private AsyncViewModel<PlaylistDetailsViewModel> getIdleViewModel(PlaylistDetailsViewModel model) {
-        return AsyncViewModel.<PlaylistDetailsViewModel>builder()
+    private PlaylistAsyncViewModel<PlaylistDetailsViewModel> getIdleViewModel(PlaylistDetailsViewModel model) {
+        return PlaylistAsyncViewModel.<PlaylistDetailsViewModel>builder()
                 .data(of(model))
                 .isLoadingNextPage(false)
                 .isRefreshing(false)
@@ -786,8 +785,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private AsyncViewModel<PlaylistDetailsViewModel> getRefreshingModel(PlaylistDetailsViewModel initialModel) {
-        return AsyncViewModel.<PlaylistDetailsViewModel>builder()
+    private PlaylistAsyncViewModel<PlaylistDetailsViewModel> getRefreshingModel(PlaylistDetailsViewModel initialModel) {
+        return PlaylistAsyncViewModel.<PlaylistDetailsViewModel>builder()
                 .data(of(initialModel))
                 .isLoadingNextPage(false)
                 .isRefreshing(true)
