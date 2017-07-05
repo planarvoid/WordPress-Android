@@ -1,0 +1,12 @@
+apply plugin: 'java'
+
+repositories {
+  mavenLocal()
+  maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+}
+
+dependencies {
+  compile("se.bjurr.violations:violation-comments-to-github-lib:1.29") {
+    exclude group: 'org.slf4j'
+  }
+}
