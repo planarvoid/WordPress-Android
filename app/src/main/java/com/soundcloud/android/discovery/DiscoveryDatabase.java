@@ -52,6 +52,10 @@ public class DiscoveryDatabase {
         return briteDatabase.executeInsert(table, statement);
     }
 
+    long updateOrDelete(String table, SQLiteStatement statement) throws SQLException {
+        return briteDatabase.executeUpdateDelete(table, statement);
+    }
+
     void runInTransaction(Runnable runnable) {
         final BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {

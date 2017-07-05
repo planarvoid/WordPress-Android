@@ -3,6 +3,7 @@ import com.soundcloud.android.model.Urn;
 CREATE TABLE system_playlists_tracks (
     system_playlist_urn TEXT AS Urn NOT NULL,
     track_urn TEXT AS Urn NOT NULL,
+    position INTEGER NOT NULL,
     PRIMARY KEY(system_playlist_urn, track_urn),
     FOREIGN KEY (system_playlist_urn)
         REFERENCES system_playlist(urn)
@@ -11,6 +12,11 @@ CREATE TABLE system_playlists_tracks (
 selectTrackUrnsForSystemPlaylistUrn:
 SELECT track_urn
 FROM system_playlists_tracks
+WHERE system_playlist_urn = ?
+ORDER BY position ASC;
+
+deleteBySystemPlaylistUrn:
+DELETE FROM system_playlists_tracks
 WHERE system_playlist_urn = ?;
 
 deleteAll:
@@ -20,5 +26,5 @@ dropTable:
 DROP TABLE IF EXISTS system_playlists_tracks;
 
 insertRow:
-INSERT INTO system_playlists_tracks(system_playlist_urn, track_urn)
-VALUES (?, ?);
+INSERT INTO system_playlists_tracks(system_playlist_urn, track_urn, position)
+VALUES (?, ?, ?);

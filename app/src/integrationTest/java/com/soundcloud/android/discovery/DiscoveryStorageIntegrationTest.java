@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.framework.TestUser;
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -94,12 +96,21 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void insertAndReadSystemPlaylist() throws Exception {
+    public void insertAndReadSystemPlaylistRemovesOldData() throws Exception {
         ApiSystemPlaylist playlist = Fixtures.SYSTEM_PLAYLIST;
+        ApiSystemPlaylist updatedPlaylist = ApiSystemPlaylist.create(playlist.urn(),
+                                                                     playlist.trackCount(),
+                                                                     playlist.lastUpdated(),
+                                                                     Optional.of("updated title"),
+                                                                     Optional.of("updated description"),
+                                                                     playlist.artworkUrlTemplate(),
+                                                                     playlist.trackingFeatureName(),
+                                                                     new ModelCollection<>(Collections.singletonList(new ApiTrack(Urn.forTrack(456L)))));
         discoveryWritableStorage.storeSystemPlaylist(playlist);
+        discoveryWritableStorage.storeSystemPlaylist(updatedPlaylist);
         final SystemPlaylistEntity systemPlaylistEntity = discoveryReadableStorage.systemPlaylistEntity(playlist.urn()).test().assertValueCount(1).values().get(0);
 
-        assertThat(systemPlaylistEntity).isEqualTo(map(playlist));
+        assertThat(systemPlaylistEntity).isEqualTo(map(updatedPlaylist));
     }
 
     private SystemPlaylistEntity map(ApiSystemPlaylist apiSystemPlaylist) {

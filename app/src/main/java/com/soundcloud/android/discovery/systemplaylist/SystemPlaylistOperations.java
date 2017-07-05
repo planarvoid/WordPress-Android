@@ -39,15 +39,15 @@ class SystemPlaylistOperations {
         this.trackRepository = trackRepository;
     }
 
-    Maybe<SystemPlaylist> fetchSystemPlaylist(Urn urn) {
+    Maybe<SystemPlaylist> systemPlaylist(Urn urn) {
         return discoveryReadableStorage.systemPlaylistEntity(urn)
                                        .flatMap(systemPlaylistEntity -> trackRepository.trackListFromUrns(systemPlaylistEntity.trackUrns())
                                                                                        .toMaybe()
                                                                                        .map(tracks -> SystemPlaylistMapper.map(systemPlaylistEntity, tracks)))
-                                       .switchIfEmpty(fetchSystemPlaylistFromApi(urn));
+                                       .switchIfEmpty(refreshSystemPlaylist(urn));
     }
 
-    private Maybe<SystemPlaylist> fetchSystemPlaylistFromApi(Urn urn) {
+    Maybe<SystemPlaylist> refreshSystemPlaylist(Urn urn) {
         ApiRequest request = ApiRequest.get(ApiEndpoints.SYSTEM_PLAYLISTS.path(urn))
                                        .forPrivateApi()
                                        .build();

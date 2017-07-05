@@ -2,13 +2,14 @@ import com.soundcloud.android.model.Urn;
 import java.util.Date;
 
 CREATE TABLE system_playlist (
-    urn TEXT AS Urn NOT NULL PRIMARY KEY,
+    urn TEXT AS Urn NOT NULL,
     query_urn TEXT AS Urn,
     title TEXT,
     description TEXT,
     artwork_url_template TEXT,
     tracking_feature_name TEXT,
-    last_updated INTEGER AS Date
+    last_updated INTEGER AS Date,
+    PRIMARY KEY(urn) ON CONFLICT REPLACE
 );
 
 selectAll:
@@ -18,6 +19,10 @@ FROM system_playlist;
 selectByUrn:
 SELECT *
 FROM system_playlist
+WHERE urn = ?;
+
+deleteByUrn:
+DELETE FROM system_playlist
 WHERE urn = ?;
 
 deleteAll:

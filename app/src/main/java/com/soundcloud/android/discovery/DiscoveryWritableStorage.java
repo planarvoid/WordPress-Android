@@ -2,9 +2,9 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
+import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -36,26 +36,51 @@ public class DiscoveryWritableStorage {
 
     public void storeSystemPlaylist(final ApiSystemPlaylist systemPlaylist) {
         discoveryDatabase.runInTransaction(() -> {
+            deleteSystemPlaylistTracks(systemPlaylist.urn());
 
-            SystemPlaylistModel.InsertRow insertSystemPlaylistRow = new SystemPlaylistModel.InsertRow(discoveryDatabase.writableDatabase(), DbModel.SystemPlaylist.FACTORY);
-            insertSystemPlaylistRow.bind(systemPlaylist.urn(),
-                                         systemPlaylist.tracks().getQueryUrn().orNull(),
-                                         systemPlaylist.title().orNull(),
-                                         systemPlaylist.description().orNull(),
-                                         systemPlaylist.artworkUrlTemplate().orNull(),
-                                         systemPlaylist.trackingFeatureName().orNull(),
-                                         systemPlaylist.lastUpdated().orNull());
-            discoveryDatabase.insert(DbModel.SystemPlaylist.TABLE_NAME, insertSystemPlaylistRow.program);
+            deleteSystemPlaylist(systemPlaylist.urn());
 
-            final List<SQLiteStatement> systemPlaylistTracksInserts = Lists.newArrayList();
-            for (ApiTrack apiTrack : systemPlaylist.tracks()) {
-                final SystemPlaylistsTracksModel.InsertRow insertSystemPlaylistTracks =
-                        new SystemPlaylistsTracksModel.InsertRow(discoveryDatabase.writableDatabase(), DbModel.SystemPlaylistsTracks.FACTORY);
-                insertSystemPlaylistTracks.bind(systemPlaylist.urn(), apiTrack.getUrn());
-                systemPlaylistTracksInserts.add(insertSystemPlaylistTracks.program);
-            }
-            discoveryDatabase.batchInsert(DbModel.SystemPlaylistsTracks.TABLE_NAME, systemPlaylistTracksInserts);
+            insertSystemPlaylist(systemPlaylist);
+
+            insertSystemPlaylistTracks(systemPlaylist.urn(), systemPlaylist.tracks());
         });
+    }
+
+    private void deleteSystemPlaylistTracks(Urn urn) {
+        SystemPlaylistsTracksModel.DeleteBySystemPlaylistUrn deleteTracks = new SystemPlaylistsTracksModel.DeleteBySystemPlaylistUrn(discoveryDatabase.writableDatabase(),
+                                                                                                                                     DbModel.SystemPlaylistsTracks.FACTORY);
+        deleteTracks.bind(urn);
+        discoveryDatabase.updateOrDelete(DbModel.SystemPlaylistsTracks.TABLE_NAME, deleteTracks.program);
+    }
+
+    private void deleteSystemPlaylist(Urn urn) {
+        SystemPlaylistModel.DeleteByUrn deletePlaylist = new SystemPlaylistModel.DeleteByUrn(discoveryDatabase.writableDatabase(), DbModel.SystemPlaylist.FACTORY);
+        deletePlaylist.bind(urn);
+        discoveryDatabase.updateOrDelete(DbModel.SystemPlaylistsTracks.TABLE_NAME, deletePlaylist.program);
+    }
+
+    private void insertSystemPlaylist(ApiSystemPlaylist systemPlaylist) {
+        SystemPlaylistModel.InsertRow insertSystemPlaylistRow = new SystemPlaylistModel.InsertRow(discoveryDatabase.writableDatabase(), DbModel.SystemPlaylist.FACTORY);
+        insertSystemPlaylistRow.bind(systemPlaylist.urn(),
+                                     systemPlaylist.tracks().getQueryUrn().orNull(),
+                                     systemPlaylist.title().orNull(),
+                                     systemPlaylist.description().orNull(),
+                                     systemPlaylist.artworkUrlTemplate().orNull(),
+                                     systemPlaylist.trackingFeatureName().orNull(),
+                                     systemPlaylist.lastUpdated().orNull());
+        discoveryDatabase.insert(DbModel.SystemPlaylist.TABLE_NAME, insertSystemPlaylistRow.program);
+    }
+
+    private void insertSystemPlaylistTracks(Urn systemPlaylistUrn, ModelCollection<ApiTrack> tracks) {
+        final List<SQLiteStatement> systemPlaylistTracksInserts = Lists.newArrayList();
+        for (int i = 0; i < tracks.getCollection().size(); i++) {
+
+            final SystemPlaylistsTracksModel.InsertRow insertSystemPlaylistTracks =
+                    new SystemPlaylistsTracksModel.InsertRow(discoveryDatabase.writableDatabase(), DbModel.SystemPlaylistsTracks.FACTORY);
+            insertSystemPlaylistTracks.bind(systemPlaylistUrn, tracks.getCollection().get(i).getUrn(), i);
+            systemPlaylistTracksInserts.add(insertSystemPlaylistTracks.program);
+        }
+        discoveryDatabase.batchInsert(DbModel.SystemPlaylistsTracks.TABLE_NAME, systemPlaylistTracksInserts);
     }
 
     void insertApiDiscoveryCards(List<ApiDiscoveryCard> discoveryCard, Optional<Urn> pageQueryUrn) {

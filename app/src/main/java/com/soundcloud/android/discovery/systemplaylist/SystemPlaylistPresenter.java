@@ -156,7 +156,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                                                           .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
                                                           .toObservable();
         } else {
-            systemPlaylistObservable = systemPlaylistOperations.fetchSystemPlaylist(urn)
+            systemPlaylistObservable = systemPlaylistOperations.systemPlaylist(urn)
                                                                .toObservable();
         }
 
@@ -171,7 +171,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                                                    .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
                                                    .toObservable();
         } else {
-            refreshObservable = systemPlaylistOperations.fetchSystemPlaylist(urn)
+            refreshObservable = systemPlaylistOperations.refreshSystemPlaylist(urn)
                                                         .toObservable();
         }
         return buildCollectionBinding(refreshObservable);

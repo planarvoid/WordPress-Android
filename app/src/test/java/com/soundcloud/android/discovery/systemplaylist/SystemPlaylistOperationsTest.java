@@ -74,11 +74,11 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsSystemPlaylistFromStorageWhenAllDataIsStored() {
+    public void systemPlaylist_returnsSystemPlaylistFromStorageWhenAllDataIsStored() {
         initializeStorage(Optional.of(systemPlaylistEntity), tracks);
         apiReturns(Single.error(new IOException()));
 
-        operations.fetchSystemPlaylist(URN).test()
+        operations.systemPlaylist(URN).test()
                   .assertValueCount(1)
                   .assertValue(systemPlaylist)
                   .assertNoErrors();
@@ -88,13 +88,13 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void callsApiAndStoresDataIfFetchingSystemPlaylistReturnsEmpty() {
+    public void systemPlaylist_callsApiAndStoresDataIfFetchingSystemPlaylistReturnsEmpty() {
         ApiSystemPlaylist apiSystemPlaylist = ModelFixtures.apiSystemPlaylist();
         SystemPlaylist mappedSystemPlaylist = SystemPlaylistMapper.map(apiSystemPlaylist);
         initializeStorage(Optional.absent(), tracks);
         apiReturns(Single.just(apiSystemPlaylist));
 
-        operations.fetchSystemPlaylist(URN).test()
+        operations.systemPlaylist(URN).test()
                   .assertValueCount(1)
                   .assertValue(mappedSystemPlaylist)
                   .assertNoErrors();
@@ -104,10 +104,10 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotCallApiOrStoreDataIfFetchingTracksFromUrnsReturnsEmptyList() {
+    public void systemPlaylist_doesNotCallApiOrStoreDataIfFetchingTracksFromUrnsReturnsEmptyList() {
         initializeStorage(Optional.of(systemPlaylistEntity), Lists.newArrayList());
 
-        operations.fetchSystemPlaylist(URN).test()
+        operations.systemPlaylist(URN).test()
                   .assertValueCount(1)
                   .assertValue(systemPlaylistWithNoTracks)
                   .assertNoErrors();
@@ -117,10 +117,10 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void putsUrnInApiRequestUrl() throws Exception {
+    public void systemPlaylist_putsUrnInApiRequestUrl() throws Exception {
         initializeStorage(Optional.absent(), Lists.newArrayList());
 
-        operations.fetchSystemPlaylist(URN).test();
+        operations.systemPlaylist(URN).test();
 
         ArgumentCaptor<ApiRequest> requestCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClient).mappedResponse(requestCaptor.capture(), eq(ApiSystemPlaylist.class));
@@ -129,11 +129,48 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void failsOnStorageAndApiFailure() throws Exception {
+    public void systemPlaylist_failsOnStorageAndApiFailure() throws Exception {
         initializeStorage(Optional.absent(), Lists.newArrayList());
         apiReturns(Single.error(new IOException()));
 
-        operations.fetchSystemPlaylist(URN).test()
+        operations.systemPlaylist(URN).test()
+                  .assertNoValues()
+                  .assertError(IOException.class);
+
+        verify(storeTracksCommand, never()).call(anyIterable());
+        verify(discoveryWriteableStorage, never()).storeSystemPlaylist(any(ApiSystemPlaylist.class));
+    }
+
+    @Test
+    public void refreshSystemPlaylist_callsApiAndStoresData() {
+        ApiSystemPlaylist apiSystemPlaylist = ModelFixtures.apiSystemPlaylist();
+        SystemPlaylist mappedSystemPlaylist = SystemPlaylistMapper.map(apiSystemPlaylist);
+        apiReturns(Single.just(apiSystemPlaylist));
+
+        operations.refreshSystemPlaylist(URN).test()
+                  .assertValueCount(1)
+                  .assertValue(mappedSystemPlaylist)
+                  .assertNoErrors();
+
+        verify(storeTracksCommand).call(apiSystemPlaylist.tracks());
+        verify(discoveryWriteableStorage).storeSystemPlaylist(apiSystemPlaylist);
+    }
+
+    @Test
+    public void refreshSystemPlaylist_putsUrnInApiRequestUrl() throws Exception {
+        operations.refreshSystemPlaylist(URN).test();
+
+        ArgumentCaptor<ApiRequest> requestCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(apiClient).mappedResponse(requestCaptor.capture(), eq(ApiSystemPlaylist.class));
+
+        assertThat(requestCaptor.getValue().getUri().toString()).contains(ApiEndpoints.SYSTEM_PLAYLISTS.path(URN));
+    }
+
+    @Test
+    public void refreshSystemPlaylist_failsOnApiFailure() throws Exception {
+        apiReturns(Single.error(new IOException()));
+
+        operations.refreshSystemPlaylist(URN).test()
                   .assertNoValues()
                   .assertError(IOException.class);
 
