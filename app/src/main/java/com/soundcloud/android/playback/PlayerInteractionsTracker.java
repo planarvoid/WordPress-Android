@@ -31,6 +31,14 @@ public class PlayerInteractionsTracker {
         dispatchEvent(UIEvent.fromPlayerSwipeBackward(toPlayerInterface(playbackActionSource)));
     }
 
+    public void play(PlaybackActionSource playbackActionSource) {
+        dispatchEvent(UIEvent.fromPlayerPlay(toPlayerInterface(playbackActionSource)));
+    }
+
+    public void pause(PlaybackActionSource playbackActionSource) {
+        dispatchEvent(UIEvent.fromPlayerPause(toPlayerInterface(playbackActionSource)));
+    }
+
     private void dispatchEvent(UIEvent event) {
         eventTracker.trackClick(event);
     }

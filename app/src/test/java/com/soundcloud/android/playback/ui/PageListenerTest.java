@@ -2,11 +2,14 @@ package com.soundcloud.android.playback.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlaybackActionSource;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -17,6 +20,7 @@ public class PageListenerTest extends AndroidUnitTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private PlayerInteractionsTracker playerInteractionsTracker;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -24,7 +28,7 @@ public class PageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new PageListener(playSessionController, eventBus);
+        listener = new PageListener(playSessionController, eventBus, playerInteractionsTracker);
     }
 
     @Test
@@ -63,4 +67,39 @@ public class PageListenerTest extends AndroidUnitTest {
         assertThat(event.isAutomaticCollapse()).isTrue();
     }
 
+    @Test
+    public void onFooterTogglePlayShouldTrackPauseWithMiniplayerIfPlayerIsPlaying() {
+        when(playSessionController.isPlaying()).thenReturn(true);
+
+        listener.onFooterTogglePlay();
+
+        verify(playerInteractionsTracker).pause(PlaybackActionSource.MINI);
+    }
+
+    @Test
+    public void onFooterTogglePlayShouldTrackPlayWithMiniplayerIfPlayerIsNotPlaying() {
+        when(playSessionController.isPlaying()).thenReturn(false);
+
+        listener.onFooterTogglePlay();
+
+        verify(playerInteractionsTracker).play(PlaybackActionSource.MINI);
+    }
+
+    @Test
+    public void onTogglePlayShouldTrackPauseWithFullplayerIfPlayerIsPlaying() {
+        when(playSessionController.isPlaying()).thenReturn(true);
+
+        listener.onTogglePlay();
+
+        verify(playerInteractionsTracker).pause(PlaybackActionSource.FULL);
+    }
+
+    @Test
+    public void onTogglePlayShouldTrackPlayWithFullplayerIfPlayerIsNotPlaying() {
+        when(playSessionController.isPlaying()).thenReturn(false);
+
+        listener.onTogglePlay();
+
+        verify(playerInteractionsTracker).play(PlaybackActionSource.FULL);
+    }
 }

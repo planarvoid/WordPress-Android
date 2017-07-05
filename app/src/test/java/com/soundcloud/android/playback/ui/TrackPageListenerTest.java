@@ -20,6 +20,7 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -42,6 +43,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private EngagementsTracking engagementsTracking;
     @Mock private Navigator navigator;
+    @Mock private PlayerInteractionsTracker playerInteractionsTracker;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -50,7 +52,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
-                                         likeOperations, navigationExecutor, engagementsTracking, navigator);
+                                         likeOperations, navigationExecutor, engagementsTracking, navigator, playerInteractionsTracker);
     }
 
     @Test

@@ -4,6 +4,8 @@ import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_ADD;
 import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_REMOVE;
 import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_FORWARD;
 import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_BACKWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.PAUSE;
+import static com.soundcloud.android.events.UIEvent.ClickName.PLAY;
 import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_FORWARD;
 import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_BACKWARD;
 import static com.soundcloud.android.events.UIEvent.Kind.FOLLOW;
@@ -387,6 +389,18 @@ public abstract class UIEvent extends TrackingEvent {
         return event(PLAYER_INTERACTION, SWIPE_BACKWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
                                                         .playerInterface(Optional.of(playerInterface))
                                                         .build();
+    }
+
+    public static UIEvent fromPlayerPlay(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, PLAY).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                              .playerInterface(Optional.of(playerInterface))
+                                              .build();
+    }
+
+    public static UIEvent fromPlayerPause(PlayerInterface playerInterface) {
+        return event(PLAYER_INTERACTION, PAUSE).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                               .playerInterface(Optional.of(playerInterface))
+                                               .build();
     }
 
     public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {

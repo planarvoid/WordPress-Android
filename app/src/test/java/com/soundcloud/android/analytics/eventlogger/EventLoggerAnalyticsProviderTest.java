@@ -192,6 +192,16 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         assertPlayerEvent(UIEvent.fromPlayerSwipeBackward(FULLSCREEN));
     }
 
+    @Test
+    public void shouldTrackPlayerPlay() {
+        assertPlayerEvent(UIEvent.fromPlayerPlay(FULLSCREEN));
+    }
+
+    @Test
+    public void shouldTrackPlayerPause() {
+        assertPlayerEvent(UIEvent.fromPlayerPause(FULLSCREEN));
+    }
+
     private void assertPlayerEvent(UIEvent uiEvent) {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         when(dataBuilder.buildForUIEvent(uiEvent)).thenReturn("player");

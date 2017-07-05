@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.UIEvent.PlayerInterface;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -1215,6 +1216,68 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAY_NEXT);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(urn);
         assertThat(uiEvent.originScreen().get()).isEqualTo(screen);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerClickForward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerClickForward(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.CLICK_FORWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerClickBackward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerClickBackward(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.CLICK_BACKWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerSwipeForward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerSwipeForward(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SWIPE_FORWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerSwipeBackward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerSwipeBackward(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SWIPE_BACKWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+
+    @Test
+    public void shouldCreateEventFromPlayerPlay() {
+        final UIEvent uiEvent = UIEvent.fromPlayerPlay(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAY);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+
+    @Test
+    public void shouldCreateEventFromPlayerPause() {
+        final UIEvent uiEvent = UIEvent.fromPlayerPause(PlayerInterface.FULLSCREEN);
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PAUSE);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
     }
 
     private EventContextMetadata.Builder eventContextBuilder() {

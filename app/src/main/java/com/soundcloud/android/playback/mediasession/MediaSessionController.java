@@ -19,9 +19,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackItem;
-import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
+import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
@@ -72,7 +73,8 @@ public class MediaSessionController {
                                   @Provided AdsOperations adsOperations,
                                   @Provided NavigationExecutor navigationExecutor,
                                   @Provided EventBus eventBus,
-                                  @Provided PlayerInteractionsTracker playerInteractionsTracker) {
+                                  @Provided PlayerInteractionsTracker playerInteractionsTracker,
+                                  @Provided PlaySessionStateProvider playSessionStateProvider) {
         this.context = context;
         this.listener = listener;
         this.mediaSessionWrapper = mediaSessionWrapper;
@@ -88,7 +90,8 @@ public class MediaSessionController {
         mediaSession.setCallback(new MediaSessionListener(this,
                                                           playbackActionController,
                                                           context.getApplicationContext(),
-                                                          playerInteractionsTracker));
+                                                          playerInteractionsTracker,
+                                                          playSessionStateProvider));
         mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         updatePlaybackState();
     }

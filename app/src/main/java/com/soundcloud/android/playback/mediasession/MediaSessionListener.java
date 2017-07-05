@@ -5,6 +5,7 @@ import static android.view.KeyEvent.KEYCODE_HEADSETHOOK;
 import static com.soundcloud.android.rx.observers.LambdaObserver.onNext;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
@@ -35,6 +36,7 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     private final Scheduler scheduler;
     private final Context context;
     private final PlayerInteractionsTracker playerInteractionsTracker;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     private int clicks;
     private Disposable disposable = RxUtils.invalidDisposable();
@@ -42,11 +44,13 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     public MediaSessionListener(MediaSessionController mediaSessionController,
                                 PlaybackActionController playbackActionController,
                                 Context context,
-                                PlayerInteractionsTracker playerInteractionsTracker) {
+                                PlayerInteractionsTracker playerInteractionsTracker,
+                                PlaySessionStateProvider playSessionStateProvider) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
         this.context = context;
         this.playerInteractionsTracker = playerInteractionsTracker;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.scheduler = Schedulers.io();
     }
 
@@ -55,12 +59,14 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
                                 PlaybackActionController playbackActionController,
                                 Context context,
                                 Scheduler scheduler,
-                                PlayerInteractionsTracker playerInteractionsTracker) {
+                                PlayerInteractionsTracker playerInteractionsTracker,
+                                PlaySessionStateProvider playSessionStateProvider) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
         this.context = context;
         this.scheduler = scheduler;
         this.playerInteractionsTracker = playerInteractionsTracker;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     @Override
@@ -80,11 +86,13 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
 
     @Override
     public void onPause() {
+        playerInteractionsTracker.pause(PlaybackActionSource.NOTIFICATION);
         handleAction(PlaybackAction.PAUSE);
     }
 
     @Override
     public void onPlay() {
+        playerInteractionsTracker.play(PlaybackActionSource.NOTIFICATION);
         if (!mediaSessionController.isPlayingVideoAd()) {
             handleAction(PlaybackAction.PLAY);
         } else {
@@ -119,8 +127,17 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
         mediaSessionController.onSkip();
     }
 
-    private void onTogglePlayback() {
+    private void togglePlayBack() {
+        trackTogglePlayback();
         handleAction(PlaybackAction.TOGGLE_PLAYBACK);
+    }
+
+    private void trackTogglePlayback() {
+        if (playSessionStateProvider.isPlaying()) {
+            playerInteractionsTracker.pause(PlaybackActionSource.OTHER);
+        } else {
+            playerInteractionsTracker.play(PlaybackActionSource.OTHER);
+        }
     }
 
     private boolean isHeadsetHookEvent(KeyEvent event) {
@@ -153,7 +170,7 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
 
     private void handleHeadsetTimeout() {
         if (clicks == 1) {
-            onTogglePlayback();
+            togglePlayBack();
         } else if (clicks == 2) {
             skipToNext(PlaybackActionSource.OTHER);
         }

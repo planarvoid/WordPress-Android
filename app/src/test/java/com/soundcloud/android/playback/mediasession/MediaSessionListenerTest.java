@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
@@ -36,13 +37,20 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
     @Mock MediaSessionController controller;
     @Mock PlaybackActionController actionController;
     @Mock PlayerInteractionsTracker playerInteractionsTracker;
+    @Mock PlaySessionStateProvider playSessionStateProvider;
 
     private TestScheduler scheduler = new TestScheduler();
     private MediaSessionListener listener;
 
     @Before
     public void setUp() {
-        listener = new MediaSessionListener(controller, actionController, context(), scheduler, playerInteractionsTracker);
+        listener = new MediaSessionListener(controller,
+                                            actionController,
+                                            context(),
+                                            scheduler,
+                                            playerInteractionsTracker,
+                                            playSessionStateProvider
+        );
     }
 
     @Test
@@ -115,6 +123,21 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
         listener.onSkipToNext();
 
         verify(playerInteractionsTracker).clickForward(PlaybackActionSource.NOTIFICATION);
+    }
+
+    @Test
+    public void onPlayTracksPlayFromNotification() {
+        listener.onPlay();
+
+        verify(playerInteractionsTracker).play(PlaybackActionSource.NOTIFICATION);
+    }
+
+
+    @Test
+    public void onPauseTracksPauseFromNotification() {
+        listener.onPause();
+
+        verify(playerInteractionsTracker).pause(PlaybackActionSource.NOTIFICATION);
     }
 
     @Test
@@ -209,6 +232,24 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(MediaSessionListener.HEADSET_DELAY_MS, TimeUnit.MILLISECONDS);
 
         verifyAction(PlaybackAction.TOGGLE_PLAYBACK, 1);
+    }
+
+    @Test
+    public void onMediaButtonClickWhenPlaybackPlayingTrackPauseWithOtherInterface() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        clickHeadsetHookAndAdvanceAfterTimeout();
+
+        verify(playerInteractionsTracker).pause(PlaybackActionSource.OTHER);
+    }
+
+    @Test
+    public void onMediaButtonClickWhenPlaybackIsPausedTrackPlayWithOtherInterface() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+
+        clickHeadsetHookAndAdvanceAfterTimeout();
+
+        verify(playerInteractionsTracker).play(PlaybackActionSource.OTHER);
     }
 
     private static Intent buildMediaButtonIntent(int keyAction, int keyCode) {

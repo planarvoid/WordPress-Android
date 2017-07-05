@@ -202,6 +202,11 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    public VisualPlayerElement tapPlayButton() {
+        playButton().click();
+        return this;
+    }
+
     public VisualPlayerElement pressBackToCollapse() {
         waitForExpandedPlayer();
         testDriver.goBack();

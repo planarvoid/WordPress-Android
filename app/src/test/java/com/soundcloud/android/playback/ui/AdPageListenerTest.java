@@ -16,11 +16,11 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -44,18 +44,18 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private Navigator navigator;
+    @Mock private PlayerInteractionsTracker playerInteractionsTracker;
 
     @Before
     public void setUp() throws Exception {
-        listener = new AdPageListener(navigationExecutor,
-                                      playSessionController,
+        listener = new AdPageListener(playSessionController,
                                       playQueueManager,
                                       eventBus,
                                       adsOperations,
                                       whyAdsPresenter,
-                                      navigator);
+                                      navigator,
+                                      playerInteractionsTracker);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 

@@ -17,6 +17,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -42,8 +43,9 @@ class TrackPageListener extends PageListener {
                              EventBus eventBus, LikeOperations likeOperations,
                              NavigationExecutor navigationExecutor,
                              EngagementsTracking engagementsTracking,
-                             Navigator navigator) {
-        super(playSessionController, eventBus);
+                             Navigator navigator,
+                             PlayerInteractionsTracker playerInteractionsTracker) {
+        super(playSessionController, eventBus, playerInteractionsTracker);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
         this.navigationExecutor = navigationExecutor;

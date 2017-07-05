@@ -18,6 +18,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
@@ -69,6 +70,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     @Mock MediaDescriptionCompat currentMediaDescription;
     @Mock NavigationExecutor navigationExecutor;
     @Mock PlayerInteractionsTracker playerInteractionsTracker;
+    @Mock PlaySessionStateProvider playSessionStateProvider;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -82,7 +84,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
                                                 actionController, metadataOperations, playQueueManager, adsOperations,
-                                                navigationExecutor, eventBus, playerInteractionsTracker);
+                                                navigationExecutor, eventBus, playerInteractionsTracker, playSessionStateProvider);
 
         setupMetadataMocks();
     }

@@ -17,11 +17,11 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
@@ -35,22 +35,20 @@ import javax.inject.Inject;
 
 class AdPageListener extends PageListener {
 
-    private final NavigationExecutor navigationExecutor;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final WhyAdsDialogPresenter whyAdsPresenter;
     private final Navigator navigator;
 
     @Inject
-    public AdPageListener(NavigationExecutor navigationExecutor,
-                          PlaySessionController playSessionController,
+    public AdPageListener(PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus,
                           AdsOperations adsOperations,
                           WhyAdsDialogPresenter whyAdsPresenter,
-                          Navigator navigator) {
-        super(playSessionController, eventBus);
-        this.navigationExecutor = navigationExecutor;
+                          Navigator navigator,
+                          PlayerInteractionsTracker playerInteractionsTracker) {
+        super(playSessionController, eventBus, playerInteractionsTracker);
         this.navigator = navigator;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;

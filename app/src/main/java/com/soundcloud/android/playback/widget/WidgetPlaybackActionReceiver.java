@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
@@ -25,13 +26,17 @@ public class WidgetPlaybackActionReceiver extends BroadcastReceiver {
 
     static class Controller {
 
-        PlaybackActionController playbackActionController;
-        PlayerInteractionsTracker playerInteractionsTracker;
+        private final PlaybackActionController playbackActionController;
+        private final PlayerInteractionsTracker playerInteractionsTracker;
+        private final PlaySessionStateProvider playSessionStateProvider;
 
         @Inject
-        public Controller(PlaybackActionController playbackActionController, PlayerInteractionsTracker playerInteractionsTracker) {
+        public Controller(PlaybackActionController playbackActionController,
+                          PlayerInteractionsTracker playerInteractionsTracker,
+                          PlaySessionStateProvider playSessionStateProvider) {
             this.playbackActionController = playbackActionController;
             this.playerInteractionsTracker = playerInteractionsTracker;
+            this.playSessionStateProvider = playSessionStateProvider;
         }
 
         public void handleIntent(Intent intent) {
@@ -47,6 +52,13 @@ public class WidgetPlaybackActionReceiver extends BroadcastReceiver {
                     break;
                 case PlaybackAction.PREVIOUS:
                     playerInteractionsTracker.clickBackward(PlaybackActionSource.WIDGET);
+                    break;
+                case PlaybackAction.TOGGLE_PLAYBACK:
+                    if (playSessionStateProvider.isPlaying()) {
+                        playerInteractionsTracker.pause(PlaybackActionSource.WIDGET);
+                    } else {
+                        playerInteractionsTracker.play(PlaybackActionSource.WIDGET);
+                    }
                     break;
                 default:
                     Log.i("Skipping tracking " + action);

@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackAction;
@@ -21,13 +22,16 @@ public class WidgetPlaybackActionReceiverTest {
 
     @Mock PlaybackActionController playbackActionController;
     @Mock PlayerInteractionsTracker playerInteractionsTracker;
+    @Mock PlaySessionStateProvider playSessionStateProvider;
     @Mock Intent intent;
 
     private WidgetPlaybackActionReceiver.Controller controller;
 
     @Before
     public void setUp() throws Exception {
-        controller = new WidgetPlaybackActionReceiver.Controller(playbackActionController, playerInteractionsTracker);
+        controller = new WidgetPlaybackActionReceiver.Controller(playbackActionController,
+                                                                 playerInteractionsTracker,
+                                                                 playSessionStateProvider);
     }
 
     @Test
@@ -49,8 +53,28 @@ public class WidgetPlaybackActionReceiverTest {
     }
 
     @Test
+    public void intentWithActionToggleShouldTrackPlayIfIsNotPlaying() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+        when(intent.getAction()).thenReturn(PlaybackAction.TOGGLE_PLAYBACK);
+
+        controller.handleIntent(intent);
+
+        verify(playerInteractionsTracker).play(PlaybackActionSource.WIDGET);
+    }
+
+    @Test
+    public void intentWithActionToggleShouldTrackPauseIfAlreadyPlaying() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(intent.getAction()).thenReturn(PlaybackAction.TOGGLE_PLAYBACK);
+
+        controller.handleIntent(intent);
+
+        verify(playerInteractionsTracker).pause(PlaybackActionSource.WIDGET);
+    }
+
+    @Test
     public void intentWithUnsupportedActionShouldNotTrack() {
-        when(intent.getAction()).thenReturn(PlaybackAction.PLAY);
+        when(intent.getAction()).thenReturn(PlaybackAction.CLOSE);
 
         controller.handleIntent(intent);
 
