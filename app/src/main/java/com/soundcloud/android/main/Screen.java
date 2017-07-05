@@ -76,7 +76,7 @@ public enum Screen {
     // discover / new home
     DISCOVER("discovery:main"),
 
-    SYSTEM_PLAYLIST("system-playlist:main"),
+    SYSTEM_PLAYLIST("systemplaylists:main"),
 
     // search
     SEARCH_MAIN("search:main"),

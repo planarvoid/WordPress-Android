@@ -21,8 +21,13 @@ public class PlaylistDetailsViewModelTest extends AndroidUnitTest {
     private final TrackItem defaultTrack = PlayableFixtures.expectedTrackForListItem(Urn.forTrack(987L));
     private final List<TrackItem> trackItems = asList(defaultTrack, upsellableTrack);
 
+    private final PlaylistDetailTrackItem playlistDetailTrackItem = PlaylistDetailTrackItem.builder().trackItem(upsellableTrack)
+                                                                                           .playlistUrn(Urn.forPlaylist(123L))
+                                                                                           .playlistOwnerUrn(Urn.forUser(123L))
+                                                                                           .build();
+
     private final PlaylistDetailsViewModel model = PlaylistDetailFixtures.createWithUpsell(
-            resources(), playlist, trackItems, Optional.of(new PlaylistDetailUpsellItem(PlaylistDetailTrackItem.builder().trackItem(upsellableTrack).build().trackItem())));
+            resources(), playlist, trackItems, Optional.of(new PlaylistDetailUpsellItem(playlistDetailTrackItem.trackItem())));
 
     @Test
     public void insertsUpsellAfterFirstUpsellableTrack() {

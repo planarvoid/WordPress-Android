@@ -141,7 +141,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                               if (forNewForYou) {
                                   return ScreenEvent.create(Screen.NEW_FOR_YOU);
                               } else {
-                                  return ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName());
+                                  return ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName(), systemPlaylist.queryUrn());
                               }
                           })
                           .subscribeWith(LambdaSingleObserver.onNext(screenEvent -> eventTracker.trackScreen(screenEvent, trackingStateProvider.getLastEvent())))

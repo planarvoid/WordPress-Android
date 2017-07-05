@@ -39,7 +39,10 @@ class PlaylistDetailFixtures {
                 .build();
         return PlaylistDetailsViewModel.builder()
                                        .metadata(metadata)
-                                       .tracks(transform(trackItems, trackItem -> PlaylistDetailTrackItem.builder().trackItem(trackItem).build()))
+                                       .tracks(transform(trackItems, trackItem -> PlaylistDetailTrackItem.builder().trackItem(trackItem)
+                                                                                                         .playlistUrn(playlist.urn())
+                                                                                                         .playlistOwnerUrn(playlist.creatorUrn())
+                                                                                                         .build()))
                                        .upsell(upsellItemOptional)
                                        .otherPlaylists(otherPlaylists)
                                        .build();

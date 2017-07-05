@@ -175,6 +175,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .pageUrn(PLAYLIST_URN.toString())
                                                .trackLength(track.fullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.creatorUrn())
@@ -245,6 +246,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .pageUrn(PLAYLIST_URN.toString())
                                                .trackLength(track.fullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.creatorUrn())
@@ -356,6 +358,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .pageUrn(PLAYLIST_URN.toString())
                                                .trackLength(track.fullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.creatorUrn())
@@ -392,6 +395,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .pageUrn(PLAYLIST_URN.toString())
                                                .trackLength(track.fullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.creatorUrn())
@@ -509,6 +513,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .pageUrn(Urn.forPlaylist(123L).toString())
                                                .trackLength(track.fullDuration())
                                                .track(track.getUrn())
                                                .trackOwner(track.creatorUrn())
@@ -2264,7 +2269,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                          .queryUrn(Optional.of(QUERY_URN))
                                                                          .pageName(Screen.DISCOVER.get())
                                                                          .build();
-        final UIEvent event = UIEvent.fromDiscoveryCard(CLICK_OBJECT_URN, contextMetadata);
+        final UIEvent event = UIEvent.fromDiscoveryCard(Optional.of(CLICK_OBJECT_URN), contextMetadata);
 
         jsonDataBuilder.buildForUIEvent(event);
 

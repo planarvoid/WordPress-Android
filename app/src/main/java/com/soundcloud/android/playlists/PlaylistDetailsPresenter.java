@@ -845,7 +845,9 @@ public class PlaylistDetailsPresenter {
                 final List<TrackItem> tracksList = transform(this.updatedTracksList, TrackItem::from);
                 final PlaylistDetailsViewModel previewViewModel = previous.data().get();
 
-                final PlaylistDetailTrackItem.Builder detailTrackItemBuilder = PlaylistDetailTrackItem.builder().inEditMode(previewViewModel.metadata().isInEditMode());
+                final PlaylistDetailTrackItem.Builder detailTrackItemBuilder = PlaylistDetailTrackItem.builder().inEditMode(previewViewModel.metadata().isInEditMode())
+                        .playlistUrn(previewViewModel.metadata().urn())
+                        .playlistOwnerUrn(previewViewModel.metadata().creatorUrn());
                 final List<PlaylistDetailTrackItem> updatedTracksList = transform(tracksList, track -> detailTrackItemBuilder.trackItem(track).build());
                 final PlaylistDetailsMetadata updatedMetadata = previewViewModel.metadata().toBuilder().with(resources, tracksList).build();
 
@@ -947,7 +949,10 @@ public class PlaylistDetailsPresenter {
 
                 final PlaylistDetailTrackItem.Builder detailTrackItemBuilder = PlaylistDetailTrackItem.builder().inEditMode(inEditMode);
                 viewModelBuilder
-                        .tracks(transform(updatedTrackItems, track -> detailTrackItemBuilder.trackItem(track).build()))
+                        .tracks(transform(updatedTrackItems, track -> detailTrackItemBuilder.trackItem(track)
+                                                                                            .playlistUrn(playlist.urn())
+                                                                                            .playlistOwnerUrn(playlist.creatorUrn())
+                                                                                            .build()))
                         .upsell(playlistUpsellOperations.getUpsell(playlist, updatedTrackItems))
                         .otherPlaylists(createOtherPlaylistsItem(updatedPlaylistWithExtras, inEditMode, entityItemCreator))
                         .metadata(updatedMetadata);

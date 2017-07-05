@@ -72,7 +72,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPO
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.RESOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SHARE_LINK_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_QUERY_POSITION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -576,7 +576,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData clickSourceQueryPosition(Integer clickSourcePosition) {
-        getClickAttributes().put(SOURCE_QUERY_POSITION, clickSourcePosition);
+        getClickAttributes().put(SOURCE_POSITION, clickSourcePosition);
         return this;
     }
 

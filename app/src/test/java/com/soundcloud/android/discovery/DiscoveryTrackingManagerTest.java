@@ -49,7 +49,7 @@ public class DiscoveryTrackingManagerTest {
         builder.queryPosition(1);
         builder.queryUrn(SINGLE_CONTENT_SELECTION_CARD.parentQueryUrn());
 
-        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(SINGLE_CONTENT_SELECTION_CARD.selectionUrn(), builder.build())));
+        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(SINGLE_CONTENT_SELECTION_CARD.selectionItem().urn(), builder.build())));
     }
 
     @Test
@@ -68,6 +68,6 @@ public class DiscoveryTrackingManagerTest {
         builder.queryUrn(QUERY_URN);
         builder.module(Module.create(MULTI_CONTENT_SELECTION_CARD.selectionUrn().toString(), 0));
 
-        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(MULTI_SELECTION_ITEM.urn().get(), builder.build())));
+        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(MULTI_SELECTION_ITEM.urn(), builder.build())));
     }
 }

@@ -65,7 +65,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(PLAYLIST);
     }
 
     @Test
@@ -79,7 +78,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(PLAYLIST);
     }
 
     @Test

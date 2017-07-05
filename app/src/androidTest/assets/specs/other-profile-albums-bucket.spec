@@ -11,7 +11,6 @@ expected_events:
     user: soundcloud:users:151499536
     app_version: '[0-9]+'
     connection_type: wifi
-    source: playlist
   version: '1'
 whitelisted_events:
 - pageview

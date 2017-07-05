@@ -5,6 +5,7 @@ import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -58,6 +59,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
 
+    private TrackItemMenuPresenter.RemoveTrackListener removeTrackListener;
     private Listener listener;
 
     public interface Listener {
@@ -142,6 +144,28 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         showChartPosition(itemView, position);
     }
 
+    void bindPlaylistTrackView(final TrackItem track,
+                               View itemView,
+                               final int position,
+                               Optional<Urn> pageUrn,
+                               Optional<TrackSourceInfo> trackSourceInfo,
+                               TrackItemMenuPresenter.RemoveTrackListener removeTrackListener) {
+        this.removeTrackListener = removeTrackListener;
+        if (track.isBlocked()) {
+            // note: TrackItemRenderer already calls `setClickable(false)` but this doesn't appear
+            // to work for the ListView widget (it's still clickable, and shows ripples on touch)
+            // http://stackoverflow.com/questions/4636270/android-listview-child-view-setenabled-and-setclickable-do-nothing
+            itemView.setOnClickListener(null);
+        }
+
+        bindOfflineTrackView(track,
+                             itemView,
+                             position,
+                             trackSourceInfo,
+                             pageUrn,
+                             Optional.of(Module.create(Module.PLAYLIST, position)));
+    }
+
     public void bindSystemPlaylistTrackView(final TrackItem track,
                                             View itemView,
                                             final int position,
@@ -170,11 +194,26 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       Optional.of(ActiveFooter.OFFLINE_STATE));
     }
 
-    public void bindSearchTrackView(final TrackItem track,
+    void bindOfflineTrackView(final TrackItem trackItem,
                               View itemView,
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
+                              Optional<Urn> pageUrn,
                               Optional<Module> module) {
+        bindTrackView(trackItem,
+                      itemView,
+                      position,
+                      trackSourceInfo,
+                      module,
+                      pageUrn,
+                      Optional.of(ActiveFooter.OFFLINE_STATE));
+    }
+
+    public void bindSearchTrackView(final TrackItem track,
+                                    View itemView,
+                                    final int position,
+                                    Optional<TrackSourceInfo> trackSourceInfo,
+                                    Optional<Module> module) {
         bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
         showGoPlusIntroductoryOverlayIfNeeded(itemView, track);
     }
@@ -209,8 +248,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(trackItem.creatorName());
         trackItemView.setTitle(trackItem.title(), trackItem.isBlocked()
-                                              ? trackItemViewFactory.getDisabledTitleColor()
-                                              : trackItemViewFactory.getPrimaryTitleColor());
+                                                  ? trackItemViewFactory.getDisabledTitleColor()
+                                                  : trackItemViewFactory.getPrimaryTitleColor());
         if (listener != null) {
             itemView.setOnClickListener(v -> listener.trackItemClicked(trackItem.getUrn(), position));
         }
@@ -251,9 +290,23 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                      Optional<Urn> pageUrn,
                                      Optional<TrackSourceInfo> trackSourceInfo,
                                      Optional<Module> module) {
+        Urn playlistUrn = null;
+        Urn ownerUrn = null;
+        PromotedSourceInfo promotedSourceInfo = null;
+        if (trackSourceInfo.isPresent()) {
+            TrackSourceInfo info = trackSourceInfo.get();
+            playlistUrn = info.getCollectionUrn();
+            ownerUrn = info.getPlaylistOwnerUrn();
+            promotedSourceInfo = info.getPromotedSourceInfo();
+        }
+
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
+                                    playlistUrn,
+                                    ownerUrn,
+                                    removeTrackListener,
+                                    promotedSourceInfo,
                                     getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo));
     }
 

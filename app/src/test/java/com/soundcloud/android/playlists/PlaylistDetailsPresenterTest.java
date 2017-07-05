@@ -665,8 +665,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         )).thenReturn(Observable.just(asList(track2, track1)));
 
         inputs.actionUpdateTrackList(asList(
-                getPlaylistDetailTrackItem(trackItem2),
-                getPlaylistDetailTrackItem(trackItem1)));
+                getPlaylistDetailTrackItem(trackItem2, initialPlaylist),
+                getPlaylistDetailTrackItem(trackItem1, initialPlaylist)));
 
         PlaylistDetailsViewModel viewModelWithReversedTracks = PlaylistDetailFixtures.create(resources(), initialPlaylist,
                                                                                              asList(trackItem2, trackItem1));
@@ -723,8 +723,11 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         assertThat(trackingEvent).isEqualTo(UIEvent.fromShuffle(eventContext(initialPlaylist)));
     }
 
-    private PlaylistDetailTrackItem getPlaylistDetailTrackItem(TrackItem trackItem) {
-        return PlaylistDetailTrackItem.builder().trackItem(trackItem).build();
+    private PlaylistDetailTrackItem getPlaylistDetailTrackItem(TrackItem trackItem, Playlist playlist) {
+        return PlaylistDetailTrackItem.builder().trackItem(trackItem)
+                                      .playlistUrn(playlist.urn())
+                                      .playlistOwnerUrn(playlist.creatorUrn())
+                                      .build();
     }
 
     private void emitLikedEntities(Urn... urns) {

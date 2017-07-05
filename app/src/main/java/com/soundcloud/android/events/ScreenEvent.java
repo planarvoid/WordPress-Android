@@ -9,9 +9,7 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 public abstract class ScreenEvent extends TrackingEvent {
     public static final String EVENT_NAME = "pageview";
-
     public static final String KIND = "screen";
-    public static final String PLAYLIST = "playlist";
 
     public String getKind() {
         return KIND;
@@ -37,16 +35,16 @@ public abstract class ScreenEvent extends TrackingEvent {
         return builder(screen).build();
     }
 
-    public static ScreenEvent createForSystemPlaylist(Screen screen, Urn pageUrn, Optional<String> name) {
+    public static ScreenEvent createForSystemPlaylist(Screen screen, Urn pageUrn, Optional<String> name, Optional<Urn> queryUrn) {
         return builder(screen.get())
                 .source(name)
                 .pageUrn(Optional.of(pageUrn))
+                .queryUrn(queryUrn)
                 .build();
     }
 
     public static ScreenEvent createForPlaylist(Screen screen, Optional<Urn> pageUrn) {
         return builder(screen.get())
-                .source(Optional.of(PLAYLIST))
                 .pageUrn(pageUrn)
                 .build();
     }

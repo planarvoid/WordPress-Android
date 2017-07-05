@@ -77,7 +77,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private Urn playlistUrn;
     private Urn ownerUrn;
     private Disposable trackDisposable = Disposables.disposed();
-    private boolean isShowing = false;
+    private boolean isShowing;
 
     @Nullable private RemoveTrackListener removeTrackListener;
 

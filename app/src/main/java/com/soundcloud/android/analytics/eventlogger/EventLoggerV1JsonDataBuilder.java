@@ -60,7 +60,7 @@ class EventLoggerV1JsonDataBuilder {
     // Ads specific events
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
-    static final String BOOGALOO_VERSION = "v1.26.2";
+    static final String BOOGALOO_VERSION = "v1.27.2";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -889,6 +889,7 @@ class EventLoggerV1JsonDataBuilder {
 
         if (sourceInfo.isFromPlaylist() && !sourceInfo.getCollectionUrn().isLocal()) {
             data.inPlaylist(sourceInfo.getCollectionUrn());
+            data.pageUrn(sourceInfo.getCollectionUrn().toString());
             data.playlistPosition(sourceInfo.getPlaylistPosition());
         }
 

@@ -12,7 +12,7 @@
         source_urn: soundcloud:system-playlists:the-upload:soundcloud:users:183
         overflow_menu: true
         source: ambient-new-and-hot
-      page_name: system-playlist:main
+      page_name: systemplaylists:main
       click_category: engagement
       user: soundcloud:users:18173653
       ts: '[0-9]+'

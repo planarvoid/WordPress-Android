@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -20,17 +21,26 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 
 @AutoValue
-abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements PlayableViewItem<PlaylistDetailTrackItem>, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem, ListItem, Timestamped {
+public abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements PlayableViewItem<PlaylistDetailTrackItem>,
+        OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem, ListItem, Timestamped {
 
     PlaylistDetailTrackItem() {
         super(PlaylistDetailItem.Kind.TrackItem);
     }
 
     static Builder builder() {
-        return new AutoValue_PlaylistDetailTrackItem.Builder().inEditMode(false);
+        return new AutoValue_PlaylistDetailTrackItem.Builder()
+                .promotedSourceInfo(Optional.absent())
+                .inEditMode(false);
     }
 
-    abstract TrackItem trackItem();
+    public abstract Urn playlistUrn();
+
+    public abstract Urn playlistOwnerUrn();
+
+    public abstract Optional<PromotedSourceInfo> promotedSourceInfo();
+
+    public abstract TrackItem trackItem();
 
     abstract boolean inEditMode();
 
@@ -83,6 +93,12 @@ abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements Pla
 
     @AutoValue.Builder
     abstract static class Builder {
+
+        abstract Builder playlistUrn(Urn playlistUrn);
+
+        abstract Builder playlistOwnerUrn(Urn playlistOwnerUrn);
+
+        abstract Builder promotedSourceInfo(Optional<PromotedSourceInfo> promotedSourceInfo);
 
         abstract Builder trackItem(TrackItem item);
 

@@ -129,7 +129,6 @@ expected_events:
     page_urn: soundcloud:playlists:[0-9]+
     connection_type: wifi
     user: soundcloud:users:[0-9]+
-    source: playlist
   version: '1'
   optional: false
 - !ruby/object:MrLoggerLogger::Event

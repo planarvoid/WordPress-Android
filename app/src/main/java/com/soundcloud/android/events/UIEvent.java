@@ -472,8 +472,8 @@ public abstract class UIEvent extends TrackingEvent {
         return event(Kind.NAVIGATION).action(Optional.of(Action.NAVIGATION)).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
-    public static UIEvent fromDiscoveryCard(Urn itemUrn, EventContextMetadata contextMetadata) {
-        return event(Kind.DISCOVERY_CARD, ClickName.ITEM_NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+    public static UIEvent fromDiscoveryCard(Optional<Urn> itemUrn, EventContextMetadata contextMetadata) {
+        return event(Kind.DISCOVERY_CARD, ClickName.ITEM_NAVIGATION).clickObjectUrn(itemUrn).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {

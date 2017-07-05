@@ -23,7 +23,6 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
     @Inject
     PlaylistDetailTrackViewRenderer(PlaylistTrackItemRendererFactory playlistTrackItemRendererFactory) {
         this.playlistTrackItemRenderer = playlistTrackItemRendererFactory.create(TrackItemMenuPresenter.RemoveTrackListener.EMPTY);
-        this.playlistTrackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
     }
 
     public void setListener(TrackItemRenderer.Listener listener) {
@@ -41,7 +40,7 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistDetailTrackItem> items) {
         final PlaylistDetailTrackItem detailTrackItem = items.get(position);
-        playlistTrackItemRenderer.bindTrackView(position, itemView, detailTrackItem.trackItem());
+        playlistTrackItemRenderer.bindItemView(position, itemView, items);
         bindEditMode(itemView, detailTrackItem);
     }
 

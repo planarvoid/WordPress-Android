@@ -22,7 +22,7 @@
       query_position: 0
       anonymous_id: (\w|-)+
       policy: MONETIZE
-      page_name: system-playlist:main
+      page_name: systemplaylists:main
       playhead_position: 0
       track_length: 254195
       protocol: hls

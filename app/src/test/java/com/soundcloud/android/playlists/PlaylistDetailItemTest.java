@@ -13,16 +13,28 @@ public class PlaylistDetailItemTest {
     @Test
     public void tracksWithDifferentUrnsAreNotTheSameItem() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem()).build(),
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem()).build()
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem())
+                                       .playlistUrn(Urn.forPlaylist(123L))
+                                       .playlistOwnerUrn(Urn.forUser(123L))
+                                       .build(),
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem())
+                                       .playlistUrn(Urn.forPlaylist(123L))
+                                       .playlistOwnerUrn(Urn.forUser(123L))
+                                       .build()
         )).isFalse();
     }
 
     @Test
     public void tracksWithTheSameUrnsAreTheSameItem() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1))).build(),
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1))).build()
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1)))
+                                       .playlistUrn(Urn.forPlaylist(123L))
+                                       .playlistOwnerUrn(Urn.forUser(123L))
+                                       .build(),
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1)))
+                                       .playlistUrn(Urn.forPlaylist(123L))
+                                       .playlistOwnerUrn(Urn.forUser(123L))
+                                       .build()
         )).isTrue();
     }
 

@@ -44,7 +44,7 @@ class DiscoveryTrackingManager {
         builder.sourceQueryPosition(0);
         builder.queryPosition(selectionPosition);
         builder.queryUrn(singleContentSelectionCard.parentQueryUrn());
-        eventTracker.trackClick(UIEvent.fromDiscoveryCard(selectionUrn, builder.build()));
+        eventTracker.trackClick(UIEvent.fromDiscoveryCard(singleContentSelectionCard.selectionItem().urn(), builder.build()));
     }
 
     private void trackSelectionItemInMultipleContentSelectionCard(SelectionItem selectionItem, int selectionPosition, DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard) {
@@ -66,7 +66,7 @@ class DiscoveryTrackingManager {
                 builder.sourceQueryPosition(itemPosition);
                 builder.module(Module.create(multipleContentSelectionCard.selectionUrn().toString(), itemPosition));
             });
-            eventTracker.trackClick(UIEvent.fromDiscoveryCard(itemUrn, builder.build()));
+            eventTracker.trackClick(UIEvent.fromDiscoveryCard(selectionItemUrn, builder.build()));
         });
     }
 }

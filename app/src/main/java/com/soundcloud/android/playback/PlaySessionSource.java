@@ -57,7 +57,6 @@ public class PlaySessionSource implements Parcelable {
         source.collectionUrn = playlist;
         source.collectionOwnerUrn = playlistOwner;
         source.collectionSize = playlistSize;
-        source.source = Optional.of("playlist");
         return source;
     }
 
