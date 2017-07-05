@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.deeplinks.ChartDetails;
+import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
@@ -181,6 +182,15 @@ public class IntentFactoryTest extends AndroidUnitTest {
                                    .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
                                    .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack.getContent())
                                    .opensActivity(StationInfoActivity.class);
+    }
+
+    @Test
+    public void createDevEventLoggerMonitorReceiverIntent() {
+        assertIntent(IntentFactory.createDevEventLoggerMonitorReceiverIntent(context, false))
+                .containsExtra(DevEventLoggerMonitorReceiver.EXTRA_MONITOR_MUTE, false);
+
+        assertIntent(IntentFactory.createDevEventLoggerMonitorReceiverIntent(context, true))
+                .containsExtra(DevEventLoggerMonitorReceiver.EXTRA_MONITOR_MUTE, true);
     }
 
     private IntentAssert assertIntent(Intent intent) {

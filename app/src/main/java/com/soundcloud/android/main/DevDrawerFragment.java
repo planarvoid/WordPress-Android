@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -11,6 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -34,6 +34,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.preference.TwoStatePreference;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -64,6 +65,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
     @Inject EventBus eventBus;
     @Inject IntroductoryOverlayOperations introductoryOverlayOperations;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject DevEventLoggerMonitorNotificationController monitorNotificationController;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -196,8 +198,26 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                   return true;
               });
 
+        setupEventLoggerMonitorPref(screen);
         setupForceConfigUpdatePref(screen);
         setupCastReceiverIdPref(screen);
+    }
+
+    private void setupEventLoggerMonitorPref(PreferenceScreen screen) {
+        TwoStatePreference preference = (TwoStatePreference) screen.findPreference(getString(R.string.dev_drawer_event_logger_monitor_key));
+        handleEventLoggerMonitorPreference(preference.isChecked());
+        preference.setOnPreferenceChangeListener((pref, checked) -> {
+            handleEventLoggerMonitorPreference((boolean) checked);
+            return true;
+        });
+    }
+
+    private void handleEventLoggerMonitorPreference(boolean monitor) {
+        if (monitor) {
+            monitorNotificationController.startMonitoring();
+        } else {
+            monitorNotificationController.stopMonitoring();
+        }
     }
 
     private void launchFakeUpgrade(Plan plan) {

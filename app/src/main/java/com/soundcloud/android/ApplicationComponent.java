@@ -52,6 +52,7 @@ import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.main.DevDrawerFragment;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.more.BasicSettingsFragment;
@@ -221,6 +222,7 @@ public interface ApplicationComponent {
     void inject(WebViewActivity webViewActivity);
     void inject(MetadataFragment metadataFragment);
     void inject(DevDrawerFragment devDrawerFragment);
+    void inject(DevEventLoggerMonitorReceiver devEventLoggerMonitorReceiver);
     void inject(FullImageDialog fullImageDialog);
     void inject(FullScreenVideoActivity fullScreenVideoActivity);
     void inject(PrestitialActivity prestitialActivity);

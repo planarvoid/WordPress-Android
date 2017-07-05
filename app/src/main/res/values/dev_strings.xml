@@ -53,6 +53,13 @@
     <string name="dev_drawer_flush_eventlogger_instantly_key">dev.flushEventloggerInstantly</string>
     <string name="dev_drawer_flush_eventlogger_instantly_title">Flush Eventlogger Instantly</string>
 
+    <string name="dev_event_logger_monitor_mute_key">dev_event_logger_monitor_mute_key</string>
+    <string name="dev_drawer_event_logger_monitor_key">dev_drawer_event_logger_monitor_key</string>
+    <string name="dev_drawer_event_logger_monitor_title">Event Logger Monitor</string>
+    <string name="dev_notification_event_logger_monitor_title">Event Logger Monitor</string>
+    <string name="dev_notification_event_logger_monitor_action_title_mute">Mute</string>
+    <string name="dev_notification_event_logger_monitor_action_title_unmute">Unmute</string>
+
     <string name="dev_oauth_token_copied">OAuth token copied to clipboard</string>
 
     <string name="dev_drawer_action_cast_id_key">cast_id</string>

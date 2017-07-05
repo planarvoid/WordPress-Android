@@ -23,6 +23,7 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.likes.TrackLikesIntentResolver;
+import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
@@ -450,6 +451,10 @@ public final class IntentFactory {
 
     static Intent createRecentlyPlayedIntent(Context context) {
         return new Intent(context, RecentlyPlayedActivity.class);
+    }
+
+    static Intent createDevEventLoggerMonitorReceiverIntent(Context context, boolean monitorMute) {
+        return new Intent(context, DevEventLoggerMonitorReceiver.class).putExtra(DevEventLoggerMonitorReceiver.EXTRA_MONITOR_MUTE, monitorMute);
     }
 
     static Intent getMonitorIntent(Recording recording) {

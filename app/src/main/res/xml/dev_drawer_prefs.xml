@@ -58,6 +58,11 @@
             android:key="@string/dev_drawer_flush_eventlogger_instantly_key"
             android:title="@string/dev_drawer_flush_eventlogger_instantly_title" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/dev_drawer_event_logger_monitor_key"
+            android:title="@string/dev_drawer_event_logger_monitor_title" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/dev_drawer_introductory_overlays_key"
