@@ -265,6 +265,7 @@ dependencies {
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile(acceptanceTestLibraries.wiremock) {
+    exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     exclude group: 'asm', module: 'asm'
     exclude group: 'org.ow2.asm'
     exclude group: 'org.json', module: 'json'
