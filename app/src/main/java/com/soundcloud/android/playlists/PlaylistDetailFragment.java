@@ -28,9 +28,9 @@ import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
@@ -42,10 +42,10 @@ import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -65,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("PMD.GodClass")
 public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment>
         implements TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsAdapter.PlaylistDetailView,
         PlaylistDetailsPresenter.PlaylistDetailView {
@@ -107,7 +108,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
-        checkNotNull(playlistUrn, "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
+        checkNotNull(playlistUrn,
+                     "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
         fragment.setArguments(createBundle(playlistUrn, screen, searchInfo, promotedInfo, autoplay));
         return fragment;
     }

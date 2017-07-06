@@ -37,7 +37,7 @@ class PlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, Rec
     PlaylistDetailsAdapter(PlaylistDetailView playlistDetailView,
                            PlaylistDetailsHeaderRenderer playlistDetailsHeaderRenderer,
                            @Provided PlaylistDetailsEmptyItemRenderer emptyItemRenderer,
-                           @Provided PlaylistDetailTrackViewRenderer playlistDetailTrackViewRenderer,
+                           @Provided PlaylistTrackItemRenderer playlistDetailTrackViewRenderer,
                            @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
                            @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
         super(new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistDetailsHeaderRenderer),
@@ -96,7 +96,7 @@ class PlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, Rec
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        final ImageView overflow = PlaylistDetailTrackViewRenderer.ViewFetcher.handle(holder.itemView);
+        final ImageView overflow = PlaylistTrackItemRenderer.ViewFetcher.handle(holder.itemView);
         if (overflow != null) {
             overflow.setOnTouchListener(createDragListener(holder));
         }

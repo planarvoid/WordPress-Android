@@ -34,13 +34,13 @@ public abstract class PlaylistDetailTrackItem extends PlaylistDetailItem impleme
                 .inEditMode(false);
     }
 
-    public abstract Urn playlistUrn();
+    abstract Urn playlistUrn();
 
-    public abstract Urn playlistOwnerUrn();
+    abstract Urn playlistOwnerUrn();
 
-    public abstract Optional<PromotedSourceInfo> promotedSourceInfo();
+    abstract Optional<PromotedSourceInfo> promotedSourceInfo();
 
-    public abstract TrackItem trackItem();
+    abstract TrackItem trackItem();
 
     abstract boolean inEditMode();
 

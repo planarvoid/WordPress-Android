@@ -2,13 +2,15 @@ package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
-import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,20 +19,26 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrackItem> {
-    private final PlaylistTrackItemRenderer playlistTrackItemRenderer;
+public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTrackItem> {
+
+    private final TrackItemRenderer trackItemRenderer;
+    private final TrackItemMenuPresenter.RemoveTrackListener removeTrackListener;
 
     @Inject
-    PlaylistDetailTrackViewRenderer(PlaylistTrackItemRendererFactory playlistTrackItemRendererFactory) {
-        this.playlistTrackItemRenderer = playlistTrackItemRendererFactory.create(TrackItemMenuPresenter.RemoveTrackListener.EMPTY);
+    PlaylistTrackItemRenderer(TrackItemRenderer trackItemRenderer) {
+        this.removeTrackListener = TrackItemMenuPresenter.RemoveTrackListener.EMPTY;
+        this.trackItemRenderer = trackItemRenderer;
+        this.trackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
     }
 
-    public void setListener(TrackItemRenderer.Listener listener) {
-        playlistTrackItemRenderer.setListener(listener);
+
+    void setListener(TrackItemRenderer.Listener listener) {
+        trackItemRenderer.setListener(listener);
     }
 
+    @Override
     public View createItemView(ViewGroup parent) {
-        View itemView = playlistTrackItemRenderer.createItemView(parent);
+        View itemView = trackItemRenderer.createItemView(parent);
         // this is because we set the list background to gray in playlists.
         // Should be in the layout when we do that everywhere
         itemView.setBackgroundResource(android.R.color.white);
@@ -39,9 +47,22 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistDetailTrackItem> items) {
-        final PlaylistDetailTrackItem detailTrackItem = items.get(position);
-        playlistTrackItemRenderer.bindItemView(position, itemView, items);
-        bindEditMode(itemView, detailTrackItem);
+        PlaylistDetailTrackItem playlistDetailTrackItem = items.get(position);
+        TrackItem trackItem = playlistDetailTrackItem.trackItem();
+        trackItemRenderer.bindPlaylistTrackView(trackItem,
+                                                itemView,
+                                                position,
+                                                Optional.of(playlistDetailTrackItem.playlistUrn()),
+                                                createTrackSourceInfo(playlistDetailTrackItem, position),
+                                                removeTrackListener);
+        bindEditMode(itemView, playlistDetailTrackItem);
+    }
+
+    private Optional<TrackSourceInfo> createTrackSourceInfo(PlaylistDetailTrackItem playlistDetailTrackItem, int position) {
+        TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.PLAYLIST_DETAILS.get(), true);
+        trackSourceInfo.setOriginPlaylist(playlistDetailTrackItem.playlistUrn(), position, playlistDetailTrackItem.playlistOwnerUrn());
+        playlistDetailTrackItem.promotedSourceInfo().ifPresent(trackSourceInfo::setPromotedSourceInfo);
+        return Optional.of(trackSourceInfo);
     }
 
     // TODO eventually move to a cell renderer

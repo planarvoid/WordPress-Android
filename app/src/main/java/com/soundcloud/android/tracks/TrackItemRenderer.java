@@ -144,12 +144,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         showChartPosition(itemView, position);
     }
 
-    void bindPlaylistTrackView(final TrackItem track,
-                               View itemView,
-                               final int position,
-                               Optional<Urn> pageUrn,
-                               Optional<TrackSourceInfo> trackSourceInfo,
-                               TrackItemMenuPresenter.RemoveTrackListener removeTrackListener) {
+    public void bindPlaylistTrackView(final TrackItem track,
+                                      View itemView,
+                                      final int position,
+                                      Optional<Urn> pageUrn,
+                                      Optional<TrackSourceInfo> trackSourceInfo,
+                                      TrackItemMenuPresenter.RemoveTrackListener removeTrackListener) {
         this.removeTrackListener = removeTrackListener;
         if (track.isBlocked()) {
             // note: TrackItemRenderer already calls `setClickable(false)` but this doesn't appear
