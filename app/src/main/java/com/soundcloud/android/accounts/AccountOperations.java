@@ -190,8 +190,8 @@ public class AccountOperations {
             // Adding this different account should relieve users facing this issue.
             // See: https://stackoverflow.com/questions/43664484/accountmanager-fails-to-add-account-on-sony-xz-7-1-1/44824516#44824516
             if (!accountExists) {
-                Account fallbackAccount = new Account(permalink + "\n", accountType);
-                accountExists = accountManager.addAccountExplicitly(fallbackAccount, null, null);
+                account = new Account(permalink + "\n", accountType);
+                accountExists = accountManager.addAccountExplicitly(account, null, null);
             }
         }
 
