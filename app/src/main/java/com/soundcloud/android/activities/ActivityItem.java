@@ -19,19 +19,24 @@ public abstract class ActivityItem implements Timestamped {
 
     abstract Urn getUrn();
 
+    abstract Optional<String> getImageUrlTemplate();
+
     public static ActivityItem create(Date createdAt,
                                       ActivityKind kind,
                                       String userName,
                                       String playableTitle,
                                       Optional<Urn> commentedTrackUrn,
-                                      Urn urn) {
+                                      Urn urn,
+                                      Optional<String> imageUrlTemplate) {
         return new AutoValue_ActivityItem.Builder()
                 .createdAt(createdAt)
                 .kind(kind)
                 .userName(userName)
                 .playableTitle(playableTitle)
                 .commentedTrackUrn(commentedTrackUrn)
-                .urn(urn).build();
+                .urn(urn)
+                .imageUrlTemplate(imageUrlTemplate)
+                .build();
     }
 
     public static Builder builder() {
@@ -51,6 +56,8 @@ public abstract class ActivityItem implements Timestamped {
         public abstract Builder commentedTrackUrn(Optional<Urn> commentedTrackUrn);
 
         public abstract Builder urn(Urn urn);
+
+        public abstract Builder imageUrlTemplate(Optional<String> imageUrlTemplate);
 
         public abstract ActivityItem build();
     }

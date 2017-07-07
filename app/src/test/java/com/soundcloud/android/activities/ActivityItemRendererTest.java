@@ -49,7 +49,8 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "follower",
                 Strings.EMPTY,
                 Optional.absent(),
-                Urn.forUser(123L)
+                Urn.forUser(123L),
+                Optional.of("image-url")
         );
 
         renderer.bindItemView(0, itemView, singletonList(activityItem));
@@ -71,7 +72,8 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "User name",
                 "Sound title",
                 Optional.absent(),
-                Urn.forUser(123L)
+                Urn.forUser(123L),
+                Optional.of("image-url")
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
@@ -89,7 +91,8 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "User name",
                 "Sound title",
                 Optional.absent(),
-                Urn.forUser(123L)
+                Urn.forUser(123L),
+                Optional.of("image-url")
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
@@ -107,7 +110,8 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "User name",
                 "Sound title",
                 Optional.absent(),
-                Urn.forUser(123L)
+                Urn.forUser(123L),
+                Optional.of("image-url")
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
