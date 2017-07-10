@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -12,6 +13,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
@@ -34,6 +36,7 @@ import android.support.v7.app.AppCompatActivity;
 public class TrackPageListenerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn USER_URN = Urn.forUser(42L);
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
@@ -44,6 +47,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private EngagementsTracking engagementsTracking;
     @Mock private Navigator navigator;
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
+    @Mock private EventTracker eventTracker;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -52,7 +56,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
-                                         likeOperations, navigationExecutor, engagementsTracking, navigator, playerInteractionsTracker);
+                                         likeOperations, navigationExecutor, engagementsTracking, navigator, eventTracker, playerInteractionsTracker);
     }
 
     @Test
@@ -108,9 +112,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onGotoUserEmitsEventToClosePlayer() {
-        Urn userUrn = Urn.forUser(42L);
-
-        listener.onGotoUser(activity(), userUrn);
+        listener.onGotoUser(activity(), USER_URN);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isAutomaticCollapse()).isTrue();
@@ -118,13 +120,11 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
-        Urn userUrn = Urn.forUser(42L);
-
         AppCompatActivity activity = activity();
-        listener.onGotoUser(activity, userUrn);
+        listener.onGotoUser(activity, USER_URN);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userUrn));
+        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(USER_URN));
     }
 
     @Test
@@ -150,5 +150,12 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_OPEN);
+    }
+
+    @Test
+    public void onArtistNameClickSendsUIEvent() throws Exception {
+        listener.onGotoUser(activity(), USER_URN);
+
+        verify(eventTracker).trackClick(UIEvent.fromItemNavigation(USER_URN, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
     }
 }

@@ -113,9 +113,10 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement, is(not(playing())));
     }
 
-    public void testUserButtonGoesToUserProfile() {
+    public void testUserButtonGoesToUserProfile() throws Exception {
         visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         String originalUser = visualPlayerElement.getTrackCreator();
+
         ProfileScreen profileScreen = visualPlayerElement.clickCreator();
 
         assertThat(visualPlayerElement, is(collapsed()));

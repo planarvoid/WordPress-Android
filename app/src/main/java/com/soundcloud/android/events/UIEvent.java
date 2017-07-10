@@ -53,6 +53,7 @@ public abstract class UIEvent extends TrackingEvent {
         SYSTEM_SKIP("system_skip"),
         BUTTON_SKIP("button_skip"),
         NAVIGATION("navigation"),
+        ITEM_NAVIGATION("item_navigation"),
         PLAYER_OPEN("player_open"),
         PLAYER_CLOSE("player_close"),
         VIDEO_AD_FULLSCREEN("video_ad_fullscreen"),
@@ -488,6 +489,10 @@ public abstract class UIEvent extends TrackingEvent {
 
     public static UIEvent fromDiscoveryCard(Optional<Urn> itemUrn, EventContextMetadata contextMetadata) {
         return event(Kind.DISCOVERY_CARD, ClickName.ITEM_NAVIGATION).clickObjectUrn(itemUrn).eventContextMetadata(contextMetadata).build();
+    }
+
+    public static UIEvent fromItemNavigation(Urn clickObjectUrn, EventContextMetadata contextMetadata) {
+        return event(Kind.ITEM_NAVIGATION, ClickName.ITEM_NAVIGATION).clickObjectUrn(Optional.of(clickObjectUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {

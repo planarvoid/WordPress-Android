@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -36,6 +37,7 @@ class TrackPageListener extends PageListener {
     private final NavigationExecutor navigationExecutor;
     private final EngagementsTracking engagementsTracking;
     private final Navigator navigator;
+    private final EventTracker eventTracker;
 
     @Inject
     public TrackPageListener(PlaySessionController playSessionController,
@@ -44,6 +46,7 @@ class TrackPageListener extends PageListener {
                              NavigationExecutor navigationExecutor,
                              EngagementsTracking engagementsTracking,
                              Navigator navigator,
+                             EventTracker eventTracker,
                              PlayerInteractionsTracker playerInteractionsTracker) {
         super(playSessionController, eventBus, playerInteractionsTracker);
         this.playQueueManager = playQueueManager;
@@ -51,6 +54,7 @@ class TrackPageListener extends PageListener {
         this.navigationExecutor = navigationExecutor;
         this.engagementsTracking = engagementsTracking;
         this.navigator = navigator;
+        this.eventTracker = eventTracker;
     }
 
     public void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
@@ -77,6 +81,8 @@ class TrackPageListener extends PageListener {
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {
+        eventTracker.trackClick(UIEvent.fromItemNavigation(userUrn, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
+
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(startProfileActivity(activityContext, userUrn));

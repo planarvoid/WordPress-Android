@@ -190,6 +190,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case SYSTEM_SKIP:
             case BUTTON_SKIP:
             case NAVIGATION:
+            case ITEM_NAVIGATION:
             case SHUFFLE:
             case VIDEO_AD_FULLSCREEN:
             case VIDEO_AD_SHRINK:
