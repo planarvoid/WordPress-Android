@@ -58,18 +58,4 @@ public class SlowQueryReporterTest {
 
         reporter.assertValue("1 [table1]\n2 [table2]\n");
     }
-
-    @Test
-    public void reportsTwiceAfterThrottled() throws Exception {
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
-
-        scheduler.advanceTimeBy(SlowQueryReporter.THROTTLE_TIME_MS + 1, TimeUnit.MILLISECONDS);
-
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
-        scheduler.advanceTimeBy(SlowQueryReporter.THROTTLE_TIME_MS + 1, TimeUnit.MILLISECONDS);
-        scheduler.triggerActions();
-
-        reporter.assertValues("1 [table1]\n2 [table2]\n","1 [table1]\n2 [table2]\n");
-    }
 }
