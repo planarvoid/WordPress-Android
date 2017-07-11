@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.flipper;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
@@ -17,6 +16,8 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.common.ProgressChangeHandler;
+import com.soundcloud.android.playback.common.StateChangeHandler;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -33,12 +34,8 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 @SuppressWarnings("PMD.AvoidCatchingThrowable")
 public class FlipperAdapter extends PlayerListener implements Player {
@@ -52,6 +49,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
     private final AccountOperations accountOperations;
     private final HlsStreamUrlBuilder hlsStreamUrlBuilder;
     private final StateChangeHandler stateHandler;
+    private final ProgressChangeHandler progressChangeHandler;
     private final CurrentDateProvider dateProvider;
     private final ConnectionHelper connectionHelper;
     private final LockUtil lockUtil;
@@ -60,7 +58,6 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Nullable private volatile String currentStreamUrl;
     @Nullable private PlaybackItem currentPlaybackItem;
-    private PlayerListener playerListener;
 
     // Flipper may send past progress events when seeking, leading to UI glitches.
     // This boolean helps us to workaround this.
@@ -73,6 +70,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
                    ConnectionHelper connectionHelper,
                    LockUtil lockUtil,
                    StateChangeHandler stateChangeHandler,
+                   ProgressChangeHandler progressChangeHandler,
                    CurrentDateProvider dateProvider,
                    FlipperFactory flipperFactory,
                    EventBus eventBus,
@@ -82,6 +80,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
         this.accountOperations = accountOperations;
         this.hlsStreamUrlBuilder = hlsStreamUrlBuilder;
         this.stateHandler = stateChangeHandler;
+        this.progressChangeHandler = progressChangeHandler;
         this.dateProvider = dateProvider;
         this.connectionHelper = connectionHelper;
         this.lockUtil = lockUtil;
@@ -89,7 +88,6 @@ public class FlipperAdapter extends PlayerListener implements Player {
         this.flipper = flipperFactory.create(this);
         this.context = context;
         this.performanceReporter = performanceReporter;
-        this.playerListener = PlayerListener.EMPTY;
         this.isSeekPending = false;
         this.cryptoOperations = cryptoOperations;
     }
@@ -178,8 +176,8 @@ public class FlipperAdapter extends PlayerListener implements Player {
     @Override
     public void setListener(PlayerListener playerListener) {
         final PlayerListener safeListener = checkNotNull(playerListener, "PlayerListener can't be null");
-        this.playerListener = safeListener;
         this.stateHandler.setPlayerListener(safeListener);
+        this.progressChangeHandler.setPlayerListener(safeListener);
     }
 
     @Override
@@ -210,7 +208,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     private void reportProgress(long position, long duration) {
         setProgress(position);
-        playerListener.onProgressEvent(position, duration);
+        progressChangeHandler.report(position, duration);
     }
 
     @Override
@@ -308,7 +306,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, TRUE_STRING)
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl);
 
-        final FlipperAdapter.StateChangeMessage message = new FlipperAdapter.StateChangeMessage(currentPlaybackItem, transition);
+        final StateChangeHandler.StateChangeMessage message = new StateChangeHandler.StateChangeMessage(currentPlaybackItem, transition);
         stateHandler.sendMessage(stateHandler.obtainMessage(0, message));
         configureLockBasedOnNewState(transition);
 
@@ -391,37 +389,6 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     private void startPlayback() {
         flipper.play();
-    }
-
-    static class StateChangeHandler extends Handler {
-
-        private PlayerListener playerListener;
-
-        @Inject
-        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper) {
-            super(looper);
-        }
-
-        void setPlayerListener(PlayerListener playerListener) {
-            this.playerListener = playerListener;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final StateChangeMessage message = (StateChangeMessage) msg.obj;
-            playerListener.onPlaystateChanged(message.stateTransition);
-        }
-
-    }
-
-    private static class StateChangeMessage {
-        final PlaybackItem playbackItem;
-        final PlaybackStateTransition stateTransition;
-
-        StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
-            this.playbackItem = item;
-            this.stateTransition = transition;
-        }
     }
 
     private static class FlipperException extends Exception {

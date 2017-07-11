@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -45,8 +44,8 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.common.ProgressChangeHandler;
 import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
-import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler.StateChangeMessage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -66,7 +65,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Message;
 import android.os.Parcel;
@@ -94,6 +92,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private StateChangeHandler stateChangeHandler;
+    @Mock private ProgressChangeHandler progressChangeHandler;
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private ApiUrlBuilder snippetApiUrlBuilder;
     @Mock private Message message;
@@ -102,11 +101,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private Skippy.Configuration preloadConfiguration;
     @Mock private LockUtil lockUtil;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
-    @Mock private SharedPreferences sharedPreferences;
-    @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private SecureFileStorage secureFileStorage;
     @Mock private CryptoOperations cryptoOperations;
-    @Captor private ArgumentCaptor<StateChangeMessage> stateChangeMessageCaptor;
+    @Captor private ArgumentCaptor<StateChangeHandler.StateChangeMessage> stateChangeMessageCaptor;
     @Captor private ArgumentCaptor<Message> messageCaptor;
 
     private Urn userUrn;
@@ -127,11 +124,11 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                           accountOperations,
                                           apiUrlBuilder,
                                           stateChangeHandler,
+                                          progressChangeHandler,
                                           eventBus,
                                           connectionHelper,
                                           lockUtil,
                                           bufferUnderrunListener,
-                                          sharedPreferences,
                                           secureFileStorage,
                                           cryptoOperations,
                                           dateProvider);
@@ -142,9 +139,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
-        when(stateChangeHandler.obtainMessage(eq(0), any(StateChangeMessage.class))).thenReturn(message);
-        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
-        when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
+        when(stateChangeHandler.obtainMessage(eq(0), any(StateChangeHandler.StateChangeMessage.class))).thenReturn(message);
 
         when(apiUrlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn)).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(apiUrlBuilder);
@@ -371,17 +366,17 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void propogatesProgressChangesForPlayingUri() {
+    public void propagatesProgressChangesForPlayingUri() {
         skippyAdapter.play(playbackItem);
         skippyAdapter.onProgressChange(123L, 456L, STREAM_URL, MP3, BITRATE);
-        verify(listener).onProgressEvent(123L, 456L);
+        verify(progressChangeHandler).report(123L, 456L);
     }
 
     @Test
     public void adjustsProgressChangesToDurationBoundsForPlayingUri() {
         skippyAdapter.play(playbackItem);
         skippyAdapter.onProgressChange(567, 456L, STREAM_URL, MP3, BITRATE);
-        verify(listener).onProgressEvent(456, 456L);
+        verify(progressChangeHandler).report(456, 456L);
     }
 
     @Test
@@ -872,7 +867,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     private void verifyStateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
         verify(stateChangeHandler).obtainMessage(anyInt(), stateChangeMessageCaptor.capture());
-        final StateChangeMessage stateChangeMessage = stateChangeMessageCaptor.getValue();
+        final StateChangeHandler.StateChangeMessage stateChangeMessage = stateChangeMessageCaptor.getValue();
 
         assertThat(stateChangeMessage.playbackItem).isEqualTo(item);
         assertThat(stateChangeMessage.stateTransition.getUrn()).isEqualTo(transition.getUrn());
