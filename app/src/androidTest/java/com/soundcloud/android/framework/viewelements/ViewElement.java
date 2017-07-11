@@ -60,6 +60,10 @@ public abstract class ViewElement {
 
     public abstract boolean dragFullyOnScreenVertical();
 
+    public abstract void swipeUp();
+
+    public abstract void swipeDown();
+
     public abstract boolean isAnimating();
 
     public abstract int getHeight();

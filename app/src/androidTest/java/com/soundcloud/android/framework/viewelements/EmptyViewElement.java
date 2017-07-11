@@ -103,6 +103,16 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public void swipeUp() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public void swipeDown() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public boolean isAnimating() {
         throw new ViewNotFoundException(selector);
     }

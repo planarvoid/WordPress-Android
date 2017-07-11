@@ -229,6 +229,24 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public void swipeUp() {
+        final Rect visibleRect = getVisibleRect();
+        final float centerX = visibleRect.centerX();
+        final float centerY = visibleRect.centerY();
+        final float swipeHeightAmount = visibleRect.height() * 2 / 3;
+        testDriver.drag(centerX, centerX, centerY, centerY - swipeHeightAmount, 10);
+    }
+
+    @Override
+    public void swipeDown() {
+        final Rect visibleRect = getVisibleRect();
+        final float centerX = visibleRect.centerX();
+        final float centerY = visibleRect.centerY();
+        final float swipeHeightAmount = visibleRect.height() * 2 / 3;
+        testDriver.drag(centerX, centerX, centerY, centerY + swipeHeightAmount, 10);
+    }
+
+    @Override
     public boolean isFullyOnScreen() {
         return isFullyOnScreen(getVisibleRect(), getRect());
     }

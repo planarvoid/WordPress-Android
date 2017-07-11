@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -9,6 +10,7 @@ import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
@@ -90,6 +92,27 @@ public abstract class Screen {
     public <T> T goBack(Function<Han, T> toPreviousScreen) {
         testDriver.goBack();
         return toPreviousScreen.apply(testDriver);
+    }
+
+    public VisualPlayerElement clickMiniplayer() {
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        testDriver.findOnScreenElement(With.id(R.id.footer_controls)).click();
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
+    public VisualPlayerElement swipeUpMiniplayer() {
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        testDriver.findOnScreenElement(With.id(R.id.footer_controls)).swipeUp();
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
+    public VisualPlayerElement swipeDownMiniplayer() {
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        testDriver.findOnScreenElement(With.id(R.id.track_page_title)).swipeDown();
+        visualPlayerElement.waitForCollapsedPlayer();
+        return visualPlayerElement;
     }
 
     protected ViewElement scrollToItem(final With with) {
