@@ -6,12 +6,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ScreenProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ScreenProviderTest {
     private ScreenProvider screenProvider;
     private TestEventBus eventBus;
 

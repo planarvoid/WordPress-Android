@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -9,23 +8,24 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.ConnectionHelper;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlayQueueAdvancerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayQueueAdvancerTest {
 
     private PlayQueueItem trackPlayQueueItem;
     private Urn trackUrn;
@@ -53,13 +53,8 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
         trackUrn = TestPlayStates.URN;
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playQueueManager.isCurrentItem(trackUrn)).thenReturn(true);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
-        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
-        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
     }
 
     @Test
@@ -181,20 +176,17 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionDoesNotOpenCurrentTrackAfterFailingToAdvancePlayQueue() throws Exception {
-        when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
         assertThat(advancer.onPlayStateChanged(TestPlayStates.complete())).isSameAs(PlayQueueAdvancer.Result.QUEUE_COMPLETE);
         verifyZeroInteractions(playSessionController);
     }
 
     @Test
     public void onStateTransitionReportsPlayQueueCompleteEventAfterFailingToAdvancePlayQueue() throws Exception {
-        when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
         assertThat(advancer.onPlayStateChanged(TestPlayStates.complete())).isSameAs(PlayQueueAdvancer.Result.QUEUE_COMPLETE);
     }
 
     @Test
     public void onStateTransitionStopsPlaybackServiceAfterFailingToAdvancePlayQueue() throws Exception {
-        when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
         advancer.onPlayStateChanged(TestPlayStates.complete());
         verify(serviceInitiator).stopPlaybackService();
     }

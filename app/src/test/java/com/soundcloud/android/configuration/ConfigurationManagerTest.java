@@ -7,14 +7,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
-public class ConfigurationManagerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ConfigurationManagerTest {
 
     private static final Configuration AUTHORIZED_DEVICE_CONFIG = Configuration.builder()
                                                                                .deviceManagement(new DeviceManagement(

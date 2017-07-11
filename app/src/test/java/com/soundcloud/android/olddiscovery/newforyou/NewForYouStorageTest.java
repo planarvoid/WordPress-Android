@@ -12,7 +12,6 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.JsonFileStorage;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -21,14 +20,17 @@ import com.soundcloud.propeller.InsertResult;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class NewForYouStorageTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class NewForYouStorageTest {
 
     public static final Urn QUERY_URN = Urn.forNewForYou("abc");
     @Mock TrackRepository trackRepository;

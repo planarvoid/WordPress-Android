@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import okhttp3.Call;
@@ -13,15 +12,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class SimpleTrackingApiTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SimpleTrackingApiTest {
 
     private TrackingRecord event;
     private SimpleTrackingApi simpleTrackingApi;

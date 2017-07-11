@@ -7,14 +7,16 @@ import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.app.Activity;
 
-public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AdjustAnalyticsProviderTest {
 
     @Mock private AdjustWrapper adjustWrapper;
     @Mock private Activity activity;

@@ -3,10 +3,12 @@ package com.soundcloud.android.search;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class SearchResultItemTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SearchResultItemTest {
 
     private SearchResultItem searchResultItem;
 

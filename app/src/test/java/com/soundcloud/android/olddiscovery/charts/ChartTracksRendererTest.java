@@ -7,23 +7,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.view.View;
 
 import java.util.List;
 
-public class ChartTracksRendererTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ChartTracksRendererTest {
     private static final int POSITION = 1;
     private static final Urn GENRE_URN = new Urn("soundcloud:genres:rock");
     private static final Optional<Urn> QUERY_URN = Optional.of(new Urn("soundcloud:charts:2345kj235kj2435"));

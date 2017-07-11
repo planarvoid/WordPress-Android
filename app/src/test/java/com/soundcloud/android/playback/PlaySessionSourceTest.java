@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 public class PlaySessionSourceTest extends AndroidUnitTest {
     private static final String ORIGIN_PAGE = "origin:page";
-    private static final String EXPLORE_VERSION = "1.0";
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
     private static final Urn USER_URN = Urn.forUser(2);
     private static final int TRACK_COUNT = 5;

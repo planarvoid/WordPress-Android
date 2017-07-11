@@ -27,7 +27,6 @@ import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
@@ -42,13 +41,16 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.robolectric.shadows.ShadowLog;
 
 import java.util.Collections;
 import java.util.List;
 
-public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistDetailsDataSourceProviderTest {
 
     private DataSourceProvider dataSourceProvider;
 
@@ -325,7 +327,6 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     @Test
     public void emitsEverythingAgainOnRefresh() throws Exception {
         when(trackRepository.forPlaylist(playlist.urn(), STALE_TIME_MILLIS)).thenReturn(Single.just(trackItems), Single.just(updatedTrackItems));
-        when(trackRepository.forPlaylist(pushedPlaylist.urn(), STALE_TIME_MILLIS)).thenReturn(Single.just(trackItems), Single.just(updatedTrackItems));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist), Maybe.just(updatedPlaylist));
 
         TestObserver<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();

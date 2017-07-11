@@ -14,7 +14,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -24,9 +23,11 @@ import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
@@ -34,7 +35,8 @@ import android.view.ViewGroup;
 import java.util.Collections;
 import java.util.List;
 
-public class SearchResultsAdapterTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SearchResultsAdapterTest {
 
     private static final int SEARCH_RESULTS_COUNT = 100;
 

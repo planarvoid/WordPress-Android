@@ -47,13 +47,17 @@ final class ImageOptionsFactory {
                 .displayer(displayer);
 
         if (ApiImageSize.SMALL_SIZES.contains(apiImageSize)
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
                 || deviceHelper.isLowMemoryDevice()
+                || isBeforeLollipop()
                 || deviceHelper.isTablet()) {
             options.bitmapConfig(Bitmap.Config.RGB_565);
         }
 
         return options.build();
+    }
+
+    private static boolean isBeforeLollipop() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     }
 
     public static DisplayImageOptions fullImageDialog() {
@@ -112,7 +116,7 @@ final class ImageOptionsFactory {
                 .showImageForEmptyUri(placeholderDrawable)
                 .displayer(displayer);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+        if (isBeforeLollipop()
             || deviceHelper.isLowMemoryDevice()
             || deviceHelper.isTablet()) {
             options.bitmapConfig(Bitmap.Config.RGB_565);

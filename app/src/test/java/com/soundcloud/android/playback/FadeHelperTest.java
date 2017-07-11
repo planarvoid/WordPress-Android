@@ -3,17 +3,19 @@ package com.soundcloud.android.playback;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.Mockito.times;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.schedulers.TestScheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public class FadeHelperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class FadeHelperTest {
     private static final long STEP_MS = 10;
     private static final long HALF_SECOND = 500;
     private static final long ONE_SECOND = 1000;

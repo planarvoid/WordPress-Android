@@ -11,17 +11,19 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-public class CastPlayStateReporterTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CastPlayStateReporterTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final long fakeProgress = 123L;

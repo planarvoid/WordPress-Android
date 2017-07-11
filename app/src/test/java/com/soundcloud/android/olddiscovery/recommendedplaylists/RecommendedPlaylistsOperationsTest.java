@@ -9,19 +9,21 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RecommendedPlaylistsOperationsTest {
 
     @Mock private SyncOperations syncOperations;
     @Mock private RecommendedPlaylistsStorage playlistsStorage;

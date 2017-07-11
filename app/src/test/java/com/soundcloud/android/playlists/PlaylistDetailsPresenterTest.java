@@ -318,7 +318,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(null);
+        offlineSubject.onNext(RxSignal.SIGNAL);
 
         OfflineInteractionEvent event = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
         assertThat(event.clickObject()).isEqualTo(of(playlistUrn));
@@ -335,7 +335,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(null);
+        offlineSubject.onNext(RxSignal.SIGNAL);
 
         verify(playlistDetailView).showOfflineStorageErrorDialog(any());
         verifyZeroInteractions(offlineContentOperations);

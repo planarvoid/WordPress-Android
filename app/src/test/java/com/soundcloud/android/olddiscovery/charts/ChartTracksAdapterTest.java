@@ -16,7 +16,7 @@ import org.mockito.Mock;
 
 import java.util.Date;
 
-public class ChartTracksAdapterTest extends AndroidUnitTest{
+public class ChartTracksAdapterTest extends AndroidUnitTest {
 
     private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.Header.create(TOP);
     private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem();

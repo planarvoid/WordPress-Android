@@ -7,17 +7,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class EventLoggerEventDataTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EventLoggerEventDataTest {
 
     private static final int CLIENT_ID = 12;
     private static final String VERSION = "123";

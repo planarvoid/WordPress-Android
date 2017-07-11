@@ -12,19 +12,21 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.VideoAdQueueItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 
-public class AdOrientationControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AdOrientationControllerTest {
 
     @Mock private AdsOperations adsOperations;
     @Mock private PlayQueueManager playQueueManager;
@@ -147,8 +149,6 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
     }
 
     private void setAudioPlaying(boolean isAd) {
-        when(adsOperations.isCurrentItemAd()).thenReturn(isAd);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(isAd);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
                                                                        Urn.NOT_SET,
@@ -161,7 +161,6 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
                                                    AdFixtures.getApiVideoSource(600, 300);
         final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
                                                                                              videoSource));
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(videoItem.getAdData());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,

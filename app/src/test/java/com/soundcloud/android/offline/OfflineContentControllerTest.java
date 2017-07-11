@@ -18,12 +18,13 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.observers.TestSubscriber;
@@ -34,7 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OfflineContentControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineContentControllerTest {
 
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);
@@ -63,8 +65,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(serviceInitiator.stop()).thenReturn(stopServiceAction);
         when(serviceInitiator.startSubscriber()).thenReturn(startServiceSubscriber);
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
-        when(offlineContentOperations.enableOfflineCollection()).thenReturn(Observable.just(null));
-        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.just(null));
         controller = new OfflineContentController(eventBus,
                                                   settingsStorage,
                                                   serviceInitiator,
@@ -89,8 +89,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenLikesChangedButOfflineLikesAreDisabled() {
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(false));
-
         controller.subscribe();
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.TRACK_LIKES.name(), true));
@@ -212,8 +210,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenPlaylistMarkedAsOfflineSyncedButNoChanged() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
-
         controller.subscribe();
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), false, PLAYLIST));
@@ -311,8 +307,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     @Test
     public void dontAddAgainOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         // Note : If not, this would trigger an inifinite loop.
-        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(Observable.empty());
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         controller.subscribe();
@@ -323,8 +317,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void nopOpWhenPlaylistCreatedButOfflineCollectionDisabled() {
-        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
-
         controller.subscribe();
         onCollectionChanged.onNext(SIGNAL);
 

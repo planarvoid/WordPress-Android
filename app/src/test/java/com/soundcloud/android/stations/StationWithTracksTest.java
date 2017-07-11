@@ -5,13 +5,15 @@ import static com.soundcloud.android.stations.StationFixtures.getStationWithTrac
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class StationWithTracksTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationWithTracksTest {
 
     @Test
     public void calculatesMostPlayedArtists() {

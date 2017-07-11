@@ -1,29 +1,30 @@
 package com.soundcloud.android.stream;
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.ScrollDepthEvent;
-import com.soundcloud.android.events.ScrollDepthEvent.Action;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.rx.eventbus.TestEventBus;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class StreamDepthPublisherTest extends AndroidUnitTest {
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.ScrollDepthEvent;
+import com.soundcloud.android.events.ScrollDepthEvent.Action;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.rx.eventbus.TestEventBus;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
+public class StreamDepthPublisherTest {
 
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock RecyclerView recyclerView;

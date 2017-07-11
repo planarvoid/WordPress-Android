@@ -3,12 +3,14 @@ package com.soundcloud.android.profile;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ProfileScrollHelperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ProfileScrollHelperTest {
 
     private ProfileScrollHelper profileScrollHelper;
 

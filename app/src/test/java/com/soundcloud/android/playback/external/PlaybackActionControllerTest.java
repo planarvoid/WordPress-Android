@@ -6,12 +6,14 @@ import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackActionSource;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlaybackActionControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaybackActionControllerTest {
 
     private PlaybackActionController controller;
 

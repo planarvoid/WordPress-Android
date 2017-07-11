@@ -13,16 +13,17 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.settings.SettingKey;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
@@ -34,7 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AnalyticsEngineTrackingTest {
 
     private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();

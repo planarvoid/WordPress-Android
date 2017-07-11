@@ -7,14 +7,16 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayerUpsellImpressionControllerTest {
 
     private PlayerUpsellImpressionController controller;
 

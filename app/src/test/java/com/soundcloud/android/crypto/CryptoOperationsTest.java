@@ -8,17 +8,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.schedulers.Schedulers;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class CryptoOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CryptoOperationsTest {
 
     private CryptoOperations operations;
 
@@ -41,9 +43,10 @@ public class CryptoOperationsTest extends AndroidUnitTest {
 
     @Test
     public void generateKeyWhenItDoesNotExist() {
-        when(storage.contains(KEY_NAME)).thenReturn(false);
+        final String keyName = "my key";
+        when(storage.contains(keyName)).thenReturn(false);
 
-        operations.getKeyOrGenerateAndStore("my key");
+        operations.getKeyOrGenerateAndStore(keyName);
 
         verify(storage).put(any(DeviceSecret.class));
         verify(storage, never()).get(KEY_NAME);

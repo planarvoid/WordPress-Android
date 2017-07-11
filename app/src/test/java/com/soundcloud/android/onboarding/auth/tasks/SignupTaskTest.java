@@ -16,15 +16,17 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.os.Bundle;
 
-public class SignupTaskTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SignupTaskTest {
 
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SoundCloudApplication application;

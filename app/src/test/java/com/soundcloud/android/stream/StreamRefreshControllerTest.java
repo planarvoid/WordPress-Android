@@ -5,13 +5,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.StreamEvent;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.schedulers.TestScheduler;
 
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class StreamRefreshControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StreamRefreshControllerTest {
 
     private static final StreamEvent REFRESH_STREAM_EVENT = StreamEvent.fromStreamRefresh();
 

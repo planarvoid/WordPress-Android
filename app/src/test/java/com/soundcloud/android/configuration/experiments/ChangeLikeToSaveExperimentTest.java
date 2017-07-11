@@ -5,12 +5,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionNavigationTarget;
 import com.soundcloud.android.collection.SaveCollectionNavigationTarget;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ChangeLikeToSaveExperimentTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ChangeLikeToSaveExperimentTest {
 
     @Mock private ExperimentOperations experimentOperations;
 

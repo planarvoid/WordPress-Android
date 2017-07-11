@@ -7,15 +7,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.view.View;
 
-public class OfflineStateHelperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineStateHelperTest {
 
     @Mock private View view;
     @Mock private OfflineStateHelper.Callback callback;

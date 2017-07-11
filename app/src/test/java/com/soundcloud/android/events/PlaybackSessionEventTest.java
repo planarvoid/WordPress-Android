@@ -6,18 +6,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 
-public class PlaybackSessionEventTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaybackSessionEventTest {
 
     private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;

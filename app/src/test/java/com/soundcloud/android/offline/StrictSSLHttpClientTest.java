@@ -4,18 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class StrictSSLHttpClientTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StrictSSLHttpClientTest {
 
     private final String USER_AGENT = "agent";
     private final String FILE_URL = "http://path/file";

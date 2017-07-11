@@ -5,21 +5,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayableItemStatusLoaderTest {
 
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;

@@ -6,18 +6,20 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
 
-public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflinePlaybackOperationsTest {
 
     @Mock private FeatureOperations featureOperations;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;

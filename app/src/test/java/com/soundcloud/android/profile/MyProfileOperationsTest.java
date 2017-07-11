@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.users.UserAssociation;
@@ -24,7 +23,9 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.observers.TestSubscriber;
 
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class MyProfileOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class MyProfileOperationsTest {
 
     private static final SyncJobResult SYNC_JOB_RESULT = SyncJobResult.success("success", true);
     private final Single<SyncJobResult> SHOULD_NEVER_SYNC = Single.error(new RuntimeException("should not have synced"));
@@ -78,8 +80,6 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncAndLoadEmptyFollowingsResultsWithEmptyResults() {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE,
                                                      Consts.NOT_SET)).thenReturn(Single.just(Collections.emptyList()));
-        when(userAssociationStorage.followedUsers(PAGE_SIZE,
-                                                  Consts.NOT_SET)).thenReturn(Single.just(Collections.emptyList()));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Single.just(TestSyncJobResults.successWithChange()));
 
         operations.followings().test().assertValue(List::isEmpty);
@@ -92,7 +92,6 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Single.just(urns));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Single.just(
                 pageOfFollowings));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
         when(syncInitiator.batchSyncUsers(urns)).thenReturn(Single.just(SYNC_JOB_RESULT));
 
         operations.followings().test().assertValue(pageOfFollowings);
@@ -108,7 +107,6 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, position)).thenReturn(Single.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Single.just(secondPage));
 
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Single.never());
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Single.just(SYNC_JOB_RESULT));
 
         operations.followingsPagingFunction().call(firstPage).subscribe(subscriber);
@@ -153,7 +151,6 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
         when(userAssociationStorage.followedUserAssociations()).thenReturn(Single.just(
                 followingsUrn));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
 
         operations.followingsUserAssociations().test().assertComplete().assertValue(followingsUrn);
 

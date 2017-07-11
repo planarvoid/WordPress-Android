@@ -12,20 +12,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.LegacyPager;
@@ -41,7 +41,8 @@ import android.widget.AdapterView;
 
 import java.util.List;
 
-public class PullToRefreshControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PullToRefreshControllerTest {
 
     private RefreshableFragment fragment = new RefreshableFragment();
 
@@ -63,7 +64,6 @@ public class PullToRefreshControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         controller = new PullToRefreshController(wrapper);
 
-        when(layout.findViewById(R.id.str_layout)).thenReturn(layout);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(wrapper.isAttached()).thenReturn(true);
@@ -77,7 +77,6 @@ public class PullToRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldAttachPullToRefreshWrapperWithCustomListenerIfSet() {
-        when(wrapper.isAttached()).thenReturn(false);
         controller.setRefreshListener(listener);
         controller.onViewCreated(fragment, layout, bundle);
 
@@ -86,7 +85,6 @@ public class PullToRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldAttachPullToRefreshWrapperWithInternalRefreshListenerIfOwnerIsRefreshable() {
-        when(wrapper.isAttached()).thenReturn(false);
         controller.setRefreshListener(fragment, mock(PagingListItemAdapter.class));
         controller.onViewCreated(fragment, layout, bundle);
 

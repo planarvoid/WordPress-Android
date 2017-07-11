@@ -5,25 +5,25 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import io.reactivex.subjects.PublishSubject;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.schedulers.Schedulers;
 
-public class StationsControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationsControllerTest {
     private static final Urn TRACK_URN = TestPlayStates.URN;
     private static final Urn STATION = Urn.forTrackStation(TRACK_URN.getNumericId());
 
@@ -34,7 +34,6 @@ public class StationsControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
-        when(operations.syncLikedStations()).thenReturn(syncLikedStations.firstOrError());
 
         new StationsController(eventBus, operations, Schedulers.immediate()).subscribe();
     }

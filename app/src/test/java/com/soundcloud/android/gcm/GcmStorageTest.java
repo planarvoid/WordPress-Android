@@ -11,7 +11,7 @@ import org.mockito.Mock;
 
 import android.content.SharedPreferences;
 
-public class GcmStorageTest extends AndroidUnitTest{
+public class GcmStorageTest extends AndroidUnitTest {
 
     private GcmStorage gcmStorage;
 

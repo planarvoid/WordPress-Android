@@ -14,13 +14,14 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -29,7 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserProfileOperationsAlbumsTest {
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
 

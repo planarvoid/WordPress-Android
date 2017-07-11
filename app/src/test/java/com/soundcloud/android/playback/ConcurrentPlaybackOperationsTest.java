@@ -6,12 +6,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ConcurrentPlaybackOperationsTest {
 
     @Mock StopReasonProvider stopReasonProvider;
     @Mock PlaySessionStateProvider playSessionStateProvider;

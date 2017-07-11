@@ -6,15 +6,17 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.support.v7.app.AppCompatActivity;
 
-public class UserRemovedControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserRemovedControllerTest {
 
     @Mock private AppCompatActivity activity;
 

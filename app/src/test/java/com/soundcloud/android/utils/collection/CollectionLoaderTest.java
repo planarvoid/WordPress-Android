@@ -8,12 +8,13 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.CollectionLoadingState;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.observers.AssertableSubscriber;
@@ -23,8 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("unchecked")
-public class CollectionLoaderTest extends AndroidUnitTest {
+public class CollectionLoaderTest {
 
     private final ApiRequestException networkError = ApiRequestException.networkError(null, null);
 

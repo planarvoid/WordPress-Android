@@ -3,10 +3,11 @@ package com.soundcloud.android.accounts;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.exception.OperationFailedException;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.observers.TestSubscriber;
 
 import android.accounts.Account;
@@ -17,7 +18,8 @@ import android.accounts.OperationCanceledException;
 
 import java.io.IOException;
 
-public class AccountRemovalFunctionTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AccountRemovalFunctionTest {
 
     private AccountRemovalFunction function;
 

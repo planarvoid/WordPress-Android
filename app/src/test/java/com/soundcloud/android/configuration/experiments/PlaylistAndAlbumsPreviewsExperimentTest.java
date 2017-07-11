@@ -3,12 +3,14 @@ package com.soundcloud.android.configuration.experiments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlaylistAndAlbumsPreviewsExperimentTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistAndAlbumsPreviewsExperimentTest {
     @Mock private ExperimentOperations experimentOperations;
 
     private PlaylistAndAlbumsPreviewsExperiment config;

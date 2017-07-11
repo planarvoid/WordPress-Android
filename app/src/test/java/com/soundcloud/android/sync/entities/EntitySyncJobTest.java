@@ -12,19 +12,21 @@ import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.PublishUpdateEventCommand;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-public class EntitySyncJobTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EntitySyncJobTest {
 
     private EntitySyncJob entitySyncJob;
 

@@ -1,10 +1,7 @@
 package com.soundcloud.android.accounts;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -19,11 +16,11 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.discovery.DiscoveryWritableStorage;
-import com.soundcloud.android.olddiscovery.OldDiscoveryOperations;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.SecureFileStorage;
+import com.soundcloud.android.olddiscovery.OldDiscoveryOperations;
+import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -35,18 +32,20 @@ import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class AccountCleanupActionTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AccountCleanupActionTest {
 
     private AccountCleanupAction action;
 
@@ -111,10 +110,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           shortcutController,
                                           secureFileStorage,
                                           discoveryWritableStorage);
-
-        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
-        when(sharedPreferences.edit()).thenReturn(editor);
-        when(context.getApplicationContext()).thenReturn(soundCloudApplication);
     }
 
     @Test

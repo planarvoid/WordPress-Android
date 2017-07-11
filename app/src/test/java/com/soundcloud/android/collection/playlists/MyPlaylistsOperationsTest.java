@@ -12,7 +12,6 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -21,13 +20,16 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class MyPlaylistsOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class MyPlaylistsOperationsTest {
 
     private MyPlaylistsOperations operations;
 
@@ -57,8 +59,6 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
                 Schedulers.trampoline());
 
         when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Single.just(true));
-        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
-
 
         postedPlaylist1 = getPlaylistItem(Urn.forPlaylist(1L), "apple");
         postedPlaylist2 = getPlaylistItem(Urn.forPlaylist(2L), "banana");

@@ -2,13 +2,15 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.app.Activity;
 
-public class ActivityLightCycleEventTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ActivityLightCycleEventTest {
 
     @Mock Activity activity;
 

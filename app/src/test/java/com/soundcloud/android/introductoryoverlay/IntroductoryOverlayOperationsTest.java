@@ -11,18 +11,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations.OnIntroductoryOverlayStateChangedListener;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 import java.util.concurrent.TimeUnit;
 
-public class IntroductoryOverlayOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class IntroductoryOverlayOperationsTest {
 
     private static final String OVERLAY_KEY = IntroductoryOverlayKey.PLAY_QUEUE;
     private static final long CURRENT_TIME = 123L;

@@ -12,14 +12,16 @@ import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
-public class CastSessionControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CastSessionControllerTest {
 
     private DefaultCastSessionController castSessionController;
 
@@ -42,8 +44,6 @@ public class CastSessionControllerTest extends AndroidUnitTest {
                                                                  castConnectionHelper,
                                                                  playSessionStateProvider,
                                                                  castProtocol);
-        when(castSession.getCastDevice()).thenReturn(castDevice);
-        when(castDevice.getFriendlyName()).thenReturn("My Cast");
     }
 
     @Test

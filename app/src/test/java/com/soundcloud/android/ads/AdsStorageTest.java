@@ -7,18 +7,20 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
 
 import java.util.concurrent.TimeUnit;
 
-public class AdsStorageTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AdsStorageTest {
 
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;

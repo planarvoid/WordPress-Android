@@ -3,11 +3,9 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
-import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,13 +30,11 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -46,9 +42,11 @@ import io.reactivex.subjects.MaybeSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.observers.TestSubscriber;
@@ -56,7 +54,8 @@ import rx.schedulers.Schedulers;
 
 import java.util.List;
 
-public class PlaylistOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistOperationsTest {
 
     private static final boolean IS_PRIVATE = true;
     private static final String NEW_TITLE = "new title";
@@ -102,10 +101,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.upsellOfflineContent()).thenReturn(false);
-
         eventBus = new TestEventBus();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
         operations = new PlaylistOperations(Schedulers.immediate(),
@@ -120,7 +115,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             offlineContentOperations,
                                             eventBus);
         when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(playlistSyncSubject);
-        when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
     }
 
     @Test
@@ -139,7 +133,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistWithTracksFromStorage() {
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(track1, track2)));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
@@ -150,9 +143,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(
-                track1,
-                track2)));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.empty(), Maybe.just(playlist));
         final MaybeSubject<Playlist> playlistSource = MaybeSubject.create();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(playlistSource);
@@ -171,9 +161,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(Single.just(SyncJobResult.success(
                 Syncable.PLAYLIST.name(),
                 true)));
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(
-                track1,
-                track2)));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.empty(), Maybe.empty());
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
@@ -190,7 +177,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         SingleSubject<SyncJobResult> myPlaylistSyncSubject = SingleSubject.create();
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(myPlaylistSyncSubject);
-        when(trackRepository.forPlaylist(localPlaylist.urn())).thenReturn(Single.just(trackList));
         when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(Maybe.just(localPlaylist));
         when(syncInitiator.syncPlaylist(localPlaylist.urn())).thenReturn(playlistSyncSubject);
 

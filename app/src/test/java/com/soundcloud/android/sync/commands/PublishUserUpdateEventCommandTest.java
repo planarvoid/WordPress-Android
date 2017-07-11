@@ -9,19 +9,21 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-public class PublishUserUpdateEventCommandTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PublishUserUpdateEventCommandTest {
 
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<UserChangedEvent> userChangedEventArgumentCaptor;

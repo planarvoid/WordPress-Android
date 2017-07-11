@@ -6,14 +6,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class VolumeControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class VolumeControllerTest {
 
     private static final long ONE_SECOND = 1000;
     private static final FadeRequest FADE_OUT_ONE_SECOND = FadeRequest.create(ONE_SECOND, 0, 1, 0);
@@ -65,8 +67,6 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
     @Test
     public void unMuteDoesNotFadeInWhenNotMuted() {
-        when(streamPlayer.getVolume()).thenReturn(0f);
-
         volumeController.unMute(ONE_SECOND);
 
         verify(fadeHelper, never()).fade(FADE_IN_ONE_SECOND);

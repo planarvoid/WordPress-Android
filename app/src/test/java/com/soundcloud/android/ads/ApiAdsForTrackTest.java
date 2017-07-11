@@ -1,17 +1,18 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.optional.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class ApiAdsForTrackTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ApiAdsForTrackTest {
     private AudioAd.ApiModel audioAd;
     private VideoAd.ApiModel videoAd;
     private InterstitialAd.ApiModel interstitial;

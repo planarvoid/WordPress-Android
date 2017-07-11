@@ -23,7 +23,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
@@ -33,7 +32,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
@@ -42,7 +43,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class OldDiscoveryModulesProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OldDiscoveryModulesProviderTest {
 
     private static final Function<OldDiscoveryItem, OldDiscoveryItem.Kind> TO_KIND = OldDiscoveryItem::getKind;
     private final TestSubscriber<List<OldDiscoveryItem>> subscriber = new TestSubscriber<>();

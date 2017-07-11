@@ -10,16 +10,18 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.ui.progress.ScrubController.DirectionAwareScrubListener.Direction;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.WaveformScrollView;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.os.Message;
 
-public class ScrubControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ScrubControllerTest {
 
     private ScrubController scrubController;
 
@@ -101,7 +103,6 @@ public class ScrubControllerTest extends AndroidUnitTest {
     @Test
     public void onScrollCallsListenerWithNewPositionIfMessageInQueue() {
         scrollListener.onPress();
-        when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);
 
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
         scrollListener.onScroll(5, 10);
@@ -111,7 +112,6 @@ public class ScrubControllerTest extends AndroidUnitTest {
     @Test
     public void onScrollSendsSeekMessageIfMessageInQueue() {
         scrollListener.onPress();
-        when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);
 
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
         when(seekHandler.obtainMessage(ScrubController.MSG_PERFORM_SEEK, .5f)).thenReturn(message);
@@ -122,7 +122,6 @@ public class ScrubControllerTest extends AndroidUnitTest {
     @Test
     public void onScrollRemovesExistinSeekMessageIfMessageInQueue() {
         scrollListener.onPress();
-        when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);
 
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
         scrollListener.onScroll(5, 10);

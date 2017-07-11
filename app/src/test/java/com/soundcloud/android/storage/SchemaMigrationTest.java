@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 // Thanks Jeremie! http://jeremie-martinez.com/2016/02/16/unit-tests/
-
 public class SchemaMigrationTest extends AndroidUnitTest {
 
     private DatabaseMigrationHelper migrationHelper;

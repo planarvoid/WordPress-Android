@@ -9,13 +9,15 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class DefaultCastConnectionHelperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DefaultCastConnectionHelperTest {
 
     @Mock private CastContextWrapper castContextWrapper;
     @Mock private CastConnectionHelper.OnConnectionChangeListener listener;

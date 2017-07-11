@@ -3,14 +3,16 @@ package com.soundcloud.android.playback.ui;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.view.View;
 
-public class TrackPageRecyclerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class TrackPageRecyclerTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);

@@ -16,14 +16,15 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -31,7 +32,8 @@ import rx.schedulers.Schedulers;
 import java.util.Collections;
 import java.util.List;
 
-public class UserProfileOperationsProfileTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserProfileOperationsProfileTest {
 
     private static final ModelCollection<ApiPlaylistPost> API_ALBUMS = new ModelCollection<>();
     private UserProfileOperations operations;

@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -26,13 +25,16 @@ import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class FollowingOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class FollowingOperationsTest {
 
     private static final int FOLLOWER_COUNT = 2;
     private FollowingOperations operations;

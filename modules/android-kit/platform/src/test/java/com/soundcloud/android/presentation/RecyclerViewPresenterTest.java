@@ -155,9 +155,9 @@ public class RecyclerViewPresenterTest extends AndroidUnitTest {
     public void shouldSubscribeObserverWhenCreated() {
         final List<String> listContent = Collections.singletonList("item");
         CollectionBinding<List<String>, String> collectionBinding = CollectionBinding.from(Observable.just(listContent))
-                .withAdapter(adapter)
-                .addObserver(observer)
-                .build();
+                                                                                     .withAdapter(adapter)
+                                                                                     .addObserver(observer)
+                                                                                     .build();
 
         createPresenterWithBinding(collectionBinding, Options.list().build());
 
@@ -231,9 +231,9 @@ public class RecyclerViewPresenterTest extends AndroidUnitTest {
     public void shouldAddPagingScrollListenerIfBindingIsPaged() {
         when(recyclerView.getLayoutManager()).thenReturn(mock(LinearLayoutManager.class));
         final CollectionBinding collectionBinding = CollectionBinding.from(source)
-                .withAdapter(adapter)
-                .withPager(TestPager.<List<String>>singlePageFunction())
-                .build();
+                                                                     .withAdapter(adapter)
+                                                                     .withPager(TestPager.<List<String>>singlePageFunction())
+                                                                     .build();
         createPresenterWithBinding(collectionBinding, Options.list().build());
 
         presenter.onCreate(fragment, null);
@@ -344,7 +344,7 @@ public class RecyclerViewPresenterTest extends AndroidUnitTest {
     @Test
     public void pullToRefreshResubscribesViewObserversToNewBindingIfRefreshSuccessful() {
         createPresenterWithBinding(defaultBinding(),
-                defaultBinding(), Options.list().build(), listObserver);
+                                   defaultBinding(), Options.list().build(), listObserver);
 
         triggerPullToRefresh();
         final List<String> listContent = Collections.singletonList("items");

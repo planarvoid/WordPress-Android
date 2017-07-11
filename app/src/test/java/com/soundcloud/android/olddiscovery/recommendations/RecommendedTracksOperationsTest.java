@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -21,7 +20,9 @@ import com.soundcloud.android.tracks.TrackItemRepository;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Scheduler;
 import rx.observers.TestSubscriber;
@@ -32,7 +33,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class RecommendedTracksOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RecommendedTracksOperationsTest {
 
     private static final long SEED_ID = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;

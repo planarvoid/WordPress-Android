@@ -16,7 +16,6 @@ import com.soundcloud.android.likes.Like;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
@@ -25,7 +24,9 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +34,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class OfflineStateOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineStateOperationsTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);

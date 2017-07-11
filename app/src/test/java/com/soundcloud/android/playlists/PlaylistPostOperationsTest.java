@@ -8,17 +8,19 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
-public class PlaylistPostOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistPostOperationsTest {
 
     private PlaylistPostOperations operations;
 

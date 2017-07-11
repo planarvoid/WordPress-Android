@@ -7,18 +7,19 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
-
-public class VideoSurfaceProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class VideoSurfaceProviderTest {
 
     @Mock VideoTextureContainer.Factory containerFactory;
     @Mock VideoTextureContainer textureContainer;
@@ -94,8 +95,6 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
     @Test
     public void releasesExistingContainerBeforeBuildingNewContainerIfNewOriginForExistingVideo() {
-        when(textureContainer.containsTextureView(textureView)).thenReturn(true);
-
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
         videoSurfaceProvider.setTextureView(UUID, ORIGIN2, textureView2, Optional.absent());
 

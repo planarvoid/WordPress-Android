@@ -10,17 +10,19 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PerformanceReporterTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PerformanceReporterTest {
 
     private static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
     private static final PlayerType PLAYER_TYPE = PlayerType.FLIPPER;

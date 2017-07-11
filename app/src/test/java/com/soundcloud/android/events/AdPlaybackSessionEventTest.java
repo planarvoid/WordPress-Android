@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 

@@ -14,7 +14,6 @@ import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.stream.StreamItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -22,11 +21,14 @@ import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.TimeUnit;
 
-public class FacebookInvitesOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class FacebookInvitesOperationsTest {
 
     private FacebookInvitesOperations operations;
 

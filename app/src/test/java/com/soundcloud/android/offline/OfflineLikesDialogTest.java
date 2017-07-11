@@ -7,16 +7,18 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 
 import android.content.DialogInterface;
 
-public class OfflineLikesDialogTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineLikesDialogTest {
 
     public static final String PAGE_NAME = "page_name";
     @Mock OfflineContentOperations operations;

@@ -15,20 +15,22 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ChartsTrackerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ChartsTrackerTest {
     private final Urn CHART_GENRE_URN = new Urn("soundcloud:charts:rock");
     private final ChartCategory CHART_CATEGORY = ChartCategory.MUSIC;
     private final ChartType CHART_TYPE = ChartType.TOP;

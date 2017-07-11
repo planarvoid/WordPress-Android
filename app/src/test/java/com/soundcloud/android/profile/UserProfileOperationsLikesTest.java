@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.profile.StoreProfileCommand.TO_RECORD_HOLDERS;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,13 +15,14 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -32,7 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class UserProfileOperationsLikesTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserProfileOperationsLikesTest {
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
     private static final Date CREATED_AT = new Date();
@@ -86,8 +87,6 @@ public class UserProfileOperationsLikesTest extends AndroidUnitTest {
     @Test
     public void userLikesMergesInPlaylistLikeInfo() {
         when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(Collections.singletonList(USER_URN)))
-                .thenReturn(likedStatusForPlaylistLike(apiPlaylist));
 
         operations.userLikes(USER_URN).subscribe(subscriber);
 
@@ -108,8 +107,6 @@ public class UserProfileOperationsLikesTest extends AndroidUnitTest {
         final PagedRemoteCollection<PlayableItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userLikes(NEXT_HREF)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(singletonList(apiPlaylist.getUrn())))
-                .thenReturn(likedStatusForPlaylistLike(apiPlaylist));
 
         operations.likesPagingFunction().call(page1).subscribe(subscriber);
 

@@ -1,6 +1,13 @@
 package com.soundcloud.android.ads;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.AdSessionAnalyticsDispatcher;
@@ -9,18 +16,10 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class AdAnalyticsControllerTest extends AndroidUnitTest {
 

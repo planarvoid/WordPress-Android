@@ -5,13 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-public class PreviewCollectionItemTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PreviewCollectionItemTest {
 
     @Test
     public void updatingCollectionPreviewPropertiesUpdatesLikesItem() {

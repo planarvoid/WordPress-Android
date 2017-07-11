@@ -219,7 +219,6 @@ public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT e
     @Test
     public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
         when(syncStateStorage.hasSyncedBefore(syncable)).thenReturn(false);
-        when(syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Single.just(successWithChange()));
 
         final TestObserver<List<ViewModel>> observer = operations.updatedTimelineItemsForStart().test();
 

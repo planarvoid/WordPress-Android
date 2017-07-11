@@ -5,16 +5,18 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.Date;
 
-public class MyTrackLikesStateProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class MyTrackLikesStateProviderTest {
 
     private MyTrackLikesStateProvider myTrackLikesStateProvider;
 

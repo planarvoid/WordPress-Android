@@ -5,15 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-public class StationInfoTracksBucketRendererTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationInfoTracksBucketRendererTest {
 
     @Mock StationInfoAdapter.StationInfoClickListener clickListener;
     @Mock StationTrackRendererFactory trackRendererFactory;

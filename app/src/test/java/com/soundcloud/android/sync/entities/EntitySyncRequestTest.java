@@ -5,15 +5,17 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.os.ResultReceiver;
 
-public class EntitySyncRequestTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EntitySyncRequestTest {
 
     private static final Syncable SYNCABLE = Syncable.TRACKS;
 

@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -24,16 +23,19 @@ import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayQueueOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayQueueOperationsTest {
 
     private PlayQueueOperations operations;
 
@@ -78,10 +80,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemsDeferPlayQueueItemsLoadingToTheSubscription() {
-        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(Single.just(singletonMap(track1Urn, trackItem1)));
         when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(Single.just(singletonMap(track2Urn, trackItem2)));
 
-        when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem1));
         final Single<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem2));
 

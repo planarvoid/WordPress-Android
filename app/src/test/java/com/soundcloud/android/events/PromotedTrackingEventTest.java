@@ -2,12 +2,14 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PromotedTrackingEventTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PromotedTrackingEventTest {
 
     private TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
 

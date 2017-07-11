@@ -14,20 +14,22 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import java.util.List;
 
-public class PlayHistoryControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayHistoryControllerTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(234L);
     private static final Urn COLLECTION_URN = Urn.forArtistStation(987L);

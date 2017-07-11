@@ -18,23 +18,23 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
-
 import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
-
-public class StationsOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationsOperationsTest {
 
     @Mock FeatureFlags featureFlags;
     @Mock SyncStateStorage syncStateStorage;

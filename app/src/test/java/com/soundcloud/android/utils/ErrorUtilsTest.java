@@ -13,9 +13,10 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.exceptions.OnErrorFailedException;
 import rx.exceptions.OnErrorThrowable;
 
@@ -24,7 +25,8 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-public class ErrorUtilsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ErrorUtilsTest {
 
     @Test
     public void handleThrowableShouldNotRethrowCheckedExceptions() {

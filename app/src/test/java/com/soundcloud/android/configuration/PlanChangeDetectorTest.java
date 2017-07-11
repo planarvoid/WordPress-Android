@@ -7,13 +7,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlanChangeDetectorTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlanChangeDetectorTest {
 
     private PlanChangeDetector planChangeDetector;
 
@@ -91,7 +93,6 @@ public class PlanChangeDetectorTest extends AndroidUnitTest {
     @Test
     public void isNoOpWhenPlanChangeIsAlreadySignalled() {
         when(pendingPlanOperations.hasPendingPlanChange()).thenReturn(true);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
 
         planChangeDetector.handleRemotePlan(Plan.FREE_TIER);
 

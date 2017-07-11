@@ -10,13 +10,15 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PageListenerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PageListenerTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;

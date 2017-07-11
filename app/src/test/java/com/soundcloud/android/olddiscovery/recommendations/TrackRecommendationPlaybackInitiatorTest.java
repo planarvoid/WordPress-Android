@@ -16,7 +16,6 @@ import com.soundcloud.android.olddiscovery.PlaylistTagsItem;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
@@ -24,13 +23,16 @@ import com.soundcloud.java.strings.Strings;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class TrackRecommendationPlaybackInitiatorTest {
     private static final int FIRST_QUERY_POSITION = 1;
     private static final int SECOND_QUERY_POSITION = 2;
     private static final int THIRD_QUERY_POSITION = 3;

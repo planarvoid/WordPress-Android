@@ -10,13 +10,14 @@ import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ConnectionHelper;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.media.CamcorderProfile;
 
@@ -24,7 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class VideoAdSourceProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class VideoAdSourceProviderTest {
 
     private static VideoAdSource.ApiModel SOURCE_HLS = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_HLS, 0);
     private static VideoAdSource.ApiModel SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);

@@ -5,13 +5,15 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class ShowPlayerSubscriberTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ShowPlayerSubscriberTest {
 
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
 

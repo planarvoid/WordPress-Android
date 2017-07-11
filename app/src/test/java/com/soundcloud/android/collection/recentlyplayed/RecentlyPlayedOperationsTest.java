@@ -8,17 +8,19 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-public class RecentlyPlayedOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RecentlyPlayedOperationsTest {
 
     private static final List<RecentlyPlayedPlayableItem> CONTEXT_ITEMS = singletonList(mock(RecentlyPlayedPlayableItem.class));
 

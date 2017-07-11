@@ -5,15 +5,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.media.MediaPlayer;
 
-public class PlaybackCompletionListenerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaybackCompletionListenerTest {
 
     private static int DURATION = 10000;
 
@@ -38,7 +40,6 @@ public class PlaybackCompletionListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldInvokeOnTrackEndAtEndOfTrackInPlayingStateWithNoSeekPosition() {
-        when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 
         playbackCompletionListener.onCompletion(mediaPlayer);
@@ -48,7 +49,6 @@ public class PlaybackCompletionListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldInvokeOnTrackEndAtEndOfTrackWithToleranceInPlayingStateWithNoSeekPosition() {
-        when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION - PlaybackCompletionListener.COMPLETION_TOLERANCE_MS);
 
         playbackCompletionListener.onCompletion(mediaPlayer);
@@ -59,7 +59,6 @@ public class PlaybackCompletionListenerTest extends AndroidUnitTest {
     @Test
     public void shouldInvokeRetryIfCurrentPositionOutsideTolerance() {
         final int resumeTime = DURATION - PlaybackCompletionListener.COMPLETION_TOLERANCE_MS - 1;
-        when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(resumeTime);
         playbackCompletionListener.onCompletion(mediaPlayer);
 
@@ -70,7 +69,6 @@ public class PlaybackCompletionListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldInvokeStopInErrorState() {
-        when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(false);
         when(mediaPlayerAdapter.isInErrorState()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 

@@ -18,11 +18,10 @@ import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import io.reactivex.Maybe;
 
 import java.util.Arrays;
 import java.util.Collections;

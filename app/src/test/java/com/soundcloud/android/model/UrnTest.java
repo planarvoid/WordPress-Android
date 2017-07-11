@@ -2,11 +2,13 @@ package com.soundcloud.android.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class UrnTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UrnTest {
 
     @Test
     public void shouldValidateLocalPlaylistUrnAsLocalUrn() {

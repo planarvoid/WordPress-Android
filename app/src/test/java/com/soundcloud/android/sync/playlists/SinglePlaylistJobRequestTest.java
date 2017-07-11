@@ -5,17 +5,19 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.os.ResultReceiver;
 
-public class SinglePlaylistJobRequestTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SinglePlaylistJobRequestTest {
     private final String ACTION = "action";
     private final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 

@@ -12,19 +12,21 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadHandler.Listener;
 import com.soundcloud.android.offline.DownloadOperations.DownloadProgressListener;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.os.Message;
 
-public class DownloadHandlerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DownloadHandlerTest {
 
     @Mock Listener listener;
     @Mock DownloadOperations downloadOperations;

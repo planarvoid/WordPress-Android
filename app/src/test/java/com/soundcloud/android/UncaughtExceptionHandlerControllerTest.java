@@ -6,11 +6,12 @@ import static org.mockito.Mockito.verify;
 import static rx.exceptions.OnErrorThrowable.addValueAsLastCause;
 import static rx.exceptions.OnErrorThrowable.from;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.MemoryReporter;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.exceptions.OnErrorFailedException;
 import rx.exceptions.OnErrorThrowable;
 
@@ -18,7 +19,8 @@ import android.database.sqlite.SQLiteException;
 
 import java.util.HashMap;
 
-public class UncaughtExceptionHandlerControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UncaughtExceptionHandlerControllerTest {
 
     @Mock private Thread.UncaughtExceptionHandler anOtherHandler;
     @Mock private MemoryReporter memoryReporter;

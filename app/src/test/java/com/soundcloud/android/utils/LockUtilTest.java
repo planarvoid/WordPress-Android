@@ -5,12 +5,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class LockUtilTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class LockUtilTest {
 
     private LockUtil lockUtil;
 

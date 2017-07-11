@@ -15,16 +15,17 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.Map;
 
-public class OfflineStatePublisherTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineStatePublisherTest {
 
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);
@@ -38,12 +39,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void setUp() {
         eventBus = new TestEventBus();
         publisher = new OfflineStatePublisher(eventBus, offlineStateOperations);
-
-        final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED,
-                                                                                TrackCollections.create(singletonList(
-                                                                                        PLAYLIST), false));
-        when(offlineStateOperations.loadTracksCollectionsState(eq(singletonList(TRACK)), any(OfflineState.class))).thenReturn(
-                collectionsMap);
     }
 
     @Test

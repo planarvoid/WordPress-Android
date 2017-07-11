@@ -15,7 +15,6 @@ import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
@@ -25,14 +24,17 @@ import io.reactivex.schedulers.Schedulers;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 
-public class ChartsOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ChartsOperationsTest {
     private static final String GENRE = "all-music";
     private static final ChartType TYPE = ChartType.TOP;
 

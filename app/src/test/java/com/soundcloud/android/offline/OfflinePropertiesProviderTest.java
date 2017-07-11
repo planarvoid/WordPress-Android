@@ -16,7 +16,6 @@ import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
@@ -24,7 +23,9 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.MaybeSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -33,7 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OfflinePropertiesProviderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflinePropertiesProviderTest {
 
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
     @Mock private OfflineStateOperations offlineStateOperations;
@@ -59,7 +61,6 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
 
         when(trackDownloadsStorage.getOfflineStates()).thenReturn(offlineTracksStatesLoader);
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(offlinePlaylistsLoader);
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(offlineLikesTracksStateLoader);
         when(offlineStateOperations.loadLikedTrackState()).thenReturn(OfflineState.NOT_OFFLINE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
@@ -142,8 +143,6 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
     private void resetStorage() {
         when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.empty());
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(Maybe.empty());
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.empty());
-        when(offlineStateOperations.loadLikedTrackState()).thenReturn(OfflineState.NOT_OFFLINE);
     }
 
     @Test

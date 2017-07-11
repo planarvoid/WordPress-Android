@@ -5,12 +5,14 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class OfflineSettingsOnboardingPresenterTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflineSettingsOnboardingPresenterTest {
 
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private OfflineSettingsStorage storage;

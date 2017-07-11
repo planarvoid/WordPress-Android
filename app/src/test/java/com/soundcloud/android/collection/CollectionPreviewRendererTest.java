@@ -2,25 +2,27 @@ package com.soundcloud.android.collection;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.view.View;
 
-public class CollectionPreviewRendererTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CollectionPreviewRendererTest {
 
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private Navigator navigator;

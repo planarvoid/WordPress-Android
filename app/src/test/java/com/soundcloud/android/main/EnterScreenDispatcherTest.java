@@ -4,12 +4,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class EnterScreenDispatcherTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EnterScreenDispatcherTest {
     @Mock ScreenStateProvider screenStateProvider;
     @Mock EnterScreenDispatcher.Listener listener;
     @Mock RootActivity rootActivity;
@@ -43,8 +45,6 @@ public class EnterScreenDispatcherTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotCallListenerOnResumeWhenListenerNotPresent() throws Exception {
-        when(screenStateProvider.isEnteringScreen()).thenReturn(true);
-
         enterScreenDispatcher.onResume(rootActivity);
 
         verifyZeroInteractions(listener);
@@ -63,8 +63,6 @@ public class EnterScreenDispatcherTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotCallListenerOnPageSelectedWhenActivityNotPresent() throws Exception {
-        when(screenStateProvider.isEnteringScreen()).thenReturn(false);
-
         enterScreenDispatcher.setListener(listener);
         enterScreenDispatcher.onPageSelected(0);
 
@@ -73,8 +71,6 @@ public class EnterScreenDispatcherTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotCallListenerOnPageSelectedWhenListenerNotPresent() throws Exception {
-        when(screenStateProvider.isEnteringScreen()).thenReturn(false);
-
         enterScreenDispatcher.onResume(rootActivity);
         enterScreenDispatcher.onPageSelected(0);
 

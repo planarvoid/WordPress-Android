@@ -18,19 +18,21 @@ import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class DownloadOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DownloadOperationsTest {
 
     @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage fileStorage;
@@ -63,7 +65,6 @@ public class DownloadOperationsTest extends AndroidUnitTest {
                                             offlineSettingsStorage);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
-        when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);
         when(response.isSuccess()).thenReturn(true);
         when(response.getInputStream()).thenReturn(downloadStream);
@@ -123,15 +124,13 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     public void returnsDownloadFailedWhenServerError() throws IOException {
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isSuccess()).thenReturn(false);
-        when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isDownloadFailed()).isTrue();
     }
 
     @Test
-    public void returnsInaccessibleStorageErrorWhenIOExceptionThrown() throws IOException {
-        when(httpClient.getFileStream(streamUrl)).thenThrow(new IOException());
+    public void returnsInaccessibleStorageErrorWhenOfflineContentNotAccessible() throws IOException {
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isInaccessibleStorage()).isTrue();
@@ -149,7 +148,6 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     public void returnsFileUnavailableWhenTrackUnavailable() throws IOException {
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isSuccess()).thenReturn(false);
-        when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(true);
 
         assertThat(operations.download(downloadRequest, listener).isUnavailable()).isTrue();
@@ -157,8 +155,6 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Test
     public void cancelCallsTryCancelRunningDownloadAndEncrypt() throws IOException {
-        when(httpClient.getFileStream(streamUrl)).thenReturn(response);
-
         operations.cancelCurrentDownload();
 
         verify(fileStorage).tryCancelRunningEncryption();
@@ -252,7 +248,6 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Test
     public void doesNotStoreFileWhenResponseIsNotSuccess() throws IOException, EncryptionException {
         when(response.isSuccess()).thenReturn(false);
-        when(response.isFailure()).thenReturn(true);
 
         operations.download(downloadRequest, listener);
 

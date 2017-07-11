@@ -6,13 +6,15 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.PlayableItemStatusLoader;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class SpotlightItemStatusLoaderTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SpotlightItemStatusLoaderTest {
 
     @Mock private PlayableItemStatusLoader playableItemStatusLoader;
     private SpotlightItemStatusLoader subject;

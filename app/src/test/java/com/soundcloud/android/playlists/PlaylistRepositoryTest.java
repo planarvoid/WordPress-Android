@@ -13,7 +13,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import io.reactivex.Single;
@@ -22,13 +21,15 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Map;
 
-
-public class PlaylistRepositoryTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistRepositoryTest {
 
     private PlaylistRepository playlistRepository;
 

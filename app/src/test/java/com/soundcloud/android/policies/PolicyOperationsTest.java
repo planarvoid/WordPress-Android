@@ -13,14 +13,15 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -29,7 +30,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-public class PolicyOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PolicyOperationsTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
@@ -84,7 +86,6 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenReturn(policies);
-        when(writeResult.success()).thenReturn(true);
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).containsAll(tracks);
@@ -102,7 +103,6 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenReturn(policies);
-        when(writeResult.success()).thenReturn(true);
 
         operations.updateTrackPolicies();
 

@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -17,12 +16,15 @@ import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayHistoryOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayHistoryOperationsTest {
 
     private static final List<Track> TRACKS = ModelFixtures.tracks(10);
 

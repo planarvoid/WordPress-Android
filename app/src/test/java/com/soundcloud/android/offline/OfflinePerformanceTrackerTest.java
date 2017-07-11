@@ -5,13 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OfflinePerformanceTrackerTest {
 
     private final DownloadRequest DOWNLOAD_REQUEST = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123));
     private final TestEventBus eventBus = new TestEventBus();

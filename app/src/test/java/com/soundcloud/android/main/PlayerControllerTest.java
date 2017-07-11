@@ -6,15 +6,17 @@ import com.soundcloud.android.ads.AdOrientationController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.support.v7.app.AppCompatActivity;
 
-public class PlayerControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlayerControllerTest {
 
     private PlayerController playerController;
 

@@ -7,13 +7,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class PlaybackFeedbackHelperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaybackFeedbackHelperTest {
 
     private PlaybackFeedbackHelper feedbackHelper;
 

@@ -5,12 +5,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class FlipperExperimentTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class FlipperExperimentTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureFlags featureFlags;
 
@@ -36,11 +38,11 @@ public class FlipperExperimentTest extends AndroidUnitTest {
     }
 
     @Test
-    public void ignoresFeatureFlagIfInControlVariant() {
-        whenVariant("control");
+    public void enablesFlipperWithFFWhenNotInExperiment() {
+        whenVariant("unknown");
         when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
 
-        assertThat(config.isEnabled()).isFalse();
+        assertThat(config.isEnabled()).isTrue();
     }
 
     private void whenVariant(String variant) {

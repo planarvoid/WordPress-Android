@@ -7,11 +7,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observables.ConnectableObservable;
 import rx.subjects.PublishSubject;
@@ -20,7 +21,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public class EmptyViewControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EmptyViewControllerTest {
 
     private EmptyViewController controller;
 

@@ -4,15 +4,17 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DownloadQueueTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DownloadQueueTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123);
     private static final Urn TRACK2 = Urn.forTrack(456L);

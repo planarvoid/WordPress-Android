@@ -5,12 +5,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class NewForYouConfigTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class NewForYouConfigTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureFlags featureFlags;
 

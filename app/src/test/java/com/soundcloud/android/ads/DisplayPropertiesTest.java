@@ -3,12 +3,14 @@ package com.soundcloud.android.ads;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
-public class DisplayPropertiesTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DisplayPropertiesTest {
 
     @Test
     public void deserializeDisplayProperties() throws IOException {

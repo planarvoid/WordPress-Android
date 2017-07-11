@@ -7,12 +7,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class OtherPlaylistsByUserConfigTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class OtherPlaylistsByUserConfigTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureFlags featureFlags;
 

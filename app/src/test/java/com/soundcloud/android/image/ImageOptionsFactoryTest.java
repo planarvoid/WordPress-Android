@@ -10,11 +10,12 @@ import static org.mockito.Mockito.when;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -22,7 +23,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
-public class ImageOptionsFactoryTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ImageOptionsFactoryTest {
 
     ImageViewAware imageAware;
 
@@ -81,7 +83,6 @@ public class ImageOptionsFactoryTest extends AndroidUnitTest {
     @Test
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForTablets() {
         Drawable drawable = mock(Drawable.class);
-        when(deviceHelper.isTablet()).thenReturn(true);
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }

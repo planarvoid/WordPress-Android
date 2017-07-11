@@ -20,12 +20,10 @@ import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
@@ -36,9 +34,11 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import rx.functions.Func2;
 
 import java.util.Collections;
@@ -47,7 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TrackLikeOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class TrackLikeOperationsTest {
 
     private TrackLikeOperations operations;
 
@@ -55,7 +56,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
-    @Mock private ConnectionHelper connectionHelper;
     @Captor private ArgumentCaptor<Func2<TrackItem, Like, LikeWithTrack>> functionCaptor;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
@@ -140,7 +140,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadTrackLikesDoesNotRequestUpdatesFromSyncerOffWifi() {
-        when(connectionHelper.isWifiConnected()).thenReturn(false);
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Single.just(urnToTrackMap(tracks)));
 
@@ -151,7 +150,6 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadEmptyTrackLikesDoesNotRequestUpdatesFromSyncer() {
-        when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
                 .thenReturn(Single.just(Collections.emptyList()));
 

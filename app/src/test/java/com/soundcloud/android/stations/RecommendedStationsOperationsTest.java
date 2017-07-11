@@ -8,31 +8,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import io.reactivex.Single;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class RecommendedStationsOperationsTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RecommendedStationsOperationsTest {
 
     private static Function<StationRecord, StationViewModel> TO_VIEW_MODEL =
             input -> viewModelFrom(input, false);
@@ -61,7 +61,6 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList()));
         when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(RECENT_1, RECENT_2)));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject.firstOrError());
-        when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(true);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
 
         operations = new RecommendedStationsOperations(stationsStorage, playQueueManager, scheduler, syncOperations);

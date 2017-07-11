@@ -6,18 +6,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
-public class VideoTextureContainerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class VideoTextureContainerTest {
 
     @Mock VideoTextureContainer.Listener textureContainerListener;
     @Mock View view;
@@ -61,7 +63,6 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Test
     public void surfaceTextureWillBeSetToNewTextureView() {
-        when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
         textureContainer.reattachSurfaceTexture(textureView2, Optional.absent());
@@ -71,7 +72,6 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Test
     public void surfaceTextureWithViewabilityViewWillBeSetToNewTextureView() {
-        when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
         final Optional<View> viewabilityView = Optional.of(view);
 

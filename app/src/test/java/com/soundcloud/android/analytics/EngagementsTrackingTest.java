@@ -8,7 +8,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -19,9 +18,12 @@ import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class EngagementsTrackingTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class EngagementsTrackingTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn USER_URN = Urn.forUser(33L);

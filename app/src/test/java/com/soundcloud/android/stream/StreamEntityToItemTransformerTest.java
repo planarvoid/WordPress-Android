@@ -11,7 +11,6 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -20,13 +19,16 @@ import com.soundcloud.android.users.User;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StreamEntityToItemTransformerTest {
 
     private static final Date CREATED_AT = new Date();
     private final User promoter = ModelFixtures.user();
