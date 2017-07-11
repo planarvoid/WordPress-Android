@@ -22,11 +22,9 @@ import java.util.List;
 public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTrackItem> {
 
     private final TrackItemRenderer trackItemRenderer;
-    private final TrackItemMenuPresenter.RemoveTrackListener removeTrackListener;
 
     @Inject
     PlaylistTrackItemRenderer(TrackItemRenderer trackItemRenderer) {
-        this.removeTrackListener = TrackItemMenuPresenter.RemoveTrackListener.EMPTY;
         this.trackItemRenderer = trackItemRenderer;
         this.trackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
     }
@@ -53,8 +51,7 @@ public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTra
                                                 itemView,
                                                 position,
                                                 Optional.of(playlistDetailTrackItem.playlistUrn()),
-                                                createTrackSourceInfo(playlistDetailTrackItem, position),
-                                                removeTrackListener);
+                                                createTrackSourceInfo(playlistDetailTrackItem, position));
         bindEditMode(itemView, playlistDetailTrackItem);
     }
 

@@ -39,7 +39,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -79,16 +78,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private Disposable trackDisposable = Disposables.disposed();
     private boolean isShowing;
 
-    @Nullable private RemoveTrackListener removeTrackListener;
-
     private EventContextMetadata eventContextMetadata;
-
-    public interface RemoveTrackListener {
-        RemoveTrackListener EMPTY = ignored -> {
-        };
-
-        void onPlaylistTrackRemoved(Urn track);
-    }
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
@@ -142,9 +132,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      TrackItem track,
                      EventContextMetadata.Builder builder) {
         if (track.isPromoted()) {
-            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, PromotedSourceInfo.fromItem(track), builder);
+            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, PromotedSourceInfo.fromItem(track), builder);
         } else {
-            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, null, builder);
+            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, builder);
         }
     }
 
@@ -153,30 +143,28 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      TrackItem track,
                      Urn playlistUrn,
                      Urn ownerUrn,
-                     RemoveTrackListener removeTrackListener,
                      PromotedSourceInfo promotedSourceInfo,
                      EventContextMetadata.Builder builder) {
         if (!isShowing) {
             this.activity = activity;
             this.track = track;
-            this.removeTrackListener = removeTrackListener;
             this.promotedSourceInfo = promotedSourceInfo;
             this.playlistUrn = playlistUrn;
             this.ownerUrn = ownerUrn;
             this.eventContextMetadata = builder.isFromOverflow(true).build();
-            loadTrack(setupMenu(button));
+            loadTrack(setupMenu(button, ownerUrn));
             this.isShowing = true;
         }
     }
 
-    private PopupMenuWrapper setupMenu(View button) {
+    private PopupMenuWrapper setupMenu(View button, Urn ownerUrn) {
         PopupMenuWrapper menu = popupMenuWrapperFactory.build(button.getContext(), button);
         menu.inflate(R.menu.track_item_actions);
         menu.setOnMenuItemClickListener(this);
         menu.setOnDismissListener(this);
         menu.setItemEnabled(R.id.add_to_likes, false);
-        menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist());
-        menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist());
+        menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist(ownerUrn));
+        menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist(ownerUrn));
 
         configureStationOptions(button.getContext(), menu);
         configureAdditionalEngagementsOptions(menu);
@@ -242,18 +230,11 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 showAddToPlaylistDialog();
                 return true;
             case R.id.remove_from_playlist:
-                checkState(isOwnedPlaylist());
+                checkState(isOwnedPlaylist(this.ownerUrn));
                 final Urn trackUrn = track.getUrn();
                 playlistOperations.removeTrackFromPlaylist(playlistUrn, trackUrn)
                                   .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-                                  .subscribe(new DefaultSubscriber<Integer>() {
-                                      @Override
-                                      public void onNext(Integer args) {
-                                          if (removeTrackListener != null) {
-                                              removeTrackListener.onPlaylistTrackRemoved(trackUrn);
-                                          }
-                                      }
-                                  });
+                                  .subscribe(new DefaultSubscriber<>());
                 return true;
             case R.id.start_station:
                 handleStation();
@@ -364,8 +345,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
     }
 
-    private boolean isOwnedPlaylist() {
-        return removeTrackListener != null && accountOperations.isLoggedInUser(ownerUrn);
+    private boolean isOwnedPlaylist(Urn ownerUrn) {
+        return ownerUrn != null && !ownerUrn.equals(Urn.NOT_SET) & accountOperations.isLoggedInUser(ownerUrn);
     }
 
     private PromotedSourceInfo getPromotedSource() {

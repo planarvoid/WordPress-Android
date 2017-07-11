@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
@@ -26,7 +25,6 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.LightCycleLogger;
@@ -67,8 +65,7 @@ import java.util.List;
 
 @SuppressWarnings("PMD.GodClass")
 public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment>
-        implements TrackItemMenuPresenter.RemoveTrackListener, PlaylistDetailsAdapter.PlaylistDetailView,
-        PlaylistDetailsPresenter.PlaylistDetailView {
+        implements PlaylistDetailsAdapter.PlaylistDetailView, PlaylistDetailsPresenter.PlaylistDetailView {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
@@ -390,12 +387,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public void onDragStopped() {
         skipModelUpdates = false;
         saveUpdates();
-    }
-
-    @Override
-    public void onPlaylistTrackRemoved(Urn trackUrn) {
-        List<Urn> urns = transform(trackItems(), PlaylistDetailTrackItem::getUrn);
-        removeTrackAtPosition(urns.indexOf(trackUrn));
     }
 
     public void removeItem(int position) {

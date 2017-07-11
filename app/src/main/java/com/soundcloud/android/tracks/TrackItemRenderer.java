@@ -59,7 +59,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
 
-    private TrackItemMenuPresenter.RemoveTrackListener removeTrackListener;
     private Listener listener;
 
     public interface Listener {
@@ -148,9 +147,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                       View itemView,
                                       final int position,
                                       Optional<Urn> pageUrn,
-                                      Optional<TrackSourceInfo> trackSourceInfo,
-                                      TrackItemMenuPresenter.RemoveTrackListener removeTrackListener) {
-        this.removeTrackListener = removeTrackListener;
+                                      Optional<TrackSourceInfo> trackSourceInfo) {
         if (track.isBlocked()) {
             // note: TrackItemRenderer already calls `setClickable(false)` but this doesn't appear
             // to work for the ListView widget (it's still clickable, and shows ripples on touch)
@@ -305,7 +302,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                     track,
                                     playlistUrn,
                                     ownerUrn,
-                                    removeTrackListener,
                                     promotedSourceInfo,
                                     getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo));
     }
