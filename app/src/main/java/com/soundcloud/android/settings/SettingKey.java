@@ -18,6 +18,8 @@ public class SettingKey {
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
     public static final String DEV_FLUSH_EVENTLOGGER_INSTANTLY = "dev.flushEventloggerInstantly";
+    public static final String DEV_EVENT_LOGGER_MONITOR_MUTE_KEY = "dev_event_logger_monitor_mute_key";
+    public static final String DEV_DRAWER_EVENT_LOGGER_MONITOR_KEY = "dev_drawer_event_logger_monitor_key";
 
     // Offline
     static final String OFFLINE_COLLECTION = "offline.offlineCollections";

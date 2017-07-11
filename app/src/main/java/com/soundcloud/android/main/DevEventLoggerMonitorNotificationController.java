@@ -27,8 +27,7 @@ class DevEventLoggerMonitorNotificationController {
     }
 
     void startMonitoring() {
-        setMonitorMute(false);
-        notificationManager.notify(NotificationConstants.DEV_DRAWER_EVENT_LOGGER_MONITOR, getNotification());
+        setMonitorMuteAction(false);
     }
 
     void stopMonitoring() {
@@ -43,7 +42,8 @@ class DevEventLoggerMonitorNotificationController {
 
     private Notification getNotification() {
         final boolean monitorMute = sharedPreferences.getBoolean(context.getString(R.string.dev_event_logger_monitor_mute_key), false);
-        final PendingIntent pendingIntent = PendingIntentFactory.createDevEventLoggerMonitorReceiverIntent(context, monitorMute);
+        final PendingIntent notificationPendingIntent = PendingIntentFactory.createDevEventLoggerMonitorIntent(context);
+        final PendingIntent actionPendingIntent = PendingIntentFactory.createDevEventLoggerMonitorReceiverIntent(context, monitorMute);
         final CharSequence actionTitle = monitorMute
                                          ? context.getString(R.string.dev_notification_event_logger_monitor_action_title_unmute)
                                          : context.getString(R.string.dev_notification_event_logger_monitor_action_title_mute);
@@ -51,7 +51,8 @@ class DevEventLoggerMonitorNotificationController {
                 .setSmallIcon(R.drawable.ic_notification_cloud)
                 .setOngoing(true)
                 .setContentTitle(context.getString(R.string.dev_notification_event_logger_monitor_title))
-                .addAction(new NotificationCompat.Action.Builder(android.R.drawable.presence_audio_away, actionTitle, pendingIntent).build())
+                .setContentIntent(notificationPendingIntent)
+                .addAction(new NotificationCompat.Action.Builder(android.R.drawable.presence_audio_away, actionTitle, actionPendingIntent).build())
                 .build();
     }
 

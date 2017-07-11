@@ -46,16 +46,19 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
     private final FeatureFlags featureFlags;
+    private final DevTrackingRecordsProvider devTrackingRecordsProvider;
 
     @Inject
     public EventLoggerAnalyticsProvider(EventTrackingManager eventTrackingManager,
                                         Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
                                         SharedPreferences sharedPreferences,
-                                        FeatureFlags featureFlags) {
+                                        FeatureFlags featureFlags,
+                                        DevTrackingRecordsProvider devTrackingRecordsProvider) {
         this.sharedPreferences = sharedPreferences;
         this.dataBuilderV1 = dataBuilderV1;
         this.eventTrackingManager = eventTrackingManager;
         this.featureFlags = featureFlags;
+        this.devTrackingRecordsProvider = devTrackingRecordsProvider;
     }
 
     @Override
@@ -276,7 +279,21 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void trackEvent(long timeStamp, String data) {
-        eventTrackingManager.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
+        final TrackingRecord trackingRecord = new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data);
+        eventTrackingManager.trackEvent(trackingRecord);
+        monitorIfNecessary(trackingRecord);
+        flushIfNecessary();
+    }
+
+    private void monitorIfNecessary(TrackingRecord trackingRecord) {
+        final boolean monitor = sharedPreferences.getBoolean(SettingKey.DEV_DRAWER_EVENT_LOGGER_MONITOR_KEY, false);
+        final boolean monitorMute = sharedPreferences.getBoolean(SettingKey.DEV_EVENT_LOGGER_MONITOR_MUTE_KEY, true);
+        if (monitor && !monitorMute) {
+            devTrackingRecordsProvider.add(trackingRecord);
+        }
+    }
+
+    private void flushIfNecessary() {
         if (sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)) {
             eventTrackingManager.flush(BATCH_BACKEND_NAME);
         }

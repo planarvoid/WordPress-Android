@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <include layout="@layout/toolbar" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar_id"
+        android:layout_above="@+id/delete_all"
+        />
+
+    <Button
+        android:id="@+id/delete_all"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@drawable/btn_primary"
+        android:layout_margin="8dp"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/white"
+        android:text="@string/event_logger_monitor_delete_all"
+        android:textAllCaps="true"
+        android:textSize="16sp"
+        />
+
+</RelativeLayout>

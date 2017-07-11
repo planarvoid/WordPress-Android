@@ -7,6 +7,7 @@ import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.eventlogger.DevEventLoggerMonitorActivity;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.Link;
@@ -455,6 +456,10 @@ public final class IntentFactory {
 
     static Intent createDevEventLoggerMonitorReceiverIntent(Context context, boolean monitorMute) {
         return new Intent(context, DevEventLoggerMonitorReceiver.class).putExtra(DevEventLoggerMonitorReceiver.EXTRA_MONITOR_MUTE, monitorMute);
+    }
+
+    static Intent createDevEventLoggerMonitorIntent(Context context) {
+        return new Intent(context, DevEventLoggerMonitorActivity.class);
     }
 
     static Intent getMonitorIntent(Recording recording) {

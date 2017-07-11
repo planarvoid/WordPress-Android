@@ -55,6 +55,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -80,6 +81,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Mock private EventLoggerV1JsonDataBuilder dataBuilder;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private FeatureFlags featureFlags;
+    @Mock private DevTrackingRecordsProvider devTrackingRecordsProvider;
 
     private Urn userUrn = Urn.forUser(123L);
     private Urn trackUrn = Urn.forTrack(123L);
@@ -91,7 +93,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void setUp() {
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTrackingManager,
                                                                         InjectionSupport.lazyOf(dataBuilder),
-                                                                        sharedPreferences, featureFlags);
+                                                                        sharedPreferences,
+                                                                        featureFlags,
+                                                                        devTrackingRecordsProvider);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
@@ -774,6 +778,63 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventTrackingManager).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+    }
+
+    @Test
+    public void shouldNotFlushInstantly() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+        when(sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)).thenReturn(false);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager, times(0)).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+    }
+
+    @Test
+    public void shouldFlushInstantly() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+        when(sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)).thenReturn(true);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+    }
+
+    @Test
+    public void shouldNotMonitorEventIfNotMonitoring() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+        when(sharedPreferences.getBoolean(SettingKey.DEV_DRAWER_EVENT_LOGGER_MONITOR_KEY, false)).thenReturn(false);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verifyZeroInteractions(devTrackingRecordsProvider);
+    }
+
+    @Test
+    public void shouldNotMonitorEventIfMute() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+        when(sharedPreferences.getBoolean(SettingKey.DEV_DRAWER_EVENT_LOGGER_MONITOR_KEY, false)).thenReturn(true);
+        when(sharedPreferences.getBoolean(SettingKey.DEV_EVENT_LOGGER_MONITOR_MUTE_KEY, true)).thenReturn(true);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verifyZeroInteractions(devTrackingRecordsProvider);
+    }
+
+    @Test
+    public void shouldMonitorEvent() {
+        GoOnboardingTooltipEvent event = GoOnboardingTooltipEvent.forListenOfflineLikes();
+        when(dataBuilder.buildForGoOnboardingTooltipEvent(event)).thenReturn("GoOnboardingTooltipEvent");
+        when(sharedPreferences.getBoolean(SettingKey.DEV_DRAWER_EVENT_LOGGER_MONITOR_KEY, false)).thenReturn(true);
+        when(sharedPreferences.getBoolean(SettingKey.DEV_EVENT_LOGGER_MONITOR_MUTE_KEY, true)).thenReturn(false);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(devTrackingRecordsProvider).add(any(TrackingRecord.class));
     }
 
     private String v1OfflinePerformanceEventCaptor(String name, OfflinePerformanceEvent event) {

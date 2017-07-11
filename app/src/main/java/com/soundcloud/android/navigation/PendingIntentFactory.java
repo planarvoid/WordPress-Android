@@ -69,6 +69,10 @@ public final class PendingIntentFactory {
         return PendingIntent.getBroadcast(context, 0, IntentFactory.createDevEventLoggerMonitorReceiverIntent(context, monitorMute), PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
+    public static PendingIntent createDevEventLoggerMonitorIntent(Context context) {
+        return PendingIntent.getActivity(context, 0, IntentFactory.createDevEventLoggerMonitorIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
     private PendingIntentFactory() {
         // hidden
     }

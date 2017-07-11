@@ -326,6 +326,9 @@
         <!-- Appboy web links -->
         <activity android:name="com.appboy.ui.AppboyWebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar" />
 
+        <!-- Event Logger Monitor -->
+        <activity android:label="@string/event_logger_monitor" android:name=".analytics.eventlogger.DevEventLoggerMonitorActivity" android:theme="@style/Theme.SoundCloud" />
+
         <!-- providers -->
         <provider android:authorities="${applicationId}.provider.ScContentProvider" android:exported="false"
             android:name=".storage.provider.ScContentProvider"/>
