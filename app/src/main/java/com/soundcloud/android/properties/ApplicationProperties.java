@@ -120,6 +120,10 @@ public class ApplicationProperties {
         return isBuildType(BuildType.DEBUG, BuildType.ALPHA);
     }
 
+    public boolean isBetaBuild() {
+        return isBuildType(BuildType.BETA);
+    }
+
     boolean isAlphaBuild() {
         return isBuildType(BuildType.ALPHA);
     }

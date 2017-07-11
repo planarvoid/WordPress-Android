@@ -79,6 +79,7 @@ import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
+import android.support.v4.app.FragmentManager;
 
 import javax.inject.Inject;
 import java.io.InterruptedIOException;
@@ -171,6 +172,12 @@ public class SoundCloudApplication extends MultiDexApplication {
             leakCanaryWrapper.install(this);
             Stetho.initializeWithDefaults(this);
         }
+
+        if (applicationProperties.isBetaBuild()) {
+            // https://www.fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/5838cd8c0aeb16625b4a6c86
+            FragmentManager.enableDebugLogging(true);
+        }
+
 
         setupPerformanceMonitoring();
         bootApplication();
