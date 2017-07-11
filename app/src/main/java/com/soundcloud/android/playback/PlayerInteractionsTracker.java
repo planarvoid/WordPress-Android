@@ -39,6 +39,14 @@ public class PlayerInteractionsTracker {
         dispatchEvent(UIEvent.fromPlayerPause(toPlayerInterface(playbackActionSource)));
     }
 
+    public void scrubForward() {
+        dispatchEvent(UIEvent.fromPlayerScrubForward());
+    }
+
+    public void scrubBackward() {
+        dispatchEvent(UIEvent.fromPlayerScrubBackward());
+    }
+
     private void dispatchEvent(UIEvent event) {
         eventTracker.trackClick(event);
     }

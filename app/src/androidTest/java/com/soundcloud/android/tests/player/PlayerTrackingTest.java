@@ -10,6 +10,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_EXPAND_COLLAPSE = "specs/player-expand-collapse.spec";
     private static final String TEST_SCENARIO_PAUSE_PLAY_FROM_MINIPLAYER = "specs/player-mini-play-pause.spec";
     private static final String TEST_SCENARIO_PAUSE_PLAY_FROM_FULLPLAYER = "specs/player-full-play-pause.spec";
+    private static final String TEST_SCENARIO_SCRUB_FORWARD_AND_BACKWARD = "specs/player-scrub-forward-backward.spec";
     private static final String CLICK_ARTIST_NAVIGATION = "specs/player-artist-navigation.spec";
 
     private StreamScreen streamScreen;
@@ -69,6 +70,19 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
               .tapPlayButton(); //we are starting again the playback
 
         mrLocalLocal.verify(TEST_SCENARIO_PAUSE_PLAY_FROM_FULLPLAYER);
+    }
+
+    public void testTrackPlayerScrub() throws Exception {
+
+        final VisualPlayerElement player = streamScreen.clickFirstRepostedTrack()
+                                                       .waitForExpandedPlayer();
+
+        mrLocalLocal.startEventTracking();
+
+        player.scrubForward();
+        player.scrubBackward();
+
+        mrLocalLocal.verify(TEST_SCENARIO_SCRUB_FORWARD_AND_BACKWARD);
     }
 
     public void testTrackClickingArtistName() throws Exception {

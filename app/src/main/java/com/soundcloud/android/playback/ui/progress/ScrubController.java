@@ -114,6 +114,38 @@ public class ScrubController {
         }
     }
 
+    public abstract static class DirectionAwareScrubListener implements ScrubController.OnScrubListener {
+
+        private float initialScrubPosition;
+        private float latestScrubPosition;
+        private boolean shouldRecordInitialScrubPosition;
+
+        @Override
+        public final void scrubStateChanged(int newScrubState) {
+            if (newScrubState == ScrubController.SCRUB_STATE_SCRUBBING) {
+                shouldRecordInitialScrubPosition = true;
+            } else if (newScrubState == ScrubController.SCRUB_STATE_NONE) {
+                onScrubComplete(initialScrubPosition > latestScrubPosition ? Direction.BACKWARD : Direction.FORWARD);
+            }
+        }
+
+        protected abstract void onScrubComplete(Direction direction);
+
+        @Override
+        public final void displayScrubPosition(float scrubPosition, float boundedScrubPosition) {
+            // we are using the boundedScrubPosition because it is always 0 < boundedScrubPosition < 1.
+            if (shouldRecordInitialScrubPosition) {
+                initialScrubPosition = boundedScrubPosition;
+                shouldRecordInitialScrubPosition = false;
+            }
+            latestScrubPosition = boundedScrubPosition;
+        }
+
+        protected enum Direction {
+            BACKWARD, FORWARD;
+        }
+    }
+
     private boolean isScrubbing() {
         return scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK);
     }

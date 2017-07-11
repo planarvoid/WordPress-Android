@@ -8,8 +8,8 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
-import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.ads.VisualAdData;
+import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerStripView;
@@ -88,6 +89,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final PlayerInteractionsTracker playerInteractionsTracker;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -109,7 +111,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        CastButtonInstaller castButtonInstaller,
                        Resources resources,
                        PlayerUpsellImpressionController upsellImpressionController,
-                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
+                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                       PlayerInteractionsTracker playerInteractionsTracker) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -128,6 +131,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.playerInteractionsTracker = playerInteractionsTracker;
     }
 
     @Override
@@ -729,6 +733,16 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.waveformController.addScrubListener(playerOverlayController);
         }
         holder.waveformController.addScrubListener(holder.menuController);
+        holder.waveformController.addScrubListener(new ScrubController.DirectionAwareScrubListener() {
+            @Override
+            protected void onScrubComplete(Direction direction) {
+                if (direction == Direction.FORWARD) {
+                    playerInteractionsTracker.scrubForward();
+                } else {
+                    playerInteractionsTracker.scrubBackward();
+                }
+            }
+        });
 
         holder.more.setOnClickListener(view -> {
             clearAdOverlay(holder);

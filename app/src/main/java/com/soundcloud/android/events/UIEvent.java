@@ -1,13 +1,15 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_BACKWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_FORWARD;
 import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_ADD;
 import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_REMOVE;
-import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_FORWARD;
-import static com.soundcloud.android.events.UIEvent.ClickName.CLICK_BACKWARD;
 import static com.soundcloud.android.events.UIEvent.ClickName.PAUSE;
 import static com.soundcloud.android.events.UIEvent.ClickName.PLAY;
-import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_FORWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.SCRUB_BACKWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.SCRUB_FORWARD;
 import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_BACKWARD;
+import static com.soundcloud.android.events.UIEvent.ClickName.SWIPE_FORWARD;
 import static com.soundcloud.android.events.UIEvent.Kind.FOLLOW;
 import static com.soundcloud.android.events.UIEvent.Kind.PLAYER_INTERACTION;
 import static com.soundcloud.android.events.UIEvent.Kind.UNFOLLOW;
@@ -34,6 +36,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 @AutoValue
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public abstract class UIEvent extends TrackingEvent {
 
     public enum Kind {
@@ -154,7 +157,9 @@ public abstract class UIEvent extends TrackingEvent {
         CLICK_FORWARD("click_forward"),
         CLICK_BACKWARD("click_backward"),
         PLAY("play"),
-        PAUSE("pause");
+        PAUSE("pause"),
+        SCRUB_FORWARD("scrub_forward"),
+        SCRUB_BACKWARD("scrub_backward");
 
         private final String key;
 
@@ -389,6 +394,18 @@ public abstract class UIEvent extends TrackingEvent {
     public static UIEvent fromPlayerSwipeBackward(PlayerInterface playerInterface) {
         return event(PLAYER_INTERACTION, SWIPE_BACKWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
                                                         .playerInterface(Optional.of(playerInterface))
+                                                        .build();
+    }
+
+    public static UIEvent fromPlayerScrubForward() {
+        return event(PLAYER_INTERACTION, SCRUB_FORWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                       .playerInterface(Optional.of(PlayerInterface.FULLSCREEN))
+                                                       .build();
+    }
+
+    public static UIEvent fromPlayerScrubBackward() {
+        return event(PLAYER_INTERACTION, SCRUB_BACKWARD).clickCategory(Optional.of(ClickCategory.PLAYER))
+                                                        .playerInterface(Optional.of(PlayerInterface.FULLSCREEN))
                                                         .build();
     }
 

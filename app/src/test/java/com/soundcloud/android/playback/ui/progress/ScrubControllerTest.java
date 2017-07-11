@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui.progress;
 
 import static com.soundcloud.android.view.WaveformScrollView.OnScrollListener;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.ui.progress.ScrubController.DirectionAwareScrubListener.Direction;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.WaveformScrollView;
 import org.junit.Before;
@@ -181,5 +183,43 @@ public class ScrubControllerTest extends AndroidUnitTest {
     public void finshSeekSetsScrubStateToNone() {
         scrubController.finishSeek(.3F);
         verify(scrubListener).scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+    }
+
+    @Test
+    public void directionAwareScrubListenersShouldReportRightDirectionForward() {
+        DirectionAwareScrubListenerUnderTest listener = new DirectionAwareScrubListenerUnderTest();
+
+        listener.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        listener.displayScrubPosition(0.1f, 0.1f);
+        listener.displayScrubPosition(0.2f, 0.2f);
+        listener.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+
+        assertThat(listener.getLastDirection()).isEqualTo(Direction.FORWARD);
+    }
+
+    @Test
+    public void directionAwareScrubListenersShouldReportRightDirectionBackward() {
+        DirectionAwareScrubListenerUnderTest listener = new DirectionAwareScrubListenerUnderTest();
+
+        listener.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        listener.displayScrubPosition(0.2f, 0.2f);
+        listener.displayScrubPosition(0.1f, 0.1f);
+        listener.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+
+        assertThat(listener.getLastDirection()).isEqualTo(Direction.BACKWARD);
+    }
+
+
+    private static class DirectionAwareScrubListenerUnderTest extends ScrubController.DirectionAwareScrubListener {
+        private Direction lastDirection;
+
+        @Override
+        protected void onScrubComplete(Direction direction) {
+            lastDirection = direction;
+        }
+
+        public Direction getLastDirection() {
+            return lastDirection;
+        }
     }
 }

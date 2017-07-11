@@ -33,6 +33,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -98,6 +99,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
     @Mock private CastPlayerStripController castPlayerStripController;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock private PlayerInteractionsTracker playerInteractionsTracker;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -129,7 +131,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            castButtonInstaller,
                                            resources(),
                                            upsellImpressionController,
-                                           changeLikeToSaveExperiment);
+                                           changeLikeToSaveExperiment,
+                                           playerInteractionsTracker);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

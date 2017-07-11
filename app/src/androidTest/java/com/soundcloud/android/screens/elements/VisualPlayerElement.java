@@ -71,6 +71,30 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    public VisualPlayerElement scrubForward() {
+        ViewElement viewElement = testDriver.findOnScreenElement(With.id(R.id.track_page_waveform));
+        Rect viewElementRect = viewElement.getRect();
+        int centerX = viewElementRect.centerX();
+        int centerY = viewElementRect.centerY();
+        int scrubWidth = calculateScrubWidth(viewElementRect);
+        testDriver.drag(centerX, centerX - scrubWidth, centerY, centerY, 10);
+        return this;
+    }
+
+    public VisualPlayerElement scrubBackward() {
+        ViewElement viewElement = testDriver.findOnScreenElement(With.id(R.id.track_page_waveform));
+        Rect viewElementRect = viewElement.getRect();
+        int centerX = viewElementRect.centerX();
+        int centerY = viewElementRect.centerY();
+        int scrubWidth = calculateScrubWidth(viewElementRect);
+        testDriver.drag(centerX, centerX + scrubWidth, centerY, centerY, 10);
+        return this;
+    }
+
+    private int calculateScrubWidth(Rect viewElementRect) {
+        return viewElementRect.width() / 4;
+    }
+
     private ViewElement playButton() {
         return testDriver.findOnScreenElement(With.id(R.id.player_play));
     }

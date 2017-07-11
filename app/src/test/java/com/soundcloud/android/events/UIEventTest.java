@@ -1258,6 +1258,25 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
     }
 
+    @Test
+    public void shouldCreateEventFromPlayerScrubForward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerScrubForward();
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SCRUB_FORWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerScrubBackward() {
+        final UIEvent uiEvent = UIEvent.fromPlayerScrubBackward();
+
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SCRUB_BACKWARD);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_INTERACTION);
+        assertThat(uiEvent.clickCategory().get()).isEqualTo(UIEvent.ClickCategory.PLAYER);
+        assertThat(uiEvent.playerInterface().get()).isEqualTo(PlayerInterface.FULLSCREEN);
+    }
 
     @Test
     public void shouldCreateEventFromPlayerPlay() {
