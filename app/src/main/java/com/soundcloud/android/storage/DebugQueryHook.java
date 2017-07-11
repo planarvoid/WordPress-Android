@@ -182,6 +182,4 @@ class DebugQueryHook implements DatabaseHook {
         return query.length() <= MAX_LENGTH ? query : query.substring(0, MAX_LENGTH);
     }
 
-    public static class SQLRequestOverdueException extends Exception {
-    }
 }

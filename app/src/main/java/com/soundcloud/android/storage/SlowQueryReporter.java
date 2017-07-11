@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
 @Singleton // singleton so we can throttle reports
-public class SlowQueryReporter {
+class SlowQueryReporter {
 
     @VisibleForTesting static final int LENGTH_TOLERANCE_MS = 3000;
     @VisibleForTesting static final int THROTTLE_TIME_MS = 5000;
@@ -63,6 +63,10 @@ public class SlowQueryReporter {
         @Override
         public void onNext(String stats) {
             ErrorUtils.log(Log.DEBUG, TAG, "Table Stats : " + stats);
+            ErrorUtils.handleSilentException(new SQLRequestOverdueException());
         }
+    }
+
+    private static class SQLRequestOverdueException extends Exception {
     }
 }
