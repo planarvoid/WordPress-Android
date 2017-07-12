@@ -1,17 +1,21 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.playback.playqueue.SmoothScrollLinearLayoutManager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowDialog;
 
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
 public class DevEventLoggerMonitorPresenterTest extends AndroidUnitTest {
 
@@ -48,5 +52,14 @@ public class DevEventLoggerMonitorPresenterTest extends AndroidUnitTest {
         trackingRecordsAction.onNext(DevTrackingRecordsProvider.Action.ADD);
 
         verify(adapter).replaceItems(trackingRecordsProvider.latest());
+    }
+
+    @Test
+    public void shouldShowDialogWithEventDataOnItemClicked() {
+        presenter.onCreate(activity, null);
+        presenter.onItemClicked(new TrackingRecord(123L, "backend", "data"));
+
+        final TextView body = (TextView) ShadowDialog.getLatestDialog().findViewById(R.id.body);
+        assertThat(body.getText()).isEqualTo("data");
     }
 }

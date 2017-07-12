@@ -75,5 +75,6 @@
 
     <string name="event_logger_monitor">Event Logger Monitor</string>
     <string name="event_logger_monitor_delete_all">Delete all</string>
+    <string name="event_logger_monitor_details_dialog_title">Event details</string>
 
 </resources>

@@ -4,6 +4,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.playback.playqueue.SmoothScrollLinearLayoutManager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -18,7 +19,10 @@ import android.widget.Button;
 
 import javax.inject.Inject;
 
-class DevEventLoggerMonitorPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class DevEventLoggerMonitorPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements DevTrackingRecordAdapter.Listener {
+
+    private static final String TAG = "DevEventLoggerMonitorDetailsDialog";
 
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.delete_all) Button deleteAll;
@@ -27,6 +31,7 @@ class DevEventLoggerMonitorPresenter extends DefaultActivityLightCycle<AppCompat
     private final DevTrackingRecordsProvider trackingRecordsProvider;
     private final DevTrackingRecordAdapter adapter;
 
+    private AppCompatActivity activity;
     private Unbinder unbinder;
     private Disposable disposable = RxUtils.emptyDisposable();
 
@@ -41,13 +46,21 @@ class DevEventLoggerMonitorPresenter extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
+        this.activity = activity;
         unbinder = ButterKnife.bind(this, activity);
         setupRecyclerView();
         setupDeleteAllButton();
         setupTrackingRecordsAction();
     }
 
+    @Override
+    public void onItemClicked(TrackingRecord trackingRecord) {
+        DevEventLoggerMonitorDetailsDialog.create(trackingRecord)
+                                          .show(activity.getSupportFragmentManager(), TAG);
+    }
+
     private void setupRecyclerView() {
+        adapter.setListener(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
     }
@@ -66,6 +79,7 @@ class DevEventLoggerMonitorPresenter extends DefaultActivityLightCycle<AppCompat
     public void onDestroy(AppCompatActivity activity) {
         unbinder.unbind();
         disposable.dispose();
+        this.activity = null;
     }
 
     private final class DevTrackingRecordsProviderSubscriber extends DefaultObserver<DevTrackingRecordsProvider.Action> {

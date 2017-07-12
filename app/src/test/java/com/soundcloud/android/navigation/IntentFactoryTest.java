@@ -200,6 +200,15 @@ public class IntentFactoryTest extends AndroidUnitTest {
                 .opensActivity(DevEventLoggerMonitorActivity.class);
     }
 
+    @Test
+    public void createTextShareIntentChooser() {
+        assertIntent(IntentFactory.createTextShareIntentChooser(context, "text"))
+                .containsAction(Intent.ACTION_CHOOSER)
+                .wrappedIntent()
+                .containsAction(Intent.ACTION_SEND)
+                .containsExtra(Intent.EXTRA_TEXT, "text");
+    }
+
     private IntentAssert assertIntent(Intent intent) {
         return new IntentAssert(intent);
     }

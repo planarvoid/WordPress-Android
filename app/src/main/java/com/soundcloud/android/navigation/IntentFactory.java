@@ -1,6 +1,7 @@
 package com.soundcloud.android.navigation;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.PrestitialActivity;
@@ -76,6 +77,7 @@ import java.util.List;
 
 @SuppressWarnings("PMD.GodClass")
 public final class IntentFactory {
+    private static final String SHARE_TYPE = "text/plain";
     static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_CHECKOUT_PLAN = "checkout_plan";
     static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -160,6 +162,13 @@ public final class IntentFactory {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         return intent;
+    }
+
+    public static Intent createTextShareIntentChooser(Context context, String text) {
+        final Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, text);
+        intent.setType(SHARE_TYPE);
+        return Intent.createChooser(intent, context.getString(R.string.share));
     }
 
     static Intent createProfileRepostsIntent(Context context, Urn user, Screen screen, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {

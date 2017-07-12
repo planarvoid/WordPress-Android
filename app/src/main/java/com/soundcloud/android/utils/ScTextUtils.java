@@ -6,6 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -320,5 +322,13 @@ public class ScTextUtils {
     public static String toTitleCase(String word) {
         return word.substring(0, 1).toUpperCase(Locale.US) +
                 word.substring(1).toLowerCase(Locale.US);
+    }
+
+    public static String prettyPrintJson(String json, int indentSpaces) {
+        try {
+            return new JSONObject(json).toString(indentSpaces);
+        } catch (JSONException e) {
+            return json;
+        }
     }
 }

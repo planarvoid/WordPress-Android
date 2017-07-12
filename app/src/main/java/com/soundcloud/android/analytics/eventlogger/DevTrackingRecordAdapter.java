@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.v4.util.CircularArray;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,11 @@ class DevTrackingRecordAdapter extends RecyclerView.Adapter<DevTrackingRecordAda
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 
     private CircularArray<TrackingRecord> trackingRecords = new CircularArray<>();
+    private Optional<Listener> listenerOptional = Optional.absent();
+
+    interface Listener {
+        void onItemClicked(TrackingRecord trackingRecord);
+    }
 
     @Inject
     DevTrackingRecordAdapter() {}
@@ -35,13 +41,18 @@ class DevTrackingRecordAdapter extends RecyclerView.Adapter<DevTrackingRecordAda
     public void onBindViewHolder(TrackingRecordViewHolder viewHolder, int position) {
         final TrackingRecord trackingRecord = trackingRecords.get(position);
         final Date date = new Date(trackingRecord.getTimeStamp());
-        viewHolder.setTimestamp(dateFormat.format(date));
-        viewHolder.setData(trackingRecord.getData());
+        viewHolder.timestamp.setText(dateFormat.format(date));
+        viewHolder.data.setText(trackingRecord.getData());
+        listenerOptional.ifPresent(listener -> viewHolder.itemView.setOnClickListener(v -> listener.onItemClicked(trackingRecord)));
     }
 
     @Override
     public int getItemCount() {
         return trackingRecords.size();
+    }
+
+    public void setListener(Listener listener) {
+        this.listenerOptional = Optional.of(listener);
     }
 
     void replaceItems(CircularArray<TrackingRecord> trackingRecords) {
@@ -50,21 +61,13 @@ class DevTrackingRecordAdapter extends RecyclerView.Adapter<DevTrackingRecordAda
     }
 
     static class TrackingRecordViewHolder extends RecyclerView.ViewHolder {
-        private final TextView timestamp;
-        private final TextView data;
+        final TextView timestamp;
+        final TextView data;
 
         TrackingRecordViewHolder(View itemView) {
             super(itemView);
             this.timestamp = (TextView) itemView.findViewById(R.id.timestamp);
             this.data = (TextView) itemView.findViewById(R.id.data);
-        }
-
-        void setTimestamp(String timestampString) {
-            timestamp.setText(timestampString);
-        }
-
-        void setData(String dataString) {
-            data.setText(dataString);
         }
     }
 }
