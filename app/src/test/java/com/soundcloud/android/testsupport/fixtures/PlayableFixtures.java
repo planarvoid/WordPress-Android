@@ -340,6 +340,7 @@ public abstract class PlayableFixtures {
                            .createdAt(new Date())
                            .userName("forss")
                            .urn(Urn.forUser(2L))
+                           .imageUrlTemplate(Optional.absent())
                            .playableTitle("sounds of ze forzz");
 
     }

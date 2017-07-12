@@ -48,6 +48,7 @@ private void configureDbDriver() {
   configurations.driver.files.each {
     Sql.classLoader.addURL(it.toURI().toURL())
   }
+  DriverManager.registerDriver(Sql.classLoader.loadClass('com.mysql.jdbc.Driver').newInstance())
 }
 
 private static def currentDate() {

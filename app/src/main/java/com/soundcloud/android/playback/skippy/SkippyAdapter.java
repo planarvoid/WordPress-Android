@@ -34,6 +34,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.common.ProgressChangeHandler;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -43,17 +44,13 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -63,15 +60,11 @@ import java.util.concurrent.TimeUnit;
 public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    @VisibleForTesting
-    static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
-    static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
     static final long PRELOAD_DURATION = TimeUnit.SECONDS.toMillis(10);
     static final int PRELOAD_START_POSITION = 0;
     private static final String PARAM_CAN_SNIP = "can_snip";
 
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
-    private static final Predicate<AudioAdSource> IS_HLS = input -> input.isHls();
 
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
@@ -81,10 +74,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final SkippyPreloader skippyPreloader;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
+    private final ProgressChangeHandler progressChangeHandler;
     private final ApiUrlBuilder urlBuilder;
     private final ConnectionHelper connectionHelper;
     private final BufferUnderrunListener bufferUnderrunListener;
-    private final SharedPreferences sharedPreferences;
     private final SecureFileStorage secureFileStorage;
     private final CryptoOperations cryptoOperations;
     private final CurrentDateProvider dateProvider;
@@ -100,18 +93,18 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                   AccountOperations accountOperations,
                   ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler,
+                  ProgressChangeHandler progressChangeHandler,
                   EventBus eventBus,
                   ConnectionHelper connectionHelper,
                   LockUtil lockUtil,
                   BufferUnderrunListener bufferUnderrunListener,
-                  SharedPreferences sharedPreferences,
                   SecureFileStorage secureFileStorage,
                   CryptoOperations cryptoOperations,
                   CurrentDateProvider dateProvider) {
         this.skippyFactory = skippyFactory;
+        this.progressChangeHandler = progressChangeHandler;
         this.lockUtil = lockUtil;
         this.bufferUnderrunListener = bufferUnderrunListener;
-        this.sharedPreferences = sharedPreferences;
         this.secureFileStorage = secureFileStorage;
         this.cryptoOperations = cryptoOperations;
         this.accountOperations = accountOperations;
@@ -217,7 +210,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
-        final AudioAdSource source = Iterables.find(adPlaybackItem.getSources(), IS_HLS);
+        final AudioAdSource source = Iterables.find(adPlaybackItem.getSources(), AudioAdSource::isHls);
         return source.requiresAuth() ? buildAdHlsUrlWithAuth(source) : source.url();
     }
 
@@ -319,6 +312,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     public void setListener(PlayerListener playerListener) {
         this.playerListener = playerListener;
         this.stateHandler.setPlayerListener(playerListener);
+        this.progressChangeHandler.setPlayerListener(playerListener);
     }
 
     @Override
@@ -539,18 +533,13 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void onProgressChange(long position, long duration, String uri, Skippy.SkippyMediaType format, int bitRate) {
         final long adjustedPosition = fixPosition(position, duration);
-        if (playerListener != null && uri.equals(currentStreamUrl)) {
-            playerListener.onProgressEvent(adjustedPosition, duration);
+        if (uri.equals(currentStreamUrl)) {
+            progressChangeHandler.report(adjustedPosition, duration);
         }
     }
 
     private long fixPosition(long position, long duration) {
-        if (position > duration) {
-            ErrorUtils.handleSilentException("track [" + latestItemUrn + "] : position [" + position + "] > duration [" + duration + "].",
-                                             new IllegalStateException("Skippy inconsistent state : position > duration"));
-            return duration;
-        }
-        return position;
+        return position > duration ? duration : position;
     }
 
     @Override
@@ -579,29 +568,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
     }
 
-    private int getAndIncrementInitilizationErrors() {
-        int errors = getInitializationErrorCount() + 1;
-        sharedPreferences.edit().putInt(SKIPPY_INIT_ERROR_COUNT_KEY, errors).apply();
-        return errors;
-    }
+    static class StateChangeHandler extends com.soundcloud.android.playback.common.StateChangeHandler {
 
-    private int getInitializationErrorCount() {
-        return sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0);
-    }
-
-    private int getAndIncrementInitilizationSuccesses() {
-        int successes = getInitializationSuccessCount() + 1;
-        sharedPreferences.edit().putInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, successes).apply();
-        return successes;
-    }
-
-    private int getInitializationSuccessCount() {
-        return sharedPreferences.getInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, 0);
-    }
-
-    static class StateChangeHandler extends Handler {
-
-        @Nullable private PlayerListener playerListener;
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
         private final ConnectionHelper connectionHelper;
 
@@ -612,36 +580,21 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             this.connectionHelper = connectionHelper;
         }
 
-        public void setPlayerListener(@Nullable PlayerListener playerListener) {
-            this.playerListener = playerListener;
-        }
-
-        public void setBufferUnderrunListener(@Nullable BufferUnderrunListener bufferUnderrunListener) {
+        void setBufferUnderrunListener(@Nullable BufferUnderrunListener bufferUnderrunListener) {
             this.bufferUnderrunListener = bufferUnderrunListener;
         }
 
         @Override
         public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
             final StateChangeMessage message = (StateChangeMessage) msg.obj;
-            if (playerListener != null) {
-                playerListener.onPlaystateChanged(message.stateTransition);
-            }
             if (bufferUnderrunListener != null) {
                 bufferUnderrunListener.onPlaystateChanged(message.playbackItem,
                                                           message.stateTransition,
                                                           PlaybackProtocol.HLS,
                                                           PlayerType.SKIPPY,
                                                           connectionHelper.getCurrentConnectionType());
-            }
-        }
-
-        static class StateChangeMessage {
-            final PlaybackItem playbackItem;
-            final PlaybackStateTransition stateTransition;
-
-            StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
-                this.playbackItem = item;
-                this.stateTransition = transition;
             }
         }
     }

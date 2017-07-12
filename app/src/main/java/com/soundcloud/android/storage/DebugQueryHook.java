@@ -16,9 +16,8 @@ import android.util.Log;
 
 class DebugQueryHook implements DatabaseHook {
 
-    private static final String TAG = "QueryDebug";
+    static final String TAG = "QueryDebug";
     private static final int MAX_LENGTH = 200;
-    private static final int LENGTH_TOLERANCE = 5000;
 
     private static final String UPSERT = "UPSERT";
     private static final String BULK_UPSERT = "BULK UPSERT";
@@ -27,6 +26,12 @@ class DebugQueryHook implements DatabaseHook {
     private static final String UPDATE = "UPDATE";
     private static final String INSERT = "INSERT";
     private static final String BULK_INSERT = "BULK INSERT";
+
+    private final SlowQueryReporter slowQueryReporter;
+
+    DebugQueryHook(SlowQueryReporter slowQueryReporter) {
+        this.slowQueryReporter = slowQueryReporter;
+    }
 
     @Override
     public void onQueryStarted(Query query) {
@@ -170,16 +175,11 @@ class DebugQueryHook implements DatabaseHook {
 
     private void finished(String message, long duration) {
         ErrorUtils.log(Log.DEBUG, TAG, "finish (" + duration + "ms) : " + limit(message));
-
-        if (duration > LENGTH_TOLERANCE) {
-            ErrorUtils.handleSilentException(new SQLRequestOverdueException());
-        }
+        slowQueryReporter.reportIfSlow(duration);
     }
 
     private static String limit(String query) {
         return query.length() <= MAX_LENGTH ? query : query.substring(0, MAX_LENGTH);
     }
 
-    public static class SQLRequestOverdueException extends Exception {
-    }
 }

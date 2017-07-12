@@ -7,6 +7,8 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 
@@ -22,6 +24,8 @@ import java.io.File;
 
 @Module
 public class StorageModule {
+
+    static final String DEBUG_PROPELLER_RX = "DebugPropellerRx";
 
     public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
     public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
@@ -292,10 +296,10 @@ public class StorageModule {
     }
 
     @Provides
-    PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties) {
+    PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties, Lazy<DebugQueryHook> debugQueryHookLazy) {
         final PropellerDatabase propeller;
         if (applicationProperties.shouldLogQueries()) {
-            propeller = new PropellerDatabase(database, new DebugQueryHook());
+            propeller = new PropellerDatabase(database, debugQueryHookLazy.get());
         } else {
             propeller = new PropellerDatabase(database);
         }
@@ -305,13 +309,21 @@ public class StorageModule {
 
     @Provides
     @Nullable
-    DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties) {
-        return applicationProperties.shouldLogQueries() ? new DebugQueryHook() : null;
+    DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties, Lazy<SlowQueryReporter> slowQueryReporterLazy) {
+        return applicationProperties.shouldLogQueries() ? new DebugQueryHook(slowQueryReporterLazy.get()) : null;
     }
 
     @Provides
     PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
         return new PropellerRx(propeller);
+    }
+
+    @Provides
+    @Named(DEBUG_PROPELLER_RX)
+    PropellerRxV2 provideDebugPropellerRxWrapper(SQLiteDatabase database) {
+        PropellerDatabase propeller = new PropellerDatabase(database);
+        propeller.setAssertBackgroundThread();
+        return new PropellerRxV2(propeller);
     }
 
     // Exposing this, since a the dependent class (UnauthorisedRequestRegistry) is also used by legacy code
