@@ -6,6 +6,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -22,6 +23,17 @@ public class RecommendedStationsTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.offlineUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     public void testOpenSuggestedStationFromDiscovery() throws Exception {

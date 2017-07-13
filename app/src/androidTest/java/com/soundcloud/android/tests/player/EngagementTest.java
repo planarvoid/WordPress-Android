@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -17,6 +18,17 @@ public class EngagementTest extends ActivityTest<MainActivity> {
 
     public EngagementTest() {
         super(MainActivity.class);
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     @Override

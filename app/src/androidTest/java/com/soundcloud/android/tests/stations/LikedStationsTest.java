@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.stations.LikedStationsScreen;
@@ -22,6 +23,17 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.stationsUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     @Override

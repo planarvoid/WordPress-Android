@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
@@ -28,9 +27,9 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().disable(Flag.RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
     }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -39,7 +38,8 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void tearDown() throws Exception {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).reset(Flag.RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().reset(Flag.RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
         super.tearDown();
     }
 

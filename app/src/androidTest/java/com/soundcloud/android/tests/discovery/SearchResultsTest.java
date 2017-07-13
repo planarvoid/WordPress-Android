@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -37,7 +36,15 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
+        getFeatureFlags().disable(Flag.SEARCH_TOP_RESULTS);
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.SEARCH_TOP_RESULTS);
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     @Override

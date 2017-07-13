@@ -73,12 +73,12 @@ class SpecValidator {
     }
 
     private boolean verifyEvent(int i, SpecEvent specEvent, LoggedEvent loggedEvent) {
-        boolean eventNameMatches = verifyEventName(i, specEvent, loggedEvent);
+        boolean eventNameMatches = verifyEventName(specEvent, loggedEvent);
         boolean payloadMatches = verifyEventPayload(i, specEvent, loggedEvent);
         return eventNameMatches && payloadMatches;
     }
 
-    private boolean verifyEventName(int i, SpecEvent specEvent, LoggedEvent loggedEvent) {
+    private boolean verifyEventName(SpecEvent specEvent, LoggedEvent loggedEvent) {
         String specEventName = specEvent.name();
         String loggedEventName = loggedEvent.event();
 

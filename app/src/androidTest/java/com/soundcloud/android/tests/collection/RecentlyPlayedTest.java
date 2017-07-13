@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -34,6 +35,17 @@ public class RecentlyPlayedTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         collectionScreen = mainNavHelper.goToCollections();
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     public void testPlayingAPlaylistFromTheRecentlyPlayedBucketFulfilsSpec() throws Exception {

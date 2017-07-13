@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -30,7 +29,15 @@ public class OldDiscoveryTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).enable(Flag.NEW_FOR_YOU_FIRST);
+        getFeatureFlags().enable(Flag.NEW_FOR_YOU_FIRST);
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        getFeatureFlags().reset(Flag.NEW_FOR_YOU_FIRST);
+        super.tearDown();
     }
 
     public void testNewForYouIsVisible() throws Exception {

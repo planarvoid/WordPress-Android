@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.discovery;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class TrackRecommendationsTrackingTest extends ActivityTest<MainActivity> {
@@ -15,6 +16,17 @@ public class TrackRecommendationsTrackingTest extends ActivityTest<MainActivity>
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.defaultUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     public void testStartPlaybackFromReasonOnDiscoveryScreen() throws Exception {

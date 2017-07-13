@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -19,7 +18,6 @@ import com.soundcloud.android.tests.ActivityTest;
 public class SearchTopResultsTest extends ActivityTest<MainActivity> {
 
     private OldDiscoveryScreen discoveryScreen;
-    private FeatureFlagsHelper featureFlagsHelper;
 
     public SearchTopResultsTest() {
         super(MainActivity.class);
@@ -33,15 +31,20 @@ public class SearchTopResultsTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
-        featureFlagsHelper.enable(Flag.SEARCH_TOP_RESULTS);
         discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
     @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().enable(Flag.SEARCH_TOP_RESULTS);
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
     public void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.SEARCH_TOP_RESULTS);
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
         super.tearDown();
-        featureFlagsHelper.reset(Flag.SEARCH_TOP_RESULTS);
     }
 
     // https://soundcloud.atlassian.net/browse/DROID-1361

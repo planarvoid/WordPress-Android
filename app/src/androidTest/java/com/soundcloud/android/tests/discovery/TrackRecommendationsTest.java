@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.ViewAllTrackRecommendationsScreen;
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
@@ -31,6 +32,17 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         super.setUp();
 
         discoveryScreen = mainNavHelper.goToOldDiscovery();
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     public void testClickOnViewAllTrackRecommendations() {

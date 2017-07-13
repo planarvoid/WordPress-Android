@@ -10,6 +10,7 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -27,6 +28,17 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.playerUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+        super.tearDown();
     }
 
     @Override

@@ -56,7 +56,7 @@ android {
 
   buildTypes {
     debug {
-      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
