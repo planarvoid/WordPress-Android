@@ -80,9 +80,10 @@ public final class ScSchedulers {
 
             if (ApplicationProperties.isBetaOrBelow()) {
                 //We only track wait time for alpha, beta and debug.
-                final WaitTimeTaskTrace waitTimeTaskTrace = new WaitTimeTaskTrace();
+                final WaitTimeTaskTrace waitTimeTaskTrace = WaitTimeTaskTrace.create();
                 waitTimeTaskTrace.startMeasuring();
                 target.execute(() -> {
+                    logThreadsAndQueueSize(startTime, waitTimeTaskTrace);
                     waitTimeTaskTrace.stopMeasuring();
                     logExecutingWarning(startTime);
                     command.run();
@@ -106,6 +107,14 @@ public final class ScSchedulers {
             final long waitTime = System.currentTimeMillis() - startTime;
             if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
                 ErrorUtils.log(Log.WARN, OperationsInstrumentation.TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
+            }
+        }
+
+        private void logThreadsAndQueueSize(long startTime, WaitTimeTaskTrace waitTimeTaskTrace) {
+            final long waitTime = System.currentTimeMillis() - startTime;
+            if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
+                waitTimeTaskTrace.setCurrentThreadsRunning(Thread.getAllStackTraces().size());
+                waitTimeTaskTrace.setQueueSize(target.getQueue().size());
             }
         }
 
@@ -189,11 +198,19 @@ public final class ScSchedulers {
      *
      * <p>Refer to {@link PerformanceMetricsEngine}.</p>
      */
-    private static class WaitTimeTaskTrace {
+    private static final class WaitTimeTaskTrace {
+        private static final String THREAD_POOL_TASK_WAIT_TIME = MetricType.DEV_THREAD_POOL_TASK_WAIT_TIME.toString();
+        private static final String THREAD_POOL_TASK_WAIT_TIME_THREADS_RUNNING = "threads_running";
+        private static final String THREAD_POOL_TASK_WAIT_TIME_QUEUE_SIZE = "queue_size";
+
         private final Trace trace;
 
         private WaitTimeTaskTrace() {
-            this.trace = FirebasePerformance.getInstance().newTrace(MetricType.DEV_THREAD_POOL_TASK_WAIT_TIME.toString());
+            this.trace = FirebasePerformance.getInstance().newTrace(THREAD_POOL_TASK_WAIT_TIME);
+        }
+
+        static WaitTimeTaskTrace create() {
+            return new WaitTimeTaskTrace();
         }
 
         private void startMeasuring() {
@@ -205,6 +222,18 @@ public final class ScSchedulers {
         private void stopMeasuring() {
             if (trace != null) {
                 trace.stop();
+            }
+        }
+
+        private void setCurrentThreadsRunning(int numberOfThreads) {
+            if (trace != null) {
+                trace.incrementCounter(THREAD_POOL_TASK_WAIT_TIME_THREADS_RUNNING, numberOfThreads);
+            }
+        }
+
+        private void setQueueSize(int queueSize) {
+            if (trace != null) {
+                trace.incrementCounter(THREAD_POOL_TASK_WAIT_TIME_QUEUE_SIZE, queueSize);
             }
         }
     }
