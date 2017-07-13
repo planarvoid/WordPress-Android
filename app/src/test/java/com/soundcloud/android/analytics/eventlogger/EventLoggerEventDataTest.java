@@ -187,15 +187,6 @@ public class EventLoggerEventDataTest {
         assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo(ITEM_INTERACTION);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfUnknownReferringEventKind() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
-
-        final String uuid = UUID.randomUUID().toString();
-
-        data.referringEvent(uuid, "Random Event Type");
-    }
-
     @Test
     public void shouldAddPlaybackDetailsAsJson() {
         final String detailsJson = "{\"some\":{\"key\": 1234}}";

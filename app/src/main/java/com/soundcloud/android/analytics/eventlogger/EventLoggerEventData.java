@@ -93,7 +93,6 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -676,17 +675,13 @@ class EventLoggerEventData {
 
     @VisibleForTesting
     String toReferringEventName(String eventKind) {
-        if (eventKind.equals(UIEvent.Kind.NAVIGATION.toString())) {
-            return ITEM_INTERACTION;
-        }
         switch (eventKind) {
             case ScreenEvent.KIND:
                 return PAGEVIEW_EVENT;
             case ForegroundEvent.KIND_OPEN:
                 return FOREGROUND_EVENT;
             default:
-                throw new IllegalArgumentException(
-                        "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);
+                return ITEM_INTERACTION;
         }
     }
 
