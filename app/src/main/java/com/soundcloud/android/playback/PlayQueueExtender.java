@@ -14,6 +14,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 import android.annotation.SuppressLint;
@@ -38,6 +39,9 @@ public class PlayQueueExtender {
     private Disposable loadRecommendedDisposable = RxUtils.invalidDisposable();
     private boolean isLoadingRecommendations;
 
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     @Inject
     PlayQueueExtender(PlayQueueManager playQueueManager,
                       PlayQueueOperations playQueueOperations,
@@ -53,8 +57,10 @@ public class PlayQueueExtender {
 
     @SuppressLint("sc.CheckResult")
     public void subscribe() {
-        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackObserver());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueObserver());
+        compositeDisposable.addAll(
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackObserver()),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueObserver())
+        );
     }
 
     private class PlayQueueObserver extends DefaultObserver<PlayQueueEvent> {

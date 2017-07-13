@@ -10,7 +10,10 @@ import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
+
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,6 +33,9 @@ public class LikesStateProvider {
     private final Scheduler scheduler;
     private Set<Urn> likes = new HashSet<>();
 
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     @Inject
     public LikesStateProvider(LikesStorage likesStorage,
                               EventBusV2 eventBus,
@@ -41,21 +47,24 @@ public class LikesStateProvider {
 
     public void subscribe() {
         publishSnapshot();
-        likesStorage.loadLikes()
-                    .subscribeOn(scheduler)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(LambdaSingleObserver.onNext(likes -> {
-                                                               setLikes(likes);
-                                                               publishSnapshot();
-                                                           }
-                    ));
 
-        eventBus.queue(EventQueue.LIKE_CHANGED)
-                .subscribe(LambdaObserver.onNext(likesEvent -> {
-                                                     updateLikes(likesEvent);
-                                                     publishSnapshot();
-                                                 }
-                ));
+        compositeDisposable.addAll(
+                likesStorage.loadLikes()
+                            .subscribeOn(scheduler)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeWith(LambdaSingleObserver.onNext(likes -> {
+                                                                           setLikes(likes);
+                                                                           publishSnapshot();
+                                                                       }
+                            )),
+
+                eventBus.queue(EventQueue.LIKE_CHANGED)
+                        .subscribeWith(LambdaObserver.onNext(likesEvent -> {
+                                                                 updateLikes(likesEvent);
+                                                                 publishSnapshot();
+                                                             }
+                        ))
+        );
     }
 
     void setLikes(List<Urn> likesList) {

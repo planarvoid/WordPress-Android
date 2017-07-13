@@ -15,12 +15,14 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
@@ -41,6 +43,9 @@ public class StreamPreloader {
     private final StreamCacheConfig.SkippyConfig skippyConfig;
 
     private Disposable preloadSubscription = Disposables.disposed();
+
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private final Consumer<CurrentPlayQueueItemEvent> unsubscribeFromPreload = currentPlayQueueItemEvent -> preloadSubscription.dispose();
 
@@ -114,11 +119,11 @@ public class StreamPreloader {
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .doOnNext(unsubscribeFromPreload)
-                .filter(ignore -> !castConnectionHelper.isCasting())
-                .filter(hasNextTrackInPlayQueue)
-                .subscribe(new PreloadCandidateSubscriber());
+        compositeDisposable.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                        .doOnNext(unsubscribeFromPreload)
+                                        .filter(ignore -> !castConnectionHelper.isCasting())
+                                        .filter(hasNextTrackInPlayQueue)
+                                        .subscribeWith(new PreloadCandidateSubscriber()));
     }
 
     private class PreloadCandidateSubscriber extends DefaultObserver<CurrentPlayQueueItemEvent> {

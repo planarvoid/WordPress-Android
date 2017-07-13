@@ -10,7 +10,10 @@ import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
+
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,6 +33,9 @@ public class RepostsStateProvider {
     private final Scheduler scheduler;
     private Set<Urn> reposts = new HashSet<>();
 
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     @Inject
     public RepostsStateProvider(RepostStorage repostStorage,
                                 EventBusV2 eventBus,
@@ -40,21 +46,21 @@ public class RepostsStateProvider {
     }
 
     public void subscribe() {
-        repostStorage.loadReposts()
+        compositeDisposable.addAll(repostStorage.loadReposts()
                      .subscribeOn(scheduler)
                      .observeOn(AndroidSchedulers.mainThread())
-                     .subscribe(LambdaSingleObserver.onNext(reposts -> {
+                     .subscribeWith(LambdaSingleObserver.onNext(reposts -> {
                                                                 setReposts(reposts);
                                                                 publishSnapshot();
                                                             }
-                     ));
+                     )),
 
         eventBus.queue(EventQueue.REPOST_CHANGED)
-                .subscribe(LambdaObserver.onNext(repostsStatusEvent -> {
+                .subscribeWith(LambdaObserver.onNext(repostsStatusEvent -> {
                                                      updateReposts(repostsStatusEvent);
                                                      publishSnapshot();
                                                  }
-                ));
+                )));
     }
 
     void setReposts(List<Urn> reposts) {

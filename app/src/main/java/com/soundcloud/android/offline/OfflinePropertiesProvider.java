@@ -15,6 +15,7 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 
@@ -37,6 +38,8 @@ public class OfflinePropertiesProvider {
     private final AccountOperations accountOperations;
     private final BehaviorSubject<OfflineProperties> subject = BehaviorSubject.create();
 
+    Disposable disposable;
+
     @Inject
     public OfflinePropertiesProvider(TrackDownloadsStorage trackDownloadsStorage,
                                      OfflineStateOperations offlineStateOperations,
@@ -53,7 +56,7 @@ public class OfflinePropertiesProvider {
     }
 
     public void subscribe() {
-        userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribe(new DefaultObserver<>());
+        disposable = userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribeWith(new DefaultObserver<>());
     }
 
     private Observable<Boolean> userSessionStart() {

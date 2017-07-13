@@ -9,6 +9,9 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
+import io.reactivex.disposables.CompositeDisposable;
+
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,6 +24,9 @@ public class PlaySessionOriginScreenProvider {
     private boolean wasUserInCollectionScreen;
     private Optional<String> recentlyPlayedOriginScreen = Optional.absent();
 
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     @Inject
     public PlaySessionOriginScreenProvider(EventBus eventBus, ScreenProvider screenProvider) {
         this.eventBus = eventBus;
@@ -28,13 +34,14 @@ public class PlaySessionOriginScreenProvider {
     }
 
     public void subscribe() {
-        RxJavaInterop.toV2Observable(eventBus.queue(EventQueue.TRACKING))
-                     .ofType(ScreenEvent.class)
-                     .subscribe(new ScreenTrackingEventSubscriber());
-
-        RxJavaInterop.toV2Observable(eventBus.queue(EventQueue.TRACKING))
-                     .ofType(CollectionEvent.class)
-                     .subscribe(new CollectionEventSubscriber());
+        compositeDisposable.addAll(
+                RxJavaInterop.toV2Observable(eventBus.queue(EventQueue.TRACKING))
+                             .ofType(ScreenEvent.class)
+                             .subscribeWith(new ScreenTrackingEventSubscriber()),
+                RxJavaInterop.toV2Observable(eventBus.queue(EventQueue.TRACKING))
+                             .ofType(CollectionEvent.class)
+                             .subscribeWith(new CollectionEventSubscriber())
+        );
     }
 
     public String getOriginScreen() {

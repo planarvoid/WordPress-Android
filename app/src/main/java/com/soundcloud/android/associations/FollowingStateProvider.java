@@ -13,7 +13,10 @@ import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
+
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,6 +35,9 @@ public class FollowingStateProvider {
     private final Scheduler scheduler;
     private Set<Urn> followings = new HashSet<>();
 
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     @Inject
     public FollowingStateProvider(UserAssociationStorage userAssociationStorage,
                                   EventBusV2 eventBus,
@@ -43,20 +49,22 @@ public class FollowingStateProvider {
 
     public void subscribe() {
         publishSnapshot();
-        userAssociationStorage.followedUserAssociations().map(userAssociations -> Lists.transform(userAssociations, UserAssociation::userUrn))
-                              .subscribeOn(scheduler)
-                              .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(LambdaSingleObserver.onNext(followings -> {
-                                  setFollowings(followings);
-                                  publishSnapshot();
-                              }));
 
-        eventBus.queue(EventQueue.FOLLOWING_CHANGED)
-                .subscribe(LambdaObserver.onNext(followingStatusEvent -> {
-                                                     updateFollowings(followingStatusEvent);
-                                                     publishSnapshot();
-                                                 }
-                ));
+        compositeDisposable.addAll(
+                userAssociationStorage.followedUserAssociations().map(userAssociations -> Lists.transform(userAssociations, UserAssociation::userUrn))
+                                      .subscribeOn(scheduler)
+                                      .observeOn(AndroidSchedulers.mainThread())
+                                      .subscribeWith(LambdaSingleObserver.onNext(followings -> {
+                                          setFollowings(followings);
+                                          publishSnapshot();
+                                      })),
+                eventBus.queue(EventQueue.FOLLOWING_CHANGED)
+                        .subscribeWith(LambdaObserver.onNext(followingStatusEvent -> {
+                                                                 updateFollowings(followingStatusEvent);
+                                                                 publishSnapshot();
+                                                             }
+                        ))
+        );
     }
 
     void setFollowings(List<Urn> likesList) {
