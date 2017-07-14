@@ -310,7 +310,7 @@ public class StorageModule {
     @Provides
     @Nullable
     DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties, Lazy<SlowQueryReporter> slowQueryReporterLazy) {
-        return applicationProperties.shouldLogQueries() ? new DebugQueryHook(slowQueryReporterLazy.get()) : null;
+        return new DebugQueryHook(slowQueryReporterLazy.get(), applicationProperties.shouldLogQueries());
     }
 
     @Provides

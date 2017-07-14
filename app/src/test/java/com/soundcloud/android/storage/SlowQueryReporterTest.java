@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -21,7 +22,8 @@ public class SlowQueryReporterTest {
 
     private SlowQueryReporter slowQueryReporter;
     private TestScheduler scheduler = new TestScheduler();
-    private TestObserver<String> reporter = new TestObserver<>();
+    private TestObserver<SlowQueryReporter.SlowQueryOutput> reporter = new TestObserver<>();
+    private DebugDatabaseStat op1 = new DebugDatabaseStat("op1", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
 
     @Before
     public void setUp() throws Exception {
@@ -35,27 +37,28 @@ public class SlowQueryReporterTest {
 
     @Test
     public void doesNotReportIfNotSlow() throws Exception {
-        slowQueryReporter.reportIfSlow(1);
+        slowQueryReporter.reportIfSlow(new DebugDatabaseStat("op1", 1));
 
         reporter.assertNoValues();
     }
 
     @Test
     public void reportsIfSlow() throws Exception {
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
+        slowQueryReporter.reportIfSlow(op1);
 
         scheduler.triggerActions();
 
-        reporter.assertValue("1 [table1]\n2 [table2]\n");
+        reporter.assertValue(SlowQueryReporter.SlowQueryOutput.create("1 [table1]\n2 [table2]\n", Collections.singletonList(op1)));
     }
 
     @Test
     public void reportsOnceThrottled() throws Exception {
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
-        slowQueryReporter.reportIfSlow(SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
-
+        slowQueryReporter.reportIfSlow(op1);
+        scheduler.triggerActions();
+        slowQueryReporter.reportIfSlow(new DebugDatabaseStat("op2", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1));
         scheduler.advanceTimeBy(SlowQueryReporter.THROTTLE_TIME_MS, TimeUnit.MILLISECONDS);
 
-        reporter.assertValue("1 [table1]\n2 [table2]\n");
+        reporter.assertValue(SlowQueryReporter.SlowQueryOutput.create("1 [table1]\n2 [table2]\n", Collections.singletonList(op1)));
     }
+
 }
