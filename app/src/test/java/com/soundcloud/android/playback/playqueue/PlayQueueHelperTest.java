@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.main.Screen;
@@ -23,7 +24,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,13 +36,15 @@ import java.util.List;
 
 public class PlayQueueHelperTest extends AndroidUnitTest {
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ScreenProvider screenProvider;
     @Mock private TrackRepository trackRepository;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
     private PlayQueueHelper playQueueHelper;
     private List<Urn> trackList;
     private Urn playlistUrn = Urn.forPlaylist(12345L);
@@ -55,7 +58,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         trackList = newArrayList(track1, track2);
         when(screenProvider.getLastScreenTag()).thenReturn(Screen.STREAM.get());
         playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackFeedbackHelper, eventBus,
-                                              playbackInitiator, screenProvider);
+                                              playbackInitiator, screenProvider, performanceMetricsEngine);
     }
 
     @Test

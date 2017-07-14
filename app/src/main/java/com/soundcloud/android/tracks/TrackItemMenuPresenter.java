@@ -7,6 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
@@ -19,15 +20,14 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -35,7 +35,7 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
@@ -53,7 +53,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final TrackItemRepository trackItemRepository;
     private final Context context;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
     private final SharePresenter sharePresenter;
@@ -69,6 +69,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -83,7 +84,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                            TrackItemRepository trackItemRepository,
-                           EventBus eventBus,
+                           EventBusV2 eventBus,
                            Context context,
                            LikeOperations likeOperations,
                            RepostOperations repostOperations,
@@ -99,7 +100,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                            ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper,
                            FeedbackController feedbackController,
-                           NavigationExecutor navigationExecutor) {
+                           NavigationExecutor navigationExecutor,
+                           PerformanceMetricsEngine performanceMetricsEngine) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -119,6 +121,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.feedbackController = feedbackController;
         this.navigationExecutor = navigationExecutor;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -258,8 +261,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
         if (playQueueManager.isQueueEmpty()) {
             final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
-            RxJava.toV1Observable(playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource))
-                  .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
+            playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
+                  .subscribe(new ExpandPlayerSingleObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
         } else {
             playQueueManager.insertNext(trackUrn);
         }

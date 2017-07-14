@@ -14,6 +14,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
@@ -36,7 +37,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -73,6 +74,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     @Mock FeedbackController feedbackController;
     @Mock NavigationExecutor navigationExecutor;
+    @Mock PerformanceMetricsEngine performanceMetricsEngine;
 
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -82,7 +84,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
-    private final TestEventBus eventBus = new TestEventBus();
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
     private Track track = ModelFixtures.track();
     private TrackItem trackItem = ModelFixtures.trackItem(track);
 
@@ -116,7 +118,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                changeLikeToSaveExperiment,
                                                changeLikeToSaveExperimentStringHelper,
                                                feedbackController,
-                                               navigationExecutor);
+                                               navigationExecutor,
+                                               performanceMetricsEngine);
     }
 
     @Test

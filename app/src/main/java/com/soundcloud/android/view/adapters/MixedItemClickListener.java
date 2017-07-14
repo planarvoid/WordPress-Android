@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.LinkType;
@@ -203,17 +202,14 @@ public class MixedItemClickListener {
 
         private final PlaybackInitiator playbackInitiator;
         private final Provider<ExpandPlayerSubscriber> subscriberProvider;
-        private final PerformanceMetricsEngine performanceMetricsEngine;
         private final Navigator navigator;
 
         @Inject
         public Factory(PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       PerformanceMetricsEngine performanceMetricsEngine,
                        Navigator navigator) {
             this.playbackInitiator = playbackInitiator;
             this.subscriberProvider = subscriberProvider;
-            this.performanceMetricsEngine = performanceMetricsEngine;
             this.navigator = navigator;
         }
 
