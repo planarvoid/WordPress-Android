@@ -16,14 +16,7 @@ public abstract class Command<I, O> {
     }
 
     public Observable<O> toObservable(final I input) {
-        return Observable.create(subscriber -> {
-            try {
-                subscriber.onNext(Command.this.call(input));
-                subscriber.onCompleted();
-            } catch (Throwable t) {
-                subscriber.onError(t);
-            }
-        });
+        return Observable.fromCallable(() -> Command.this.call(input));
     }
 
     public Single<O> toSingle(final I input) {
