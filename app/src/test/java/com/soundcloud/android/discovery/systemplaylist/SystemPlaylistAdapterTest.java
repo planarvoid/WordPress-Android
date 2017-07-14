@@ -33,7 +33,15 @@ public class SystemPlaylistAdapterTest extends AndroidUnitTest {
     private static final String METADATA = "duration";
     private static final Optional<String> LAST_UPDATED = Optional.of("last_updated");
 
-    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(URN, TITLE, DESCRIPTION, METADATA, LAST_UPDATED, SYSTEM_PLAYLIST.imageResource(), QUERY_URN, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(URN,
+                                                                                             TITLE,
+                                                                                             DESCRIPTION,
+                                                                                             METADATA,
+                                                                                             LAST_UPDATED,
+                                                                                             SYSTEM_PLAYLIST.imageResource(),
+                                                                                             QUERY_URN,
+                                                                                             TRACKING_FEATURE_NAME,
+                                                                                             true);
 
     private static final SystemPlaylistItem.Track FIRST = SystemPlaylistItem.Track.create(URN, FIRST_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
     private static final SystemPlaylistItem.Track SECOND = SystemPlaylistItem.Track.create(URN, SECOND_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);

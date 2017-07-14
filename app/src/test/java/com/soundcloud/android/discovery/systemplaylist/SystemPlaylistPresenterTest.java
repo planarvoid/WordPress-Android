@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingStateProvider;
@@ -65,17 +66,36 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     private static final Optional<String> NEW_FOR_YOU_DESCRIPTION = Optional.of("Something uploaded");
     private static final NewForYou NEW_FOR_YOU = NewForYou.create(DATE.get(), QUERY_URN.get(), TRACKS);
     private static final SystemPlaylist SYSTEM_PLAYLIST = SystemPlaylist.create(URN, QUERY_URN, TITLE, DESCRIPTION, TRACKS, DATE, ARTWORK_URL, TRACKING_FEATURE_NAME);
-    private static final SystemPlaylist NEW_FOR_YOU_SYSTEM_PLAYLIST = SystemPlaylist.create(Urn.NOT_SET, QUERY_URN, NEW_FOR_YOU_TITLE, NEW_FOR_YOU_DESCRIPTION, TRACKS, DATE, Optional.absent(), Optional.absent());
+    private static final SystemPlaylist EMPTY_SYSTEM_PLAYLIST = SystemPlaylist.create(URN, QUERY_URN, TITLE, DESCRIPTION, Lists.newArrayList(), DATE, ARTWORK_URL, TRACKING_FEATURE_NAME);
+    private static final SystemPlaylist NEW_FOR_YOU_SYSTEM_PLAYLIST = SystemPlaylist.create(Urn.NOT_SET,
+                                                                                            QUERY_URN,
+                                                                                            NEW_FOR_YOU_TITLE,
+                                                                                            NEW_FOR_YOU_DESCRIPTION,
+                                                                                            TRACKS,
+                                                                                            DATE,
+                                                                                            Optional.absent(),
+                                                                                            Optional.absent());
     private static final String METADATA = "duration";
     private static final Optional<String> LAST_UPDATED = Optional.of("last_updated");
 
-    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(URN, TITLE, DESCRIPTION, METADATA, LAST_UPDATED, SYSTEM_PLAYLIST.imageResource(), QUERY_URN, TRACKING_FEATURE_NAME);
-    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(Urn.NOT_SET, NEW_FOR_YOU_TITLE,
+    private static final SystemPlaylistItem.Header HEADER = SystemPlaylistItem.Header.create(URN,
+                                                                                             TITLE,
+                                                                                             DESCRIPTION,
+                                                                                             METADATA,
+                                                                                             LAST_UPDATED,
+                                                                                             SYSTEM_PLAYLIST.imageResource(),
+                                                                                             QUERY_URN,
+                                                                                             TRACKING_FEATURE_NAME,
+                                                                                             true);
+    private static final SystemPlaylistItem.Header NEW_FOR_YOU_HEADER = SystemPlaylistItem.Header.create(Urn.NOT_SET,
+                                                                                                         NEW_FOR_YOU_TITLE,
                                                                                                          NEW_FOR_YOU_DESCRIPTION,
                                                                                                          METADATA,
                                                                                                          LAST_UPDATED,
                                                                                                          NEW_FOR_YOU_SYSTEM_PLAYLIST.imageResource(),
-                                                                                                         QUERY_URN, Optional.absent());
+                                                                                                         QUERY_URN,
+                                                                                                         Optional.absent(),
+                                                                                                         true);
 
     private static final SystemPlaylistItem.Track FIRST = SystemPlaylistItem.Track.create(URN, FIRST_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
     private static final SystemPlaylistItem.Track SECOND = SystemPlaylistItem.Track.create(URN, SECOND_TRACK_ITEM, QUERY_URN, TRACKING_FEATURE_NAME);
@@ -87,7 +107,8 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
 
     private static final ArrayList<SystemPlaylistItem> ADAPTER_ITEMS = newArrayList(HEADER, FIRST, SECOND, THIRD);
     private static final ArrayList<SystemPlaylistItem> NEW_FOR_YOU_ADAPTER_ITEMS = newArrayList(NEW_FOR_YOU_HEADER, NEW_FOR_YOU_FIRST, NEW_FOR_YOU_SECOND, NEW_FOR_YOU_THIRD);
-    Bundle bundle = spy(Bundle.class);
+    private static final Bundle bundle = spy(Bundle.class);
+
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, bundle);
 
     @Mock SwipeRefreshAttacher swipeRefreshAttacher;
@@ -260,5 +281,25 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         assertThat(((SystemPlaylistItem.Track) systemPlaylistItem.next()).track().isPlaying()).isTrue();
         assertThat(((SystemPlaylistItem.Track) systemPlaylistItem.next()).track().isPlaying()).isFalse();
 
+    }
+
+    @Test
+    public void hidesPlayButtonWithEmptyTracks() throws Exception {
+        final Iterator<SystemPlaylistItem> systemPlaylistItem = presenter.toSystemPlaylistItems().apply(EMPTY_SYSTEM_PLAYLIST).iterator();
+
+        final SystemPlaylistItem.Header header = ((SystemPlaylistItem.Header) systemPlaylistItem.next());
+
+        assertThat(header.isHeader()).isTrue();
+        assertThat(header.shouldShowPlayButton()).isFalse();
+    }
+
+    @Test
+    public void showsPlayButtonWithNonEmptyTracks() throws Exception {
+        final Iterator<SystemPlaylistItem> systemPlaylistItem = presenter.toSystemPlaylistItems().apply(SYSTEM_PLAYLIST).iterator();
+
+        final SystemPlaylistItem.Header header = ((SystemPlaylistItem.Header) systemPlaylistItem.next());
+
+        assertThat(header.isHeader()).isTrue();
+        assertThat(header.shouldShowPlayButton()).isTrue();
     }
 }

@@ -46,7 +46,7 @@ class SystemPlaylistHeaderRenderer implements CellRenderer<SystemPlaylistItem.He
         final SystemPlaylistItem.Header item = items.get(position);
 
         bindArtwork(item, itemView);
-        bindPlayButton(itemView);
+        bindPlayButton(item, itemView);
         bindTextViews(item, itemView);
     }
 
@@ -63,8 +63,14 @@ class SystemPlaylistHeaderRenderer implements CellRenderer<SystemPlaylistItem.He
         }
     }
 
-    private void bindPlayButton(View itemView) {
-        itemView.findViewById(R.id.btn_play).setOnClickListener(v -> listener.playClicked());
+    private void bindPlayButton(SystemPlaylistItem.Header item, View itemView) {
+        final View playButton = itemView.findViewById(R.id.btn_play);
+        if (item.shouldShowPlayButton()) {
+            playButton.setVisibility(View.VISIBLE);
+            playButton.setOnClickListener(v -> listener.playClicked());
+        } else {
+            playButton.setVisibility(View.GONE);
+        }
     }
 
     private void bindTextViews(SystemPlaylistItem.Header item, View itemView) {

@@ -195,6 +195,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
             final List<SystemPlaylistItem> items = new ArrayList<>(systemPlaylist.tracks().size() + NUM_EXTRA_ITEMS);
 
             setTitle(systemPlaylist);
+            final boolean shouldShowPlayButton = !systemPlaylist.tracks().isEmpty();
             items.add(SystemPlaylistItem.Header.create(systemPlaylist.urn(),
                                                        systemPlaylist.title(),
                                                        systemPlaylist.description(),
@@ -202,7 +203,8 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                                                        formatUpdatedAt(systemPlaylist.lastUpdated()),
                                                        systemPlaylist.imageResource(),
                                                        systemPlaylist.queryUrn(),
-                                                       systemPlaylist.trackingFeatureName()));
+                                                       systemPlaylist.trackingFeatureName(),
+                                                       shouldShowPlayButton));
 
             for (Track track : systemPlaylist.tracks()) {
                 final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(track.urn());
