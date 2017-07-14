@@ -68,7 +68,11 @@ public class PlaybackInitiator {
     }
 
     public Single<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
-        return playTracks(Single.just(trackUrns), trackUrns.get(position), position, playSessionSource);
+        if (trackUrns.isEmpty()) {
+            return Single.just(PlaybackResult.error(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS));
+        } else {
+            return playTracks(Single.just(trackUrns), trackUrns.get(position), position, playSessionSource);
+        }
     }
 
     public Single<PlaybackResult> playTracks(Single<List<Urn>> allTracks, Urn initialTrack, int initialPosition, PlaySessionSource playSessionSource) {

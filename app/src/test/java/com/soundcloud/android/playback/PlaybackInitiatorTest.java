@@ -440,6 +440,13 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playFromEmptyListReturnsMissingPlayablesError() throws Exception {
+        final TestObserver<PlaybackResult> testObserver = playbackInitiator.playTracks(Collections.emptyList(), 1, new PlaySessionSource(ORIGIN_SCREEN)).test();
+
+        testObserver.assertValue(PlaybackResult.error(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS));
+    }
+
+    @Test
     public void startPlaybackWithRecommendationsPlaysNewQueue() {
         playbackInitiator.startPlaybackWithRecommendations(TRACK1, ORIGIN_SCREEN, searchQuerySourceInfo)
                          .test();

@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
@@ -16,22 +15,12 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.List;
 
 public class PlayQueueHelper {
-
-    private final Func1<List<Urn>, Observable<PlaybackResult>> playTracks = new Func1<List<Urn>, Observable<PlaybackResult>>() {
-        @Override
-        public Observable<PlaybackResult> call(List<Urn> tracks) {
-            final String screen = screenProvider.getLastScreenTag();
-            return RxJava.toV1Observable(playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screen)));
-        }
-    };
 
     private final PlayQueueManager playQueueManager;
     private final PlaylistOperations playlistOperations;
@@ -60,7 +49,7 @@ public class PlayQueueHelper {
     public void playNext(Urn playlistUrn) {
         if (playQueueManager.isQueueEmpty()) {
             playlistOperations.trackUrnsForPlayback(playlistUrn)
-                              .flatMap(playTracks)
+                              .flatMap(tracks -> RxJava.toV1Observable(playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screenProvider.getLastScreenTag()))))
                               .observeOn(AndroidSchedulers.mainThread())
                               .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         } else {

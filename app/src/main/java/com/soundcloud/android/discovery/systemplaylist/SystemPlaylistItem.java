@@ -60,6 +60,8 @@ abstract class SystemPlaylistItem {
 
         abstract Optional<ImageResource> image();
 
+        abstract boolean shouldShowPlayButton();
+
         static Header create(Urn urn,
                              Optional<String> title,
                              Optional<String> description,
@@ -67,8 +69,9 @@ abstract class SystemPlaylistItem {
                              Optional<String> updatedAt,
                              Optional<ImageResource> image,
                              Optional<Urn> queryUrn,
-                             Optional<String> trackingFeatureName) {
-            return new AutoValue_SystemPlaylistItem_Header(Kind.HEADER, urn, queryUrn, trackingFeatureName, title, description, metadata, updatedAt, image);
+                             Optional<String> trackingFeatureName,
+                             boolean shouldShowPlayButton) {
+            return new AutoValue_SystemPlaylistItem_Header(Kind.HEADER, urn, queryUrn, trackingFeatureName, title, description, metadata, updatedAt, image, shouldShowPlayButton);
         }
     }
 }
