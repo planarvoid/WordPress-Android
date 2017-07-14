@@ -10,7 +10,6 @@ import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -20,6 +19,7 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 
@@ -28,6 +28,7 @@ import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressLint("sc.RxJava1Usage")
 class OfflineContentStorage {
     private static final String IS_OFFLINE_COLLECTION = "is_offline_collection";
     private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
@@ -67,7 +68,7 @@ class OfflineContentStorage {
     }
 
     public Observable<TxnResult> storeAsOfflinePlaylists(final List<Urn> playlistUrns) {
-        return propellerRx.bulkUpsert(OfflineContent.TABLE, buildContentValuesForPlaylist(playlistUrns));
+        return propellerRx.bulkInsert(OfflineContent.TABLE, buildBulkValuesForPlaylists(playlistUrns));
     }
 
     Observable<ChangeResult> removePlaylistsFromOffline(List<Urn> playlistUrns) {
@@ -124,17 +125,6 @@ class OfflineContentStorage {
             ));
         }
         return builder.build();
-    }
-
-    private ContentValues buildContentValuesForPlaylist(Urn playlist) {
-        return values(2)
-                .put(OfflineContent._ID, playlist.getNumericId())
-                .put(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
-                .get();
-    }
-
-    private List<ContentValues> buildContentValuesForPlaylist(List<Urn> playlists) {
-        return Lists.transform(playlists, playlist -> buildContentValuesForPlaylist(playlist));
     }
 
     private ContentValues buildContentValuesForOfflineLikes() {
