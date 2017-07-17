@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
@@ -31,6 +32,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -165,6 +167,23 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         assertThat(value.screen()).isEqualTo(screen);
         assertThat(value.searchQuerySourceInfo().get()).isEqualTo(searchQuerySourceInfo);
         assertThat(value.promotedSourceInfo().isPresent()).isTrue();
+    }
+
+    @Test
+    public void itemClickOnSearchSuggestionPlaylistSendsLegacyPlaylistDetailIntent() {
+        Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
+
+        final SearchSuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(0), Optional.absent(), "", Optional.absent(), "");
+
+        listener.onItemClick(playables, view, 0, suggestionItem);
+
+        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
+        NavigationTarget value = navigationTargetArgumentCaptor.getValue();
+        assertThat(value.targetUrn().get()).isEqualTo(suggestionItem.getUrn());
+        assertThat(value.screen()).isEqualTo(screen);
+        assertThat(value.deeplink()).isEqualTo(Optional.of(DeepLink.PLAYLISTS));
+        assertThat(value.searchQuerySourceInfo().get()).isEqualTo(searchQuerySourceInfo);
+        assertThat(value.promotedSourceInfo().isPresent()).isFalse();
     }
 
     @Test

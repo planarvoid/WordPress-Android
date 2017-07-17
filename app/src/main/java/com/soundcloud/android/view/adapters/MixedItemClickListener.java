@@ -144,14 +144,14 @@ public class MixedItemClickListener {
             navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(entityUrn,
                                                                         screen,
                                                                         Optional.fromNullable(searchQuerySourceInfo),
-                                                                        Optional.fromNullable(promotedPlaylistInfo(item)),
+                                                                        promotedPlaylistInfo(item),
                                                                         Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
             navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forLegacyPlaylist(
                     entityUrn,
                                                                     screen,
                                                                     Optional.of(searchQuerySourceInfo),
-                                                                    Optional.of(promotedPlaylistInfo(item))));
+                                                                    promotedPlaylistInfo(item)));
         } else if (entityUrn.isUser()) {
             navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {
@@ -173,8 +173,8 @@ public class MixedItemClickListener {
         return builder.build();
     }
 
-    private PromotedSourceInfo promotedPlaylistInfo(ListItem item) {
-        return (item instanceof PlayableItem && ((PlayableItem) item).isPromoted()) ? PromotedSourceInfo.fromItem((PlayableItem) item) : null;
+    private Optional<PromotedSourceInfo> promotedPlaylistInfo(ListItem item) {
+        return (item instanceof PlayableItem && ((PlayableItem) item).isPromoted()) ? Optional.of(PromotedSourceInfo.fromItem((PlayableItem) item)) : Optional.absent();
     }
 
     private void handleTrackClick(List<? extends ListItem> playables, int position) {
