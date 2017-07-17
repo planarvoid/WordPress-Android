@@ -3,6 +3,7 @@ package com.soundcloud.android.image;
 import static com.soundcloud.android.image.ImageOperations.FallbackImageListener;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -65,7 +66,7 @@ public class FallbackImageListenerTest extends AndroidUnitTest {
 
         listener.onLoadingFailed(IMAGE_URI, view, FAIL_FILE_NOT_FOUND);
 
-        verify(imageListener).onLoadingFailed(eq(IMAGE_URI), eq(view), isNull());
+        verify(imageListener).onLoadingFailed(eq(IMAGE_URI), eq(view), same(FAIL_FILE_NOT_FOUND.getCause()));
     }
 
     @Test

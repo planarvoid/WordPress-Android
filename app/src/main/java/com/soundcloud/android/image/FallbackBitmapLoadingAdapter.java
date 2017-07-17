@@ -38,7 +38,7 @@ public class FallbackBitmapLoadingAdapter extends ImageUtils.ViewlessLoadingList
     }
 
     @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
+    public void onLoadingFailed(String imageUri, View view, Throwable cause) {
         if (!subscriber.isUnsubscribed()) {
             emitAndComplete(fallbackImage);
         }

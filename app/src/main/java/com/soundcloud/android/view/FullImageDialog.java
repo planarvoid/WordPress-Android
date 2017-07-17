@@ -110,7 +110,7 @@ public class FullImageDialog extends DialogFragment {
             }
 
             @Override
-            public void onLoadingFailed(String s, View view, String failedReason) {
+            public void onLoadingFailed(String s, View view, Throwable cause) {
                 if (isAdded()) {
                     handleLoadingError();
                 }

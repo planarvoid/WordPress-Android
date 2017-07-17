@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.image.BitmapLoadingAdapter;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
@@ -116,6 +117,27 @@ public class ErrorUtilsTest {
         final ApiRequestException apiRequestException = ApiRequestException.networkError(null, new IOException());
 
         assertThat(ErrorUtils.includeInReports(apiRequestException)).isFalse();
+    }
+
+    @Test
+    public void shouldExcludeBitmapFailedExceptionForIOException() throws Exception {
+        Exception bitmapLoadingException = new BitmapLoadingAdapter.BitmapLoadingException(new IOException());
+
+        assertThat(ErrorUtils.includeInReports(bitmapLoadingException)).isFalse();
+    }
+
+    @Test
+    public void shouldIncludeBitmapFailedExceptionForIllegalStateException() throws Exception {
+        Exception bitmapLoadingException = new BitmapLoadingAdapter.BitmapLoadingException(new IllegalStateException());
+
+        assertThat(ErrorUtils.includeInReports(bitmapLoadingException)).isTrue();
+    }
+
+    @Test
+    public void shouldIncludeBitmapFailedExceptionWithourCause() throws Exception {
+        Exception bitmapLoadingException = new BitmapLoadingAdapter.BitmapLoadingException(null);
+
+        assertThat(ErrorUtils.includeInReports(bitmapLoadingException)).isTrue();
     }
 
     @Test

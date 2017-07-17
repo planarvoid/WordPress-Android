@@ -17,8 +17,8 @@ public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
     }
 
     @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
-        subscriber.onError(new BitmapLoadingException(failedReason));
+    public void onLoadingFailed(String imageUri, View view, Throwable cause) {
+        subscriber.onError(new BitmapLoadingException(cause));
     }
 
     @Override
@@ -40,10 +40,10 @@ public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
         }
     }
 
-    private static class BitmapLoadingException extends Exception {
+    public static class BitmapLoadingException extends Exception {
 
-        public BitmapLoadingException(String message) {
-            super(message);
+        public BitmapLoadingException(Throwable cause) {
+            super(cause);
         }
     }
 }

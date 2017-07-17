@@ -44,7 +44,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -552,12 +551,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                Skippy.SkippyMediaType format,
                                int bitRate) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
-        if (!ConnectionType.OFFLINE.equals(currentConnectionType)) {
-            // Use Log as Skippy dumps can be rather large
-            ErrorUtils.handleSilentExceptionWithLog(new SkippyException(category, line, sourceFile), errorMsg);
-        }
-
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(), cdn, format.name(),
                                                                 bitRate, currentConnectionType, getPlayerType());
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
@@ -598,29 +591,4 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             }
         }
     }
-
-    private static class SkippyException extends Exception {
-        private final String errorCategory;
-        private final int line;
-        private final String sourceFile;
-
-        private SkippyException(String category, int line, String sourceFile) {
-            this.errorCategory = category;
-            this.line = line;
-            this.sourceFile = sourceFile;
-        }
-
-        @Override
-        public String getMessage() {
-            return errorCategory;
-
-        }
-
-        @Override
-        public StackTraceElement[] getStackTrace() {
-            final StackTraceElement element = new StackTraceElement(errorCategory, Strings.EMPTY, sourceFile, line);
-            return new StackTraceElement[]{element};
-        }
-    }
-
 }
