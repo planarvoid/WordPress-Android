@@ -180,7 +180,7 @@ class DebugQueryHook implements DatabaseHook {
         if (logQueries) {
             Log.d(TAG, "finish (" + duration + "ms) : " + limit(message));
         }
-        slowQueryReporter.reportIfSlow(new DebugDatabaseStat(message, duration));
+        slowQueryReporter.reportIfSlow(DebugDatabaseStat.create(message, duration));
     }
 
     static String limit(String query) {

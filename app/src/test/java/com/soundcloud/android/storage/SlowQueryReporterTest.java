@@ -23,7 +23,7 @@ public class SlowQueryReporterTest {
     private SlowQueryReporter slowQueryReporter;
     private TestScheduler scheduler = new TestScheduler();
     private TestObserver<SlowQueryReporter.SlowQueryOutput> reporter = new TestObserver<>();
-    private DebugDatabaseStat op1 = new DebugDatabaseStat("op1", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
+    private DebugDatabaseStat op1 = DebugDatabaseStat.create("op1", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1);
 
     @Before
     public void setUp() throws Exception {
@@ -37,7 +37,7 @@ public class SlowQueryReporterTest {
 
     @Test
     public void doesNotReportIfNotSlow() throws Exception {
-        slowQueryReporter.reportIfSlow(new DebugDatabaseStat("op1", 1));
+        slowQueryReporter.reportIfSlow(DebugDatabaseStat.create("op1", 1));
 
         reporter.assertNoValues();
     }
@@ -55,7 +55,7 @@ public class SlowQueryReporterTest {
     public void reportsOnceThrottled() throws Exception {
         slowQueryReporter.reportIfSlow(op1);
         scheduler.triggerActions();
-        slowQueryReporter.reportIfSlow(new DebugDatabaseStat("op2", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1));
+        slowQueryReporter.reportIfSlow(DebugDatabaseStat.create("op2", SlowQueryReporter.LENGTH_TOLERANCE_MS + 1));
         scheduler.advanceTimeBy(SlowQueryReporter.THROTTLE_TIME_MS, TimeUnit.MILLISECONDS);
 
         reporter.assertValue(SlowQueryReporter.SlowQueryOutput.create("1 [table1]\n2 [table2]\n", Collections.singletonList(op1)));

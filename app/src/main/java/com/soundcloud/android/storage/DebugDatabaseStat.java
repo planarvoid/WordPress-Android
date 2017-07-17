@@ -1,20 +1,14 @@
 package com.soundcloud.android.storage;
 
-public class DebugDatabaseStat {
+import com.google.auto.value.AutoValue;
 
-    private final String operation;
-    private final long duration;
+@AutoValue
+public abstract class DebugDatabaseStat {
 
-    public DebugDatabaseStat(String operation, long duration) {
-        this.operation = operation;
-        this.duration = duration;
-    }
+    abstract String operation();
+    abstract long duration();
 
-    public String operation() {
-        return operation;
-    }
-
-    public long duration() {
-        return duration;
+    public static DebugDatabaseStat create(String operation, long duration) {
+        return new AutoValue_DebugDatabaseStat(operation, duration);
     }
 }

@@ -8,7 +8,9 @@ import com.soundcloud.java.collections.Pair;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.subjects.Subject;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -30,7 +32,7 @@ class SlowQueryReporter {
     private static final String TAG = DebugQueryHook.TAG;
     private static final int MAX_RECENT_ITEMS = 30;
 
-    private final ReplaySubject<DebugDatabaseStat> queryDurations = ReplaySubject.createWithSize(MAX_RECENT_ITEMS);
+    private final Subject<DebugDatabaseStat> publisher = PublishSubject.<DebugDatabaseStat>create().toSerialized();
 
     @Inject
     SlowQueryReporter(DebugStorage debugStorage,
@@ -39,10 +41,14 @@ class SlowQueryReporter {
     }
 
     SlowQueryReporter(DebugStorage debugStorage, Scheduler scheduler, Observer<SlowQueryOutput> reporter) {
-        queryDurations.filter(debugDatabaseStat -> debugDatabaseStat.duration() >= LENGTH_TOLERANCE_MS)
+        ReplaySubject<DebugDatabaseStat> buffer = ReplaySubject.createWithSize(MAX_RECENT_ITEMS);
+
+        publisher.subscribe(buffer);
+
+        buffer.filter(debugDatabaseStat -> debugDatabaseStat.duration() >= LENGTH_TOLERANCE_MS)
                       .observeOn(scheduler)
                       .throttleFirst(THROTTLE_TIME_MS, TimeUnit.MILLISECONDS)
-                      .flatMapSingle(__ -> getTableStats(debugStorage).map(stats -> SlowQueryOutput.create(stats, Arrays.asList(queryDurations.getValues(new DebugDatabaseStat[]{})))))
+                      .flatMapSingle(__ -> getTableStats(debugStorage).map(stats -> SlowQueryOutput.create(stats, Arrays.asList(buffer.getValues(new DebugDatabaseStat[]{})))))
                       .subscribe(reporter);
     }
 
@@ -63,9 +69,9 @@ class SlowQueryReporter {
         try {
             // we are getting NPEs here, not sure why at the moment
             // https://www.fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/596b6ca8be077a4dcca536a1?time=last-ninety-days
-            queryDurations.onNext(report);
+            publisher.onNext(report);
         } catch (Exception e) {
-            ErrorUtils.handleSilentException(e);
+            ErrorUtils.handleSilentException("Exception debugging query  " + report, e);
         }
     }
 
