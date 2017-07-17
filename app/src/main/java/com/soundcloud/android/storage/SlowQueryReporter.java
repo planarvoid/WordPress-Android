@@ -60,7 +60,13 @@ class SlowQueryReporter {
     }
 
     void reportIfSlow(DebugDatabaseStat report) {
-        queryDurations.onNext(report);
+        try {
+            // we are getting NPEs here, not sure why at the moment
+            // https://www.fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/596b6ca8be077a4dcca536a1?time=last-ninety-days
+            queryDurations.onNext(report);
+        } catch (Exception e) {
+            ErrorUtils.handleSilentException(e);
+        }
     }
 
     private static class DefaultSlowQueryObserver extends DefaultObserver<SlowQueryOutput> {
