@@ -160,14 +160,25 @@ public class ViolationCommentsTask extends DefaultTask {
         CommentsProvider commentsProvider = new GitHubCommentsProvider(violationCommentsToGitHubApi);
         List<ChangedFile> changedFiles = commentsProvider.getFiles();
         List<Violation> filteredViolations = filterChanged(allParsedViolations, changedFiles, commentsProvider);
+        List<Violation> errors = getAllErrors(filteredViolations);
 
-        if (!filteredViolations.isEmpty()) {
+        if (!errors.isEmpty()) {
             String message = String.format(
                     "Found %d violations, failing the static analysis stage. Fix these violations that were also reported as comments on the GitHub Pull Request to make this stage succeed.",
                     filteredViolations.size());
             throw new TaskExecutionException(this, new StaticAnalysisFoundViolationException(message));
         }
 
+    }
+
+    private List<Violation> getAllErrors(List<Violation> filteredViolations) {
+        List<Violation> errors = new ArrayList<>();
+        for (Violation violation : filteredViolations) {
+            if (violation.getSeverity() == SEVERITY.ERROR) {
+                errors.add(violation);
+            }
+        }
+        return errors;
     }
 
     private List<Violation> filterChanged(List<Violation> allViolations, List<ChangedFile> changedFiles, CommentsProvider commentsProvider) {
