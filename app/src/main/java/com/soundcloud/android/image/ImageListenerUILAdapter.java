@@ -21,10 +21,7 @@ public class ImageListenerUILAdapter implements ImageLoadingListener {
 
     @Override
     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-        imageListener.onLoadingFailed(imageUri, view,
-                                      failReason != null && failReason.getCause() != null ?
-                                      failReason.getCause().getMessage() :
-                                      null);
+        imageListener.onLoadingFailed(imageUri, view, failReason != null ? failReason.getCause() : null);
     }
 
     @Override

@@ -420,10 +420,11 @@ public class ImageOperationsTest extends AndroidUnitTest {
                                          captor.capture());
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
+        Exception cause = new Exception("Decoding error");
         captor.getValue().onLoadingFailed("ad-image-url", imageView,
                                           new FailReason(FailReason.FailType.DECODING_ERROR,
-                                                         new Exception("Decoding error")));
-        verify(bitmapLoadingAdapter).onLoadingFailed("ad-image-url", imageView, "Decoding error");
+                                                         cause));
+        verify(bitmapLoadingAdapter).onLoadingFailed("ad-image-url", imageView, cause);
     }
 
     @Test
@@ -453,10 +454,11 @@ public class ImageOperationsTest extends AndroidUnitTest {
         observable.subscribe(subscriber);
 
         verify(imageLoader).loadImage(eq(CDN_URL), captor.capture());
+        Exception cause = new Exception("Decoding error");
         captor.getValue().onLoadingFailed("asdf", imageView,
                                           new FailReason(FailReason.FailType.DECODING_ERROR,
-                                                         new Exception("Decoding error")));
-        verify(fallbackBitmapLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
+                                                         cause));
+        verify(fallbackBitmapLoadingAdapter).onLoadingFailed("asdf", imageView, cause);
     }
 
     @Test

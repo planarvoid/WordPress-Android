@@ -9,7 +9,8 @@ public class DefaultImageListener implements ImageListener {
     }
 
     @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
+    public void onLoadingFailed(String imageUri, View view, Throwable cause) {
+
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.image.BitmapLoadingAdapter;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
@@ -152,10 +153,11 @@ public final class ErrorUtils {
 
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
-        if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {
+        if (t instanceof BitmapLoadingAdapter.BitmapLoadingException && t.getCause() != null) {
+            return includeInReports(t.getCause());
+        } else if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {
             return false;
-        }
-        if (t instanceof ApiRequestException) {
+        } else if (t instanceof ApiRequestException) {
             return ((ApiRequestException) t).loggable();
         }
         return true;

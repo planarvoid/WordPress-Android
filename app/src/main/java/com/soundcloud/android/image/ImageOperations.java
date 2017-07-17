@@ -23,7 +23,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.optional.Optional;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -40,6 +39,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.graphics.Palette;
 import android.view.View;
@@ -201,10 +201,9 @@ public class ImageOperations {
             @Override
             public void onLoadingFailed(String imageUri,
                                         View view,
-                                        String failedReason) {
+                                        @Nullable Throwable cause) {
                 if (!subscriber.isUnsubscribed()) {
-                    subscriber.onError(new IOException(
-                            failedReason));
+                    subscriber.onError(cause == null ? new IOException("Failed to load bitmap for Unknown reason") : cause);
                 }
             }
 

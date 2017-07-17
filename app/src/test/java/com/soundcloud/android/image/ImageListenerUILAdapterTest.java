@@ -42,6 +42,6 @@ public class ImageListenerUILAdapterTest {
         when(failReason.getCause()).thenReturn(mock(java.lang.Throwable.class));
 
         adapter.onLoadingFailed("http://some-uri", view, failReason);
-        verify(imageListener).onLoadingFailed("http://some-uri", view, failReason.getCause().getMessage());
+        verify(imageListener).onLoadingFailed("http://some-uri", view, failReason.getCause());
     }
 }

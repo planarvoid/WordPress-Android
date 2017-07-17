@@ -15,6 +15,7 @@ import rx.observers.TestSubscriber;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +32,7 @@ public class FallbackBitmapLoadingAdapterTest {
     @Test
     public void onLoadingFailedFallBackToDrawable() throws Exception {
         adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
-        adapter.onLoadingFailed("uri", view, "failure reason");
+        adapter.onLoadingFailed("uri", view, new IOException());
 
         assertThat(subscriber.getOnErrorEvents()).isEmpty();
         assertThat(subscriber.getOnNextEvents()).containsExactly(fallbackImage);

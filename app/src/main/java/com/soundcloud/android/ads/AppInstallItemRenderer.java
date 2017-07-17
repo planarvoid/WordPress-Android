@@ -117,6 +117,6 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         }
 
         @Override public void onLoadingStarted(String imageUri, View view) {}
-        @Override public void onLoadingFailed(String imageUri, View view, String failedReason) {}
+        @Override public void onLoadingFailed(String imageUri, View view, Throwable cause) {}
     }
 }

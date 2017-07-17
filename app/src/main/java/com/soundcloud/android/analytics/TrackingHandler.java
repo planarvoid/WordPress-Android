@@ -53,9 +53,7 @@ class TrackingHandler extends Handler {
                     Log.d(EventTrackingManager.TAG, "Inserting event: " + msg.obj + "\nthread=" + Thread.currentThread());
                     final InsertResult insertResult = storage.insertEvent((TrackingRecord) msg.obj);
                     if (!insertResult.success()) {
-                        ErrorUtils.handleSilentException(
-                                EventTrackingManager.TAG,
-                                new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
+                        ErrorUtils.handleSilentException(EventTrackingManager.TAG, getSilentException(msg, insertResult));
                     }
                 } catch (UnsupportedEncodingException e) {
                     ErrorUtils.handleSilentException(EventTrackingManager.TAG, e);
@@ -75,6 +73,11 @@ class TrackingHandler extends Handler {
             default:
                 break;
         }
+    }
+
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+    private Throwable getSilentException(Message msg, InsertResult insertResult) {
+        return insertResult.getFailure() != null ? insertResult.getFailure() : new Exception("error inserting tracking event " + msg.obj);
     }
 
     private void flushTrackingEvents(Message flushMessage) {
