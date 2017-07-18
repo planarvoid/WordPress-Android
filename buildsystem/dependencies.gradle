@@ -22,7 +22,7 @@ ext {
   propellerVersion = '0.74'
   findBugsVersion = '3.0.0'
   skippyVersion = '6.3.0'
-  flipperVersion = '1.0.4'
+  flipperVersion = '1.1.2'
   mockitoVersion = '2.7.22'
   pmdVersion = '5.7.0'
   mementoVersion = '0.1-SNAPSHOT'

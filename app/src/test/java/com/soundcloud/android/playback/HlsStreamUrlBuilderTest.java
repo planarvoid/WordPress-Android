@@ -47,7 +47,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsCorrectUrlForPreloadingTrack() {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls?client_id=" +
-                CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN + "&can_snip=false";
+                CLIENT_ID + "&oauth_token=" + TOKEN + "&can_snip=false";
 
         String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN.getContent(), PlaybackType.AUDIO_DEFAULT));
         assertThat(streamUrl).isEqualTo(expected);
@@ -56,7 +56,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsCorrectUrlForPreloadingAudioSnippet() {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls/snippet?client_id=" +
-                CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN;
+                CLIENT_ID + "&oauth_token=" + TOKEN;
 
         String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(new AutoValue_PreloadItem(URN.getContent(), PlaybackType.AUDIO_SNIPPET));
         assertThat(streamUrl).isEqualTo(expected);
@@ -65,7 +65,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsCorrectUrlForStreamingTrack() {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls?client_id=" +
-                CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN + "&can_snip=false";
+                CLIENT_ID + "&oauth_token=" + TOKEN + "&can_snip=false";
 
         String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(AudioPlaybackItem.create(URN, 0L, 0L, PlaybackType.AUDIO_DEFAULT));
         assertThat(streamUrl).isEqualTo(expected);
@@ -74,7 +74,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsCorrectUrlForStreamingSnippet() {
         final String expected = mobileApiBaseUrl() + "/tracks/soundcloud:tracks:" + URN_ID + "/streams/hls/snippet?client_id=" +
-                CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN;
+                CLIENT_ID + "&oauth_token=" + TOKEN;
 
         String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(AudioPlaybackItem.create(URN, 0L, 0L, PlaybackType.AUDIO_SNIPPET));
         assertThat(streamUrl).isEqualTo(expected);
@@ -97,7 +97,7 @@ public class HlsStreamUrlBuilderTest extends AndroidUnitTest {
     public void buildsCorrectUrlForStreamingVideoAd() {
         final PlaybackItem videoAdPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(URN), 0L);
         final String expected = mobileApiBaseUrl() + "/tracks/" + videoAdPlaybackItem.getUrn() +
-                "/streams/hls?client_id=" + CLIENT_ID + "&format=hls_opus_64_url&format=hls_mp3_128_url&oauth_token=" + TOKEN + "&can_snip=false";
+                "/streams/hls?client_id=" + CLIENT_ID + "&oauth_token=" + TOKEN + "&can_snip=false";
 
         String streamUrl = hlsStreamUrlBuilder.buildStreamUrl(videoAdPlaybackItem);
         assertThat(streamUrl).isEqualTo(expected);

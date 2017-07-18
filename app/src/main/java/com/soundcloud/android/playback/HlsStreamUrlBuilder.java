@@ -61,9 +61,7 @@ public class HlsStreamUrlBuilder {
     }
 
     private ApiUrlBuilder getApiUrlBuilder(Urn trackUrn, ApiEndpoints endpoint) {
-        ApiUrlBuilder builder = urlBuilder.from(endpoint, trackUrn)
-                                          .withQueryParam(QUERY_PARAM_KEY_FORMAT, HLS_OPUS_64_FORMAT)
-                                          .withQueryParam(QUERY_PARAM_KEY_FORMAT, HLS_MP3_128_FORMAT);
+        ApiUrlBuilder builder = urlBuilder.from(endpoint, trackUrn);
         if (accountOperations.hasValidToken()) {
             builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, accountOperations.getSoundCloudToken().getAccessToken());
         }
