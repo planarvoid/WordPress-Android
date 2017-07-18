@@ -1,8 +1,11 @@
 package com.soundcloud.android.more;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,10 +20,10 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.TestConfiguration;
-import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.helpers.NavigationTargetMatcher;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -164,10 +167,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity));
 
-        ArgumentCaptor<NavigationTarget> targetCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigator).navigateTo(same(activity), targetCaptor.capture());
-        NavigationTarget target = targetCaptor.getValue();
-        assertThat(target.deeplink().orNull()).isEqualTo(DeepLink.ACTIVITIES);
+        verify(navigator).navigateTo(eq(activity), argThat(NavigationTargetMatcher.matchesNavigationTarget(NavigationTarget.forActivities())));
     }
 
     @Test
@@ -181,10 +181,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onProfileClickedNavigatesToProfile() {
         initFragment();
-        AppCompatActivity viewActivity = activity;
-        listenerArgumentCaptor.getValue().onProfileClicked(new View(viewActivity));
+        listenerArgumentCaptor.getValue().onProfileClicked(new View(activity));
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(accountOperations.getLoggedInUserUrn()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(USER_URN))));
     }
 
     @Test

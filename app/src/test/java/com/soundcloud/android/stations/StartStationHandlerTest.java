@@ -1,5 +1,8 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -40,22 +43,22 @@ public class StartStationHandlerTest {
     public void opensInfoPageFromRecommendation() {
         stationHandler.startStation(activity, STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
 
-        verify(navigator).navigateTo(activity,
-                                     NavigationTarget.forStationInfo(STATION_URN,
-                                                                     Optional.absent(),
-                                                                     Optional.of(DiscoverySource.STATIONS_SUGGESTIONS),
-                                                                     Optional.absent()));
+        verify(navigator).navigateTo(eq(activity),
+                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
+                                                                                                     Optional.absent(),
+                                                                                                     Optional.of(DiscoverySource.STATIONS_SUGGESTIONS),
+                                                                                                     Optional.absent()))));
     }
 
     @Test
     public void opensInfoPage() {
         stationHandler.startStation(activity, STATION_URN);
 
-        verify(navigator).navigateTo(activity,
-                                     NavigationTarget.forStationInfo(STATION_URN,
-                                                                     Optional.absent(),
-                                                                     Optional.of(DiscoverySource.STATIONS),
-                                                                     Optional.absent()));
+        verify(navigator).navigateTo(eq(activity),
+                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
+                                                                                                     Optional.absent(),
+                                                                                                     Optional.of(DiscoverySource.STATIONS),
+                                                                                                     Optional.absent()))));
     }
 
     @Test

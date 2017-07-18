@@ -10,12 +10,13 @@ import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_APP_LINK
 import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_SELECTION_ITEM;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_WEB_LINK;
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -81,7 +82,15 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(adapterFactory.create(any(DiscoveryPresenter.class))).thenReturn(adapter);
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, discoveryOperations, navigator, discoveryTrackingManager, feedbackController, eventTracker, referringEventProvider, syncStateStorage);
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher,
+                                           adapterFactory,
+                                           discoveryOperations,
+                                           navigator,
+                                           discoveryTrackingManager,
+                                           feedbackController,
+                                           eventTracker,
+                                           referringEventProvider,
+                                           syncStateStorage);
         when(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(DiscoveryResult.create(emptyList(), Optional.absent())));
         when(fragment.getActivity()).thenReturn(activity);
@@ -121,7 +130,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void navigatesToSearchWhenClicked() {
         presenter.onSearchClicked(activity);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forSearchAutocomplete(Screen.DISCOVER));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forSearchAutocomplete(Screen.DISCOVER))));
     }
 
     @Test
@@ -145,7 +154,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(same(rootActivity), eq(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(eq(rootActivity), argThat(matchesNavigationTarget(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(),
+                                                                                                                      SINGLE_WEB_LINK, SCREEN,
+                                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
     @Test
@@ -161,7 +172,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(same(rootActivity), eq(NavigationTarget.forNavigation(MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
+        verify(navigator).navigateTo(eq(rootActivity), argThat(matchesNavigationTarget(NavigationTarget.forNavigation(MULTI_APP_LINK.get(),
+                                                                                                                      MULTI_WEB_LINK, SCREEN,
+                                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
     @Test

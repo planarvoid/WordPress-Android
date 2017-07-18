@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -36,6 +37,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import android.support.v7.app.AppCompatActivity;
@@ -123,7 +125,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(itemView).setPromoterClickable(captor.capture());
         captor.getValue().onClick(view);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(Urn.forUser(193L)));
+        verify(navigator).navigateTo(eq(activity), ArgumentMatchers.argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

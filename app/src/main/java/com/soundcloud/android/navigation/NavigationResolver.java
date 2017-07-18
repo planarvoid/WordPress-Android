@@ -129,7 +129,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    public Single<NavigationResult> resolveNavigationResult(Activity activity, NavigationTarget navigationTarget) {
+    Single<NavigationResult> resolveNavigationResult(Activity activity, NavigationTarget navigationTarget) {
         if (!navigationTarget.linkNavigationParameters().isPresent() || Strings.isNullOrEmpty(navigationTarget.linkNavigationParameters().get().target())) {
             try {
                 if (navigationTarget.deeplink().isPresent()) {

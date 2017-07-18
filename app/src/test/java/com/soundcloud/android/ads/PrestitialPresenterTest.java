@@ -1,9 +1,12 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.events.AdPlaybackEvent.AdProgressEvent;
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin.PRESTITIAL;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -122,7 +125,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(visualPrestitialAd.clickthroughUrl().toString()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(visualPrestitialAd.clickthroughUrl().toString()))));
     }
 
     @Test
@@ -131,7 +134,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(sponsoredSessionAd.clickthroughUrl().toString()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.clickthroughUrl().toString()))));
     }
 
     @Test
@@ -180,7 +183,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesImpressionOnImageLoadCompleteAndImageIsOnCurrentPageForSponsoredSession(){
+    public void publishesImpressionOnImageLoadCompleteAndImageIsOnCurrentPageForSponsoredSession() {
         setupSponsoredSession();
         final PrestitialPage currentPage = PrestitialPage.END_CARD;
         setSponsoredSessionPage(currentPage.ordinal());
@@ -190,7 +193,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void defersPublishOfImpressionIfImageLoadedIsNotOnCurrentPageUntilPageIsVisible(){
+    public void defersPublishOfImpressionIfImageLoadedIsNotOnCurrentPageUntilPageIsVisible() {
         setupSponsoredSession();
         final PrestitialPage currentPage = PrestitialPage.END_CARD;
         final int previousPageIndex = currentPage.ordinal() - 1;
@@ -213,14 +216,14 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesImpressionEventWhenOptInCardShowsUp(){
+    public void publishesImpressionEventWhenOptInCardShowsUp() {
         setupSponsoredSession();
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
         assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
     }
 
     @Test
-    public void publishesSessionStartEventAndClearsAdsWhenPagerSwitchedToEndCard(){
+    public void publishesSessionStartEventAndClearsAdsWhenPagerSwitchedToEndCard() {
         setupSponsoredSession();
         setSponsoredSessionPage(PrestitialPage.END_CARD.ordinal());
 
@@ -229,7 +232,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void startsViewabilityTrackingOnImageLoadCompleteForVisualPrestitial(){
+    public void startsViewabilityTrackingOnImageLoadCompleteForVisualPrestitial() {
         presenter.onImageLoadComplete(visualPrestitialAd, imageView, Optional.absent());
 
         verify(viewabilityController).startDisplayTracking(imageView, visualPrestitialAd);
@@ -308,28 +311,28 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stopsViewabilityTrackingOnDestroy(){
+    public void stopsViewabilityTrackingOnDestroy() {
         presenter.onDestroy(activity);
 
         verify(viewabilityController).stopDisplayTracking();
     }
 
     @Test
-    public void resetsAdPlayerOnDestroy(){
+    public void resetsAdPlayerOnDestroy() {
         presenter.onDestroy(activity);
 
         verify(adPlayer).reset();
     }
 
     @Test
-    public void onDestroyForwardedToVideoSurfaceProvider(){
+    public void onDestroyForwardedToVideoSurfaceProvider() {
         presenter.onDestroy(activity);
 
         verify(videoSurfaceProvider).onDestroy(PRESTITIAL);
     }
 
     @Test
-    public void onConfigurationChangeForwardedToVideoSurfaceProvider(){
+    public void onConfigurationChangeForwardedToVideoSurfaceProvider() {
         when(activity.isChangingConfigurations()).thenReturn(true);
         presenter.onDestroy(activity);
 
@@ -447,7 +450,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(2);
 
         presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, activity);
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(sponsoredSessionAd.optInCard().clickthroughUrl()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.optInCard().clickthroughUrl()))));
     }
 
     @Test

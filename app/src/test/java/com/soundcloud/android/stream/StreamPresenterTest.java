@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedLikedPlaylistForPlaylistsScreen;
@@ -7,6 +8,7 @@ import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expec
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedTrackForListItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -673,7 +675,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(activity, appInstall);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -687,7 +689,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(activity, videoAd);
 
-        verify(navigator).navigateTo(fragmentRule.getActivity(), NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(eq(fragmentRule.getActivity()), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -764,6 +766,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoFullscreenClicked(activity, videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigator).navigateTo(activity, NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()))));
     }
 }

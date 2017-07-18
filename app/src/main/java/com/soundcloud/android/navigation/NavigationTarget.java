@@ -21,9 +21,15 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.Date;
+
 @AutoValue
 @SuppressWarnings("PMD.GodClass")
 public abstract class NavigationTarget {
+
+    // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
+
+    public abstract Date creationDate();
 
     public abstract Optional<DeepLink> deeplink();
 
@@ -55,8 +61,11 @@ public abstract class NavigationTarget {
 
     public abstract Builder toBuilder();
 
+    // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
+
     static Builder newBuilder() {
         return new AutoValue_NavigationTarget.Builder()
+                .creationDate(new Date())
                 .linkNavigationParameters(Optional.absent())
                 .referrer(Optional.absent())
                 .deeplink(Optional.absent())
@@ -284,6 +293,8 @@ public abstract class NavigationTarget {
 
     @AutoValue.Builder
     abstract static class Builder {
+        abstract Builder creationDate(Date creationDate);
+
         abstract Builder screen(Screen screen);
 
         abstract Builder linkNavigationParameters(Optional<LinkNavigationParameters> linkNavigationParameters);

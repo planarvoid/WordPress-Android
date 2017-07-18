@@ -1,6 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,7 +75,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(activity);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(adData.clickThroughUrl().get()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(adData.clickThroughUrl().get()))));
     }
 
     @Test
@@ -84,7 +87,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(activity);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()))));
     }
 
     @Test
@@ -158,7 +161,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(Urn.forUser(42L)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(42L)))));
     }
 
     @Test
@@ -173,7 +176,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).navigateTo(activity, NavigationTarget.forLegacyPlaylist(Urn.forPlaylist(42L), Screen.STREAM));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(Urn.forPlaylist(42L), Screen.STREAM))));
     }
 
     @Test

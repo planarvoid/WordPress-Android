@@ -1,7 +1,10 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
 import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +84,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfileReposts(USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfileReposts(USER_URN, Optional.of(searchSourceInfo)))));
     }
 
     @Test
@@ -95,7 +98,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfileTracks(USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfileTracks(USER_URN, Optional.of(searchSourceInfo)))));
     }
 
     @Test
@@ -109,7 +112,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfileAlbums(USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfileAlbums(USER_URN, Optional.of(searchSourceInfo)))));
     }
 
     @Test
@@ -123,7 +126,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfileLikes(USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfileLikes(USER_URN, Optional.of(searchSourceInfo)))));
     }
 
     @Test
@@ -137,7 +140,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfilePlaylists(USER_URN, Optional.of(searchSourceInfo)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfilePlaylists(USER_URN, Optional.of(searchSourceInfo)))));
     }
 
     @Test

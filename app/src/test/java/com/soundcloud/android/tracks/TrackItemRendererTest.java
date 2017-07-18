@@ -2,9 +2,11 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.api.model.ChartType.TOP;
 import static com.soundcloud.android.api.model.ChartType.TRENDING;
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -99,19 +101,19 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          lazyOf(introductoryOverlayPresenter));
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
-                                           .urn(Urn.forTrack(123))
-                                           .title("title")
-                                           .creatorName("creator")
-                                           .creatorUrn(Urn.forUser(456L))
-                                           .snippetDuration(227000L)
-                                           .fullDuration(237000L)
-                                           .snipped(true)
-                                           .userLike(false)
-                                           .userRepost(false)
-                                           .likesCount(0)
-                                           .permalinkUrl(Strings.EMPTY)
-                                           .isPrivate(false)
-                                           .playCount(870);
+                                    .urn(Urn.forTrack(123))
+                                    .title("title")
+                                    .creatorName("creator")
+                                    .creatorUrn(Urn.forUser(456L))
+                                    .snippetDuration(227000L)
+                                    .fullDuration(237000L)
+                                    .snipped(true)
+                                    .userLike(false)
+                                    .userRepost(false)
+                                    .likesCount(0)
+                                    .permalinkUrl(Strings.EMPTY)
+                                    .isPrivate(false)
+                                    .playCount(870);
         trackItem = ModelFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
@@ -325,7 +327,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(Urn.forUser(193L)));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

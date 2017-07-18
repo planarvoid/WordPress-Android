@@ -1,7 +1,10 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -89,7 +92,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
+        verify(navigator).navigateTo(eq(viewActivity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(activity.getUrn()))));
     }
 
     @Test
@@ -101,7 +104,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
+        verify(navigator).navigateTo(eq(viewActivity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(activity.getUrn()))));
     }
 
     @Test
@@ -113,7 +116,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
+        verify(navigator).navigateTo(eq(viewActivity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(activity.getUrn()))));
     }
 
     @Test
@@ -125,7 +128,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
+        verify(navigator).navigateTo(eq(viewActivity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(activity.getUrn()))));
     }
 
     @Test
@@ -137,7 +140,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).navigateTo(viewActivity, NavigationTarget.forProfile(activity.getUrn()));
+        verify(navigator).navigateTo(eq(viewActivity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(activity.getUrn()))));
     }
 
     @Test

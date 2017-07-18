@@ -10,7 +10,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
 import android.app.Activity;
 import android.support.annotation.CallSuper;
@@ -26,7 +26,8 @@ import javax.inject.Singleton;
 public class Navigator {
 
     private final NavigationResolver navigationResolver;
-    private final PublishSubject<Pair<Activity, NavigationTarget>> subject = PublishSubject.create();
+    private final BehaviorSubject<Pair<Activity, NavigationTarget>> subject = BehaviorSubject.create();
+    private Pair<Activity, NavigationTarget> lastNavigationTarget;
 
     @Inject
     Navigator(NavigationResolver navigationResolver) {
@@ -38,10 +39,11 @@ public class Navigator {
     }
 
     public Observable<NavigationResult> listenToNavigation() {
-        return subject.flatMapSingle(this::performNavigation);
+        return subject.filter(pair -> pair != lastNavigationTarget).flatMapSingle(this::performNavigation);
     }
 
     private Single<NavigationResult> performNavigation(Pair<Activity, NavigationTarget> navigationTarget) {
+        lastNavigationTarget = navigationTarget;
         return navigationResolver.resolveNavigationResult(navigationTarget.first(), navigationTarget.second());
     }
 

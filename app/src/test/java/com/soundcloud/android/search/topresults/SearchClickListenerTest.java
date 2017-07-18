@@ -1,5 +1,7 @@
 package com.soundcloud.android.search.topresults;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -69,7 +71,12 @@ public class SearchClickListenerTest {
         final Activity context = mock(Activity.class);
         clickResultAction.run(context);
 
-        verify(navigator).navigateTo(context, NavigationTarget.forPlaylist(playlistUrn, SCREEN, Optional.of(clickParams.searchQuerySourceInfo()), Optional.absent(),Optional.of(clickParams.uiEvent())));
+        verify(navigator).navigateTo(eq(context),
+                                     argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistUrn,
+                                                                                                  SCREEN,
+                                                                                                  Optional.of(clickParams.searchQuerySourceInfo()),
+                                                                                                  Optional.absent(),
+                                                                                                  Optional.of(clickParams.uiEvent())))));
     }
 
     @Test
@@ -87,7 +94,10 @@ public class SearchClickListenerTest {
         final Activity activity = mock(Activity.class);
         clickResultAction.run(activity);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forProfile(userUrn, Optional.of(clickParams.uiEvent()), Optional.of(SCREEN), Optional.absent()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(userUrn,
+                                                                                                               Optional.of(clickParams.uiEvent()),
+                                                                                                               Optional.of(SCREEN),
+                                                                                                               Optional.absent()))));
     }
 
     @Test

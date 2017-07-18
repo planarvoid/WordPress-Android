@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -98,11 +100,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(navigator).navigateTo(activityContext,
-                                     NavigationTarget.forStationInfo(Urn.forTrackStation(track.getUrn().getNumericId()),
-                                                                     Optional.of(track.getUrn()),
-                                                                     Optional.of(DiscoverySource.STATIONS),
-                                                                     Optional.absent()));
+        verify(navigator).navigateTo(eq(activityContext),
+                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(track.getUrn().getNumericId()),
+                                                                                                     Optional.of(track.getUrn()),
+                                                                                                     Optional.of(DiscoverySource.STATIONS),
+                                                                                                     Optional.absent()))));
     }
 
     @Test
@@ -114,11 +116,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(updatedPlayerTrackState);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(navigator).navigateTo(activityContext,
-                                     NavigationTarget.forStationInfo(Urn.forTrackStation(updatedPlayerTrackState.getUrn().getNumericId()),
-                                                                     Optional.absent(),
-                                                                     Optional.of(DiscoverySource.STATIONS),
-                                                                     Optional.absent()));
+        verify(navigator).navigateTo(eq(activityContext),
+                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(updatedPlayerTrackState.getUrn().getNumericId()),
+                                                                                                     Optional.absent(),
+                                                                                                     Optional.of(DiscoverySource.STATIONS),
+                                                                                                     Optional.absent()))));
     }
 
     @Test

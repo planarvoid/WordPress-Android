@@ -142,16 +142,16 @@ public class MixedItemClickListener {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
             navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(entityUrn,
-                                                                        screen,
-                                                                        Optional.fromNullable(searchQuerySourceInfo),
-                                                                        promotedPlaylistInfo(item),
-                                                                        Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
+                                                                                                      screen,
+                                                                                                      Optional.fromNullable(searchQuerySourceInfo),
+                                                                                                      promotedPlaylistInfo(item),
+                                                                                                      Optional.of(UIEvent.fromNavigation(entityUrn,
+                                                                                                                                         getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forLegacyPlaylist(
-                    entityUrn,
-                                                                    screen,
-                                                                    Optional.of(searchQuerySourceInfo),
-                                                                    promotedPlaylistInfo(item)));
+            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forLegacyPlaylist(entityUrn,
+                                                                                                            screen,
+                                                                                                            Optional.of(searchQuerySourceInfo),
+                                                                                                            promotedPlaylistInfo(item)));
         } else if (entityUrn.isUser()) {
             navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {

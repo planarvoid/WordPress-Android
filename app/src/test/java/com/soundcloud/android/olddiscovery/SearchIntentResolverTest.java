@@ -1,25 +1,21 @@
 package com.soundcloud.android.olddiscovery;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.deeplinks.ReferrerResolver;
-import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.navigation.NavigationTarget;
-import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.app.SearchManager;
@@ -85,12 +81,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
         intentResolver.handle(activity, intent);
 
-        final ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigator).navigateTo(same(activity), navigationTargetArgumentCaptor.capture());
-        final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
-        assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.DEEPLINK);
-        assertThat(resultNavigationTarget.referrer()).isEqualTo(Optional.of(Referrer.STREAM_NOTIFICATION.value()));
-        assertThat(resultNavigationTarget.linkNavigationParameters().get().target()).isEqualTo("content://" + SyncConfig.AUTHORITY + "/tracks/#");
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forExternalDeeplink(intent.getDataString(), Referrer.STREAM_NOTIFICATION.value()))));
     }
 
     @Test

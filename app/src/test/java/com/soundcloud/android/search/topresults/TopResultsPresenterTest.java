@@ -1,6 +1,7 @@
 package com.soundcloud.android.search.topresults;
 
 import static com.soundcloud.android.events.SearchEvent.ClickSource.TRACKS_BUCKET;
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchPlaylistItem;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchTrackItem;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchUserItem;
@@ -8,6 +9,7 @@ import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
@@ -297,7 +299,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
         final Activity context = mock(Activity.class);
         actionCaptor.getValue().run(context);
-        verify(navigator).navigateTo(context, NavigationTarget.forSearchViewAll(of(QUERY_URN), QUERY, Kind.TRACKS, false));
+        verify(navigator).navigateTo(eq(context), argThat(matchesNavigationTarget(NavigationTarget.forSearchViewAll(of(QUERY_URN), QUERY, Kind.TRACKS, false))));
     }
 
     @Test

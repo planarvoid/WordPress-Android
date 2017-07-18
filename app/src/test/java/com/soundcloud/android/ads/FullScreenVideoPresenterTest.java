@@ -1,6 +1,9 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,7 +78,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onLearnMoreClick(activity);
 
-        verify(navigator).navigateTo(activity, NavigationTarget.forAdClickthrough(VIDEO_AD.clickThroughUrl()));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(VIDEO_AD.clickThroughUrl()))));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
@@ -132,7 +135,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onDestroy(activity);
 
-        verify(videoView).unbindVideoSurface( VideoSurfaceProvider.Origin.FULLSCREEN);
+        verify(videoView).unbindVideoSurface(VideoSurfaceProvider.Origin.FULLSCREEN);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
