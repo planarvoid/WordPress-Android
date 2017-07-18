@@ -33,7 +33,7 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
         subscriber.onNext(PlaybackResult.success());
 
         Robolectric.flushForegroundThreadScheduler();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isAutomaticExpand()).isTrue();
     }
 
     @Test

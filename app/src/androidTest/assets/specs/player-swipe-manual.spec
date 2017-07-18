@@ -9,12 +9,12 @@ expected_events:
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: 3152
-    connection_type: wifi
-    click_name: play
-    click_category: player_interaction
-    player_interface: mini
+    connection_type: wifi|4g
+    click_name: swipe_player::max
+    click_attributes:
+      trigger: manual
     user: soundcloud:users:[0-9]+
-  version: '1'
+  version: 0
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
@@ -22,9 +22,9 @@ expected_events:
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: 3152
-    connection_type: wifi
-    click_name: pause
-    click_category: player_interaction
-    player_interface: mini
+    connection_type: wifi|4g
+    click_name: swipe_player::min
+    click_attributes:
+      trigger: manual
     user: soundcloud:users:[0-9]+
-  version: '1'
+  version: 0

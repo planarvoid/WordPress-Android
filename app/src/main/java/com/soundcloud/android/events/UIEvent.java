@@ -139,8 +139,10 @@ public abstract class UIEvent extends TrackingEvent {
         SKIP_AD_CLICK("ad::skip"),
         FOLLOW_ADD("follow::add"),
         FOLLOW_REMOVE("follow::remove"),
-        PLAYER_OPEN("player::max"),
-        PLAYER_CLOSE("player::min"),
+        PLAYER_CLICK_OPEN("click_player::max"),
+        PLAYER_CLICK_CLOSE("click_player::min"),
+        PLAYER_SWIPE_OPEN("swipe_player::max"),
+        PLAYER_SWIPE_CLOSE("swipe_player::min"),
         PLAY_QUEUE_OPEN("play_queue::max"),
         PLAY_QUEUE_CLOSE("play_queue::min"),
         PLAY_QUEUE_TRACK_REORDER("track_in_play_queue::reorder"),
@@ -296,12 +298,20 @@ public abstract class UIEvent extends TrackingEvent {
 
     abstract Builder toBuilder();
 
-    public static UIEvent fromPlayerOpen(boolean manual) {
-        return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
+    public static UIEvent fromPlayerClickOpen(boolean manual) {
+        return event(Kind.PLAYER_OPEN, ClickName.PLAYER_CLICK_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
 
-    public static UIEvent fromPlayerClose(boolean manual) {
-        return event(Kind.PLAYER_CLOSE, ClickName.PLAYER_CLOSE).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
+    public static UIEvent fromPlayerClickClose(boolean manual) {
+        return event(Kind.PLAYER_CLOSE, ClickName.PLAYER_CLICK_CLOSE).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
+    }
+
+    public static UIEvent fromPlayerSwipeOpen() {
+        return event(Kind.PLAYER_OPEN, ClickName.PLAYER_SWIPE_OPEN).trigger(Optional.of(Trigger.MANUAL)).build();
+    }
+
+    public static UIEvent fromPlayerSwipeClose() {
+        return event(Kind.PLAYER_CLOSE, ClickName.PLAYER_SWIPE_CLOSE).trigger(Optional.of(Trigger.MANUAL)).build();
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, EntityMetadata userMetadata, EventContextMetadata eventContextMetadata) {

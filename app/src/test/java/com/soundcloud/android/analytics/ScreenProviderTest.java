@@ -33,7 +33,7 @@ public class ScreenProviderTest {
     @Test
     public void ignoresNonScreenEvent() throws Exception {
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.MUSIC_GENRES.get("postfix")));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(false));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClickOpen(false));
         assertThat(screenProvider.getLastScreenTag()).isEqualTo("charts:music_genres:postfix");
     }
 }

@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -48,7 +47,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private boolean isLocked;
     private boolean isPlayQueueLocked;
     private boolean expandOnResume;
-    private boolean wasDragged;
+    private boolean didTransitionToDraggingState;
     private View playerContainer;
 
     @Inject
@@ -72,9 +71,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
-
         playerContainer = activity.findViewById(R.id.player_root);
-        playerContainer.setOnTouchListener(new TrackingDragListener());
 
         bottomSheetBehavior = lockableBottomSheetBehaviorFactory.from(playerContainer);
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -86,6 +83,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         onPanelCollapsed();
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        didTransitionToDraggingState = true;
                         break;
                     default:
                         break;
@@ -298,11 +298,15 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 showPanelAsCollapsedIfNeeded();
             } else if (event.isHide()) {
                 hide();
-            } else if (event.isExpand()) {
+            } else if (event.isManualExpand()) {
+                expand();
+            } else if (event.isAutomaticExpand()) {
+                trackPlayerSlide(UIEvent.fromPlayerClickOpen(false));
                 expand();
             } else if (event.isManualCollapse()) {
                 manualCollapse();
             } else if (event.isAutomaticCollapse()) {
+                trackPlayerSlide(UIEvent.fromPlayerClickClose(false));
                 collapse();
             } else if (event.isLockExpanded()) {
                 lockExpanded();
@@ -327,34 +331,28 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         unlock();
     }
 
-    private class TrackingDragListener implements View.OnTouchListener {
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                wasDragged = false;
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                wasDragged = true;
-            }
-            return false;
-        }
-    }
-
     void onPanelCollapsed() {
         bottomSheetBehavior.setHideable(false);
         statusBarColorController.onPlayerCollapsed();
         notifyCollapsedState();
-        trackPlayerSlide(UIEvent.fromPlayerClose(wasDragged));
+
+        if (didTransitionToDraggingState) {
+            trackPlayerSlide(UIEvent.fromPlayerSwipeClose());
+        }
     }
 
     void onPanelExpanded() {
         bottomSheetBehavior.setHideable(false);
         statusBarColorController.onPlayerExpanded();
         notifyExpandedState();
-        trackPlayerSlide(UIEvent.fromPlayerOpen(wasDragged));
+
+        if (didTransitionToDraggingState) {
+            trackPlayerSlide(UIEvent.fromPlayerSwipeOpen());
+        }
     }
 
     private void trackPlayerSlide(UIEvent event) {
-        wasDragged = false;
+        didTransitionToDraggingState = false;
         eventBus.publish(EventQueue.TRACKING, event);
     }
 

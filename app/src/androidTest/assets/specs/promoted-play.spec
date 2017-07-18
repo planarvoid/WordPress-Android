@@ -28,8 +28,8 @@ expected_events:
     client_id: 3152
     connection_type: wifi
     click_attributes:
-          trigger: (auto|manual)
-    click_name: player::(max|min)
+          trigger: auto
+    click_name: click_player::max
     user: soundcloud:users:[0-9]+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event

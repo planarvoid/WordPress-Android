@@ -10,7 +10,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi|4g
-    click_name: player::max
+    click_name: click_player::max
     click_attributes:
       trigger: auto
     user: soundcloud:users:[0-9]+
@@ -23,8 +23,8 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi|4g
-    click_name: player::min
+    click_name: click_player::min
     click_attributes:
-      trigger: auto
+      trigger: manual
     user: soundcloud:users:[0-9]+
   version: 0

@@ -62,37 +62,37 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromManualPlayerClose() {
-        final UIEvent uiEvent = UIEvent.fromPlayerClose(true);
+        final UIEvent uiEvent = UIEvent.fromPlayerClickClose(true);
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_CLOSE);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLOSE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLICK_CLOSE);
         assertThat(uiEvent.trigger().get()).isEqualTo(UIEvent.Trigger.MANUAL);
     }
 
     @Test
     public void shouldCreateEventFromManualPlayerOpen() {
-        final UIEvent uiEvent = UIEvent.fromPlayerOpen(true);
+        final UIEvent uiEvent = UIEvent.fromPlayerClickOpen(true);
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_OPEN);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_OPEN);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLICK_OPEN);
         assertThat(uiEvent.trigger().get()).isEqualTo(UIEvent.Trigger.MANUAL);
     }
 
     @Test
     public void shouldCreateEventFromAutomaticPlayerClose() {
-        final UIEvent uiEvent = UIEvent.fromPlayerClose(false);
+        final UIEvent uiEvent = UIEvent.fromPlayerClickClose(false);
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_CLOSE);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLOSE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLICK_CLOSE);
         assertThat(uiEvent.trigger().get()).isEqualTo(UIEvent.Trigger.AUTO);
     }
 
     @Test
     public void shouldCreateEventFromAutomaticPlayerOpen() {
-        final UIEvent uiEvent = UIEvent.fromPlayerOpen(false);
+        final UIEvent uiEvent = UIEvent.fromPlayerClickOpen(false);
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.PLAYER_OPEN);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_OPEN);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.PLAYER_CLICK_OPEN);
         assertThat(uiEvent.trigger().get()).isEqualTo(UIEvent.Trigger.AUTO);
     }
 

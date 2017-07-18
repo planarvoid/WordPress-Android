@@ -28,7 +28,6 @@ import com.soundcloud.android.view.status.StatusBarColorController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Intent;
@@ -37,7 +36,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -60,7 +58,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
-    private View.OnTouchListener touchListener;
 
     @Before
     public void setUp() throws Exception {
@@ -78,7 +75,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         when(playerFragment.getActivity()).thenReturn(activity);
         when(activity.getWindow()).thenReturn(window);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        attachController();
+        controller.onCreate(activity, null);
     }
 
     @Test
@@ -265,32 +262,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void emitsClosePlayerFromSlideWhenCollapsedAfterDragging() {
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
-
-        controller.onPanelCollapsed();
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerClose(true);
-        assertThat(event.kind()).isEqualTo(expected.kind());
-        assertThat(event.trigger().get()).isEqualTo(expected.trigger().get());
-    }
-
-    @Test
-    public void emitsOpenPlayerFromFooterSlideWhenExpandedAfterDragging() {
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
-        touchListener.onTouch(playerView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
-
-        controller.onPanelExpanded();
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerOpen(true);
-        assertThat(event.kind()).isEqualTo(expected.kind());
-        assertThat(event.trigger()).isEqualTo(expected.trigger());
-    }
-
-    @Test
     public void sendsExpandedEventWhenRestoringExpandedState() {
         controller.onCreate(activity, createBundleWithExpandingCommand());
         controller.onResume(activity);
@@ -431,16 +402,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelCollapsed();
 
         verify(playerBehavior).setHideable(false);
-    }
-
-    private void attachController() {
-        ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
-
-        controller.onCreate(activity, null);
-
-        verify(playerView).setOnTouchListener(touchListenerArgumentCaptor.capture());
-
-        touchListener = touchListenerArgumentCaptor.getValue();
     }
 
     private void collapsePanel() {

@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 public final class PlayerUICommand {
 
     private static final int SHOW_PLAYER = 0;
-    private static final int EXPAND_PLAYER = 1;
+    private static final int AUTOMATIC_EXPAND_PLAYER = 1;
     private static final int AUTOMATIC_COLLAPSE_PLAYER = 2;
     private static final int LOCK_PLAYER_EXPANDED = 3;
     private static final int UNLOCK_PLAYER = 4;
@@ -13,6 +13,7 @@ public final class PlayerUICommand {
     private static final int LOCK_FOR_PLAY_QUEUE = 8;
     private static final int UNLOCK_FOR_PLAY_QUEUE = 9;
     private static final int MANUAL_COLLAPSE_PLAYER = 10;
+    private static final int MANUAL_EXPAND_PLAYER = 11;
 
     private final int kind;
 
@@ -34,7 +35,7 @@ public final class PlayerUICommand {
      * Signals any on-screen instance of the player to expand. It will be made visible if hidden.
      */
     public static PlayerUICommand expandPlayer() {
-        return new PlayerUICommand(EXPAND_PLAYER);
+        return new PlayerUICommand(AUTOMATIC_EXPAND_PLAYER);
     }
 
     /**
@@ -46,6 +47,10 @@ public final class PlayerUICommand {
 
     public static PlayerUICommand collapsePlayerManually() {
         return new PlayerUICommand(MANUAL_COLLAPSE_PLAYER);
+    }
+
+    public static PlayerUICommand expandPlayerManually() {
+        return new PlayerUICommand(MANUAL_EXPAND_PLAYER);
     }
 
     /**
@@ -98,8 +103,8 @@ public final class PlayerUICommand {
         return kind == HIDE_PLAYER;
     }
 
-    public boolean isExpand() {
-        return kind == EXPAND_PLAYER;
+    public boolean isAutomaticExpand() {
+        return kind == AUTOMATIC_EXPAND_PLAYER;
     }
 
     public boolean isAutomaticCollapse() {
@@ -108,6 +113,10 @@ public final class PlayerUICommand {
 
     public boolean isManualCollapse() {
         return kind == MANUAL_COLLAPSE_PLAYER;
+    }
+
+    public boolean isManualExpand() {
+        return kind == MANUAL_EXPAND_PLAYER;
     }
 
     public boolean isLockExpanded() {

@@ -15,7 +15,7 @@ public class PlayerUICommandTest {
     @Test
     public void createEventForExpandPlayer() {
         PlayerUICommand event = PlayerUICommand.expandPlayer();
-        assertThat(event.isExpand()).isTrue();
+        assertThat(event.isAutomaticExpand()).isTrue();
     }
 
     @Test
@@ -30,4 +30,9 @@ public class PlayerUICommandTest {
         assertThat(event.isManualCollapse()).isTrue();
     }
 
+    @Test
+    public void createsEventForManualExpandPlayer() {
+        PlayerUICommand event = PlayerUICommand.expandPlayerManually();
+        assertThat(event.isManualExpand()).isTrue();
+    }
 }

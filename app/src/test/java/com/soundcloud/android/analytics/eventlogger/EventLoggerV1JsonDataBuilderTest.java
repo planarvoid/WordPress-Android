@@ -1228,9 +1228,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("click_forward")
-                                               .playerInterface("fullscreen")
-                                               .clickCategory("player_interaction"));
+                                               .clickName(UIEvent.ClickName.CLICK_FORWARD.key())
+                                               .playerInterface(PlayerInterface.FULLSCREEN.key())
+                                               .clickCategory(UIEvent.ClickCategory.PLAYER.key()));
     }
 
     @Test
@@ -1240,9 +1240,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("click_backward")
-                                               .playerInterface("fullscreen")
-                                               .clickCategory("player_interaction"));
+                                               .clickName(UIEvent.ClickName.CLICK_BACKWARD.key())
+                                               .playerInterface(PlayerInterface.FULLSCREEN.key())
+                                               .clickCategory(UIEvent.ClickCategory.PLAYER.key()));
     }
 
     @Test
@@ -1252,9 +1252,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("swipe_forward")
-                                               .playerInterface("fullscreen")
-                                               .clickCategory("player_interaction"));
+                                               .clickName(UIEvent.ClickName.SWIPE_FORWARD.key())
+                                               .playerInterface(PlayerInterface.FULLSCREEN.key())
+                                               .clickCategory(UIEvent.ClickCategory.PLAYER.key()));
     }
 
     @Test
@@ -1264,9 +1264,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("swipe_backward")
-                                               .playerInterface("fullscreen")
-                                               .clickCategory("player_interaction"));
+                                               .clickName(UIEvent.ClickName.SWIPE_BACKWARD.key())
+                                               .playerInterface(PlayerInterface.FULLSCREEN.key())
+                                               .clickCategory(UIEvent.ClickCategory.PLAYER.key()));
     }
 
     @Test
@@ -1881,23 +1881,23 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlayerOpenUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromPlayerOpen(true);
+        final UIEvent event = UIEvent.fromPlayerClickOpen(true);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("player::max")
+                                               .clickName(UIEvent.ClickName.PLAYER_CLICK_OPEN.key())
                                                .clickTrigger("manual"));
     }
 
     @Test
     public void createsJsonForPlayerCloseUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromPlayerClose(true);
+        final UIEvent event = UIEvent.fromPlayerClickClose(true);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("player::min")
+                                               .clickName(UIEvent.ClickName.PLAYER_CLICK_CLOSE.key())
                                                .clickTrigger("manual"));
     }
 

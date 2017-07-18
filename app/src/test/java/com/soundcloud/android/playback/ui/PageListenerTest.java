@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackActionSource;
@@ -46,11 +48,27 @@ public class PageListenerTest {
     }
 
     @Test
+    public void onFooterTapPostsEventToTrackingTheClick() {
+        listener.onFooterTap();
+
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event).isEqualTo(UIEvent.fromPlayerClickOpen(true));
+    }
+
+    @Test
     public void onFooterTapPostsEventToExpandPlayer() {
         listener.onFooterTap();
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        assertThat(event.isExpand()).isTrue();
+        assertThat(event.isManualExpand()).isTrue();
+    }
+
+    @Test
+    public void onPlayerCloseIsTrackedWithCorrentUiEventOnPlayerCloseIndicatorClick() {
+        listener.onPlayerClose();
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isEqualTo(UIEvent.fromPlayerClickClose(true));
     }
 
     @Test
