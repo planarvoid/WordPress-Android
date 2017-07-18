@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.record.RecordScreen;
+import com.soundcloud.android.screens.settings.LegalScreen;
 
 public class MoreScreen extends Screen {
 
@@ -33,6 +34,11 @@ public class MoreScreen extends Screen {
     public RecordScreen clickRecordLink() {
         recordLink().click();
         return new RecordScreen(testDriver);
+    }
+
+    public LegalScreen clickLegalLink() {
+        legalLink().click();
+        return new LegalScreen(testDriver);
     }
 
     public BasicSettingsScreen clickBasicSettingsLink() {
@@ -74,6 +80,11 @@ public class MoreScreen extends Screen {
 
     private ViewElement recordLink() {
         return testDriver.findOnScreenElement(With.id(R.id.more_record_link));
+    }
+
+    private ViewElement legalLink() {
+        testDriver.scrollToBottom();
+        return testDriver.findOnScreenElement(With.id(R.id.more_legal_link));
     }
 
     private ViewElement basicSettingsLink() {

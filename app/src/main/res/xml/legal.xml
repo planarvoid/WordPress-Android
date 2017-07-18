@@ -7,7 +7,7 @@
             android:title="@string/copyright_information">
         <intent
                 android:action="android.intent.action.VIEW"
-                android:targetPackage="com.soundcloud.android"
+                android:targetPackage="@string/app_id"
                 android:targetClass="com.soundcloud.android.settings.LicensesActivity" />
     </Preference>
 

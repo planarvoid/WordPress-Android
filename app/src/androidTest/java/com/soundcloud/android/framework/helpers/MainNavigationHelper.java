@@ -4,6 +4,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.CollectionScreen;
+import com.soundcloud.android.screens.settings.LegalScreen;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -65,6 +66,10 @@ public class MainNavigationHelper {
 
     public MoreScreen goToMore() {
         return mainTabs().clickMore();
+    }
+
+    public LegalScreen goToLegal() {
+        return goToMore().clickLegalLink();
     }
 
     public RecordScreen goToRecord() {
