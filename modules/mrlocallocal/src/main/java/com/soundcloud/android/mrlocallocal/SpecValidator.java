@@ -107,6 +107,8 @@ class SpecValidator {
             return MrLocalLocalResult.success();
         }
 
+        printErrorMessage(expectedEvents, loggedEvents, expectedEventCount, loggedEventCount);
+
         if (loggedEventCount < minimumExpectedEventCount) {
             return MrLocalLocalResult.error(true, String.format("Expected at least %d events but logged %d", minimumExpectedEventCount, loggedEventCount));
         }
@@ -116,6 +118,27 @@ class SpecValidator {
                                                       expectedEventCount,
                                                       expectedEventCount - minimumExpectedEventCount,
                                                       loggedEventCount));
+    }
+
+    private void printErrorMessage(List<SpecEvent> expectedEvents, List<LoggedEvent> loggedEvents, int expectedEventCount, int loggedEventCount) {
+        int counter = 0;
+        while (counter < Math.max(expectedEventCount, loggedEventCount)) {
+            if (counter < expectedEvents.size() && counter < loggedEvents.size()) {
+                boolean eventsMatch = verifyEvent(counter, expectedEvents.get(counter), loggedEvents.get(counter));
+                if (!eventsMatch) {
+                    logger.info(String.format("\nEvent doesn't match on position %d \n", counter));
+                    logger.info("Expected event: ");
+                    logger.info(expectedEvents.get(counter).toString());
+                    logger.info("\nLogged event: ");
+                    logger.info(loggedEvents.get(counter).toString());
+                }
+            } else if (counter < expectedEvents.size()) {
+                logger.info(String.format("\nExtra expected event on position %d in specs\n%s", counter, expectedEvents.get(counter).toString()));
+            } else if (counter < loggedEvents.size()) {
+                logger.info(String.format("\nExtra logged event on position %d in logged events\n%s", counter, loggedEvents.get(counter).toString()));
+            }
+            counter++;
+        }
     }
 
     private boolean verifyEventPayload(int i, SpecEvent specEvent, LoggedEvent loggedEvent) {
