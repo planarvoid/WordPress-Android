@@ -31,11 +31,17 @@ public class DebugStorage {
         for (CursorReader cursorReader : cursorReaders) {
             names.add(cursorReader.getString(0));
         }
+        cursorReaders.release();
+
         return Observable.fromIterable(names).flatMap(this::toTableAndSize);
     }
 
-    private Observable<Pair<String, Integer>> toTableAndSize(@NonNull String s) {
-        return propellerRxV2.queryResult("select count(*) from " + s)
-                            .map(cursorReaders1 -> Pair.of(s, cursorReaders1.iterator().next().getInt(0)));
+    private Observable<Pair<String, Integer>> toTableAndSize(@NonNull String tableName) {
+        return propellerRxV2.queryResult("select count(*) from " + tableName)
+                            .map(cursorReaders -> {
+                                Pair<String, Integer> pair = Pair.of(tableName, cursorReaders.iterator().next().getInt(0));
+                                cursorReaders.release();
+                                return pair;
+                            });
     }
 }

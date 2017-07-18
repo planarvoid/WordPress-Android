@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.DatabaseHook;
@@ -12,13 +12,12 @@ import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Table;
 
 import android.content.ContentValues;
-import android.util.Log;
 
 class DebugQueryHook implements DatabaseHook {
 
     static final String TAG = "QueryDebug";
-    private static final int MAX_LENGTH = 200;
 
+    private static final int MAX_DEBUG_STRING_LENGTH = 200;
     private static final String UPSERT = "UPSERT";
     private static final String BULK_UPSERT = "BULK UPSERT";
     private static final String DELETE = "DELETE";
@@ -28,9 +27,11 @@ class DebugQueryHook implements DatabaseHook {
     private static final String BULK_INSERT = "BULK INSERT";
 
     private final SlowQueryReporter slowQueryReporter;
+    private boolean logQueries;
 
-    DebugQueryHook(SlowQueryReporter slowQueryReporter) {
+    DebugQueryHook(SlowQueryReporter slowQueryReporter, boolean logQueries) {
         this.slowQueryReporter = slowQueryReporter;
+        this.logQueries = logQueries;
     }
 
     @Override
@@ -169,17 +170,20 @@ class DebugQueryHook implements DatabaseHook {
         return operationName + " " + table + " " + bulkInsertValues;
     }
 
-    private static void started(String message) {
-        ErrorUtils.log(Log.DEBUG, TAG, "start : " + limit(message));
+    private void started(String message) {
+        if (logQueries) {
+            Log.d(TAG, "start : " + limit(message));
+        }
     }
 
     private void finished(String message, long duration) {
-        ErrorUtils.log(Log.DEBUG, TAG, "finish (" + duration + "ms) : " + limit(message));
-        slowQueryReporter.reportIfSlow(duration);
+        if (logQueries) {
+            Log.d(TAG, "finish (" + duration + "ms) : " + limit(message));
+        }
+        slowQueryReporter.reportIfSlow(DebugDatabaseStat.create(message, duration));
     }
 
-    private static String limit(String query) {
-        return query.length() <= MAX_LENGTH ? query : query.substring(0, MAX_LENGTH);
+    static String limit(String query) {
+        return query.length() <= MAX_DEBUG_STRING_LENGTH ? query : query.substring(0, MAX_DEBUG_STRING_LENGTH);
     }
-
 }

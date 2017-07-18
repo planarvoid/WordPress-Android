@@ -299,13 +299,9 @@ public class StorageModule {
     }
 
     @Provides
-    PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties, Lazy<DebugQueryHook> debugQueryHookLazy) {
+    PropellerDatabase providePropeller(SQLiteDatabase database, Lazy<DebugQueryHook> debugQueryHookLazy) {
         final PropellerDatabase propeller;
-        if (applicationProperties.shouldLogQueries()) {
-            propeller = new PropellerDatabase(database, debugQueryHookLazy.get());
-        } else {
-            propeller = new PropellerDatabase(database);
-        }
+        propeller = new PropellerDatabase(database, debugQueryHookLazy.get());
         propeller.setAssertBackgroundThread();
         return propeller;
     }
@@ -313,7 +309,7 @@ public class StorageModule {
     @Provides
     @Nullable
     DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties, Lazy<SlowQueryReporter> slowQueryReporterLazy) {
-        return applicationProperties.shouldLogQueries() ? new DebugQueryHook(slowQueryReporterLazy.get()) : null;
+        return new DebugQueryHook(slowQueryReporterLazy.get(), applicationProperties.shouldLogQueries());
     }
 
     @Provides
