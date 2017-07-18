@@ -5,14 +5,16 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.schedulers.Schedulers;
 
-// Had to use AndroidUnitTest because otherwise the observeOn(mainThread) isn't working
+import java.io.IOException;
+
 public class AdIdHelperTest extends AndroidUnitTest {
 
     @Mock private AdIdWrapper adIdWrapper;
@@ -21,7 +23,7 @@ public class AdIdHelperTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adIdHelper = new AdIdHelper(adIdWrapper, Schedulers.immediate());
+        adIdHelper = new AdIdHelper(adIdWrapper, Schedulers.trampoline());
 
         when(adIdWrapper.isPlayServicesAvailable()).thenReturn(true);
         when(adIdWrapper.getAdInfo()).thenReturn(new AdvertisingIdClient.Info("my-adid", false));
@@ -65,4 +67,12 @@ public class AdIdHelperTest extends AndroidUnitTest {
         assertThat(adIdHelper.getAdId().isPresent()).isFalse();
     }
 
+    @Test
+    public void adIdIsNotLoadedIfAdInfoContainsNullId() throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        when(adIdWrapper.getAdInfo()).thenReturn(new AdvertisingIdClient.Info(null, false));
+
+        adIdHelper.init();
+
+        assertThat(adIdHelper.getAdId().isPresent()).isFalse();
+    }
 }

@@ -1,15 +1,13 @@
 package com.soundcloud.android.ads;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-
-import android.support.annotation.Nullable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +25,8 @@ public class AdIdHelper {
     private volatile boolean adIdTracking;
 
     @Inject
-    public AdIdHelper(AdIdWrapper adIdWrapper, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    public AdIdHelper(AdIdWrapper adIdWrapper,
+                      @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.adIdWrapper = adIdWrapper;
         this.scheduler = scheduler;
     }
@@ -37,7 +36,22 @@ public class AdIdHelper {
             Observable.fromCallable(adIdWrapper::getAdInfo)
                       .subscribeOn(scheduler)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new AdInfoSubscriber());
+                      .subscribeWith(LambdaObserver.onNext(adInfo -> {
+                          if (adInfo == null) {
+                              adId = Optional.absent();
+                              adIdTracking = false;
+                          } else if (adInfo.getId() == null) {
+                              final String errorMessage = "Got adInfo(" + adInfo + ") with null adInfo.getId";
+                              ErrorUtils.handleSilentException(errorMessage, new MissingAdInfoIdException(errorMessage));
+                              adId = Optional.absent();
+                              adIdTracking = false;
+                          } else {
+                              adId = Optional.of(adInfo.getId());
+                              adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
+                          }
+
+                          Log.i(TAG, "Loaded ADID: " + adId + "\nTracking:" + adIdTracking);
+                      }));
         }
     }
 
@@ -49,19 +63,9 @@ public class AdIdHelper {
         return adIdTracking;
     }
 
-    private class AdInfoSubscriber extends DefaultSubscriber<AdvertisingIdClient.Info> {
-        @Override
-        public void onNext(@Nullable AdvertisingIdClient.Info adInfo) {
-            if (adInfo == null) {
-                adId = Optional.absent();
-                adIdTracking = false;
-            } else {
-                adId = Optional.of(adInfo.getId());
-                adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
-            }
-
-            Log.i(TAG, "Loaded ADID: " + adId + "\nTracking:" + adIdTracking);
+    private static final class MissingAdInfoIdException extends Exception {
+        MissingAdInfoIdException(String message) {
+            super(message);
         }
     }
-
 }
