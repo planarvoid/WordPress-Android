@@ -9,6 +9,7 @@ import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.HlsStreamUrlBuilder;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
@@ -104,7 +105,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
         }
 
         currentPlaybackItem = playbackItem;
-        Log.d(TAG, "play(): " + currentPlaybackItem.getUrn() + " in duration " + currentPlaybackItem.getDuration() + " ]");
+        ErrorUtils.log(android.util.Log.DEBUG, TAG, "play(): " + currentPlaybackItem.getUrn() + " in duration " + currentPlaybackItem.getDuration() + " ]");
         stateHandler.removeMessages(0);
         isSeekPending = false;
         progress = 0;
@@ -226,7 +227,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public void onStateChanged(state_change event) {
-        Log.i(TAG, "onStateChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
+        ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
         handleStateChanged(event);
     }
 
@@ -238,10 +239,11 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     private void handleStateChanged(state_change event) {
         try {
-            if (isCurrentStreamUrl(event.getUri())) {
+            if (currentPlaybackItem == null) {
+                ErrorUtils.handleSilentException(new IllegalStateException("State reported with no playback item "));
+            } else if (isCurrentStreamUrl(event.getUri())) {
                 setProgress(event.getPosition());
-
-                reportStateTransition(event, playbackState(event), playStateReason(event));
+                reportStateTransition(event, playbackState(event), playStateReason(event), currentPlaybackItem.getUrn());
             }
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
@@ -291,10 +293,11 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     private void reportStateTransition(state_change event,
                                        PlaybackState translatedState,
-                                       PlayStateReason translatedReason) {
+                                       PlayStateReason translatedReason,
+                                       Urn urn) {
         final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState,
                                                                                translatedReason,
-                                                                               currentPlaybackItem.getUrn(),
+                                                                               urn,
                                                                                progress,
                                                                                event.getDuration(),
                                                                                dateProvider);
