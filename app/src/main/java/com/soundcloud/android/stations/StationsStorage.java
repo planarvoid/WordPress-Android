@@ -14,7 +14,6 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
-import com.soundcloud.android.storage.Tables.TrackView;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.checks.Preconditions;
@@ -32,7 +31,6 @@ import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Column;
 import io.reactivex.Maybe;
-
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -213,21 +211,8 @@ public class StationsStorage {
     }
 
     private static Query stationInfoTracksQuery(Urn station) {
-        return Query.from(TrackView.TABLE)
-                    .innerJoin(StationsPlayQueues.TABLE.name(), TrackView.ID.qualifiedName(), StationsPlayQueues.TRACK_ID.name())
-                    .select(TrackView.ID,
-                            TrackView.TITLE,
-                            TrackView.CREATOR_NAME,
-                            TrackView.CREATOR_ID,
-                            TrackView.SNIPPET_DURATION,
-                            TrackView.FULL_DURATION,
-                            TrackView.SNIPPED,
-                            TrackView.IS_USER_LIKE,
-                            TrackView.IS_USER_REPOST,
-                            TrackView.LIKES_COUNT,
-                            TrackView.PERMALINK_URL,
-                            TrackView.PLAY_COUNT,
-                            TrackView.ARTWORK_URL)
+        return Query.from(StationsPlayQueues.TABLE)
+                    .select(StationsPlayQueues.TRACK_ID)
                     .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                     .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
@@ -323,7 +308,7 @@ public class StationsStorage {
     private final class StationTrackUrnMapper implements ResultMapper<Urn> {
         @Override
         public Urn map(CursorReader reader) {
-            return Urn.forTrack(reader.getLong(TrackView.ID));
+            return Urn.forTrack(reader.getLong(StationsPlayQueues.TRACK_ID));
         }
     }
 
