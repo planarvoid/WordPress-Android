@@ -19,6 +19,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -34,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -190,8 +192,15 @@ public class AccountOperations {
             // Adding this different account should relieve users facing this issue.
             // See: https://stackoverflow.com/questions/43664484/accountmanager-fails-to-add-account-on-sony-xz-7-1-1/44824516#44824516
             if (!accountExists) {
+                ErrorUtils.log(Log.ERROR, "AccountOperations", "Failed to add account in first try.");
+                ErrorUtils.handleSilentException(new AddAccountFailure("Failed to add account in first try."));
                 account = new Account(permalink + "\n", accountType);
                 accountExists = accountManager.addAccountExplicitly(account, null, null);
+
+                if (!accountExists) {
+                    ErrorUtils.log(Log.ERROR, "AccountOperations", "Failed to add account in second try.");
+                    ErrorUtils.handleSilentException(new AddAccountFailure("Failed to add account in second try."));
+                }
             }
         }
 
@@ -332,4 +341,9 @@ public class AccountOperations {
         return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
     }
 
+    static class AddAccountFailure extends Throwable {
+        public AddAccountFailure(String message) {
+            super(message);
+        }
+    }
 }
