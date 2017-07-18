@@ -52,9 +52,9 @@ import com.soundcloud.android.gcm.ScFirebaseMessagingService;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.main.DevDrawerFragment;
+import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.more.BasicSettingsFragment;
@@ -89,12 +89,12 @@ import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.playback.widget.WidgetPlaybackActionReceiver;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.widget.PlayerWidgetReceiver;
+import com.soundcloud.android.playback.widget.WidgetPlaybackActionReceiver;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.CreatePlaylistDialogFragment;
 import com.soundcloud.android.playlists.DeletePlaylistDialogFragment;
@@ -146,6 +146,7 @@ import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.LikedStationsFragment;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.stations.StationInfoFragment;
+import com.soundcloud.android.storage.DatabaseCleanupService;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamFragment;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -179,6 +180,9 @@ public interface ApplicationComponent {
 
     //ApiModule
     void inject(ApiSyncService apiSyncService);
+
+    //Data Storage
+    void inject(DatabaseCleanupService databaseCleanupService);
 
     //SyncModule
     void inject(SyncAdapterService syncAdapterService);

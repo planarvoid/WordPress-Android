@@ -194,6 +194,15 @@ public class DatabaseAssertions {
         assertTrackPolicyInserted(track);
     }
 
+    public void assertTrackNotInserted(Urn trackUrn) {
+        final Query query = from(Sounds.TABLE)
+                .whereEq(_ID, trackUrn.getNumericId())
+                .whereEq(_TYPE, TYPE_TRACK);
+
+        assertThat(select(query)).counts(0);
+        assertPolicyNotInserted(trackUrn);
+    }
+
     public void assertTrackIsUnavailable(Urn trackUrn, long time) {
         assertThat(select(from(TABLE)
                                   .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
@@ -447,6 +456,13 @@ public class DatabaseAssertions {
             query.whereEq(SUB_HIGH_TIER, track.isSubHighTier().get());
         }
         assertThat(select(query)).counts(1);
+    }
+
+    public void assertPolicyNotInserted(Urn trackUrn) {
+        final Query query = from(TrackPolicies.TABLE)
+                .whereEq(Tables.TrackPolicies.TRACK_ID, trackUrn.getNumericId());
+
+        assertThat(select(query)).counts(0);
     }
 
     public void assertPolicyInserted(ApiPolicyInfo apiPolicyInfo) {
@@ -790,6 +806,13 @@ public class DatabaseAssertions {
         assertOptionalColumn(query, MYSPACE_NAME, user.getMyspaceName());
         assertOptionalColumn(query, ARTIST_STATION, user.getArtistStationUrn());
         assertThat(select(query)).counts(1);
+    }
+
+    public void assertUserNotStored(Urn userUrn) {
+        final Query query = from(Users.TABLE)
+                .whereEq(_ID, userUrn.getNumericId());
+
+        assertThat(select(query)).counts(0);
     }
 
     private <T> void assertOptionalColumn(Query query, Column column, Optional<T> optional) {

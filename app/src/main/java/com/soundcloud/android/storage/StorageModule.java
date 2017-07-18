@@ -21,11 +21,14 @@ import android.support.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 @Module
 public class StorageModule {
 
     static final String DEBUG_PROPELLER_RX = "DebugPropellerRx";
+    public static final String DB_CLEANUP_HELPERS = "DatabaseCleanupHelpers";
 
     public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
     public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
@@ -325,6 +328,13 @@ public class StorageModule {
         propeller.setAssertBackgroundThread();
         return new PropellerRxV2(propeller);
     }
+
+    @Provides
+    @Named(DB_CLEANUP_HELPERS)
+    List<DatabaseCleanupService.CleanupHelper> provideCleanupHelpers(){
+        return Collections.emptyList();
+    }
+
 
     // Exposing this, since a the dependent class (UnauthorisedRequestRegistry) is also used by legacy code
     // not using Dagger
