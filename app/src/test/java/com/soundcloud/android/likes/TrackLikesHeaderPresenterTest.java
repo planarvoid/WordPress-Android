@@ -47,7 +47,6 @@ import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,7 +117,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
+                .thenReturn(Single.just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
         when(headerViewFactory.create(any(View.class),
                                       any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
@@ -257,7 +256,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
+                .thenReturn(Single.just(OfflineState.DOWNLOADED));
         createAndBindView();
 
         verify(headerView).show(OfflineState.DOWNLOADED);
@@ -266,7 +265,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.REQUESTED));
+                .thenReturn(Single.just(OfflineState.REQUESTED));
         createAndBindView();
 
         verify(headerView).show(OfflineState.REQUESTED);
@@ -275,7 +274,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDefaultStateWhenLikedTracksDownloadStateIsNoOffline() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
+                .thenReturn(Single.just(OfflineState.NOT_OFFLINE));
         createAndBindView();
 
         verify(headerView).show(OfflineState.NOT_OFFLINE);
@@ -285,7 +284,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void removeDownloadStateWhenOfflineLikedChangeToDisable() {
         final OfflineContentChangedEvent offlineLikesDisabled = removed(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
+                .thenReturn(Single.just(OfflineState.DOWNLOADED));
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, offlineLikesDisabled);
@@ -339,7 +338,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showWarningTextWhenPendingDownloadAndWifiOnly() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.REQUESTED));
+                .thenReturn(Single.just(OfflineState.REQUESTED));
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
@@ -351,7 +350,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showWarningTextWhenPendingDownloadAndOffline() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.REQUESTED));
+                .thenReturn(Single.just(OfflineState.REQUESTED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
 
@@ -361,7 +360,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void doNotShowWarningTextForNonPendingStates() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
+                .thenReturn(Single.just(OfflineState.DOWNLOADED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
 
@@ -479,6 +478,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     private void enableOfflineLikes() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
+        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Single.just(OfflineState.REQUESTED));
     }
 }

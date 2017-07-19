@@ -192,7 +192,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                            .filter(event -> event.isLikedTrackCollection)
                            .map(event -> event.state)
-                           .startWith(offlineStateOperations.loadLikedTracksOfflineState())
+                           .startWith(offlineStateOperations.loadLikedTracksOfflineState().toObservable())
                            .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(OfflineState.NOT_OFFLINE);

@@ -34,6 +34,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackObserver;
@@ -207,9 +208,9 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private class ClearHistoryObserver extends DefaultObserver<Boolean> {
+    private class ClearHistoryObserver extends DefaultSingleObserver<Boolean> {
         @Override
-        public void onNext(Boolean wasSuccessful) {
+        public void onSuccess(Boolean wasSuccessful) {
             if (!wasSuccessful) {
                 Feedback feedback = Feedback.create(R.string.collections_play_history_clear_error_message, LENGTH_LONG);
                 feedbackController.showFeedback(feedback);
@@ -218,6 +219,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                 retryWith(onBuildBinding(null));
                 eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
             }
+            super.onSuccess(wasSuccessful);
         }
     }
 

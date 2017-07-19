@@ -29,7 +29,6 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -109,14 +108,14 @@ public class CollectionOperationsTest {
                 ModelFixtures.entityItemCreator(),
                 playlistAndAlbumsPreviewsExperiment);
 
-        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.just(trackPreviews));
+        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Single.just(OfflineState.NOT_OFFLINE));
+        when(loadLikedTrackPreviewsCommand.toSingle()).thenReturn(Single.just(trackPreviews));
         when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Single.just(Lists.newArrayList(StationFixtures.getStation(Urn.forTrackStation(123L)))));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Maybe.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
-        when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
+        when(playHistoryOperations.playHistory(3)).thenReturn(Single.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
                 .thenReturn(Single.just(recentlyPlayed));
     }
@@ -181,12 +180,12 @@ public class CollectionOperationsTest {
     public void collectionsShouldReturnAnErrorWhenAllCollectionsFailedToLoad() {
         final RuntimeException exception = new RuntimeException("Test");
 
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.error(exception));
+        when(loadLikedTrackPreviewsCommand.toSingle()).thenReturn(Single.error(exception));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL)).thenReturn(Maybe.error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Single.error(exception));
 
         when(playHistoryOperations.playHistory(3)).thenReturn(
-                Observable.error(exception));
+                Single.error(exception));
 
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS)).thenReturn(
                 Single.error(exception));

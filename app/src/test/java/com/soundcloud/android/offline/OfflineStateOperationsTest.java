@@ -19,7 +19,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
@@ -134,7 +133,7 @@ public class OfflineStateOperationsTest {
 
     @Test
     public void getLikedTracksOfflineStateReturnsNoOfflineWhenOfflineLikedTrackAreDisabled() {
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Single.just(false));
 
         operations.loadLikedTracksOfflineState().test()
                   .assertValue(NOT_OFFLINE);
@@ -142,8 +141,8 @@ public class OfflineStateOperationsTest {
 
     @Test
     public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(rx.Observable.just(OfflineState.REQUESTED));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Single.just(true));
+        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Single.just(OfflineState.REQUESTED));
 
         operations.loadLikedTracksOfflineState().test()
                   .assertValue(REQUESTED);

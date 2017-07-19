@@ -11,7 +11,6 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import org.junit.Before;
@@ -40,7 +39,7 @@ public class PlayHistoryOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.just(TRACKS));
+        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Single.just(TRACKS));
         trackItems = new ArrayList<>(TRACKS.size());
         for (Track track : TRACKS) {
             trackItems.add(trackItem(track));
@@ -76,7 +75,7 @@ public class PlayHistoryOperationsTest {
 
     @Test
     public void shouldClearHistory() {
-        when(clearCommand.toObservable(null)).thenReturn(rx.Observable.just(true));
+        when(clearCommand.toSingle()).thenReturn(Single.just(true));
 
         operations.clearHistory().test()
                   .assertValue(true);

@@ -8,9 +8,9 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.PropellerWriteException;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,15 +29,15 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     private TrackDownloadsStorage storage;
     private TestDateProvider dateProvider;
-    private TestSubscriber<List<Urn>> listSubscriber;
-    private TestSubscriber<OfflineState> offlineStateSubscriber;
+    private TestObserver<List<Urn>> listSubscriber;
+    private TestObserver<OfflineState> offlineStateSubscriber;
 
     @Before
     public void setup() {
         dateProvider = new TestDateProvider();
-        storage = new TrackDownloadsStorage(propeller(), propellerRx(), dateProvider);
-        listSubscriber = new TestSubscriber<>();
-        offlineStateSubscriber = new TestSubscriber<>();
+        storage = new TrackDownloadsStorage(propeller(), propellerRxV2(), dateProvider);
+        listSubscriber = new TestObserver<>();
+        offlineStateSubscriber = new TestObserver<>();
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackDownloadPendingRemoval(Urn.forTrack(3), new Date(200).getTime());
         testFixtures().insertCompletedTrackDownload(Urn.forTrack(4), 100, 200);
 
-        final TestSubscriber<Map<Urn, OfflineState>> subscriber = new TestSubscriber<>();
+        final TestObserver<Map<Urn, OfflineState>> subscriber = new TestObserver<>();
         storage.getOfflineStates().subscribe(subscriber);
 
         final HashMap<Urn, OfflineState> expectedStates = new HashMap<>();
@@ -137,7 +137,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         expectedStates.put(Urn.forTrack(3), OfflineState.NOT_OFFLINE);
         expectedStates.put(Urn.forTrack(4), OfflineState.DOWNLOADED);
 
-        subscriber.assertReceivedOnNext(Collections.singletonList(expectedStates));
+        subscriber.assertValue(expectedStates);
     }
 
     @Test

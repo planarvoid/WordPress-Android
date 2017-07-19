@@ -18,7 +18,6 @@ import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
@@ -50,9 +49,10 @@ public class PlayHistoryStorage {
         this.rxDatabase = new PropellerRxV2(database);
     }
 
-    Observable<List<Track>> loadTracks(int limit) {
+    Single<List<Track>> loadTracks(int limit) {
         return rxDatabase.queryResult(loadTracksQuery(limit))
-                         .map(result -> result.toList(TRACK_MAPPER));
+                         .map(result -> result.toList(TRACK_MAPPER))
+                         .singleOrError();
     }
 
     List<PlayHistoryRecord> loadUnSyncedPlayHistory() {
@@ -106,7 +106,7 @@ public class PlayHistoryStorage {
     private Query loadTracksQuery(int limit) {
         return Query.from(PlayHistory.TABLE)
                     .select(Tables.TrackView.TABLE.name() + ".*",
-                            field("max("+PlayHistory.TIMESTAMP.name()+")").as("max_timestamp"))
+                            field("max(" + PlayHistory.TIMESTAMP.name() + ")").as("max_timestamp"))
                     .innerJoin(Tables.TrackView.TABLE, filter()
                             .whereEq(Tables.TrackView.ID, PlayHistory.TRACK_ID))
                     .groupBy(PlayHistory.TRACK_ID)

@@ -11,9 +11,8 @@ import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
-import io.reactivex.functions.Function;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -35,17 +34,6 @@ public class OfflineStateOperations {
     private final OfflineContentStorage offlineContentStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final Scheduler scheduler;
-
-    private final Function<Boolean, Observable<OfflineState>> TO_OFFLINE_LIKES_STATE = new Function<Boolean, Observable<OfflineState>>() {
-        @Override
-        public Observable<OfflineState> apply(Boolean enabled) {
-            if (enabled) {
-                return RxJava.toV2Observable(trackDownloadsStorage.getLikesOfflineState());
-            } else {
-                return Observable.just(OfflineState.NOT_OFFLINE);
-            }
-        }
-    };
 
     @Inject
     OfflineStateOperations(
@@ -81,9 +69,9 @@ public class OfflineStateOperations {
         }
     }
 
-    public Observable<OfflineState> loadLikedTracksOfflineState() {
+    public Single<OfflineState> loadLikedTracksOfflineState() {
         return offlineContentStorage.isOfflineLikesEnabled()
-                                    .flatMap(TO_OFFLINE_LIKES_STATE)
+                                    .flatMap(enabled -> enabled ? trackDownloadsStorage.getLikesOfflineState() : Single.just(OfflineState.NOT_OFFLINE))
                                     .subscribeOn(scheduler);
     }
 

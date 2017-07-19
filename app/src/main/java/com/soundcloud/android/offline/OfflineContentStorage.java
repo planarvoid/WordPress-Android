@@ -6,7 +6,6 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.Urns;
@@ -63,8 +62,8 @@ class OfflineContentStorage {
         return propellerRx.query(isMarkedForOfflineQuery(playlistUrn)).map(scalar(Boolean.class));
     }
 
-    public io.reactivex.Observable<Boolean> isOfflineLikesEnabled() {
-        return RxJava.toV2Observable(isOfflineLikedTracksEnabledCommand.toObservable(null));
+    public io.reactivex.Single<Boolean> isOfflineLikesEnabled() {
+        return isOfflineLikedTracksEnabledCommand.toSingle();
     }
 
     public Observable<TxnResult> storeAsOfflinePlaylists(final List<Urn> playlistUrns) {

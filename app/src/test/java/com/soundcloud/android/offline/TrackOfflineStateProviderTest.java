@@ -8,13 +8,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
 
@@ -32,14 +31,14 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
 
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
 
-    private EventBus eventBus = new TestEventBus();
+    TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
         trackOfflineStateProvider = new TrackOfflineStateProvider(trackDownloadsStorage,
                                                                   eventBus,
-                                                                  Schedulers.immediate());
-        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.just(getInitialMap()));
+                                                                  Schedulers.trampoline());
+        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Single.just(getInitialMap()));
     }
 
     @Test

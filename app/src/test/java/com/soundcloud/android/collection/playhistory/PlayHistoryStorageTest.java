@@ -53,7 +53,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         final Track expected = insertTrackWithPlayHistory(1000L);
         testFixtures().insertCompletedTrackDownload(expected.urn(), 1000L, 2000L);
 
-        Track actual = storage.loadTracks(10).firstOrError().test()
+        Track actual = storage.loadTracks(10).test()
                               .assertValueCount(1)
                               .values().get(0).get(0);
 
@@ -64,7 +64,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
     public void loadTracksReturnsTracks() {
         final Track expected = insertTrackWithPlayHistory(1000L);
 
-        Track actual = storage.loadTracks(10).firstOrError().test().values().get(0).get(0);
+        Track actual = storage.loadTracks(10).test().values().get(0).get(0);
 
         assertSameTrack(expected, actual);
     }

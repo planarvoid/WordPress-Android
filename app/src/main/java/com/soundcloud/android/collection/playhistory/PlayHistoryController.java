@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_LOW_PRIORITY;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
@@ -9,14 +9,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func2;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlayHistoryController {
 
-    private static final Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, Boolean> IS_ELIGIBLE_FOR_HISTORY =
+    private static final Predicate<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>> IS_ELIGIBLE_FOR_HISTORY =
             pair -> {
                 CurrentPlayQueueItemEvent playQueueEvent = pair.first();
                 PlayQueueItem currentPlayQueueItem = playQueueEvent.getCurrentPlayQueueItem();
@@ -37,10 +37,7 @@ public class PlayHistoryController {
                         && !currentPlayQueueItem.isAd();
             };
 
-    private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, Pair<CurrentPlayQueueItemEvent, PlayStateEvent>> COMBINE_EVENTS =
-            (queueItemEvent, playStateEvent) -> Pair.of(queueItemEvent, playStateEvent);
-
-    private static final Func1<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, PlayHistoryRecord> TO_PLAY_HISTORY_RECORD =
+    private static final Function<Pair<CurrentPlayQueueItemEvent, PlayStateEvent>, PlayHistoryRecord> TO_PLAY_HISTORY_RECORD =
             pair -> {
                 CurrentPlayQueueItemEvent queueItemEvent = pair.first();
                 PlayStateEvent playStateEvent = pair.second();
@@ -51,7 +48,7 @@ public class PlayHistoryController {
                         queueItemEvent.getCollectionUrn());
             };
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final WritePlayHistoryCommand playHistoryStoreCommand;
     private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
@@ -59,12 +56,12 @@ public class PlayHistoryController {
     private final Scheduler scheduler;
 
     @Inject
-    public PlayHistoryController(EventBus eventBus,
+    public PlayHistoryController(EventBusV2 eventBus,
                                  WritePlayHistoryCommand playHistoryStoreCommand,
                                  WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
                                  PushPlayHistoryCommand pushPlayHistoryCommand,
                                  PushRecentlyPlayedCommand pushRecentlyPlayedCommand,
-                                 @Named(LOW_PRIORITY) Scheduler scheduler) {
+                                 @Named(RX_LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.playHistoryStoreCommand = playHistoryStoreCommand;
         this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
@@ -78,19 +75,19 @@ public class PlayHistoryController {
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
-                        COMBINE_EVENTS)
+                        Pair::of)
                 .observeOn(scheduler)
                 .filter(IS_ELIGIBLE_FOR_HISTORY)
                 .map(TO_PLAY_HISTORY_RECORD)
-                .doOnNext(playHistoryStoreCommand.toAction1())
-                .doOnNext(recentlyPlayedStoreCommand.toAction1())
+                .doOnNext(playHistoryStoreCommand.toConsumer())
+                .doOnNext(recentlyPlayedStoreCommand.toConsumer())
                 .doOnNext(publishNewPlayHistory())
-                .doOnNext(pushPlayHistoryCommand.toAction1())
-                .doOnNext(pushRecentlyPlayedCommand.toAction1())
-                .subscribe(new DefaultSubscriber<>());
+                .doOnNext(pushPlayHistoryCommand.toConsumer())
+                .doOnNext(pushRecentlyPlayedCommand.toConsumer())
+                .subscribe(new DefaultObserver<>());
     }
 
-    private Action1<PlayHistoryRecord> publishNewPlayHistory() {
+    private Consumer<PlayHistoryRecord> publishNewPlayHistory() {
         return record -> eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
     }
 }

@@ -17,14 +17,14 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 import java.util.List;
 
@@ -44,9 +44,9 @@ public class PlayHistoryControllerTest {
     @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
 
-    private Scheduler scheduler = Schedulers.immediate();
+    private Scheduler scheduler = Schedulers.trampoline();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {

@@ -301,7 +301,7 @@ public class OfflineContentOperationsTest {
     public void clearOfflineContentStartsService() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.clearOfflineContent().subscribe();
 
@@ -313,7 +313,7 @@ public class OfflineContentOperationsTest {
         OfflineContentLocation location = OfflineContentLocation.DEVICE_STORAGE;
         List<Urn> reset = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(resetOfflineContentCommand.toObservable(location)).thenReturn(Observable.just(reset));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.resetOfflineContent(location).subscribe();
 
@@ -324,7 +324,7 @@ public class OfflineContentOperationsTest {
     public void resetOfflineFeature() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.disableOfflineFeature().subscribe();
 

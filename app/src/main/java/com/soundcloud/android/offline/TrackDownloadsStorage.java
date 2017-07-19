@@ -13,17 +13,19 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Single;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -33,25 +35,30 @@ class TrackDownloadsStorage {
     private static final int DEFAULT_BATCH_SIZE = 500; // default SQL var limit is 999. Being safe
 
     private final PropellerDatabase propeller;
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final DateProvider dateProvider;
 
     @Inject
-    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
+    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRxV2 propellerRx, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
     }
 
-    Observable<Map<Urn, OfflineState>> getOfflineStates() {
+    Single<Map<Urn, OfflineState>> getOfflineStates() {
         final Query query = Query.from(TrackDownloads.TABLE)
                                  .select(TrackDownloads._ID,
                                          TrackDownloads.REQUESTED_AT,
                                          TrackDownloads.REMOVED_AT,
                                          TrackDownloads.DOWNLOADED_AT,
                                          TrackDownloads.UNAVAILABLE_AT);
-        return propellerRx.query(query).toMap(cursorReader -> Urn.forTrack(cursorReader.getLong(TrackDownloads._ID)),
-                                              cursorReader -> OfflineStateMapper.fromDates(cursorReader, true));
+        return propellerRx.queryResult(query).map(queryResult -> {
+            final Map<Urn, OfflineState> result = new HashMap<>();
+            for (CursorReader cursorReader : queryResult) {
+                result.put(Urn.forTrack(cursorReader.getLong(TrackDownloads._ID)), OfflineStateMapper.fromDates(cursorReader, true));
+            }
+            return result;
+        }).firstOrError();
     }
 
     List<Urn> onlyOfflineTracks(List<Urn> tracks) {
@@ -66,13 +73,12 @@ class TrackDownloadsStorage {
         return result;
     }
 
-    Observable<OfflineState> getLikesOfflineState() {
+    Single<OfflineState> getLikesOfflineState() {
         return propellerRx
-                .query(Query
-                               .from(TrackDownloads.TABLE)
-                               .innerJoin(Likes.TABLE, likedTrackFilter()))
-                .map(cursorReader1 -> OfflineStateMapper.fromDates(cursorReader1, true))
-                .toList()
+                .queryResult(Query.from(TrackDownloads.TABLE)
+                                  .innerJoin(Likes.TABLE, likedTrackFilter()))
+                .singleOrError()
+                .map(queryResult -> queryResult.toList(cursorReader -> OfflineStateMapper.fromDates(cursorReader, true)))
                 .map(offlineStates -> OfflineState.getOfflineState(
                         offlineStates.contains(OfflineState.REQUESTED),
                         offlineStates.contains(OfflineState.DOWNLOADED),
@@ -86,13 +92,13 @@ class TrackDownloadsStorage {
                 .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK);
     }
 
-    Observable<List<Urn>> getTracksToRemove() {
+    Single<List<Urn>> getTracksToRemove() {
         final long removalDelayedTimestamp = dateProvider.getCurrentTime() - DELAY_BEFORE_REMOVAL;
-        return propellerRx.query(Query.from(TrackDownloads.TABLE)
-                                      .select(_ID)
-                                      .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
-                          .map(new TrackUrnMapper())
-                          .toList();
+        return propellerRx.queryResult(Query.from(TrackDownloads.TABLE)
+                                            .select(_ID)
+                                            .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
+                          .map(queryResult -> queryResult.toList(new TrackUrnMapper()))
+                          .singleOrError();
     }
 
     WriteResult storeCompletedDownload(DownloadState downloadState) {

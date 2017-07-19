@@ -1,8 +1,5 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
-import com.soundcloud.android.events.GoOnboardingTooltipEvent;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -13,10 +10,13 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
@@ -37,6 +37,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -189,8 +190,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
-        final Observable<MyCollection> collections = collectionOperations.updatedCollections()
-                                                                         .observeOn(AndroidSchedulers.mainThread());
+        final Single<MyCollection> collections = collectionOperations.updatedCollections()
+                                                                     .observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.fromV2(collections.doOnError(__ -> showError()), toCollectionItems)
                                 .withAdapter(adapter)
                                 .build();

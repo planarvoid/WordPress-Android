@@ -20,7 +20,6 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -136,10 +135,10 @@ public class CollectionOperations {
     public Observable<MyCollection> collections() {
         return Observable.zip(
                 myPlaylists().map(toPlaylistsItems()).toObservable().materialize(),
-                likesItem().materialize(),
+                likesItem().toObservable().materialize(),
                 loadStations().toObservable().materialize(),
-                playHistoryItems().materialize(),
-                recentlyPlayed().materialize(),
+                playHistoryItems().toObservable().materialize(),
+                recentlyPlayed().toObservable().materialize(),
                 (playlists, likes, stations, playHistoryTrackItems, recentlyPlayedItems) -> {
                     if (playlists.isOnComplete() && likes.isOnComplete() && stations.isOnComplete()
                             && playHistoryTrackItems.isOnComplete() && recentlyPlayedItems.isOnComplete()) {
@@ -160,39 +159,39 @@ public class CollectionOperations {
         return playlistAndAlbumsPreviewsExperiment.isEnabled();
     }
 
-    private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
-        return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS).toObservable();
+    private Single<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
+        return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
-    private Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayedItems() {
-        return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS).toObservable();
+    private Single<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayedItems() {
+        return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
     public Maybe<List<Playlist>> myPlaylists() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL);
     }
 
-    private Observable<LikesItem> likesItem() {
-        return Observable.zip(tracksLiked(),
+    private Single<LikesItem> likesItem() {
+        return Single.zip(tracksLiked(),
                               likedTracksOfflineState(),
                               LikesItem::create);
     }
 
-    private Observable<List<TrackItem>> playHistoryItems() {
+    private Single<List<TrackItem>> playHistoryItems() {
         return playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT);
     }
 
-    private Observable<List<TrackItem>> refreshPlayHistoryItems() {
+    private Single<List<TrackItem>> refreshPlayHistoryItems() {
         return playHistoryOperations.refreshPlayHistory(PLAY_HISTORY_LIMIT);
     }
 
-    private Observable<OfflineState> likedTracksOfflineState() {
+    private Single<OfflineState> likedTracksOfflineState() {
         return offlineStateOperations.loadLikedTracksOfflineState();
     }
 
-    private Observable<List<LikedTrackPreview>> tracksLiked() {
+    private Single<List<LikedTrackPreview>> tracksLiked() {
         return syncInitiator.hasSyncedTrackLikesBefore()
-                            .flatMapObservable(hasSynced -> {
+                            .flatMap(hasSynced -> {
                                 if (hasSynced) {
                                     return likedTrackPreviews();
                                 } else {
@@ -201,13 +200,13 @@ public class CollectionOperations {
                             }).subscribeOn(scheduler);
     }
 
-    Observable<MyCollection> updatedCollections() {
-        return Observable.zip(
-                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()).toObservable(),
-                Observable.zip(refreshLikesAndLoadPreviews(),
+    Single<MyCollection> updatedCollections() {
+        return Single.zip(
+                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()).toSingle(),
+                Single.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                LikesItem::create),
-                refreshStationsAndLoad().toObservable(),
+                refreshStationsAndLoad(),
                 refreshPlayHistoryItems(),
                 refreshRecentlyPlayedItems(),
                 (playlistItems, likes, stationRecords, playHistoryTrackItems, recentlyPlayedPlayableItems) -> myCollection(likes,
@@ -248,13 +247,13 @@ public class CollectionOperations {
         return playlists -> Lists.transform(playlists, entityItemCreator::playlistItem);
     }
 
-    private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
+    private Single<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
         return syncInitiator.refreshLikedTracks()
                             .andThen(likedTrackPreviews());
     }
 
-    private Observable<List<LikedTrackPreview>> likedTrackPreviews() {
-        return RxJava.toV2Observable(loadLikedTrackPreviews.toObservable(null)).subscribeOn(scheduler);
+    private Single<List<LikedTrackPreview>> likedTrackPreviews() {
+        return loadLikedTrackPreviews.toSingle().subscribeOn(scheduler);
     }
 
     private Single<List<StationRecord>> refreshStationsAndLoad() {

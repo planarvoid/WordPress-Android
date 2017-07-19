@@ -8,13 +8,11 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
@@ -48,28 +46,28 @@ public class PlayHistoryOperations {
         this.entityItemCreator = entityItemCreator;
     }
 
-    Observable<List<TrackItem>> playHistory() {
+    Single<List<TrackItem>> playHistory() {
         return playHistory(MAX_HISTORY_ITEMS);
     }
 
-    public Observable<List<TrackItem>> playHistory(final int limit) {
+    public Single<List<TrackItem>> playHistory(final int limit) {
         return syncOperations.lazySyncIfStale(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Single.just(SyncResult.noOp()))
-                             .flatMapObservable(__ -> tracks(limit));
+                             .flatMap(__ -> tracks(limit));
     }
 
-    Observable<List<TrackItem>> refreshPlayHistory() {
+    Single<List<TrackItem>> refreshPlayHistory() {
         return refreshPlayHistory(MAX_HISTORY_ITEMS);
     }
 
-    public Observable<List<TrackItem>> refreshPlayHistory(final int limit) {
+    public Single<List<TrackItem>> refreshPlayHistory(final int limit) {
         return syncOperations.failSafeSync(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
-                             .flatMapObservable(__ -> tracks(limit));
+                             .flatMap(__ -> tracks(limit));
     }
 
-    private Observable<List<TrackItem>> tracks(int limit) {
+    private Single<List<TrackItem>> tracks(int limit) {
         return playHistoryStorage.loadTracks(limit)
                                  .map(tracks -> Lists.transform(tracks, entityItemCreator::trackItem));
     }
@@ -79,8 +77,8 @@ public class PlayHistoryOperations {
                                             PlaySessionSource.forHistory(screen));
     }
 
-    Observable<Boolean> clearHistory() {
-        return RxJava.toV2Observable(clearPlayHistoryCommand.toObservable(null))
+    Single<Boolean> clearHistory() {
+        return clearPlayHistoryCommand.toSingle()
                      .subscribeOn(scheduler);
     }
 

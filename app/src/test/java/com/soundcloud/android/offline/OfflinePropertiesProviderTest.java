@@ -10,6 +10,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
@@ -19,14 +20,15 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.MaybeSubject;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import java.util.Collection;
@@ -43,13 +45,14 @@ public class OfflinePropertiesProviderTest {
     @Mock private AccountOperations accountOperations;
 
     private OfflinePropertiesProvider provider;
-    private PublishSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader = PublishSubject.create();
-    private MaybeSubject<List<Playlist>> offlinePlaylistsLoader = MaybeSubject.create();
+    private SingleSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader = SingleSubject.create();
+    private MaybeSubject<List<Playlist>> offlinePlaylistsLoader;
     private PublishSubject<OfflineState> offlineLikesTracksStateLoader = PublishSubject.create();
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
+        offlinePlaylistsLoader = MaybeSubject.create();
         provider = new OfflinePropertiesProvider(
                 trackDownloadsStorage,
                 offlineStateOperations,
@@ -141,7 +144,7 @@ public class OfflinePropertiesProviderTest {
     }
 
     private void resetStorage() {
-        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.empty());
+        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Single.never());
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(Maybe.empty());
     }
 
@@ -153,7 +156,7 @@ public class OfflinePropertiesProviderTest {
 
         // Initial state
         storageEmitsOfflineTracks();
-        storageEmitsOfflinePlaylist();
+        offlinePlaylistsLoader.onComplete();
         storageEmitsOfflineTracksLiked(OfflineState.NOT_OFFLINE);
 
         provider.states()
@@ -191,7 +194,7 @@ public class OfflinePropertiesProviderTest {
     }
 
     private void storageEmitsOfflineTracks() {
-        offlineTracksStatesLoader.onCompleted();
+        offlineTracksStatesLoader.onSuccess(Maps.newHashMap());
     }
 
     private void storageEmitsOfflinePlaylist(Playlist playlist, OfflineState state) {
@@ -200,7 +203,7 @@ public class OfflinePropertiesProviderTest {
     }
 
     private void storageEmitsOfflineTracks(Urn track, OfflineState state) {
-        offlineTracksStatesLoader.onNext(singletonMap(track, state));
+        offlineTracksStatesLoader.onSuccess(singletonMap(track, state));
     }
 
     private void setUpOfflinePlaylist(Playlist playlist, OfflineState state) {

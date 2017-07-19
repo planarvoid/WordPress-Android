@@ -26,7 +26,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
 
         List<TrackItem> trackItems = ModelFixtures.trackItems(LISTENING_HISTORY_SIZE);
-        when(playHistoryOperations.playHistory()).thenReturn(Observable.just(trackItems));
+        when(playHistoryOperations.playHistory()).thenReturn(Single.just(trackItems));
 
         playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations,
                                                         offlineContentOperations,
@@ -83,7 +83,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clearsPlayHistoryWhenConfirmationClicked() throws Exception {
-        when(playHistoryOperations.clearHistory()).thenReturn(Observable.just(true));
+        when(playHistoryOperations.clearHistory()).thenReturn(Single.just(true));
         playHistoryPresenter.onCreate(fragment, null);
 
         playHistoryPresenter.onClearConfirmationClicked();
@@ -94,7 +94,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsErrorMessageWhenClearPlayHistoryFails() throws Exception {
-        when(playHistoryOperations.clearHistory()).thenReturn(Observable.just(false));
+        when(playHistoryOperations.clearHistory()).thenReturn(Single.just(false));
         playHistoryPresenter.onCreate(fragment, null);
 
         playHistoryPresenter.onClearConfirmationClicked();

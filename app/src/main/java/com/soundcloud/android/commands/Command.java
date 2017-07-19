@@ -23,6 +23,10 @@ public abstract class Command<I, O> {
         return Single.fromCallable(() -> call(input));
     }
 
+    public Single<O> toSingle() {
+        return Single.fromCallable(this::call);
+    }
+
     public final Consumer<I> toConsumer() {
         return Command.this::call;
     }

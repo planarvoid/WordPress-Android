@@ -10,9 +10,9 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
@@ -69,6 +69,7 @@ public class OfflinePropertiesProvider {
 
     private Observable<OfflineProperties> notifyStateChanges() {
         return loadOfflineStates()
+                .toObservable()
                 .startWith(OfflineProperties.empty())
                 .switchMap(this::loadStateUpdates)
                 .doOnNext(this::publishSnapshot)
@@ -83,9 +84,9 @@ public class OfflinePropertiesProvider {
         return OfflineProperties.from(updateEntitiesStates(properties, event), updateLikedStates(properties, event));
     }
 
-    private Observable<OfflineProperties> loadOfflineStates() {
-        return Observable.zip(
-                RxJava.toV2Observable(trackDownloadsStorage.getOfflineStates()),
+    private Maybe<OfflineProperties> loadOfflineStates() {
+        return Maybe.zip(
+                trackDownloadsStorage.getOfflineStates().toMaybe(),
                 loadPlaylistCollectionOfflineStates(),
                 this::aggregateOfflineProperties
         );
@@ -101,8 +102,8 @@ public class OfflinePropertiesProvider {
         return OfflineProperties.from(allOfflineStates, likedTracksState);
     }
 
-    private Observable<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
-        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY).toObservable()
+    private Maybe<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
+        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)
                                     .map(this::loadPlaylistsOfflineStatesSync);
     }
 

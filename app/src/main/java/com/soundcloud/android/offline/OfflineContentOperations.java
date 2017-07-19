@@ -277,7 +277,7 @@ public class OfflineContentOperations {
     }
 
     Observable<List<Urn>> loadContentToDelete() {
-        return tracksStorage.getTracksToRemove().subscribeOn(scheduler);
+        return RxJava.toV1Observable(tracksStorage.getTracksToRemove()).subscribeOn(scheduler);
     }
 
     @VisibleForTesting
