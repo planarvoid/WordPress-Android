@@ -10,7 +10,7 @@ expected_events:
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: '3152'
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     connection_type: wifi
     click_name: search_formulation_init
     page_name: search:main
@@ -22,7 +22,7 @@ expected_events:
     ts: '[0-9]+'
     client_id: '3152'
     page_name: search:main
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
@@ -39,7 +39,7 @@ expected_events:
     click_name: search_formulation_end
     page_name: search:main
     query_position: 0
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
@@ -49,7 +49,7 @@ expected_events:
     query_urn: soundcloud:search:(\w|-)+
     client_id: '3152'
     page_name: search:everything
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
@@ -61,7 +61,7 @@ expected_events:
     query_urn: soundcloud:search:(\w|-)+
     client_id: '3152'
     page_name: search:albums
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'
@@ -77,7 +77,7 @@ expected_events:
     click_object: soundcloud:playlists:(\w|-)+
     query_urn: soundcloud:search:(\w|-)+
     page_name: search:albums
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     query_position: '0'
     app_version: '[0-9]+'
     connection_type: wifi
@@ -90,7 +90,7 @@ expected_events:
     client_id: '3152'
     page_name: playlists:main
     page_urn: soundcloud:playlists:[0-9]+
-    user: soundcloud:users:18173653
+    user: soundcloud:users:[0-9]+
     app_version: '[0-9]+'
     connection_type: wifi
   version: '1'

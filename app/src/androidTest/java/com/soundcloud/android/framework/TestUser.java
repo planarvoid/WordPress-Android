@@ -355,7 +355,7 @@ public class TestUser {
             "1-21686-285710974-d3a65d5c99a130",
             285710974,
             false);
-    public static final TestUser topResultsTestUser = new TestUser(
+    public static final TestUser searchUser = new TestUser(
             "user-123595498",
             "discovery-android+test234523452345@soundcloud.com",
             "searchallthethings",

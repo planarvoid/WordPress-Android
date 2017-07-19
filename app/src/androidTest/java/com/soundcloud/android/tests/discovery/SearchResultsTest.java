@@ -31,7 +31,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return TestUser.searchUser;
     }
 
     @Override

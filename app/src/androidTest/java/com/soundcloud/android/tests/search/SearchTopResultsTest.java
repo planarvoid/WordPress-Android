@@ -25,7 +25,7 @@ public class SearchTopResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.topResultsTestUser;
+        return TestUser.searchUser;
     }
 
     @Override
