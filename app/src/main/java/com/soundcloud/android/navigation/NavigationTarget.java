@@ -57,6 +57,8 @@ public abstract class NavigationTarget {
 
     public abstract Optional<ChartsMetaData> chartsMetaData();
 
+    public abstract Optional<NotificationPreferencesMetaData> notificationPreferencesMetaData();
+
     public abstract Optional<UIEvent> uiEvent();
 
     public abstract Builder toBuilder();
@@ -78,7 +80,8 @@ public abstract class NavigationTarget {
                 .promotedSourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent())
                 .stationsInfoMetaData(Optional.absent())
-                .uiEvent(Optional.absent());
+                .uiEvent(Optional.absent())
+                .notificationPreferencesMetaData(Optional.absent());
     }
 
     /**
@@ -124,6 +127,21 @@ public abstract class NavigationTarget {
     public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
         Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
         return forNavigation(urn.toString(), Optional.absent(), screen, Optional.absent());
+    }
+
+    public static NavigationTarget forNotificationPreferences() {
+        return forNavigationDeeplink(DeepLink.NOTIFICATION_PREFERENCES, Screen.UNKNOWN)
+                .toBuilder()
+                .notificationPreferencesMetaData(Optional.of(NotificationPreferencesMetaData.create(true)))
+                .build();
+    }
+
+    public static NavigationTarget forLegal() {
+        return forNavigationDeeplink(DeepLink.LEGAL, Screen.UNKNOWN);
+    }
+
+    public static NavigationTarget forHelpCenter() {
+        return forNavigationDeeplink(DeepLink.HELP_CENTER, Screen.UNKNOWN);
     }
 
     public static NavigationTarget forPlaylistsAndAlbumsCollection() {
@@ -327,6 +345,8 @@ public abstract class NavigationTarget {
 
         abstract Builder uiEvent(Optional<UIEvent> uiEvent);
 
+        abstract Builder notificationPreferencesMetaData(Optional<NotificationPreferencesMetaData> notificationPreferencesMetaData);
+
         Builder linkNavigationParameters(@Nullable LinkNavigationParameters parameters) {
             return linkNavigationParameters(Optional.fromNullable(parameters));
         }
@@ -402,6 +422,15 @@ public abstract class NavigationTarget {
 
         static StationsInfoMetaData create(Optional<Urn> seedTrack) {
             return new AutoValue_NavigationTarget_StationsInfoMetaData(seedTrack);
+        }
+    }
+
+    @AutoValue
+    abstract static class NotificationPreferencesMetaData {
+        abstract boolean isNavigationDeeplink();
+
+        static NotificationPreferencesMetaData create(boolean isNavigationDeeplink) {
+            return new AutoValue_NavigationTarget_NotificationPreferencesMetaData(isNavigationDeeplink);
         }
     }
 }

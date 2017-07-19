@@ -7,6 +7,8 @@ import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createHelpCenterIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
@@ -213,7 +215,7 @@ public class NavigationResolver {
                                                                                                                                                                   .fallback()
                                                                                                                                                                   .orNull(), e);
             return resolveNavigationResult(activity, fallbackAwareTarget.withTarget(fallbackAwareTarget.linkNavigationParameters().get().fallback().get())
-                                                              .withFallback(Optional.absent()))
+                                                                        .withFallback(Optional.absent()))
                     .map(NavigationResult::action);
         } else {
             trackForegroundEvent(fallbackAwareTarget);
@@ -311,9 +313,29 @@ public class NavigationResolver {
                 return showPlaylistsCollection(activity, navigationTarget);
             case PLAYLISTS:
                 return showPlaylist(activity, navigationTarget);
+            case HELP_CENTER:
+                return showHelpCenter(activity, navigationTarget);
+            case LEGAL:
+                return showLegal(activity, navigationTarget);
             default:
                 return resolveTarget(activity, navigationTarget);
         }
+    }
+
+    @CheckResult
+    private Single<Action> showLegal(Activity activity, NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            activity.startActivity(createLegalIntent(activity));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showHelpCenter(Activity activity, NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            activity.startActivity(createHelpCenterIntent(activity));
+        });
     }
 
     @CheckResult
@@ -478,9 +500,9 @@ public class NavigationResolver {
             trackForegroundEvent(navigationTarget);
             trackNavigationEvent(navigationTarget.uiEvent());
             activity.startActivity(createPlaylistIntent(urn,
-                                                                           navigationTarget.screen(),
-                                                                           navigationTarget.searchQuerySourceInfo(),
-                                                                           navigationTarget.promotedSourceInfo()));
+                                                        navigationTarget.screen(),
+                                                        navigationTarget.searchQuerySourceInfo(),
+                                                        navigationTarget.promotedSourceInfo()));
         });
     }
 
@@ -571,17 +593,17 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<Action> showAllGenresCharts(Activity activity, NavigationTarget navigationTarget) {
-            return Single.just(() -> {
-                trackForegroundEvent(navigationTarget);
-                Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
-                ChartCategory category;
-                if (chartsMetaData.isPresent()) {
-                    category = chartsMetaData.get().category().orNull();
-                } else {
-                    category = AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
-                }
-                activity.startActivity(createAllGenresIntent(activity, category));
-            });
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
+            final ChartCategory category;
+            if (chartsMetaData.isPresent()) {
+                category = chartsMetaData.get().category().orNull();
+            } else {
+                category = AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
+            }
+            activity.startActivity(createAllGenresIntent(activity, category));
+        });
     }
 
     @CheckResult
@@ -721,7 +743,11 @@ public class NavigationResolver {
     private Single<Action> showNotificationPreferencesScreen(Activity activity, NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openNotificationPreferencesFromDeeplink(activity);
+            if (navigationTarget.notificationPreferencesMetaData().isPresent() && navigationTarget.notificationPreferencesMetaData().get().isNavigationDeeplink()) {
+                activity.startActivity(IntentFactory.createNotificationPreferencesIntent(activity));
+            } else {
+                activity.startActivity(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(activity));
+            }
         });
     }
 

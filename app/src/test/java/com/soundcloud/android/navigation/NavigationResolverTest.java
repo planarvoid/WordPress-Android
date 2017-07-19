@@ -68,6 +68,7 @@ import org.mockito.Mock;
 import org.robolectric.shadows.ShadowToast;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 
@@ -885,7 +886,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openNotificationPreferencesFromDeeplink(activity);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(activity));
     }
 
     @Test
@@ -1565,7 +1567,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openNotificationPreferencesFromDeeplink(activity);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(activity));
     }
 
     @Test
@@ -1787,15 +1790,15 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
-        NavigationTarget navigationTarget = NavigationTarget.forPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo),Optional.of(event));
+        NavigationTarget navigationTarget = NavigationTarget.forPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo), Optional.of(event));
         resolveTarget(navigationTarget);
 
         Assertions.assertThat(activity).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
-                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
+                  .containsAction(Actions.PLAYLIST)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
+                  .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
+                  .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
+                  .containsScreen(Screen.SEARCH_PLAYLISTS);
         verify(eventTracker).trackNavigation(event);
     }
 
@@ -1888,6 +1891,38 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         Assertions.assertThat(activity).nextStartedIntent()
                   .isEqualToIntent(IntentFactory.createActivitiesIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenNotificationPreferences() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forNotificationPreferences();
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createNotificationPreferencesIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenHelpCenter() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forHelpCenter();
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createHelpCenterIntent(activity))
+                  .containsAction(Intent.ACTION_VIEW)
+                  .containsUri(Uri.parse(activity.getString(R.string.url_support)));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenLegal() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forLegal();
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createLegalIntent(activity));
     }
 
     @Test
@@ -1995,7 +2030,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Assertions.assertThat(activity).nextStartedIntent()
                   .isEqualToIntent(IntentFactory.createAllGenresIntent(activity, chartCategory));
     }
-
 
 
     @Test

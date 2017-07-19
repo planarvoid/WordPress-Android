@@ -10,11 +10,8 @@ import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createMoreIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createNotificationPreferencesFromDeeplinkIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createNotificationPreferencesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
@@ -44,7 +41,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createViewIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createWebViewIntent;
 import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -217,22 +213,6 @@ public class NavigationExecutor {
 
     public void openOfflineSettings(Context context) {
         context.startActivity(createOfflineSettingsIntent(context));
-    }
-
-    public void openNotificationPreferences(Context context) {
-        context.startActivity(createNotificationPreferencesIntent(context));
-    }
-
-    public void openNotificationPreferencesFromDeeplink(Context context) {
-        context.startActivity(createNotificationPreferencesFromDeeplinkIntent(context));
-    }
-
-    public void openLegal(Context context) {
-        context.startActivity(createLegalIntent(context));
-    }
-
-    public void openHelpCenter(Context context) {
-        context.startActivity(createViewIntent(Uri.parse(context.getString(R.string.url_support))));
     }
 
     public void openOnboarding(Context context, Uri deepLinkUri, Screen screen) {

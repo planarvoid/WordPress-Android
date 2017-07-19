@@ -23,7 +23,6 @@ import com.soundcloud.android.configuration.TestConfiguration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.feedback.Feedback;
-import com.soundcloud.android.helpers.NavigationTargetMatcher;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -167,7 +166,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity));
 
-        verify(navigator).navigateTo(eq(activity), argThat(NavigationTargetMatcher.matchesNavigationTarget(NavigationTarget.forActivities())));
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forActivities())));
     }
 
     @Test
@@ -219,9 +218,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onNotificationSettingsClickedShowsNotificationSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(activity));
 
-        verify(navigationExecutor).openNotificationPreferences(context());
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forNotificationPreferences())));
     }
 
     @Test
@@ -274,17 +273,18 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onHelpCenterClickedShowsHelpCenter() {
         initFragment();
-        listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(activity));
 
-        verify(navigationExecutor).openHelpCenter(context());
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forHelpCenter())));
     }
 
     @Test
     public void onLegalClickedShowsLegal() {
         initFragment();
-        listenerArgumentCaptor.getValue().onLegalClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onLegalClicked(new View(activity));
 
-        verify(navigationExecutor).openLegal(context());
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forLegal())));
+
     }
 
     @Test

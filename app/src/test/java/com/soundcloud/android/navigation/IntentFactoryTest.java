@@ -4,7 +4,9 @@ import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.model.Urn.forUser;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.analytics.Referrer;
@@ -27,6 +29,8 @@ import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
+import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.assertions.IntentAssert;
@@ -41,6 +45,35 @@ import android.net.Uri;
 public class IntentFactoryTest extends AndroidUnitTest {
 
     @Mock Context context;
+
+    @Test
+    public void openNotificationPreferencesFromDeeplink() {
+        assertIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(context))
+                .opensActivity(NotificationPreferencesActivity.class)
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+    }
+
+    @Test
+    public void openNotificationPreferences() {
+        assertIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(context))
+                .opensActivity(NotificationPreferencesActivity.class);
+    }
+
+    @Test
+    public void openHelpCenter() {
+        final String helpCenter = "http://help.soundcloud.com";
+        final Uri uri = Uri.parse(helpCenter);
+        when(context.getString(R.string.url_support)).thenReturn(helpCenter);
+        assertIntent(IntentFactory.createHelpCenterIntent(context))
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(uri);
+    }
+
+    @Test
+    public void openLegal() {
+        assertIntent(IntentFactory.createLegalIntent(context))
+                .opensActivity(LegalActivity.class);
+    }
 
     @Test
     public void openAdClickthrough() {
@@ -87,8 +120,8 @@ public class IntentFactoryTest extends AndroidUnitTest {
     @Test
     public void opensAllGenresFromDeeplink() throws Exception {
         assertThat(IntentFactory.createAllGenresIntent(context, ChartCategory.MUSIC))
-                                   .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
-                                   .opensActivity(AllGenresActivity.class);
+                .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
+                .opensActivity(AllGenresActivity.class);
     }
 
     @Test
@@ -179,10 +212,10 @@ public class IntentFactoryTest extends AndroidUnitTest {
         final Urn someStation = Urn.forArtistStation(123L);
         final Urn seedTrack = Urn.forTrack(123L);
         assertThat(IntentFactory.createStationsInfoIntent(context, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)))
-                                   .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
-                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
-                                   .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack.getContent())
-                                   .opensActivity(StationInfoActivity.class);
+                .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
+                .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
+                .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack.getContent())
+                .opensActivity(StationInfoActivity.class);
     }
 
     @Test

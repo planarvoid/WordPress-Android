@@ -290,7 +290,7 @@ public final class IntentFactory {
     }
 
     static Intent createPlaylistIntent(Urn playlist, Screen screen, Optional<SearchQuerySourceInfo> queryInfo, Optional<PromotedSourceInfo> promotedInfo) {
-            return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
+        return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
     }
 
     static Intent createSearchIntent(Activity activity) {
@@ -336,6 +336,10 @@ public final class IntentFactory {
 
     static Intent createViewIntent(Uri uri) {
         return new Intent(Intent.ACTION_VIEW, uri);
+    }
+
+    static Intent createHelpCenterIntent(Context context) {
+        return createViewIntent(Uri.parse(context.getString(R.string.url_support)));
     }
 
     static Intent createActivitiesIntent(Context context) {

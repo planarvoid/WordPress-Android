@@ -1,7 +1,5 @@
 package com.soundcloud.android.more;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -255,7 +253,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onNotificationPreferencesClicked(View view) {
-        navigationExecutor.openNotificationPreferences(view.getContext());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forNotificationPreferences());
     }
 
     @Override
@@ -270,12 +268,12 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onHelpCenterClicked(View view) {
-        navigationExecutor.openHelpCenter(view.getContext());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forHelpCenter());
     }
 
     @Override
     public void onLegalClicked(View view) {
-        navigationExecutor.openLegal(view.getContext());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegal());
     }
 
     @Override

@@ -3,15 +3,12 @@ package com.soundcloud.android.navigation;
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
@@ -22,8 +19,6 @@ import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
@@ -32,17 +27,12 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
-import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -51,8 +41,6 @@ import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
-import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
-import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.optional.Optional;
@@ -193,14 +181,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(WebCheckoutActivity.class)
                                    .containsExtra(IntentFactory.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
-    }
-
-    @Test
-    public void openNotificationPreferencesFromDeeplink() {
-        navigationExecutor.openNotificationPreferencesFromDeeplink(activityContext);
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(NotificationPreferencesActivity.class)
-                                   .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     }
 
     @Test

@@ -59,7 +59,9 @@ public enum DeepLink {
     PROFILE_LIKES,
     PROFILE_ALBUMS,
     PROFILE_PLAYLISTS,
-    LIKED_STATIONS;
+    LIKED_STATIONS,
+    HELP_CENTER,
+    LEGAL;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
