@@ -5,6 +5,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
+apply plugin: "io.gitlab.arturbosch.detekt"
 
 def libraries = rootProject.ext.libraries
 def sourceSetMain = rootProject.extensions.getByName('ext').getAt('javaSrcDirs')
@@ -16,6 +17,16 @@ def includeSrcPatternApplication = 'com/soundcloud/android/**/*.java'
 def includeSrcPatternApi = 'com/soundcloud/api/**/*.java'
 def excludeSrcPatternRClass = 'com/soundcloud/android/**/R.java'
 def excludeSrcPatternGeneratedFiles = '**/gen/**'
+
+detekt {
+  profile("main") {
+    version = "$detektVersion"
+    input = "$sourceSetMain"
+    config = "${staticAnalysisDirPath}/detekt/config.yml"
+    output = "$buildDir/reports/detekt/output.xml"
+    filters = ".*test.*, .*/resources/.*"
+  }
+}
 
 tasks.withType(Checkstyle) {
   repositories {

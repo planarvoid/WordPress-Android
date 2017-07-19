@@ -25,7 +25,10 @@ ext {
   flipperVersion = '1.1.2'
   mockitoVersion = '2.7.22'
   pmdVersion = '5.7.0'
+  kotlinVersion = '1.1.3-2'
+  detektVersion = '1.0.0.M13'
   mementoVersion = '0.1-SNAPSHOT'
+
   libraries = [
           // Annotation processors / Annotations
           daggerCompiler               : "com.google.dagger:dagger-compiler:$daggerVersion",
@@ -34,7 +37,7 @@ ext {
           lightCycle                   : "com.soundcloud.lightcycle:lightcycle-lib:$lightCycleVersion",
           findBugsAnnotations          : "com.google.code.findbugs:annotations:$findBugsVersion",
           findBugsJsr305               : "com.google.code.findbugs:jsr305:$findBugsVersion",
-          intellijAnnotations          : "com.intellij:annotations:9.0.4",
+          jetbrainsAnnotations         : "org.jetbrains:annotations:13.0",
           javaxAnnotations             : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
           autoValue                    : "com.google.auto.value:auto-value:1.4.1",
           autoFactory                  : "com.google.auto.factory:auto-factory:1.0-beta3",
@@ -53,6 +56,9 @@ ext {
           lintlib                      : project(':modules:lint:lib'),
           mementoAnnotation            : project(':modules:lint:memento:memento'),
           mementoCompiler              : project(':modules:lint:memento:compiler'),
+
+          // Kotlin
+          kotlinStdLib                 : "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion",
 
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",
@@ -120,6 +126,8 @@ ext {
 
   gradlePlugins = [
           android    : 'com.android.tools.build:gradle:2.3.3',
+          kotlin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion",
+          detekt     : "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion",
           gms        : 'com.google.gms:google-services:3.0.0',
           fabric     : 'io.fabric.tools:gradle:1.22.2',
           frodo      : 'com.fernandocejas.frodo:frodo-plugin:0.8.2',
@@ -145,6 +153,7 @@ ext {
           robolectric                     : "org.robolectric:robolectric:3.3.2",
           robolectricSupport              : "org.robolectric:shadows-support-v4:3.3.2",
           mockito                         : "org.mockito:mockito-core:$mockitoVersion",
+          mockitoKotlin                   : "com.nhaarman:mockito-kotlin:1.4.0",
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",

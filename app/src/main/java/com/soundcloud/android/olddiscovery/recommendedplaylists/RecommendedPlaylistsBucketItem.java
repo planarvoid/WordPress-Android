@@ -19,10 +19,10 @@ public abstract class RecommendedPlaylistsBucketItem extends OldDiscoveryItem {
     public static RecommendedPlaylistsBucketItem create(RecommendedPlaylistsEntity entity,
                                                         List<PlaylistItem> playlists) {
         return new AutoValue_RecommendedPlaylistsBucketItem(Kind.RecommendedPlaylistsItem,
-                                                            entity.key(),
-                                                            entity.displayName(),
-                                                            entity.artworkUrl(),
-                                                            entity.queryUrn(),
+                                                            entity.getKey(),
+                                                            entity.getDisplayName(),
+                                                            entity.getOptionalArtworkUrl(),
+                                                            entity.getOptionalQueryUrn(),
                                                             playlists);
     }
 }

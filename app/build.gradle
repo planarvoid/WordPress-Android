@@ -58,6 +58,7 @@ buildscript {
     classpath gradlePlugins.retrolambda
     classpath gradlePlugins.sqlDelight
     classpath gradlePlugins.firebase
+    classpath gradlePlugins.detekt
   }
 }
 
@@ -82,6 +83,8 @@ apply plugin: 'maven'
 apply plugin: 'io.fabric'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.squareup.sqldelight'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
@@ -174,7 +177,7 @@ dependencies {
 
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
-  provided libraries.intellijAnnotations
+  provided libraries.jetbrainsAnnotations
   provided libraries.javaxAnnotations // for auto-value
 
   /* SoundCloud Libraries */
@@ -188,6 +191,8 @@ dependencies {
   }
   compile libraries.groupie
   compile libraries.lintlib
+
+  compile libraries.kotlinStdLib
 
   /* 3rd Party Libraries */
   compile libraries.comscore
@@ -243,10 +248,12 @@ dependencies {
 
   /* Unit tests */
   testCompile libraries.androidSupportAnnotations
+  testCompile libraries.kotlinStdLib
   testCompile unitTestLibraries.junit
   testCompile unitTestLibraries.assertj
   testCompile unitTestLibraries.assertjAndroid
   testCompile unitTestLibraries.mockito
+  testCompile unitTestLibraries.mockitoKotlin
   testCompile unitTestLibraries.robolectric
   testCompile unitTestLibraries.robolectricSupport
   testCompile unitTestLibraries.modelCitizen

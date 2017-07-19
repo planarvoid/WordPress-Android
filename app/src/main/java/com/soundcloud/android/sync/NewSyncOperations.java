@@ -35,7 +35,8 @@ public class NewSyncOperations {
     }
 
     public Single<SyncResult> failSafeSync(Syncable syncable) {
-        return sync(syncable).onErrorResumeNext(throwable -> Single.just(SyncResult.error(throwable)));
+        return sync(syncable)
+                .onErrorResumeNext(throwable -> Single.just(SyncResult.error(throwable)));
     }
 
     public Single<SyncResult> lazySyncIfStale(Syncable syncable) {

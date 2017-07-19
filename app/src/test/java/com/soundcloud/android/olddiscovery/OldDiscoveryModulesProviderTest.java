@@ -96,7 +96,7 @@ public class OldDiscoveryModulesProviderTest {
         when(chartsOperations.featuredCharts()).thenReturn(Single.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Maybe.just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
-        when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(Observable.just(playlistsItem));
+        when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(io.reactivex.Observable.just(playlistsItem));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.just(playlistTagsItem));
         when(welcomeUserOperations.welcome()).thenReturn(Maybe.just(welcomeUserItem));
         when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));

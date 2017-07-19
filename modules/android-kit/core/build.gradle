@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 dependencies {
-  compile libraries.intellijAnnotations
+  compile libraries.jetbrainsAnnotations
 
   compile libraries.rxJava
   compile libraries.rxJava2

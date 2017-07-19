@@ -13,12 +13,19 @@ subprojects {
   }
 }
 
-task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.('buildType').capitalize()}",
-                                "assembleProd${project.('buildType').capitalize()}"]) {
+task staticAnalysis(dependsOn: ['checkstyle',
+                                'findbugs',
+                                'pmd',
+                                "lintProd${project.('buildType').capitalize()}",
+                                'detektCheck']) {
   description = 'Performs static analysis of code.'
 }
 
-task staticAnalysisChanged(dependsOn: ['checkstyleChanged', 'pmdChanged', 'findbugsChanged', "lintProd${project.('buildType').capitalize()}"]) {
+task staticAnalysisChanged(dependsOn: ['checkstyleChanged',
+                                       'pmdChanged',
+                                       'findbugsChanged',
+                                       "lintProd${project.('buildType').capitalize()}",
+                                       'detektCheck']) {
   description = 'Performs static analysis of changed code.'
 }
 

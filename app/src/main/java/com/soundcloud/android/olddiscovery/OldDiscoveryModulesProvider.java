@@ -183,8 +183,8 @@ class OldDiscoveryModulesProvider {
     private Observable<OldDiscoveryItem> recommendedPlaylists(boolean isRefresh) {
         if (featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS) || playlistDiscoveryConfig.isEnabled()) {
             return isRefresh ?
-                   recommendedPlaylistsOperations.refreshRecommendedPlaylists() :
-                   recommendedPlaylistsOperations.recommendedPlaylists();
+                   RxJava.toV1Observable(recommendedPlaylistsOperations.refreshRecommendedPlaylists()) :
+                   RxJava.toV1Observable(recommendedPlaylistsOperations.recommendedPlaylists());
         }
         return Observable.empty();
     }
