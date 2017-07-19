@@ -2,14 +2,23 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.java.optional.Optional;
 
-public interface SyncJob extends Runnable {
-    void onQueued();
+public abstract class SyncJob implements Runnable {
 
-    boolean resultedInAChange();
+    public abstract void onQueued();
 
-    Exception getException();
+    public abstract boolean resultedInAChange();
 
-    Optional<Syncable> getSyncable();
+    public abstract Exception getException();
 
-    boolean wasSuccess();
+    public abstract Optional<Syncable> getSyncable();
+
+    public abstract boolean wasSuccess();
+
+    // we want to force sync jobs to implement equals and hashcode to ensure queuing logic (see ApiSyncService)
+
+    @Override
+    public abstract boolean equals(Object obj);
+
+    @Override
+    public abstract int hashCode();
 }

@@ -7,7 +7,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.concurrent.Callable;
 
-public class DefaultSyncJob implements SyncJob {
+public class DefaultSyncJob extends SyncJob {
 
     private final Callable<Boolean> syncer;
     private final Optional<Syncable> syncableOptional;
@@ -25,7 +25,7 @@ public class DefaultSyncJob implements SyncJob {
     }
 
     @Override
-    public void onQueued() {
+    public void onQueued(){
         // no-op
     }
 
@@ -39,7 +39,7 @@ public class DefaultSyncJob implements SyncJob {
         }
     }
 
-    public void reportNonNetworkError(Exception e) {
+    private void reportNonNetworkError(Exception e) {
         if (!ErrorUtils.isNetworkError(e)) {
             ErrorUtils.handleSilentException(e);
         }
@@ -69,12 +69,12 @@ public class DefaultSyncJob implements SyncJob {
         }
 
         DefaultSyncJob that = (DefaultSyncJob) o;
-        return syncer.equals(that.syncer);
+        return syncableOptional.equals(that.syncableOptional);
     }
 
     @Override
     public int hashCode() {
-        return syncer.hashCode();
+        return syncableOptional.hashCode();
     }
 
     @Override

@@ -3,11 +3,12 @@ package com.soundcloud.android.sync.likes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.sync.Syncable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -50,5 +51,17 @@ public class DefaultSyncJobTest {
         defaultSyncJob.run();
 
         assertThat(defaultSyncJob.wasSuccess()).isFalse();
+    }
+
+    @Test
+    public void syncJobsAreEqualWithSameSyncable() throws Exception {
+        assertThat(new DefaultSyncJob(syncer, Syncable.CHART_GENRES))
+                .isEqualTo(new DefaultSyncJob(syncer, Syncable.CHART_GENRES));
+    }
+
+    @Test
+    public void syncJobsAreNotEqualWithDifferentSyncable() throws Exception {
+        assertThat(new DefaultSyncJob(syncer, Syncable.CHART_GENRES))
+                .isNotEqualTo(new DefaultSyncJob(syncer, Syncable.CHARTS));
     }
 }
