@@ -3,13 +3,10 @@ apply from: "${buildSrcDir}/setup.gradle"
 apply from: "${buildSrcDir}/tests.gradle"
 
 buildscript {
+  apply from: "$rootProject.projectDir/buildsystem/repositories.gradle", to: buildscript
   apply from: "buildsystem/dependencies.gradle"
   def gradlePlugins = rootProject.ext.gradlePlugins
 
-  repositories {
-    mavenLocal()
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-  }
   dependencies {
     classpath gradlePlugins.android
     classpath gradlePlugins.gms
@@ -18,6 +15,12 @@ buildscript {
 }
 
 allprojects {
+  // Share repositories to all modules
+  apply from: "$rootProject.projectDir/buildsystem/repositories.gradle"
+  buildscript {
+    apply from: "$rootProject.projectDir/buildsystem/repositories.gradle", to: buildscript
+  }
+
   ext {
     manifestSrcFile = 'AndroidManifest.xml'
     javaSrcDirs = 'src/main/java'
@@ -35,10 +38,6 @@ allprojects {
     mobileTestRunnerMaxTestAttempts = 3
     mobileTestRunnerScheduleAllTestAttemptsAtOnce = false
     mobileTestRunnerMaxCollectionTaskAttempts = 3
-  }
-  repositories {
-    mavenLocal()
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
 
   // Allow 1000 errors instead of default, as errors from failure to generate code can bury real errors

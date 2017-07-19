@@ -41,27 +41,27 @@ android {
       }
     }
   }
+}
 
-  dependencies {
-    provided libraries.dagger
-    provided libraries.crashlytics
+dependencies {
+  provided libraries.dagger
+  provided libraries.crashlytics
 
-    compile libraries.androidKitCore
-    compile (libraries.lightCycle) {
-      exclude group: 'com.android.support', module: 'preference-v7'
-    }
-    compile libraries.lintlib
-    compile libraries.androidSupportAnnotations
-    compile libraries.androidRecyclerView
-    compile libraries.rxAndroid
-    compile libraries.rxJava
-    compile libraries.rxJava2
-    compile libraries.rxJavaInterop
-
-    testCompile unitTestLibraries.junit
-    testCompile unitTestLibraries.mockito
-    testCompile unitTestLibraries.assertj
-    testCompile unitTestLibraries.equalsVerifier
-    testCompile unitTestLibraries.robolectric
+  compile libraries.androidKitCore
+  compile (libraries.lightCycle) {
+    exclude group: 'com.android.support', module: 'preference-v7'
   }
+  compile libraries.lintlib
+  compile libraries.androidSupportAnnotations
+  compile libraries.androidRecyclerView
+  compile libraries.rxAndroid
+  compile libraries.rxJava
+  compile libraries.rxJava2
+  compile libraries.rxJavaInterop
+
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.mockito
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.equalsVerifier
+  testCompile unitTestLibraries.robolectric
 }

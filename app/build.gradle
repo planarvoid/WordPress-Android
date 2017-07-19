@@ -48,10 +48,6 @@ private def provideApplicationId() {
 }
 
 buildscript {
-  repositories {
-    mavenLocal()
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-  }
   dependencies {
     classpath gradlePlugins.fabric
     classpath gradlePlugins.frodo

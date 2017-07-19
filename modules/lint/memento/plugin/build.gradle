@@ -4,9 +4,6 @@ apply plugin: 'groovy'
 apply plugin: 'nebula.integtest'
 
 buildscript {
-  repositories {
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-  }
   dependencies {
     classpath gradlePlugins.nebulatest
   }

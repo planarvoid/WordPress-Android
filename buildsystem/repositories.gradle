@@ -1,0 +1,5 @@
+// All repositories we depend on should be added here, they're shared to all modules
+repositories {
+  mavenLocal()
+  maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+}

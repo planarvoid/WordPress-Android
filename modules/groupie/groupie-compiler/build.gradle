@@ -1,9 +1,5 @@
 apply plugin: 'java'
 
-repositories {
-  maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-}
-
 dependencies {
   compile project(':modules:groupie:groupie')
   compile libraries.autoService

@@ -2,10 +2,7 @@ import com.soundcloud.mobiletestrunner.client.groovy.TestRunner
 import com.soundcloud.mobiletestrunner.client.model.*
 
 buildscript {
-  repositories {
-    mavenLocal()
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-  }
+  apply from: "$rootProject.projectDir/buildsystem/repositories.gradle", to: buildscript
   dependencies {
     classpath project.mobileTestRunner
   }

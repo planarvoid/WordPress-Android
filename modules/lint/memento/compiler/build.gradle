@@ -2,10 +2,6 @@ import org.gradle.internal.jvm.Jvm
 
 apply plugin: 'java'
 
-repositories {
-  maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-}
-
 dependencies {
   compile libraries.autoService
   compile libraries.javaPoet

@@ -1,12 +1,10 @@
 buildscript {
-  repositories {
-    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
-  }
   dependencies {
     classpath gradlePlugins.apt
     classpath gradlePlugins.memento
   }
 }
+
 apply plugin: 'java'
 apply plugin: 'com.soundcloud.memento'
 apply plugin: 'net.ltgt.apt'

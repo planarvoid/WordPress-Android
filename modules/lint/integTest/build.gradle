@@ -2,9 +2,6 @@ apply plugin: 'groovy'
 apply plugin: 'nebula.integtest'
 
 buildscript {
-  repositories {
-    jcenter()
-  }
   dependencies {
     classpath gradlePlugins.nebulatest
   }
