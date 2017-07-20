@@ -68,6 +68,10 @@ public class TrackRepository {
                 .subscribeOn(scheduler);
     }
 
+    public Single<List<Urn>> availableTracks(List<Urn> requestedTracks) {
+        return trackStorage.availableTracks(requestedTracks);
+    }
+
     public Single<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
         return fromUrns(requestedTracks)
                 .map(urnTrackMap -> Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));

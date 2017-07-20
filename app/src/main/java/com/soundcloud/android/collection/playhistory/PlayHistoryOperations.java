@@ -12,6 +12,7 @@ import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -30,6 +31,7 @@ public class PlayHistoryOperations {
     private final NewSyncOperations syncOperations;
     private final ClearPlayHistoryCommand clearPlayHistoryCommand;
     private final EntityItemCreator entityItemCreator;
+    private final TrackRepository trackRepository;
 
     @Inject
     public PlayHistoryOperations(PlaybackInitiator playbackInitiator,
@@ -37,13 +39,15 @@ public class PlayHistoryOperations {
                                  @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
                                  NewSyncOperations syncOperations,
                                  ClearPlayHistoryCommand clearPlayHistoryCommand,
-                                 EntityItemCreator entityItemCreator) {
+                                 EntityItemCreator entityItemCreator,
+                                 TrackRepository trackRepository) {
         this.playbackInitiator = playbackInitiator;
         this.playHistoryStorage = playHistoryStorage;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
         this.clearPlayHistoryCommand = clearPlayHistoryCommand;
         this.entityItemCreator = entityItemCreator;
+        this.trackRepository = trackRepository;
     }
 
     Single<List<TrackItem>> playHistory() {
@@ -69,6 +73,7 @@ public class PlayHistoryOperations {
 
     private Single<List<TrackItem>> tracks(int limit) {
         return playHistoryStorage.loadTracks(limit)
+                                 .flatMap(trackRepository::trackListFromUrns)
                                  .map(tracks -> Lists.transform(tracks, entityItemCreator::trackItem));
     }
 
@@ -84,6 +89,8 @@ public class PlayHistoryOperations {
 
     private Single<List<Urn>> getAllTracksForPlayback() {
         return playHistoryStorage.loadPlayHistoryForPlayback()
+                                 //to filter out missing tracks
+                                 .flatMap(trackRepository::availableTracks)
                                  .subscribeOn(scheduler);
     }
 }

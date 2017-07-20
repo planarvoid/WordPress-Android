@@ -3,7 +3,6 @@ package com.soundcloud.android.collection.playhistory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.Track;
 import org.junit.Before;
@@ -29,7 +28,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
         storage.loadTracks(10).test()
                .assertValueCount(1)
-               .assertValues(Arrays.asList(expected2, expected1));
+               .assertValue(Arrays.asList(expected2.urn(), expected1.urn()));
     }
 
     @Test
@@ -45,7 +44,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
         storage.loadTracks(10).test()
                .assertValueCount(1)
-               .assertValues(Arrays.asList(track3, track1, track2));
+               .assertValue(Arrays.asList(track3.urn(), track1.urn(), track2.urn()));
     }
 
     @Test
@@ -53,20 +52,20 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         final Track expected = insertTrackWithPlayHistory(1000L);
         testFixtures().insertCompletedTrackDownload(expected.urn(), 1000L, 2000L);
 
-        Track actual = storage.loadTracks(10).test()
+        Urn actual = storage.loadTracks(10).test()
                               .assertValueCount(1)
                               .values().get(0).get(0);
 
-        assertThat(actual.offlineState()).isEqualTo(OfflineState.DOWNLOADED);
+        assertThat(actual).isEqualTo(expected.urn());
     }
 
     @Test
     public void loadTracksReturnsTracks() {
         final Track expected = insertTrackWithPlayHistory(1000L);
 
-        Track actual = storage.loadTracks(10).test().values().get(0).get(0);
+        Urn actual = storage.loadTracks(10).test().values().get(0).get(0);
 
-        assertSameTrack(expected, actual);
+        assertThat(actual).isEqualTo(expected.urn());
     }
 
     @Test
@@ -118,12 +117,13 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         storage.removePlayHistory(Collections.singletonList(
                 PlayHistoryRecord.create(2000L, trackItem1.urn(), Urn.NOT_SET)));
 
-        final List<Track> existingTracks = storage.loadTracks(10).test()
+        final List<Urn> existingTracks = storage.loadTracks(10).test()
                                                   .assertValueCount(1)
                                                   .values().get(0);
 
         assertThat(existingTracks.size()).isEqualTo(1);
-        assertSameTrack(trackItem2, existingTracks.get(0));
+
+        assertThat(trackItem2.urn()).isEqualTo(existingTracks.get(0));
     }
 
     @Test
@@ -150,19 +150,6 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadPlayHistoryForPlaybackGetsOnlyUrnsThatExist() {
-        final Urn urn1 = insertTrackWithPlayHistory(2000L).urn();
-        final Urn urn2 = insertTrackWithPlayHistory(3000L).urn();
-        final Urn urn3 = Urn.forTrack(123);
-
-        insertPlayHistory(urn3, 4000L);
-
-        storage.loadPlayHistoryForPlayback().test()
-               .assertValueCount(1)
-               .assertValues(Arrays.asList(urn2, urn1));
-    }
-
-    @Test
     public void clearClearsTable() {
         testFixtures().insertUnsyncedPlayHistory(1500L, Urn.forTrack(123L));
         testFixtures().insertPlayHistory(2000L, Urn.forTrack(234L));
@@ -170,11 +157,6 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         storage.clear();
 
         databaseAssertions().assertPlayHistoryCount(0);
-    }
-
-    private void assertSameTrack(Track expected, Track actual) {
-        assertThat(expected)
-                .isEqualTo(actual);
     }
 
     private Track insertTrackWithPlayHistory(long timestamp) {

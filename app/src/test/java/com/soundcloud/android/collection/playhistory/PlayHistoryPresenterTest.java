@@ -26,6 +26,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;

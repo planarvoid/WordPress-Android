@@ -6,10 +6,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -18,6 +15,7 @@ import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
@@ -27,12 +25,6 @@ import java.util.List;
 
 public class PlayHistoryStorage {
 
-    private static final RxResultMapperV2<Track> TRACK_MAPPER = new RxResultMapperV2<Track>() {
-        @Override
-        public Track map(CursorReader cursorReader) {
-            return TrackStorage.trackFromCursorReader(cursorReader);
-        }
-    };
     private static final RxResultMapperV2<Urn> URN_MAPPER = new RxResultMapperV2<Urn>() {
         @Override
         public Urn map(CursorReader cursorReader) {
@@ -49,9 +41,9 @@ public class PlayHistoryStorage {
         this.rxDatabase = new PropellerRxV2(database);
     }
 
-    Single<List<Track>> loadTracks(int limit) {
+    Single<List<Urn>> loadTracks(int limit) {
         return rxDatabase.queryResult(loadTracksQuery(limit))
-                         .map(result -> result.toList(TRACK_MAPPER))
+                         .map(result -> result.toList(URN_MAPPER))
                          .singleOrError();
     }
 
@@ -87,8 +79,10 @@ public class PlayHistoryStorage {
 
     Single<List<Urn>> loadPlayHistoryForPlayback() {
         return rxDatabase.queryResult(loadForPlaybackQuery())
-                         .map(result -> result.toList(URN_MAPPER))
-                         .singleOrError();
+                         .flatMap(Observable::fromIterable)
+                         .map(URN_MAPPER)
+                         .filter(Urn::isTrack)
+                         .toList();
     }
 
     boolean hasPendingTracksToSync() {
@@ -105,10 +99,8 @@ public class PlayHistoryStorage {
 
     private Query loadTracksQuery(int limit) {
         return Query.from(PlayHistory.TABLE)
-                    .select(Tables.TrackView.TABLE.name() + ".*",
+                    .select(PlayHistory.TRACK_ID.name(),
                             field("max(" + PlayHistory.TIMESTAMP.name() + ")").as("max_timestamp"))
-                    .innerJoin(Tables.TrackView.TABLE, filter()
-                            .whereEq(Tables.TrackView.ID, PlayHistory.TRACK_ID))
                     .groupBy(PlayHistory.TRACK_ID)
                     .order("max_timestamp", Query.Order.DESC)
                     .limit(limit);
@@ -117,8 +109,6 @@ public class PlayHistoryStorage {
     private Query loadForPlaybackQuery() {
         return Query.from(PlayHistory.TABLE.name())
                     .select("DISTINCT " + PlayHistory.TRACK_ID.name())
-                    .innerJoin(Tables.Sounds.TABLE, Tables.Sounds._ID, PlayHistory.TRACK_ID)
-                    .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_TRACK)
                     .order(PlayHistory.TIMESTAMP, Query.Order.DESC);
     }
 
