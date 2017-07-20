@@ -27,7 +27,7 @@ public class Navigator {
 
     private final NavigationResolver navigationResolver;
     private final BehaviorSubject<Pair<Activity, NavigationTarget>> subject = BehaviorSubject.create();
-    private Pair<Activity, NavigationTarget> lastNavigationTarget;
+    private NavigationTarget lastNavigationTarget;
 
     @Inject
     Navigator(NavigationResolver navigationResolver) {
@@ -39,11 +39,11 @@ public class Navigator {
     }
 
     public Observable<NavigationResult> listenToNavigation() {
-        return subject.filter(pair -> pair != lastNavigationTarget).flatMapSingle(this::performNavigation);
+        return subject.filter(pair -> pair.second() != lastNavigationTarget).flatMapSingle(this::performNavigation);
     }
 
     private Single<NavigationResult> performNavigation(Pair<Activity, NavigationTarget> navigationTarget) {
-        lastNavigationTarget = navigationTarget;
+        lastNavigationTarget = navigationTarget.second();
         return navigationResolver.resolveNavigationResult(navigationTarget.first(), navigationTarget.second());
     }
 
