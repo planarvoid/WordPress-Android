@@ -35,6 +35,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.playback.common.ProgressChangeHandler;
+import com.soundcloud.android.playback.common.StateChangeHandler;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -72,7 +73,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final Skippy skippy;
     private final SkippyPreloader skippyPreloader;
     private final AccountOperations accountOperations;
-    private final StateChangeHandler stateHandler;
+    private final BufferUnderrunStateChangeHandler stateHandler;
     private final ProgressChangeHandler progressChangeHandler;
     private final ApiUrlBuilder urlBuilder;
     private final ConnectionHelper connectionHelper;
@@ -91,7 +92,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     SkippyAdapter(SkippyFactory skippyFactory,
                   AccountOperations accountOperations,
                   ApiUrlBuilder urlBuilder,
-                  StateChangeHandler stateChangeHandler,
+                  BufferUnderrunStateChangeHandler bufferUnderrunStateChangeHandler,
                   ProgressChangeHandler progressChangeHandler,
                   EventBus eventBus,
                   ConnectionHelper connectionHelper,
@@ -110,7 +111,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.urlBuilder = urlBuilder;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
-        this.stateHandler = stateChangeHandler;
+        this.stateHandler = bufferUnderrunStateChangeHandler;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
         this.dateProvider = dateProvider;
 
@@ -374,10 +375,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                          String.valueOf(true));
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
-            Message msg = stateHandler.obtainMessage(0,
-                                                     new StateChangeHandler.StateChangeMessage(currentPlaybackItem,
-                                                                                               transition));
-            stateHandler.sendMessage(msg);
+            stateHandler.report(currentPlaybackItem, transition);
             configureLockBasedOnNewState(transition);
 
             if (transition.playbackHasStopped()) {
@@ -561,14 +559,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
     }
 
-    static class StateChangeHandler extends com.soundcloud.android.playback.common.StateChangeHandler {
+    public static class BufferUnderrunStateChangeHandler extends StateChangeHandler {
 
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
         private final ConnectionHelper connectionHelper;
 
         @Inject
-        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper,
-                           ConnectionHelper connectionHelper) {
+        BufferUnderrunStateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper,
+                                         ConnectionHelper connectionHelper) {
             super(looper);
             this.connectionHelper = connectionHelper;
         }

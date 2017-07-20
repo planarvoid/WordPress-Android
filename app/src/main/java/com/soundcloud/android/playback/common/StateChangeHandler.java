@@ -31,11 +31,15 @@ public class StateChangeHandler extends Handler {
         playerListener.onPlaystateChanged(message.stateTransition);
     }
 
+    public void report(PlaybackItem item, PlaybackStateTransition transition) {
+        sendMessage(obtainMessage(0, new StateChangeHandler.StateChangeMessage(item, transition)));
+    }
+
     public static class StateChangeMessage {
         public final PlaybackItem playbackItem;
         public final PlaybackStateTransition stateTransition;
 
-        public StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
+        StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
             this.playbackItem = item;
             this.stateTransition = transition;
         }

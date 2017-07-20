@@ -309,8 +309,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, TRUE_STRING)
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl);
 
-        final StateChangeHandler.StateChangeMessage message = new StateChangeHandler.StateChangeMessage(currentPlaybackItem, transition);
-        stateHandler.sendMessage(stateHandler.obtainMessage(0, message));
+        stateHandler.report(currentPlaybackItem, transition);
         configureLockBasedOnNewState(transition);
 
         if (transition.playbackHasStopped()) {

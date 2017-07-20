@@ -33,12 +33,11 @@ public class ProgressChangeHandler extends Handler {
         sendMessage(obtainMessage(0, new ProgressChangeHandler.ProgressChangeMessage(position, duration)));
     }
 
-    public static class ProgressChangeMessage {
-
+    private static class ProgressChangeMessage {
         private final long progress;
         private final long duration;
 
-        public ProgressChangeMessage(final long progress, final long duration) {
+        ProgressChangeMessage(final long progress, final long duration) {
             this.progress = progress;
             this.duration = duration;
         }

@@ -7,7 +7,6 @@ import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -45,7 +44,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.playback.common.ProgressChangeHandler;
-import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
+import com.soundcloud.android.playback.common.StateChangeHandler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -91,7 +90,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private Player.PlayerListener listener;
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private StateChangeHandler stateChangeHandler;
+    @Mock private SkippyAdapter.BufferUnderrunStateChangeHandler stateChangeHandler;
     @Mock private ProgressChangeHandler progressChangeHandler;
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private ApiUrlBuilder snippetApiUrlBuilder;
@@ -103,8 +102,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private SecureFileStorage secureFileStorage;
     @Mock private CryptoOperations cryptoOperations;
-    @Captor private ArgumentCaptor<StateChangeHandler.StateChangeMessage> stateChangeMessageCaptor;
-    @Captor private ArgumentCaptor<Message> messageCaptor;
+    @Captor private ArgumentCaptor<PlaybackStateTransition> playbackStateTransitionCaptor;
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
@@ -691,9 +689,10 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).obtainMessage(anyInt(), stateChangeMessageCaptor.capture());
+        verify(stateChangeHandler).report(eq(playbackItem), playbackStateTransitionCaptor.capture());
 
-        assertThat(stateChangeMessageCaptor.getValue().stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL)).isEqualTo(
+        final PlaybackStateTransition stateTransition = playbackStateTransitionCaptor.getValue();
+        assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL)).isEqualTo(
                 PlaybackProtocol.HLS.getValue());
     }
 
@@ -866,17 +865,17 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     private void verifyStateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
-        verify(stateChangeHandler).obtainMessage(anyInt(), stateChangeMessageCaptor.capture());
-        final StateChangeHandler.StateChangeMessage stateChangeMessage = stateChangeMessageCaptor.getValue();
+        ArgumentCaptor<PlaybackItem> playbackItemArgumentCaptor = ArgumentCaptor.forClass(PlaybackItem.class);
+        verify(stateChangeHandler).report(playbackItemArgumentCaptor.capture(), playbackStateTransitionCaptor.capture());
 
-        assertThat(stateChangeMessage.playbackItem).isEqualTo(item);
-        assertThat(stateChangeMessage.stateTransition.getUrn()).isEqualTo(transition.getUrn());
-        assertThat(stateChangeMessage.stateTransition.getNewState()).isEqualTo(transition.getNewState());
-        assertThat(stateChangeMessage.stateTransition.getReason()).isEqualTo(transition.getReason());
-        assertThat(stateChangeMessage.stateTransition.getProgress().getPosition()).isEqualTo(transition.getProgress().getPosition());
-        assertThat(stateChangeMessage.stateTransition.getProgress().getDuration()).isEqualTo(transition.getProgress().getDuration());
-
-        verify(stateChangeHandler).sendMessage(message);
+        final PlaybackItem playbackItem = playbackItemArgumentCaptor.getValue();
+        final PlaybackStateTransition stateTransition = playbackStateTransitionCaptor.getValue();
+        assertThat(playbackItem).isEqualTo(item);
+        assertThat(stateTransition.getUrn()).isEqualTo(transition.getUrn());
+        assertThat(stateTransition.getNewState()).isEqualTo(transition.getNewState());
+        assertThat(stateTransition.getReason()).isEqualTo(transition.getReason());
+        assertThat(stateTransition.getProgress().getPosition()).isEqualTo(transition.getProgress().getPosition());
+        assertThat(stateTransition.getProgress().getDuration()).isEqualTo(transition.getProgress().getDuration());
     }
 
     @NonNull
