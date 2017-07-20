@@ -26,7 +26,7 @@ public class AdIdHelperTest extends AndroidUnitTest {
         adIdHelper = new AdIdHelper(adIdWrapper, Schedulers.trampoline());
 
         when(adIdWrapper.isPlayServicesAvailable()).thenReturn(true);
-        when(adIdWrapper.getAdInfo()).thenReturn(new AdvertisingIdClient.Info("my-adid", false));
+        when(adIdWrapper.getAdInfo()).thenReturn(Optional.of(new AdvertisingIdClient.Info("my-adid", false)));
     }
 
     @Test
@@ -69,10 +69,20 @@ public class AdIdHelperTest extends AndroidUnitTest {
 
     @Test
     public void adIdIsNotLoadedIfAdInfoContainsNullId() throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
-        when(adIdWrapper.getAdInfo()).thenReturn(new AdvertisingIdClient.Info(null, false));
+        when(adIdWrapper.getAdInfo()).thenReturn(Optional.of(new AdvertisingIdClient.Info(null, false)));
 
         adIdHelper.init();
 
         assertThat(adIdHelper.getAdId().isPresent()).isFalse();
+    }
+
+    @Test
+    public void handlesMissingAdInfo() throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        when(adIdWrapper.getAdInfo()).thenReturn(Optional.absent());
+
+        adIdHelper.init();
+
+        assertThat(adIdHelper.getAdId().isPresent()).isFalse();
+        assertThat(adIdHelper.getAdIdTracking()).isFalse();
     }
 }

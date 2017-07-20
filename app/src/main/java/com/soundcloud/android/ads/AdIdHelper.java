@@ -37,17 +37,17 @@ public class AdIdHelper {
                       .subscribeOn(scheduler)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribeWith(LambdaObserver.onNext(adInfo -> {
-                          if (adInfo == null) {
+                          if (!adInfo.isPresent()) {
                               adId = Optional.absent();
                               adIdTracking = false;
-                          } else if (adInfo.getId() == null) {
-                              final String errorMessage = "Got adInfo(" + adInfo + ") with null adInfo.getId";
+                          } else if (adInfo.get().getId() == null) {
+                              final String errorMessage = "Got adInfo(" + adInfo.get() + ") with null adInfo.getId";
                               ErrorUtils.handleSilentException(errorMessage, new MissingAdInfoIdException(errorMessage));
                               adId = Optional.absent();
                               adIdTracking = false;
                           } else {
-                              adId = Optional.of(adInfo.getId());
-                              adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
+                              adId = Optional.of(adInfo.get().getId());
+                              adIdTracking = !adInfo.get().isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
                           }
 
                           Log.i(TAG, "Loaded ADID: " + adId + "\nTracking:" + adIdTracking);
