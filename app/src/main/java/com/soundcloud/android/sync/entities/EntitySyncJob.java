@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class EntitySyncJob implements SyncJob {
+public class EntitySyncJob extends SyncJob {
 
     private final BulkFetchCommand<? extends ApiSyncable, ? extends ApiSyncable> fetchResources;
     private final WriteStorageCommand storeResources;

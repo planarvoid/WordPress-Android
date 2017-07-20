@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistJobRequest;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -86,7 +87,7 @@ class SyncRequestFactory {
         checkArgument(requestEntities.size() == 1, "Expected 1 playlist urn to sync, received " + requestEntities.size());
 
         final Urn playlistUrn = requestEntities.get(0);
-        return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
+        return new SinglePlaylistJobRequest(new SinglePlaylistSyncJob(singlePlaylistSyncerFactory.create(playlistUrn), playlistUrn),
                                             Syncable.PLAYLIST.name(),
                                             true,
                                             getReceiverFromIntent(intent),

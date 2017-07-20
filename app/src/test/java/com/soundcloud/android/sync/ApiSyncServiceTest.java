@@ -14,6 +14,8 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 
+import java.util.Objects;
+
 public class ApiSyncServiceTest extends AndroidUnitTest {
 
     @Mock private SyncRequestFactory syncRequestFactory;
@@ -105,7 +107,7 @@ public class ApiSyncServiceTest extends AndroidUnitTest {
         assertThat(apiSyncService.shouldEnqueueJobs(intent)).isFalse();
     }
 
-    private static class TestSyncJob implements SyncJob {
+    private static class TestSyncJob extends SyncJob {
         private final Optional<Syncable> syncable;
         private final boolean waSuccess;
 
@@ -142,6 +144,19 @@ public class ApiSyncServiceTest extends AndroidUnitTest {
         @Override
         public boolean wasSuccess() {
             return waSuccess;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TestSyncJob that = (TestSyncJob) o;
+            return Objects.equals(syncable, that.syncable);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(syncable);
         }
     }
 }
