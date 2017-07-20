@@ -10,6 +10,8 @@ import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVi
 import static com.soundcloud.android.navigation.IntentFactory.createHelpCenterIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsAndAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistsCollectionIntent;
@@ -20,7 +22,10 @@ import static com.soundcloud.android.navigation.IntentFactory.createProfileLikes
 import static com.soundcloud.android.navigation.IntentFactory.createProfilePlaylistsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileRepostsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProfileTracksIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createRecordIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createRecordPermissionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createSettingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStationsInfoIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSystemPlaylistIntent;
 
@@ -44,6 +49,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
@@ -65,11 +71,15 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.CheckResult;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -94,6 +104,7 @@ public class NavigationResolver {
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventTracker eventTracker;
     private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     @Inject
     NavigationResolver(ResolveOperations resolveOperations,
@@ -111,7 +122,8 @@ public class NavigationResolver {
                        ApplicationProperties applicationProperties,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                        EventTracker eventTracker,
-                       DefaultHomeScreenConfiguration defaultHomeScreenConfiguration) {
+                       DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
+                       OfflineSettingsStorage offlineSettingsStorage) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -128,6 +140,7 @@ public class NavigationResolver {
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventTracker = eventTracker;
         this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
+        this.offlineSettingsStorage = offlineSettingsStorage;
     }
 
     @CheckResult
@@ -317,9 +330,19 @@ public class NavigationResolver {
                 return showHelpCenter(activity, navigationTarget);
             case LEGAL:
                 return showLegal(activity, navigationTarget);
+            case BASIC_SETTINGS:
+                return showBasicSettings(activity, navigationTarget);
             default:
                 return resolveTarget(activity, navigationTarget);
         }
+    }
+
+    @CheckResult
+    private Single<Action> showBasicSettings(Activity activity, NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            activity.startActivity(createSettingsIntent(activity));
+        });
     }
 
     @CheckResult
@@ -666,8 +689,16 @@ public class NavigationResolver {
     private Single<Action> showRecordScreen(Activity activity, NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openRecord(activity, navigationTarget.screen());
+            if (hasMicrophonePermission(activity)) {
+                activity.startActivity(createRecordIntent(activity, navigationTarget.recording(), navigationTarget.screen()));
+            } else {
+                activity.startActivity(createRecordPermissionIntent(activity, navigationTarget.recording(), navigationTarget.screen()));
+            }
         });
+    }
+
+    private boolean hasMicrophonePermission(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
     @CheckResult
@@ -731,8 +762,15 @@ public class NavigationResolver {
     private Single<Action> showOfflineSettingsScreen(Activity activity, NavigationTarget navigationTarget) {
         if (featureOperations.isOfflineContentEnabled()) {
             return Single.just(() -> {
-                trackForegroundEvent(navigationTarget.withScreen(Screen.SETTINGS_OFFLINE));
-                navigationExecutor.openOfflineSettings(activity);
+                if (navigationTarget.offlineSettingsMetaData().isPresent() &&
+                        navigationTarget.offlineSettingsMetaData().get().showOnboarding() &&
+                        !offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()) {
+                    trackForegroundEvent(navigationTarget.withScreen(Screen.SETTINGS_AUTOMATIC_SYNC_ONBOARDING));
+                    activity.startActivity(createOfflineSettingsOnboardingIntent(activity));
+                } else {
+                    trackForegroundEvent(navigationTarget.withScreen(Screen.SETTINGS_OFFLINE));
+                    activity.startActivity(createOfflineSettingsIntent(activity));
+                }
             });
         } else {
             return showHome(activity, navigationTarget);

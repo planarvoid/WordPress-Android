@@ -38,6 +38,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -52,6 +53,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
+import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -65,6 +67,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowToast;
 
 import android.app.Activity;
@@ -95,6 +98,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private EventTracker eventTracker;
     @Mock private DefaultHomeScreenConfiguration homeScreenConfiguration;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     private NavigationResolver resolver;
     private Activity activity;
@@ -117,7 +121,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           applicationProperties,
                                           InjectionSupport.providerOf(expandPlayerSubscriber),
                                           eventTracker,
-                                          homeScreenConfiguration);
+                                          homeScreenConfiguration,
+                                          offlineSettingsStorage);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
@@ -478,35 +483,80 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForWebScheme() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openRecord(activity, DEEPLINK_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
+    }
+
+    @Test
+    public void deeplink_shouldLaunchRecordPermissionsForWebSchemeWhenNotGranted() throws Exception {
+        String target = "https://soundcloud.com/upload";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openRecord(activity, DEEPLINK_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
+    }
+
+    @Test
+    public void deeplink_shouldLaunchRecordPermissionsForSoundCloudSchemeWithUploadWhenNotGranted() throws Exception {
+        String target = "soundcloud://upload";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openRecord(activity, DEEPLINK_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
+    }
+
+    @Test
+    public void deeplink_shouldLaunchRecordPermissionsForSoundCloudSchemeWithRecordWhenNotGranted() throws Exception {
+        String target = "soundcloud://record";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -523,6 +573,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForCrawlers() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
@@ -530,7 +582,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
-        verify(navigationExecutor).openRecord(activity, DEEPLINK_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
+    }
+
+    @Test
+    public void deeplink_shouldLaunchRecordPermissionsForCrawlersWhenNotPermitted() throws Exception {
+        String target = "soundcloud://upload";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
+
+        resolveTarget(navigationTarget);
+
+        verify(accountOperations).loginCrawlerUser();
+        verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -841,15 +907,35 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchOfflineSettingsForSoundCloudScheme() throws Exception {
+    public void deeplink_shouldLaunchOfflineSettingsForSoundCloudSchemeWhenOnboardingNotSeenBefore() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
+
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.SETTINGS_OFFLINE);
-        verify(navigationExecutor).openOfflineSettings(activity);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .opensActivity(OfflineSettingsActivity.class)
+                  .containsScreen(Screen.UNKNOWN);
+    }
+
+    @Test
+    public void deeplink_shouldLaunchOfflineSettingsForSoundCloudSchemeWhenOnboardingSeenBefore() throws Exception {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
+
+        String target = "soundcloud://settings_offlinelistening";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.SETTINGS_OFFLINE);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .opensActivity(OfflineSettingsActivity.class)
+                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -1308,35 +1394,80 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigation_shouldLaunchRecordForWebScheme() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openRecord(activity, NAVIGATION_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
+    }
+
+    @Test
+    public void navigation_shouldLaunchRecordPermissionsForWebSchemeWhenNotGranted() throws Exception {
+        String target = "https://soundcloud.com/upload";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(eventBus);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openRecord(activity, NAVIGATION_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
+    }
+
+    @Test
+    public void navigation_shouldLaunchRecordPermissionsForSoundCloudSchemeWithUploadWhenNotGranted() throws Exception {
+        String target = "soundcloud://upload";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(eventBus);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
+        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openRecord(activity, NAVIGATION_SCREEN);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
+    }
+
+    @Test
+    public void navigation_shouldLaunchRecordPermissionsForSoundCloudSchemeWithRecordWhenNotGranted() throws Exception {
+        String target = "soundcloud://record";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(eventBus);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1536,15 +1667,33 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchOfflineSettingsForSoundCloudScheme() throws Exception {
+    public void navigation_shouldLaunchOfflineSettingsForSoundCloudSchemeWhenOnboardingNotSeenBefore() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openOfflineSettings(activity);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .opensActivity(OfflineSettingsActivity.class)
+                  .containsScreen(Screen.UNKNOWN);
+    }
+
+    @Test
+    public void navigation_shouldLaunchOfflineSettingsForSoundCloudSchemeWhenOnboardingSeenBefore() throws Exception {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
+        String target = "soundcloud://settings_offlinelistening";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(eventBus);
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .opensActivity(OfflineSettingsActivity.class)
+                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -1803,6 +1952,17 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     // For Deeplink Navigation
+
+    @Test
+    public void navigationDeeplink_shouldOpenBasicSettings() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forBasicSettings();
+
+        resolveTarget(navigationTarget);
+
+        verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createSettingsIntent(activity));
+    }
 
     @Test
     public void navigationDeeplink_shouldOpenProfile() throws Exception {
@@ -2069,6 +2229,64 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(eventTracker).trackNavigation(navigationEvent);
     }
 
+    @Test
+    public void navigationDeeplink_shouldOpenOfflineSettingsOnboardingWhenOnboardingRequestedAndHasNotBeenSeenBefore() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
+        NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(true);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createOfflineSettingsOnboardingIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenOfflineSettingsWhenOnboardingRequestedAndHasBeenSeenBefore() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
+        NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(true);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenOfflineSettingsWhenOnboardingNotRequestedAndHasNotBeenSeenBefore() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
+        NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenOfflineSettingsWhenOnboardingNotRequestedAndHasBeenSeenBefore() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
+        NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(activity).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
+    }
+
+    @Test
+    public void navigationDeeplink_shouldNotOpenOfflineSettingsWhenOfflineContentIsNotEnabled() {
+        when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openStream(activity, Screen.UNKNOWN);
+    }
 
     // Fallback Errors
 

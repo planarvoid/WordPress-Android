@@ -3,6 +3,7 @@ package com.soundcloud.android.navigation;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.deeplinks.ChartDetails;
@@ -61,6 +62,10 @@ public abstract class NavigationTarget {
 
     public abstract Optional<UIEvent> uiEvent();
 
+    public abstract Optional<Recording> recording();
+
+    public abstract Optional<OfflineSettingsMetaData> offlineSettingsMetaData();
+
     public abstract Builder toBuilder();
 
     // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
@@ -81,7 +86,9 @@ public abstract class NavigationTarget {
                 .topResultsMetaData(Optional.absent())
                 .stationsInfoMetaData(Optional.absent())
                 .uiEvent(Optional.absent())
-                .notificationPreferencesMetaData(Optional.absent());
+                .notificationPreferencesMetaData(Optional.absent())
+                .recording(Optional.absent())
+                .offlineSettingsMetaData(Optional.absent());
     }
 
     /**
@@ -176,6 +183,24 @@ public abstract class NavigationTarget {
 
     public static NavigationTarget forActivities() {
         return forNavigationDeeplink(DeepLink.ACTIVITIES, Screen.UNKNOWN);
+    }
+
+    public static NavigationTarget forBasicSettings() {
+        return forNavigationDeeplink(DeepLink.BASIC_SETTINGS, Screen.UNKNOWN);
+    }
+
+    public static NavigationTarget forOfflineSettings(boolean showOnboarding) {
+        return forNavigationDeeplink(DeepLink.OFFLINE_SETTINGS, Screen.UNKNOWN)
+                .toBuilder()
+                .offlineSettingsMetaData(Optional.of(OfflineSettingsMetaData.create(showOnboarding)))
+                .build();
+    }
+
+    public static NavigationTarget forRecord(Optional<Recording> recording, Optional<Screen> screen) {
+        return forNavigationDeeplink(DeepLink.RECORD, screen.or(Screen.UNKNOWN))
+                .toBuilder()
+                .recording(recording)
+                .build();
     }
 
     public static NavigationTarget forFollowers(Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
@@ -347,6 +372,10 @@ public abstract class NavigationTarget {
 
         abstract Builder notificationPreferencesMetaData(Optional<NotificationPreferencesMetaData> notificationPreferencesMetaData);
 
+        abstract Builder recording(Optional<Recording> recording);
+
+        abstract Builder offlineSettingsMetaData(Optional<OfflineSettingsMetaData> offlineSettingsMetaData);
+
         Builder linkNavigationParameters(@Nullable LinkNavigationParameters parameters) {
             return linkNavigationParameters(Optional.fromNullable(parameters));
         }
@@ -431,6 +460,15 @@ public abstract class NavigationTarget {
 
         static NotificationPreferencesMetaData create(boolean isNavigationDeeplink) {
             return new AutoValue_NavigationTarget_NotificationPreferencesMetaData(isNavigationDeeplink);
+        }
+    }
+
+    @AutoValue
+    abstract static class OfflineSettingsMetaData {
+        public abstract boolean showOnboarding();
+
+        static OfflineSettingsMetaData create(boolean showOnboarding) {
+            return new AutoValue_NavigationTarget_OfflineSettingsMetaData(showOnboarding);
         }
     }
 }

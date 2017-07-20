@@ -8,14 +8,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -25,7 +22,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
@@ -48,9 +44,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.Shadows;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.SearchManager;
@@ -223,29 +217,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void openRecordPermissions() {
-        Recording recording = new Recording();
-        navigationExecutor.openRecord(activityContext, recording);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(Recording.EXTRA, recording)
-                                   .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                   .opensActivity(RecordPermissionsActivity.class);
-    }
-
-    @Test
-    public void openRecord() {
-        Shadows.shadowOf(activityContext.getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
-        Recording recording = new Recording();
-        navigationExecutor.openRecord(activityContext, recording);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(Recording.EXTRA, recording)
-                                   .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                   .opensActivity(RecordActivity.class);
-    }
-
-    @Test
     public void opensOnboarding() {
         Uri uri = Uri.parse("soundcloud://tracks:123");
         navigationExecutor.openOnboarding(activityContext, uri, Screen.DEEPLINK);
@@ -392,14 +363,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackCommentsActivity.class)
                                    .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn.getContent());
-    }
-
-    @Test
-    public void opensOfflineSettingsOnboarding() {
-        navigationExecutor.openOfflineSettingsOnboarding(activityContext);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(OfflineSettingsOnboardingActivity.class);
     }
 
     @Test

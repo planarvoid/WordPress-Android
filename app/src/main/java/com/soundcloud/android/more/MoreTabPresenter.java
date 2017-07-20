@@ -234,21 +234,12 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onRecordClicked(View view) {
-        navigationExecutor.openRecord(view.getContext(), Screen.MORE);
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)));
     }
 
     @Override
     public void onOfflineSettingsClicked(View view) {
-        if (showOfflineSettingsOnboarding()) {
-            navigationExecutor.openOfflineSettingsOnboarding(view.getContext());
-        } else {
-            navigationExecutor.openOfflineSettings(view.getContext());
-        }
-    }
-
-    private boolean showOfflineSettingsOnboarding() {
-        return featureOperations.isOfflineContentEnabled()
-                && !settingsStorage.hasSeenOfflineSettingsOnboarding();
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forOfflineSettings(true));
     }
 
     @Override
@@ -258,7 +249,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onBasicSettingsClicked(View view) {
-        navigationExecutor.openBasicSettings(view.getContext());
+        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forBasicSettings());
     }
 
     @Override

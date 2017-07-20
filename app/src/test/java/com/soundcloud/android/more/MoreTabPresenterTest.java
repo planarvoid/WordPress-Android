@@ -39,6 +39,7 @@ import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
 import org.junit.Before;
@@ -172,9 +173,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onRecordClickedNavigatesToRecord() {
         initFragment();
-        listenerArgumentCaptor.getValue().onRecordClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onRecordClicked(new View(activity));
 
-        verify(navigationExecutor).openRecord(context(), Screen.MORE);
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)))));
     }
 
     @Test
@@ -188,31 +189,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onOfflineSettingsClickedShowsOfflineSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(activity));
 
-        verify(navigationExecutor).openOfflineSettings(context());
-    }
-
-    @Test
-    public void onOfflineSettingsClickedShowsOnboardingWhenHasNotBeenSeenBefore() {
-        initFragment();
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
-
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
-
-        verify(navigationExecutor).openOfflineSettingsOnboarding(context());
-    }
-
-    @Test
-    public void onOfflineSettingsClickedDoesNotShowOnboardingWhenHasBeenSeenBefore() {
-        initFragment();
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
-
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
-
-        verify(navigationExecutor).openOfflineSettings(context());
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forOfflineSettings(true))));
     }
 
     @Test
@@ -226,9 +205,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onBasicSettingsClickedShowsSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(activity));
 
-        verify(navigationExecutor).openBasicSettings(context());
+        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forBasicSettings())));
     }
 
     @Test

@@ -137,8 +137,8 @@ public final class IntentFactory {
         Intent intent = new Intent(context, ProfileActivity.class)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo.orNull());
         Urns.writeToIntent(intent, ProfileActivity.EXTRA_USER_URN, user);
-        screen.ifPresent(s -> s.addToIntent(intent));
-        referrer.ifPresent(r -> r.addToIntent(intent));
+        screen.ifPresent(it -> it.addToIntent(intent));
+        referrer.ifPresent(it -> it.addToIntent(intent));
         return intent;
     }
 
@@ -212,18 +212,18 @@ public final class IntentFactory {
         return intent;
     }
 
-    static Intent createRecordPermissionIntent(Context context, Recording recording, Screen screen) {
+    static Intent createRecordPermissionIntent(Context context, Optional<Recording> recording, Screen screen) {
         Intent intent = new Intent(context, RecordPermissionsActivity.class)
-                .putExtra(Recording.EXTRA, recording)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        recording.ifPresent(it -> intent.putExtra(Recording.EXTRA, it));
         screen.addToIntent(intent);
         return intent;
     }
 
-    static Intent createRecordIntent(Context context, Recording recording, Screen screen) {
+    static Intent createRecordIntent(Context context, Optional<Recording> recording, Screen screen) {
         Intent intent = new Intent(context, RecordActivity.class)
-                .putExtra(Recording.EXTRA, recording)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        recording.ifPresent(it -> intent.putExtra(Recording.EXTRA, it));
         screen.addToIntent(intent);
         return intent;
     }

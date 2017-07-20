@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
@@ -43,5 +44,10 @@ public class OfflineSettingsOnboardingActivity extends LoggedInActivity {
 
         ButterKnife.bind(this);
         subtext.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.GO_ONBOARDING_OFFLINE_SETTINGS_SUBTEXT));
+    }
+
+    @OnClick(R.id.btn_continue)
+    void onContinue() {
+        presenter.onContinue();
     }
 }

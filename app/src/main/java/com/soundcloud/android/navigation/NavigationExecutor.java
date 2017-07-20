@@ -12,8 +12,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createMoreIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPerformSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlayHistoryIntent;
@@ -21,8 +19,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createPlaylistDisc
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecentlyPlayedIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createRecordIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createRecordPermissionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRemoteSignInIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createResolveIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchActionIntent;
@@ -30,7 +26,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createSearchFromSh
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchPremiumContentResultsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchViewAllIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createSettingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamWithExpandedPlayerIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackCommentsIntent;
@@ -43,7 +38,6 @@ import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -55,17 +49,14 @@ import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.optional.Optional;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.ContextCompat;
 
 import java.util.List;
 
@@ -182,37 +173,8 @@ public class NavigationExecutor {
         activity.startActivity(createViewIntent(uri));
     }
 
-    public void openBasicSettings(Context context) {
-        context.startActivity(createSettingsIntent(context));
-    }
-
-    public void openRecord(Context context, Screen screen) {
-        openRecord(context, null, screen);
-    }
-
-    public void openRecord(Context context, Recording recording) {
-        openRecord(context, recording, Screen.UNKNOWN);
-    }
-
-    public void openRecord(Context context, Recording recording, Screen screen) {
-        if (hasMicrophonePermission(context)) {
-            context.startActivity(createRecordIntent(context, recording, screen));
-        } else {
-            context.startActivity(createRecordPermissionIntent(context, recording, screen));
-        }
-    }
-
     void openSearchViewAll(Context context, NavigationTarget navigationTarget) {
         context.startActivity(createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
-    }
-
-    private boolean hasMicrophonePermission(Context context) {
-        return ContextCompat.checkSelfPermission(context,
-                                                 Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    public void openOfflineSettings(Context context) {
-        context.startActivity(createOfflineSettingsIntent(context));
     }
 
     public void openOnboarding(Context context, Uri deepLinkUri, Screen screen) {
@@ -287,10 +249,6 @@ public class NavigationExecutor {
 
     public void openTrackComments(Context context, Urn trackUrn) {
         context.startActivity(createTrackCommentsIntent(context, trackUrn));
-    }
-
-    public void openOfflineSettingsOnboarding(Context context) {
-        context.startActivity(createOfflineSettingsOnboardingIntent(context));
     }
 
     public void openAlbumsCollection(Activity activity) {

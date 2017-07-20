@@ -1,16 +1,19 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observer;
 import org.jetbrains.annotations.NotNull;
-import rx.Subscriber;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,7 +26,7 @@ public class UploadActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject RecordingOperations operations;
-    @Inject NavigationExecutor navigationExecutor;
+    @Inject Navigator navigator;
 
     public UploadActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -43,8 +46,8 @@ public class UploadActivity extends LoggedInActivity {
         Intent intent = getIntent();
         Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-        operations.upload(SoundRecorder.uploadingDir(this), stream, intent.getType(), getContentResolver())
-                  .subscribe(uploadSubscriber(intent));
+        RxJava.toV2Observable(operations.upload(SoundRecorder.uploadingDir(this), stream, intent.getType(), getContentResolver()))
+                          .subscribeWith(uploadObserver(intent));
     }
 
     @Override
@@ -58,8 +61,8 @@ public class UploadActivity extends LoggedInActivity {
     }
 
     @NotNull
-    private Subscriber<Recording> uploadSubscriber(final Intent intent) {
-        return new DefaultSubscriber<Recording>() {
+    private Observer<Recording> uploadObserver(final Intent intent) {
+        return new DefaultObserver<Recording>() {
             @Override
             public void onNext(Recording recording) {
                 recording.title = intent.getStringExtra(Actions.EXTRA_TITLE);
@@ -74,11 +77,11 @@ public class UploadActivity extends LoggedInActivity {
                     recording.artwork_path = new File(artwork.getPath());
                 }
 
-                navigationExecutor.openRecord(UploadActivity.this, recording);
+                navigator.navigateTo(UploadActivity.this, NavigationTarget.forRecord(Optional.of(recording), Optional.absent()));
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 finish();
             }
         };

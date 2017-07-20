@@ -12,12 +12,16 @@ import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.eventlogger.DevEventLoggerMonitorActivity;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
@@ -30,6 +34,8 @@ import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.OfflineSettingsActivity;
+import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -216,6 +222,44 @@ public class IntentFactoryTest extends AndroidUnitTest {
                 .containsExtra(StationInfoActivity.EXTRA_URN, someStation.getContent())
                 .containsExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack.getContent())
                 .opensActivity(StationInfoActivity.class);
+    }
+
+    @Test
+    public void openOfflineSettingsOnboarding() {
+        assertIntent(IntentFactory.createOfflineSettingsOnboardingIntent(context))
+                .opensActivity(OfflineSettingsOnboardingActivity.class);
+    }
+
+    @Test
+    public void openOfflineSettings() {
+        assertIntent(IntentFactory.createOfflineSettingsIntent(context))
+                .opensActivity(OfflineSettingsActivity.class);
+    }
+
+    @Test
+    public void openSettings() {
+        assertIntent(IntentFactory.createSettingsIntent(context))
+                .opensActivity(SettingsActivity.class);
+    }
+
+    @Test
+    public void openRecord() {
+        Recording recording = mock(Recording.class);
+        assertIntent(IntentFactory.createRecordIntent(context, Optional.of(recording), Screen.RECORD_MAIN))
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsExtra(Recording.EXTRA, recording)
+                .opensActivity(RecordActivity.class);
+    }
+
+    @Test
+    public void openRecordPermission() {
+        Recording recording = mock(Recording.class);
+        assertIntent(IntentFactory.createRecordPermissionIntent(context, Optional.of(recording), Screen.RECORD_MAIN))
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsExtra(Recording.EXTRA, recording)
+                .opensActivity(RecordPermissionsActivity.class);
     }
 
     @Test

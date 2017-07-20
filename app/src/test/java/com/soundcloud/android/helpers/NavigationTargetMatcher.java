@@ -21,6 +21,9 @@ public class NavigationTargetMatcher {
                 expectedNavigationTarget.searchQuerySourceInfo().equals(navigationTarget.searchQuerySourceInfo()) &&
                 expectedNavigationTarget.promotedSourceInfo().equals(navigationTarget.promotedSourceInfo()) &&
                 expectedNavigationTarget.chartsMetaData().equals(navigationTarget.chartsMetaData()) &&
-                expectedNavigationTarget.uiEvent().equals(navigationTarget.uiEvent());
+                expectedNavigationTarget.uiEvent().equals(navigationTarget.uiEvent()) &&
+                expectedNavigationTarget.notificationPreferencesMetaData().equals(navigationTarget.notificationPreferencesMetaData()) &&
+                expectedNavigationTarget.recording().equals(navigationTarget.recording()) &&
+                expectedNavigationTarget.offlineSettingsMetaData().equals(navigationTarget.offlineSettingsMetaData());
     }
 }

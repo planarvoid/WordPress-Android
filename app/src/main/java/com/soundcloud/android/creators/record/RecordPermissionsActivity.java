@@ -1,16 +1,17 @@
 package com.soundcloud.android.creators.record;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.java.optional.Optional;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -21,7 +22,7 @@ public class RecordPermissionsActivity extends LoggedInActivity {
 
     private static final int REQUEST_CODE = R.string.record_permission_rationale % 0xffff;
 
-    @Inject NavigationExecutor navigationExecutor;
+    @Inject Navigator navigator;
 
     public RecordPermissionsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -55,22 +56,17 @@ public class RecordPermissionsActivity extends LoggedInActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    navigationExecutor.openRecord(this, getRecording(), Screen.fromIntent(getIntent()));
-                }
-                finish();
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_CODE) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                navigator.navigateTo(this, NavigationTarget.forRecord(getRecording(), Optional.of(Screen.fromIntent(getIntent()))));
             }
+            finish();
         }
     }
 
-    @Nullable
-    private Recording getRecording() {
-        return getIntent().hasExtra(Recording.EXTRA) ?
-        (Recording) getIntent().getParcelableExtra(Recording.EXTRA) : null;
+    private Optional<Recording> getRecording() {
+        return Optional.fromNullable(getIntent().getParcelableExtra(Recording.EXTRA));
     }
 }
