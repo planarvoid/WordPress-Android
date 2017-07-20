@@ -21,5 +21,10 @@ dependencies {
   compileOnly libraries.autoValue
 }
 
+retrolambda {
+  // Shush Retrolambda... Don't log so much in Java projects, please
+  jvmArgs '-Dretrolambda.quiet=true'
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8

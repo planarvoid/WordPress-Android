@@ -1,19 +1,18 @@
 buildscript {
   dependencies {
-    classpath gradlePlugins.apt
     classpath gradlePlugins.memento
   }
 }
 
 apply plugin: 'java'
 apply plugin: 'com.soundcloud.memento'
-apply plugin: 'net.ltgt.apt'
 
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
   lintChecks
+  apt
 }
 
 def libraries = rootProject.ext.libraries

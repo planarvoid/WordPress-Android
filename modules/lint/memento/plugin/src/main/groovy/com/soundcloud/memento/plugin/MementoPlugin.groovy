@@ -1,6 +1,5 @@
 package com.soundcloud.memento.plugin
 
-import groovy.io.FileType
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
@@ -14,9 +13,6 @@ class MementoPlugin implements Plugin<Project> {
                 return
             }
             task.doFirst {
-                project.buildDir.eachFileRecurse(FileType.FILES) {
-                    project.println it.path
-                }
                 addManifestIfExists(it, project.file("${project.buildDir}/generated/source/apt/main/lint-manifest.txt"))
                 addManifestIfExists(it, project.file("${project.buildDir}/classes/java/main/lint-manifest.txt"))
                 it.exclude("lint-manifest.txt")

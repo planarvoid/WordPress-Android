@@ -47,7 +47,7 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
     private static Query activitiesQuery(int limit) {
         return Query.from(Table.ActivityView)
                     .order(ActivityView.CREATED_AT, Query.Order.DESC)
-                    .whereIn(ActivityView.TYPE, ActivityKind.SUPPORTED_IDENTIFIERS)
+                    .whereIn(ActivityView.TYPE, (Object[]) ActivityKind.SUPPORTED_IDENTIFIERS)
                     .limit(limit);
     }
 

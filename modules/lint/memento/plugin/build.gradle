@@ -9,7 +9,7 @@ buildscript {
   }
 }
 
-def newVersion = '0.2-SNAPSHOT'
+def newVersion = '0.3-SNAPSHOT'
 
 group 'com.soundcloud'
 version newVersion

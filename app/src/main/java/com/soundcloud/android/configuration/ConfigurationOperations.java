@@ -200,7 +200,7 @@ public class ConfigurationOperations {
 
     private ApiRequest.Builder configurationRequestBuilderForGet() {
         return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
-                         .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
+                         .addQueryParam(PARAM_EXPERIMENT_LAYERS, (Object[]) experimentOperations.getActiveLayers())
                          .forPrivateApi();
     }
 
