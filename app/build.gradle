@@ -104,7 +104,7 @@ android {
     // This allows us see tests execution progress in the output on the CI.
     unitTests.all {
       testLogging {
-        events 'passed', 'skipped', 'failed'
+        events 'skipped', 'failed'
         exceptionFormat 'full'
       }
     }

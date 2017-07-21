@@ -1,5 +1,12 @@
 apply plugin: 'java'
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
 }
 

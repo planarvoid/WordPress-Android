@@ -19,6 +19,15 @@ android {
       minifyEnabled false
     }
   }
+
+  testOptions {
+    unitTests.all {
+      testLogging {
+        events 'skipped', 'failed'
+        exceptionFormat 'full'
+      }
+    }
+  }
 }
 
 configurations {

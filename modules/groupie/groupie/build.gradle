@@ -11,6 +11,13 @@ configurations {
   apt
 }
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
   def libraries = rootProject.ext.libraries
 

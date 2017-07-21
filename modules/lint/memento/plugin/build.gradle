@@ -14,6 +14,13 @@ def newVersion = '0.3-SNAPSHOT'
 group 'com.soundcloud'
 version newVersion
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
   compile gradleApi()
   compile localGroovy()

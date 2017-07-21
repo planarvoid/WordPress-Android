@@ -18,6 +18,13 @@ configurations {
 def libraries = rootProject.ext.libraries
 def unitTestLibraries = rootProject.ext.unitTestLibraries
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
   apt libraries.mementoCompiler
   compileOnly libraries.mementoAnnotation

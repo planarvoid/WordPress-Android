@@ -7,6 +7,13 @@ buildscript {
   }
 }
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
   testCompile localGroovy()
   testCompile gradleTestKit()

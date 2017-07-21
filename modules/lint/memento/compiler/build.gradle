@@ -2,6 +2,13 @@ import org.gradle.internal.jvm.Jvm
 
 apply plugin: 'java'
 
+test {
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+  }
+}
+
 dependencies {
   compile libraries.autoService
   compile libraries.javaPoet
