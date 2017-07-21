@@ -12,7 +12,7 @@ import se.bjurr.violations.comments.lib.model.ChangedFile;
 import se.bjurr.violations.comments.lib.model.CommentsProvider;
 import se.bjurr.violations.lib.model.SEVERITY;
 import se.bjurr.violations.lib.model.Violation;
-import se.bjurr.violations.lib.reports.Reporter;
+import se.bjurr.violations.lib.reports.Parser;
 import se.bjurr.violations.lib.util.Filtering;
 import se.bjurr.violations.lib.util.Optional;
 
@@ -127,9 +127,10 @@ public class ViolationCommentsTask extends DefaultTask {
         for (List<String> configuredViolation : violations) {
             List<Violation> parsedViolations =
                     violationsReporterApi() //
-                                            .findAll(Reporter.valueOf(configuredViolation.get(0))) //
-                                            .inFolder(configuredViolation.get(1)) //
-                                            .withPattern(configuredViolation.get(2)) //
+                                            .findAll(Parser.valueOf(configuredViolation.get(0))) //
+                                            .withReporter(configuredViolation.get(1))
+                                            .inFolder(configuredViolation.get(2)) //
+                                            .withPattern(configuredViolation.get(3)) //
                                             .violations();
             if (minSeverity != null) {
                 allParsedViolations = Filtering.withAtLEastSeverity(allParsedViolations, SEVERITY.INFO);

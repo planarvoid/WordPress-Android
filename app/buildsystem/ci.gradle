@@ -1,5 +1,5 @@
-import se.bjurr.violations.lib.model.SEVERITY
 import com.soundcloud.gradle.violations.ViolationCommentsTask
+import se.bjurr.violations.lib.model.SEVERITY
 
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
@@ -42,10 +42,11 @@ if (System.env.containsKey('JENKINS_URL')) {
 
     minSeverity = SEVERITY.INFO // INFO, WARN, ERROR
     violations = [
-            ["FINDBUGS",    "app/build/reports", ".*/findbugs/.*\\.xml\$"],
-            ["PMD",         "app/build/reports", ".*/pmd/.*\\.xml\$"],
-            ["CHECKSTYLE",  "app/build/reports", ".*/checkstyle/.*\\.xml\$"],
-            ["ANDROIDLINT", "app/build/reports", ".*/lint-.*\\.xml\$"]
+            ["FINDBUGS",    "FindBugs",     "app/build/reports", ".*/findbugs/.*\\.xml\$"],
+            ["PMD",         "PMD",          "app/build/reports", ".*/pmd/.*\\.xml\$"],
+            ["CHECKSTYLE",  "Checkstyle",   "app/build/reports", ".*/checkstyle/.*\\.xml\$"],
+            ["ANDROIDLINT", "Android Lint", "app/build/reports", ".*/lint-.*\\.xml\$"],
+            ["CHECKSTYLE",  "detekt",       "app/build/reports", ".*/detekt/.*\\.xml\$"]
     ]
   }
   violationCommentsToGitHub.mustRunAfter('staticAnalysisChanged')
