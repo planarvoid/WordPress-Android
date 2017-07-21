@@ -221,9 +221,9 @@ def reportingStage(def isSuccess, def error) {
 
     def emailSubject = "$ghprbSourceBranch"
     if (isSuccess) {
-      emailSubject = "🚀 " + emailSubject + " can be merged!"
+      emailSubject = emailSubject + " can be merged!"
     } else {
-      emailSubject = "🔥 Jenkins is not happy with " + emailSubject
+      emailSubject = "Jenkins is not happy with " + emailSubject
     }
 
     emailext body: '<p>${SCRIPT, template="random-gif.template"}</p><p>See it on GitHub: ${ghprbPullLink}</p><p>See it on Jenkins: $BUILD_URL</p>', mimeType: 'text/html', replyTo: '$DEFAULT_REPLYTO', subject: emailSubject, to: '${ghprbActualCommitAuthorEmail}'
