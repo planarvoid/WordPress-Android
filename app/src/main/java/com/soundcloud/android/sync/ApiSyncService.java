@@ -38,7 +38,7 @@ public class ApiSyncService extends Service {
     public static final int STATUS_APPEND_ERROR = 0x4;
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
-    private static final int MAX_TASK_LIMIT = 3;
+    private static final int MAX_TASK_LIMIT = 5;
 
     @Inject SyncRequestFactory syncIntentSyncRequestFactory;
     @Inject SyncStateStorage syncStateStorage;

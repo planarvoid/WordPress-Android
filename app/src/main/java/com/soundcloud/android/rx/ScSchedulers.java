@@ -44,7 +44,7 @@ public final class ScSchedulers {
     private static final long QUEUE_SIZE_WARNING_THRESHOLD = 3;
 
     static {
-        final Executor highPriorityPool = createExecutor("HighPriorityPool", 6);
+        final Executor highPriorityPool = createExecutor("HighPriorityPool", 8);
         final Executor lowPriorityPool = createExecutor("LowPriorityPool", 1);
 
         HIGH_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(highPriorityPool);
