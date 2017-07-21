@@ -8,7 +8,6 @@ import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
@@ -46,8 +45,8 @@ public class UploadActivity extends LoggedInActivity {
         Intent intent = getIntent();
         Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-        RxJava.toV2Observable(operations.upload(SoundRecorder.uploadingDir(this), stream, intent.getType(), getContentResolver()))
-                          .subscribeWith(uploadObserver(intent));
+        operations.upload(SoundRecorder.uploadingDir(this), stream, intent.getType(), getContentResolver())
+                  .subscribeWith(uploadObserver(intent));
     }
 
     @Override

@@ -7,7 +7,6 @@ import static com.soundcloud.android.creators.record.RecordFragment.CreateState.
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.IDLE_RECORD;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.PLAYBACK;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.RECORD;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT;
 import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT_TNUM;
 import static com.soundcloud.android.view.CustomFontLoader.getFont;
@@ -23,15 +22,14 @@ import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
-import org.jetbrains.annotations.NotNull;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -87,13 +85,15 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     private CreateWaveDisplay waveDisplay;
     private CreateState currentState;
-    private Subscription cleanupRecordingsSubscription = RxUtils.invalidSubscription();
+    private Disposable cleanupRecordingsDisposable = RxUtils.invalidDisposable();
 
     private Map<View, Pair<BitSet, Integer>> visibilities;
     private RecordFragment recordFragment;
 
     @Inject
-    RecordPresenter(RecordingOperations recordingOperations, ViewHelper viewHelper, SoundRecorder recorder) {
+    RecordPresenter(RecordingOperations recordingOperations,
+                    ViewHelper viewHelper,
+                    SoundRecorder recorder) {
         this.recordingOperations = recordingOperations;
         this.viewHelper = viewHelper;
         this.recorder = recorder;
@@ -131,7 +131,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     @Override
     public void onPause(Fragment fragment) {
-        cleanupRecordingsSubscription.unsubscribe();
+        cleanupRecordingsDisposable.dispose();
         recorder.stopReading(); // this will stop the amplitude reading loop
 
         if (recordFragment.getActivity().isFinishing() || !recordFragment.getActivity().isChangingConfigurations()) {
@@ -142,25 +142,19 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private void checkForUnsavedRecordings() {
         // we may have a leftover recording, so defer state configuration until we check
         final Context context = recordFragment.getContext();
-        cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(context, SoundRecorder.recordingDir(context))
-                                                           .observeOn(AndroidSchedulers.mainThread())
-                                                           .subscribe(getCleanupRecordingsSubscriber());
+        cleanupRecordingsDisposable = recordingOperations.cleanupRecordings(context, SoundRecorder.recordingDir(context))
+                                                         .observeOn(AndroidSchedulers.mainThread())
+                                                         .subscribeWith(LambdaObserver.onNext(this::cleanupRecordings));
 
-        fireAndForget(recordingOperations.deleteStaleUploads(context, SoundRecorder.uploadingDir(context)));
+        recordingOperations.deleteStaleUploads(context, SoundRecorder.uploadingDir(context)).subscribe();
     }
 
-    @NotNull
-    private DefaultSubscriber<List<Recording>> getCleanupRecordingsSubscriber() {
-        return new DefaultSubscriber<List<Recording>>() {
-            @Override
-            public void onNext(List<Recording> result) {
-                if (!result.isEmpty()) {
-                    final Recording recording = result.get(0);
-                    recorder.setRecording(recording);
-                }
-                configureStateBasedOnRecorder();
-            }
-        };
+    private void cleanupRecordings(List<Recording> result) {
+        if (!result.isEmpty()) {
+            final Recording recording = result.get(0);
+            recorder.setRecording(recording);
+        }
+        configureStateBasedOnRecorder();
     }
 
     private void trackScreen(ScreenEvent screenEvent) {

@@ -1,8 +1,10 @@
 package com.soundcloud.android.creators.record;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.Recording;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,16 +21,16 @@ class RecordingOperations {
     private final RecordingStorage recordingStorage;
 
     @Inject
-    RecordingOperations(@Named("HighPriority") Scheduler scheduler, RecordingStorage recordingStorage) {
+    RecordingOperations(@Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler, RecordingStorage recordingStorage) {
         this.scheduler = scheduler;
         this.recordingStorage = recordingStorage;
     }
 
-    public Observable<List<Recording>> cleanupRecordings(Context context, File recordingDirectory) {
+    Observable<List<Recording>> cleanupRecordings(Context context, File recordingDirectory) {
         return recordingStorage.cleanupRecordings(context, recordingDirectory).subscribeOn(scheduler);
     }
 
-    public Observable<Void> deleteStaleUploads(Context context, File uploadsDirectory) {
+    Completable deleteStaleUploads(Context context, File uploadsDirectory) {
         return recordingStorage.deleteStaleUploads(context, uploadsDirectory).subscribeOn(scheduler);
     }
 

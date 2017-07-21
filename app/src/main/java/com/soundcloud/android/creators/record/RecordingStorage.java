@@ -7,9 +7,9 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.IOUtils;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import org.jetbrains.annotations.NotNull;
-import rx.Observable;
-import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -32,19 +32,16 @@ public class RecordingStorage {
     private final AudioDurationHelper durationHelper;
 
     @Inject
-    public RecordingStorage(AccountOperations accountOperations, AudioDurationHelper durationHelper) {
+    RecordingStorage(AccountOperations accountOperations, AudioDurationHelper durationHelper) {
         this.accountOperations = accountOperations;
         this.durationHelper = durationHelper;
     }
 
-    public Observable<List<Recording>> cleanupRecordings(final Context context, final File recordingDir) {
-        return Observable.create(new Observable.OnSubscribe<List<Recording>>() {
-            @Override
-            public void call(Subscriber<? super List<Recording>> subscriber) {
-                List<Recording> recordings = cleanupRecordings(context, recordingDir, accountOperations.getLoggedInUserUrn());
-                subscriber.onNext(recordings);
-                subscriber.onCompleted();
-            }
+    Observable<List<Recording>> cleanupRecordings(final Context context, final File recordingDir) {
+        return Observable.create(observableEmitter -> {
+            List<Recording> recordings = cleanupRecordings(context, recordingDir, accountOperations.getLoggedInUserUrn());
+            observableEmitter.onNext(recordings);
+            observableEmitter.onComplete();
         });
     }
 
@@ -59,16 +56,13 @@ public class RecordingStorage {
         return deleted;
     }
 
-    public Observable<Void> deleteStaleUploads(final Context context, final File uploadsDirectory) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                final File[] list = IOUtils.nullSafeListFiles(uploadsDirectory, null);
-                for (File f : list) {
-                    RecordingStorage.delete(context, new Recording(f));
-                }
-                subscriber.onCompleted();
+    Completable deleteStaleUploads(final Context context, final File uploadsDirectory) {
+        return Completable.create(observableEmitter -> {
+            final File[] list = IOUtils.nullSafeListFiles(uploadsDirectory, null);
+            for (File f : list) {
+                RecordingStorage.delete(context, new Recording(f));
             }
+            observableEmitter.onComplete();
         });
     }
 
@@ -106,32 +100,29 @@ public class RecordingStorage {
                                         final Uri stream,
                                         final String type,
                                         final ContentResolver resolver) {
-        return Observable.create(new Observable.OnSubscribe<Recording>() {
-            @Override
-            public void call(Subscriber<? super Recording> subscriber) {
-                File file = IOUtils.getFromMediaUri(resolver, stream);
-                String filename;
+        return Observable.create(observableEmitter -> {
+            File file = IOUtils.getFromMediaUri(resolver, stream);
+            String filename;
 
-                if (file == null || !file.exists()) {
-                    try {
-                        file = copyStreamToFile(uploadDir, stream, type, resolver);
-                        filename = IOUtils.getFilenameFromUri(stream, resolver);
-                    } catch (IOException e) {
-                        subscriber.onCompleted();
-                        return;
-                    }
-                } else {
-                    filename = file.getName();
+            if (file == null || !file.exists()) {
+                try {
+                    file = copyStreamToFile(uploadDir, stream, type, resolver);
+                    filename = IOUtils.getFilenameFromUri(stream, resolver);
+                } catch (IOException e) {
+                    observableEmitter.onComplete();
+                    return;
                 }
-
-                Recording recording = new Recording(file);
-                recording.external_upload = true;
-                recording.original_filename = filename;
-                recording.duration = durationHelper.getDuration(file);
-
-                subscriber.onNext(recording);
-                subscriber.onCompleted();
+            } else {
+                filename = file.getName();
             }
+
+            Recording recording = new Recording(file);
+            recording.external_upload = true;
+            recording.original_filename = filename;
+            recording.duration = durationHelper.getDuration(file);
+
+            observableEmitter.onNext(recording);
+            observableEmitter.onComplete();
         });
     }
 
