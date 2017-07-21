@@ -2,8 +2,6 @@ autoCorrect: true
 failFast: false
 
 build:
-  warningThreshold: 0
-  failThreshold: 0
   weights:
     complexity: 2
     formatting: 0
@@ -115,6 +113,9 @@ style:
   active: true
   NewLineAtEndOfFile:
     active: true
+  ForbiddenComment:
+    active: false
+    values: 'TODO:,FIXME:,STOPSHIP:'
   WildcardImport:
     active: false
   MaxLineLength:
