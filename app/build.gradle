@@ -250,6 +250,7 @@ dependencies {
   testCompile unitTestLibraries.assertjAndroid
   testCompile unitTestLibraries.mockito
   testCompile unitTestLibraries.mockitoKotlin
+  testCompile unitTestLibraries.kotlinReflect
   testCompile unitTestLibraries.robolectric
   testCompile unitTestLibraries.robolectricSupport
   testCompile unitTestLibraries.modelCitizen
