@@ -10,11 +10,13 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
@@ -56,7 +58,7 @@ public class OfflinePropertiesProvider {
     }
 
     public void subscribe() {
-        disposable = userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribeWith(new DefaultObserver<>());
+        disposable = userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribeWith(LambdaObserver.onNext(subject::onNext));
     }
 
     private Observable<Boolean> userSessionStart() {
@@ -72,7 +74,6 @@ public class OfflinePropertiesProvider {
                 .toObservable()
                 .startWith(OfflineProperties.empty())
                 .switchMap(this::loadStateUpdates)
-                .doOnNext(this::publishSnapshot)
                 .subscribeOn(scheduler);
     }
 
@@ -88,37 +89,48 @@ public class OfflinePropertiesProvider {
         return Maybe.zip(
                 trackDownloadsStorage.getOfflineStates().toMaybe(),
                 loadPlaylistCollectionOfflineStates(),
+                offlineStateOperations.loadLikedTrackState().toMaybe(),
                 this::aggregateOfflineProperties
         );
     }
 
-    private OfflineProperties aggregateOfflineProperties(Map<Urn, OfflineState> tracksOfflineStates, Map<Urn, OfflineState> playlistOfflineStates) {
-        final OfflineState likedTracksState = offlineStateOperations.loadLikedTrackState();
-
-        final HashMap<Urn, OfflineState> allOfflineStates = new HashMap<>();
+    private OfflineProperties aggregateOfflineProperties(Map<Urn, OfflineState> tracksOfflineStates, Map<Urn, OfflineState> playlistOfflineStates, OfflineState likedTracksState) {
+        final Map<Urn, OfflineState> allOfflineStates = createMap();
         allOfflineStates.putAll(tracksOfflineStates);
         allOfflineStates.putAll(playlistOfflineStates);
-
         return OfflineProperties.from(allOfflineStates, likedTracksState);
     }
 
     private Maybe<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)
-                                    .map(this::loadPlaylistsOfflineStatesSync);
+                                    .flatMapSingleElement(this::loadPlaylistsOfflineStatesSync);
     }
 
-    private Map<Urn, OfflineState> loadPlaylistsOfflineStatesSync(List<Playlist> playlists) {
+    private Single<Map<Urn, OfflineState>> loadPlaylistsOfflineStatesSync(List<Playlist> playlists) {
         final List<Urn> playlistUrns = transform(playlists, Playlist::urn);
-        final Map<OfflineState, Collection<Urn>> playlistOfflineStates = offlineStateOperations.loadPlaylistsOfflineState(playlistUrns);
-        final Map<Urn, OfflineState> playlistToState = new HashMap<>();
+        //Purpose of this chain is to invert Map<OfflineState, Collection<Urn>> to Map<Urn, OfflineState>
+        return offlineStateOperations.loadPlaylistsOfflineState(playlistUrns)
+                                     //Flat map it to observable of pairs of offline state to playlist urn
+                                     .flatMapObservable(this::flattenMultimap)
+                                     //Build a map of playlist urn -> offline state
+                                     .scan(createMap(), this::addPairToMap)
+                                     //The last value is the fully built map
+                                     .lastOrError();
+    }
 
-        for (OfflineState state : playlistOfflineStates.keySet()) {
-            final Collection<Urn> urns = playlistOfflineStates.get(state);
-            for (Urn playlist : urns) {
-                playlistToState.put(playlist, state);
-            }
-        }
-        return playlistToState;
+    private Observable<Pair<OfflineState, Urn>> flattenMultimap(Map<OfflineState, Collection<Urn>> map) {
+        return Observable.fromIterable(map.entrySet())
+                         .flatMap(entry -> Observable.fromIterable(entry.getValue())
+                                                                        .map(urn -> Pair.of(entry.getKey(), urn)));
+    }
+
+    private Map<Urn, OfflineState> addPairToMap(Map<Urn, OfflineState> map, Pair<OfflineState, Urn> pair) {
+        map.put(pair.second(), pair.first());
+        return map;
+    }
+
+    private Map<Urn, OfflineState> createMap() {
+        return new HashMap<>();
     }
 
     private Subject<OfflineContentChangedEvent> listenToUpdates() {
@@ -141,12 +153,7 @@ public class OfflinePropertiesProvider {
         }
     }
 
-    private void publishSnapshot(OfflineProperties newOfflineProperties) {
-        subject.onNext(newOfflineProperties);
-    }
-
     public Observable<OfflineProperties> states() {
         return subject;
     }
-
 }

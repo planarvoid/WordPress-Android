@@ -7,18 +7,16 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
-import io.reactivex.Observable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -34,19 +32,19 @@ public class TrackLikeOperations {
     private static final BiFunction<TrackItem, Like, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
             .create(like, trackItem);
 
-    private final LoadLikedTracksCommand loadLikedTracksCommand;
+    private final LikesStorage likesStorage;
     private final Scheduler scheduler;
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final EventBusV2 eventBus;
     private final TrackItemRepository trackRepo;
 
     @Inject
-    public TrackLikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
+    public TrackLikeOperations(LikesStorage likesStorage,
                                SyncInitiatorBridge syncInitiatorBridge,
                                EventBusV2 eventBus,
                                @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                                TrackItemRepository trackItemRepository) {
-        this.loadLikedTracksCommand = loadLikedTracksCommand;
+        this.likesStorage = likesStorage;
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
@@ -81,22 +79,20 @@ public class TrackLikeOperations {
     }
 
     Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
-        Params params = Params.from(beforeTime, PAGE_SIZE);
-        return loadLikedTracksCommand.toSingle(Optional.of(params))
-                                     .flatMap(source -> enrichV2(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
-                                     .subscribeOn(scheduler);
+        return likesStorage.loadTrackLikes(beforeTime, PAGE_SIZE)
+                           .flatMap(source -> enrichV2(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                           .subscribeOn(scheduler);
     }
 
     Single<List<LikeWithTrack>> updatedLikedTracks() {
         return syncInitiatorBridge.syncTrackLikes()
-                     .observeOn(scheduler)
-                     .flatMap(ignored -> likedTracks(INITIAL_TIMESTAMP))
-                     .subscribeOn(scheduler);
+                                  .flatMap(ignored -> likedTracks(INITIAL_TIMESTAMP));
     }
 
     Single<List<Urn>> likedTrackUrns() {
-        return loadLikedTracksCommand.toSingle(Optional.absent())
-                                     .map(likes -> transform(likes, Like::urn)).subscribeOn(scheduler);
+        return likesStorage.loadTrackLikes()
+                           .map(likes -> transform(likes, Like::urn))
+                           .subscribeOn(scheduler);
     }
 
 }

@@ -315,7 +315,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
         Pager.PagingFunction<TrackLikesPage> pagingFunction() {
             return result -> {
-                if (result.getTrackLikes().size() < PAGE_SIZE) {
+                if (result.getTrackLikes().isEmpty()) {
                     return Pager.finish();
                 } else {
                     final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();

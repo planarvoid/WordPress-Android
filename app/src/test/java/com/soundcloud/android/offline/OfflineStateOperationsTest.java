@@ -7,18 +7,18 @@ import static com.soundcloud.android.offline.OfflineState.REQUESTED;
 import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItemWithOfflineState;
 import static com.soundcloud.java.collections.Lists.transform;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.likes.Like;
-import com.soundcloud.android.likes.LoadLikedTracksCommand;
-import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
+import com.soundcloud.android.likes.LikesOfflineStateStorage;
+import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
@@ -44,9 +44,9 @@ public class OfflineStateOperationsTest {
 
     @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedEnabledCommand;
     @Mock private LoadOfflinePlaylistsContainingTracksCommand loadOfflinePlaylistsContainingTracksCommand;
-    @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
+    @Mock private LikesStorage likesStorage;
+    @Mock private LikesOfflineStateStorage likesOfflineStateStorage;
     @Mock private TrackItemRepository trackRepository;
-    @Mock private LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
     @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
 
@@ -54,81 +54,82 @@ public class OfflineStateOperationsTest {
     public void setUp() throws Exception {
         operations = new OfflineStateOperations(isOfflineLikedEnabledCommand,
                                                 loadOfflinePlaylistsContainingTracksCommand,
-                                                loadLikedTracksCommand,
+                                                likesStorage,
+                                                likesOfflineStateStorage,
                                                 trackRepository,
-                                                loadLikedTracksOfflineStateCommand,
                                                 offlineContentStorage,
                                                 trackDownloadsStorage,
                                                 Schedulers.trampoline());
 
-        when(isOfflineLikedEnabledCommand.call(null)).thenReturn(true);
+        when(isOfflineLikedEnabledCommand.toSingle(null)).thenReturn(Single.just(true));
     }
 
     @Test
     public void returnsEmptyWhenTheTrackIsNotRelatedToAPlaylist() {
-        when(isOfflineLikedEnabledCommand.call(null)).thenReturn(false);
-        when(loadOfflinePlaylistsContainingTracksCommand.call(singletonList(TRACK1))).thenReturn(Collections.emptyList());
+        when(isOfflineLikedEnabledCommand.toSingle(null)).thenReturn(Single.just(false));
+        final List<Urn> input = singletonList(TRACK1);
+        when(loadOfflinePlaylistsContainingTracksCommand.toSingle(input)).thenReturn(Single.just(Collections.emptyList()));
+        when(likesStorage.loadTrackLikes()).thenReturn(Single.just(emptyList()));
 
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
-                                                                                                      DOWNLOADING);
-
-        assertThat(collections).isEmpty();
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(input,
+                                                                                                              DOWNLOADING);
+        assertThat(collections.test().values().get(0)).isEmpty();
     }
 
     @Test
     public void returnRequestedWhenATrackNewStateIsDownloading() {
         setPlaylist(TRACK1, PLAYLIST, trackItemWithOfflineState(TRACK1, REQUESTED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
                                                                                                       DOWNLOADING);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
-        assertThat(collections).containsExactly(entry(DOWNLOADING, expected));
+        assertThat(collections.test().values().get(0)).containsExactly(entry(DOWNLOADING, expected));
     }
 
     @Test
     public void returnRequestedWhenATrackNewStateIsRequested() {
         setPlaylist(TRACK1, PLAYLIST, trackItemWithOfflineState(TRACK1, REQUESTED), trackItemWithOfflineState(TRACK2, DOWNLOADED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
                                                                                                       REQUESTED);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
-        assertThat(collections).containsExactly(entry(REQUESTED, expected));
+        assertThat(collections.test().values().get(0)).containsExactly(entry(REQUESTED, expected));
     }
 
     @Test
     public void returnRequestedWhenAtLeastOneTrackIsRequested() {
         setPlaylist(TRACK1, PLAYLIST, trackItemWithOfflineState(TRACK1, REQUESTED), trackItemWithOfflineState(TRACK2, REQUESTED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
                                                                                                       DOWNLOADED);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
-        assertThat(collections).containsExactly(entry(REQUESTED, expected));
+        assertThat(collections.test().values().get(0)).containsExactly(entry(REQUESTED, expected));
     }
 
     @Test
     public void returnUnavailable() {
         setPlaylist(TRACK1, PLAYLIST, trackItemWithOfflineState(TRACK1, NOT_OFFLINE), trackItemWithOfflineState(TRACK2, UNAVAILABLE));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
                                                                                                       NOT_OFFLINE);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
-        assertThat(collections).containsExactly(entry(UNAVAILABLE, expected));
+        assertThat(collections.test().values().get(0)).containsExactly(entry(UNAVAILABLE, expected));
     }
 
     @Test
     public void returnDownloaded() {
         setPlaylist(TRACK1, PLAYLIST, trackItemWithOfflineState(TRACK1, UNAVAILABLE), trackItemWithOfflineState(TRACK2, DOWNLOADED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
+        final Single<Map<OfflineState, TrackCollections>> collections = operations.loadTracksCollectionsState(singletonList(TRACK1),
                                                                                                       UNAVAILABLE);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
-        assertThat(collections).containsExactly(entry(DOWNLOADED, expected));
+        assertThat(collections.test().values().get(0)).containsExactly(entry(DOWNLOADED, expected));
     }
 
     @Test
@@ -150,10 +151,10 @@ public class OfflineStateOperationsTest {
 
     private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
         final List<TrackItem> tracksList = Arrays.asList(tracks);
-        when(loadOfflinePlaylistsContainingTracksCommand.call(singletonList(track))).thenReturn(singletonList(playlist));
+        when(loadOfflinePlaylistsContainingTracksCommand.toSingle(singletonList(track))).thenReturn(Single.just(singletonList(playlist)));
         when(trackRepository.forPlaylist(playlist)).thenReturn(Single.just(tracksList));
-        when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date())));
-        when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, TrackItem::offlineState));
+        when(likesStorage.loadTrackLikes()).thenReturn(Single.just(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date()))));
+        when(likesOfflineStateStorage.loadLikedTrackOfflineState()).thenReturn(Single.just(transform(tracksList, TrackItem::offlineState)));
     }
 
 }

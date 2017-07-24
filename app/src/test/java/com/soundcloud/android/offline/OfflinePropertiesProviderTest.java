@@ -45,13 +45,15 @@ public class OfflinePropertiesProviderTest {
     @Mock private AccountOperations accountOperations;
 
     private OfflinePropertiesProvider provider;
-    private SingleSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader = SingleSubject.create();
+    private SingleSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader;
     private MaybeSubject<List<Playlist>> offlinePlaylistsLoader;
-    private PublishSubject<OfflineState> offlineLikesTracksStateLoader = PublishSubject.create();
+    private PublishSubject<OfflineState> offlineLikesTracksStateLoader;
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
+        offlineTracksStatesLoader = SingleSubject.create();
+        offlineLikesTracksStateLoader = PublishSubject.create();
         offlinePlaylistsLoader = MaybeSubject.create();
         provider = new OfflinePropertiesProvider(
                 trackDownloadsStorage,
@@ -64,7 +66,7 @@ public class OfflinePropertiesProviderTest {
 
         when(trackDownloadsStorage.getOfflineStates()).thenReturn(offlineTracksStatesLoader);
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(offlinePlaylistsLoader);
-        when(offlineStateOperations.loadLikedTrackState()).thenReturn(OfflineState.NOT_OFFLINE);
+        when(offlineStateOperations.loadLikedTrackState()).thenReturn(Single.just(OfflineState.NOT_OFFLINE));
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
 
@@ -189,10 +191,6 @@ public class OfflinePropertiesProviderTest {
         offlineLikesTracksStateLoader.onNext(state);
     }
 
-    private void storageEmitsOfflinePlaylist() {
-        offlinePlaylistsLoader.onComplete();
-    }
-
     private void storageEmitsOfflineTracks() {
         offlineTracksStatesLoader.onSuccess(Maps.newHashMap());
     }
@@ -209,6 +207,6 @@ public class OfflinePropertiesProviderTest {
     private void setUpOfflinePlaylist(Playlist playlist, OfflineState state) {
         final List<Urn> urns = singletonList(playlist.urn());
         final Map<OfflineState, Collection<Urn>> stateToEntitites = singletonMap(state, urns);
-        when(offlineStateOperations.loadPlaylistsOfflineState(urns)).thenReturn(stateToEntitites);
+        when(offlineStateOperations.loadPlaylistsOfflineState(urns)).thenReturn(Single.just(stateToEntitites));
     }
 }

@@ -298,19 +298,16 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         when(likeOperations.likedTracks(oldestDate.getTime())).thenReturn(Single.just(tracks));
 
-        new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(tracks));
+        new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(emptyList()));
 
         testSubscriber.assertReceivedOnNext(emptyList());
     }
 
     @Test
-    public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-        TrackItem trackItem = ModelFixtures.trackItem();
-        final List<LikeWithTrack> tracks = singletonList(getLikeWithTrack(trackItem, new Date()));
-
+    public void trackPagerFinishesIfLastPageEmpty() throws Exception {
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 
-        assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.finish());
+        assertThat(listPager.call(TrackLikesPage.withHeader(emptyList()))).isSameAs(Pager.finish());
     }
 
     @Test

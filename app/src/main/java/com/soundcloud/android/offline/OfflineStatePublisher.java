@@ -9,11 +9,15 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -79,22 +83,17 @@ class OfflineStatePublisher {
     }
 
     private void publishUpdatesForTrack(OfflineState newTracksState, Collection<Urn> tracks) {
-        Map<OfflineState, TrackCollections> collectionsStates = collectionStateOperations.loadTracksCollectionsState(tracks, newTracksState);
-        for (OfflineState state : OfflineState.values()) {
-            final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state)
-                                                             ? Optional.of(tracks)
-                                                             : Optional.absent();
-            final Optional<TrackCollections> collectionsForState = collectionsStates.containsKey(state)
-                                                                   ? Optional.of(collectionsStates.get(state))
-                                                                   : Optional.absent();
+        Single<Map<OfflineState, TrackCollections>> collectionsStates = collectionStateOperations.loadTracksCollectionsState(tracks, newTracksState);
+        collectionsStates.flatMapObservable(offlineStateTrackCollectionsMap -> Observable.fromIterable(Arrays.asList(OfflineState.values()))
+                                                                                         .filter(state -> newTracksState.equals(state) || offlineStateTrackCollectionsMap.containsKey(state))
+                                                                                         .map(state -> toEvent(newTracksState, tracks, offlineStateTrackCollectionsMap, state)))
+                         .subscribeWith(LambdaObserver.onNext(event -> eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event)));
+    }
 
-            if (tracksForState.isPresent() || collectionsForState.isPresent()) {
-                eventBus.publish(
-                        EventQueue.OFFLINE_CONTENT_CHANGED,
-                        createOfflineContentChangedEvent(state, tracksForState, collectionsForState)
-                );
-            }
-        }
+    private OfflineContentChangedEvent toEvent(OfflineState newTracksState, Collection<Urn> tracks, Map<OfflineState, TrackCollections> offlineStateTrackCollectionsMap, OfflineState state) {
+        final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state) ? Optional.of(tracks) : Optional.absent();
+        final Optional<TrackCollections> collectionsForState = offlineStateTrackCollectionsMap.containsKey(state) ? Optional.of(offlineStateTrackCollectionsMap.get(state)) : Optional.absent();
+        return createOfflineContentChangedEvent(state, tracksForState, collectionsForState);
     }
 
     private static OfflineContentChangedEvent createOfflineContentChangedEvent(OfflineState state,

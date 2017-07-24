@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -117,7 +118,7 @@ public class OfflineStatePublisherTest {
 
     private void setTracksCollections(OfflineState state) {
         when(offlineStateOperations.loadTracksCollectionsState(eq(singletonList(TRACK)), any(OfflineState.class)))
-                .thenReturn(singletonMap(state, TrackCollections.create(singletonList(PLAYLIST), true)));
+                .thenReturn(Single.just(singletonMap(state, TrackCollections.create(singletonList(PLAYLIST), true))));
     }
 
 }

@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -24,7 +23,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
@@ -53,9 +51,9 @@ public class TrackLikeOperationsTest {
     private TrackLikeOperations operations;
 
     @Mock private TrackItemRepository trackRepository;
-    @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
+    @Mock private LikesStorage likesStorage;
     @Captor private ArgumentCaptor<Func2<TrackItem, Like, LikeWithTrack>> functionCaptor;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
@@ -69,7 +67,7 @@ public class TrackLikeOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new TrackLikeOperations(
-                loadLikedTracksCommand,
+                likesStorage,
                 syncInitiatorBridge,
                 eventBus,
                 scheduler,
@@ -87,8 +85,7 @@ public class TrackLikeOperationsTest {
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),
                 LikeWithTrack.create(likes.get(1), tracks.get(1)));
 
-        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE)))).thenReturn(
-                Single.just(likes));
+        when(likesStorage.loadTrackLikes(INITIAL_TIMESTAMP, PAGE_SIZE)).thenReturn(Single.just(likes));
         when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
     }
 
@@ -124,7 +121,7 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void loadEmptyTrackLikesWhenHasSyncedBefore() {
-        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+        when(likesStorage.loadTrackLikes(INITIAL_TIMESTAMP, PAGE_SIZE))
                 .thenReturn(Single.just(Collections.emptyList()));
 
         when(trackRepository.fromUrns(emptyList()))
@@ -150,7 +147,7 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void loadEmptyTrackLikesDoesNotRequestUpdatesFromSyncer() {
-        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+        when(likesStorage.loadTrackLikes(INITIAL_TIMESTAMP, PAGE_SIZE))
                 .thenReturn(Single.just(Collections.emptyList()));
 
         operations.likedTracks().test();
@@ -176,7 +173,7 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void updatedLikedTracksReloadsEmptyLikedTracksAfterSyncWithChange() {
-        when(loadLikedTracksCommand.toSingle(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE))))
+        when(likesStorage.loadTrackLikes(INITIAL_TIMESTAMP, PAGE_SIZE))
                 .thenReturn(Single.just(Collections.emptyList()));
 
         when(trackRepository.fromUrns(emptyList()))
