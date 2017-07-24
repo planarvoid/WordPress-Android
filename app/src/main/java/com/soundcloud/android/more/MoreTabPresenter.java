@@ -45,6 +45,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+@SuppressWarnings("PMD.GodClass")
 public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragment>
         implements MoreView.Listener, MainPagerAdapter.ScrollContent, MainPagerAdapter.FocusListener {
 

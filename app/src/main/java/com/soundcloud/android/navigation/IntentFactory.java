@@ -293,8 +293,8 @@ public final class IntentFactory {
         return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
     }
 
-    static Intent createSearchIntent(Activity activity) {
-        return new Intent(activity, SearchActivity.class);
+    static Intent createSearchIntent(Context context) {
+        return new Intent(context, SearchActivity.class);
     }
 
     static Intent createSearchActionIntent(Context context, Uri uri, Screen screen) {
@@ -415,7 +415,7 @@ public final class IntentFactory {
         return new Intent(context, LikedStationsActivity.class);
     }
 
-    static Intent createStationsInfoIntent(Context context, Urn stationUrn, Optional<Urn> seedTrack, Optional<DiscoverySource> source) {
+    public static Intent createStationsInfoIntent(Context context, Urn stationUrn, Optional<Urn> seedTrack, Optional<DiscoverySource> source) {
         Intent intent = new Intent(context, StationInfoActivity.class);
         Urns.writeToIntent(intent, StationInfoActivity.EXTRA_URN, stationUrn);
         source.ifPresent(it -> intent.putExtra(StationInfoActivity.EXTRA_SOURCE, it.value()));
@@ -451,12 +451,12 @@ public final class IntentFactory {
         return new Intent(context, OfflineSettingsOnboardingActivity.class);
     }
 
-    static Intent createPlaylistsAndAlbumsCollectionIntent(Activity activity) {
-        return PlaylistsActivity.intentForPlaylistsAndAlbums(activity);
+    static Intent createPlaylistsAndAlbumsCollectionIntent(Context context) {
+        return PlaylistsActivity.intentForPlaylistsAndAlbums(context);
     }
 
-    static Intent createPlaylistsCollectionIntent(Activity activity) {
-        return PlaylistsActivity.intentForPlaylists(activity);
+    static Intent createPlaylistsCollectionIntent(Context context) {
+        return PlaylistsActivity.intentForPlaylists(context);
     }
 
     static Intent createAlbumsCollectionIntent(Activity activity) {

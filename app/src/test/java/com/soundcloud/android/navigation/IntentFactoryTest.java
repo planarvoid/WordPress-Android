@@ -6,6 +6,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.PrestitialActivity;
@@ -19,6 +20,7 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
@@ -26,7 +28,9 @@ import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.playback.DiscoverySource;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -284,6 +288,73 @@ public class IntentFactoryTest extends AndroidUnitTest {
                 .wrappedIntent()
                 .containsAction(Intent.ACTION_SEND)
                 .containsExtra(Intent.EXTRA_TEXT, "text");
+    }
+
+    @Test
+    public void createNotificationPrefences() {
+        assertIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(context))
+                .opensActivity(NotificationPreferencesActivity.class)
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+    }
+
+    @Test
+    public void opensOnboarding() {
+        Uri uri = Uri.parse("soundcloud://tracks:123");
+
+        assertIntent(IntentFactory.createOnboardingIntent(context, Screen.DEEPLINK, uri))
+                .containsExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, uri)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .containsScreen(Screen.DEEPLINK)
+                .opensActivity(OnboardActivity.class);
+    }
+
+    @Test
+    public void opensStream() {
+        assertIntent(IntentFactory.createStreamIntent(Screen.DEEPLINK))
+                .containsAction(Actions.STREAM)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+
+    @Test
+    public void opensDiscovery() {
+        assertThat(IntentFactory.createDiscoveryIntent(Screen.DEEPLINK))
+                .containsAction(Actions.DISCOVERY)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void opensLauncher() {
+        assertIntent(IntentFactory.createLauncherIntent(activity()))
+                .opensActivity(LauncherActivity.class);
+    }
+
+    @Test
+    public void opensStreamWithExpandedPlayer() {
+        assertIntent(IntentFactory.createStreamWithExpandedPlayerIntent(Screen.DEEPLINK))
+                .containsAction(Actions.STREAM)
+                .containsExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+
+    @Test
+    public void openLinkWorksForEmails() {
+        String email = "email@address.com";
+
+        assertIntent(IntentFactory.createEmailIntent(email))
+                                   .containsAction(Intent.ACTION_SENDTO)
+                                   .containsUri(Uri.parse("mailto:"))
+                                   .containsExtra(Intent.EXTRA_EMAIL, new String[]{email});
+    }
+
+    @Test
+    public void openLinkFallsBackToAndroidForUnrecognisedLinks() {
+        String url = "http://facebook.com/whatever";
+
+        assertIntent(IntentFactory.createViewIntent(Uri.parse(url)))
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(Uri.parse(url));
     }
 
     private IntentAssert assertIntent(Intent intent) {

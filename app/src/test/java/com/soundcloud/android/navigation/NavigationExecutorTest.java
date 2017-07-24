@@ -17,19 +17,15 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
-import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.payments.WebCheckoutActivity;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -171,10 +167,9 @@ public class NavigationExecutorTest extends AndroidUnitTest {
 
     @Test
     public void openDirectCheckout() {
-        navigationExecutor.openDirectCheckout(activityContext, Plan.HIGH_TIER);
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(WebCheckoutActivity.class)
-                                   .containsExtra(IntentFactory.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
+        assertThat(navigationExecutor.openDirectCheckout(activityContext, Plan.HIGH_TIER))
+                .opensActivity(WebCheckoutActivity.class)
+                .containsExtra(IntentFactory.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
     }
 
     @Test
@@ -217,18 +212,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensOnboarding() {
-        Uri uri = Uri.parse("soundcloud://tracks:123");
-        navigationExecutor.openOnboarding(activityContext, uri, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, uri)
-                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                   .containsScreen(Screen.DEEPLINK)
-                                   .opensActivity(OnboardActivity.class);
-    }
-
-    @Test
     public void opensResolveActivity() {
         Uri uri = Uri.parse("soundcloud://tracks:123");
         navigationExecutor.openResolveForUri(activityContext, uri);
@@ -238,51 +221,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
                                    .containsUri(uri)
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                    .opensActivity(ResolveActivity.class);
-    }
-
-    @Test
-    public void opensStream() {
-        navigationExecutor.openStream(activityContext, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.STREAM)
-                                   .containsScreen(Screen.DEEPLINK);
-    }
-
-    @Test
-    public void opensDiscovery() {
-        navigationExecutor.openDiscovery(activityContext, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.DISCOVERY)
-                                   .containsScreen(Screen.DEEPLINK);
-    }
-
-    @Test
-    public void opensLauncher() {
-        navigationExecutor.openLauncher(activityContext);
-
-        assertThat(activityContext).nextStartedIntent().opensActivity(LauncherActivity.class);
-    }
-
-    @Test
-    public void opensStreamWithExpandedPlayer() {
-        navigationExecutor.openStreamWithExpandedPlayer(activityContext, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.STREAM)
-                                   .containsExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
-                                   .containsScreen(Screen.DEEPLINK);
-    }
-
-    @Test
-    public void opensWebView() {
-        Uri uri = Uri.parse("http://soundcloud.com/skrillex");
-        navigationExecutor.openWebView(activityContext, uri);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsUri(uri)
-                                   .opensActivity(WebViewActivity.class);
     }
 
     @Test
@@ -449,24 +387,5 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                    .containsAction(Actions.COLLECTION);
-    }
-
-    @Test
-    public void openLinkWorksForEmails() {
-        navigationExecutor.openEmail(activityContext, "email@address.com");
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Intent.ACTION_SENDTO)
-                                   .containsUri(Uri.parse("mailto:"))
-                                   .containsExtra(Intent.EXTRA_EMAIL, new String[]{"email@address.com"});
-    }
-
-    @Test
-    public void openLinkFallsBackToAndroidForUnrecognisedLinks() {
-        navigationExecutor.openExternal(activityContext, Uri.parse("http://facebook.com/whatever"));
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(Uri.parse("http://facebook.com/whatever"));
     }
 }

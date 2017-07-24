@@ -6,12 +6,15 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.IntentFactory;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 
 import javax.inject.Inject;
 
@@ -24,6 +27,11 @@ public class StartStationHandler {
     public StartStationHandler(Navigator navigatior, PerformanceMetricsEngine performanceMetricsEngine) {
         this.navigatior = navigatior;
         this.performanceMetricsEngine = performanceMetricsEngine;
+    }
+
+    public Intent getStartStationIntent(Context context, Urn stationUrn, DiscoverySource discoverySource) {
+        startMeasuringStationLoad();
+        return IntentFactory.createStationsInfoIntent(context, stationUrn, Optional.absent(), Optional.of(discoverySource));
     }
 
     public void startStation(Activity activity, Urn stationUrn, DiscoverySource discoverySource) {

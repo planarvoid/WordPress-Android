@@ -4,6 +4,8 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -13,7 +15,10 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.CallSuper;
+import android.support.v4.app.TaskStackBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,7 +31,7 @@ import javax.inject.Singleton;
 public class Navigator {
 
     private final NavigationResolver navigationResolver;
-    private final BehaviorSubject<Pair<Activity, NavigationTarget>> subject = BehaviorSubject.create();
+    private final BehaviorSubject<Pair<Context, NavigationTarget>> subject = BehaviorSubject.create();
     private NavigationTarget lastNavigationTarget;
 
     @Inject
@@ -34,15 +39,15 @@ public class Navigator {
         this.navigationResolver = navigationResolver;
     }
 
-    public void navigateTo(Activity activity, NavigationTarget navigationTarget) {
-        subject.onNext(Pair.of(activity, navigationTarget));
+    public void navigateTo(Context context, NavigationTarget navigationTarget) {
+        subject.onNext(Pair.of(context, navigationTarget));
     }
 
     public Observable<NavigationResult> listenToNavigation() {
         return subject.filter(pair -> pair.second() != lastNavigationTarget).flatMapSingle(this::performNavigation);
     }
 
-    private Single<NavigationResult> performNavigation(Pair<Activity, NavigationTarget> navigationTarget) {
+    private Single<NavigationResult> performNavigation(Pair<Context, NavigationTarget> navigationTarget) {
         lastNavigationTarget = navigationTarget.second();
         return navigationResolver.resolveNavigationResult(navigationTarget.first(), navigationTarget.second());
     }
@@ -51,17 +56,47 @@ public class Navigator {
     public static class Observer extends DefaultObserver<NavigationResult> {
 
         private final FeedbackController feedbackController;
+        private final ExpandPlayerSingleObserver expandPlayerObserver;
+        private final Activity activity;
 
         @Inject
-        Observer(@Provided FeedbackController feedbackController) {
+        Observer(Activity activity,
+                 @Provided FeedbackController feedbackController,
+                 @Provided ExpandPlayerSingleObserver expandPlayerObserver) {
+            this.activity = activity;
             this.feedbackController = feedbackController;
+            this.expandPlayerObserver = expandPlayerObserver;
         }
 
         @Override
         @CallSuper
         public void onNext(NavigationResult result) {
             try {
-                result.action().run();
+                if (!result.isSuccess()) {
+                    feedbackController.showFeedback(Feedback.create(R.string.error_unknown_navigation));
+                    ErrorUtils.handleSilentException("Navigation failed: " + result.target(), new IllegalArgumentException("Navigation failed for target: " + result.target()));
+                    return;
+                }
+
+                result.playbackResult()
+                      .filter(PlaybackResult::isSuccess)
+                      .ifPresent(expandPlayerObserver::onSuccess);
+
+                if (!result.intent().isPresent()) {
+                    return;
+                }
+
+                if (!result.taskStack().isEmpty()) {
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(activity);
+                    for (Intent intent : result.taskStack()) {
+                        stackBuilder.addNextIntent(intent);
+                    }
+                    stackBuilder.addNextIntent(result.intent().get());
+                    stackBuilder.startActivities();
+                    return;
+                }
+
+                activity.startActivity(result.intent().get());
             } catch (Exception e) {
                 feedbackController.showFeedback(Feedback.create(R.string.error_unknown_navigation));
                 ErrorUtils.handleSilentException("Navigation failed: " + result.target(), e);

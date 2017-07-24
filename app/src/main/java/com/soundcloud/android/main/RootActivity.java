@@ -58,7 +58,7 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     protected void onResume() {
         super.onResume();
         disposable.add(navigator.listenToNavigation()
-                                .subscribeWith(navigatorObserverFactory.create()));
+                                .subscribeWith(navigatorObserverFactory.create(this)));
     }
 
     @Override

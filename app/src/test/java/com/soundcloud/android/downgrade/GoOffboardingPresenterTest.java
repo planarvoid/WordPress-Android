@@ -92,7 +92,6 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, new View(context()), null);
         presenter.onContinueClicked();
 
-        verify(navigationExecutor, never()).openStream(any(Activity.class), any(Screen.class));
         subject.onNext(downgradeResult);
         subject.onCompleted();
 

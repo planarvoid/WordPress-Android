@@ -1,20 +1,29 @@
 package com.soundcloud.android.navigation;
 
+import static com.soundcloud.android.navigation.IntentFactory.createCollectionIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createDirectCheckoutIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createDiscoveryIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createNotificationPreferencesFromDeeplinkIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createRemoteSignInIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createStreamIntent;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -24,12 +33,10 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ChartsUriResolver;
-import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -44,20 +51,15 @@ import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
-import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.Assertions;
-import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.assertions.IntentAssert;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -70,10 +72,14 @@ import org.mockito.Mock;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowToast;
 
-import android.app.Activity;
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+
+import java.util.Collections;
+import java.util.List;
 
 public class NavigationResolverTest extends AndroidUnitTest {
     private static final String TOP_FIFTY = "Top 50";
@@ -81,13 +87,12 @@ public class NavigationResolverTest extends AndroidUnitTest {
     private static final Screen NAVIGATION_SCREEN = Screen.DISCOVER;
     private static final Screen DEEPLINK_SCREEN = Screen.DEEPLINK;
 
-    private LocalEntityUriResolver localEntityUriResolver = new LocalEntityUriResolver();
-    private StationsUriResolver stationsUriResolver = new StationsUriResolver();
+    private final LocalEntityUriResolver localEntityUriResolver = new LocalEntityUriResolver();
+    private final StationsUriResolver stationsUriResolver = new StationsUriResolver();
     @Mock private ResolveOperations resolveOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private EventBus eventBus;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private FeatureOperations featureOperations;
     @Mock private Resources resources;
     @Mock private ChartsUriResolver chartsUriResolver;
@@ -95,14 +100,12 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackServiceController playbackServiceController;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private EventTracker eventTracker;
     @Mock private DefaultHomeScreenConfiguration homeScreenConfiguration;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     private NavigationResolver resolver;
-    private Activity activity;
-
+    private Context context;
 
     @Before
     public void setUp() {
@@ -113,13 +116,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           playbackInitiator,
                                           playQueueManager,
                                           eventBus,
-                                          navigationExecutor,
                                           featureOperations,
                                           chartsUriResolver,
                                           signInOperations,
                                           stationsUriResolver,
                                           applicationProperties,
-                                          InjectionSupport.providerOf(expandPlayerSubscriber),
                                           eventTracker,
                                           homeScreenConfiguration,
                                           offlineSettingsStorage);
@@ -130,7 +131,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
-        activity = activity();
+        context = activity();
     }
 
     // For Deeplink
@@ -140,9 +141,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink("");
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
     }
 
     @Test
@@ -150,9 +149,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
     }
 
     @Test
@@ -160,9 +157,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
         NavigationTarget navigationTarget = getTargetForDeeplink("");
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
     }
 
     @Test
@@ -170,17 +165,16 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
     }
 
     @Test
     public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() throws Exception {
         String target = "soundcloud:tracks:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN)).thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
@@ -189,8 +183,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Test
     public void deeplink_shouldResolveLocallyAndLaunchPlayer() throws Exception {
         NavigationTarget navigationTarget = getTargetForDeeplink("soundcloud://tracks:123");
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN)).thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
@@ -201,8 +196,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:tracks:123?adjust_reftag=c6vlQZj4w9FOi";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN)).thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
@@ -213,8 +209,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN)).thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
@@ -224,8 +221,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
     public void deeplink_shouldLaunchPlayerDirectlyFromHierarchicalUriSplitBySlash() throws CreateModelException {
         String target = "soundcloud://tracks/123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN)).thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
@@ -239,11 +237,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
                 .thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
-        verify(navigationExecutor).openStreamWithExpandedPlayer(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -254,12 +251,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
                 .thenReturn(Single.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createLauncherIntent(context));
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
-        verify(navigationExecutor, never()).openStreamWithExpandedPlayer(activity, DEEPLINK_SCREEN);
-        verify(navigationExecutor).openLauncher(activity);
     }
 
     @Test
@@ -267,13 +262,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
-                  .containsScreen(DEEPLINK_SCREEN);
     }
 
     @Test
@@ -281,13 +272,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://playlists:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
-                  .containsScreen(DEEPLINK_SCREEN);
     }
 
     @Test
@@ -296,13 +283,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123);
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileIntent(context, urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus).publish(EventQueue.TRACKING, ForegroundEvent.open(navigationTarget.screen(), navigationTarget.referrer().get()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
     }
 
     @Test
@@ -311,13 +296,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123);
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileIntent(context, urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus).publish(EventQueue.TRACKING, ForegroundEvent.open(navigationTarget.screen(), navigationTarget.referrer().get()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(DEEPLINK_SCREEN), Optional.absent(), Optional.of(Referrer.OTHER)));
     }
 
     @Test
@@ -344,7 +327,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.TWITTER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
-                .thenReturn(Single.just(PlaybackResult.error(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE)));
+                .thenReturn(Single.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
 
         resolveTarget(navigationTarget);
 
@@ -380,9 +363,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
         verifyTrackingEvent(navigationTarget.referrer());
     }
 
@@ -391,9 +372,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
         verifyTrackingEvent(navigationTarget.referrer());
     }
 
@@ -405,7 +385,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(playbackInitiator.startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN))
                 .thenReturn(Single.just(PlaybackResult.success()));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStreamWithExpandedPlayerIntent(DEEPLINK_SCREEN));
 
         verify(resolveOperations).resolve(target);
         verify(accountOperations).loginCrawlerUser();
@@ -419,14 +399,13 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createOnboardingIntent(context, DEEPLINK_SCREEN, Uri.parse(target)));
 
         ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
         verify(eventBus, times(2)).publish(eq(EventQueue.TRACKING), captor.capture());
 
         ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
         verifyTrackingEvent(event, Urn.forTrack(123), Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), DEEPLINK_SCREEN);
 
         DeeplinkReportEvent reportEvent = (DeeplinkReportEvent) captor.getAllValues().get(1);
         assertThat(reportEvent.kind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink(Referrer.OTHER.toString()).kind());
@@ -437,11 +416,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchActionIntent(context, Uri.parse(target), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openSearch(activity, Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -449,11 +426,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchActionIntent(context, Uri.parse(target), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openSearch(activity, Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -462,11 +437,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
-
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createOnboardingIntent(context, DEEPLINK_SCREEN, Uri.parse(target)));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -474,25 +447,22 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchActionIntent(context, Uri.parse(target), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
         verify(accountOperations).loginCrawlerUser();
-        verify(navigationExecutor).openSearch(activity, Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForWebScheme() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -500,25 +470,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -526,25 +492,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -552,11 +514,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -565,25 +525,22 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createOnboardingIntent(context, DEEPLINK_SCREEN, Uri.parse(target)));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
     public void deeplink_shouldLaunchRecordForCrawlers() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -591,12 +548,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), DEEPLINK_SCREEN));
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), DEEPLINK_SCREEN));
     }
 
     @Test
@@ -605,10 +560,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createConversionIntent(context, UpsellContext.DEFAULT), Collections.singletonList(createHomeIntent(context)));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigationExecutor).openUpgradeOnMain(activity, UpsellContext.DEFAULT);
     }
 
     @Test
@@ -618,10 +572,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -631,10 +584,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -644,10 +596,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -659,10 +610,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -674,10 +624,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -689,10 +638,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -704,10 +652,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.MID_TIER));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.MID_TIER);
     }
 
     @Test
@@ -718,10 +665,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -732,10 +678,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -745,10 +690,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -760,10 +704,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -775,10 +718,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.HIGH_TIER));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -788,10 +730,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.HIGH_TIER));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -802,10 +743,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -816,10 +756,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -829,10 +768,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -844,10 +782,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -859,10 +796,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createProductChoiceIntent(context, Plan.MID_TIER), Collections.singletonList(createHomeIntent(context)));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigationExecutor).openProductChoiceOnMain(activity, Plan.MID_TIER);
     }
 
     @Test
@@ -872,10 +808,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createProductChoiceIntent(context, Plan.HIGH_TIER), Collections.singletonList(createHomeIntent(context)));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigationExecutor).openProductChoiceOnMain(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -886,10 +821,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -900,10 +834,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -914,12 +847,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.SETTINGS_OFFLINE);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(OfflineSettingsActivity.class)
-                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -930,12 +860,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.SETTINGS_OFFLINE);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(OfflineSettingsActivity.class)
-                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -945,10 +872,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openStream(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -958,10 +884,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openDiscovery(activity, DEEPLINK_SCREEN);
     }
 
     @Test
@@ -969,11 +894,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://notification_preferences";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createNotificationPreferencesFromDeeplinkIntent(context));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(activity));
     }
 
     @Test
@@ -981,10 +904,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://collection";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createCollectionIntent());
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigationExecutor).openCollection(activity);
     }
 
     @Test
@@ -992,9 +914,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/discover";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, Screen.DEEPLINK);
+        assertTarget(navigationTarget, createDiscoveryIntent(Screen.DEEPLINK));
     }
 
     @Test
@@ -1003,13 +923,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
-                                                                                                  Chart.GLOBAL_GENRE,
-                                                                                                  ChartCategory.MUSIC,
-                                                                                                  Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
+                                                                                                     Chart.GLOBAL_GENRE,
+                                                                                                     ChartCategory.MUSIC,
+                                                                                                     Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1018,13 +935,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
-                                                                                                  Chart.GLOBAL_GENRE,
-                                                                                                  ChartCategory.MUSIC,
-                                                                                                  Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
+                                                                                                     Chart.GLOBAL_GENRE,
+                                                                                                     ChartCategory.MUSIC,
+                                                                                                     Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1034,9 +948,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "http://soundcloud.com/activate/something";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openRemoteSignInWebView(activity, fakeUri);
+        assertTarget(navigationTarget, createRemoteSignInIntent(context, fakeUri));
     }
 
     @Test
@@ -1046,9 +958,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://remote-sign-in";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openRemoteSignInWebView(activity, fakeUri);
+        assertTarget(navigationTarget, createRemoteSignInIntent(context, fakeUri));
     }
 
     @Test
@@ -1056,9 +966,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "mailto:test@abc.com";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openEmail(activity, "test@abc.com");
+        assertTarget(navigationTarget, createEmailIntent("test@abc.com"));
     }
 
     @Test
@@ -1066,9 +974,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "test@abc.com";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openEmail(activity, "test@abc.com");
+        assertTarget(navigationTarget, createEmailIntent("test@abc.com"));
     }
 
     @Test
@@ -1076,9 +982,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://www.google.com";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openExternal(activity, Uri.parse(target));
+        assertTarget(navigationTarget, IntentFactory.createViewIntent(Uri.parse(target)));
     }
 
     @Test
@@ -1086,9 +990,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://www.google.com";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openExternal(activity, Uri.parse(target));
+        assertTarget(navigationTarget, IntentFactory.createViewIntent(Uri.parse(target)));
     }
 
     @Test
@@ -1096,11 +998,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://stations/artist/123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1108,11 +1008,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://stations/track/123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1120,11 +1018,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://the-upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createNewForYouIntent(context));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verifyZeroInteractions(resolveOperations);
-        verify(navigationExecutor).openNewForYou(activity);
     }
 
     @Test
@@ -1132,11 +1029,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:artist-stations:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
     @Test
@@ -1144,11 +1039,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:track-stations:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.DEEPLINK)));
     }
 
 
@@ -1159,9 +1052,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForNavigation("");
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1169,9 +1060,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
         NavigationTarget navigationTarget = getTargetForNavigation("");
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, NAVIGATION_SCREEN);
+        assertTarget(navigationTarget, createDiscoveryIntent(NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1179,9 +1068,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         NavigationTarget navigationTarget = getTargetForNavigation(null);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1189,9 +1076,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(homeScreenConfiguration.isStreamHome()).thenReturn(false);
         NavigationTarget navigationTarget = getTargetForNavigation(null);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, NAVIGATION_SCREEN);
+        assertTarget(navigationTarget, createDiscoveryIntent(NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1208,9 +1093,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Test
     public void navigation_shouldResolveLocallyAndLaunchPlayer() throws Exception {
         NavigationTarget navigationTarget = getTargetForNavigation("soundcloud://tracks:123");
-
         resolveTarget(navigationTarget);
-
         verify(resolveOperations, never()).resolve(anyString());
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
     }
@@ -1220,7 +1103,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:tracks:123?adjust_reftag=c6vlQZj4w9FOi";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
-
         resolveTarget(navigationTarget);
 
         verify(resolveOperations).resolve(target);
@@ -1232,9 +1114,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
-
         resolveTarget(navigationTarget);
-
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
     }
@@ -1243,9 +1123,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     public void navigation_shouldLaunchPlayerDirectlyFromHierarchicalUriSplitBySlash() throws CreateModelException {
         String target = "soundcloud://tracks/123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
-
         resolveTarget(navigationTarget);
-
         verify(resolveOperations, never()).resolve(anyString());
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
     }
@@ -1263,8 +1141,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
-        verifyZeroInteractions(navigationExecutor);
-        verify(expandPlayerSubscriber).onNext(playbackResult);
     }
 
     @Test
@@ -1280,8 +1156,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
-        verifyZeroInteractions(navigationExecutor);
-        verify(expandPlayerSubscriber).onNext(playbackResult);
     }
 
     @Test
@@ -1289,13 +1163,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
-                  .containsScreen(NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1303,14 +1173,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://playlists:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, Urn.forPlaylist(123).getContent())
-                  .containsScreen(NAVIGATION_SCREEN);
-
     }
 
     @Test
@@ -1319,13 +1184,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123);
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileIntent(context, urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
     }
 
     @Test
@@ -1334,13 +1197,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123);
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileIntent(context, urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
 
         verify(resolveOperations, never()).resolve(anyString());
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(NAVIGATION_SCREEN), Optional.absent(), Optional.absent()));
     }
 
     @Test
@@ -1350,9 +1211,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), NAVIGATION_SCREEN);
+        assertTarget(navigationTarget, createOnboardingIntent(context, NAVIGATION_SCREEN, Uri.parse(target)));
     }
 
     @Test
@@ -1361,10 +1220,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchActionIntent(context, Uri.parse(target), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openSearch(activity, Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1372,11 +1230,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchActionIntent(context, Uri.parse(target), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openSearch(activity, Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1385,25 +1241,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
-
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createOnboardingIntent(context, NAVIGATION_SCREEN, Uri.parse(target)));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
     public void navigation_shouldLaunchRecordForWebScheme() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1411,25 +1263,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1437,25 +1285,21 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
-        Shadows.shadowOf(activity.getApplication()).grantPermissions(android.Manifest.permission.RECORD_AUDIO);
+        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1463,11 +1307,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createRecordPermissionIntent(context, Optional.absent(), NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createRecordPermissionIntent(activity, Optional.absent(), NAVIGATION_SCREEN));
     }
 
     @Test
@@ -1476,10 +1318,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createOnboardingIntent(context, NAVIGATION_SCREEN, Uri.parse(target)));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openOnboarding(activity, Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1488,10 +1329,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createConversionIntent(context, UpsellContext.DEFAULT), Collections.singletonList(createHomeIntent(context)));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openUpgradeOnMain(activity, UpsellContext.DEFAULT);
     }
 
     @Test
@@ -1500,10 +1340,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1512,10 +1351,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1526,10 +1364,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1541,10 +1378,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.MID_TIER));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.MID_TIER);
     }
 
     @Test
@@ -1554,10 +1390,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1566,10 +1401,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1581,10 +1415,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.HIGH_TIER));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -1594,10 +1427,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createDirectCheckoutIntent(context, Plan.HIGH_TIER));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openDirectCheckout(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -1607,10 +1439,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1619,10 +1450,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1634,10 +1464,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createProductChoiceIntent(context, Plan.MID_TIER), Collections.singletonList(createHomeIntent(context)));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openProductChoiceOnMain(activity, Plan.MID_TIER);
     }
 
     @Test
@@ -1647,10 +1476,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createProductChoiceIntent(context, Plan.HIGH_TIER), Collections.singletonList(createHomeIntent(context)));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openProductChoiceOnMain(activity, Plan.HIGH_TIER);
     }
 
     @Test
@@ -1660,10 +1488,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1673,12 +1500,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(OfflineSettingsActivity.class)
-                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -1688,12 +1512,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(OfflineSettingsActivity.class)
-                  .containsScreen(Screen.UNKNOWN);
     }
 
     @Test
@@ -1702,10 +1523,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
 
         verifyZeroInteractions(eventBus);
-        verify(navigationExecutor).openStream(activity, NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1713,11 +1533,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://notification_preferences";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createNotificationPreferencesFromDeeplinkIntent(context));
 
         verifyZeroInteractions(eventBus);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createNotificationPreferencesFromDeeplinkIntent(activity));
     }
 
     @Test
@@ -1725,9 +1543,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://collection";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openCollection(activity);
+        assertTarget(navigationTarget, createCollectionIntent());
     }
 
     @Test
@@ -1735,9 +1551,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/discover";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openDiscovery(activity, Screen.DISCOVER);
+        assertTarget(navigationTarget, createDiscoveryIntent(Screen.DISCOVER));
     }
 
     @Test
@@ -1746,13 +1560,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
-                                                                                                  Chart.GLOBAL_GENRE,
-                                                                                                  ChartCategory.MUSIC,
-                                                                                                  Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
+                                                                                                     Chart.GLOBAL_GENRE,
+                                                                                                     ChartCategory.MUSIC,
+                                                                                                     Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1761,13 +1572,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, ChartDetails.create(ChartType.TOP,
-                                                                                                  Chart.GLOBAL_GENRE,
-                                                                                                  ChartCategory.MUSIC,
-                                                                                                  Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
+                                                                                                     Chart.GLOBAL_GENRE,
+                                                                                                     ChartCategory.MUSIC,
+                                                                                                     Optional.of(TOP_FIFTY))));
     }
 
     @Test
@@ -1777,9 +1585,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "http://soundcloud.com/activate/something";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openRemoteSignInWebView(activity, fakeUri);
+        assertTarget(navigationTarget, createRemoteSignInIntent(context, fakeUri));
     }
 
     @Test
@@ -1789,29 +1595,23 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://remote-sign-in";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openRemoteSignInWebView(activity, fakeUri);
+        assertTarget(navigationTarget, createRemoteSignInIntent(context, fakeUri));
     }
 
     @Test
-    public void navigation_shouldOpenExternEmailUri() throws Exception {
+    public void navigation_shouldOpenExternalEmailUri() throws Exception {
         String target = "mailto:test@abc.com";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openEmail(activity, "test@abc.com");
+        assertTarget(navigationTarget, createEmailIntent("test@abc.com"));
     }
 
     @Test
-    public void navigation_shouldOpenExternEmail() throws Exception {
+    public void navigation_shouldOpenExternalEmail() throws Exception {
         String target = "test@abc.com";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openEmail(activity, "test@abc.com");
+        assertTarget(navigationTarget, createEmailIntent("test@abc.com"));
     }
 
     @Test
@@ -1819,9 +1619,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://www.google.com";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openExternal(activity, Uri.parse(target));
+        assertTarget(navigationTarget, IntentFactory.createViewIntent(Uri.parse(target)));
     }
 
     @Test
@@ -1829,11 +1627,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://stations/artist/123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1841,11 +1637,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://stations/track/123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1853,11 +1647,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:artist-stations:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forArtistStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1865,11 +1657,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:track-stations:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
 
         verifyZeroInteractions(resolveOperations);
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, Urn.forTrackStation(123L), Optional.absent(), Optional.of(DiscoverySource.RECOMMENDATIONS)));
     }
 
     @Test
@@ -1877,10 +1667,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://the-upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createNewForYouIntent(context));
 
         verifyZeroInteractions(resolveOperations);
-        verify(navigationExecutor).openNewForYou(activity);
     }
 
     @Test
@@ -1889,14 +1678,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = new Urn(target);
         NavigationTarget navigationTarget = NavigationTarget.forNavigation(target, Optional.absent(), Screen.DEEPLINK, Optional.of(DiscoverySource.RECOMMENDATIONS));
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSystemPlaylistIntent(context, urn, Screen.DEEPLINK));
 
         verify(resolveOperations, never()).resolve(anyString());
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(SystemPlaylistActivity.class)
-                  .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false)
-                  .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn.getContent())
-                  .containsScreen(Screen.DEEPLINK);
     }
 
     @Test
@@ -1904,12 +1688,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn playlistUrn = Urn.forPlaylist(123L);
         NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
-                  .containsScreen(Screen.SEARCH_PLAYLISTS);
+        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, false));
     }
 
     @Test
@@ -1920,15 +1699,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo));
-        resolveTarget(navigationTarget);
-
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
-                  .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
-                  .containsScreen(Screen.SEARCH_PLAYLISTS);
+        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
     }
 
     @Test
@@ -1940,14 +1711,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         NavigationTarget navigationTarget = NavigationTarget.forPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo), Optional.of(event));
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
 
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .containsAction(Actions.PLAYLIST)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn.getContent())
-                  .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
-                  .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
-                  .containsScreen(Screen.SEARCH_PLAYLISTS);
         verify(eventTracker).trackNavigation(event);
     }
 
@@ -1957,11 +1722,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
     public void navigationDeeplink_shouldOpenBasicSettings() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forBasicSettings();
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSettingsIntent(context));
 
         verify(eventTracker, never()).trackNavigation(any(UIEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createSettingsIntent(activity));
     }
 
     @Test
@@ -1970,12 +1733,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfile(urn, Optional.of(event), Optional.of(Screen.USER_FOLLOWERS), Optional.absent());
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileIntent(context, urn, Optional.of(Screen.USER_FOLLOWERS), Optional.absent(), Optional.absent()));
 
         verify(eventTracker).trackNavigation(event);
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileIntent(activity, urn, Optional.of(Screen.USER_FOLLOWERS), Optional.absent(), Optional.absent()));
     }
 
     @Test
@@ -1984,11 +1745,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfileReposts(urn, searchQuerySourceInfo);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileRepostsIntent(context, urn, Screen.USERS_REPOSTS, searchQuerySourceInfo));
 
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileRepostsIntent(activity, urn, Screen.USERS_REPOSTS, searchQuerySourceInfo));
     }
 
     @Test
@@ -1997,11 +1756,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfileTracks(urn, searchQuerySourceInfo);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileTracksIntent(context, urn, Screen.USER_TRACKS, searchQuerySourceInfo));
 
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileTracksIntent(activity, urn, Screen.USER_TRACKS, searchQuerySourceInfo));
     }
 
     @Test
@@ -2010,11 +1767,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfileAlbums(urn, searchQuerySourceInfo);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileAlbumsIntent(context, urn, Screen.USER_ALBUMS, searchQuerySourceInfo));
 
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileAlbumsIntent(activity, urn, Screen.USER_ALBUMS, searchQuerySourceInfo));
     }
 
     @Test
@@ -2023,11 +1778,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfileLikes(urn, searchQuerySourceInfo);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfileLikesIntent(context, urn, Screen.USER_LIKES, searchQuerySourceInfo));
 
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfileLikesIntent(activity, urn, Screen.USER_LIKES, searchQuerySourceInfo));
     }
 
     @Test
@@ -2036,112 +1789,79 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn urn = Urn.forUser(123L);
         NavigationTarget navigationTarget = NavigationTarget.forProfilePlaylists(urn, searchQuerySourceInfo);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createProfilePlaylistsIntent(context, urn, Screen.USER_PLAYLISTS, searchQuerySourceInfo));
 
         verify(eventBus, never()).publish(eq(EventQueue.TRACKING), any(ForegroundEvent.class));
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createProfilePlaylistsIntent(activity, urn, Screen.USER_PLAYLISTS, searchQuerySourceInfo));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenActivities() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forActivities();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createActivitiesIntent(activity));
+        assertTarget(navigationTarget, IntentFactory.createActivitiesIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenNotificationPreferences() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forNotificationPreferences();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createNotificationPreferencesIntent(activity));
+        assertTarget(navigationTarget, IntentFactory.createNotificationPreferencesIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenHelpCenter() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forHelpCenter();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createHelpCenterIntent(activity))
-                  .containsAction(Intent.ACTION_VIEW)
-                  .containsUri(Uri.parse(activity.getString(R.string.url_support)));
+        assertTarget(navigationTarget, IntentFactory.createHelpCenterIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenLegal() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forLegal();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createLegalIntent(activity));
+        assertTarget(navigationTarget, IntentFactory.createLegalIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenSearchTopResultsViewAllPage() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forSearchViewAll(Optional.of(Urn.NOT_SET), "test", TopResults.Bucket.Kind.GO_TRACKS, true);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openSearchViewAll(activity, navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenFollowers() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forFollowers(Urn.forUser(123L), Optional.absent());
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createFollowersIntent(activity, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
+        assertTarget(navigationTarget, IntentFactory.createFollowersIntent(context, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenFollowings() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forFollowings(Urn.forUser(123L), Optional.absent());
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createFollowingsIntent(activity, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
+        assertTarget(navigationTarget, IntentFactory.createFollowingsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenSearchAutocomplete() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forSearchAutocomplete(Screen.DISCOVER);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createSearchIntent(activity));
+        assertTarget(navigationTarget, IntentFactory.createSearchIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenFullscreenVideoAd() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forFullscreenVideoAd(Urn.forAd("dfp", "video"));
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createFullscreenVideoAdIntent(activity, navigationTarget.targetUrn().get()));
+        assertTarget(navigationTarget, IntentFactory.createFullscreenVideoAdIntent(context, navigationTarget.targetUrn().get()));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenPrestitialAd() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forPrestitialAd();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createPrestititalAdIntent(activity));
+        assertTarget(navigationTarget, IntentFactory.createPrestititalAdIntent(context));
     }
 
     @Test
@@ -2149,35 +1869,26 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://ferrari.com/";
         NavigationTarget navigationTarget = NavigationTarget.forAdClickthrough(target);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
+        assertTarget(navigationTarget, IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
     }
 
     @Test
     public void opensChartTracks() {
-        final Urn genreUrn = new Urn("soundcloud:genre:123");
-        final ChartType chartType = ChartType.TOP;
-        final String header = "header";
-        final ChartCategory chartCategory = ChartCategory.AUDIO;
-        final ChartDetails chartDetails = ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header));
+        Urn genreUrn = new Urn("soundcloud:genre:123");
+        ChartType chartType = ChartType.TOP;
+        String header = "header";
+        ChartCategory chartCategory = ChartCategory.AUDIO;
+        ChartDetails chartDetails = ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header));
         NavigationTarget navigationTarget = NavigationTarget.forChart(chartType, genreUrn, chartCategory, header);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createChartsIntent(activity, chartDetails));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, chartDetails));
     }
 
     @Test
     public void opensAllGenres() {
         NavigationTarget navigationTarget = NavigationTarget.forAllGenres();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createAllGenresIntent(activity, null));
+        assertTarget(navigationTarget, IntentFactory.createAllGenresIntent(context, null));
     }
 
     @Test
@@ -2185,47 +1896,32 @@ public class NavigationResolverTest extends AndroidUnitTest {
         ChartCategory chartCategory = ChartCategory.MUSIC;
         NavigationTarget navigationTarget = NavigationTarget.forAllGenres(chartCategory);
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createAllGenresIntent(activity, chartCategory));
+        assertTarget(navigationTarget, IntentFactory.createAllGenresIntent(context, chartCategory));
     }
-
 
     @Test
     public void navigationDeeplink_shouldOpenPlaylistsAndAlbums() throws Exception {
         NavigationTarget navigationTarget = NavigationTarget.forPlaylistsAndAlbumsCollection();
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .opensActivity(PlaylistsActivity.class)
-                  .containsExtra(PlaylistsActivity.EXTRA_PLAYLISTS_AND_ALBUMS, true);
+        assertTarget(navigationTarget, IntentFactory.createPlaylistsAndAlbumsCollectionIntent(context));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenStationInfo() {
-        final Urn someStation = Urn.forArtistStation(123L);
+        Urn someStation = Urn.forArtistStation(123L);
         NavigationTarget navigationTarget = NavigationTarget.forStationInfo(someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS), Optional.absent());
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS)));
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, someStation, Optional.absent(), Optional.of(DiscoverySource.STATIONS)));
     }
 
     @Test
     public void navigationDeeplink_shouldOpenStationInfoWithSeedtrack() {
-        final Urn someStation = Urn.forArtistStation(123L);
-        final Urn seedTrack = Urn.forTrack(123L);
-        final UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
+        Urn someStation = Urn.forArtistStation(123L);
+        Urn seedTrack = Urn.forTrack(123L);
+        UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
         NavigationTarget navigationTarget = NavigationTarget.forStationInfo(someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS), Optional.of(navigationEvent));
 
-        resolveTarget(navigationTarget);
-
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createStationsInfoIntent(activity, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)));
-
+        assertTarget(navigationTarget, IntentFactory.createStationsInfoIntent(context, someStation, Optional.of(seedTrack), Optional.of(DiscoverySource.STATIONS)));
         verify(eventTracker).trackNavigation(navigationEvent);
     }
 
@@ -2235,10 +1931,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
         NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(true);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsOnboardingIntent(context));
 
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createOfflineSettingsOnboardingIntent(activity));
     }
 
     @Test
@@ -2247,10 +1941,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
         NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(true);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
     }
 
     @Test
@@ -2259,10 +1951,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
         NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
     }
 
     @Test
@@ -2271,10 +1961,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(offlineSettingsStorage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
         NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createOfflineSettingsIntent(context));
 
-        Assertions.assertThat(activity).nextStartedIntent()
-                  .isEqualToIntent(IntentFactory.createOfflineSettingsIntent(activity));
     }
 
     @Test
@@ -2283,9 +1971,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         NavigationTarget navigationTarget = NavigationTarget.forOfflineSettings(false);
 
-        resolveTarget(navigationTarget);
-
-        verify(navigationExecutor).openStream(activity, Screen.UNKNOWN);
+        assertTarget(navigationTarget, createStreamIntent(Screen.UNKNOWN));
     }
 
     // Fallback Errors
@@ -2295,10 +1981,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "https://soundcloud.com/jobs/";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        resolveTarget(navigationTarget);
+        assertTarget(navigationTarget, IntentFactory.createWebViewIntent(context, Uri.parse(target)));
 
         verifyZeroInteractions(resolveOperations);
-        verify(navigationExecutor).openWebView(activity, Uri.parse(target));
     }
 
     @Test
@@ -2346,10 +2031,12 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(ResolveResult.error(Uri.parse(target), null)));
 
-        resolveTarget(navigationTarget);
+        boolean success = resolver.resolveNavigationResult(context, navigationTarget)
+                                  .test()
+                                  .values().get(0)
+                                  .isSuccess();
 
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.error_unknown_navigation));
+        assertThat(success).isFalse();
     }
 
     @Test
@@ -2404,19 +2091,29 @@ public class NavigationResolverTest extends AndroidUnitTest {
         return NavigationTarget.forExternalDeeplink(target, referrer.value());
     }
 
-    private void resolveTarget(NavigationTarget navigationTarget) {
-        resolver.resolveNavigationResult(activity, navigationTarget).subscribeWith(new TestSubscriber());
+    private void assertTarget(NavigationTarget navigationTarget, Intent expected) {
+        assertTarget(navigationTarget, expected, Collections.emptyList());
     }
 
-    private static final class TestSubscriber extends DefaultSingleObserver<NavigationResult> {
-        @Override
-        public void onSuccess(NavigationResult navigationResult) {
-            super.onSuccess(navigationResult);
-            try {
-                navigationResult.action().run();
-            } catch (Exception e) {
-                fail("Exception during execution", e);
-            }
+    private void assertTarget(NavigationTarget navigationTarget, Intent expected, List<Intent> taskStack) {
+        NavigationResult result = resolver.resolveNavigationResult(context, navigationTarget)
+                                          .test()
+                                          .assertNoErrors()
+                                          .values().get(0);
+
+        new IntentAssert(result.intent().get()).isEqualToIntent(expected);
+
+        assertThat(result.taskStack().size()).isEqualTo(taskStack.size());
+        for (int i = 0; i < taskStack.size(); i++) {
+            Intent taskStackExpected = taskStack.get(i);
+            Intent resultIntent = result.taskStack().get(i);
+            new IntentAssert(resultIntent).isEqualToIntent(taskStackExpected);
         }
+    }
+
+    private void resolveTarget(NavigationTarget navigationTarget) {
+        resolver.resolveNavigationResult(context, navigationTarget)
+                .test()
+                .assertNoErrors();
     }
 }

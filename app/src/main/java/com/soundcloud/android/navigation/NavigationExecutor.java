@@ -5,35 +5,24 @@ import static com.soundcloud.android.navigation.IntentFactory.createCollectionAs
 import static com.soundcloud.android.navigation.IntentFactory.createCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createConversionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createDirectCheckoutIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createDiscoveryIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createMoreIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPerformSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlayHistoryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecentlyPlayedIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createRemoteSignInIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createResolveIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createSearchActionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchFromShortcutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSearchPremiumContentResultsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createSearchViewAllIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createStreamIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createStreamWithExpandedPlayerIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackCommentsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesFromShortcutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createViewAllRecommendationsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createViewIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createWebViewIntent;
 import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
 import com.soundcloud.android.analytics.EventTracker;
@@ -120,8 +109,8 @@ public class NavigationExecutor {
                         .startActivities();
     }
 
-    public void openDirectCheckout(Context context, Plan plan) {
-        context.startActivity(createDirectCheckoutIntent(context, plan));
+    Intent openDirectCheckout(Context context, Plan plan) {
+        return createDirectCheckoutIntent(context, plan);
     }
 
     public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {
@@ -140,10 +129,6 @@ public class NavigationExecutor {
         }
     }
 
-    public void openSearch(Context context, Uri uri, Screen screen) {
-        final Intent homeIntent = createSearchActionIntent(context, uri, screen);
-        context.startActivity(homeIntent);
-    }
 
     public void openSearchFromShortcut(Activity activity) {
         Intent intent = createSearchFromShortcutIntent(activity);
@@ -164,27 +149,6 @@ public class NavigationExecutor {
         context.startActivity(createPerformSearchIntent(query));
     }
 
-    public void openEmail(Activity activity, String emailAddress) {
-        Intent intent = createEmailIntent(emailAddress);
-        activity.startActivity(intent);
-    }
-
-    public void openExternal(Activity activity, Uri uri) {
-        activity.startActivity(createViewIntent(uri));
-    }
-
-    void openSearchViewAll(Context context, NavigationTarget navigationTarget) {
-        context.startActivity(createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
-    }
-
-    public void openOnboarding(Context context, Uri deepLinkUri, Screen screen) {
-        context.startActivity(createOnboardingIntent(context, screen, deepLinkUri));
-    }
-
-    public void openStream(Context context, Screen screen) {
-        context.startActivity(createStreamIntent(screen));
-    }
-
     public void openCollectionAsTopScreen(Context context) {
         context.startActivity(createCollectionIntent().setFlags(IntentFactory.FLAGS_TOP));
     }
@@ -200,22 +164,6 @@ public class NavigationExecutor {
 
     public void openMore(Context context) {
         context.startActivity(createMoreIntent());
-    }
-
-    public void openLauncher(Context context) {
-        context.startActivity(createLauncherIntent(context));
-    }
-
-    public void openStreamWithExpandedPlayer(Context context, Screen screen) {
-        context.startActivity(createStreamWithExpandedPlayerIntent(screen));
-    }
-
-    public void openWebView(Context context, Uri uri) {
-        context.startActivity(createWebViewIntent(context, uri));
-    }
-
-    public void openRemoteSignInWebView(Context context, Uri uri) {
-        context.startActivity(createRemoteSignInIntent(context, uri));
     }
 
     public void openResolveForUri(Context context, Uri uri) {
@@ -253,10 +201,6 @@ public class NavigationExecutor {
 
     public void openAlbumsCollection(Activity activity) {
         activity.startActivity(createAlbumsCollectionIntent(activity));
-    }
-
-    public void openDiscovery(Context context, Screen screen) {
-        context.startActivity(createDiscoveryIntent(screen));
     }
 
     public void openRecentlyPlayed(Context context) {

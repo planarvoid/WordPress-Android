@@ -55,6 +55,8 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
 
                     if (actualKeyValue instanceof Bundle && expectedKeyValue instanceof Bundle) {
                         hasEqualBundle((Bundle) actualKeyValue, (Bundle) expectedKeyValue);
+                    } else if (actualKeyValue instanceof Intent && expectedKeyValue instanceof Intent) {
+                        new IntentAssert((Intent) actualKeyValue).isEqualToIntent((Intent) expectedKeyValue);
                     } else {
                         assertThat(actualKeyValue)
                                 .overridingErrorMessage("Intent bundle key values for key: " + key + " do not match. Expected: " + expectedKeyValue + " Actual: " + actualKeyValue)
