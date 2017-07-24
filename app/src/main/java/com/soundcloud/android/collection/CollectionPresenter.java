@@ -34,20 +34,19 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -60,15 +59,15 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
+class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, CollectionItem>
         implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener, OfflineOnboardingItemCellRenderer.Listener, UpsellItemCellRenderer.Listener {
 
     private static final int FIXED_ITEMS = 5;
 
-    @VisibleForTesting final Function<MyCollection, Iterable<CollectionItem>> toCollectionItems =
-            new Function<MyCollection, Iterable<CollectionItem>>() {
+    @VisibleForTesting final Function<MyCollection, List<CollectionItem>> toCollectionItems =
+            new Function<MyCollection, List<CollectionItem>>() {
                 @Override
-                public List<CollectionItem> apply(MyCollection myCollection) {
+                public List<CollectionItem> apply(MyCollection myCollection) throws Exception {
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
                     if (goOnboardingTooltipExperiment.isEnabled()
                             && featureOperations.isOfflineContentEnabled()
@@ -178,21 +177,32 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     @Override
-    protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
-        final Observable<MyCollection> collections = collectionOperations.collections()
-                                                                         .doOnSubscribe(disposable -> performanceMetricsEngine.startMeasuring(MetricType.COLLECTION_LOAD))
-                                                                         .doOnComplete(() -> performanceMetricsEngine.endMeasuring(MetricType.COLLECTION_LOAD))
-                                                                         .observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.fromV2(collections.doOnNext(new OnCollectionLoadedComsumer()), toCollectionItems)
+    protected CollectionBinding<List<CollectionItem>, CollectionItem> onBuildBinding(Bundle bundle) {
+        final Observable<List<CollectionItem>> collections = collectionOperations.collections()
+                                                                                 .doOnSubscribe(disposable -> performanceMetricsEngine.startMeasuring(MetricType.COLLECTION_LOAD))
+                                                                                 .doOnComplete(() -> performanceMetricsEngine.endMeasuring(MetricType.COLLECTION_LOAD))
+                                                                                 .distinctUntilChanged()
+                                                                                 .observeOn(AndroidSchedulers.mainThread())
+                                                                                 .doOnNext(this::handleCollectionUpdate)
+                                                                                 .map(toCollectionItems);
+        return CollectionBinding.fromV2(collections)
                                 .withAdapter(adapter)
                                 .build();
     }
 
+    private void handleCollectionUpdate(MyCollection myCollection) {
+        subscribeForUpdates();
+        if (myCollection.hasError()) {
+            showError();
+        }
+    }
+
     @Override
-    protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
-        final Single<MyCollection> collections = collectionOperations.updatedCollections()
-                                                                     .observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.fromV2(collections.doOnError(__ -> showError()), toCollectionItems)
+    protected CollectionBinding<List<CollectionItem>, CollectionItem> onRefreshBinding() {
+        final Single<List<CollectionItem>> collections = collectionOperations.updatedCollections()
+                                                                             .map(toCollectionItems)
+                                                                             .observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.fromV2(collections.doOnError(__ -> showError()))
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -227,11 +237,12 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     private void refreshCollections() {
-        final Observable<MyCollection> source = collectionOperations.collections()
-                                                                    .observeOn(AndroidSchedulers.mainThread());
-        retryWith(CollectionBinding
-                          .fromV2(source, toCollectionItems)
-                          .withAdapter(adapter).build());
+        final Observable<List<CollectionItem>> source = collectionOperations.collections()
+                                                                            .map(toCollectionItems)
+                                                                            .observeOn(AndroidSchedulers.mainThread());
+        retryWith(CollectionBinding.fromV2(source)
+                                   .withAdapter(adapter)
+                                   .build());
     }
 
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {
@@ -327,16 +338,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     @Override
     public void trackItemClicked(Urn urn, int position) {
         disposables.add(playHistoryOperations.startPlaybackFrom(urn, Screen.COLLECTIONS).subscribeWith(expandPlayerObserverProvider.get()));
-    }
-
-    private class OnCollectionLoadedComsumer implements Consumer<MyCollection> {
-        @Override
-        public void accept(MyCollection myCollection) {
-            subscribeForUpdates();
-            if (myCollection.hasError()) {
-                showError();
-            }
-        }
     }
 
     private static class OfflinePropertiesSubscriber extends DefaultObserver<OfflineProperties> {
