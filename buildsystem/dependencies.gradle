@@ -74,7 +74,8 @@ ext {
           rxJava2                     : "io.reactivex.rxjava2:rxjava:2.1.2",
           rxJavaInterop               : "com.github.akarnokd:rxjava2-interop:0.10.2",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
-          sqlBrite                    : "com.squareup.sqlbrite:sqlbrite:1.1.1",
+          sqlBrite                    : "com.squareup.sqlbrite2:sqlbrite:2.0.0",
+          sqlBriteInterop             : "com.squareup.sqlbrite2:sqlbrite-interop:2.0.0",
 
           // UI libraries
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",
