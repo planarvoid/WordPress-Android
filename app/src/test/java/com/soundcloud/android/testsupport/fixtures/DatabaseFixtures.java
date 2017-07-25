@@ -281,6 +281,22 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiPlaylist insertPlaylistWithTitle(String title) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setTitle(title);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
+    public ApiPlaylist insertPlaylistWithTitle(String title, ApiUser user) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setTitle(title);
+        playlist.setUser(user);
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
     public ApiPlaylist insertPlaylistWithCreatedAt(Date createdAt) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setCreatedAt(createdAt);
@@ -388,9 +404,10 @@ public class DatabaseFixtures {
         return playlist;
     }
 
-    public ApiTrack insertTrackWithTitle(String title) {
+    public ApiTrack insertTrackWithTitle(String title, ApiUser user) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setTitle(title);
+        track.setUser(user);
         insertTrack(track);
         return track;
     }
@@ -778,6 +795,13 @@ public class DatabaseFixtures {
         return apiTrackPost;
     }
 
+    public ApiTrack insertTrackPost(ApiTrack apiTrack) {
+        insertTrackPost(apiTrack.getUrn().getNumericId(),
+                        apiTrack.getCreatedAt().getTime(),
+                        false);
+        return apiTrack;
+    }
+
     public void insertTrackRepost(long id, long createdAt) {
         insertTrackPost(id, createdAt, true);
     }
@@ -807,6 +831,11 @@ public class DatabaseFixtures {
     public ApiPlaylist insertPostedPlaylist(Date postedAt) {
         ApiPlaylist apiPlaylist = insertPlaylistWithCreatedAt(postedAt);
         insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedAt.getTime(), false);
+        return apiPlaylist;
+    }
+
+    public ApiPlaylist insertPostedPlaylist(ApiPlaylist apiPlaylist) {
+        insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), apiPlaylist.getCreatedAt().getTime(), false);
         return apiPlaylist;
     }
 

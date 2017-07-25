@@ -24,7 +24,8 @@ class SearchSuggestionStorage {
     private static final String IMAGE_URL = "image_url";
     private static final String KIND_LIKE = "like";
     private static final String KIND_FOLLOWING = "following";
-    private static final String SQL_SOUNDS = "SELECT '" +
+    private static final String KIND_POST = "post";
+    private static final String SQL_LIKED_SOUNDS = "SELECT '" +
             KIND_LIKE + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
@@ -35,6 +36,18 @@ class SearchSuggestionStorage {
             "AND Likes._type = Sounds._type " +
             "WHERE " + DISPLAY_TEXT + " LIKE ? " +
             "OR " + DISPLAY_TEXT + " LIKE ?";
+    private static final String SQL_POSTED_SOUNDS = "SELECT '" +
+            KIND_POST + "' AS " + KIND + ", " +
+            "Sounds._id AS " + ID + ", " +
+            "Sounds._type AS " + TYPE + ", " +
+            "title AS " + DISPLAY_TEXT + ", " +
+            "artwork_url AS " + IMAGE_URL + " " +
+            "FROM Posts " +
+            "INNER JOIN Sounds ON Posts.target_id = Sounds._id " +
+            "AND Posts.target_type = Sounds._type " +
+            "WHERE Posts.type = '" + Tables.Posts.TYPE_POST + "' " +
+            "AND (" + DISPLAY_TEXT + " LIKE ? " +
+            "OR " + DISPLAY_TEXT + " LIKE ?)";
     private static final String SQL_LOGGED_IN_USER = "SELECT '" +
             KIND_FOLLOWING + "' AS " + KIND + ", " +
             "Users._id AS " + ID + ", " +
@@ -55,24 +68,25 @@ class SearchSuggestionStorage {
             "INNER JOIN Users ON UserAssociations.target_id = Users._id " +
             "WHERE " + DISPLAY_TEXT + " LIKE ? " +
             "OR " + DISPLAY_TEXT + " LIKE ?";
-    private static final String SQL = SQL_SOUNDS + " UNION " + SQL_USERS + " UNION " + SQL_LOGGED_IN_USER;
+    private static final String SQL = SQL_LIKED_SOUNDS + " UNION " + SQL_USERS + " UNION " + SQL_LOGGED_IN_USER + " UNION " + SQL_POSTED_SOUNDS;
     private final PropellerRx propellerRx;
 
     @Inject
-    public SearchSuggestionStorage(PropellerDatabase propeller) {
+    SearchSuggestionStorage(PropellerDatabase propeller) {
         this.propellerRx = new PropellerRx(propeller);
     }
 
-    public Single<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
+    Single<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
         return RxJava.toV2Single(propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn)).limit(limit).map(new SearchSuggestionMapper()).toList());
     }
 
     @NonNull
     private Object[] getWhere(String searchQuery, Urn loggedInUserUrn) {
         return new Object[]{
-                searchQuery + "%", "% " + searchQuery + "%", // title
-                searchQuery + "%", "% " + searchQuery + "%", // user associations
-                loggedInUserUrn.getNumericId(), searchQuery + "%", "% " + searchQuery + "%" // logged in user
+                searchQuery + "%", "% " + searchQuery + "%", // liked sounds by title
+                searchQuery + "%", "% " + searchQuery + "%", // users that are being followed
+                loggedInUserUrn.getNumericId(), searchQuery + "%", "% " + searchQuery + "%", // logged in user
+                searchQuery + "%", "% " + searchQuery + "%" // posted sounds by title
         };
     }
 
