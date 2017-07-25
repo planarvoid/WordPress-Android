@@ -32,6 +32,7 @@ import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
 
@@ -70,6 +71,7 @@ class AccountCleanupAction implements Action0 {
     private final ShortcutController shortcutController;
     private final SecureFileStorage secureFileStorage;
     private final DiscoveryWritableStorage discoveryWritableStorage;
+    private final WaveformOperations waveformOperations;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -95,7 +97,8 @@ class AccountCleanupAction implements Action0 {
                          SuggestedCreatorsStorage suggestedCreatorsStorage,
                          ShortcutController shortcutController,
                          SecureFileStorage secureFileStorage,
-                         DiscoveryWritableStorage discoveryWritableStorage) {
+                         DiscoveryWritableStorage discoveryWritableStorage,
+                         WaveformOperations waveformOperations) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -123,6 +126,7 @@ class AccountCleanupAction implements Action0 {
         this.shortcutController = shortcutController;
         this.secureFileStorage = secureFileStorage;
         this.discoveryWritableStorage = discoveryWritableStorage;
+        this.waveformOperations = waveformOperations;
     }
 
     @Override
@@ -167,7 +171,7 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Activities);
             commentsStorage.clear();
             clearTableCommand.call(Table.PromotedTracks);
-            clearTableCommand.call(Table.Waveforms);
+            waveformOperations.clearWaveforms();
             clearTableCommand.call(Tables.TrackPolicies.TABLE);
             removeLocalPlaylistsCommand.call(null);
         } catch (PropellerWriteException e) {

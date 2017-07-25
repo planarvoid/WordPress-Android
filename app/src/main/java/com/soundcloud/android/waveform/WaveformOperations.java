@@ -1,14 +1,10 @@
 package com.soundcloud.android.waveform;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Action1;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
@@ -25,7 +21,6 @@ public class WaveformOperations {
     private final Context context;
     private final WaveformFetchCommand waveformFetcher;
     private final WaveformStorage waveformStorage;
-    private final ClearTableCommand clearTableCommand;
     private final Scheduler scheduler;
     private final WaveformParser waveformParser;
 
@@ -34,38 +29,37 @@ public class WaveformOperations {
                        WaveformFetchCommand waveformFetcher,
                        WaveformStorage storage,
                        WaveformParser waveformParser,
-                       ClearTableCommand clearTableCommand,
-                       @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler) {
+                       @Named(ApplicationModule.RX_LOW_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.waveformFetcher = waveformFetcher;
         this.waveformStorage = storage;
-        this.clearTableCommand = clearTableCommand;
         this.scheduler = scheduler;
         this.waveformParser = waveformParser;
     }
 
-    public Observable<WaveformData> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
-        return waveformStorage.load(trackUrn)
-                              .switchIfEmpty(fetchAndStore(trackUrn, waveformUrl))
+    public Single<WaveformData> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
+        return waveformStorage.waveformData(trackUrn)
+                              .switchIfEmpty(fetchAndStore(trackUrn, waveformUrl).toMaybe())
+                              .toSingle()
                               .subscribeOn(scheduler);
     }
 
     public void clearWaveforms() {
-        clearTableCommand.call(Table.Waveforms);
+        waveformStorage.clear();
     }
 
-    private Observable<WaveformData> fetchAndStore(Urn trackUrn, String waveformUrl) {
-        return waveformFetcher.toObservable(waveformUrl)
-                              .doOnNext(storeAction(trackUrn))
+    private Single<WaveformData> fetchAndStore(Urn trackUrn, String waveformUrl) {
+        return waveformFetcher.toSingle(waveformUrl)
+                              .doOnSuccess(storeAction(trackUrn))
                               .onErrorResumeNext(fetchDefault());
     }
 
     @VisibleForTesting
-    protected Observable<WaveformData> fetchDefault() {
-        return Observable.fromCallable(() -> waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE)));
+    Single<WaveformData> fetchDefault() {
+        return Single.fromCallable(() -> waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE)));
     }
 
-    private Action1<WaveformData> storeAction(final Urn trackUrn) {
-        return waveformData -> fireAndForget(waveformStorage.store(trackUrn, waveformData));
+    private Consumer<WaveformData> storeAction(final Urn trackUrn) {
+        return waveformData -> waveformStorage.store(trackUrn, waveformData);
     }
 }

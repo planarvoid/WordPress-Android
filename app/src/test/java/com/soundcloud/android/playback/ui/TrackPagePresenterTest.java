@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -51,6 +52,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -142,6 +144,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(castPlayerStripControllerFactory.create(any(PlayerStripView.class), any(PlayerUpsellView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         when(emptyControllerFactory.create(any(View.class))).thenReturn(emptyViewController);
+        when(waveformOperations.waveformDataFor(any(Urn.class), anyString())).thenReturn(Single.never());
+
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.waveform;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,19 +7,18 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.WaveformView;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 
 public class WaveformOperationsTest extends AndroidUnitTest {
 
@@ -43,56 +41,55 @@ public class WaveformOperationsTest extends AndroidUnitTest {
         waveformData = new WaveformData(12, new int[]{12, 123, 124});
         waveformOperations = new WaveformOperations(
                 context(), waveformFetchCommand, waveFormStorage, waveformParser,
-                clearTableCommand, Schedulers.immediate());
+                Schedulers.trampoline());
 
-        when(waveFormStorage.load(trackUrn)).thenReturn(Observable.empty());
-        when(waveFormStorage.store(trackUrn, waveformData)).thenReturn(Observable.empty());
+        when(waveFormStorage.waveformData(trackUrn)).thenReturn(Maybe.empty());
     }
 
     @Test
     public void emitsWaveformDataInResultFromWaveformFetcher() {
-        when(waveformFetchCommand.toObservable(waveformUrl)).thenReturn(Observable.just(waveformData));
+        when(waveformFetchCommand.toSingle(waveformUrl)).thenReturn(Single.just(waveformData));
 
         waveformOperations.waveformDataFor(trackUrn, waveformUrl).subscribe(observer);
-        observer.assertReceivedOnNext(Collections.singletonList(waveformData));
+        observer.assertValue(waveformData);
     }
 
     @Test
     public void emitsDefaultWaveformFromWaveformFetcherOnError() throws IOException, JSONException {
-        when(waveformFetchCommand.toObservable(waveformUrl))
-                .thenReturn(Observable.error(new IOException("WaveformError")));
+        when(waveformFetchCommand.toSingle(waveformUrl))
+                .thenReturn(Single.error(new IOException("WaveformError")));
         when(waveformParser.parse(any(InputStream.class))).thenReturn(waveformData);
 
         waveformOperations.waveformDataFor(trackUrn, waveformUrl).subscribe(observer);
-        observer.assertReceivedOnNext(Collections.singletonList(waveformData));
+        observer.assertValue(waveformData);
     }
 
     @Test
     public void emitsDefaultWaveformOnNullWaveformUrl() throws IOException, JSONException {
-        when(waveformFetchCommand.toObservable(null))
-                .thenReturn(Observable.error(new IllegalArgumentException("null waveform")));
+        when(waveformFetchCommand.toSingle(null))
+                .thenReturn(Single.error(new IllegalArgumentException("null waveform")));
         when(waveformParser.parse(any(InputStream.class))).thenReturn(waveformData);
 
         waveformOperations.waveformDataFor(trackUrn, null).subscribe(observer);
 
-        observer.assertReceivedOnNext(Collections.singletonList(waveformData));
+        observer.assertValue(waveformData);
     }
 
     @Test
     public void emitsCachedWaveformIfAlreadyDownloaded() {
-        when(waveformFetchCommand.toObservable(waveformUrl)).thenReturn(Observable.just(WaveformData.EMPTY));
-        when(waveFormStorage.load(trackUrn)).thenReturn(Observable.just(waveformData));
+        when(waveformFetchCommand.toSingle(waveformUrl)).thenReturn(Single.just(WaveformData.EMPTY));
+        when(waveFormStorage.waveformData(trackUrn)).thenReturn(Maybe.just(waveformData));
 
         waveformOperations.waveformDataFor(trackUrn, waveformUrl).subscribe(observer);
 
-        observer.assertReceivedOnNext(Collections.singletonList(waveformData));
+        observer.assertValue(waveformData);
     }
 
     @Test
-    public void clearWaveformCallsClearWaveformTableCommand() {
+    public void clearWaveformCallsClearOnStorage() {
         waveformOperations.clearWaveforms();
 
-        verify(clearTableCommand).call(Table.Waveforms);
+        verify(waveFormStorage).clear();
     }
 
     @Test
@@ -101,7 +98,7 @@ public class WaveformOperationsTest extends AndroidUnitTest {
 
         waveformOperations.fetchDefault().subscribe(observer);
 
-        observer.assertReceivedOnNext(Collections.singletonList(waveformData));
+        observer.assertValue(waveformData);
     }
 
     @Test
@@ -111,7 +108,7 @@ public class WaveformOperationsTest extends AndroidUnitTest {
 
         waveformOperations.fetchDefault().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).isEmpty();
-        assertThat(observer.getOnErrorEvents()).containsExactly(exception);
+        observer.assertNoValues();
+        observer.assertError(exception);
     }
 }

@@ -5,9 +5,13 @@ import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
+import com.soundcloud.android.waveform.WaveformCacheSerializer;
+import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.vincentbrison.openlibraries.android.dualcache.Builder;
+import com.vincentbrison.openlibraries.android.dualcache.DualCache;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
@@ -32,6 +36,7 @@ public class StorageModule {
 
     public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
     public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
+    public static final String WAVEFORM_CACHE = "WaveformCache";
     public static final String PLAYLIST_TAGS = "PlaylistTags";
     public static final String DEVICE_MANAGEMENT = "DeviceManagement";
     public static final String PAYMENTS = "Payments";
@@ -102,6 +107,20 @@ public class StorageModule {
     @Nullable
     File provideStreamCacheDirectoryFlipper(Context context) {
         return IOUtils.createExternalStorageDir(context, "flipper");
+    }
+
+    @Provides
+    @Named(WAVEFORM_CACHE)
+    @Singleton
+    DualCache<WaveformData> provideWaveformCache(Context context, WaveformCacheSerializer waveformCacheSerializer) {
+        int maxSizeDiskMB = 1024 * 1024 * 2;
+        int maxSizeRamMB = 1024 * 512;
+        int version = 1;
+        return new Builder<WaveformData>("waveform", version)
+                .useSerializerInDisk(maxSizeDiskMB, IOUtils.createExternalStorageDir(context, "waveform"), waveformCacheSerializer)
+                .useSerializerInRam(maxSizeRamMB, waveformCacheSerializer)
+                .enableLog()
+                .build();
     }
 
     @Provides

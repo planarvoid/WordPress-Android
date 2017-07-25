@@ -35,6 +35,7 @@ import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.DefaultAnimationListener;
@@ -197,8 +198,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.loadArtwork(trackState, false, trackState.getViewVisibilityProvider());
         holder.timestamp.setInitialProgress(playableDuration, fullDuration);
         holder.menuController.setTrack(trackState);
-        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(urn,
-                                                                                 trackState.getWaveformUrl()),
+        holder.waveformController.setWaveform(RxJava.toV1Observable(waveformOperations.waveformDataFor(urn,
+                                                                                        trackState.getWaveformUrl())),
                                               trackState.isForeground());
 
         holder.artworkController.setFullDuration(fullDuration);

@@ -76,6 +76,7 @@ ext {
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
           sqlBrite                    : "com.squareup.sqlbrite2:sqlbrite:2.0.0",
           sqlBriteInterop             : "com.squareup.sqlbrite2:sqlbrite-interop:2.0.0",
+          dualCache                    : "com.vincentbrison.openlibraries.android:dualcache:3.1.1",
 
           // UI libraries
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",

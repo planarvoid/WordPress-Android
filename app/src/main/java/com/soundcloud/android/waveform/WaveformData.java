@@ -2,6 +2,7 @@ package com.soundcloud.android.waveform;
 
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.Arrays;
@@ -26,8 +27,8 @@ public class WaveformData {
     public final int maxAmplitude;
     public final int[] samples;
 
-    public WaveformData(int height, int[] samples) {
-        this.maxAmplitude = height;
+    public WaveformData(@JsonProperty("height") int maxAmplitude, @JsonProperty("samples") int[] samples) {
+        this.maxAmplitude = maxAmplitude;
         this.samples = samples;
     }
 

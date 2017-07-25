@@ -14,7 +14,6 @@ import static com.soundcloud.android.storage.Table.Activities;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.PromotedTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
-import static com.soundcloud.android.storage.Table.Waveforms;
 import static com.soundcloud.android.storage.TableColumns.Activities.COMMENT_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
 import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
@@ -26,8 +25,6 @@ import static com.soundcloud.android.storage.TableColumns.PromotedTracks.PROMOTE
 import static com.soundcloud.android.storage.TableColumns.ResourceTable.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.TableColumns.SoundView.USERNAME;
-import static com.soundcloud.android.storage.TableColumns.Waveforms.MAX_AMPLITUDE;
-import static com.soundcloud.android.storage.TableColumns.Waveforms.SAMPLES;
 import static com.soundcloud.android.storage.Tables.Comments.BODY;
 import static com.soundcloud.android.storage.Tables.Comments.TIMESTAMP;
 import static com.soundcloud.android.storage.Tables.Comments.URN;
@@ -134,8 +131,6 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.android.waveform.WaveformData;
-import com.soundcloud.android.waveform.WaveformSerializer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -886,14 +881,6 @@ public class DatabaseAssertions {
         assertThat(select(from(OfflineContent.TABLE)
                                   .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
                                   .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(1);
-    }
-
-    public void assertWaveformForTrack(Urn track, WaveformData waveformData) {
-        WaveformSerializer serializer = new WaveformSerializer();
-        assertThat(select(from(Waveforms.name())
-                                  .whereEq(TableColumns.Waveforms.TRACK_ID, track.getNumericId())
-                                  .whereEq(MAX_AMPLITUDE, waveformData.maxAmplitude)
-                                  .whereEq(SAMPLES, serializer.serialize(waveformData.samples)))).counts(1);
     }
 
     public void assertCommentInserted(CommentRecord comment) {

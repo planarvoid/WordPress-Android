@@ -6,6 +6,7 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.waveform.WaveformStorage;
 import com.soundcloud.android.waveform.WaveformFetchCommand;
 
 import android.content.res.Resources;
@@ -20,17 +21,17 @@ class OfflineTrackAssetDownloader {
     private final WaveformStorage waveformStorage;
 
     @Inject
-    public OfflineTrackAssetDownloader(ImageOperations imageOperations,
-                                       Resources resources,
-                                       WaveformFetchCommand waveformFetchCommand,
-                                       WaveformStorage waveformStorage) {
+    OfflineTrackAssetDownloader(ImageOperations imageOperations,
+                                Resources resources,
+                                WaveformFetchCommand waveformFetchCommand,
+                                WaveformStorage waveformStorage) {
         this.waveformFetchCommand = waveformFetchCommand;
         this.waveformStorage = waveformStorage;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
 
-    public void fetchTrackArtwork(ImageResource imageResource) {
+    void fetchTrackArtwork(ImageResource imageResource) {
         Log.d(OfflineContentService.TAG, "Prefetch artwork called for: " + imageResource);
         final ApiImageSize playerSize = ApiImageSize.getFullImageSize(resources);
         imageOperations.precacheArtwork(imageResource, playerSize);
@@ -39,9 +40,9 @@ class OfflineTrackAssetDownloader {
         imageOperations.precacheArtwork(imageResource, listItemSize);
     }
 
-    public void fetchTrackWaveform(Urn trackUrn, String waveformUrl) {
+    void fetchTrackWaveform(Urn trackUrn, String waveformUrl) {
         Log.d(OfflineContentService.TAG, "Prefetch waveform called for: " + trackUrn);
-        if (!waveformStorage.hasWaveform(trackUrn)) {
+        if (!waveformStorage.isWaveformStored(trackUrn)) {
             try {
                 waveformStorage.store(trackUrn, waveformFetchCommand.call(waveformUrl));
             } catch (WaveformFetchCommand.WaveformFetchException exception) {

@@ -16,8 +16,6 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
 
     Collections(PrimaryKey.of(TableColumns.Collections.URI), false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
 
-    Waveforms(PrimaryKey.of(TableColumns.Waveforms.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_WAVEFORMS),
-
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
     SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),

@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.waveform.WaveformStorage;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformFetchCommand;
 import com.soundcloud.java.optional.Optional;
@@ -57,7 +58,7 @@ public class OfflineTrackAssetDownloaderTest extends AndroidUnitTest {
 
     @Test
     public void prefetchDoesNotFetchAndStoreWaveformIfAlreadyExist() {
-        when(waveformStorage.hasWaveform(track)).thenReturn(true);
+        when(waveformStorage.isWaveformStored(track)).thenReturn(true);
 
         loader.fetchTrackWaveform(track, waveformUrl);
 

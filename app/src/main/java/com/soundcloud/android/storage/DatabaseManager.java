@@ -29,7 +29,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 111;
+    public static final int DATABASE_VERSION = 112;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -165,7 +165,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo44(db, oldVersion);
                             break;
                         case 45:
-                            success = upgradeTo45(db, oldVersion);
+                            success = upgradeTo45();
                             break;
                         case 46:
                             success = upgradeTo46(db, oldVersion);
@@ -372,6 +372,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 111:
                             success = upgradeTo111(db, oldVersion);
                             break;
+                        case 112:
+                            success = upgradeTo112(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -546,14 +549,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add waveforms table
      */
-    private boolean upgradeTo45(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.create(Table.Waveforms, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 45);
-        }
-        return false;
+    private boolean upgradeTo45() {
+        // removed when we migrated waveforms out of db
+        return true;
     }
 
     /**
@@ -1416,6 +1414,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 111);
+        }
+        return false;
+    }
+
+    /**
+     * Waveforms moved to separate storage class
+     */
+    private boolean upgradeTo112(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("Waveforms", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 112);
         }
         return false;
     }

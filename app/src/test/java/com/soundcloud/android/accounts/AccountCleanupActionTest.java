@@ -33,6 +33,7 @@ import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,6 +81,7 @@ public class AccountCleanupActionTest {
     @Mock private ShortcutController shortcutController;
     @Mock private SecureFileStorage secureFileStorage;
     @Mock private DiscoveryWritableStorage discoveryWritableStorage;
+    @Mock private WaveformOperations waveformOperations;
 
     @Before
     public void setup() {
@@ -109,7 +111,8 @@ public class AccountCleanupActionTest {
                                           suggestedCreatorsStorage,
                                           shortcutController,
                                           secureFileStorage,
-                                          discoveryWritableStorage);
+                                          discoveryWritableStorage,
+                                          waveformOperations);
     }
 
     @Test
@@ -209,7 +212,7 @@ public class AccountCleanupActionTest {
     @Test
     public void shouldClearWaveforms() {
         action.call();
-        verify(clearTableCommand).call(Table.Waveforms);
+        verify(waveformOperations).clearWaveforms();
     }
 
     @Test

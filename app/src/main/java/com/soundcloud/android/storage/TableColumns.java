@@ -32,13 +32,6 @@ public final class TableColumns {
         public static final String TRACKING_TRACK_IMPRESSION_URLS = "tracking_track_impression_urls";
     }
 
-    public static final class Waveforms implements BaseColumns {
-        public static final String TRACK_ID = "track_id";
-        public static final String MAX_AMPLITUDE = "max_amplitude";
-        public static final String SAMPLES = "samples";
-        public static final String CREATED_AT = "created_at";
-    }
-
     public static final class Comments implements BaseColumns {
         public static final String CREATED_AT = "created_at";
         public static final String BODY = "body";

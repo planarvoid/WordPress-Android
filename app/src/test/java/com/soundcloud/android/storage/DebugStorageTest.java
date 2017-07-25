@@ -52,8 +52,7 @@ public class DebugStorageTest extends StorageIntegrationTest {
                 Pair.of("PromotedTracks", 0),
                 Pair.of("Activities", 0),
                 Pair.of("PlaylistTracks", 0),
-                Pair.of("Collections", 0),
-                Pair.of("Waveforms", 0)
+                Pair.of("Collections", 0)
         );
     }
 }

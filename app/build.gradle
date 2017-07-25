@@ -212,6 +212,7 @@ dependencies {
   compile libraries.universalImageLoader
   compile libraries.sqlBrite
   compile libraries.sqlBriteInterop
+  compile libraries.dualCache
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {
       // see https://github.com/mente/facebook-api-android-aar/issues/11
