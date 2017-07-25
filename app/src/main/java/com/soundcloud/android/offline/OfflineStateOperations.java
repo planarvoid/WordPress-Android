@@ -11,7 +11,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
-import com.squareup.haha.guava.collect.Maps;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -21,6 +20,7 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -175,6 +175,6 @@ public class OfflineStateOperations {
     }
 
     private <KEY, VALUE> Map<KEY, VALUE> createMap() {
-        return Maps.newHashMap();
+        return new HashMap<>();
     }
 }
