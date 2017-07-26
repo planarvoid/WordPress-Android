@@ -70,7 +70,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowToast;
 
 import android.Manifest;
 import android.content.Context;
@@ -109,7 +108,10 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        resolver = new NavigationResolver(resolveOperations,
+        context = activity();
+
+        resolver = new NavigationResolver(context,
+                                          resolveOperations,
                                           localEntityUriResolver,
                                           accountOperations,
                                           playbackServiceController,
@@ -131,7 +133,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
         when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
-        context = activity();
     }
 
     // For Deeplink
@@ -596,11 +597,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -610,11 +609,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -624,11 +621,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -638,11 +633,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -690,11 +683,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -704,11 +695,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -768,11 +757,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -782,11 +769,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN));
+        assertTarget(navigationTarget, createDiscoveryIntent(DEEPLINK_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -1351,11 +1336,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyZeroInteractions(eventBus);
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -1364,11 +1347,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyZeroInteractions(eventBus);
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -1401,11 +1382,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyZeroInteractions(eventBus);
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -1450,11 +1429,9 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN));
+        assertTarget(navigationTarget, createStreamIntent(NAVIGATION_SCREEN), context().getString(R.string.product_choice_error_already_subscribed));
 
         verifyZeroInteractions(eventBus);
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -2031,7 +2008,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(ResolveResult.error(Uri.parse(target), null)));
 
-        boolean success = resolver.resolveNavigationResult(context, navigationTarget)
+        boolean success = resolver.resolveNavigationResult(navigationTarget)
                                   .test()
                                   .values().get(0)
                                   .isSuccess();
@@ -2045,10 +2022,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(ResolveResult.error(Uri.parse(target), null)));
 
-        resolveTarget(navigationTarget);
-
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.error_unknown_navigation));
+        assertTargetWithToast(navigationTarget, context().getString(R.string.error_unknown_navigation));
     }
 
     private ForegroundEvent captureForegroundEvent() {
@@ -2091,12 +2065,29 @@ public class NavigationResolverTest extends AndroidUnitTest {
         return NavigationTarget.forExternalDeeplink(target, referrer.value());
     }
 
+    private void assertTargetWithToast(NavigationTarget navigationTarget, String toastMessage) {
+        NavigationResult result = resolver.resolveNavigationResult(navigationTarget)
+                                          .test()
+                                          .assertNoErrors()
+                                          .values().get(0);
+
+        assertThat(result.toastMessage().get()).isEqualTo(toastMessage);
+    }
+
     private void assertTarget(NavigationTarget navigationTarget, Intent expected) {
-        assertTarget(navigationTarget, expected, Collections.emptyList());
+        assertTarget(navigationTarget, expected, Collections.emptyList(), Optional.absent());
+    }
+
+    private void assertTarget(NavigationTarget navigationTarget, Intent expected, String toastMessage) {
+        assertTarget(navigationTarget, expected, Collections.emptyList(), Optional.of(toastMessage));
     }
 
     private void assertTarget(NavigationTarget navigationTarget, Intent expected, List<Intent> taskStack) {
-        NavigationResult result = resolver.resolveNavigationResult(context, navigationTarget)
+        assertTarget(navigationTarget, expected, taskStack, Optional.absent());
+    }
+
+    private void assertTarget(NavigationTarget navigationTarget, Intent expected, List<Intent> taskStack, Optional<String> toastMessage) {
+        NavigationResult result = resolver.resolveNavigationResult(navigationTarget)
                                           .test()
                                           .assertNoErrors()
                                           .values().get(0);
@@ -2109,10 +2100,12 @@ public class NavigationResolverTest extends AndroidUnitTest {
             Intent resultIntent = result.taskStack().get(i);
             new IntentAssert(resultIntent).isEqualToIntent(taskStackExpected);
         }
+
+        toastMessage.ifPresent(message -> assertThat(result.toastMessage().get()).isEqualTo(message));
     }
 
     private void resolveTarget(NavigationTarget navigationTarget) {
-        resolver.resolveNavigationResult(context, navigationTarget)
+        resolver.resolveNavigationResult(navigationTarget)
                 .test()
                 .assertNoErrors();
     }

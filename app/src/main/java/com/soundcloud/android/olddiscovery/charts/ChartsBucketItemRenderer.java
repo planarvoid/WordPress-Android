@@ -6,7 +6,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.view.LayoutInflater;
@@ -55,7 +54,7 @@ public class ChartsBucketItemRenderer implements CellRenderer<ChartsBucketItem> 
     }
 
     @OnClick(R.id.charts_genre_view_all)
-    void onViewAllClicked(View item) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(item), NavigationTarget.forAllGenres());
+    void onViewAllClicked() {
+        navigator.navigateTo(NavigationTarget.forAllGenres());
     }
 }

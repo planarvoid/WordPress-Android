@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -106,7 +104,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
             eventContextMetadataBuilder.pageName(screen.get());
         }
 
-        navigator.navigateTo(getFragmentActivity(view), NavigationTarget.forProfile(
+        navigator.navigateTo(NavigationTarget.forProfile(
                 urn,
                 Optional.of(UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build())),
                 Optional.absent(),

@@ -3,7 +3,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.navigation.NavigationTarget;
@@ -40,7 +39,7 @@ public class OfflineSettingsOnboardingPresenterTest {
     @Test
     public void onContinueOpensOfflineSettings() {
         presenter.onContinue();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forOfflineSettings(false))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forOfflineSettings(false))));
     }
 
 }

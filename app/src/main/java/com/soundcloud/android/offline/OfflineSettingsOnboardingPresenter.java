@@ -34,6 +34,6 @@ public class OfflineSettingsOnboardingPresenter extends DefaultActivityLightCycl
 
     void onContinue() {
         storage.setOfflineSettingsOnboardingSeen();
-        navigator.navigateTo(activity, NavigationTarget.forOfflineSettings(false));
+        navigator.navigateTo(NavigationTarget.forOfflineSettings(false));
     }
 }

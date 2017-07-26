@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -118,7 +116,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         loadArtwork(itemView, playableItem);
         itemView.title.setText(playableItem.title());
         itemView.creator.setText(playableItem.creatorName());
-        itemView.creator.setOnClickListener(v -> navigator.navigateTo(getFragmentActivity(v), NavigationTarget.forProfile(playableItem.creatorUrn())));
+        itemView.creator.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(playableItem.creatorUrn())));
     }
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {

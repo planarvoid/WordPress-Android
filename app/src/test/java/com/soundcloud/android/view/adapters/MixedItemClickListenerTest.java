@@ -146,7 +146,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view.getContext(), 2);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
                                                                                                                 screen,
                                                                                                                 Optional.fromNullable(searchQuerySourceInfo),
                                                                                                                 Optional.absent(),
@@ -167,7 +167,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(playables, view, 0, playlistItem);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
                                                                                                                 screen,
                                                                                                                 Optional.fromNullable(searchQuerySourceInfo),
                                                                                                                 Optional.of(PromotedSourceInfo.fromItem(playlistItem)),
@@ -189,7 +189,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(playables, view, 0, suggestionItem);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(suggestionItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(suggestionItem.getUrn(),
                                                                                                                       screen,
                                                                                                                       Optional.of(searchQuerySourceInfo),
                                                                                                                       Optional.absent()))));
@@ -208,7 +208,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, activity, 2);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
                                                                                                                Optional.absent(),
                                                                                                                Optional.of(screen),
                                                                                                                Optional.of(searchQuerySourceInfo)))));
@@ -238,8 +238,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
         verify(navigator).navigateTo(
-                eq(activity),
-                argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(items.get(1),
+                                argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(items.get(1),
                                                                              screen,
                                                                              Optional.fromNullable(searchQuerySourceInfo),
                                                                              Optional.absent(),
@@ -261,7 +260,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
                                                                                                                Optional.absent(),
                                                                                                                Optional.of(screen),
                                                                                                                Optional.of(searchQuerySourceInfo)))));
@@ -292,7 +291,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         listener.legacyOnPostClick(Observable.just(items), view, 1, playlistItem);
 
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
                                                                                                                 screen,
                                                                                                                 Optional.fromNullable(searchQuerySourceInfo),
                                                                                                                 Optional.absent(),
@@ -316,7 +315,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final Module module = Module.create(Module.USER_ALBUMS, modulePosition);
         listener.onPostClick(Observable.just(items), view, 1, playlistItem, module);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
                                                                                                                 screen,
                                                                                                                 Optional.fromNullable(searchQuerySourceInfo),
                                                                                                                 Optional.absent(),
@@ -340,7 +339,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.legacyOnPostClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
                                                                                                                Optional.absent(),
                                                                                                                Optional.of(screen),
                                                                                                                Optional.of(searchQuerySourceInfo)))));

@@ -13,7 +13,6 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
@@ -108,7 +107,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     @Override
     protected void onItemClicked(View view, int position) {
         PlaylistItem playlist = adapter.getItem(position);
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegacyPlaylist(playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
+        navigator.navigateTo(NavigationTarget.forLegacyPlaylist(playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO));
         eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

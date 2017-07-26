@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -175,13 +174,13 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         if (page.contains(PrestitialPage.OPT_IN_CARD))  {
             advanceToNextPage();
         } else {
-            onClickThrough(context, ((PrestitialAd) ad).clickthroughUrl(), ad);
+            onClickThrough(((PrestitialAd) ad).clickthroughUrl(), ad);
         }
     }
 
-    private void onClickThrough(Context context, Uri clickthroughUrl, AdData ad) {
+    private void onClickThrough(Uri clickthroughUrl, AdData ad) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(ad));
-        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forAdClickthrough(clickthroughUrl.toString()));
+        navigator.navigateTo(NavigationTarget.forAdClickthrough(clickthroughUrl.toString()));
         endActivity();
     }
 
@@ -209,7 +208,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         if (page.is(PrestitialPage.OPT_IN_CARD)) {
             endActivity();
         } else if (page.is(PrestitialPage.END_CARD)) {
-            onClickThrough(context, ad.clickthroughUrl(), ad);
+            onClickThrough(ad.clickthroughUrl(), ad);
         }
     }
 

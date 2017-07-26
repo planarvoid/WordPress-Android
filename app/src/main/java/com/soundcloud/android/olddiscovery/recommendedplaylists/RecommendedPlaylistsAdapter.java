@@ -95,7 +95,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
                                                                                   this.queryUrn);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromRecommendedPlaylists(playlistUrn, eventContextMetadata));
-        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
+        navigator.navigateTo(NavigationTarget.forPlaylist(playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

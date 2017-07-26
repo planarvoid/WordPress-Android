@@ -100,8 +100,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(navigator).navigateTo(eq(activityContext),
-                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(track.getUrn().getNumericId()),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(track.getUrn().getNumericId()),
                                                                                                      Optional.of(track.getUrn()),
                                                                                                      Optional.of(DiscoverySource.STATIONS),
                                                                                                      Optional.absent()))));
@@ -116,8 +115,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(updatedPlayerTrackState);
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(navigator).navigateTo(eq(activityContext),
-                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(updatedPlayerTrackState.getUrn().getNumericId()),
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(Urn.forTrackStation(updatedPlayerTrackState.getUrn().getNumericId()),
                                                                                                      Optional.absent(),
                                                                                                      Optional.of(DiscoverySource.STATIONS),
                                                                                                      Optional.absent()))));

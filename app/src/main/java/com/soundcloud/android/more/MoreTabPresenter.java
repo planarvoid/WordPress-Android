@@ -29,7 +29,6 @@ import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -223,34 +222,34 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     @Override
-    public void onProfileClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forProfile(accountOperations.getLoggedInUserUrn()));
+    public void onProfileClicked() {
+        navigator.navigateTo(NavigationTarget.forProfile(accountOperations.getLoggedInUserUrn()));
     }
 
     @Override
-    public void onActivitiesClicked(View view) {
+    public void onActivitiesClicked() {
         performanceMetricsEngine.startMeasuring(MetricType.ACTIVITIES_LOAD);
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forActivities());
+        navigator.navigateTo(NavigationTarget.forActivities());
     }
 
     @Override
-    public void onRecordClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)));
+    public void onRecordClicked() {
+        navigator.navigateTo(NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)));
     }
 
     @Override
-    public void onOfflineSettingsClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forOfflineSettings(true));
+    public void onOfflineSettingsClicked() {
+        navigator.navigateTo(NavigationTarget.forOfflineSettings(true));
     }
 
     @Override
-    public void onNotificationPreferencesClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forNotificationPreferences());
+    public void onNotificationPreferencesClicked() {
+        navigator.navigateTo(NavigationTarget.forNotificationPreferences());
     }
 
     @Override
-    public void onBasicSettingsClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forBasicSettings());
+    public void onBasicSettingsClicked() {
+        navigator.navigateTo(NavigationTarget.forBasicSettings());
     }
 
     @Override
@@ -259,13 +258,13 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     @Override
-    public void onHelpCenterClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forHelpCenter());
+    public void onHelpCenterClicked() {
+        navigator.navigateTo(NavigationTarget.forHelpCenter());
     }
 
     @Override
-    public void onLegalClicked(View view) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegal());
+    public void onLegalClicked() {
+        navigator.navigateTo(NavigationTarget.forLegal());
     }
 
     @Override

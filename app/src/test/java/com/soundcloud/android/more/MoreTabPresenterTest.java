@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -165,49 +164,49 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onActivitiesClickedNavigatesToActivities() {
         initFragment();
-        listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onActivitiesClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forActivities())));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forActivities())));
     }
 
     @Test
     public void onRecordClickedNavigatesToRecord() {
         initFragment();
-        listenerArgumentCaptor.getValue().onRecordClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onRecordClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forRecord(Optional.absent(), Optional.of(Screen.MORE)))));
     }
 
     @Test
     public void onProfileClickedNavigatesToProfile() {
         initFragment();
-        listenerArgumentCaptor.getValue().onProfileClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onProfileClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(USER_URN))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(USER_URN))));
     }
 
     @Test
     public void onOfflineSettingsClickedShowsOfflineSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onOfflineSettingsClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forOfflineSettings(true))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forOfflineSettings(true))));
     }
 
     @Test
     public void onNotificationSettingsClickedShowsNotificationSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onNotificationPreferencesClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forNotificationPreferences())));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNotificationPreferences())));
     }
 
     @Test
     public void onBasicSettingsClickedShowsSettings() {
         initFragment();
-        listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onBasicSettingsClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forBasicSettings())));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forBasicSettings())));
     }
 
     @Test
@@ -252,17 +251,17 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onHelpCenterClickedShowsHelpCenter() {
         initFragment();
-        listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onHelpCenterClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forHelpCenter())));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forHelpCenter())));
     }
 
     @Test
     public void onLegalClickedShowsLegal() {
         initFragment();
-        listenerArgumentCaptor.getValue().onLegalClicked(new View(activity));
+        listenerArgumentCaptor.getValue().onLegalClicked();
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forLegal())));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forLegal())));
 
     }
 
@@ -343,7 +342,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartMeasuringActivitiesLoadMetricOnActivitiesClicked() {
-        presenter.onActivitiesClicked(new View(activity));
+        presenter.onActivitiesClicked();
         verify(performanceMetricsEngine).startMeasuring(MetricType.ACTIVITIES_LOAD);
     }
 

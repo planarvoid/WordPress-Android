@@ -19,7 +19,6 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -62,7 +61,7 @@ public class MixedItemClickListener {
                                           .playTracks(RxJava.toV2Single(playables), item.getUrn(), position, playSessionSource))
                   .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view.getContext(), clickedItem, Optional.absent());
+            handleNonTrackItemClick(clickedItem, Optional.absent());
         }
     }
 
@@ -117,7 +116,7 @@ public class MixedItemClickListener {
                                           .playPosts(RxJava.toV2Single(playablesWithReposters), item.getUrn(), position, playSessionSource))
                   .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view.getContext(), clickedItem, module);
+            handleNonTrackItemClick(clickedItem, module);
         }
     }
 
@@ -126,7 +125,7 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
-            handleNonTrackItemClick(context, playable, Optional.absent());
+            handleNonTrackItemClick(playable, Optional.absent());
         }
     }
 
@@ -134,26 +133,26 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(Collections.singletonList(playable), 0);
         } else {
-            handleNonTrackItemClick(context, playable, Optional.absent());
+            handleNonTrackItemClick(playable, Optional.absent());
         }
     }
 
-    private void handleNonTrackItemClick(Context context, ListItem item, Optional<Module> module) {
+    private void handleNonTrackItemClick(ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(entityUrn,
-                                                                                                      screen,
-                                                                                                      Optional.fromNullable(searchQuerySourceInfo),
-                                                                                                      promotedPlaylistInfo(item),
-                                                                                                      Optional.of(UIEvent.fromNavigation(entityUrn,
-                                                                                                                                         getEventContextMetadata((PlayableItem) item, module)))));
+            navigator.navigateTo(NavigationTarget.forPlaylist(entityUrn,
+                                                              screen,
+                                                              Optional.fromNullable(searchQuerySourceInfo),
+                                                              promotedPlaylistInfo(item),
+                                                              Optional.of(UIEvent.fromNavigation(entityUrn,
+                                                                                                 getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forLegacyPlaylist(entityUrn,
-                                                                                                            screen,
-                                                                                                            Optional.of(searchQuerySourceInfo),
-                                                                                                            promotedPlaylistInfo(item)));
+            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(entityUrn,
+                                                                    screen,
+                                                                    Optional.of(searchQuerySourceInfo),
+                                                                    promotedPlaylistInfo(item)));
         } else if (entityUrn.isUser()) {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
+            navigator.navigateTo(NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {
             throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
                                                                                                 .getSimpleName() + ": " + entityUrn);

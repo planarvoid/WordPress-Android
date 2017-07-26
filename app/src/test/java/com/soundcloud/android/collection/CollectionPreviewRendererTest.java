@@ -51,14 +51,14 @@ public class CollectionPreviewRendererTest {
 
     @Test
     public void shouldStartMeasuringikedStationsLoadingOnGotToLikedStations() {
-        collectionPreviewRenderer.onGoToStationsClick(activity);
+        collectionPreviewRenderer.onGoToStationsClick();
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.LIKED_STATIONS_LOAD);
     }
 
     @Test
     public void shouldStartMeasuringPlaylistsLoadingOnGoToPlaylists() {
-        collectionPreviewRenderer.onGoToPlaylistsAndAlbumsClick(activity);
+        collectionPreviewRenderer.onGoToPlaylistsAndAlbumsClick();
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.PLAYLISTS_LOAD);
     }

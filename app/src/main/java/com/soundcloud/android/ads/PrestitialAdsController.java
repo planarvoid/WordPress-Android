@@ -120,7 +120,7 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
             final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
             currentAd = Optional.of(data);
             eventBus.publish(EventQueue.TRACKING, event);
-            navigator.navigateTo(activity, NavigationTarget.forPrestitialAd());
+            navigator.navigateTo(NavigationTarget.forPrestitialAd());
         }
     }
 }

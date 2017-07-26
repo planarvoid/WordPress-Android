@@ -19,7 +19,6 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListObserver;
 import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
@@ -145,8 +144,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .build();
 
         UIEvent event = UIEvent.fromNavigation(urn, eventContextMetadata);
-        NavigationTarget target = NavigationTarget.forProfile(urn, Optional.of(event), Optional.absent(), Optional.absent());
-        navigator.navigateTo(ViewUtils.getFragmentActivity(view), target);
+        navigator.navigateTo(NavigationTarget.forProfile(urn, Optional.of(event), Optional.absent(), Optional.absent()));
     }
 
     @Override

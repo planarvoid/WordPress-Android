@@ -150,7 +150,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void goToCreator(Urn urn) {
-        navigator.navigateTo(getActivity(), NavigationTarget.forProfile(urn));
+        navigator.navigateTo(NavigationTarget.forProfile(urn));
     }
 
     @Override

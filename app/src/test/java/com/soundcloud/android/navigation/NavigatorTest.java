@@ -8,7 +8,6 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -63,13 +62,13 @@ public class NavigatorTest {
     public void callsNavigationActions() throws Exception {
         Intent intent = mock(Intent.class);
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, intent)));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, intent)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
 
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
 
-        verify(navigationResolver).resolveNavigationResult(activity, target);
+        verify(navigationResolver).resolveNavigationResult(target);
         verify(activity).startActivity(intent);
 
     }
@@ -80,14 +79,14 @@ public class NavigatorTest {
         Intent intent = mock(Intent.class);
         doThrow(ActivityNotFoundException.class).when(activity).startActivity(intent);
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, intent)));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, intent)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
 
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
 
         verify(activity).startActivity(intent);
-        verify(navigationResolver).resolveNavigationResult(activity, target);
+        verify(navigationResolver).resolveNavigationResult(target);
         ArgumentCaptor<Feedback> feedbackCaptor = ArgumentCaptor.forClass(Feedback.class);
         verify(feedbackController).showFeedback(feedbackCaptor.capture());
         assertThat(feedbackCaptor.getValue().getMessage()).isEqualTo(R.string.error_unknown_navigation);
@@ -97,7 +96,7 @@ public class NavigatorTest {
     public void crashesOnResolverError() throws Exception {
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         IOException exception = new IOException();
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.error(exception));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.error(exception));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
         expectedException.expect(NullPointerException.class);
@@ -105,7 +104,7 @@ public class NavigatorTest {
                                             hasCause(equalTo(exception)),
                                             hasMessage(containsString(
                                                     "Complete in Navigation Subscription. This should never happen since navigation won\'t work in the app anymore. Thus we\'ll force close the app."))));
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
     }
 
     @Test
@@ -121,11 +120,11 @@ public class NavigatorTest {
     public void expandsPlayerWithSuccessfulPlaybackResult() throws Exception {
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         PlaybackResult playbackResult = PlaybackResult.success();
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, playbackResult)));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, playbackResult)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
 
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
 
         verifyZeroInteractions(activity);
         verify(expandPlayerSingleObserver).onSuccess(playbackResult);
@@ -135,11 +134,11 @@ public class NavigatorTest {
     public void doesNotExpandPlayerWithUnsuccessfulPlaybackResult() throws Exception {
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         PlaybackResult playbackResult = PlaybackResult.error(PlaybackResult.ErrorReason.NONE);
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.create(target, playbackResult)));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, playbackResult)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
 
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
 
         verifyZeroInteractions(activity);
         verifyZeroInteractions(expandPlayerSingleObserver);
@@ -148,11 +147,11 @@ public class NavigatorTest {
     @Test
     public void showsToastForUnsuccessfulResult() throws Exception {
         NavigationTarget target = NavigationTarget.forNavigation("target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
-        when(navigationResolver.resolveNavigationResult(same(activity), any())).thenReturn(Single.just(NavigationResult.error(target)));
+        when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.error(target)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(activity, feedbackController, expandPlayerSingleObserver));
 
-        navigator.navigateTo(activity, target);
+        navigator.navigateTo(target);
 
         verifyZeroInteractions(activity);
         verifyZeroInteractions(expandPlayerSingleObserver);

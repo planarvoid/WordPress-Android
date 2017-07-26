@@ -675,7 +675,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(activity, appInstall);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -689,7 +689,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(activity, videoAd);
 
-        verify(navigator).navigateTo(eq(fragmentRule.getActivity()), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -766,6 +766,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoFullscreenClicked(activity, videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()))));
     }
 }

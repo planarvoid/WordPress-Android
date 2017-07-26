@@ -230,7 +230,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(stationHandler).openStationWithSeedTrack(eq(activity), eq(trackItem.getUrn()), uiEventArgumentCaptor.capture());
+        verify(stationHandler).openStationWithSeedTrack(eq(trackItem.getUrn()), uiEventArgumentCaptor.capture());
         assertThat(uiEventArgumentCaptor.getValue().kind()).isEqualTo(UIEvent.Kind.NAVIGATION);
         assertThat(uiEventArgumentCaptor.getValue().clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
     }

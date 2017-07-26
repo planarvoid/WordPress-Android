@@ -326,7 +326,7 @@ public class TrackPageMenuController
             } else {
                 navigationTarget = NavigationTarget.forStationInfo(stationUrn, Optional.of(track.getUrn()), Optional.of(STATIONS), Optional.absent());
             }
-            navigator.navigateTo(activity, navigationTarget);
+            navigator.navigateTo(navigationTarget);
         }
     }
 }

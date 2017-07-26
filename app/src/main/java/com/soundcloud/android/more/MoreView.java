@@ -99,28 +99,28 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @OnClick(R.id.header_layout)
     void onHeaderLayoutClicked(View view) {
         if (listener != null) {
-            listener.onProfileClicked(view);
+            listener.onProfileClicked();
         }
     }
 
     @OnClick(R.id.more_activity_link)
     void onActivityLinkClicked(View view) {
         if (listener != null) {
-            listener.onActivitiesClicked(view);
+            listener.onActivitiesClicked();
         }
     }
 
     @OnClick(R.id.more_record_link)
     void onRecordLinkClicked(View view) {
         if (listener != null) {
-            listener.onRecordClicked(view);
+            listener.onRecordClicked();
         }
     }
 
     @OnClick(R.id.more_offline_sync_settings_link)
     void onOfflineSyncSettingsClicked(View view) {
         if (listener != null) {
-            listener.onOfflineSettingsClicked(view);
+            listener.onOfflineSettingsClicked();
         }
     }
 
@@ -141,14 +141,14 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @OnClick(R.id.more_notification_preferences_link)
     void onNotificationSettingsClicked(View view) {
         if (listener != null) {
-            listener.onNotificationPreferencesClicked(view);
+            listener.onNotificationPreferencesClicked();
         }
     }
 
     @OnClick(R.id.more_basic_settings_link)
     void onBasicSettingsClicked(View view) {
         if (listener != null) {
-            listener.onBasicSettingsClicked(view);
+            listener.onBasicSettingsClicked();
         }
     }
 
@@ -162,14 +162,14 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @OnClick(R.id.more_help_center_link)
     void onHelpCenterClicked(View view) {
         if (listener != null) {
-            listener.onHelpCenterClicked(view);
+            listener.onHelpCenterClicked();
         }
     }
 
     @OnClick(R.id.more_legal_link)
     void onLegalClicked(View view) {
         if (listener != null) {
-            listener.onLegalClicked(view);
+            listener.onLegalClicked();
         }
     }
 
@@ -185,23 +185,23 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     }
 
     interface Listener {
-        void onProfileClicked(View view);
+        void onProfileClicked();
 
-        void onActivitiesClicked(View view);
+        void onActivitiesClicked();
 
-        void onRecordClicked(View view);
+        void onRecordClicked();
 
-        void onOfflineSettingsClicked(View view);
+        void onOfflineSettingsClicked();
 
-        void onNotificationPreferencesClicked(View view);
+        void onNotificationPreferencesClicked();
 
-        void onBasicSettingsClicked(View view);
+        void onBasicSettingsClicked();
 
         void onReportBugClicked(View view);
 
-        void onHelpCenterClicked(View view);
+        void onHelpCenterClicked();
 
-        void onLegalClicked(View view);
+        void onLegalClicked();
 
         void onSignOutClicked(View view);
 

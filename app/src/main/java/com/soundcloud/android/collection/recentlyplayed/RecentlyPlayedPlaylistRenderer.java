@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import static butterknife.ButterKnife.findById;
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
@@ -110,7 +109,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
             Urn urn = playlist.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigator.navigateTo(getFragmentActivity(view), NavigationTarget.forLegacyPlaylist(urn, lastScreen));
+            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(urn, lastScreen));
         };
     }
 

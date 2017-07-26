@@ -4,7 +4,6 @@ import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavi
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +74,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(navigator).navigateTo(eq(fragmentRule.getActivity()), argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(clickedPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(clickedPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO))));
     }
 
     @Test

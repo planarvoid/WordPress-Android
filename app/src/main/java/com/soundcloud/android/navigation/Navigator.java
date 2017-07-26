@@ -7,15 +7,14 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.java.collections.Pair;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.CallSuper;
 import android.support.v4.app.TaskStackBuilder;
@@ -31,7 +30,7 @@ import javax.inject.Singleton;
 public class Navigator {
 
     private final NavigationResolver navigationResolver;
-    private final BehaviorSubject<Pair<Context, NavigationTarget>> subject = BehaviorSubject.create();
+    private final BehaviorSubject<NavigationTarget> subject = BehaviorSubject.create();
     private NavigationTarget lastNavigationTarget;
 
     @Inject
@@ -39,17 +38,17 @@ public class Navigator {
         this.navigationResolver = navigationResolver;
     }
 
-    public void navigateTo(Context context, NavigationTarget navigationTarget) {
-        subject.onNext(Pair.of(context, navigationTarget));
+    public void navigateTo(NavigationTarget navigationTarget) {
+        subject.onNext(navigationTarget);
     }
 
     public Observable<NavigationResult> listenToNavigation() {
-        return subject.filter(pair -> pair.second() != lastNavigationTarget).flatMapSingle(this::performNavigation);
+        return subject.filter(currentTarget -> currentTarget != lastNavigationTarget).flatMapSingle(this::performNavigation);
     }
 
-    private Single<NavigationResult> performNavigation(Pair<Context, NavigationTarget> navigationTarget) {
-        lastNavigationTarget = navigationTarget.second();
-        return navigationResolver.resolveNavigationResult(navigationTarget.first(), navigationTarget.second());
+    private Single<NavigationResult> performNavigation(NavigationTarget navigationTarget) {
+        lastNavigationTarget = navigationTarget;
+        return navigationResolver.resolveNavigationResult(navigationTarget);
     }
 
     @AutoFactory
@@ -77,6 +76,8 @@ public class Navigator {
                     ErrorUtils.handleSilentException("Navigation failed: " + result.target(), new IllegalArgumentException("Navigation failed for target: " + result.target()));
                     return;
                 }
+
+                result.toastMessage().ifPresent(message -> AndroidUtils.showToast(activity, message));
 
                 result.playbackResult()
                       .filter(PlaybackResult::isSuccess)

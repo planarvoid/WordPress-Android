@@ -251,8 +251,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleStation() {
-        stationHandler.openStationWithSeedTrack(activity,
-                                                track.getUrn(),
+        stationHandler.openStationWithSeedTrack(
+                track.getUrn(),
                                                 UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));
     }
 

@@ -12,7 +12,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.OverflowButtonBackground;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 
@@ -88,6 +87,6 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
-        return view -> navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forLegacyPlaylist(playlistItem.getUrn(), Screen.PLAYLISTS));
+        return view -> navigator.navigateTo(NavigationTarget.forLegacyPlaylist(playlistItem.getUrn(), Screen.PLAYLISTS));
     }
 }

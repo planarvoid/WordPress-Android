@@ -6,7 +6,6 @@ import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin.PRESTI
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -125,7 +124,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, visualPrestitialAd, Optional.absent());
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(visualPrestitialAd.clickthroughUrl().toString()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(visualPrestitialAd.clickthroughUrl().toString()))));
     }
 
     @Test
@@ -134,7 +133,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(activity, sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.clickthroughUrl().toString()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.clickthroughUrl().toString()))));
     }
 
     @Test
@@ -450,7 +449,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(2);
 
         presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, activity);
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.optInCard().clickthroughUrl()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(sponsoredSessionAd.optInCard().clickthroughUrl()))));
     }
 
     @Test

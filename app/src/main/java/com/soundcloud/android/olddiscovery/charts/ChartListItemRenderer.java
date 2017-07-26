@@ -10,7 +10,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -49,8 +48,7 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
         chartListItemView.setTitle(headingFor(chartListItem, itemView, chartListItem.getChartType().value()));
         chartListItemView.refreshThumbnails(imageOperations, chartListItem.getTrackArtworks(),
                                             resources.getInteger(R.integer.collection_preview_thumbnail_count));
-        chartListItemView.setOnClickListener(view -> navigator.navigateTo(ViewUtils.getFragmentActivity(view),
-                                                                          NavigationTarget.forChart(chartListItem.getChartType(),
+        chartListItemView.setOnClickListener(view -> navigator.navigateTo(NavigationTarget.forChart(chartListItem.getChartType(),
                                                                                                     chartListItem.getGenre(),
                                                                                                     chartListItem.getChartCategory(),
                                                                                                     appendCharts(headingFor(chartListItem, view, "soundcloud")))));

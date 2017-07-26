@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
@@ -23,7 +21,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
@@ -100,8 +97,7 @@ class AdPageListener extends PageListener {
                 openUserOrPlaylistDeeplink(activityContext, deepLink, clickThrough);
                 break;
             default:
-                navigator.navigateTo(ViewUtils.getFragmentActivity(activityContext),
-                                     NavigationTarget.forAdClickthrough(clickThrough.toString()));
+                navigator.navigateTo(NavigationTarget.forAdClickthrough(clickThrough.toString()));
                 break;
         }
 
@@ -116,7 +112,7 @@ class AdPageListener extends PageListener {
 
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                .subscribe(startPlaylistOrProfile(activityContext, getUrnforEntityDeepLink(deeplink, uri)));
+                .subscribe(startPlaylistOrProfile(getUrnforEntityDeepLink(deeplink, uri)));
 
         requestPlayerCollapse();
     }
@@ -148,15 +144,15 @@ class AdPageListener extends PageListener {
         whyAdsPresenter.show(context);
     }
 
-    private Subscriber<PlayerUIEvent> startPlaylistOrProfile(final Context activityContext, final Urn urn) {
+    private Subscriber<PlayerUIEvent> startPlaylistOrProfile(final Urn urn) {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
                 if (urn.isPlaylist()) {
                     final Screen originScreen = Screen.fromTag(playQueueManager.getScreenTag());
-                    navigator.navigateTo(getFragmentActivity(activityContext), NavigationTarget.forLegacyPlaylist(urn, originScreen));
+                    navigator.navigateTo(NavigationTarget.forLegacyPlaylist(urn, originScreen));
                 } else if (urn.isUser()) {
-                    navigator.navigateTo(getFragmentActivity(activityContext), NavigationTarget.forProfile(urn));
+                    navigator.navigateTo(NavigationTarget.forProfile(urn));
                 }
             }
         };

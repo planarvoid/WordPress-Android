@@ -125,7 +125,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(itemView).setPromoterClickable(captor.capture());
         captor.getValue().onClick(view);
 
-        verify(navigator).navigateTo(eq(activity), ArgumentMatchers.argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
+        verify(navigator).navigateTo(ArgumentMatchers.argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

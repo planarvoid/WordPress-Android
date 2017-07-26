@@ -24,24 +24,30 @@ public abstract class NavigationResult {
 
     public abstract Optional<PlaybackResult> playbackResult();
 
+    public abstract Optional<String> toastMessage();
+
+
+    public NavigationResult withToast(String message) {
+        return new AutoValue_NavigationResult(isSuccess(), target(), intent(), taskStack(), urn(), playbackResult(), Optional.of(message));
+    }
+
     public static NavigationResult error(NavigationTarget target) {
-        return new AutoValue_NavigationResult(false, target, Optional.absent(), Collections.emptyList(), Optional.absent(), Optional.absent());
+        return new AutoValue_NavigationResult(false, target, Optional.absent(), Collections.emptyList(), Optional.absent(), Optional.absent(), Optional.absent());
     }
 
     public static NavigationResult create(NavigationTarget target, Intent intent) {
-        return new AutoValue_NavigationResult(true, target, Optional.of(intent), Collections.emptyList(), Optional.absent(), Optional.absent());
+        return new AutoValue_NavigationResult(true, target, Optional.of(intent), Collections.emptyList(), Optional.absent(), Optional.absent(), Optional.absent());
     }
 
     public static NavigationResult create(NavigationTarget target, PlaybackResult playbackResult) {
-        return new AutoValue_NavigationResult(true, target, Optional.absent(), Collections.emptyList(), Optional.absent(), Optional.of(playbackResult));
+        return new AutoValue_NavigationResult(true, target, Optional.absent(), Collections.emptyList(), Optional.absent(), Optional.of(playbackResult), Optional.absent());
     }
 
     public static NavigationResult create(NavigationTarget target, Intent intent, Urn urn) {
-        return new AutoValue_NavigationResult(true, target, Optional.of(intent), Collections.emptyList(), Optional.of(urn), Optional.absent());
+        return new AutoValue_NavigationResult(true, target, Optional.of(intent), Collections.emptyList(), Optional.of(urn), Optional.absent(), Optional.absent());
     }
 
     public static NavigationResult create(NavigationTarget target, Intent intent, List<Intent> taskStack) {
-        return new AutoValue_NavigationResult(true, target, Optional.of(intent), taskStack, Optional.absent(), Optional.absent());
+        return new AutoValue_NavigationResult(true, target, Optional.of(intent), taskStack, Optional.absent(), Optional.absent(), Optional.absent());
     }
-
 }

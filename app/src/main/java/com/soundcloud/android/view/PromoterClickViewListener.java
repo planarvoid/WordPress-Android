@@ -1,7 +1,5 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -31,7 +29,7 @@ public class PromoterClickViewListener implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        navigator.navigateTo(getFragmentActivity(v), NavigationTarget.forProfile(item.promoterUrn().get()));
+        navigator.navigateTo(NavigationTarget.forProfile(item.promoterUrn().get()));
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(item, screenProvider.getLastScreenTag());
         eventBus.publish(EventQueue.TRACKING, event);
     }

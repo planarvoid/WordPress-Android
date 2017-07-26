@@ -76,7 +76,7 @@ class SearchIntentResolver {
             searchFromDeepLink(Uri.decode(intent.getData().getLastPathSegment()));
         } else if (content != Content.UNKNOWN) {
             final String referrer = referrerResolver.getReferrerFromIntent(intent, activity.getResources());
-            navigator.navigateTo(activity, NavigationTarget.forExternalDeeplink(intent.getDataString(), referrer));
+            navigator.navigateTo(NavigationTarget.forExternalDeeplink(intent.getDataString(), referrer));
         }
     }
 

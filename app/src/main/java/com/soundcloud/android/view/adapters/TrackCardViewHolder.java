@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -193,7 +192,7 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
 
         @Override
         public void onClick(View v) {
-            navigator.navigateTo(getFragmentActivity(v), NavigationTarget.forProfile(userUrn));
+            navigator.navigateTo(NavigationTarget.forProfile(userUrn));
         }
     }
 }

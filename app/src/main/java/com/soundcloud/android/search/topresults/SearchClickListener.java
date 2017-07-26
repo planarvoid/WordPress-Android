@@ -45,7 +45,7 @@ public class SearchClickListener {
     }
 
     ClickResultAction playlistClickToNavigateAction(ClickParams params) {
-        return activity -> navigator.navigateTo(activity, NavigationTarget.forPlaylist(params.urn(),
+        return activity -> navigator.navigateTo(NavigationTarget.forPlaylist(params.urn(),
                                                                              params.screen(),
                                                                              Optional.of(params.searchQuerySourceInfo()),
                                                                              Optional.absent(),
@@ -53,7 +53,7 @@ public class SearchClickListener {
     }
 
     ClickResultAction userClickToNavigateAction(ClickParams params) {
-        return context -> navigator.navigateTo(context, NavigationTarget.forProfile(params.urn(), Optional.of(params.uiEvent()), Optional.of(params.screen()), Optional.absent()));
+        return context -> navigator.navigateTo(NavigationTarget.forProfile(params.urn(), Optional.of(params.uiEvent()), Optional.of(params.screen()), Optional.absent()));
     }
 
     Observable<PlaybackResult> trackClickToPlaybackResult(TrackClickParams params) {

@@ -124,7 +124,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
         AppCompatActivity activity = activity();
         presenter.onRecommendedStationClicked(activity, STATION);
 
-        verify(startStationHandler).startStation(activity, STATION.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
+        verify(startStationHandler).startStation(STATION.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     @Test

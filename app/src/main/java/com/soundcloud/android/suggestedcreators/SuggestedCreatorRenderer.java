@@ -1,6 +1,5 @@
 package com.soundcloud.android.suggestedcreators;
 
-import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 
@@ -108,13 +107,13 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
-        textView.setOnClickListener(v -> goToProfile(creator, position, v));
+        textView.setOnClickListener(v -> goToProfile(creator, position));
     }
 
-    private void goToProfile(User creator, int position, View v) {
+    private void goToProfile(User creator, int position) {
         UIEvent uiEvent = UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position));
         NavigationTarget navigationTarget = NavigationTarget.forProfile(creator.urn(), of(uiEvent), absent(), absent());
-        navigator.navigateTo(getFragmentActivity(v), navigationTarget);
+        navigator.navigateTo(navigationTarget);
     }
 
     private EventContextMetadata buildEventContextMetadata(int position) {

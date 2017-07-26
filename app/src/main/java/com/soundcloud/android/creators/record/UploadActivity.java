@@ -76,7 +76,7 @@ public class UploadActivity extends LoggedInActivity {
                     recording.artwork_path = new File(artwork.getPath());
                 }
 
-                navigator.navigateTo(UploadActivity.this, NavigationTarget.forRecord(Optional.of(recording), Optional.absent()));
+                navigator.navigateTo(NavigationTarget.forRecord(Optional.of(recording), Optional.absent()));
             }
 
             @Override

@@ -4,7 +4,6 @@ import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -183,11 +182,11 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         isFetched = () -> verify(adsOperations, times(1)).prestitialAd(any(AdRequestData.class));
         notFetched = () -> verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
         isOpened = () -> {
-            verify(navigator, times(1)).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPrestitialAd())));
+            verify(navigator, times(1)).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPrestitialAd())));
             assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
         };
         notOpened = () -> {
-            verify(navigator, never()).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forPrestitialAd())));
+            verify(navigator, never()).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPrestitialAd())));
             assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
         };
     }

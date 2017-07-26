@@ -199,7 +199,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
 
     @Override
     public void onRecommendedStationClicked(Activity activity, StationRecord station) {
-        startStationPresenter.startStation(activity, station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
+        startStationPresenter.startStation(station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     @Override

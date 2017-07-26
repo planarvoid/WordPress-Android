@@ -18,7 +18,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -153,7 +152,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onLearnMoreClick(Context context) {
         ad.ifPresent(video -> {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forAdClickthrough(video.clickThroughUrl()));
+            navigator.navigateTo(NavigationTarget.forAdClickthrough(video.clickThroughUrl()));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayableClickThrough(video, trackSourceInfo));
         });
     }

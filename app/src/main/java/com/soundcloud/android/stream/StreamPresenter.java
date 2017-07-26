@@ -389,7 +389,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
         eventBus.publish(EventQueue.TRACKING, event);
-        navigator.navigateTo(fragment.getActivity(), NavigationTarget.forAdClickthrough(clickthrough));
+        navigator.navigateTo(NavigationTarget.forAdClickthrough(clickthrough));
     }
 
     @Override
@@ -407,6 +407,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
-        navigator.navigateTo(fragment.getActivity(), NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
+        navigator.navigateTo(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
     }
 }

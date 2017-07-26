@@ -34,18 +34,18 @@ public class StartStationHandler {
         return IntentFactory.createStationsInfoIntent(context, stationUrn, Optional.absent(), Optional.of(discoverySource));
     }
 
-    public void startStation(Activity activity, Urn stationUrn, DiscoverySource discoverySource) {
+    public void startStation(Urn stationUrn, DiscoverySource discoverySource) {
         startMeasuringStationLoad();
-        navigatior.navigateTo(activity, NavigationTarget.forStationInfo(stationUrn, Optional.absent(), Optional.of(discoverySource), Optional.absent()));
+        navigatior.navigateTo(NavigationTarget.forStationInfo(stationUrn, Optional.absent(), Optional.of(discoverySource), Optional.absent()));
     }
 
     public void startStation(Activity activity, Urn stationUrn) {
-        startStation(activity, stationUrn, STATIONS);
+        startStation(stationUrn, STATIONS);
     }
 
-    public void openStationWithSeedTrack(Activity activity, Urn seedTrack, UIEvent navigationEvent) {
+    public void openStationWithSeedTrack(Urn seedTrack, UIEvent navigationEvent) {
         startMeasuringStationLoad();
-        navigatior.navigateTo(activity, NavigationTarget.forStationInfo(Urn.forTrackStation(seedTrack.getNumericId()), Optional.of(seedTrack), Optional.of(STATIONS), Optional.of(navigationEvent)));
+        navigatior.navigateTo(NavigationTarget.forStationInfo(Urn.forTrackStation(seedTrack.getNumericId()), Optional.of(seedTrack), Optional.of(STATIONS), Optional.of(navigationEvent)));
     }
 
     private void startMeasuringStationLoad() {

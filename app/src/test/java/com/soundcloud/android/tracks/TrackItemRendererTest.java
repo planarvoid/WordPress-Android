@@ -327,7 +327,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(Urn.forUser(193L)))));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

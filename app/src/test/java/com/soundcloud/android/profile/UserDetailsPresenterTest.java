@@ -6,7 +6,6 @@ import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavi
 import static com.soundcloud.java.optional.Optional.of;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -233,7 +232,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
                                                                                    screenProvider.getLastScreen(),
                                                                                    Optional.of(DiscoverySource.RECOMMENDATIONS));
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(expectedNavigationTarget)));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(expectedNavigationTarget)));
     }
 
     @Test
@@ -243,7 +242,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowersClicked();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forFollowers(USER_URN, Optional.of(searchQuerySourceInfo)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forFollowers(USER_URN, Optional.of(searchQuerySourceInfo)))));
     }
 
     @Test
@@ -253,7 +252,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forFollowings(USER_URN, Optional.of(searchQuerySourceInfo)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forFollowings(USER_URN, Optional.of(searchQuerySourceInfo)))));
     }
 
     @Test

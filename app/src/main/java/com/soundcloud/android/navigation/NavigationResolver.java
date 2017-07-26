@@ -66,7 +66,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.stations.StationsUriResolver;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
@@ -85,7 +84,6 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.CheckResult;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -94,6 +92,7 @@ import java.util.List;
 @SuppressWarnings({"PMD.GodClass", "RestrictedApi"})
 public class NavigationResolver {
 
+    private final Context context;
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
     private final PlaybackServiceController serviceController;
@@ -111,7 +110,8 @@ public class NavigationResolver {
     private final OfflineSettingsStorage offlineSettingsStorage;
 
     @Inject
-    NavigationResolver(ResolveOperations resolveOperations,
+    NavigationResolver(Context context,
+                       ResolveOperations resolveOperations,
                        LocalEntityUriResolver localEntityUriResolver,
                        AccountOperations accountOperations,
                        PlaybackServiceController serviceController,
@@ -126,6 +126,7 @@ public class NavigationResolver {
                        EventTracker eventTracker,
                        DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
                        OfflineSettingsStorage offlineSettingsStorage) {
+        this.context = context;
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -144,91 +145,93 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    Single<NavigationResult> resolveNavigationResult(Context context, NavigationTarget navigationTarget) {
+    Single<NavigationResult> resolveNavigationResult(NavigationTarget navigationTarget) {
         if (!navigationTarget.linkNavigationParameters().isPresent() || Strings.isNullOrEmpty(navigationTarget.linkNavigationParameters().get().target())) {
             try {
                 if (navigationTarget.deeplink().isPresent()) {
-                    return handleDeepLink(context, navigationTarget, navigationTarget.deeplink().get());
+                    return handleDeepLink(navigationTarget, navigationTarget.deeplink().get());
                 } else {
                     return showHome(navigationTarget);
                 }
             } catch (UriResolveException e) {
-                handleUriResolveException(context, e);
-                return showHome(navigationTarget);
+                return handleUriResolveException(e, showHome(navigationTarget));
             }
         } else {
             final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.linkNavigationParameters().get().target()));
             NavigationTarget newTarget = navigationTarget.withTarget(hierarchicalUri.toString());
             try {
                 if (localEntityUriResolver.canResolveLocally(newTarget.linkNavigationParameters().get().target())) {
-                    return resolveLocal(context, navigationTarget, newTarget);
+                    return resolveLocal(navigationTarget, newTarget);
                 } else if (localEntityUriResolver.isKnownDeeplink(newTarget.linkNavigationParameters().get().target())) {
-                    return resolveDeeplink(context, hierarchicalUri, newTarget);
+                    return resolveDeeplink(hierarchicalUri, newTarget);
                 } else {
-                    return resolveTarget(context, navigationTarget);
+                    return resolveTarget(navigationTarget);
                 }
             } catch (UriResolveException e) {
-                handleUriResolveException(context, e);
-                return resolveTarget(context, navigationTarget);
+                return handleUriResolveException(e, resolveTarget(navigationTarget));
             }
         }
     }
 
-    private void handleUriResolveException(Context context, UriResolveException e) {
+    private Single<NavigationResult> handleUriResolveException(UriResolveException e, Single<NavigationResult> result) {
         final String msg = "Local resolve failed";
         if (applicationProperties.isDebuggableFlavor()) {
-            AndroidUtils.showToast(context, msg);
+            return result.map(navigationResult -> navigationResult.withToast(msg));
         }
         ErrorUtils.handleSilentException(msg, e);
+        return result;
     }
 
     @CheckResult
-    private Single<NavigationResult> resolveDeeplink(Context context, Uri hierarchicalUri, NavigationTarget newTarget) throws UriResolveException {
+    private Single<NavigationResult> resolveDeeplink(Uri hierarchicalUri, NavigationTarget newTarget) throws UriResolveException {
         final DeepLink deepLink = DeepLink.fromUri(hierarchicalUri);
         if (shouldShowLogInMessage(deepLink, newTarget.referrer())) {
-            return showOnboardingForDeeplink(context, newTarget);
+            return showOnboardingForDeeplink(newTarget);
         } else {
-            return handleDeepLink(context, newTarget, deepLink);
+            return handleDeepLink(newTarget, deepLink);
         }
     }
 
     @CheckResult
-    private Single<NavigationResult> resolveLocal(Context context, NavigationTarget navigationTarget, NavigationTarget newTarget) throws UriResolveException {
+    private Single<NavigationResult> resolveLocal(NavigationTarget navigationTarget, NavigationTarget newTarget) throws UriResolveException {
         return localEntityUriResolver.resolve(newTarget.linkNavigationParameters().get().target())
                                      .observeOn(AndroidSchedulers.mainThread())
-                                     .flatMap(urn -> startActivityForResource(context, navigationTarget, urn));
+                                     .flatMap(urn -> startActivityForResource(navigationTarget, urn));
     }
 
     @CheckResult
-    private Single<NavigationResult> showOnboardingForDeeplink(Context context, NavigationTarget navigationTarget) {
-        return showOnboardingForUri(context, navigationTarget)
+    private Single<NavigationResult> showOnboardingForDeeplink(NavigationTarget navigationTarget) {
+        return showOnboardingForUri(navigationTarget)
                 .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> handleResolveResult(Context context, ResolveResult resolveResult, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> handleResolveResult(ResolveResult resolveResult, NavigationTarget navigationTarget) {
         if (resolveResult.success() && localEntityUriResolver.canResolveLocally(resolveResult.urn().get())) {
-            return startActivityForResource(context, navigationTarget, resolveResult.urn().get());
+            return startActivityForResource(navigationTarget, resolveResult.urn().get());
         } else {
-            return handleUnsuccessfulResolve(context, navigationTarget, resolveResult);
+            return handleUnsuccessfulResolve(navigationTarget, resolveResult);
         }
     }
 
     @CheckResult
-    private Single<NavigationResult> handleUnsuccessfulResolve(Context context, NavigationTarget navigationTarget, ResolveResult resolveResult) {
+    private Single<NavigationResult> handleUnsuccessfulResolve(NavigationTarget navigationTarget, ResolveResult resolveResult) {
         final Optional<String> errorUrl = resolveResult.uri().transform(Uri::toString);
         final NavigationTarget fallbackAwareTarget = navigationTarget.withFallback(navigationTarget.linkNavigationParameters().get().fallback().or(errorUrl));
         if (shouldRetryWithFallback(fallbackAwareTarget)) {
-            if (applicationProperties.isDebuggableFlavor()) {
-                AndroidUtils.showToast(context, "Retry resolve with fallback");
-            }
             final Exception e = resolveResult.exception().or(new UriResolveException("Resolve with fallback"));
             ErrorUtils.handleSilentException("Resolve uri " + navigationTarget.linkNavigationParameters().get().target() + " with fallback " + fallbackAwareTarget.linkNavigationParameters()
                                                                                                                                                                   .get()
                                                                                                                                                                   .fallback()
                                                                                                                                                                   .orNull(), e);
-            return resolveNavigationResult(context, fallbackAwareTarget.withTarget(fallbackAwareTarget.linkNavigationParameters().get().fallback().get())
-                                                                       .withFallback(Optional.absent()));
+            return resolveNavigationResult(fallbackAwareTarget.withTarget(fallbackAwareTarget.linkNavigationParameters().get().fallback().get())
+                                                                       .withFallback(Optional.absent()))
+                    .map(result -> {
+                        if (applicationProperties.isDebuggableFlavor()) {
+                            return result.withToast("Retry resolve with fallback");
+                        }
+                        return result;
+                    });
         } else {
             trackForegroundEvent(fallbackAwareTarget);
             Optional<Exception> exception = resolveResult.exception();
@@ -236,131 +239,131 @@ public class NavigationResolver {
                 ErrorUtils.handleSilentException("unable to load deeplink:" + errorUrl, exception.get());
                 reportFailedToResolveDeeplink(fallbackAwareTarget);
             }
-            return launchApplicationWithMessage(context, fallbackAwareTarget, R.string.error_unknown_navigation);
+            return launchApplicationWithMessage(fallbackAwareTarget, R.string.error_unknown_navigation);
         }
     }
 
     @CheckResult
-    private Single<NavigationResult> handleDeepLink(Context context, NavigationTarget navigationTarget, DeepLink deepLink) throws UriResolveException {
+    private Single<NavigationResult> handleDeepLink(NavigationTarget navigationTarget, DeepLink deepLink) throws UriResolveException {
         switch (deepLink) {
             case HOME:
                 return showHome(navigationTarget);
             case STREAM:
                 return showStream(navigationTarget);
             case RECORD:
-                return showRecordScreen(context, navigationTarget);
+                return showRecordScreen(navigationTarget);
             case DISCOVERY:
                 return showDiscoveryScreen(navigationTarget);
             case CHARTS:
-                return showCharts(context, navigationTarget);
+                return showCharts(navigationTarget);
             case CHARTS_ALL_GENRES:
-                return showAllGenresCharts(context, navigationTarget);
+                return showAllGenresCharts(navigationTarget);
             case LIKED_STATIONS:
-                return showLikedStations(context, navigationTarget);
+                return showLikedStations(navigationTarget);
             case STATION:
-                return showStation(context, navigationTarget);
+                return showStation(navigationTarget);
             case SEARCH:
-                return showSearchScreen(context, navigationTarget);
+                return showSearchScreen(navigationTarget);
             case SEARCH_AUTOCOMPLETE:
-                return showSearchAutocompleteScreen(context, navigationTarget);
+                return showSearchAutocompleteScreen(navigationTarget);
             case SEARCH_RESULTS_VIEW_ALL:
-                return showSearchResultViewAllScreen(context, navigationTarget);
+                return showSearchResultViewAllScreen(navigationTarget);
             case WEB_VIEW:
-                return startWebView(context, navigationTarget);
+                return startWebView(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_UPSELL:
-                return showUpgradeScreen(context, navigationTarget);
+                return showUpgradeScreen(navigationTarget);
             case SOUNDCLOUD_GO_BUY:
-                return showMidTierCheckoutScreen(context, navigationTarget);
+                return showMidTierCheckoutScreen(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_BUY:
-                return showHighTierCheckoutScreen(context, navigationTarget);
+                return showHighTierCheckoutScreen(navigationTarget);
             case SOUNDCLOUD_GO_CHOICE:
-                return showProductChoiceScreen(context, navigationTarget, Plan.MID_TIER);
+                return showProductChoiceScreen(navigationTarget, Plan.MID_TIER);
             case SOUNDCLOUD_GO_PLUS_CHOICE:
-                return showProductChoiceScreen(context, navigationTarget, Plan.HIGH_TIER);
+                return showProductChoiceScreen(navigationTarget, Plan.HIGH_TIER);
             case OFFLINE_SETTINGS:
-                return showOfflineSettingsScreen(context, navigationTarget);
+                return showOfflineSettingsScreen(navigationTarget);
             case NOTIFICATION_PREFERENCES:
-                return showNotificationPreferencesScreen(context, navigationTarget);
+                return showNotificationPreferencesScreen(navigationTarget);
             case COLLECTION:
                 return showCollectionScreen(navigationTarget);
             case SHARE_APP:
                 return shareApp(navigationTarget);
             case SYSTEM_SETTINGS:
-                return showSystemSettings(context, navigationTarget);
+                return showSystemSettings(navigationTarget);
             case REMOTE_SIGN_IN:
-                return startWebViewForRemoteSignIn(context, navigationTarget);
+                return startWebViewForRemoteSignIn(navigationTarget);
             case THE_UPLOAD:
-                return startTheUpload(context, navigationTarget);
+                return startTheUpload(navigationTarget);
             case UNKNOWN:
                 return startExternal(navigationTarget);
             case ACTIVITIES:
-                return showActivities(context, navigationTarget);
+                return showActivities(navigationTarget);
             case FOLLOWERS:
-                return showFollowers(context, navigationTarget);
+                return showFollowers(navigationTarget);
             case FOLLOWINGS:
-                return showFollowings(context, navigationTarget);
+                return showFollowings(navigationTarget);
             case AD_FULLSCREEN_VIDEO:
-                return showFullscreenVideoAd(context, navigationTarget);
+                return showFullscreenVideoAd(navigationTarget);
             case AD_PRESTITIAL:
-                return showPrestitialAd(context, navigationTarget);
+                return showPrestitialAd(navigationTarget);
             case AD_CLICKTHROUGH:
                 return showAdClickthrough(navigationTarget);
             case PROFILE:
-                return showProfile(context, navigationTarget);
+                return showProfile(navigationTarget);
             case PROFILE_REPOSTS:
-                return showProfileReposts(context, navigationTarget);
+                return showProfileReposts(navigationTarget);
             case PROFILE_TRACKS:
-                return showProfileTracks(context, navigationTarget);
+                return showProfileTracks(navigationTarget);
             case PROFILE_LIKES:
-                return showProfileLikes(context, navigationTarget);
+                return showProfileLikes(navigationTarget);
             case PROFILE_ALBUMS:
-                return showProfileAlbums(context, navigationTarget);
+                return showProfileAlbums(navigationTarget);
             case PROFILE_PLAYLISTS:
-                return showProfilePlaylists(context, navigationTarget);
+                return showProfilePlaylists(navigationTarget);
             case SYSTEM_PLAYLIST:
-                return showSystemPlaylist(context, navigationTarget);
+                return showSystemPlaylist(navigationTarget);
             case PLAYLISTS_AND_ALBUMS_COLLECTION:
-                return showPlaylistsAndAlbumsCollection(context, navigationTarget);
+                return showPlaylistsAndAlbumsCollection(navigationTarget);
             case PLAYLISTS_COLLECTION:
-                return showPlaylistsCollection(context, navigationTarget);
+                return showPlaylistsCollection(navigationTarget);
             case PLAYLISTS:
                 return showPlaylist(navigationTarget);
             case HELP_CENTER:
-                return showHelpCenter(context, navigationTarget);
+                return showHelpCenter(navigationTarget);
             case LEGAL:
-                return showLegal(context, navigationTarget);
+                return showLegal(navigationTarget);
             case BASIC_SETTINGS:
-                return showBasicSettings(context, navigationTarget);
+                return showBasicSettings(navigationTarget);
             default:
-                return resolveTarget(context, navigationTarget);
+                return resolveTarget(navigationTarget);
         }
     }
 
     @CheckResult
-    private Single<NavigationResult> showBasicSettings(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showBasicSettings(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createSettingsIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showLegal(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showLegal(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createLegalIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showHelpCenter(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showHelpCenter(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createHelpCenterIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfile(Context context, NavigationTarget navigationTarget) {
-        return showProfile(context, navigationTarget, navigationTarget.targetUrn().get());
+    private Single<NavigationResult> showProfile(NavigationTarget navigationTarget) {
+        return showProfile(navigationTarget, navigationTarget.targetUrn().get());
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfile(Context context, NavigationTarget navigationTarget, Urn urn) {
+    private Single<NavigationResult> showProfile(NavigationTarget navigationTarget, Urn urn) {
         return Single.just(NavigationResult.create(navigationTarget, createProfileIntent(context,
                                                                                          urn,
                                                                                          Optional.of(navigationTarget.screen()),
@@ -373,28 +376,28 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfileReposts(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showProfileReposts(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createProfileRepostsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfileTracks(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showProfileTracks(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createProfileTracksIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfileLikes(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showProfileLikes(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createProfileLikesIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showProfileAlbums(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showProfileAlbums(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createProfileAlbumsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
@@ -402,7 +405,7 @@ public class NavigationResolver {
 
 
     @CheckResult
-    private Single<NavigationResult> showProfilePlaylists(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showProfilePlaylists(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createProfilePlaylistsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.screen(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
@@ -423,31 +426,31 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showActivities(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showActivities(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createActivitiesIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showFollowers(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showFollowers(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createFollowersIntent(context, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showFollowings(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showFollowings(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createFollowingsIntent(context, navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showFullscreenVideoAd(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showFullscreenVideoAd(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createFullscreenVideoAdIntent(context, navigationTarget.targetUrn().get())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showPrestitialAd(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showPrestitialAd(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createPrestititalAdIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
@@ -459,24 +462,24 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showSystemPlaylist(Context context, NavigationTarget navigationTarget) {
-        return showSystemPlaylist(context, navigationTarget, navigationTarget.targetUrn().get());
+    private Single<NavigationResult> showSystemPlaylist(NavigationTarget navigationTarget) {
+        return showSystemPlaylist(navigationTarget, navigationTarget.targetUrn().get());
     }
 
     @CheckResult
-    private Single<NavigationResult> showSystemPlaylist(Context context, NavigationTarget navigationTarget, Urn urn) {
+    private Single<NavigationResult> showSystemPlaylist(NavigationTarget navigationTarget, Urn urn) {
         return Single.just(NavigationResult.create(navigationTarget, createSystemPlaylistIntent(context, urn, navigationTarget.screen())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showPlaylistsAndAlbumsCollection(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showPlaylistsAndAlbumsCollection(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createPlaylistsAndAlbumsCollectionIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showPlaylistsCollection(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showPlaylistsCollection(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createPlaylistsCollectionIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
@@ -499,7 +502,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> startWebViewForRemoteSignIn(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> startWebViewForRemoteSignIn(NavigationTarget navigationTarget) {
         final Uri target;
         if (DeepLink.isWebScheme(navigationTarget.linkNavigationParameters().get().targetUri())) {
             target = signInOperations.generateRemoteSignInUri(navigationTarget.linkNavigationParameters().get().targetUri().getPath());
@@ -512,22 +515,22 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> startTheUpload(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> startTheUpload(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createNewForYouIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> resolveTarget(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> resolveTarget(NavigationTarget navigationTarget) {
         String target = navigationTarget.linkNavigationParameters().get().target();
         Preconditions.checkNotNull(target, "Covered by #resolve");
         return resolveOperations.resolve(target)
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .flatMap(result -> handleResolveResult(context, result, navigationTarget));
+                                .flatMap(result -> handleResolveResult(result, navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> startWebView(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> startWebView(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createWebViewIntent(context, navigationTarget.linkNavigationParameters().get().targetUri())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
@@ -557,7 +560,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showCharts(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showCharts(NavigationTarget navigationTarget) {
         return Single.<NavigationResult>create(emitter -> {
             Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
             final ChartDetails chartDetails;
@@ -572,7 +575,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showAllGenresCharts(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showAllGenresCharts(NavigationTarget navigationTarget) {
         return Single.<NavigationResult>create(emitter -> {
             Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
             final ChartCategory category;
@@ -586,21 +589,21 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showLikedStations(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showLikedStations(NavigationTarget navigationTarget) {
         return Single.just(createLikedStationsIntent(context))
                      .map(intent -> NavigationResult.create(navigationTarget, intent))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showStation(Context context, NavigationTarget navigationTarget) throws UriResolveException {
+    private Single<NavigationResult> showStation(NavigationTarget navigationTarget) throws UriResolveException {
         Optional<NavigationTarget.StationsInfoMetaData> stationsInfoMetaData = navigationTarget.stationsInfoMetaData();
         if (stationsInfoMetaData.isPresent()) {
-            return showStation(context, navigationTarget, navigationTarget.targetUrn().get(), stationsInfoMetaData.get().seedTrack());
+            return showStation(navigationTarget, navigationTarget.targetUrn().get(), stationsInfoMetaData.get().seedTrack());
         } else {
             Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.linkNavigationParameters().get().targetUri());
             if (urn.isPresent()) {
-                return showStation(context, navigationTarget, urn.get(), Optional.absent());
+                return showStation(navigationTarget, urn.get(), Optional.absent());
             } else {
                 throw new UriResolveException("Station " + navigationTarget.linkNavigationParameters().get().target() + " could not be resolved locally");
             }
@@ -608,7 +611,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showStation(Context context, NavigationTarget navigationTarget, Urn urn, Optional<Urn> seedTrack) {
+    private Single<NavigationResult> showStation(NavigationTarget navigationTarget, Urn urn, Optional<Urn> seedTrack) {
         return Single.just(createStationsInfoIntent(context, urn, seedTrack, navigationTarget.discoverySource().or(Optional.of(DiscoverySource.DEEPLINK))))
                      .map(intent -> NavigationResult.create(navigationTarget, intent))
                      .doOnSuccess(__ -> {
@@ -618,26 +621,26 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showSearchScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showSearchScreen(NavigationTarget navigationTarget) {
         Intent intent = IntentFactory.createSearchActionIntent(context, navigationTarget.linkNavigationParameters().get().targetUri(), navigationTarget.screen());
         return Single.just(NavigationResult.create(navigationTarget, intent))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showSearchAutocompleteScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showSearchAutocompleteScreen(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createSearchIntent(context)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showSearchResultViewAllScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showSearchResultViewAllScreen(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
-    private Single<NavigationResult> showRecordScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showRecordScreen(NavigationTarget navigationTarget) {
         return Single.<NavigationResult>create(emitter -> {
             if (hasMicrophonePermission(context)) {
                 emitter.onSuccess(NavigationResult.create(navigationTarget, createRecordIntent(context, navigationTarget.recording(), navigationTarget.screen())));
@@ -652,7 +655,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showUpgradeScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showUpgradeScreen(NavigationTarget navigationTarget) {
         if (featureOperations.upsellHighTier()) {
             List<Intent> taskStack = Collections.singletonList(createHomeIntent(context));
             Intent intent = createConversionIntent(context, UpsellContext.DEFAULT);
@@ -664,10 +667,10 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showProductChoiceScreen(Context context, NavigationTarget navigationTarget, Plan plan) {
+    private Single<NavigationResult> showProductChoiceScreen(NavigationTarget navigationTarget, Plan plan) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
             return showHome(navigationTarget)
-                    .doOnSuccess(__ -> AndroidUtils.showToast(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
+                    .map(result -> result.withToast(context.getString(R.string.product_choice_error_already_subscribed)));
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(NavigationResult.create(navigationTarget, createProductChoiceIntent(context, plan), Collections.singletonList(createHomeIntent(context))))
                          .doOnSuccess(__ -> trackForegroundEvent(navigationTarget.withScreen(Screen.CONVERSION)));
@@ -677,10 +680,10 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showMidTierCheckoutScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showMidTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
             return showHome(navigationTarget)
-                    .doOnSuccess(__ -> AndroidUtils.showToast(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
+                    .map(result -> result.withToast(context.getString(R.string.product_choice_error_already_subscribed)));
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createDirectCheckoutIntent(context, Plan.MID_TIER)))
                          .doOnSuccess(__ -> trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT)));
@@ -690,10 +693,10 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showHighTierCheckoutScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showHighTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (Plan.HIGH_TIER == featureOperations.getCurrentPlan()) {
             return showHome(navigationTarget)
-                    .doOnSuccess(__ -> AndroidUtils.showToast(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
+                    .map(result -> result.withToast(context.getString(R.string.product_choice_error_already_subscribed)));
         } else if (featureOperations.upsellHighTier()) {
             return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createDirectCheckoutIntent(context, Plan.HIGH_TIER)))
                          .doOnSuccess(__ -> trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT)));
@@ -703,7 +706,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showOfflineSettingsScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showOfflineSettingsScreen(NavigationTarget navigationTarget) {
         if (featureOperations.isOfflineContentEnabled()) {
             return Single.create(emitter -> {
                 if (navigationTarget.offlineSettingsMetaData().isPresent() &&
@@ -722,7 +725,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showNotificationPreferencesScreen(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showNotificationPreferencesScreen(NavigationTarget navigationTarget) {
         return Single.<NavigationResult>create(emitter -> {
             if (navigationTarget.notificationPreferencesMetaData().isPresent() && navigationTarget.notificationPreferencesMetaData().get().isNavigationDeeplink()) {
                 emitter.onSuccess(NavigationResult.create(navigationTarget, IntentFactory.createNotificationPreferencesIntent(context)));
@@ -758,7 +761,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showSystemSettings(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showSystemSettings(NavigationTarget navigationTarget) {
         final Intent intent = new Intent();
         intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -770,16 +773,16 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> startActivityForResource(Context context, NavigationTarget navigationTarget, Urn urn) {
+    private Single<NavigationResult> startActivityForResource(NavigationTarget navigationTarget, Urn urn) {
         if (isCrawler(navigationTarget.referrer())) {
             loginCrawler();
         }
 
         final Single<NavigationResult> resultSingle;
         if (accountOperations.isUserLoggedIn()) {
-            resultSingle = navigateToResource(context, navigationTarget, urn);
+            resultSingle = navigateToResource(navigationTarget, urn);
         } else {
-            resultSingle = showOnboardingForUri(context, navigationTarget);
+            resultSingle = showOnboardingForUri(navigationTarget);
         }
 
         return resultSingle
@@ -790,17 +793,17 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> navigateToResource(Context context, NavigationTarget navigationTarget, final Urn urn) {
+    private Single<NavigationResult> navigateToResource(NavigationTarget navigationTarget, final Urn urn) {
         if (urn.isTrack()) {
-            return startPlayback(context, navigationTarget, urn);
+            return startPlayback(navigationTarget, urn);
         } else if (urn.isUser()) {
-            return showProfile(context, navigationTarget, urn);
+            return showProfile(navigationTarget, urn);
         } else if (urn.isPlaylist()) {
             return showPlaylist(navigationTarget, urn);
         } else if (urn.isSystemPlaylist()) {
-            return showSystemPlaylist(context, navigationTarget, urn);
+            return showSystemPlaylist(navigationTarget, urn);
         } else if (urn.isArtistStation() || urn.isTrackStation()) {
-            return showStation(context, navigationTarget, urn, Optional.absent());
+            return showStation(navigationTarget, urn, Optional.absent());
         } else {
             ErrorUtils.handleSilentException(new IllegalArgumentException("Trying to navigate to unsupported urn: " + urn + " in version: " + BuildConfig.VERSION_CODE));
             return Single.never();
@@ -808,7 +811,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> startPlayback(Context context, NavigationTarget navigationTarget, Urn urn) {
+    private Single<NavigationResult> startPlayback(NavigationTarget navigationTarget, Urn urn) {
         return playbackInitiator.startPlayback(urn, navigationTarget.screen())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .flatMap(playbackResult -> {
@@ -816,7 +819,7 @@ public class NavigationResolver {
                                         if (playbackResult.isSuccess()) {
                                             return Single.just(NavigationResult.create(navigationTarget, createStreamWithExpandedPlayerIntent(navigationTarget.screen())));
                                         } else {
-                                            return launchApplicationWithMessage(context, navigationTarget, R.string.error_loading_url);
+                                            return launchApplicationWithMessage(navigationTarget, R.string.error_loading_url);
                                         }
                                     } else {
                                         return Single.just(NavigationResult.create(navigationTarget, playbackResult));
@@ -825,17 +828,16 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showOnboardingForUri(Context context, NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showOnboardingForUri(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget,
                                                    createOnboardingIntent(context, navigationTarget.screen(), Uri.parse(navigationTarget.linkNavigationParameters().get().target()))))
-                     .doOnSuccess(__ -> AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in));
+                     .map(result -> result.withToast(context.getString(R.string.error_toast_user_not_logged_in)));
     }
 
     @CheckResult
-    private Single<NavigationResult> launchApplicationWithMessage(Context context, NavigationTarget navigationTarget, int messageId) {
+    private Single<NavigationResult> launchApplicationWithMessage(NavigationTarget navigationTarget, int messageId) {
         if (navigationTarget.screen() == Screen.DEEPLINK) {
-            return Single.just(NavigationResult.create(navigationTarget, createLauncherIntent(context)))
-                         .doOnSuccess(__ -> AndroidUtils.showToast(context, messageId));
+            return Single.just(NavigationResult.create(navigationTarget, createLauncherIntent(context)).withToast(context.getString(messageId)));
         } else {
             return Single.just(NavigationResult.error(navigationTarget));
         }

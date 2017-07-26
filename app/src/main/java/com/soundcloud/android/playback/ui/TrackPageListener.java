@@ -24,7 +24,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -85,7 +84,7 @@ class TrackPageListener extends PageListener {
 
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                .subscribe(startProfileActivity(activityContext, userUrn));
+                .subscribe(startProfileActivity(userUrn));
 
         requestPlayerCollapse();
     }
@@ -95,11 +94,11 @@ class TrackPageListener extends PageListener {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueOpen());
     }
 
-    private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {
+    private Subscriber<PlayerUIEvent> startProfileActivity(final Urn userUrn) {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                navigator.navigateTo((Activity) activityContext, NavigationTarget.forProfile(userUrn));
+                navigator.navigateTo(NavigationTarget.forProfile(userUrn));
             }
         };
     }

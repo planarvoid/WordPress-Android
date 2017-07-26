@@ -3,7 +3,6 @@ package com.soundcloud.android.olddiscovery.charts;
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
@@ -74,7 +73,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "Rock charts"))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "Rock charts"))));
     }
 
     @Test
@@ -84,7 +83,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "SoundCloud charts"))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forChart(ChartType.TOP, genre, ChartCategory.MUSIC, "SoundCloud charts"))));
     }
 
     private ChartListItem createChartListItem(ChartBucketType chartBucketType, Urn genre) {

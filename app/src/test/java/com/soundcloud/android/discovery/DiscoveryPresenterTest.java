@@ -130,7 +130,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void navigatesToSearchWhenClicked() {
         presenter.onSearchClicked(activity);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forSearchAutocomplete(Screen.DISCOVER))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forSearchAutocomplete(Screen.DISCOVER))));
     }
 
     @Test
@@ -154,9 +154,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(rootActivity), argThat(matchesNavigationTarget(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(),
-                                                                                                                      SINGLE_WEB_LINK, SCREEN,
-                                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(),
+                                                                                                    SINGLE_WEB_LINK, SCREEN,
+                                                                                                    Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
     @Test
@@ -172,9 +172,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(rootActivity), argThat(matchesNavigationTarget(NavigationTarget.forNavigation(MULTI_APP_LINK.get(),
-                                                                                                                      MULTI_WEB_LINK, SCREEN,
-                                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(MULTI_APP_LINK.get(),
+                                                                                                    MULTI_WEB_LINK, SCREEN,
+                                                                                                    Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
     @Test

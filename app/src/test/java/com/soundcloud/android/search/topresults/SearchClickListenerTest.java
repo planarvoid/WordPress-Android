@@ -71,8 +71,7 @@ public class SearchClickListenerTest {
         final Activity context = mock(Activity.class);
         clickResultAction.run(context);
 
-        verify(navigator).navigateTo(eq(context),
-                                     argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistUrn,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistUrn,
                                                                                                   SCREEN,
                                                                                                   Optional.of(clickParams.searchQuerySourceInfo()),
                                                                                                   Optional.absent(),
@@ -94,7 +93,7 @@ public class SearchClickListenerTest {
         final Activity activity = mock(Activity.class);
         clickResultAction.run(activity);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forProfile(userUrn,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(userUrn,
                                                                                                                Optional.of(clickParams.uiEvent()),
                                                                                                                Optional.of(SCREEN),
                                                                                                                Optional.absent()))));

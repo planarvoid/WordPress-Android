@@ -18,7 +18,6 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -193,8 +192,7 @@ class StreamCardViewPresenter {
 
         @Override
         public void onClick(View v) {
-            navigator.navigateTo(ViewUtils.getFragmentActivity(v),
-                                 NavigationTarget.forProfile(
+            navigator.navigateTo(NavigationTarget.forProfile(
                                          userUrn,
                                          Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
                                          Optional.absent(),

@@ -16,7 +16,6 @@ import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
@@ -116,7 +115,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
             trackDisposable = trackRepository.track(trackUrn).subscribeWith(LambdaMaybeObserver.onNext(track -> navigationExecutor.openTrackComments(view.getContext(), trackUrn)));
         } else {
             // in all other cases we simply go to the user profile
-            navigator.navigateTo(ViewUtils.getFragmentActivity(view), NavigationTarget.forProfile(item.getUrn()));
+            navigator.navigateTo(NavigationTarget.forProfile(item.getUrn()));
         }
     }
 

@@ -14,7 +14,6 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.CarouselPlaylistItemRenderer;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -62,7 +61,7 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
         final EventContextMetadata eventContextMetadata = getEventContextMetadata(module, screen);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromMorePlaylistsByUser(playlistUrn, eventContextMetadata));
-        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forPlaylist(playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
+        navigator.navigateTo(NavigationTarget.forPlaylist(playlistUrn, screen, Optional.absent(), Optional.absent(), Optional.of(event)));
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

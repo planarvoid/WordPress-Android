@@ -72,7 +72,7 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
         errorSubscription = presenter.invalidGenreError()
                                      .subscribe(LambdaSubscriber.onNext(invalidGenre -> {
                                          ErrorUtils.handleSilentException("Charts Deeplink: Genre not found", new ChartsDeeplinkNotFoundException());
-                                         navigator.navigateTo(getActivity(), NavigationTarget.forAllGenres());
+                                         navigator.navigateTo(NavigationTarget.forAllGenres());
                                          getActivity().finish();
                                      }));
     }

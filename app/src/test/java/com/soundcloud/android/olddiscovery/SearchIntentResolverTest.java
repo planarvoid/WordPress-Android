@@ -81,7 +81,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
         intentResolver.handle(activity, intent);
 
-        verify(navigator).navigateTo(eq(activity), argThat(matchesNavigationTarget(NavigationTarget.forExternalDeeplink(intent.getDataString(), Referrer.STREAM_NOTIFICATION.value()))));
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forExternalDeeplink(intent.getDataString(), Referrer.STREAM_NOTIFICATION.value()))));
     }
 
     @Test

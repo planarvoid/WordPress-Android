@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,10 +40,9 @@ public class StartStationHandlerTest {
 
     @Test
     public void opensInfoPageFromRecommendation() {
-        stationHandler.startStation(activity, STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
+        stationHandler.startStation(STATION_URN, DiscoverySource.STATIONS_SUGGESTIONS);
 
-        verify(navigator).navigateTo(eq(activity),
-                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
                                                                                                      Optional.absent(),
                                                                                                      Optional.of(DiscoverySource.STATIONS_SUGGESTIONS),
                                                                                                      Optional.absent()))));
@@ -54,8 +52,7 @@ public class StartStationHandlerTest {
     public void opensInfoPage() {
         stationHandler.startStation(activity, STATION_URN);
 
-        verify(navigator).navigateTo(eq(activity),
-                                     argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
                                                                                                      Optional.absent(),
                                                                                                      Optional.of(DiscoverySource.STATIONS),
                                                                                                      Optional.absent()))));
@@ -63,7 +60,7 @@ public class StartStationHandlerTest {
 
     @Test
     public void shouldStartMeasuringLoadStationPerformanceOnStartStationWithSource() {
-        stationHandler.startStation(activity, STATION_URN, DiscoverySource.STATIONS);
+        stationHandler.startStation(STATION_URN, DiscoverySource.STATIONS);
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.LOAD_STATION);
     }
@@ -77,7 +74,7 @@ public class StartStationHandlerTest {
 
     @Test
     public void shouldStartMeasuringLoadStationPerformanceOnOpenStationWithSeedTrack() {
-        stationHandler.openStationWithSeedTrack(activity, TRACK_URN, mock(UIEvent.class));
+        stationHandler.openStationWithSeedTrack(TRACK_URN, mock(UIEvent.class));
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.LOAD_STATION);
     }

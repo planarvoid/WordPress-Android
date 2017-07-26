@@ -22,7 +22,6 @@ import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
@@ -36,7 +35,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -91,7 +89,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         syncStateStorage.resetSyncMisses(Syncable.DISCOVERY_CARDS);
 
         final Observable<SelectionItem> selectionItemObservable = adapter.selectionItemClick().doOnNext(item -> discoveryTrackingManager.trackSelectionItemClick(item, adapter.getItems()));
-        disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(item -> selectionItemClick(fragment.getActivity(), item))));
+        disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(item -> selectionItemClick(item))));
         disposable.add(Observable.combineLatest(((RootActivity) fragment.getActivity()).enterScreenTimestamp(), queryUrn, Pair::of)
                                  .distinctUntilChanged(Pair::first)
                                  .subscribeWith(LambdaObserver.onNext(pair -> this.trackPageView(pair.second()))));
@@ -107,12 +105,12 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         super.onDestroy(fragment);
     }
 
-    private void selectionItemClick(Activity activity, SelectionItem selectionItem) {
+    private void selectionItemClick(SelectionItem selectionItem) {
         selectionItem.link()
-                     .ifPresent(link -> navigator.navigateTo(activity, NavigationTarget.forNavigation(link,
-                                                                                                      selectionItem.webLink(),
-                                                                                                      SCREEN,
-                                                                                                      Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
+                     .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(link,
+                                                                                            selectionItem.webLink(),
+                                                                                            SCREEN,
+                                                                                            Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
     }
 
     @Override
@@ -166,7 +164,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     @Override
     public void onSearchClicked(Context context) {
-        navigator.navigateTo(ViewUtils.getFragmentActivity(context), NavigationTarget.forSearchAutocomplete(Screen.DISCOVER));
+        navigator.navigateTo(NavigationTarget.forSearchAutocomplete(Screen.DISCOVER));
     }
 
     private void showErrorMessage(DiscoveryResult discoveryResult) {

@@ -11,12 +11,12 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.annotations.VisibleForTesting;
+
 import android.app.Activity;
 import android.content.res.Resources;
 import android.support.annotation.StringRes;
@@ -69,15 +69,15 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     @VisibleForTesting
-    void onGoToPlaylistsAndAlbumsClick(Activity activity) {
+    void onGoToPlaylistsAndAlbumsClick() {
         performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
-        navigator.navigateTo(activity, NavigationTarget.forPlaylistsAndAlbumsCollection());
+        navigator.navigateTo(NavigationTarget.forPlaylistsAndAlbumsCollection());
     }
 
     @VisibleForTesting
-    void onGoToStationsClick(Activity activity) {
+    void onGoToStationsClick() {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
-        navigator.navigateTo(activity, NavigationTarget.forLikedStations());
+        navigator.navigateTo(NavigationTarget.forLikedStations());
     }
 
     private CollectionPreviewView getLikesPreviewView(View view) {
@@ -92,14 +92,14 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         bindLikesView(item.getLikes(), view);
 
         item.getPlaylistsAndAlbums().ifPresent(playlistsAndAlbums -> {
-            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick(activity));
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick());
             removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlistsAndAlbums, playlistsPreviewView);
         });
 
         item.getPlaylists().ifPresent(playlists -> {
             CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header,
-                                                                            v -> navigator.navigateTo(activity, NavigationTarget.forPlaylistsCollection()));
+                                                                            v -> navigator.navigateTo(NavigationTarget.forPlaylistsCollection()));
             removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlists, playlistsPreviewView);
         });
@@ -158,7 +158,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         final CollectionPreviewView stationsView = (CollectionPreviewView) parent.findViewById(R.id.collection_stations_preview);
         stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
         stationsView.setVisibility(View.VISIBLE);
-        stationsView.setOnClickListener(view -> onGoToStationsClick(ViewUtils.getFragmentActivity(view)));
+        stationsView.setOnClickListener(view -> onGoToStationsClick());
         return stationsView;
     }
 }
