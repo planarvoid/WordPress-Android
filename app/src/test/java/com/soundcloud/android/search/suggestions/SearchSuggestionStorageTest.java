@@ -1,7 +1,5 @@
 package com.soundcloud.android.search.suggestions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -29,36 +27,43 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     private SearchSuggestion likedPlaylistSearchSuggestion;
     private ApiPlaylist ownedPlaylist;
     private SearchSuggestion ownedPlaylistSearchSuggestion;
-    private ApiUser apiUser;
+    private ApiUser followingUser;
     private ApiUser loggedInUser;
-    private SearchSuggestion userSearchSuggestion;
+    private ApiUser creator;
+    private SearchSuggestion followingUserSearchSuggestion;
     private SearchSuggestion loggedInUserSearchSuggestion;
+    private SearchSuggestion likedTrackArtistUsernameSearchSuggestion;
+    private SearchSuggestion likedPlaylistArtistUsernameSearchSuggestion;
 
     @Before
     public void setUp() throws Exception {
         suggestionStorage = new SearchSuggestionStorage(propeller());
 
-        apiUser = testFixtures().insertUser();
-        loggedInUser = testFixtures().insertUser();
+        followingUser = testFixtures().insertUser("Random account");
+        loggedInUser = testFixtures().insertUser("Myself");
+        creator = testFixtures().insertUser("Prolific artist");
 
-        likedTrack = testFixtures().insertLikedTrack(new Date());
+        likedTrack = testFixtures().insertTrackWithTitle("A tune I enjoy", creator);
+        testFixtures().insertLikedTrack(likedTrack, 100L);
         likedTrackSearchSuggestion = buildSearchSuggestionFromApiTrack(likedTrack);
+        likedTrackArtistUsernameSearchSuggestion = buildSearchSuggestionFromApiTrackArtistUsername(likedTrack);
 
         ownedTrack = testFixtures().insertTrackWithTitle("Awesome song that I created", loggedInUser);
-        testFixtures().insertTrackPost(ownedTrack);
+        testFixtures().insertTrackPost(ownedTrack, 100L);
         ownedTrackSearchSuggestion = buildSearchSuggestionFromApiTrack(ownedTrack);
 
-        likedPlaylist = testFixtures().insertPlaylistWithTitle("Liked playlist");
-        testFixtures().insertLikedPlaylist(new Date(), likedPlaylist);
+        likedPlaylist = testFixtures().insertPlaylistWithTitle("Liked playlist", creator);
+        testFixtures().insertLikedPlaylist(new Date(0L), likedPlaylist);
         likedPlaylistSearchSuggestion = buildSearchSuggestionFromApiPlaylist(likedPlaylist);
+        likedPlaylistArtistUsernameSearchSuggestion = buildSearchSuggestionFromApiPlaylistArtistUsername(likedPlaylist);
 
-        ownedPlaylist = testFixtures().insertPlaylistWithTitle("Cool mix that I created", loggedInUser);
-        testFixtures().insertPostedPlaylist(ownedPlaylist);
+        ownedPlaylist = testFixtures().insertPlaylistWithTitle("Cool mix created by me", loggedInUser);
+        testFixtures().insertPostedPlaylist(ownedPlaylist, 0L);
         ownedPlaylistSearchSuggestion = buildSearchSuggestionFromApiPlaylist(ownedPlaylist);
 
-        userSearchSuggestion = buildSearchSuggestionFromApiUser(apiUser);
+        followingUserSearchSuggestion = buildSearchSuggestionFromApiUser(followingUser);
         loggedInUserSearchSuggestion = buildSearchSuggestionFromApiUser(loggedInUser);
-        testFixtures().insertFollowing(apiUser.getUrn());
+        testFixtures().insertFollowing(followingUser.getUrn(), 0L);
     }
 
     @Test
@@ -80,6 +85,19 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void returnsMultipleMatchesForLikedTrackByMostRecentlyLiked() {
+        final ApiTrack secondLikedTrack = testFixtures().insertTrackWithTitle(likedTrack.getTitle(), creator, likedTrack.getCreatedAt().getTime() - 1);
+        testFixtures().insertLikedTrack(secondLikedTrack, 500L);
+        final SearchSuggestion secondLikedTrackSearchSuggestion = buildSearchSuggestionFromApiTrack(secondLikedTrack);
+
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(likedTrack.getTitle().substring(0, 3), loggedInUser.getUrn(), 2);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(secondLikedTrackSearchSuggestion,
+                                                  likedTrackSearchSuggestion));
+    }
+
+    @Test
     public void returnsOwnedTrackFromStorageMatchedOnFirstWord() {
         final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(ownedTrack.getTitle().substring(0, 3), loggedInUser.getUrn(), 1);
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
@@ -95,6 +113,19 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
 
         subscriber.assertValue(Lists.newArrayList(ownedTrackSearchSuggestion));
+    }
+
+    @Test
+    public void returnsMultipleMatchesForOwnedTrackByMostRecentlyPosted() {
+        final ApiTrack secondOwnedTrack = testFixtures().insertTrackWithTitle(ownedTrack.getTitle(), loggedInUser, ownedTrack.getCreatedAt().getTime() - 1);
+        testFixtures().insertTrackPost(secondOwnedTrack, 500L);
+        final SearchSuggestion secondOwnedTrackSearchSuggestion = buildSearchSuggestionFromApiTrack(secondOwnedTrack);
+
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(ownedTrack.getTitle().substring(0, 3), loggedInUser.getUrn(), 2);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(secondOwnedTrackSearchSuggestion,
+                                                  ownedTrackSearchSuggestion));
     }
 
     @Test
@@ -134,28 +165,80 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void returnsMatchedFollowingFromStorage() {
-        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername().substring(0, 3), loggedInUser.getUrn(), 1);
+    public void returnsLikedTrackAndPlaylistFromStorageMatchedOnFirstWordOfArtistUsername() {
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(creator.getUsername().substring(0, 3), loggedInUser.getUrn(), 2);
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
 
-        subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
+        subscriber.assertValue(Lists.newArrayList(likedTrackArtistUsernameSearchSuggestion,
+                                                  likedPlaylistArtistUsernameSearchSuggestion));
     }
 
     @Test
-    public void returnsAllTypesFromStorage() {
-        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", loggedInUser.getUrn(), 6);
+    public void returnsLikedTrackAndPlaylistFromStorageMatchedOnSecondWordOfArtistUsername() {
+        final String username = creator.getUsername();
+        final int startIndex = username.indexOf(" ");
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(username.substring(startIndex + 1, startIndex + 3), loggedInUser.getUrn(), 2);
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
 
-        final List<SearchSuggestion> emittedElements = subscriber.values().get(0);
-        final List<SearchSuggestion> expectedElements = Lists.newArrayList(userSearchSuggestion,
-                                                                           loggedInUserSearchSuggestion,
-                                                                           likedTrackSearchSuggestion,
-                                                                           likedPlaylistSearchSuggestion,
-                                                                           ownedTrackSearchSuggestion,
-                                                                           ownedPlaylistSearchSuggestion);
+        subscriber.assertValue(Lists.newArrayList(likedTrackArtistUsernameSearchSuggestion,
+                                                  likedPlaylistArtistUsernameSearchSuggestion));
+    }
 
-        assertThat(emittedElements).containsAll(expectedElements);
-        assertThat(emittedElements.size()).isEqualTo(expectedElements.size());
+    @Test
+    public void returnsUserAndLikedTrackAndPlaylistInCorrectOrderWhenCreatorIsFollowed() {
+        testFixtures().insertFollowing(creator.getUrn());
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(creator.getUsername().substring(0, 3), loggedInUser.getUrn(), 4);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(buildSearchSuggestionFromApiUser(creator),
+                                                  likedTrackArtistUsernameSearchSuggestion,
+                                                  likedPlaylistArtistUsernameSearchSuggestion));
+    }
+
+    @Test
+    public void returnsFollowingUserFromStorageMatchedOnFirstWord() {
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(followingUser.getUsername().substring(0, 3), loggedInUser.getUrn(), 1);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(followingUserSearchSuggestion));
+    }
+
+    @Test
+    public void returnsFollowingUserFromStorageMatchedOnSecondWord() {
+        final String username = followingUser.getUsername();
+        final int startIndex = username.indexOf(" ");
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(username.substring(startIndex + 1, startIndex + 3), loggedInUser.getUrn(), 2);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(followingUserSearchSuggestion));
+    }
+
+    @Test
+    public void returnsMultipleMatchesForFollowingUserByMostRecentlyFollowed() {
+        final ApiUser secondFollowingUser = testFixtures().insertUser(followingUser.getUsername(), followingUser.getCreatedAt().get().getTime() - 1);
+        testFixtures().insertFollowing(secondFollowingUser.getUrn(), 500L);
+        final SearchSuggestion secondFollowingUserSearchSuggestion = buildSearchSuggestionFromApiUser(secondFollowingUser);
+
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(followingUser.getUsername().substring(0, 3), loggedInUser.getUrn(), 2);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(secondFollowingUserSearchSuggestion,
+                                                  followingUserSearchSuggestion));
+    }
+
+    @Test
+    public void returnsAllTypesFromStorageInTheCorrectOrder() {
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", loggedInUser.getUrn(), 20);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(likedTrackSearchSuggestion,
+                                                  likedPlaylistSearchSuggestion,
+                                                  followingUserSearchSuggestion,
+                                                  loggedInUserSearchSuggestion,
+                                                  ownedTrackSearchSuggestion,
+                                                  ownedPlaylistSearchSuggestion,
+                                                  likedTrackArtistUsernameSearchSuggestion,
+                                                  likedPlaylistArtistUsernameSearchSuggestion));
     }
 
     @Test
@@ -163,15 +246,15 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
         final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", loggedInUser.getUrn(), 1);
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
 
-        subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
+        subscriber.assertValue(Lists.newArrayList(likedTrackSearchSuggestion));
     }
 
     @Test
     public void returnsOnlyMatchedItemFromStorage() {
-        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername(), loggedInUser.getUrn(), 3);
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(followingUser.getUsername(), loggedInUser.getUrn(), 3);
         final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
 
-        subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
+        subscriber.assertValue(Lists.newArrayList(followingUserSearchSuggestion));
     }
 
     @Test
@@ -188,8 +271,18 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     }
 
     @NonNull
+    private SearchSuggestion buildSearchSuggestionFromApiTrackArtistUsername(final ApiTrack apiTrack) {
+        return DatabaseSearchSuggestion.create(apiTrack.getUrn(), apiTrack.getUserName() + " - " + apiTrack.getTitle(), apiTrack.getImageUrlTemplate());
+    }
+
+    @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiPlaylist(final ApiPlaylist apiPlaylist) {
         return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate());
+    }
+
+    @NonNull
+    private SearchSuggestion buildSearchSuggestionFromApiPlaylistArtistUsername(final ApiPlaylist apiPlaylist) {
+        return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getUsername() + " - " + apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate());
     }
 
     @NonNull

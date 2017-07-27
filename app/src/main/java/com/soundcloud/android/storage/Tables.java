@@ -327,8 +327,6 @@ public interface Tables {
         }
     }
 
-
-
     class Likes extends SCBaseTable {
 
         public static final Likes TABLE = new Likes();

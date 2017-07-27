@@ -22,53 +22,82 @@ class SearchSuggestionStorage {
     private static final String TYPE = "type";
     private static final String DISPLAY_TEXT = "display_text";
     private static final String IMAGE_URL = "image_url";
+    private static final String CREATION_DATE = "creation_date";
     private static final String KIND_LIKE = "like";
     private static final String KIND_FOLLOWING = "following";
     private static final String KIND_POST = "post";
-    private static final String SQL_LIKED_SOUNDS = "SELECT '" +
-            KIND_LIKE + "' AS " + KIND + ", " +
+    private static final String KIND_LIKE_USERNAME = "like_username";
+    private static final String SQL_LIKED_SOUNDS = "SELECT " +
+            "0 AS result_set, " +
+            "'" + KIND_LIKE + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
             "title AS " + DISPLAY_TEXT + ", " +
-            "artwork_url AS " + IMAGE_URL + " " +
+            "artwork_url AS " + IMAGE_URL + ", " +
+            "Likes.created_at AS " + CREATION_DATE + " " +
             "FROM Likes " +
             "INNER JOIN Sounds ON Likes._id = Sounds._id " +
             "AND Likes._type = Sounds._type " +
             "WHERE " + DISPLAY_TEXT + " LIKE ? " +
             "OR " + DISPLAY_TEXT + " LIKE ?";
-    private static final String SQL_POSTED_SOUNDS = "SELECT '" +
-            KIND_POST + "' AS " + KIND + ", " +
+    private static final String SQL_USERS = "SELECT " +
+            "1 AS result_set, " +
+            "'" + KIND_FOLLOWING + "' AS " + KIND + ", " +
+            "Users._id AS " + ID + ", " +
+            "0 AS " + TYPE + ", " +
+            "username AS " + DISPLAY_TEXT + ", " +
+            "avatar_url AS " + IMAGE_URL + ", " +
+            "UserAssociations.created_at AS " + CREATION_DATE + " " +
+            "FROM UserAssociations " +
+            "INNER JOIN Users ON UserAssociations.target_id = Users._id " +
+            "WHERE " + DISPLAY_TEXT + " LIKE ? " +
+            "OR " + DISPLAY_TEXT + " LIKE ?";
+    private static final String SQL_LOGGED_IN_USER = "SELECT " +
+            "2 AS result_set, " +
+            "'" + KIND_FOLLOWING + "' AS " + KIND + ", " +
+            "Users._id AS " + ID + ", " +
+            "0 AS " + TYPE + ", " +
+            "username AS " + DISPLAY_TEXT + ", " +
+            "avatar_url AS " + IMAGE_URL + ", " +
+            "0 AS " + CREATION_DATE + " " +
+            "FROM Users " +
+            "WHERE Users._id = ? " +
+            "AND (" + DISPLAY_TEXT + " LIKE ? " +
+            "OR " + DISPLAY_TEXT + " LIKE ?)";
+    private static final String SQL_POSTED_SOUNDS = "SELECT " +
+            "3 AS result_set, " +
+            "'" + KIND_POST + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
             "title AS " + DISPLAY_TEXT + ", " +
-            "artwork_url AS " + IMAGE_URL + " " +
+            "artwork_url AS " + IMAGE_URL + ", " +
+            "Posts.created_at AS " + CREATION_DATE + " " +
             "FROM Posts " +
             "INNER JOIN Sounds ON Posts.target_id = Sounds._id " +
             "AND Posts.target_type = Sounds._type " +
             "WHERE Posts.type = '" + Tables.Posts.TYPE_POST + "' " +
             "AND (" + DISPLAY_TEXT + " LIKE ? " +
             "OR " + DISPLAY_TEXT + " LIKE ?)";
-    private static final String SQL_LOGGED_IN_USER = "SELECT '" +
-            KIND_FOLLOWING + "' AS " + KIND + ", " +
-            "Users._id AS " + ID + ", " +
-            "0 AS " + TYPE + ", " +
-            "username AS " + DISPLAY_TEXT + ", " +
-            "avatar_url AS " + IMAGE_URL + " " +
-            "FROM Users " +
-            "WHERE Users._id = ? " +
-            "AND (" + DISPLAY_TEXT + " LIKE ? " +
-            "OR " + DISPLAY_TEXT + " LIKE ?)";
-    private static final String SQL_USERS = "SELECT '" +
-            KIND_FOLLOWING + "' AS " + KIND + ", " +
-            "Users._id AS " + ID + ", " +
-            "0 AS " + TYPE + ", " +
-            "username AS " + DISPLAY_TEXT + ", " +
-            "avatar_url AS " + IMAGE_URL + " " +
-            "FROM UserAssociations " +
-            "INNER JOIN Users ON UserAssociations.target_id = Users._id " +
-            "WHERE " + DISPLAY_TEXT + " LIKE ? " +
-            "OR " + DISPLAY_TEXT + " LIKE ?";
-    private static final String SQL = SQL_LIKED_SOUNDS + " UNION " + SQL_USERS + " UNION " + SQL_LOGGED_IN_USER + " UNION " + SQL_POSTED_SOUNDS;
+    private static final String SQL_LIKED_SOUNDS_BY_USERNAME = "SELECT " +
+            "4 AS result_set, " +
+            "'" + KIND_LIKE_USERNAME + "' AS " + KIND + ", " +
+            "Sounds._id AS " + ID + ", " +
+            "Sounds._type AS " + TYPE + ", " +
+            "(username || ' - ' || title) AS " + DISPLAY_TEXT + ", " +
+            "artwork_url AS " + IMAGE_URL + ", " +
+            "Likes.created_at AS " + CREATION_DATE + " " +
+            "FROM Likes " +
+            "INNER JOIN Sounds ON Likes._id = Sounds._id " +
+            "AND Likes._type = Sounds._type " +
+            "INNER JOIN Users ON Sounds.user_id = Users._id " +
+            "WHERE Users.username LIKE ? " +
+            "OR Users.username LIKE ?";
+    private static final String SQL = SQL_LIKED_SOUNDS +
+            " UNION " + SQL_USERS +
+            " UNION " + SQL_LOGGED_IN_USER +
+            " UNION " + SQL_POSTED_SOUNDS +
+            " UNION " + SQL_LIKED_SOUNDS_BY_USERNAME +
+            " ORDER BY result_set ASC, " + CREATION_DATE + " DESC";
     private final PropellerRx propellerRx;
 
     @Inject
@@ -86,7 +115,8 @@ class SearchSuggestionStorage {
                 searchQuery + "%", "% " + searchQuery + "%", // liked sounds by title
                 searchQuery + "%", "% " + searchQuery + "%", // users that are being followed
                 loggedInUserUrn.getNumericId(), searchQuery + "%", "% " + searchQuery + "%", // logged in user
-                searchQuery + "%", "% " + searchQuery + "%" // posted sounds by title
+                searchQuery + "%", "% " + searchQuery + "%", // posted sounds by title
+                searchQuery + "%", "% " + searchQuery + "%" // liked sounds by username
         };
     }
 

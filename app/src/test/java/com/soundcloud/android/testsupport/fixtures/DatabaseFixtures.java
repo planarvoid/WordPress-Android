@@ -440,6 +440,15 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertTrackWithTitle(String title, ApiUser user, long createdAt) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setTitle(title);
+        track.setUser(user);
+        track.setCreatedAt(new Date(createdAt));
+        insertTrack(track);
+        return track;
+    }
+
     public ApiTrack insertTrackWithCreationDate(ApiUser user, Date createdAtDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setCreatedAt(createdAtDate);
@@ -465,6 +474,21 @@ public class DatabaseFixtures {
 
     public ApiUser insertUser() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
+        insertUser(user);
+        return user;
+    }
+
+    public ApiUser insertUser(String username) {
+        final ApiUser user = ModelFixtures.create(ApiUser.class);
+        user.setUsername(username);
+        insertUser(user);
+        return user;
+    }
+
+    public ApiUser insertUser(String username, long createdAt) {
+        final ApiUser user = ModelFixtures.create(ApiUser.class);
+        user.setUsername(username);
+        user.setCreatedAt(new Date(createdAt));
         insertUser(user);
         return user;
     }
@@ -707,6 +731,12 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertLikedTrack(ApiTrack apiTrack, long likedAt) {
+        insertUser(apiTrack.getUser());
+        insertLike(apiTrack.getId(), Tables.Sounds.TYPE_TRACK, new Date(likedAt));
+        return apiTrack;
+    }
+
     public ApiTrack insertLikedTrackPendingRemoval(Date unlikedDate) {
         return insertLikedTrackPendingRemoval(new Date(0), unlikedDate);
     }
@@ -823,9 +853,9 @@ public class DatabaseFixtures {
         return apiTrackPost;
     }
 
-    public ApiTrack insertTrackPost(ApiTrack apiTrack) {
+    public ApiTrack insertTrackPost(ApiTrack apiTrack, long postedDate) {
         insertTrackPost(apiTrack.getUrn().getNumericId(),
-                        apiTrack.getCreatedAt().getTime(),
+                        postedDate,
                         false);
         return apiTrack;
     }
@@ -862,8 +892,8 @@ public class DatabaseFixtures {
         return apiPlaylist;
     }
 
-    public ApiPlaylist insertPostedPlaylist(ApiPlaylist apiPlaylist) {
-        insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), apiPlaylist.getCreatedAt().getTime(), false);
+    public ApiPlaylist insertPostedPlaylist(ApiPlaylist apiPlaylist, long postedDate) {
+        insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedDate, false);
         return apiPlaylist;
     }
 
