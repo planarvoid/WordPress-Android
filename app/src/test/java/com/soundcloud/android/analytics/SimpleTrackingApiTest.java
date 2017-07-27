@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import okhttp3.Call;
@@ -12,18 +13,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SimpleTrackingApiTest {
+public class SimpleTrackingApiTest extends AndroidUnitTest {
 
     private TrackingRecord event;
     private SimpleTrackingApi simpleTrackingApi;
@@ -45,18 +43,17 @@ public class SimpleTrackingApiTest {
     }
 
     @Test
-    public void shouldTreatEntire2xxTo4xxStatusRangeAsSuccessSoWeDoNotRetryClientErrors() throws Exception {
+    public void shouldTreatEntire2xxAndUpAsSuccesses() throws Exception {
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(499).build(),
                 TestHttpResponses.response(500).build()
         );
-        TrackingRecord failedEvent = new TrackingRecord(2L, 1000L, "backend", fakeUrl);
-
-        List<TrackingRecord> successes = simpleTrackingApi.pushToRemote(Arrays.asList(event, event, failedEvent));
-        assertThat(successes).hasSize(2);
+        List<TrackingRecord> successes = simpleTrackingApi.pushToRemote(Arrays.asList(event, event, event));
+        assertThat(successes).hasSize(3);
         assertThat(successes.get(0).getId()).isEqualTo(1L);
         assertThat(successes.get(1).getId()).isEqualTo(1L);
+        assertThat(successes.get(2).getId()).isEqualTo(1L);
     }
 
     @Test

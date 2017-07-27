@@ -272,6 +272,7 @@ class EventLoggerV1JsonDataBuilder {
         EventLoggerEventData eventLoggerEventData = buildBaseEvent(PlaybackErrorEvent.EVENT_NAME, event.getTimestamp())
                 .protocol(event.getProtocol().getValue())
                 .os(deviceHelper.getUserAgent())
+                .playerType(event.getPlayerType())
                 .bitrate(event.getBitrate())
                 .format(event.getFormat())
                 .url(event.getCdnHost())

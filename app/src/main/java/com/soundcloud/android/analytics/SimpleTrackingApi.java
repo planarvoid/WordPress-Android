@@ -6,9 +6,12 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.net.HttpHeaders;
+import com.soundcloud.java.optional.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -42,33 +45,23 @@ class SimpleTrackingApi implements TrackingApi {
         List<TrackingRecord> successes = new ArrayList<>(events.size());
 
         for (TrackingRecord event : events) {
+
+            Response response = null;
+
             try {
-                Request request = buildRequest(event);
+                response = httpClient.newCall(buildRequest(event)).execute();
+                successes.add(event);
+                logIfResponseUnexpected(event, response);
 
-                final Response response = httpClient.newCall(request).execute();
-                try {
-                    final int status = response.code();
-                    Log.d(EventTrackingManager.TAG, "Tracking event response: " + response.toString());
-
-                    if (isSuccessCodeOrIgnored(status)) {
-                        successes.add(event);
-                    } else {
-                        ErrorUtils.handleSilentException(EventTrackingManager.TAG,
-                                                         new Exception(
-                                                                 "Tracking request failed with unexpected status code: "
-                                                                         + response.toString() + "; record = " + event));
-                    }
-                } finally {
-                    response.body().close();
-                }
             } catch (MalformedURLException e) {
                 ErrorUtils.handleSilentException(EventTrackingManager.TAG, new Exception(event.toString(), e));
                 successes.add(event); // no point in trying this event again
             } catch (IOException e) {
                 Log.w(EventTrackingManager.TAG, "Failed with IOException pushing event: " + event, e);
+            } finally {
+                Optional.fromNullable(response).ifPresent((res) -> res.body().close());
             }
         }
-
         return successes;
     }
 
@@ -82,7 +75,14 @@ class SimpleTrackingApi implements TrackingApi {
         return request.build();
     }
 
-    private boolean isSuccessCodeOrIgnored(int status) {
-        return status >= HttpStatus.OK && status < HttpStatus.INTERNAL_SERVER_ERROR;
+    private void logIfResponseUnexpected(TrackingRecord event, Response response) {
+        if (response.code() >= HttpStatus.BAD_REQUEST) {
+            ErrorUtils.handleSilentException(EventTrackingManager.TAG, getSilentException(event, response));
+        }
+    }
+
+    @NonNull
+    private Exception getSilentException(TrackingRecord event, Response response) {
+        return new Exception("Tracking request failed with unexpected status code: " + response.toString() + "; record = " + event);
     }
 }

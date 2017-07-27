@@ -1545,6 +1545,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("audio_error", BOOGALOO_VERSION, event.getTimestamp())
                                                .protocol("https")
                                                .os(userAgent)
+                                               .playerType(PlayerType.FLIPPER.getValue())
                                                .bitrate(BIT_RATE)
                                                .format("mp3")
                                                .errorCode("category")
