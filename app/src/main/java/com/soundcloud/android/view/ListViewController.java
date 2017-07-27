@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import static android.widget.AbsListView.OnScrollListener;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.image.ImageOperations;
@@ -76,10 +75,6 @@ public class ListViewController extends DefaultSupportFragmentLightCycle<Fragmen
         setAdapter(adapter, pager, UtilityFunctions.identity());
     }
 
-    public void setScrollListener(@Nullable OnScrollListener scrollListener) {
-        this.scrollListener = scrollListener;
-    }
-
     public <O extends Observable<?>> void connect(final ReactiveListComponent<O> listComponent, O observable) {
         emptyViewController.connect(observable);
         absListView.setOnItemClickListener(listComponent);
@@ -87,7 +82,9 @@ public class ListViewController extends DefaultSupportFragmentLightCycle<Fragmen
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
+        if (adapter == null) {
+            throw new IllegalStateException("You must set an adapter before calling onViewCreated");
+        }
         emptyViewController.onViewCreated(fragment, view, savedInstanceState);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);

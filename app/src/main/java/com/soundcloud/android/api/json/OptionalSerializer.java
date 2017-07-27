@@ -1,7 +1,5 @@
 package com.soundcloud.android.api.json;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -40,7 +38,6 @@ class OptionalSerializer extends JsonSerializer<Optional> implements ContextualS
      * Used to create a type-specific serializer.
      */
     private OptionalSerializer(@NotNull BeanProperty property) {
-        checkNotNull(property, "valueType");
         this.property = property;
     }
 
@@ -51,7 +48,9 @@ class OptionalSerializer extends JsonSerializer<Optional> implements ContextualS
 
     @Override
     public void serialize(Optional value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        checkNotNull(property, "No property set.");
+        if (property == null) {
+            throw new IllegalStateException("No property set.");
+        }
         if (value.isPresent()) {
             serializers.findValueSerializer(property.getType().containedType(0), property).serialize(value.get(), gen, serializers);
         } else {

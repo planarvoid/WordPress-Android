@@ -1,7 +1,5 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -152,7 +150,9 @@ public class ApiRequest {
         }
 
         public ApiRequest build() {
-            checkNotNull(isPrivate, "Must specify api mode");
+            if (isPrivate == null) {
+                throw new IllegalStateException("Must specify api mode");
+            }
             if (content != null) {
                 return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content, anonymousRequest);
             } else if (formParts != null) {

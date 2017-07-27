@@ -1,6 +1,5 @@
 package com.soundcloud.java.collections;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.functions.Predicates;
 import org.jetbrains.annotations.Nullable;
@@ -27,14 +26,18 @@ class FilteredCollection<E> extends AbstractCollection<E> {
 
     @Override
     public boolean add(E element) {
-        Preconditions.checkArgument(predicate.apply(element));
+        if (!predicate.apply(element)) {
+            throw new IllegalArgumentException("Could not apply predicate");
+        }
         return unfiltered.add(element);
     }
 
     @Override
     public boolean addAll(Collection<? extends E> collection) {
         for (E element : collection) {
-            Preconditions.checkArgument(predicate.apply(element));
+            if (!predicate.apply(element)) {
+                throw new IllegalArgumentException();
+            }
         }
         return unfiltered.addAll(collection);
     }

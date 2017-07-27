@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
 import static com.soundcloud.android.playback.PlaybackState.IDLE;
 import static com.soundcloud.android.playback.PlaybackState.PLAYING;
 import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -240,7 +239,9 @@ public class MediaPlayerAdapter implements
     }
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
-        checkNotNull(currentItem, "MediaPlayer reported time to play without currentItem");
+        if (currentItem == null) {
+            throw new IllegalStateException("MediaPlayer reported time to play without currentItem");
+        }
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(currentItem.getPlaybackType())
                                                                  .metricValue(timeToPlay)
                                                                  .protocol(getPlaybackProtocol())

@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -52,9 +50,6 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
                                    Optional<PromotedSourceInfo> promotedInfo) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
-
-        checkNotNull(playlistUrn, "Playlist URN may not be null. " +
-                "Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], autoPlay = [" + autoPlay + "], queryInfo = [" + queryInfo + "], promotedInfo = [" + promotedInfo + "]");
         Urns.writeToIntent(intent, EXTRA_URN, playlistUrn);
         return intent
                 .putExtra(EXTRA_AUTO_PLAY, autoPlay)
@@ -77,16 +72,16 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
 
     private void createFragmentForPlaylist() {
         Intent intent = getIntent();
-        Screen screen = Screen.fromIntent(intent);
-
         Urn urn = Urns.urnFromIntent(intent, EXTRA_URN);
-        checkNotNull(urn, "Playlist URN may not be null. " + intent.toString());
+        if (urn == null) {
+            throw new IllegalStateException("Playlist URN may not be null. " + intent.toString());
+        }
         PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
         SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        Fragment fragment = PlaylistDetailFragment.create(urn, Screen.fromIntent(intent), searchQuerySourceInfo, promotedSourceInfo, autoplay);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }

@@ -16,10 +16,6 @@
 
 package com.soundcloud.java.reflect;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
-import com.soundcloud.java.checks.Preconditions;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -93,7 +89,10 @@ final class Types {
             // Neal isn't either but suspects some pathological case related
             // to nested classes exists.
             Type rawType = parameterizedType.getRawType();
-            checkArgument(rawType instanceof Class);
+            boolean expression = rawType instanceof Class;
+            if (!expression) {
+                throw new IllegalArgumentException();
+            }
             return (Class<?>) rawType;
 
         } else if (type instanceof GenericArrayType) {
@@ -186,7 +185,10 @@ final class Types {
     }
 
     private static void checkNotPrimitive(Type type) {
-        checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
+        boolean expression = !(type instanceof Class<?>) || !((Class<?>) type).isPrimitive();
+        if (!expression) {
+            throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -219,14 +221,18 @@ final class Types {
                 Class<?> rawTypeAsClass = (Class<?>) rawType;
                 boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
                         || rawTypeAsClass.getEnclosingClass() == null;
-                checkArgument(ownerType != null || isStaticOrTopLevelClass);
+                if (!(ownerType != null || isStaticOrTopLevelClass)) {
+                    throw new IllegalArgumentException();
+                }
             }
 
             this.ownerType = ownerType == null ? null : canonicalize(ownerType);
             this.rawType = canonicalize(rawType);
             this.typeArguments = typeArguments.clone();
             for (int t = 0; t < this.typeArguments.length; t++) {
-                Preconditions.checkNotNull(this.typeArguments[t]);
+                if (this.typeArguments[t] == null) {
+                    throw new NullPointerException();
+                }
                 checkNotPrimitive(this.typeArguments[t]);
                 this.typeArguments[t] = canonicalize(this.typeArguments[t]);
             }
@@ -316,18 +322,28 @@ final class Types {
         private final Type lowerBound;
 
         public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
-            checkArgument(lowerBounds.length <= 1);
-            checkArgument(upperBounds.length == 1);
+            if (!(lowerBounds.length <= 1)) {
+                throw new IllegalArgumentException();
+            }
+            if (!(upperBounds.length == 1)) {
+                throw new IllegalArgumentException();
+            }
 
             if (lowerBounds.length == 1) {
-                Preconditions.checkNotNull(lowerBounds[0]);
+                if (lowerBounds[0] == null) {
+                    throw new NullPointerException();
+                }
                 checkNotPrimitive(lowerBounds[0]);
-                checkArgument(upperBounds[0] == Object.class);
+                if (!(upperBounds[0] == Object.class)) {
+                    throw new IllegalArgumentException();
+                }
                 this.lowerBound = canonicalize(lowerBounds[0]);
                 this.upperBound = Object.class;
 
             } else {
-                Preconditions.checkNotNull(upperBounds[0]);
+                if (upperBounds[0] == null) {
+                    throw new NullPointerException();
+                }
                 checkNotPrimitive(upperBounds[0]);
                 this.lowerBound = null;
                 this.upperBound = canonicalize(upperBounds[0]);

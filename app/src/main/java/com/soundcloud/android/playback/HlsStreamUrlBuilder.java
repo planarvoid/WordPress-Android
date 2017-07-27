@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -36,7 +34,9 @@ public class HlsStreamUrlBuilder {
     }
 
     public String buildStreamUrl(PlaybackItem playbackItem) {
-        checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
+        if (!accountOperations.isUserLoggedIn()) {
+            throw new IllegalStateException("SoundCloud User account does not exist");
+        }
 
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_OFFLINE:

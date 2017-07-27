@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import com.soundcloud.java.checks.Preconditions;
-
 import java.util.NoSuchElementException;
 
 /**
@@ -134,7 +132,9 @@ public abstract class AbstractIterator<T> extends UnmodifiableIterator<T> {
 
     @Override
     public final boolean hasNext() {
-        Preconditions.checkState(state != State.FAILED);
+        if (!(state != State.FAILED)) {
+            throw new IllegalStateException();
+        }
         switch (state) {
             case DONE:
                 return false;

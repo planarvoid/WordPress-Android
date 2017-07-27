@@ -1,7 +1,5 @@
 package com.soundcloud.android.presentation;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.androidkit.R;
 
 import android.content.res.Resources;
@@ -87,8 +85,9 @@ public abstract class RecyclerViewPresenter<SourceT, ItemT> extends CollectionVi
     }
 
     private RecyclerItemAdapter setupAdapter(CollectionBinding<SourceT, ItemT> collectionBinding) {
-        checkArgument(collectionBinding.adapter() instanceof RecyclerItemAdapter,
-                "Adapter must be an " + RecyclerItemAdapter.class);
+        if (!(collectionBinding.adapter() instanceof RecyclerItemAdapter)) {
+            throw new IllegalArgumentException("Adapter must be an " + RecyclerItemAdapter.class);
+        }
         final RecyclerItemAdapter adapter = (RecyclerItemAdapter) collectionBinding.adapter();
         recyclerView.setAdapter(adapter);
 

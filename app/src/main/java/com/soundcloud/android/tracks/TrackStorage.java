@@ -44,7 +44,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
@@ -92,7 +91,9 @@ public class TrackStorage {
 
     @SuppressWarnings("PMD.SimplifyStartsWith")
     public Maybe<Urn> urnForPermalink(String permalink) {
-        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        if (permalink.startsWith("/")) {
+            throw new IllegalArgumentException("Permalink must not start with a '/' and must not be a url.");
+        }
         return propeller.queryResult(buildPermalinkQuery(permalink))
                         .filter(queryResult -> !queryResult.isEmpty())
                         .map(queryResult -> queryResult.first(cursorReader -> Urn.forTrack(cursorReader.getLong(Tables.TrackView.ID))))

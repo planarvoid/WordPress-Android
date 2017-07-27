@@ -1,7 +1,5 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -78,8 +76,9 @@ class ExperimentStorage {
 
         @Override
         public <T> T fromJson(String json, TypeToken<T> classToTransformTo) throws IOException, ApiMapperException {
-            checkArgument(classToTransformTo.getRawType().equals(Assignment.class));
-
+            if (!Assignment.class.equals(classToTransformTo.getRawType())) {
+                throw new IllegalArgumentException("Assignment Transformer requires target type of " + Assignment.class);
+            }
             try {
                 return jsonToAssignment(json);
             } catch (JSONException e) {
@@ -109,7 +108,9 @@ class ExperimentStorage {
 
         @Override
         public String toJson(Object source) throws ApiMapperException {
-            checkArgument(source.getClass().equals(Assignment.class));
+            if (!source.getClass().equals(Assignment.class)) {
+                throw new IllegalArgumentException();
+            }
 
             try {
                 return assignmentToJson((Assignment) source).toString();

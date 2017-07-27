@@ -1,7 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.strings.Strings;
@@ -140,7 +138,9 @@ public class ScTextUtils {
     }
 
     public static String getClippedString(String string, int maxLength) {
-        checkArgument(Strings.isNotBlank(string), "String must be non null/not empty");
+        if (Strings.isBlank(string)) {
+            throw new IllegalArgumentException("String must be non null/not empty");
+        }
         int length = (string.length() < maxLength) ? string.length() : maxLength;
         return string.substring(0, length);
     }

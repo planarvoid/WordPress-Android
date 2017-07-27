@@ -1,11 +1,10 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-import static com.soundcloud.java.checks.Preconditions.checkPositionIndex;
-import static com.soundcloud.java.checks.Preconditions.checkPositionIndexes;
-import static com.soundcloud.java.checks.Preconditions.checkState;
+import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
+import static com.soundcloud.java.checks.IndexHelper.checkPositionIndex;
+import static com.soundcloud.java.checks.IndexHelper.checkPositionIndexes;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractList;
@@ -17,8 +16,8 @@ import java.util.NoSuchElementException;
 class ReverseList<T> extends AbstractList<T> {
     private final List<T> forwardList;
 
-    ReverseList(List<T> forwardList) {
-        this.forwardList = checkNotNull(forwardList);
+    ReverseList(@NotNull List<T> forwardList) {
+        this.forwardList = forwardList;
     }
 
     List<T> getForwardList() {
@@ -27,7 +26,7 @@ class ReverseList<T> extends AbstractList<T> {
 
     private int reverseIndex(int index) {
         int size = size();
-        checkElementIndex(index, size);
+        checkElementIndex(index, size, "index");
         return size - 1 - index;
     }
 
@@ -153,7 +152,9 @@ class ReverseList<T> extends AbstractList<T> {
 
         @Override
         public void set(T e) {
-            checkState(canRemoveOrSet);
+            if (!canRemoveOrSet) {
+                throw new IllegalStateException();
+            }
             forwardIterator.set(e);
         }
     }

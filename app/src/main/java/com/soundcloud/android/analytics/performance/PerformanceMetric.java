@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.performance;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.java.checks.Preconditions;
 
 /**
  * <p>A `PerformanceMetric` class represents a unique point in time.</p>
@@ -47,9 +46,9 @@ public abstract class PerformanceMetric {
         abstract PerformanceMetric autoBuild();
 
         public PerformanceMetric build() {
-            Preconditions.checkNotNull(metricType());
+            MetricType metricType = metricType();
             if (traceMetric().isEmpty()) {
-                final TraceMetric traceMetric = TraceMetric.create(metricType());
+                final TraceMetric traceMetric = TraceMetric.create(metricType);
                 traceMetric.start();
                 traceMetric(traceMetric);
             }

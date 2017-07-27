@@ -1,12 +1,12 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.checks.Preconditions;
+import com.soundcloud.java.checks.IndexHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 class SimplePlayQueue extends PlayQueue {
     private final List<PlayQueueItem> playQueueItems;
@@ -38,7 +37,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public PlayQueueItem getPlayQueueItem(int position) {
-        checkElementIndex(position, size());
+        checkElementIndex(position, size(), "index");
         return playQueueItems.get(position);
     }
 
@@ -94,7 +93,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public Urn getUrn(int position) {
-        checkElementIndex(position, size());
+        checkElementIndex(position, size(), "index");
         return playQueueItems.get(position).getUrn();
     }
 
@@ -181,27 +180,19 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public Optional<AdData> getAdData(int position) {
-        checkElementIndex(position, size());
+        checkElementIndex(position, size(), "index");
         return playQueueItems.get(position).getAdData();
     }
 
     @Override
     public void insertPlayQueueItem(int position, PlayQueueItem playQueueItem) {
-        Preconditions.checkArgument(position >= 0 && position <= size(),
-                                    String.format(Locale.getDefault(),
-                                                  "Cannot insert item at position:%d, size:%d",
-                                                  position,
-                                                  playQueueItems.size()));
+        IndexHelper.checkPositionIndex(position, size(), "Cannot insert item at position:%d, size:%d");
         playQueueItems.add(position, playQueueItem);
     }
 
     @Override
     public void replaceItem(int position, List<PlayQueueItem> newItems) {
-        Preconditions.checkArgument(position >= 0 && position < size(),
-                                    String.format(Locale.getDefault(),
-                                                  "Cannot replace item at position:%d, size:%d",
-                                                  position,
-                                                  newItems.size()));
+        IndexHelper.checkElementIndex(position, size(), "Cannot replace item at position:%d, size:%d");
         playQueueItems.remove(position);
         playQueueItems.addAll(position, newItems);
     }

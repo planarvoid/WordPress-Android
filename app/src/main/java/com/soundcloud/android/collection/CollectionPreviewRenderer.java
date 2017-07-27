@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -86,7 +85,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        checkArgument(view.getContext() instanceof Activity);
         Activity activity = getFragmentActivity(view);
         PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
         bindLikesView(item.getLikes(), view);

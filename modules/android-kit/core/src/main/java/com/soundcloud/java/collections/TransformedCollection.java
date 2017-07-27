@@ -1,8 +1,7 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Function;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -12,10 +11,9 @@ class TransformedCollection<F, T> extends AbstractCollection<T> {
     final Collection<F> fromCollection;
     final Function<? super F, ? extends T> function;
 
-    TransformedCollection(Collection<F> fromCollection,
-                          Function<? super F, ? extends T> function) {
-        this.fromCollection = checkNotNull(fromCollection);
-        this.function = checkNotNull(function);
+    TransformedCollection(@NotNull Collection<F> fromCollection, @NotNull Function<? super F, ? extends T> function) {
+        this.fromCollection = fromCollection;
+        this.function = function;
     }
 
     @Override

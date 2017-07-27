@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.propeller.utils.StringUtils;
 import org.assertj.core.api.AbstractAssert;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -69,8 +69,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         throw new AssertionError("Intent extras do not match. Expected: " + expectedBundle + " Actual: " + actualBundle);
     }
 
-    public IntentAssert containsAction(String action) {
-        Preconditions.checkNotNull(action);
+    public IntentAssert containsAction(@NotNull String action) {
         isNotNull();
         assertThat(actual.getAction())
                 .overridingErrorMessage(errorMessage("Intent does not contain actions: " + action))
@@ -78,8 +77,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert containsExtra(String key, Object value) {
-        Preconditions.checkNotNull(key);
+    public IntentAssert containsExtra(@NotNull String key, @NotNull Object value) {
         isNotNull();
         assertThat(actual.hasExtra(key))
                 .overridingErrorMessage(errorMessage("Intent does not contain extra for key: " + key))
@@ -98,8 +96,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert containsUri(Uri uri) {
-        Preconditions.checkNotNull(uri);
+    public IntentAssert containsUri(@NotNull Uri uri) {
         isNotNull();
         assertThat(actual.getData())
                 .overridingErrorMessage(errorMessage("Intent does not contain Uri: " + uri))
@@ -107,8 +104,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert opensActivity(Class expectedActivity) {
-        Preconditions.checkNotNull(expectedActivity);
+    public IntentAssert opensActivity(@NotNull Class expectedActivity) {
         isNotNull();
         assertThat(actual.getComponent().getClassName())
                 .overridingErrorMessage(errorMessage("Expected started activity was: " + expectedActivity.getSimpleName()))
@@ -116,8 +112,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert startsService(Class expectedService) {
-        Preconditions.checkNotNull(expectedService);
+    public IntentAssert startsService(@NotNull Class expectedService) {
         isNotNull();
         assertThat(actual.getComponent().getClassName())
                 .overridingErrorMessage(errorMessage("Expected started service was: " + expectedService.getSimpleName()))
@@ -125,8 +120,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert containsScreen(Screen screen) {
-        Preconditions.checkNotNull(screen);
+    public IntentAssert containsScreen(@NotNull Screen screen) {
         isNotNull();
         assertThat(Screen.fromIntent(actual))
                 .overridingErrorMessage(errorMessage("Intent does not contain Screen: " + screen.name()))
@@ -134,8 +128,7 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
-    public IntentAssert containsReferrer(Referrer referrer) {
-        Preconditions.checkNotNull(referrer);
+    public IntentAssert containsReferrer(@NotNull Referrer referrer) {
         isNotNull();
         assertThat(Referrer.fromIntent(actual))
                 .overridingErrorMessage(errorMessage("Intent does not contain Referrer: " + referrer.name()))

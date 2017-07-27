@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.functions;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,7 +83,9 @@ public final class Functions {
 
         @Override
         public Object apply(Object o) {
-            checkNotNull(o);
+            if (o == null) {
+                throw new NullPointerException();
+            }
             return o;
         }
 
@@ -116,7 +116,9 @@ public final class Functions {
 
         @Override
         public E apply(Object from) {
-            checkNotNull(from);
+            if (from == null) {
+                throw new NullPointerException();
+            }
             return value;
         }
 

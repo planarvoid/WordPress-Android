@@ -1,7 +1,5 @@
 package com.soundcloud.android.share;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
@@ -85,7 +83,9 @@ public class SharePresenter {
 
                         @Override
                         public void onCompleted() {
-                            checkState(!shareDialog.isShowing(), "Share dialog still showing.");
+                            if (shareDialog.isShowing()) {
+                                throw new IllegalStateException("Share dialog still showing.");
+                            }
                             super.onCompleted();
                         }
                     });

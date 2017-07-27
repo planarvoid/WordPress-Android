@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Function;
 
 import java.util.Iterator;
@@ -32,7 +30,10 @@ abstract class TransformedIterator<F, T> implements Iterator<T> {
     final Iterator<? extends F> backingIterator;
 
     TransformedIterator(Iterator<? extends F> backingIterator) {
-        this.backingIterator = checkNotNull(backingIterator);
+        if (backingIterator == null) {
+            throw new NullPointerException();
+        }
+        this.backingIterator = backingIterator;
     }
 
     abstract T transform(F from);

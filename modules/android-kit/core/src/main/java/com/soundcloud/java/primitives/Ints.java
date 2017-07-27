@@ -1,7 +1,5 @@
 package com.soundcloud.java.primitives;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import java.util.Arrays;
 
 public final class Ints {
@@ -61,7 +59,9 @@ public final class Ints {
      * @param number the number to break down into groups
      */
     public static int[] inGroupsOf(int size, int number) {
-        checkArgument(size > 0);
+        if (!(size > 0)) {
+            throw new IllegalArgumentException();
+        }
         final int count = number / size;
         final int remainder = number % size;
         final int[] groups = new int[count + (remainder > 0 ? 1 : 0)];

@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+import org.jetbrains.annotations.NotNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -31,9 +31,11 @@ public class MainPagerAdapter extends PagerAdapter {
     private FragmentTransaction currentTransaction;
     private Fragment currentPrimaryItem;
 
-    MainPagerAdapter(Context context, FragmentManager fragmentManager, NavigationModel navigationModel) {
-        this.fragmentManager = checkNotNull(fragmentManager);
-        this.navigationModel = checkNotNull(navigationModel);
+    MainPagerAdapter(Context context,
+                     @NotNull FragmentManager fragmentManager,
+                     @NotNull NavigationModel navigationModel) {
+        this.fragmentManager = fragmentManager;
+        this.navigationModel = navigationModel;
         this.context = context;
         this.currentTransaction = null;
         this.currentPrimaryItem = null;

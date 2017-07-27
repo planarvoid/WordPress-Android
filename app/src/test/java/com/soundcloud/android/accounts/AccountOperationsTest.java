@@ -126,7 +126,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
         assertThat(account).isNull();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionWhenRemovingAccountIfAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
         accountOperations.logout();

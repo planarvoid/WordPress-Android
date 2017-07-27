@@ -1,8 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-import static com.soundcloud.java.checks.Preconditions.checkState;
+import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -94,7 +93,10 @@ public class PlayQueueManager {
     }
 
     public void unshuffle() {
-        checkState(playQueue instanceof ShuffledPlayQueue, "unshuffle must be called on a shuffled play queue.");
+        boolean expression = playQueue instanceof ShuffledPlayQueue;
+        if (!expression) {
+            throw new IllegalStateException("unshuffle must be called on a shuffled play queue.");
+        }
         setPlayQueueForReorder(((ShuffledPlayQueue) playQueue).unshuffle());
     }
 
@@ -105,8 +107,7 @@ public class PlayQueueManager {
     private void setPlayQueueForReorder(PlayQueue newPlayQueue) {
         final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
         final int startPosition = newPlayQueue.indexOfPlayQueueItem(currentPlayQueueItem);
-
-        checkState(startPosition != -1, "The current play queue item must be present in the new play queue.");
+        checkElementIndex(startPosition, playQueue.size(), "The current play queue item must be present in the new play queue.");
 
         setNewPlayQueueInternal(newPlayQueue, playSessionSource);
         currentPosition = startPosition;
@@ -523,14 +524,13 @@ public class PlayQueueManager {
         return Consts.NOT_SET;
     }
 
-    private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+    private void setNewPlayQueueInternal(@NotNull PlayQueue playQueue, @NotNull PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-
         if (!playSessionSource.equals(this.playSessionSource)) {
             this.repeatMode = RepeatMode.REPEAT_NONE;
             this.autoPlay = true;
         }
-        this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
+        this.playQueue = playQueue;
         this.currentItemIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
     }

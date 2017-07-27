@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.optional;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Function;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,13 +52,19 @@ final class Absent<T> extends Optional<T> {
 
     @Override
     public T or(T defaultValue) {
-        return checkNotNull(defaultValue, "use Optional.orNull() instead of Optional.or(null)");
+        if (defaultValue == null) {
+            throw new NullPointerException(String.valueOf("use Optional.orNull() instead of Optional.or(null)"));
+        }
+        return defaultValue;
     }
 
     @SuppressWarnings("unchecked") // safe covariant cast
     @Override
     public Optional<T> or(Optional<? extends T> secondChoice) {
-        return (Optional<T>) checkNotNull(secondChoice);
+        if (secondChoice == null) {
+            throw new NullPointerException();
+        }
+        return (Optional<T>) (Optional<? extends Optional<? extends T>>) secondChoice;
     }
 
     @Override
@@ -76,7 +80,9 @@ final class Absent<T> extends Optional<T> {
 
     @Override
     public <V> Optional<V> transform(Function<? super T, V> function) {
-        checkNotNull(function);
+        if (function == null) {
+            throw new NullPointerException();
+        }
         return absent();
     }
 

@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics.firebase;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.firebase.FirebaseOptions;
@@ -62,7 +60,10 @@ public class FirebaseDynamicLinksApi {
 
         @JsonCreator
         CreateDynamicLinkResponse(@JsonProperty("shortLink") String shortLink) {
-            this.shortLink = checkNotNull(shortLink, "shortLink");
+            if (shortLink == null) {
+                throw new IllegalArgumentException("Missing shortLink");
+            }
+            this.shortLink = shortLink;
         }
     }
 

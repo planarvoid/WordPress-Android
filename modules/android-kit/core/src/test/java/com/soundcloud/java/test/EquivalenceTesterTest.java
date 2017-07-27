@@ -42,8 +42,8 @@ public class EquivalenceTesterTest {
         this.tester = EquivalenceTester.of(equivalenceMock);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testOf_NullPointerException() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testOf_Exception() {
         EquivalenceTester.of(null);
     }
 

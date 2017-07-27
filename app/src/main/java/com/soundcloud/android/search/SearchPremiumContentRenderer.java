@@ -13,9 +13,9 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -181,8 +181,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                         .toUpperCase(Locale.getDefault());
     }
 
-    void setPremiumContentListener(OnPremiumContentClickListener listener) {
-        Preconditions.checkArgument(listener != null, "Click listener must not be null");
+    void setPremiumContentListener(@NotNull OnPremiumContentClickListener listener) {
         this.premiumContentListener = listener;
     }
 

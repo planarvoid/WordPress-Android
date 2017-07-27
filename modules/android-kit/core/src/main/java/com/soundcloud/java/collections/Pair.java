@@ -1,7 +1,5 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.objects.MoreObjects;
 
 public final class Pair<A, B> {
@@ -21,8 +19,12 @@ public final class Pair<A, B> {
     }
 
     Pair(A a, B b) {
-        checkNotNull(a);
-        checkNotNull(b);
+        if (a == null) {
+            throw new NullPointerException();
+        }
+        if (b == null) {
+            throw new NullPointerException();
+        }
         this.a = a;
         this.b = b;
     }

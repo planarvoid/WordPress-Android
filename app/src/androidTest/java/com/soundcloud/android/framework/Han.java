@@ -1,6 +1,5 @@
 package com.soundcloud.android.framework;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
@@ -333,8 +332,12 @@ public class Han {
             attempts++;
         }
 
-        checkState(elementsBelow.size() > 0, "No elements found after " + attempts + " attempts.");
-        return elementsBelow;
+        if (elementsBelow.size() > 0) {
+            return elementsBelow;
+        } else {
+            throw new IllegalStateException(String.valueOf("No elements found after " + attempts + " attempts."));
+        }
+
     }
 
     private List<ViewElement> getElementsBelow(With itemIdentifier, final ViewElement topElement) {

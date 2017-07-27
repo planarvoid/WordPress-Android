@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.test;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.collections.CollectPreconditions.checkElementsNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -81,7 +80,7 @@ public final class EqualsTester {
     }
 
     EqualsTester(RelationshipTester.ItemReporter itemReporter) {
-        this.itemReporter = checkNotNull(itemReporter);
+        this.itemReporter = itemReporter;
     }
 
     /**
@@ -89,7 +88,6 @@ public final class EqualsTester {
      * each other and not equal to any other equality groups added to this tester.
      */
     public EqualsTester addEqualityGroup(Object... equalityGroup) {
-        checkNotNull(equalityGroup);
         checkElementsNotNull(equalityGroup);
         equalityGroups.add(Arrays.asList(equalityGroup));
         return this;

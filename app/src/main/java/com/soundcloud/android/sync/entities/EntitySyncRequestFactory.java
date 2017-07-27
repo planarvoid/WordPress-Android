@@ -1,10 +1,9 @@
 package com.soundcloud.android.sync.entities;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.rx.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 import android.os.ResultReceiver;
 
@@ -30,8 +29,9 @@ public class EntitySyncRequestFactory {
         this.eventBus = eventBus;
     }
 
-    public EntitySyncRequest create(Syncable syncable, List<Urn> entities, ResultReceiver resultReceiver) {
-        checkArgument(entities != null, "Requested a resource sync without providing urns...");
+    public EntitySyncRequest create(@NotNull Syncable syncable,
+                                    @NotNull List<Urn> entities,
+                                    @NotNull ResultReceiver resultReceiver) {
         final EntitySyncJob syncJob = getEntitySyncJob(syncable);
         syncJob.setUrns(entities);
         return new EntitySyncRequest(syncJob, syncable, eventBus, resultReceiver);

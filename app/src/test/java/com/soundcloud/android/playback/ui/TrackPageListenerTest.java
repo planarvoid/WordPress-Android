@@ -114,7 +114,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onGotoUserEmitsEventToClosePlayer() {
-        listener.onGotoUser(activity(), USER_URN);
+        listener.onGotoUser(USER_URN);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         assertThat(event.isAutomaticCollapse()).isTrue();
@@ -123,7 +123,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
         AppCompatActivity activity = activity();
-        listener.onGotoUser(activity, USER_URN);
+        listener.onGotoUser(USER_URN);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(USER_URN))));
@@ -156,7 +156,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onArtistNameClickSendsUIEvent() throws Exception {
-        listener.onGotoUser(activity(), USER_URN);
+        listener.onGotoUser(USER_URN);
 
         verify(eventTracker).trackClick(UIEvent.fromItemNavigation(USER_URN, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
     }

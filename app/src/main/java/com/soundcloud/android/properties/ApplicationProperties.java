@@ -1,12 +1,9 @@
 package com.soundcloud.android.properties;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.res.Resources;
 import android.os.Build;
@@ -68,11 +65,8 @@ public class ApplicationProperties {
     }
 
     @Inject
-    public ApplicationProperties(Resources resources) {
-        checkNotNull(resources, "Resources should not be null");
-        String buildType = resources.getString(R.string.build_type);
-        checkArgument(Strings.isNotBlank(buildType), "Build type not found in application package resources");
-        ApplicationProperties.buildType = BuildType.valueOf(buildType.toUpperCase(Locale.US));
+    public ApplicationProperties(@NotNull Resources resources) {
+        ApplicationProperties.buildType = BuildType.valueOf(resources.getString(R.string.build_type).toUpperCase(Locale.US));
         verboseLogging = resources.getBoolean(R.bool.verbose_logging);
         googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
         enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);

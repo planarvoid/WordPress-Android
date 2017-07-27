@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.objects;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,7 +92,10 @@ public final class MoreObjects {
      * @since 18.0 (since 3.0 as {@code Objects.firstNonNull()}.
      */
     public static <T> T firstNonNull(@Nullable T first, @Nullable T second) {
-        return first != null ? first : checkNotNull(second);
+        if (second == null) {
+            throw new NullPointerException();
+        }
+        return first != null ? first : second;
     }
 
     /**
@@ -205,7 +206,10 @@ public final class MoreObjects {
          * Use {@link MoreObjects#toStringHelper(Object)} to create an instance.
          */
         ToStringHelper(String className) {
-            this.className = checkNotNull(className);
+            if (className == null) {
+                throw new NullPointerException();
+            }
+            this.className = className;
         }
 
         /**
@@ -418,7 +422,10 @@ public final class MoreObjects {
         private ToStringHelper addHolder(String name, @Nullable Object value) {
             ValueHolder valueHolder = addHolder();
             valueHolder.value = value;
-            valueHolder.name = checkNotNull(name);
+            if (name == null) {
+                throw new NullPointerException();
+            }
+            valueHolder.name = name;
             return this;
         }
 

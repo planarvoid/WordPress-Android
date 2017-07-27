@@ -1,7 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackEvent;
@@ -11,6 +9,7 @@ import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -23,7 +22,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -93,15 +91,15 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         this.inlayAdHelper = Optional.of(inlayAdHelperFactory.create(staggeredGridLayoutManager, adapter));
 
         subscriptions.addAll(RxJava.toV1Observable(featureOperations.adsEnabled())
-                                                     .startWith(Boolean.TRUE)
-                                                     .subscribe(new AdsEnabled()),
+                                   .startWith(Boolean.TRUE)
+                                   .subscribe(new AdsEnabled()),
                              inlayAdOperations.subscribe(inlayAdHelper.get()),
                              inlayAdHelper.get().subscribe(),
                              eventBus.queue(EventQueue.PLAYER_UI)
                                      .subscribe(new PlayerUISubscriber()));
     }
 
-    public void onFocusGain()  {
+    public void onFocusGain() {
         if (inlayAdHelper.isPresent() && !isInFullscreen()) {
             inlayAdHelper.get().onChangeToAdsOnScreen(true);
         }
@@ -208,11 +206,11 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private Subscription fetchInlays() {
         return adsOperations.kruxSegments()
                             .flatMap(
-                                kruxSegments -> {
-                                    final AdRequestData adRequestData = AdRequestData.forPageAds(kruxSegments);
-                                    lastRequestId = adRequestData.getRequestId();
-                                    return adsOperations.inlayAds(adRequestData);
-                                })
+                                    kruxSegments -> {
+                                        final AdRequestData adRequestData = AdRequestData.forPageAds(kruxSegments);
+                                        lastRequestId = adRequestData.getRequestId();
+                                        return adsOperations.inlayAds(adRequestData);
+                                    })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new FetchAppInstalls());
     }
@@ -237,7 +235,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     private void attemptToInsertAd() {
-        checkState(Thread.currentThread() == Looper.getMainLooper().getThread());
+        AndroidUtils.assertOnUiThread("Ad must be inserted on UI thread");
         if (!availableAds.isEmpty() && inlayAdHelper.isPresent()) {
             final AdData ad = availableAds.get(0);
             final boolean inserted = inlayAdHelper.get().insertAd(ad, wasScrollingUp);

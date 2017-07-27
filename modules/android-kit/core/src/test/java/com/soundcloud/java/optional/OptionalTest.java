@@ -49,7 +49,7 @@ public class OptionalTest {
         assertEquals("training", Optional.of("training").get());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testOf_null() {
         Optional.of(null);
     }

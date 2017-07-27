@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.reflect;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import java.lang.reflect.Type;
 
 
@@ -81,7 +79,10 @@ public class TypeToken<T> {
      */
     @SuppressWarnings("unchecked")
     TypeToken(Type type) {
-        this.type = Types.canonicalize(checkNotNull(type));
+        if (type == null) {
+            throw new NullPointerException();
+        }
+        this.type = Types.canonicalize(type);
         this.rawType = (Class<? super T>) Types.getRawType(this.type);
         this.hashCode = this.type.hashCode();
     }

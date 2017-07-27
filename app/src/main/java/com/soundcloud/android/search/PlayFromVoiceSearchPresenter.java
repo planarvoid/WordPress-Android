@@ -1,7 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -51,7 +49,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         @Override
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<ListItem> items = searchResult.getItems();
-            checkState(!items.isEmpty(), "There is no result for this search");
+            if (items.isEmpty()) {
+                throw new IllegalStateException("There is no result for this search");
+            }
             return RxJava.toV1Observable(playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
                                                                                               new PlaySessionSource(Screen.VOICE_COMMAND)));
         }
@@ -61,7 +61,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         @Override
         public ListItem call(SearchResult searchResult) {
             List<ListItem> items = searchResult.getItems();
-            checkState(!items.isEmpty(), "There is no result for this search");
+            if (items.isEmpty()) {
+                throw new IllegalStateException("There is no result for this search");
+            }
             return items.get(random.nextInt(items.size()));
         }
     };

@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.test;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -420,7 +419,7 @@ public class EqualsTesterTest {
         private final String name;
 
         NamedObject(String name) {
-            this.name = checkNotNull(name);
+            this.name = name;
         }
 
         NamedObject addPeers(String... names) {

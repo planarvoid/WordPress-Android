@@ -16,10 +16,10 @@
 
 package com.soundcloud.java.optional;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.AbstractIterator;
 import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.functions.Function;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -83,8 +83,11 @@ public abstract class Optional<T> implements Serializable {
     /**
      * Returns an {@code Optional} instance containing the given non-null reference.
      */
-    public static <T> Optional<T> of(T reference) {
-        return new Present<>(Preconditions.checkNotNull(reference));
+    public static <T> Optional<T> of(@NotNull T reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("Optional reference cannot be null");
+        }
+        return new Present<>(reference);
     }
 
     /**
@@ -231,14 +234,17 @@ public abstract class Optional<T> implements Serializable {
      */
     public static <T> Iterable<T> presentInstances(
             final Iterable<? extends Optional<? extends T>> optionals) {
-        Preconditions.checkNotNull(optionals);
+        if (optionals == null) {
+            throw new NullPointerException();
+        }
         return new Iterable<T>() {
             @Override
             public Iterator<T> iterator() {
+                final Iterator<? extends Optional<? extends T>> iterator = optionals.iterator();
+                if (iterator == null) {
+                    throw new NullPointerException();
+                }
                 return new AbstractIterator<T>() {
-                    private final Iterator<? extends Optional<? extends T>> iterator =
-                            Preconditions.checkNotNull(optionals.iterator());
-
                     @Override
                     protected T computeNext() {
                         while (iterator.hasNext()) {

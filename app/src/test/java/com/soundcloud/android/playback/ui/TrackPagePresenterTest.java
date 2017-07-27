@@ -459,7 +459,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         final View user = getHolder(trackView).profileLink;
         user.performClick();
 
-        verify(listener).onGotoUser(user.getContext(), Urn.forUser(456L));
+        verify(listener).onGotoUser(Urn.forUser(456L));
     }
 
     @Test

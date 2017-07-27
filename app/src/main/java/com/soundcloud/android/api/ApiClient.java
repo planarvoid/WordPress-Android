@@ -1,7 +1,5 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -9,6 +7,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.android.utils.Log;
@@ -25,8 +24,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import android.os.Looper;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -76,8 +73,7 @@ public class ApiClient {
 
     public ApiResponse fetchResponse(ApiRequest request) {
         if (assertBackgroundThread) {
-            checkState(Thread.currentThread() != Looper.getMainLooper().getThread(),
-                       "Detected execution of API request on main thread");
+            AndroidUtils.assertOffUiThread("Detected execution of API request on main thread");
         }
         try {
             final Request.Builder builder = new Request.Builder();

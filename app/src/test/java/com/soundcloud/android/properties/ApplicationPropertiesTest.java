@@ -27,7 +27,7 @@ public class ApplicationPropertiesTest {
         new ApplicationProperties(resources);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfBuildTypeIsNull() {
         when(resources.getString(string.build_type)).thenReturn(null);
         new ApplicationProperties(resources);

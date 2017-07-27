@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 /**
  * Precondition checks useful in collection implementations.
  */
@@ -42,7 +40,9 @@ public final class CollectPreconditions {
      * error message.
      */
     static void checkRemove(boolean canRemove) {
-        checkState(canRemove, "no calls to next() since the last call to remove()");
+        if (!canRemove) {
+            throw new IllegalStateException("no calls to next() since the last call to remove()");
+        }
     }
 
     public static Object[] checkElementsNotNull(Object... array) {

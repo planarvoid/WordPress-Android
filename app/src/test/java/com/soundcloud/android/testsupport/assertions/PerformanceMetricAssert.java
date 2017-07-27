@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
-import com.soundcloud.java.checks.Preconditions;
 import org.assertj.core.api.AbstractAssert;
+import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
@@ -17,43 +17,38 @@ public class PerformanceMetricAssert extends AbstractAssert<PerformanceMetricAss
 
     public PerformanceMetricAssert(PerformanceMetric actual) {
         super(actual, PerformanceMetricAssert.class);
-
         metricParamsBundle = actual.metricParams().toBundle();
     }
 
-    public PerformanceMetricAssert hasMetricType(MetricType metricType) {
-        Preconditions.checkNotNull(metricType);
+    public PerformanceMetricAssert hasMetricType(@NotNull MetricType metricType) {
         isNotNull();
         assertThat(actual.metricType())
                 .isEqualTo(metricType);
         return this;
     }
 
-    public PerformanceMetricAssert containsMetricParam(MetricKey metricKey, String value) {
-        Preconditions.checkNotNull(metricKey);
+    public PerformanceMetricAssert containsMetricParam(@NotNull MetricKey metricKey, @NotNull String value) {
         isNotNull();
         checkContainsKey(metricKey);
         assertThat(metricParamsBundle.getString(metricKey.toString())).isEqualTo(value);
         return this;
     }
 
-    public PerformanceMetricAssert containsMetricParam(MetricKey metricKey, long value) {
-        Preconditions.checkNotNull(metricKey);
+    public PerformanceMetricAssert containsMetricParam(@NotNull MetricKey metricKey, long value) {
         isNotNull();
         checkContainsKey(metricKey);
         assertThat(metricParamsBundle.getLong(metricKey.toString())).isEqualTo(value);
         return this;
     }
 
-    public PerformanceMetricAssert containsMetricParam(MetricKey metricKey, boolean value) {
-        Preconditions.checkNotNull(metricKey);
+    public PerformanceMetricAssert containsMetricParam(@NotNull MetricKey metricKey, boolean value) {
         isNotNull();
         checkContainsKey(metricKey);
         assertThat(metricParamsBundle.getBoolean(metricKey.toString())).isEqualTo(value);
         return this;
     }
 
-    private void checkContainsKey(MetricKey metricKey) {
+    private void checkContainsKey(@NotNull MetricKey metricKey) {
         assertThat(metricParamsBundle.containsKey(metricKey.toString()))
                 .overridingErrorMessage("Given PerformanceMetric does not contain any param with key %s", metricKey.toString())
                 .isTrue();

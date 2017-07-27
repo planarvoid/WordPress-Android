@@ -38,7 +38,7 @@ public class ApiRequestTest extends AndroidUnitTest {
         assertThat(request.getMethod()).isEqualTo("POST");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfAPIModeNotSet() {
         ApiRequest.get(URI_PATH).build();
     }

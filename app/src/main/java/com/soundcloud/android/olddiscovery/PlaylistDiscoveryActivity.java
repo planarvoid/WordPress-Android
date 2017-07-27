@@ -1,7 +1,5 @@
 package com.soundcloud.android.olddiscovery;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
@@ -31,7 +29,9 @@ public class PlaylistDiscoveryActivity extends PlayerActivity {
 
         if (savedInstanceState == null) {
             final String playListTag = getIntent().getStringExtra(EXTRA_PLAYLIST_TAG);
-            checkNotNull(playListTag, "Invalid playlist discovery tag");
+            if (playListTag == null) {
+                throw new IllegalStateException("Invalid playlist discovery tag");
+            }
 
             setTitle("#" + playListTag);
             createFragmentForPlaylistDiscovery(playListTag);

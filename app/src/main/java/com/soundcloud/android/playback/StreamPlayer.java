@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.configuration.experiments.FlipperExperiment;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
@@ -186,7 +184,9 @@ class StreamPlayer implements PlayerListener {
             configureNextPlayerToUse(mediaPlayerDelegate);
             currentPlayer.play(getUpdatedItem(currentProgress));
         } else {
-            checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
+            if (playerListener == null) {
+                throw new IllegalStateException("Stream Player Listener is unexpectedly null when passing state");
+            }
             lastStateTransition = stateTransition;
             playerListener.onPlaystateChanged(stateTransition);
         }

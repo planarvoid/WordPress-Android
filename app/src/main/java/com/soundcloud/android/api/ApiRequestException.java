@@ -11,7 +11,6 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED
 import static com.soundcloud.android.api.ApiRequestException.Reason.SERVER_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -44,7 +43,9 @@ public final class ApiRequestException extends Exception {
     public static ApiRequestException unexpectedResponse(ApiRequest request, ApiResponse response) {
         int statusCode = response.getStatusCode();
         final boolean isValidStatusCode = statusCode < HttpURLConnection.HTTP_OK || statusCode < HttpURLConnection.HTTP_INTERNAL_ERROR && statusCode >= HttpURLConnection.HTTP_BAD_REQUEST;
-        checkArgument(isValidStatusCode, "Status code must be< 200 or between 400 and 500");
+        if (!isValidStatusCode) {
+            throw new IllegalArgumentException("Status code must be < 200 or between 400 and 500");
+        }
         return new ApiRequestException(UNEXPECTED_RESPONSE, request, response, "HTTP " + statusCode);
     }
 

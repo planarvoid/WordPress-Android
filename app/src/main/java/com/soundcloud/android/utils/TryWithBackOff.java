@@ -1,7 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.Callable;
@@ -20,7 +18,9 @@ public class TryWithBackOff<T> {
                    TimeUnit timeUnit,
                    int backOffMultiplier,
                    int maxAttempts) {
-        checkArgument(maxAttempts > 0);
+        if (maxAttempts <= 0) {
+            throw new IllegalArgumentException("Must have max attempts > 0");
+        }
         this.sleeper = sleeper;
         this.initialBackOffTime = initialBackOffTime;
         this.timeUnit = timeUnit;

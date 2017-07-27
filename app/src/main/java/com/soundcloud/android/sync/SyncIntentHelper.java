@@ -1,8 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
 
@@ -20,9 +17,14 @@ final class SyncIntentHelper {
     }
 
     static Syncable getSyncable(Intent intent) {
-        checkArgument(intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE), "Syncable must be present");
+        if (!intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE)) {
+            throw new IllegalArgumentException("Syncable must be present");
+        }
         final Syncable syncable = (Syncable) intent.getSerializableExtra(ApiSyncService.EXTRA_SYNCABLE);
-        return checkNotNull(syncable, "Failed to deserialize syncable");
+        if (syncable == null) {
+            throw new IllegalArgumentException("Failed to deserialize syncable");
+        }
+        return syncable;
     }
 
     static Intent putSyncable(Intent intent, Syncable syncable) {
@@ -43,7 +45,9 @@ final class SyncIntentHelper {
     }
 
     static List<Syncable> getSyncables(Intent intent) {
-        checkArgument(intent.hasExtra(ApiSyncService.EXTRA_SYNCABLES), "Syncables must be present");
+        if (!intent.hasExtra(ApiSyncService.EXTRA_SYNCABLES)) {
+            throw new IllegalArgumentException("Syncables must be present");
+        }
 
         List<Syncable> syncables = new ArrayList<>();
         for (String syncableName : intent.getStringArrayListExtra(ApiSyncService.EXTRA_SYNCABLES)) {

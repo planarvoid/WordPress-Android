@@ -1,6 +1,6 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
 
 import java.util.AbstractList;
 import java.util.List;
@@ -16,7 +16,7 @@ class Partition<T> extends AbstractList<List<T>> {
 
     @Override
     public List<T> get(int index) {
-        checkElementIndex(index, size());
+        checkElementIndex(index, size(), "index");
         int start = index * size;
         int end = Math.min(start + size, list.size());
         return list.subList(start, end);

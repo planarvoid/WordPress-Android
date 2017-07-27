@@ -70,7 +70,7 @@ public class PullToRefreshControllerTest {
         observable = Observable.just(singletonList("item")).replay();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalStateException.class)
     public void shouldThrowIfRefreshListenerNotSetWhenOnViewCreatedIsCalled() {
         controller.onViewCreated(fragment, layout, bundle);
     }

@@ -10,7 +10,6 @@ import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.ViewError;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.subjects.PublishSubject;
@@ -57,7 +56,9 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     public void attach(View view, boolean renderEmptyAtTop, RecyclerView.LayoutManager layoutmanager) {
 
-        Preconditions.checkArgument(recyclerView == null, "Recycler View already atteched. Did you forget to detach?");
+        if (recyclerView != null) {
+            throw new IllegalStateException("Recycler View already atteched. Did you forget to detach?");
+        }
 
         unbinder = ButterKnife.bind(this, view);
 

@@ -1,8 +1,8 @@
 package com.soundcloud.android.testsupport.assertions;
 
-import com.soundcloud.java.checks.Preconditions;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 
 import android.view.View;
 import android.widget.TextView;
@@ -16,8 +16,7 @@ public class TextViewAssert extends AbstractAssert<TextViewAssert, TextView> {
         super(actual, TextViewAssert.class);
     }
 
-    public TextViewAssert containsText(String text) {
-        Preconditions.checkNotNull(text);
+    public TextViewAssert containsText(@NotNull String text) {
         isNotNull();
         Assertions
                 .assertThat(actual.getText().toString().trim())

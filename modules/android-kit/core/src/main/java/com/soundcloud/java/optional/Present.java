@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.optional;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.functions.Function;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,13 +48,17 @@ final class Present<T> extends Optional<T> {
 
     @Override
     public T or(T defaultValue) {
-        Preconditions.checkNotNull(defaultValue, "use Optional.orNull() instead of Optional.or(null)");
+        if (defaultValue == null) {
+            throw new NullPointerException(String.valueOf("use Optional.orNull() instead of Optional.or(null)"));
+        }
         return reference;
     }
 
     @Override
     public Optional<T> or(Optional<? extends T> secondChoice) {
-        Preconditions.checkNotNull(secondChoice);
+        if (secondChoice == null) {
+            throw new NullPointerException();
+        }
         return this;
     }
 
@@ -71,8 +74,11 @@ final class Present<T> extends Optional<T> {
 
     @Override
     public <V> Optional<V> transform(Function<? super T, V> function) {
-        return new Present<V>(Preconditions.checkNotNull(function.apply(reference),
-                "the Function passed to Optional.transform() must not return null."));
+        V reference1 = function.apply(reference);
+        if (reference1 == null) {
+            throw new NullPointerException(String.valueOf("the Function passed to Optional.transform() must not return null."));
+        }
+        return new Present<V>(reference1);
     }
 
     @Override

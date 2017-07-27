@@ -1,7 +1,5 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -36,7 +34,9 @@ public class RefreshableFragmentRule extends FragmentRule {
         @Override
         public MultiSwipeRefreshLayout getRefreshLayout() {
             MultiSwipeRefreshLayout view = (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
-            checkState(view != null);
+            if (view == null) {
+                throw new IllegalStateException("no swipe to refresh layout found");
+            }
             return view;
         }
 

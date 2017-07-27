@@ -16,12 +16,11 @@
 
 package com.soundcloud.java.functions;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Joiner;
 import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -119,10 +118,9 @@ public final class Predicates {
      * order, and evaluation will be "short-circuited" as soon as a false
      * predicate is found.
      */
-    public static <T> Predicate<T> and(Predicate<? super T> first,
-                                       Predicate<? super T> second) {
-        return new AndPredicate<>(Predicates.asList(
-                checkNotNull(first), checkNotNull(second)));
+    public static <T> Predicate<T> and(@NotNull Predicate<? super T> first,
+                                       @NotNull Predicate<? super T> second) {
+        return new AndPredicate<>(Predicates.asList(first, second));
     }
 
     /**
@@ -160,8 +158,13 @@ public final class Predicates {
      */
     public static <T> Predicate<T> or(
             Predicate<? super T> first, Predicate<? super T> second) {
-        return new OrPredicate<>(Predicates.asList(
-                checkNotNull(first), checkNotNull(second)));
+        if (second == null) {
+            throw new NullPointerException();
+        }
+        if (first == null) {
+            throw new NullPointerException();
+        }
+        return new OrPredicate<>(Predicates.asList(first, second));
     }
 
     /**
@@ -334,7 +337,10 @@ public final class Predicates {
         final Predicate<T> predicate;
 
         NotPredicate(Predicate<T> predicate) {
-            this.predicate = checkNotNull(predicate);
+            if (predicate == null) {
+                throw new NullPointerException();
+            }
+            this.predicate = predicate;
         }
 
         @Override
@@ -498,7 +504,10 @@ public final class Predicates {
         private final Class<?> clazz;
 
         InstanceOfPredicate(Class<?> clazz) {
-            this.clazz = checkNotNull(clazz);
+            if (clazz == null) {
+                throw new NullPointerException();
+            }
+            this.clazz = clazz;
         }
 
         @Override
@@ -536,7 +545,10 @@ public final class Predicates {
         private final Class<?> clazz;
 
         AssignableFromPredicate(Class<?> clazz) {
-            this.clazz = checkNotNull(clazz);
+            if (clazz == null) {
+                throw new NullPointerException();
+            }
+            this.clazz = clazz;
         }
 
         @Override
@@ -573,7 +585,10 @@ public final class Predicates {
         private final Collection<?> target;
 
         InPredicate(Collection<?> target) {
-            this.target = checkNotNull(target);
+            if (target == null) {
+                throw new NullPointerException();
+            }
+            this.target = target;
         }
 
         @Override
@@ -619,8 +634,14 @@ public final class Predicates {
         final Function<A, ? extends B> f;
 
         CompositionPredicate(Predicate<B> p, Function<A, ? extends B> f) {
-            this.p = checkNotNull(p);
-            this.f = checkNotNull(f);
+            if (p == null) {
+                throw new NullPointerException();
+            }
+            this.p = p;
+            if (f == null) {
+                throw new NullPointerException();
+            }
+            this.f = f;
         }
 
         @Override
@@ -658,7 +679,10 @@ public final class Predicates {
         final Pattern pattern;
 
         ContainsPatternPredicate(Pattern pattern) {
-            this.pattern = checkNotNull(pattern);
+            if (pattern == null) {
+                throw new NullPointerException();
+            }
+            this.pattern = pattern;
         }
 
         @Override
@@ -728,7 +752,10 @@ public final class Predicates {
     private static <T> List<T> defensiveCopy(Iterable<T> iterable) {
         ArrayList<T> list = new ArrayList<>();
         for (T element : iterable) {
-            list.add(checkNotNull(element));
+            if (element == null) {
+                throw new NullPointerException();
+            }
+            list.add(element);
         }
         return list;
     }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.api.json;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -41,7 +39,6 @@ class OptionalDeserializer extends JsonDeserializer<Optional<?>> implements Cont
      * Used to create a type-specific deserializer.
      */
     private OptionalDeserializer(@NotNull JavaType valueType) {
-        checkNotNull(valueType, "valueType");
         this.valueType = valueType;
     }
 
@@ -52,13 +49,17 @@ class OptionalDeserializer extends JsonDeserializer<Optional<?>> implements Cont
 
     @Override
     public Optional<?> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-        checkNotNull(valueType, "No value type set.");
+        if (valueType == null) {
+            throw new IllegalStateException("No value type set.");
+        }
         return Optional.of(ctxt.findRootValueDeserializer(valueType).deserialize(parser, ctxt));
     }
 
     @Override
     public Optional<?> getNullValue() {
-        checkNotNull(valueType, "No value type set.");
+        if (valueType == null) {
+            throw new IllegalStateException("No value type set.");
+        }
         return Optional.absent();
     }
 }

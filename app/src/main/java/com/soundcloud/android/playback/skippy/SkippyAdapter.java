@@ -4,7 +4,6 @@ import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
-import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -195,7 +194,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private String buildStreamUrl(PlaybackItem playbackItem) {
-        checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
+        if (!accountOperations.isUserLoggedIn()) {
+            throw new IllegalStateException("SoundCloud User account does not exist");
+        }
 
         final PlaybackType playType = playbackItem.getPlaybackType();
         final Urn urn = playbackItem.getUrn();

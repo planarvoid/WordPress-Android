@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui.view;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 
@@ -57,7 +55,10 @@ public class ViewPagerSwipeDetector extends ViewPager.SimpleOnPageChangeListener
     }
 
     public void setListener(SwipeListener skipListener) {
-        this.listener = checkNotNull(skipListener);
+        if (skipListener == null) {
+            throw new IllegalArgumentException("Skip listener cannot be null");
+        }
+        this.listener = skipListener;
     }
 
     private boolean isGestureFinished(MotionEvent event) {

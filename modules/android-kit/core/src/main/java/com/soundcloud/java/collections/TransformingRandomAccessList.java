@@ -1,7 +1,7 @@
 package com.soundcloud.java.collections;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.functions.Function;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.AbstractList;
@@ -26,10 +26,9 @@ class TransformingRandomAccessList<F, T>
     final List<F> fromList;
     final Function<? super F, ? extends T> function;
 
-    TransformingRandomAccessList(
-            List<F> fromList, Function<? super F, ? extends T> function) {
-        this.fromList = Preconditions.checkNotNull(fromList);
-        this.function = Preconditions.checkNotNull(function);
+    TransformingRandomAccessList(@NotNull List<F> fromList, @NotNull Function<? super F, ? extends T> function) {
+        this.fromList = fromList;
+        this.function = function;
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.functions.Predicates.in;
 
 import com.soundcloud.java.functions.Function;
@@ -46,7 +45,9 @@ public final class MoreCollections {
      */
     @SuppressWarnings("PMD.AvoidCatchingNPE")
     static boolean safeContains(Collection<?> collection, @Nullable Object object) {
-        checkNotNull(collection);
+        if (collection == null) {
+            throw new NullPointerException();
+        }
         try {
             return collection.contains(object);
         } catch (ClassCastException e) {
@@ -93,7 +94,13 @@ public final class MoreCollections {
             return ((FilteredCollection<E>) unfiltered).createCombined(predicate);
         }
 
-        return new FilteredCollection<>(checkNotNull(unfiltered), checkNotNull(predicate));
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
+        if (unfiltered == null) {
+            throw new NullPointerException();
+        }
+        return new FilteredCollection<>(unfiltered, predicate);
     }
 
     /**

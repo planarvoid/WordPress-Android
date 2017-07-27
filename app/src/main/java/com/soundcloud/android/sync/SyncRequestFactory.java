@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.sync.SyncIntentHelper.getSyncable;
 import static com.soundcloud.android.sync.SyncIntentHelper.getSyncables;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.events.BackgroundSyncEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -84,7 +83,9 @@ class SyncRequestFactory {
     @NonNull
     private SyncRequest createPlaylistSyncRequest(Intent intent) {
         final List<Urn> requestEntities = SyncIntentHelper.getSyncEntities(intent);
-        checkArgument(requestEntities.size() == 1, "Expected 1 playlist urn to sync, received " + requestEntities.size());
+        if (requestEntities.size() != 1) {
+            throw new IllegalArgumentException("Expected 1 playlist urn to sync, received " + requestEntities.size());
+        }
 
         final Urn playlistUrn = requestEntities.get(0);
         return new SinglePlaylistJobRequest(new SinglePlaylistSyncJob(singlePlaylistSyncerFactory.create(playlistUrn), playlistUrn),

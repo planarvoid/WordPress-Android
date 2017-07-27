@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
@@ -42,9 +40,13 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
         this.urn = urn;
-        this.playbackContext = checkNotNull(playbackContext, "PlaybackContext can not be null");
+        this.playbackContext = playbackContext;
         this.played = played;
         this.adData = adData;
+
+        if (playbackContext == null) {
+            throw new IllegalArgumentException("PlaybackContext can not be null");
+        }
     }
 
     public Urn getUrn() {

@@ -26,7 +26,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
@@ -240,8 +239,8 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     private void init(Bundle fragmentArgs) {
         forNewForYou = fragmentArgs.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false);
         urn = Urns.urnFromBundle(fragmentArgs, SystemPlaylistFragment.EXTRA_PLAYLIST_URN);
-        if (!forNewForYou) {
-            Preconditions.checkNotNull(urn, "Urn must not be null if not displaying NewForYou");
+        if (!forNewForYou && urn == null) {
+            throw new IllegalArgumentException("Urn must not be null if not displaying NewForYou");
         }
     }
 

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.test.EqualsTester;
 import com.soundcloud.java.test.SerializableTester;
 import org.junit.Ignore;
@@ -748,7 +747,9 @@ public class PredicatesTest {
 
             @Override
             public boolean contains(Object element) {
-                Preconditions.checkNotNull(element);
+                if (element == null) {
+                    throw new NullPointerException();
+                }
                 return super.contains(element);
             }
         }

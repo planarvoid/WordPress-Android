@@ -14,7 +14,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -56,7 +55,9 @@ public class PlaylistStorage {
 
     @SuppressWarnings("PMD.SimplifyStartsWith")
     public Maybe<Urn> urnForPermalink(String permalink) {
-        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        if (permalink.startsWith("/")) {
+            throw new IllegalArgumentException("Permalink must not start with a '/' and must not be a url.");
+        }
         return propellerRx.queryResult(buildPermalinkQuery(permalink))
                           .filter(queryResult -> !queryResult.isEmpty())
                           .map(queryResult -> queryResult.first(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID))))

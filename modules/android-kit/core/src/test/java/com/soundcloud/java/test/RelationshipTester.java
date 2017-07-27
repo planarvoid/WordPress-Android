@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.test;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.collections.Lists;
 
 import java.util.ArrayList;
@@ -52,14 +50,14 @@ final class RelationshipTester<T> {
 
     RelationshipTester(Equivalence<? super T> equivalence, String relationshipName, String hashName,
                        ItemReporter itemReporter) {
-        this.equivalence = checkNotNull(equivalence);
-        this.relationshipName = checkNotNull(relationshipName);
-        this.hashName = checkNotNull(hashName);
-        this.itemReporter = checkNotNull(itemReporter);
+        this.equivalence = equivalence;
+        this.relationshipName = relationshipName;
+        this.hashName = hashName;
+        this.itemReporter = itemReporter;
     }
 
     // TODO(cpovirk): should we reject null items, since the tests already check null automatically?
-    public RelationshipTester<T> addRelatedGroup(Iterable<? extends T> group) {
+    RelationshipTester<T> addRelatedGroup(Iterable<? extends T> group) {
         groups.add(Lists.newArrayList(group));
         return this;
     }

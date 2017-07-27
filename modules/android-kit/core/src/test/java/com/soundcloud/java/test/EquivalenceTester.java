@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.test;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -54,7 +53,7 @@ import java.util.List;
  * TODO(gak): turn this into a test suite so that each test can fail
  * independently
  */
-public final class EquivalenceTester<T> {
+final class EquivalenceTester<T> {
     private static final int REPETITIONS = 3;
 
     private final Equivalence<? super T> equivalence;
@@ -62,7 +61,10 @@ public final class EquivalenceTester<T> {
     private final List<T> items = new ArrayList<>();
 
     private EquivalenceTester(Equivalence<? super T> equivalence) {
-        this.equivalence = checkNotNull(equivalence);
+        if (equivalence == null) {
+            throw new IllegalArgumentException("Equivalence must not be null");
+        }
+        this.equivalence = equivalence;
         this.delegate = new RelationshipTester<T>(
                 equivalence, "equivalent", "hash", new RelationshipTester.ItemReporter());
     }

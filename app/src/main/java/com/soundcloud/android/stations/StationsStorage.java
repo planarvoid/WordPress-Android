@@ -16,7 +16,6 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -109,7 +108,9 @@ public class StationsStorage {
 
     @SuppressWarnings("PMD.SimplifyStartsWith")
     public Maybe<Urn> urnForPermalink(String permalink) {
-        Preconditions.checkArgument(!permalink.startsWith("/"), "Permalink must not start with a '/' and must not be a url.");
+        if (permalink.startsWith("/")) {
+            throw new IllegalArgumentException("Permalink must not start with a '/' and must not be a url.");
+        }
         final String normalizedPermalink = permalink.replaceFirst("stations/", "");
         return propellerRx.queryResult(buildPermalinkQuery(normalizedPermalink))
                           .filter(queryResult -> !queryResult.isEmpty())

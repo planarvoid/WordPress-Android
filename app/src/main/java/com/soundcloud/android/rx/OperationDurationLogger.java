@@ -1,7 +1,5 @@
 package com.soundcloud.android.rx;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkState;
 import static java.util.Arrays.asList;
 
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -38,13 +36,15 @@ public class OperationDurationLogger {
     }
 
     private static String findSubscriptionSource(StackTraceElement[] stackTrace) {
-        checkArgument(stackTrace.length > 0, "The stack trace can't be empty.");
-
-        final String source = findSubscriptionSource(asList(stackTrace).iterator());
-        if (source.isEmpty()) {
-            return stackTrace[0].toString();
+        if (stackTrace.length <= 0) {
+            throw new IllegalArgumentException("The stack trace can't be empty.");
         } else {
-            return source;
+            final String source = findSubscriptionSource(asList(stackTrace).iterator());
+            if (source.isEmpty()) {
+                return stackTrace[0].toString();
+            } else {
+                return source;
+            }
         }
     }
 
@@ -112,13 +112,17 @@ public class OperationDurationLogger {
 
                 @Override
                 public void start() {
-                    checkState(startTime == UNKNOWN, "Cannot start a measure if already stated.");
+                    if (startTime != UNKNOWN) {
+                        throw new IllegalStateException("Cannot start a measure if already stated.");
+                    }
                     startTime = dateProvider.getCurrentTime();
                 }
 
                 @Override
                 public void stop() {
-                    checkState(stopTime == UNKNOWN, "Cannot stop a measure if already stopped.");
+                    if (stopTime != UNKNOWN) {
+                        throw new IllegalStateException("Cannot stop a measure if already stopped.");
+                    }
                     stopTime = dateProvider.getCurrentTime();
                 }
 

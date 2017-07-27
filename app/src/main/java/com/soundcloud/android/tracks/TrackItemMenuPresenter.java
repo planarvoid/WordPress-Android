@@ -1,7 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -233,7 +231,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 showAddToPlaylistDialog();
                 return true;
             case R.id.remove_from_playlist:
-                checkState(isOwnedPlaylist(this.ownerUrn));
+                if (!isOwnedPlaylist(this.ownerUrn)) {
+                    throw new IllegalStateException("Cannot remove from someone else's playlist");
+                }
                 final Urn trackUrn = track.getUrn();
                 playlistOperations.removeTrackFromPlaylist(playlistUrn, trackUrn)
                                   .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())

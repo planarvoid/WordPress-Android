@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.flipper;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
@@ -176,9 +174,12 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public void setListener(PlayerListener playerListener) {
-        final PlayerListener safeListener = checkNotNull(playerListener, "PlayerListener can't be null");
-        this.stateHandler.setPlayerListener(safeListener);
-        this.progressChangeHandler.setPlayerListener(safeListener);
+        if (playerListener == null) {
+            throw new IllegalArgumentException("PlayerListener can't be null");
+        }
+
+        this.stateHandler.setPlayerListener(playerListener);
+        this.progressChangeHandler.setPlayerListener(playerListener);
     }
 
     @Override

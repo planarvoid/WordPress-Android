@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.test;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -59,7 +58,6 @@ public final class SerializableTester {
      */
     @SuppressWarnings("unchecked")
     public static <T> T reserialize(T object) {
-        checkNotNull(object);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try {
             ObjectOutputStream out = new ObjectOutputStream(bytes);

@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -137,7 +135,10 @@ public class PlayQueueExtender {
         @Override
         public void onSuccess(PlayQueue playQueue) {
             super.onSuccess(playQueue);
-            checkArgument(!playQueueManager.isQueueEmpty(), "Should not append to empty queue");
+            boolean expression = !playQueueManager.isQueueEmpty();
+            if (!expression) {
+                throw new IllegalArgumentException("Should not append to empty queue");
+            }
             playQueueManager.appendPlayQueueItems(playQueue);
         }
 

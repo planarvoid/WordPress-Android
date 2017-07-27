@@ -1,7 +1,6 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.payments.error.PlanConversionErrorDialog.createWithMessage;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -145,7 +144,6 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void displayPromo(WebProduct product) {
-        checkNotNull(product.getPromoPriceData());
         view.showPromo(product.getPromoPriceData().get().format(), product.getPromoDays(), product.getPriceData().format());
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionPromoImpression());
     }

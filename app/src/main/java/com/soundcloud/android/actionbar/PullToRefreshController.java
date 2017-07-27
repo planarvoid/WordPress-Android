@@ -1,7 +1,5 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
@@ -55,7 +53,9 @@ public class PullToRefreshController extends DefaultSupportFragmentLightCycle<Fr
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        checkNotNull(refreshListener, "You must set a refresh listener before calling onViewCreated");
+        if (refreshListener == null) {
+            throw new IllegalStateException("You must set a refresh listener before calling onViewCreated");
+        }
         MultiSwipeRefreshLayout swipeRefreshLayout;
         if (view instanceof SwipeRefreshLayout) {
             // this is only used for ScListFragment right now

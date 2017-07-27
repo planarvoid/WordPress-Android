@@ -408,7 +408,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         verify(skippyAdapter).destroy();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalStateException.class)
     public void onPlaystateChangeDoesThrowsNPEWithSuccessStateAndNoListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(null);

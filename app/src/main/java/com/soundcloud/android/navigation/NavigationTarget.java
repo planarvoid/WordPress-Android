@@ -11,13 +11,10 @@ import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UrnCollection;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.search.topresults.TopResults;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -121,19 +118,6 @@ public abstract class NavigationTarget {
                            .screen(Screen.DEEPLINK)
                            .referrer(Optional.of(referrer))
                            .build();
-    }
-
-    /**
-     * Used for navigation based on a supported URN (Track, User, Playlist, SystemPlaylist).
-     *
-     * @param urn that should be open
-     * @return a {@link NavigationTarget} to open the desired urn
-     * @throws IllegalArgumentException if the passed in URN is not suppred
-     * @see NavigationResolver#navigateToResource(Activity, NavigationTarget, Urn) for supported URNs
-     */
-    public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
-        Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
-        return forNavigation(urn.toString(), Optional.absent(), screen, Optional.absent());
     }
 
     public static NavigationTarget forNotificationPreferences() {

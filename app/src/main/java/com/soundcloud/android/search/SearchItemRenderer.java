@@ -1,11 +1,10 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -44,8 +43,7 @@ public class SearchItemRenderer implements CellRenderer {
         }
     }
 
-    public void setSearchListener(SearchListener searchListener) {
-        checkNotNull(searchListener);
+    public void setSearchListener(@NotNull SearchListener searchListener) {
         this.searchListener = searchListener;
     }
 }

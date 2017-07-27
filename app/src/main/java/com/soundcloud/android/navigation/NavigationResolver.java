@@ -69,7 +69,6 @@ import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -415,7 +414,9 @@ public class NavigationResolver {
     private Single<NavigationResult> startExternal(NavigationTarget navigationTarget) {
         trackForegroundEvent(navigationTarget);
         String target = navigationTarget.linkNavigationParameters().get().target();
-        Preconditions.checkNotNull(target, "Covered by #resolve");
+        if (target == null) {
+            throw new IllegalArgumentException("Covered by #resolve");
+        }
         Uri targetUri = Uri.parse(target);
         final String identifier = Optional.fromNullable(targetUri.getAuthority()).or(targetUri.getPath());
         if (ScTextUtils.isEmail(identifier)) {
@@ -523,7 +524,9 @@ public class NavigationResolver {
     @CheckResult
     private Single<NavigationResult> resolveTarget(NavigationTarget navigationTarget) {
         String target = navigationTarget.linkNavigationParameters().get().target();
-        Preconditions.checkNotNull(target, "Covered by #resolve");
+        if (target == null) {
+            throw new IllegalStateException("Covered by #resolve");
+        }
         return resolveOperations.resolve(target)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .flatMap(result -> handleResolveResult(result, navigationTarget));

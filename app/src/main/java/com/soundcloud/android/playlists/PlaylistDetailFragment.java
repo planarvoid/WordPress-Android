@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -104,9 +102,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
+        if (playlistUrn == null) {
+            throw new IllegalArgumentException("Playlist URN may no be null. Params: screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
+        }
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
-        checkNotNull(playlistUrn,
-                     "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "], screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
         fragment.setArguments(createBundle(playlistUrn, screen, searchInfo, promotedInfo, autoplay));
         return fragment;
     }
@@ -225,11 +224,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
 
         View detailView = view.findViewById(R.id.playlist_details);
-        boolean showInlineHeader = detailView == null;
 
         final Urn playlistUrn = Urns.urnFromBundle(getArguments(), EXTRA_URN);
+        if (playlistUrn == null) {
+            throw new IllegalStateException("Playlist URN may no be null.");
+        }
+
+        boolean showInlineHeader = detailView == null;
         presenter.connect(inputs, this, playlistUrn);
-        checkNotNull(playlistUrn, "Playlist URN may no be null. Params: playlistUrn = [" + playlistUrn + "]");
         disposable = new CompositeDisposable();
         disposable.addAll(
 

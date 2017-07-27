@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -56,17 +54,15 @@ class TrackPageListener extends PageListener {
         this.eventTracker = eventTracker;
     }
 
-    public void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
-        checkNotNull(trackUrn);
+    void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
         likeOperations.toggleLikeAndForget(trackUrn, addLike);
-
         engagementsTracking.likeTrackUrn(trackUrn,
                                          addLike,
                                          getEventContextMetadata(trackUrn),
                                          playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
-    public void onUpsell(final Context activityContext, final Urn trackUrn) {
+    void onUpsell(final Context activityContext, final Urn trackUrn) {
         navigationExecutor.openUpgrade(activityContext, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlayerClick(trackUrn));
     }
@@ -79,7 +75,7 @@ class TrackPageListener extends PageListener {
                                    .build();
     }
 
-    public void onGotoUser(final Context activityContext, final Urn userUrn) {
+    void onGotoUser(final Urn userUrn) {
         eventTracker.trackClick(UIEvent.fromItemNavigation(userUrn, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
 
         eventBus.queue(EventQueue.PLAYER_UI)

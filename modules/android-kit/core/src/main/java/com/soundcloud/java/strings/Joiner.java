@@ -16,8 +16,6 @@
 
 package com.soundcloud.java.strings;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -63,7 +61,10 @@ public class Joiner {
     private final String separator;
 
     Joiner(String separator) {
-        this.separator = checkNotNull(separator);
+        if (separator == null) {
+            throw new NullPointerException();
+        }
+        this.separator = separator;
     }
 
     private Joiner(Joiner prototype) {
@@ -85,7 +86,9 @@ public class Joiner {
      * @since 11.0
      */
     public <A extends Appendable> A appendTo(A appendable, Iterator<?> parts) throws IOException {
-        checkNotNull(appendable);
+        if (appendable == null) {
+            throw new NullPointerException();
+        }
         if (parts.hasNext()) {
             appendable.append(toString(parts.next()));
             while (parts.hasNext()) {
@@ -196,7 +199,9 @@ public class Joiner {
      * nullText} for any provided null elements.
      */
     public Joiner useForNull(final String nullText) {
-        checkNotNull(nullText);
+        if (nullText == null) {
+            throw new NullPointerException();
+        }
         return new Joiner(this) {
             @Override
             CharSequence toString(@Nullable Object part) {
@@ -224,8 +229,12 @@ public class Joiner {
             @Override
             public <A extends Appendable> A appendTo(A appendable, Iterator<?> parts)
                     throws IOException {
-                checkNotNull(appendable, "appendable");
-                checkNotNull(parts, "parts");
+                if (appendable == null) {
+                    throw new NullPointerException(String.valueOf("appendable"));
+                }
+                if (parts == null) {
+                    throw new NullPointerException(String.valueOf("parts"));
+                }
                 while (parts.hasNext()) {
                     Object part = parts.next();
                     if (part != null) {
@@ -252,13 +261,17 @@ public class Joiner {
     }
 
     CharSequence toString(Object part) {
-        checkNotNull(part);  // checkNotNull for GWT (do not optimize).
+        if (part == null) {
+            throw new NullPointerException();
+        }
         return part instanceof CharSequence ? (CharSequence) part : part.toString();
     }
 
     private static Iterable<Object> iterable(
             final Object first, final Object second, final Object[] rest) {
-        checkNotNull(rest);
+        if (rest == null) {
+            throw new NullPointerException();
+        }
         return new AbstractList<Object>() {
             @Override
             public int size() {

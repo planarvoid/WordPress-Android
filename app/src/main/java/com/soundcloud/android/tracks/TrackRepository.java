@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.utils.DiffUtils.minus;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
@@ -134,12 +133,16 @@ public class TrackRepository {
     }
 
     private void checkTrackUrn(Urn trackUrn) {
-        checkArgument(trackUrn.isTrack(), "Trying to sync track without a valid track urn");
+        if (!trackUrn.isTrack()) {
+            throw new IllegalArgumentException("Trying to sync track without a valid track urn");
+        }
     }
 
     private void checkTracksUrn(Collection<Urn> trackUrns) {
         final boolean hasOnlyTracks = !Iterators.tryFind(trackUrns.iterator(), Urns.IS_NOT_TRACK).isPresent();
-        checkArgument(hasOnlyTracks, "Trying to sync track without a valid track urn. trackUrns = [" + trackUrns + "]");
+        if (!hasOnlyTracks) {
+            throw new IllegalArgumentException("Trying to sync track without a valid track urn. trackUrns = [" + trackUrns + "]");
+        }
     }
 
     private Maybe<Track> trackFromStorage(Urn trackUrn) {

@@ -16,9 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
@@ -61,7 +58,9 @@ public final class Lists {
      */
     @SuppressWarnings({"unchecked", "PMD.LooseCoupling"})
     public static <E> ArrayList<E> newArrayList(E... elements) {
-        checkNotNull(elements);
+        if (elements == null) {
+            throw new NullPointerException();
+        }
         ArrayList<E> list = new ArrayList<>(elements.length);
         Collections.addAll(list, elements);
         return list;
@@ -79,7 +78,9 @@ public final class Lists {
      */
     @SuppressWarnings("PMD.LooseCoupling") // we want the concrete type
     public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
-        checkNotNull(elements); // for GWT
+        if (elements == null) {
+            throw new NullPointerException();
+        }
         // Let ArrayList's sizing logic work, if possible
         return elements instanceof Collection
                 ? new ArrayList<>(MoreCollections.cast(elements))
@@ -159,8 +160,12 @@ public final class Lists {
      * @throws IllegalArgumentException if {@code partitionSize} is nonpositive
      */
     public static <T> List<List<T>> partition(List<T> list, int size) {
-        checkNotNull(list);
-        checkArgument(size > 0);
+        if (list == null) {
+            throw new NullPointerException();
+        }
+        if (!(size > 0)) {
+            throw new IllegalArgumentException();
+        }
         return list instanceof RandomAccess
                 ? new RandomAccessPartition<>(list, size)
                 : new Partition<>(list, size);

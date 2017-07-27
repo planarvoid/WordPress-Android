@@ -1,7 +1,5 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -233,7 +231,9 @@ public class AccountOperations {
 
     public Observable<Void> logout() {
         Account soundCloudAccount = getSoundCloudAccount();
-        checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
+        if (soundCloudAccount == null) {
+            throw new IllegalStateException("Missing Account. One does not simply remove something that does not exist");
+        }
 
         return configurationOperations.get()
                                       .deregisterDevice()

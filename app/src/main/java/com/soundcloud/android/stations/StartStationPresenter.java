@@ -1,7 +1,6 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
@@ -84,7 +83,9 @@ public class StartStationPresenter {
     private Function<StationRecord, Single<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource,
                                                                              final int position) {
         return stationRecord -> {
-            checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
+            if (stationRecord.getTracks().isEmpty()) {
+                throw new IllegalArgumentException("The station does not have any tracks.");
+            }
 
             return playbackInitiator.playStation(stationRecord.getUrn(),
                                                  stationRecord.getTracks(),
@@ -124,7 +125,10 @@ public class StartStationPresenter {
 
     private Function<StationRecord, Single<PlaybackResult>> toPlaybackResult(final DiscoverySource source) {
         return station -> {
-            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
+            boolean expression = !station.getTracks().isEmpty();
+            if (!expression) {
+                throw new IllegalArgumentException(String.valueOf("The station does not have any tracks."));
+            }
 
             Urn trackToPlay = Urn.NOT_SET;
             int position = 0;

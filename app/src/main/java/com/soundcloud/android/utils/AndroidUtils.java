@@ -1,7 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.java.strings.Strings;
 
 import android.accounts.Account;
@@ -174,8 +172,15 @@ public final class AndroidUtils {
     }
 
     public static void assertOnUiThread(String message) {
-        checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
-                   String.format(message + "[ %s ]", Thread.currentThread()));
+        if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
+            throw new IllegalStateException(String.format(message + "[ %s ]", Thread.currentThread()));
+        }
+    }
+
+    public static void assertOffUiThread(String message) {
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            throw new IllegalStateException(String.format(message + "[ %s ]", Thread.currentThread()));
+        }
     }
 
     /* package */

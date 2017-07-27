@@ -163,7 +163,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
         verify(systemPlaylistAdapter).onNext(NEW_FOR_YOU_ADAPTER_ITEMS);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void throwsForSystemPlaylistWithoutUrn() {
         when(bundle.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false)).thenReturn(false);
 

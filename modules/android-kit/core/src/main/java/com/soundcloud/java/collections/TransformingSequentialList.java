@@ -1,8 +1,7 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Function;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.AbstractSequentialList;
@@ -22,10 +21,9 @@ class TransformingSequentialList<F, T>
     final List<F> fromList;
     final Function<? super F, ? extends T> function;
 
-    TransformingSequentialList(
-            List<F> fromList, Function<? super F, ? extends T> function) {
-        this.fromList = checkNotNull(fromList);
-        this.function = checkNotNull(function);
+    TransformingSequentialList(@NotNull List<F> fromList, @NotNull Function<? super F, ? extends T> function) {
+        this.fromList = fromList;
+        this.function = function;
     }
 
     /**

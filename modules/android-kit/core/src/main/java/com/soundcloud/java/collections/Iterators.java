@@ -16,7 +16,6 @@
 
 package com.soundcloud.java.collections;
 
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.functions.Predicates;
@@ -179,7 +178,9 @@ public final class Iterators {
      */
     public static <T> boolean removeIf(
             Iterator<T> removeFrom, Predicate<? super T> predicate) {
-        Preconditions.checkNotNull(predicate);
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
         boolean modified = false;
         while (removeFrom.hasNext()) {
             if (predicate.apply(removeFrom.next())) {
@@ -278,8 +279,12 @@ public final class Iterators {
      * operation
      */
     public static <T> boolean addAll(Collection<T> addTo, Iterator<? extends T> iterator) {
-        Preconditions.checkNotNull(addTo);
-        Preconditions.checkNotNull(iterator);
+        if (addTo == null) {
+            throw new NullPointerException();
+        }
+        if (iterator == null) {
+            throw new NullPointerException();
+        }
         boolean wasModified = false;
         while (iterator.hasNext()) {
             wasModified |= addTo.add(iterator.next());
@@ -302,7 +307,9 @@ public final class Iterators {
      * resulting iterator has a cubic complexity to the depth of the nesting.
      */
     public static <T> Iterator<T> concat(final Iterator<? extends Iterator<? extends T>> inputs) {
-        Preconditions.checkNotNull(inputs);
+        if (inputs == null) {
+            throw new NullPointerException();
+        }
         return new Iterator<T>() {
             Iterator<? extends T> current = emptyIterator();
             Iterator<? extends T> removeFrom;
@@ -317,7 +324,10 @@ public final class Iterators {
                 // because otherwise we'll have called inputs.next() before throwing
                 // the first NPE, and the next time around we'll call inputs.next()
                 // again, incorrectly moving beyond the error.
-                while (!(currentHasNext = Preconditions.checkNotNull(current).hasNext())
+                if (current == null) {
+                    throw new NullPointerException();
+                }
+                while (!(currentHasNext = ((Iterator<? extends Iterator<? extends T>>) current).hasNext())
                         && inputs.hasNext()) {
                     current = inputs.next();
                 }
@@ -383,8 +393,12 @@ public final class Iterators {
 
     private static <T> UnmodifiableIterator<List<T>> partitionImpl(
             final Iterator<T> iterator, final int size, final boolean pad) {
-        Preconditions.checkNotNull(iterator);
-        Preconditions.checkArgument(size > 0);
+        if (iterator == null) {
+            throw new NullPointerException();
+        }
+        if (!(size > 0)) {
+            throw new IllegalArgumentException();
+        }
         return new UnmodifiableIterator<List<T>>() {
             @Override
             public boolean hasNext() {
@@ -418,8 +432,12 @@ public final class Iterators {
      */
     public static <T> UnmodifiableIterator<T> filter(
             final Iterator<T> unfiltered, final Predicate<? super T> predicate) {
-        Preconditions.checkNotNull(unfiltered);
-        Preconditions.checkNotNull(predicate);
+        if (unfiltered == null) {
+            throw new NullPointerException();
+        }
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
         return new AbstractIterator<T>() {
             @Override
             protected T computeNext() {
@@ -463,7 +481,9 @@ public final class Iterators {
      * is returned.
      */
     public static <T> boolean all(Iterator<T> iterator, Predicate<? super T> predicate) {
-        Preconditions.checkNotNull(predicate);
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
         while (iterator.hasNext()) {
             T element = iterator.next();
             if (!predicate.apply(element)) {
@@ -541,7 +561,9 @@ public final class Iterators {
      * @since 2.0
      */
     public static <T> int indexOf(Iterator<T> iterator, Predicate<? super T> predicate) {
-        Preconditions.checkNotNull(predicate, "predicate");
+        if (predicate == null) {
+            throw new NullPointerException(String.valueOf("predicate"));
+        }
         for (int i = 0; iterator.hasNext(); i++) {
             T current = iterator.next();
             if (predicate.apply(current)) {
@@ -561,7 +583,9 @@ public final class Iterators {
      */
     public static <F, T> Iterator<T> transform(final Iterator<F> fromIterator,
                                                final Function<? super F, ? extends T> function) {
-        Preconditions.checkNotNull(function);
+        if (function == null) {
+            throw new NullPointerException();
+        }
         return new TransformedIterator<F, T>(fromIterator) {
             @Override
             T transform(F from) {
@@ -663,8 +687,12 @@ public final class Iterators {
      * @since 13.0 (since 3.0 as {@code Iterators.skip})
      */
     public static int advance(Iterator<?> iterator, int numberToAdvance) {
-        Preconditions.checkNotNull(iterator);
-        Preconditions.checkArgument(numberToAdvance >= 0, "numberToAdvance must be nonnegative");
+        if (iterator == null) {
+            throw new NullPointerException();
+        }
+        if (!(numberToAdvance >= 0)) {
+            throw new IllegalArgumentException(String.valueOf("numberToAdvance must be nonnegative"));
+        }
 
         int i;
         for (i = 0; i < numberToAdvance && iterator.hasNext(); i++) {
@@ -679,7 +707,9 @@ public final class Iterators {
      * Clears the iterator using its remove method.
      */
     static void clear(Iterator<?> iterator) {
-        Preconditions.checkNotNull(iterator);
+        if (iterator == null) {
+            throw new NullPointerException();
+        }
         while (iterator.hasNext()) {
             iterator.next();
             iterator.remove();
@@ -744,7 +774,10 @@ public final class Iterators {
         private E peekedElement;
 
         public PeekingImpl(Iterator<? extends E> iterator) {
-            this.iterator = Preconditions.checkNotNull(iterator);
+            if (iterator == null) {
+                throw new NullPointerException();
+            }
+            this.iterator = iterator;
         }
 
         @Override
@@ -765,7 +798,10 @@ public final class Iterators {
 
         @Override
         public void remove() {
-            Preconditions.checkState(!hasPeeked, "Can't remove after you've peeked at next");
+            boolean expression = !hasPeeked;
+            if (!expression) {
+                throw new IllegalStateException(String.valueOf("Can't remove after you've peeked at next"));
+            }
             iterator.remove();
         }
 

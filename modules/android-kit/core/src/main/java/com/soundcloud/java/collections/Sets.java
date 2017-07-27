@@ -1,7 +1,5 @@
 package com.soundcloud.java.collections;
 
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
-
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.primitives.Ints;
@@ -162,7 +160,13 @@ public final class Sets {
             return new FilteredSet<>((Set<E>) filtered.unfiltered, combinedPredicate);
         }
 
-        return new FilteredSet<>(checkNotNull(unfiltered), checkNotNull(predicate));
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
+        if (unfiltered == null) {
+            throw new NullPointerException();
+        }
+        return new FilteredSet<>(unfiltered, predicate);
     }
 
     /**
@@ -246,7 +250,13 @@ public final class Sets {
             return new FilteredSortedSet<>((SortedSet<E>) filtered.unfiltered, combinedPredicate);
         }
 
-        return new FilteredSortedSet<>(checkNotNull(unfiltered), checkNotNull(predicate));
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
+        if (unfiltered == null) {
+            throw new NullPointerException();
+        }
+        return new FilteredSortedSet<>(unfiltered, predicate);
     }
 
     /**
@@ -288,7 +298,13 @@ public final class Sets {
             return new FilteredNavigableSet<>((NavigableSet<E>) filtered.unfiltered, combinedPredicate);
         }
 
-        return new FilteredNavigableSet<>(checkNotNull(unfiltered), checkNotNull(predicate));
+        if (predicate == null) {
+            throw new NullPointerException();
+        }
+        if (unfiltered == null) {
+            throw new NullPointerException();
+        }
+        return new FilteredNavigableSet<>(unfiltered, predicate);
     }
 
 

@@ -1,7 +1,5 @@
 package com.soundcloud.android.properties;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-
 import com.soundcloud.android.tests.SoundCloudTestApplication;
 import com.soundcloud.annotations.VisibleForTesting;
 
@@ -34,7 +32,9 @@ public class FeatureFlagsHelper {
     }
 
     public void assertEnabled(Flag... requiredEnabledFeatures) {
-        checkState(isLocallyEnabled(requiredEnabledFeatures), "Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures));
+        if (!isLocallyEnabled(requiredEnabledFeatures)) {
+            throw new IllegalStateException(String.valueOf("Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures)));
+        }
     }
 
     public boolean isEnabled(Flag flag) {

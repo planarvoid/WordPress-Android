@@ -5,7 +5,6 @@ import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnCollection;
 import com.soundcloud.android.model.UrnNamespace;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
 
@@ -38,7 +37,9 @@ class LocalEntityUriResolver {
             Optional<String> path = extractPath(identifier);
             return path.transform(pathToMatch -> {
                 final Matcher pathMatcher = URI_PATH_PATTERN.matcher(pathToMatch);
-                Preconditions.checkState(pathMatcher.matches(), "canResolveLocally should be called before to verify the URN can be extracted");
+                if (!pathMatcher.matches()) {
+                    throw new IllegalStateException("canResolveLocally should be called before to verify the URN can be extracted");
+                }
                 final String entity = pathMatcher.group(1);
                 final String pathId = pathMatcher.group(2);
                 final Urn urn;
