@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.creators.CreatorUtilsKt;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -20,9 +21,10 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
@@ -37,6 +39,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -60,9 +63,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final Navigator navigator;
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
-    private final OfflineSettingsStorage settingsStorage;
     private final ConfigurationOperations configurationOperations;
     private final FeedbackController feedbackController;
+    private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
@@ -82,9 +85,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                      Navigator navigator,
                      BugReporter bugReporter,
                      ApplicationProperties appProperties,
-                     OfflineSettingsStorage settingsStorage,
                      ConfigurationOperations configurationOperations,
                      FeedbackController feedbackController,
+                     FeatureFlags featureFlags,
                      PerformanceMetricsEngine performanceMetricsEngine) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
@@ -98,9 +101,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.navigator = navigator;
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
-        this.settingsStorage = settingsStorage;
         this.configurationOperations = configurationOperations;
         this.feedbackController = feedbackController;
+        this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -125,6 +128,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         }
         setupOfflineSyncSettings(moreView);
         setupFeedback(moreView);
+        setupCreatorsCell(fragment.getContext(), moreView);
         bindUserIfPresent();
     }
 
@@ -175,6 +179,17 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private void setupFeedback(MoreView moreView) {
         if (appProperties.shouldAllowFeedback()) {
             moreView.showReportBug();
+        }
+    }
+
+    private void setupCreatorsCell(Context context, MoreView moreView) {
+        boolean enabled = featureFlags.isEnabled(Flag.CREATOR_APP_LINK);
+        moreView.creatorVisibility(enabled ? View.VISIBLE : View.GONE);
+
+        if (CreatorUtilsKt.isCreatorsAppInstalled(context)) {
+            moreView.showCreatorNavigation();
+        } else {
+            moreView.showInstallCreatorsApp();
         }
     }
 
@@ -276,6 +291,25 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     public void onUpsellClicked(View view) {
         navigationExecutor.openUpgrade(view.getContext(), UpsellContext.DEFAULT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsClick());
+    }
+
+    @Override
+    public void onCreatorsClicked(View view) {
+        if (CreatorUtilsKt.isCreatorsAppInstalled(view.getContext())) {
+            Intent intent = CreatorUtilsKt.getLaunchIntent(view.getContext());
+            if (intent != null) {
+                ViewUtils.getFragmentActivity(view).startActivity(intent);
+                return;
+            }
+        }
+
+        if (CreatorUtilsKt.isPlayStoreInstalled(view.getContext())) {
+            navigator.navigateTo(ViewUtils.getFragmentActivity(view),
+                                 NavigationTarget.forNavigation(CreatorUtilsKt.PLAY_STORE_URL, Optional.absent(), Screen.MORE, Optional.absent()));
+        } else {
+            navigator.navigateTo(ViewUtils.getFragmentActivity(view),
+                                 NavigationTarget.forNavigation(CreatorUtilsKt.PLAY_STORE_WEB_URL, Optional.absent(), Screen.MORE, Optional.absent()));
+        }
     }
 
     @Override
