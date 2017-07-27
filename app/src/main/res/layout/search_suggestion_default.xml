@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout style="@style/Search.Suggestion.Container"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/icon"
+        style="@style/Search.Suggestion.Icon"
+        android:src="@drawable/cloud_no_logo_sm" />
+
+    <include layout="@layout/search_suggestion_content" />
+
+</FrameLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout style="@style/Search.Suggestion.Container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.soundcloud.android.view.CircularBorderImageView
+        android:id="@+id/icon"
+        style="@style/Search.Suggestion.Icon"
+        android:src="@drawable/cloud_no_logo_sm"
+        app:cbiv_borderColor="@color/user_image_border_color"
+        app:cbiv_borderWidth="@dimen/user_image_border_width" />
+
+    <include layout="@layout/search_suggestion_content" />
+
+</FrameLayout>

@@ -6,7 +6,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 
 import android.content.res.Resources;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
@@ -17,6 +19,11 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
     @Inject
     UserSuggestionItemRenderer(ImageOperations imageOperations) {
         super(imageOperations);
+    }
+
+    @Override
+    public View createItemView(ViewGroup viewGroup) {
+        return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.search_suggestion_user, viewGroup, false);
     }
 
     @Override

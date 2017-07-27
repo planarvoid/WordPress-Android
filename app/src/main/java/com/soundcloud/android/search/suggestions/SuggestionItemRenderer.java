@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,6 +26,9 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
         this.imageOperations = imageOperations;
     }
 
+    @Override
+    public abstract View createItemView(ViewGroup viewGroup);
+
     protected void bindView(View itemView,
                             SearchSuggestionItem suggestionItem,
                             int iconRes) {
@@ -37,11 +39,6 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
         ButterKnife.<ImageView>findById(itemView, R.id.iv_search_type).setImageResource(iconRes);
         ImageView icon = ButterKnife.findById(itemView, R.id.icon);
         loadIcon(icon, suggestionItem, context.getResources());
-    }
-
-    @Override
-    public View createItemView(ViewGroup viewGroup) {
-        return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.search_suggestion, viewGroup, false);
     }
 
     protected abstract void loadIcon(ImageView icon, ImageResource imageResource, Resources resources);
