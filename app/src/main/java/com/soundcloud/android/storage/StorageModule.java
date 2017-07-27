@@ -1,13 +1,17 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activities.ActivitiesCleanupHelper;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.likes.LikeCleanupHelper;
+import com.soundcloud.android.offline.OfflineContentCleanupHelper;
 import com.soundcloud.android.olddiscovery.charts.ChartsCleanupHelper;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouCleanupHelper;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendationsCleanupHelper;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsCleanupHelper;
+import com.soundcloud.android.profile.PostsCleanupHelper;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.users.UserAssociationCleanupHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.android.waveform.WaveformCacheSerializer;
@@ -355,8 +359,20 @@ public class StorageModule {
                                                                      NewForYouCleanupHelper newForYouCleanupHelper,
                                                                      ChartsCleanupHelper chartsCleanupHelper,
                                                                      RecommendationsCleanupHelper recommendationsCleanupHelper,
-                                                                     RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper) {
-        return Lists.newArrayList(likeCleanupHelper, newForYouCleanupHelper, chartsCleanupHelper, recommendationsCleanupHelper, recommendedPlaylistsCleanupHelper);
+                                                                     RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper,
+                                                                     ActivitiesCleanupHelper activitiesCleanupHelper,
+                                                                     PostsCleanupHelper postsCleanupHelper,
+                                                                     UserAssociationCleanupHelper userAssociationCleanupHelper,
+                                                                     OfflineContentCleanupHelper offlineContentCleanupHelper) {
+        return Lists.newArrayList(likeCleanupHelper,
+                                  newForYouCleanupHelper,
+                                  chartsCleanupHelper,
+                                  recommendationsCleanupHelper,
+                                  recommendedPlaylistsCleanupHelper,
+                                  activitiesCleanupHelper,
+                                  postsCleanupHelper,
+                                  userAssociationCleanupHelper,
+                                  offlineContentCleanupHelper);
     }
 
 

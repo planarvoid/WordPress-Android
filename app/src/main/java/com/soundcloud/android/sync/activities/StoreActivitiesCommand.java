@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
+public class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
 
     private final StoreUsersCommand storeUsersCommand;
     private final StoreTracksCommand storeTracksCommand;

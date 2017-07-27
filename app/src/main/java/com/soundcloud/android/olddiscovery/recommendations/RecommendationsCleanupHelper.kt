@@ -8,7 +8,8 @@ import com.soundcloud.propeller.PropellerDatabase
 import com.soundcloud.propeller.query.Query
 import javax.inject.Inject
 
-class RecommendationsCleanupHelper @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
+class RecommendationsCleanupHelper
+@Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
 
     override fun getTracksToKeep(): MutableSet<Urn> {
         return propeller.query(Query.from(Recommendations.TABLE).select(Recommendations.SEED_ID, Recommendations.RECOMMENDED_SOUND_ID, Recommendations.RECOMMENDED_SOUND_TYPE))
