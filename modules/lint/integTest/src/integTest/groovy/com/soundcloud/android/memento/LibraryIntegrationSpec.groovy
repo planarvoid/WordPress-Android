@@ -15,13 +15,12 @@ class LibraryIntegrationSpec extends IntegrationSpec {
     addSubproject(":modules:android-kit:core", "")
     addSubproject(":modules:groupie:groupie-compiler", "")
     addSubproject(":modules:groupie:groupie", "")
-    addSubproject(":modules:lint:lib", "")
     addSubproject(":modules:mrlocallocal", "")
     addSubproject(":modules:lint:memento:memento", "")
     addSubproject(":modules:lint:memento:compiler", "")
     addSubproject(":modules:lint:rules", "")
+    addSubproject(":modules:lint:lib", "")
     addSubproject(":integTest", "")
-    addSubproject(":lib", "")
     settingsFile << settingsGradle()
   }
 
@@ -37,7 +36,7 @@ class LibraryIntegrationSpec extends IntegrationSpec {
 
   protected String settingsGradle() {
     return """
-              project(':lib').projectDir = file('$rootPath/modules/lint/lib')
+              project(':modules:lint:lib').projectDir = file('$rootPath/modules/lint/lib')
               project(':modules:lint:rules').projectDir = file('$rootPath/modules/lint/rules')
               project(':modules:lint:memento:memento').projectDir = file('$rootPath/modules/lint/memento/memento')
               project(':modules:lint:memento:compiler').projectDir = file('$rootPath/modules/lint/memento/compiler')
@@ -54,8 +53,8 @@ class LibraryIntegrationSpec extends IntegrationSpec {
                 def gradlePlugins = rootProject.ext.gradlePlugins
                 
                 repositories {
-                    jcenter()
-                    mavenCentral()
+                    mavenLocal()
+                    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
                 }
                 dependencies {
                     classpath gradlePlugins.android
@@ -63,7 +62,8 @@ class LibraryIntegrationSpec extends IntegrationSpec {
             }
             
             repositories {
-                jcenter()
+                mavenLocal()
+                maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
             }
             
             android {
@@ -86,12 +86,26 @@ class LibraryIntegrationSpec extends IntegrationSpec {
                     }
                 }
                 dependencies {
-                    compile project(":lib")
+                    compile project(":modules:lint:lib")
                 }
                 lintOptions {
                     check 'sc.StartIntent', 'sc.CreateIntent'
+                    abortOnError false
                     textReport true
                     textOutput 'stdout'
+                }
+            }
+            
+            allprojects {
+                repositories {
+                    mavenLocal()
+                    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+                }
+                buildscript {
+                    repositories {
+                        mavenLocal()
+                        maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+                    }
                 }
             }
             """.stripIndent()
