@@ -5,10 +5,12 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.LegacyPager;
@@ -18,23 +20,18 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class CommentsOperations {
 
+    static final TypeToken<ModelCollection<ApiComment>> TYPE_TOKEN = new TypeToken<ModelCollection<ApiComment>>() {};
+
     @VisibleForTesting
     static final int COMMENTS_PAGE_SIZE = 50;
 
-    static final Func1<CommentsCollection, List<Comment>> TO_COMMENT_VIEW_MODEL = apiComments -> {
-        List<Comment> comments = new ArrayList<>(CommentsOperations.COMMENTS_PAGE_SIZE);
-        for (PublicApiComment apiComment : apiComments) {
-            comments.add(new Comment(apiComment));
-        }
-        return comments;
-    };
+    static final Func1<ModelCollection<ApiComment>, List<Comment>> TO_COMMENT_VIEW_MODEL = apiComments -> Lists.transform(apiComments.getCollection(), Comment::new);
 
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
@@ -60,41 +57,26 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request, PublicApiComment.class).subscribeOn(scheduler);
     }
 
-    Observable<CommentsCollection> comments(Urn trackUrn) {
-        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
-                                             .forPublicApi()
-                                             .addQueryParam("linked_partitioning", "1")
+    Observable<ModelCollection<ApiComment>> comments(Urn trackUrn) {
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn))
+                                             .forPrivateApi()
                                              .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
+                                             .addQueryParam("threaded", 1)
                                              .build();
-        return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
+        return apiClientRx.mappedResponse(request, TYPE_TOKEN).subscribeOn(scheduler);
     }
 
-    private Observable<CommentsCollection> comments(String nextPageUrl) {
-        final ApiRequest request = ApiRequest.get(nextPageUrl).forPublicApi().build();
-        return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
+    private Observable<ModelCollection<ApiComment>> comments(String nextPageUrl) {
+        final ApiRequest request = ApiRequest.get(nextPageUrl).forPrivateApi().build();
+        return apiClientRx.mappedResponse(request, TYPE_TOKEN).subscribeOn(scheduler);
     }
 
-    @VisibleForTesting
-    static class CommentsCollection extends CollectionHolder<PublicApiComment> {
-        @SuppressWarnings("unused")
-        CommentsCollection() {
-            // Jackson calls this
-        }
 
-        CommentsCollection(List<PublicApiComment> comments, String nextHref) {
-            super(comments, nextHref);
-        }
-    }
-
-    final class CommentsPager extends LegacyPager<CommentsCollection> {
+    final class CommentsPager extends LegacyPager<ModelCollection<ApiComment>> {
 
         @Override
-        public Observable<CommentsCollection> call(CommentsCollection apiComments) {
-            if (apiComments.getNextHref() != null) {
-                return comments(apiComments.getNextHref());
-            } else {
-                return LegacyPager.finish();
-            }
+        public Observable<ModelCollection<ApiComment>> call(ModelCollection<ApiComment> apiComments) {
+            return apiComments.getNextLink().transform(next -> comments(next.getHref())).or(LegacyPager.finish());
         }
     }
 
