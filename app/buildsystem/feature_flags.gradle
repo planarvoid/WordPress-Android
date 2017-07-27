@@ -27,8 +27,7 @@ enum Feature {
   SEARCH_PLAY_RELATED_TRACKS,
   RECOMMENDED_PLAYLISTS,
   DYNAMIC_LINK_SHARING,
-  FIREBASE_PERFORMANCE_MONITORING,
-  CREATOR_APP_LINK;
+  FIREBASE_PERFORMANCE_MONITORING;
 }
 
 android {
@@ -53,7 +52,6 @@ android {
     buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -73,7 +71,6 @@ android {
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -96,7 +93,6 @@ android {
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -113,7 +109,6 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
     }
 
     release {
@@ -128,7 +123,6 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
     }
   }
 }

@@ -45,12 +45,6 @@
 
             </LinearLayout>
         </LinearLayout>
-        <View style="@style/Divider.Section" />
-
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/more_creators_link"
-            style="@style/More.NavItem"
-            android:text="@string/more_activity" />
 
         <View style="@style/Divider.Section" />
         <View style="@style/Divider.Background" />

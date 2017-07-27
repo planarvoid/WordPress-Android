@@ -732,8 +732,6 @@
     <!-- __MORE -->
     <string name="more_activity">Notifications</string>
     <string name="more_record">Record</string>
-    <string name="more_go_to_creators">Open SoundCloud Pulse app for Creators</string>
-    <string name="more_download_creators">Install SoundCloud Pulse app for Creators</string>
     <string name="more_notification_settings">Notification settings</string>
     <string name="more_basic_settings">Basic settings</string>
     <string name="more_report_bug">Report bug</string>
