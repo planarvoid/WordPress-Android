@@ -2,11 +2,17 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.likes.LikeCleanupHelper;
+import com.soundcloud.android.olddiscovery.charts.ChartsCleanupHelper;
+import com.soundcloud.android.olddiscovery.newforyou.NewForYouCleanupHelper;
+import com.soundcloud.android.olddiscovery.recommendations.RecommendationsCleanupHelper;
+import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsCleanupHelper;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.android.waveform.WaveformCacheSerializer;
 import com.soundcloud.android.waveform.WaveformData;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.PropellerRxV2;
@@ -25,7 +31,6 @@ import android.support.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 @Module
@@ -346,8 +351,12 @@ public class StorageModule {
 
     @Provides
     @Named(DB_CLEANUP_HELPERS)
-    List<DatabaseCleanupService.CleanupHelper> provideCleanupHelpers(){
-        return Collections.emptyList();
+    List<DatabaseCleanupService.CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
+                                                                     NewForYouCleanupHelper newForYouCleanupHelper,
+                                                                     ChartsCleanupHelper chartsCleanupHelper,
+                                                                     RecommendationsCleanupHelper recommendationsCleanupHelper,
+                                                                     RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper) {
+        return Lists.newArrayList(likeCleanupHelper, newForYouCleanupHelper, chartsCleanupHelper, recommendationsCleanupHelper, recommendedPlaylistsCleanupHelper);
     }
 
 

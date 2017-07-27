@@ -12,10 +12,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord>, TxnResult> {
+public class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord>, TxnResult> {
 
     @Inject
-    StoreLikesCommand(PropellerDatabase database) {
+    public StoreLikesCommand(PropellerDatabase database) {
         super(database);
     }
 

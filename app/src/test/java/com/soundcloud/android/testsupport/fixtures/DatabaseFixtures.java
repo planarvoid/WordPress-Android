@@ -16,6 +16,7 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.olddiscovery.charts.ChartBucketType;
+import com.soundcloud.android.olddiscovery.recommendations.ApiRecommendation;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
@@ -239,6 +240,33 @@ public class DatabaseFixtures {
             matcherValues.put(Tables.RecommendedPlaylist.BUCKET_ID.name(), bucketId);
             matcherValues.put(Tables.RecommendedPlaylist.PLAYLIST_ID.name(), apiPlaylist.getId());
             insertInto(Tables.RecommendedPlaylist.TABLE, matcherValues);
+        }
+    }
+
+    public void insertRecommendation(ApiRecommendation apiRecommendation, String queryUrn, int queryPosition) {
+        insertTrack(apiRecommendation.getSeedTrack());
+        for (ApiTrack apiTrack : apiRecommendation.getRecommendations()) {
+            insertTrack(apiTrack);
+        }
+        final ContentValues seedContentValues = new ContentValues();
+        seedContentValues.put(Tables.RecommendationSeeds.SEED_SOUND_ID.name(),
+                              apiRecommendation.getSeedTrack().getUrn().getNumericId());
+        seedContentValues.put(Tables.RecommendationSeeds.SEED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
+        seedContentValues.put(Tables.RecommendationSeeds.RECOMMENDATION_REASON.name(), apiRecommendation.getRecommendationReason() == ApiRecommendation.Reason.LIKED ? Tables.RecommendationSeeds.REASON_LIKED : Tables.RecommendationSeeds.REASON_PLAYED);
+        seedContentValues.put(Tables.RecommendationSeeds.QUERY_URN.name(), queryUrn);
+        seedContentValues.put(Tables.RecommendationSeeds.QUERY_POSITION.name(), queryPosition);
+
+        //Store seed track in recommendations
+        final long rowId = insertInto(Tables.RecommendationSeeds.TABLE, seedContentValues);
+
+        //Store recommended tracks
+        for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
+            insertTrack(trackRecommendation);
+            final ContentValues recommendationContentValues = new ContentValues();
+            recommendationContentValues.put(Tables.Recommendations.SEED_ID.name(), apiRecommendation.getSeedTrack().getUrn().getNumericId());
+            recommendationContentValues.put(Tables.Recommendations.RECOMMENDED_SOUND_ID.name(), trackRecommendation.getUrn().getNumericId());
+            recommendationContentValues.put(Tables.Recommendations.RECOMMENDED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
+            insertInto(Tables.Recommendations.TABLE, recommendationContentValues);
         }
     }
 

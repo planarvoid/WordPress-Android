@@ -14,7 +14,7 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.WriteResult;
-import rx.Observable;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -46,14 +46,14 @@ public class NewForYouStorage {
         return writeResult.success() && fileStorageResult;
     }
 
-    Observable<NewForYou> newForYou() {
-        return fileStorage.readFromFile(FILE_NAME, TypeToken.of(NewForYouStorageItem.class))
+    Single<NewForYou> newForYou() {
+        return RxJava.toV2Single(fileStorage.readFromFile(FILE_NAME, TypeToken.of(NewForYouStorageItem.class)))
                           .flatMap(this::toNewForYouItem);
     }
 
-    private Observable<NewForYou> toNewForYouItem(NewForYouStorageItem storageItem) {
+    private Single<NewForYou> toNewForYouItem(NewForYouStorageItem storageItem) {
         List<Urn> trackUrns = Lists.transform(storageItem.trackUrns(), urnString -> Urn.forTrack(Long.valueOf(urnString)));
-        return RxJava.toV1Observable(trackRepository.trackListFromUrns(trackUrns))
+        return trackRepository.trackListFromUrns(trackUrns)
                      .map(tracks -> NewForYou.create(storageItem.lastUpdated(), Urn.forNewForYou(storageItem.queryUrn()), tracks));
     }
 

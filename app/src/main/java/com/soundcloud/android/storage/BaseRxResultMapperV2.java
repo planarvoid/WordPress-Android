@@ -13,7 +13,7 @@ public abstract class BaseRxResultMapperV2<T> extends RxResultMapperV2<T> {
         return Urn.forTrack(cursorReader.getLong(BaseColumns._ID));
     }
 
-    protected static Urn readSoundUrn(CursorReader cursorReader, Column idColumn, Column typeColumn) {
+    public static Urn readSoundUrn(CursorReader cursorReader, Column idColumn, Column typeColumn) {
         final int soundId = cursorReader.getInt(idColumn);
         return getSoundType(cursorReader, typeColumn) == Tables.Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
     }

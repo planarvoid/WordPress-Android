@@ -8,7 +8,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import java.util.HashMap;
 import java.util.Map;
 
-class ApiRecommendation {
+public class ApiRecommendation {
 
     final static Map<String, Reason> relationKeys = new HashMap<>(Reason.values().length);
 
@@ -24,7 +24,7 @@ class ApiRecommendation {
         relationKeys.put("uploaded", Reason.LISTENED_TO);
     }
 
-    enum Reason {
+    public enum Reason {
         LIKED, LISTENED_TO, UNKNOWN
     }
 
@@ -41,15 +41,15 @@ class ApiRecommendation {
         this.relationKey = relationKey;
     }
 
-    ApiTrack getSeedTrack() {
+    public ApiTrack getSeedTrack() {
         return seedTrack;
     }
 
-    Iterable<ApiTrack> getRecommendations() {
+    public Iterable<ApiTrack> getRecommendations() {
         return recommendedTracks;
     }
 
-    Reason getRecommendationReason() {
+    public Reason getRecommendationReason() {
         return (relationKeys.containsKey(relationKey) ? relationKeys.get(relationKey) : Reason.UNKNOWN);
     }
 }

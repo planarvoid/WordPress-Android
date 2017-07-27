@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>, WriteResult> {
+public class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>, WriteResult> {
 
     private final PropellerDatabase propeller;
 

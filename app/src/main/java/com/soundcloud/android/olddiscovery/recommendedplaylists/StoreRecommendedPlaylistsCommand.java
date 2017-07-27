@@ -18,7 +18,7 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-class StoreRecommendedPlaylistsCommand
+public class StoreRecommendedPlaylistsCommand
         extends DefaultWriteStorageCommand<ModelCollection<ApiRecommendedPlaylistBucket>, WriteResult> {
 
     private final StorePlaylistsCommand storePlaylistsCommand;
