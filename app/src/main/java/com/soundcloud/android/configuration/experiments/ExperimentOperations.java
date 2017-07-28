@@ -81,6 +81,10 @@ public class ExperimentOperations {
         }
     }
 
+    public void clear() {
+        experimentStorage.clear();
+    }
+
     public void forceExperimentVariation(Layer layer) {
         List<Layer> existingLayers = assignment.getLayers();
         List<Layer> newLayers = new ArrayList<>(existingLayers.size() + 1);

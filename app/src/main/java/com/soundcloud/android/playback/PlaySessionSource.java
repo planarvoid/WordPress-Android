@@ -166,6 +166,11 @@ public class PlaySessionSource implements Parcelable {
         this.originScreen = originScreen;
     }
 
+    public PlaySessionSource(String originScreen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        this(originScreen);
+        this.searchQuerySourceInfo = searchQuerySourceInfo;
+    }
+
     @Nullable
     DiscoverySource getDiscoverySource() {
         return discoverySource;

@@ -5,7 +5,7 @@ import static android.support.v4.view.MotionEventCompat.getActionMasked;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 @AutoFactory
-class PlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
+class PlaylistDetailsAdapter extends PagingRecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
 
     private final PlaylistDetailView playlistDetailView;
 

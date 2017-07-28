@@ -104,7 +104,7 @@ public abstract class SearchEvent extends TrackingEvent {
         return tapItemOnScreen(screen, searchQuerySourceInfo, Optional.absent());
     }
 
-    private static SearchEvent tapItemOnScreen(Screen screen,
+    public static SearchEvent tapItemOnScreen(Screen screen,
                                                SearchQuerySourceInfo searchQuerySourceInfo,
                                                Optional<ClickSource> source) {
         return builderWithSearchQuery(searchQuerySourceInfo, screen, ClickName.ITEM_NAVIGATION).clickSource(source).build();

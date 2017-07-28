@@ -269,6 +269,10 @@ public class ModelFixtures {
         return UserItem.from(user(urn));
     }
 
+    public static List<UserItem> userItems(List<ApiUser> apiUsers) {
+        return Lists.transform(apiUsers, ModelFixtures::userItem);
+    }
+
     public static User.Builder userBuilder() {
         return userBuilder(false);
     }
@@ -348,6 +352,10 @@ public class ModelFixtures {
         return TrackItem.builder(track()).build();
     }
 
+    public static List<TrackItem> trackItems(List<ApiTrack> apiTracks) {
+        return Lists.transform(apiTracks, ModelFixtures::trackItem);
+    }
+
     public static TrackItem.Builder trackItemBuilder() {
         return ModelFixtures.trackItem().toBuilder();
     }
@@ -386,6 +394,10 @@ public class ModelFixtures {
             list.add(playlistItem());
         }
         return list;
+    }
+
+    public static List<PlaylistItem> playlistItems(List<ApiPlaylist> apiPlaylists) {
+        return Lists.transform(apiPlaylists, ModelFixtures::playlistItem);
     }
 
     public static PlaylistItem playlistItem() {

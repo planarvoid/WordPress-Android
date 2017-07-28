@@ -91,16 +91,18 @@ public abstract class PagingRecyclerItemAdapter<T, VH extends ViewHolder> extend
         return appendState == AppendState.IDLE;
     }
 
-    private void setNewAppendState(AppendState newState) {
-        appendState = newState;
-        notifyDataSetChanged();
+    public void setNewAppendState(AppendState newState) {
+        if (appendState != newState) {
+            appendState = newState;
+            notifyDataSetChanged();
+        }
     }
 
     private static ProgressCellRenderer createDefaultProgressCellRenderer() {
         return new ProgressCellRenderer(R.layout.ak_list_loading_item);
     }
 
-    protected enum AppendState {
+    public enum AppendState {
         IDLE, LOADING, ERROR
     }
 }

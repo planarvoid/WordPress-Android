@@ -1,6 +1,8 @@
 package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
+import com.soundcloud.android.model.AsyncLoadingState;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -11,9 +13,7 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
@@ -427,14 +427,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
             // hide
         }
 
-        static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistAsyncViewModel) {
-            CollectionLoadingState loadingState = CollectionLoadingState
+        static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, PlaylistAsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
+            final AsyncLoadingState loadingState = AsyncLoadingState
                     .builder()
-                    .nextPageError(playlistAsyncViewModel.error())
-                    .isRefreshing(playlistAsyncViewModel.isRefreshing())
-                    .hasMorePages(false)
+                    .nextPageError(asyncViewModel.error())
+                    .isRefreshing(asyncViewModel.isRefreshing())
+                    .requestMoreOnScroll(false)
                     .build();
-            List<PlaylistDetailItem> items = toLegacyModelItems(playlistAsyncViewModel, useInlineHeader);
+            List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
             return CollectionRendererState.create(loadingState, items);
         }
 

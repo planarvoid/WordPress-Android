@@ -112,7 +112,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     private void configureWiremock() {
         Log.d("WIREMOCK", "Initializing Wiremock");
-        wireMockServer = NetworkMappings.create(getInstrumentation().getTargetContext(), wiremockLoggingEnabled());
+        wireMockServer = NetworkMappings.create(getInstrumentation().getTargetContext(), wiremockLoggingEnabled(), false);
         wireMockServer.start();
 
         addInitialStubMappings();

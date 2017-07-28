@@ -6,7 +6,6 @@ import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchResultsFragment;
-import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
@@ -41,14 +40,14 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
         setTitle(String.format(TITLE_FORMAT, query));
 
         if (savedInstanceState == null) {
-            final Bucket.Kind kind = getKind();
+            final TopResultsBucketViewModel.Kind kind = getKind();
             createFragment(query, getQueryUrn(), kind, getIntent().getBooleanExtra(EXTRA_IS_PREMIUM, false));
         }
         presenter.attachView(this);
     }
 
-    public Bucket.Kind getKind() {
-        return (Bucket.Kind) getIntent().getSerializableExtra(EXTRA_BUCKET_KIND);
+    public TopResultsBucketViewModel.Kind getKind() {
+        return (TopResultsBucketViewModel.Kind) getIntent().getSerializableExtra(EXTRA_BUCKET_KIND);
     }
 
     public boolean isPremium() {
@@ -62,7 +61,7 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
     }
 
 
-    private void createFragment(String query, Optional<Urn> queryUrn, Bucket.Kind kind, boolean isPremium) {
+    private void createFragment(String query, Optional<Urn> queryUrn, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
         final SearchResultsFragment searchResultsFragment = SearchResultsFragment.createForViewAll(kind.toSearchType(), query, query, queryUrn, Optional.absent(), isPremium);
         getSupportFragmentManager()
                 .beginTransaction()

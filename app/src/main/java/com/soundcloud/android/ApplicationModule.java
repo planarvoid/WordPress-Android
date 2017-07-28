@@ -7,6 +7,8 @@ import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.associations.FollowingStateProvider;
+import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
 import com.soundcloud.android.cast.CastPlayer;
@@ -23,6 +25,7 @@ import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
+import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
@@ -43,6 +46,9 @@ import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.playlists.PlaylistsModule;
+import com.soundcloud.android.presentation.EnrichedEntities;
+import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.presentation.EntityItemEmitter;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -122,6 +128,8 @@ public class ApplicationModule {
     public static final String BUG_REPORTER = "BugReporter";
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
     public static final String DEFAULT_LIST_PAGE_SIZE = "DefaultListPageSize";
+
+    public static final String ENRICHED_ENTITY_ITEM_EMITTER = "EnrichedEntityItemEmitter";
 
     private final SoundCloudApplication application;
 
@@ -374,6 +382,16 @@ public class ApplicationModule {
     @Named(DEFAULT_LIST_PAGE_SIZE)
     public int provideDefaultListPageSize() {
         return Consts.LIST_PAGE_SIZE;
+    }
+
+    @Provides
+    @Named(ENRICHED_ENTITY_ITEM_EMITTER)
+    public EntityItemEmitter provideEntichedEntityItemEmitter(EntityItemCreator entityItemCreator,
+                                                              LikesStateProvider likeStateProvider,
+                                                              RepostsStateProvider repostsStateProvider,
+                                                              PlaySessionStateProvider playSessionStateProvider,
+                                                              FollowingStateProvider followingStateProvider) {
+        return new EnrichedEntities(entityItemCreator, likeStateProvider, repostsStateProvider, playSessionStateProvider, followingStateProvider);
     }
 
     @Singleton

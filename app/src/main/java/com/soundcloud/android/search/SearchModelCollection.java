@@ -72,7 +72,7 @@ public class SearchModelCollection<T> extends ModelCollection<T> {
         return premiumContent;
     }
 
-    int resultsCount() {
+    public int resultsCount() {
         return tracksCount + playlistsCount + usersCount;
     }
 
@@ -82,6 +82,16 @@ public class SearchModelCollection<T> extends ModelCollection<T> {
                                             links,
                                             queryUrn,
                                             premiumContent.transform(model -> model.transform(function)),
+                                            tracksCount,
+                                            playlistsCount,
+                                            usersCount);
+    }
+
+    public SearchModelCollection<T> prepend(SearchModelCollection<T> previousCollection) {
+        return new SearchModelCollection<>(newArrayList(Iterables.concat(previousCollection.collection, collection)),
+                                            links,
+                                            queryUrn,
+                                            premiumContent,
                                             tracksCount,
                                             playlistsCount,
                                             usersCount);

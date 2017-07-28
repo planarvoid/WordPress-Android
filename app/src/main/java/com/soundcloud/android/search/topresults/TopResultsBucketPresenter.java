@@ -38,7 +38,7 @@ public class TopResultsBucketPresenter {
 
     interface TopResultsBucketView {
 
-        TopResults.Bucket.Kind getKind();
+        TopResultsBucketViewModel.Kind getKind();
 
         boolean isPremium();
 

@@ -7,8 +7,12 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 
+@Deprecated
 @AutoValue
-abstract class PlaylistAsyncViewModel<ViewModelType> {
+/***
+ * @deprecated Use {@link com.soundcloud.android.utils.collection.AsyncLoaderState} instead
+ */
+public abstract class PlaylistAsyncViewModel<ViewModelType> {
 
     public abstract Optional<ViewModelType> data();
 

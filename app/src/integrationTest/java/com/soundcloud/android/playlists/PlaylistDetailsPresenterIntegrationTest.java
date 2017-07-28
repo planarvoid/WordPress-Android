@@ -133,11 +133,11 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
     @Test
     public void showPlaylistWithTracks() {
-        final long id = 123L;
-        final String requestUrl = ApiEndpoints.PLAYLIST_WITH_TRACKS.path(Urn.forPlaylist(id));
+        final long id = 116114846;
+        final Urn playlistUrn = Urn.forPlaylist(id);
+        final String requestUrl = ApiEndpoints.PLAYLIST_WITH_TRACKS.path(playlistUrn);
         addMockedResponse(requestUrl, PLAYLIST_TWO_TRACKS);
 
-        final Urn playlistUrn = Urn.forPlaylist(id);
         final PlaylistDetailsPresenter presenter = createPresenter();
         disposable = presenter.viewModel().subscribe(screen);
 

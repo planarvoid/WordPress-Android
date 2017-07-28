@@ -1,0 +1,716 @@
+{
+    "total_results": 94994,
+    "buckets": {
+        "collection": [
+            {
+                "urn": "soundcloud:search-buckets:topresult",
+                "totalResults": 1,
+                "results": {
+                    "collection": [
+                        {
+                            "user": {
+                                "urn": "soundcloud:users:1302868",
+                                "permalink": "nuclearblastrecords",
+                                "username": "NuclearBlastRecords",
+                                "first_name": "Nuclear Blast",
+                                "last_name": "Records",
+                                "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                "city": "Germany, USA, UK",
+                                "tracks_count": 504,
+                                "followers_count": 2873780,
+                                "followings_count": 61,
+                                "verified": false,
+                                "is_pro": false,
+                                "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                "station_urns": [
+                                    "soundcloud:artist-stations:1302868"
+                                ],
+                                "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                "created_at": "2010/07/09 18:44:31 +0000"
+                            }
+                        }
+                    ],
+                    "_links": {}
+                }
+            },
+            {
+                "urn": "soundcloud:search-buckets:freetiertracks",
+                "totalResults": 77352,
+                "results": {
+                    "collection": [
+                        {
+                            "track": {
+                                "monetizable": true,
+                                "snipped": false,
+                                "blocked": false,
+                                "syncable": true,
+                                "ad_supported": false,
+                                "sub_mid_tier": false,
+                                "sub_high_tier": false,
+                                "monetization_model": "BLACKBOX",
+                                "policy": "MONETIZE",
+                                "urn": "soundcloud:tracks:256776495",
+                                "title": "Borgore - Blast Ya  Ft. Barrington Levy",
+                                "created_at": "2016/04/01 17:13:45 +0000",
+                                "duration": 211270,
+                                "full_duration": 211270,
+                                "snip_duration": 30000,
+                                "commentable": true,
+                                "genre": "Dubstep",
+                                "sharing": "public",
+                                "waveform_url": "https://wis.sndcdn.com/vQYEpeUcdKab_m.json",
+                                "permalink_url": "https://soundcloud.com/buygore/borgore-blast-ya",
+                                "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:256776495/streams/https",
+                                "user_tags": [
+                                    "Borgore",
+                                    "Barrington Levy",
+                                    "Hybrid",
+                                    "Dubstep",
+                                    "Dancehall"
+                                ],
+                                "station_urns": [
+                                    "soundcloud:track-stations:256776495"
+                                ],
+                                "description": "Beatport: borgore.co/BlastYaBeatport\niTunes: http://borgore.co/BlastYaItunes\nSpotify: http://borgore.co/BlastYaSpotify\n\nWhile dubstep and reggae might not be the most obvious sounds to meld together, Borgore and Barrington Levy have proven it’s an unlikely perfect pairing on their new collaboration “Blast Ya.”  \n\n\"\"Blast Ya\" is a three-dimensional futuristic record,” Barrington explains. “Dancehall meets an authentic dubplate style that collides into EDM; it's raw but an organic sound!\"\n\nBorgore is no stranger to using shock factor to wow his fans, but he pushes the boundaries of electronic music in a whole new way by teaming up with the reggae legend. Bursting with raw, primitive rhythm, “Blast Ya” fuses the best of both dubstep and reggae into one explosive package. Barrington Levy’s music soundtracked Borgore’s adolescence, and the artistic chemistry between the two producers couldn’t be more evident in the vibrancy of their first collaboration.  This forward-thinking release once again proves Borgore’s prowess as an artist who consistently pushes for deft versatility.\n\n\"Barrington Levy was one of my favorite artists as a kid,” Borgore offers. “Young Asaf Borger would have never dreamed I would be able to work with such a legend while also pushing the boundaries of electronic music.”\n\nA genre-bending collaboration isn’t all that the dubstep legend has up his sleeve; Borgore will descend upon two of America’s biggest nightlife markets as well as the international festival circuit this summer. This week he kicked off his label Buygore’s new weekly party series “Still Lit” at Sound Nightclub in LA, and he’ll continue booting up at SLS’ Foxtail Club and pool in Las Vegas for his annual residency. In June Buygore will curate its first-ever festival stage at Escapade in Canada, and Borgore will stay busy with globe-trotting festival performances in Spain, Italy, Belgium, Germany Austria and Hungary to name a few.\n\nFollow @Borgore:\nhttp://www.facebook.com/borgore\nhttp://www.twitter.com/borgore\nhttp://www.instagram.com/borgore\nhttp://www.therealborgore.com/snapchat\n\nFollow Barrington Levy:\nhttps://www.facebook.com/Barrington-LEVY-467154043417061/?fref=ts\nhttps://twitter.com/MrLevy411",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000155914164-zk8jwm-{size}.jpg",
+                                "_embedded": {
+                                    "stats": {
+                                        "playback_count": 2131081,
+                                        "comments_count": 680,
+                                        "reposts_count": 11082,
+                                        "likes_count": 61376
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:40351414",
+                                        "permalink": "buygore",
+                                        "username": "Buygore",
+                                        "first_name": "Buygore",
+                                        "last_name": "",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000319780302-l21pwc-large.jpg",
+                                        "city": "LA",
+                                        "country": "United States",
+                                        "country_code": "US",
+                                        "tracks_count": 667,
+                                        "followers_count": 560601,
+                                        "followings_count": 426,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "Website: WWW.BUYGORE.COM\nBuygore Radio: WWW.DASHRADIO.COM/BUYGORERADIO\nOnline Store: WWW.BUYGORE.COM/SHOP",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000319780302-l21pwc-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:40351414"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000040351414-ePIq95-{size}.jpg",
+                                        "created_at": "2013/03/27 21:19:22 +0000"
+                                    }
+                                },
+                                "_links": {
+                                    "related": {
+                                        "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:256776495/related"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "track": {
+                                "monetizable": false,
+                                "snipped": false,
+                                "blocked": false,
+                                "syncable": true,
+                                "ad_supported": false,
+                                "sub_mid_tier": false,
+                                "sub_high_tier": false,
+                                "monetization_model": "NOT_APPLICABLE",
+                                "policy": "ALLOW",
+                                "urn": "soundcloud:tracks:255589977",
+                                "title": "JEEZYMUZIK - BLAST",
+                                "created_at": "2016/03/28 15:54:57 +0000",
+                                "duration": 163228,
+                                "full_duration": 163228,
+                                "snip_duration": 30000,
+                                "commentable": true,
+                                "genre": "Trap",
+                                "sharing": "public",
+                                "waveform_url": "https://wis.sndcdn.com/wNTvg8hP2d96_m.json",
+                                "permalink_url": "https://soundcloud.com/jeezymuzik/jeezymuzik-blast",
+                                "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:255589977/streams/https",
+                                "user_tags": [
+                                    "tags",
+                                    "to",
+                                    "describe",
+                                    "the",
+                                    "genre",
+                                    "and",
+                                    "mood",
+                                    "of",
+                                    "your",
+                                    "track",
+                                    "Edm",
+                                    "twerk",
+                                    "Bounce",
+                                    "edm",
+                                    "wow",
+                                    "russia",
+                                    "jeezy",
+                                    "defcorecords",
+                                    "defco",
+                                    "blast",
+                                    "top",
+                                    "shot",
+                                    "trap",
+                                    "2016",
+                                    "New",
+                                    "flsudio",
+                                    "faster"
+                                ],
+                                "station_urns": [
+                                    "soundcloud:track-stations:255589977"
+                                ],
+                                "description": "NEW!\nREPOST AND LIKE THIS!\n--------------------------------------\ntwitter.com/Jeezymuzik\nvk.com/jeezymuzik\n@jeezymuzik\n\n<a href=\"https://theartistunion.com/tracks/0951e8\" rel=\"nofollow\" target=\"_blank\">Download for free on The Artist Union</a>",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000154623286-8vuwd5-{size}.jpg",
+                                "_embedded": {
+                                    "stats": {
+                                        "playback_count": 81243,
+                                        "comments_count": 43,
+                                        "reposts_count": 283,
+                                        "likes_count": 1672
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:64475550",
+                                        "permalink": "jeezymuzik",
+                                        "username": "JEEZYMUZIK",
+                                        "first_name": "EDM",
+                                        "last_name": "TRAP",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000242964241-kewf2n-large.jpg",
+                                        "city": "RAP",
+                                        "tracks_count": 5,
+                                        "followers_count": 81397,
+                                        "followings_count": 28,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "Collabs/Booking - jeezymuzik@gmail.com",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000242964241-kewf2n-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:64475550"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000064475550-4iv5lc-{size}.jpg",
+                                        "created_at": "2013/10/31 17:15:02 +0000"
+                                    }
+                                },
+                                "_links": {
+                                    "related": {
+                                        "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:255589977/related"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "track": {
+                                "monetizable": true,
+                                "snipped": false,
+                                "blocked": false,
+                                "syncable": true,
+                                "ad_supported": false,
+                                "sub_mid_tier": false,
+                                "sub_high_tier": false,
+                                "monetization_model": "BLACKBOX",
+                                "policy": "MONETIZE",
+                                "urn": "soundcloud:tracks:151518058",
+                                "title": "David Guetta & Kaz James - Blast Off (Teaser)",
+                                "created_at": "2014/05/27 15:50:15 +0000",
+                                "duration": 65756,
+                                "full_duration": 65756,
+                                "snip_duration": 30000,
+                                "commentable": true,
+                                "genre": "Jackback Records",
+                                "sharing": "public",
+                                "waveform_url": "https://wis.sndcdn.com/Aeh4wyEochIx_m.json",
+                                "permalink_url": "https://soundcloud.com/davidguetta/david-guetta-kaz-james-blast-off-teaser",
+                                "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:151518058/streams/https",
+                                "user_tags": [
+                                    "Kaz James",
+                                    "David Guetta",
+                                    "Beatport"
+                                ],
+                                "station_urns": [
+                                    "soundcloud:track-stations:151518058"
+                                ],
+                                "description": "David Guetta & Kaz James - Blast Off\r\nComing soon on Jackback Records ",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000080647658-uulm8h-{size}.jpg",
+                                "_embedded": {
+                                    "stats": {
+                                        "playback_count": 2268368,
+                                        "comments_count": 1445,
+                                        "reposts_count": 7239,
+                                        "likes_count": 26611
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:4904351",
+                                        "permalink": "davidguetta",
+                                        "username": "David Guetta",
+                                        "first_name": "David",
+                                        "last_name": "Guetta",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000319236362-zxqwtp-large.jpg",
+                                        "city": "Paris",
+                                        "country": "France",
+                                        "country_code": "FR",
+                                        "tracks_count": 551,
+                                        "followers_count": 2243511,
+                                        "followings_count": 7,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "Universally accredited with being one of the first DJs to open up the world of electronic music to global chart audiences, transforming the sound of radio and with it, the musical tastes of millions of listeners across the world in the process, David Guetta has established himself as a true, modern day dance icon.\nAfter first making his presence most notably felt in the US with his production work on the Black Eyed Peas‟ „I Gotta Feeling‟ in 2009, a track that has since gone on to record over 8.3 million sales and establish itself as the biggest selling download in U.S. history, Guetta effectively laid the foundations for what is now a burgeoning, worldwide dance music scene. This success translated across the Atlantic too, with both „I Gotta Feeling‟ and the equally anthemic „When Love Takes Over‟, featuring former Destiny‟s Child songstress Kelly Rowland, both rocketing straight to the top of the UK Singles charts. Similarly, Sexy Bitch ft Akon, hit the top spot in multiple countries and made David not only king of the clubs, but a household name.\nFollowing the subsequent release of Grammy-nominated, platinum selling albums „One Love‟ in 2009 and follow up „Nothing But The Beat‟, both of which have boasted numerous #1 singles such as „Titanium‟, „She Wolf‟, „Without You‟ and featured collaborations with everyone from Snoop Dogg to Sia; Usher to Nicki Minaj; Lil Wayne to Rihanna, Guetta has continued to build on his vastly impressive, ever-growing musical legacy.\nIn total, Guetta has sold more than 8 million albums and 40 million tracks. Not bad for a DJ!\nFast forward to 2014 and having focused on his own „Jack Back’ imprint throughout the first half of year - the label from which he cultivated the careers of then-budding DJ‟s Nicky Romero, Avicci, Afrojack, Showtek and more – David released a trio of club singles including „Bad‟ and „Shot Me Down‟ that have each hit the #1 spot at Beatport within their first respective weeks, he is now channeling all his efforts towards what will be an incredible sixth studio album. The new major single “Lovers On The Sun” will bring together the three Jack Back singles for a summer 2014 EP; sure to be an anthem in the Balearics and beyond.\nIt is also worth noting that Guetta is now regarded as one of the world‟s most popular figures on both social media and streaming platforms. He has close to 55 million Facebook fans, 15 million Twitter followers and 2 billion YouTube views. Plus 5 million Spotify followers which is well over half their registered user base. The stats speak for themselves.\nAs well as his influence on the culture of dance music and its subsequent impact on popular music across the world, Guetta has also helped solidify the notion of the DJ being the artist. Not just prolific and talented producer, David is a DJ first and foremost and tours non-stop. He has already played to well over 1.5 million people in 2014 alone, reinforcing not only the global reach of his music, but the unprecedented demand that exists to watch DJs perform. Headlining multi genre festivals, EDM gatherings and his own stadium shows, he has helped lead the change of the landscape - forever.\nHaving also recently announced coveted Ibiza residences at both Pacha and Ushuaia, as well as an extended run of European festival dates across France, Germany, Estonia, Italy, Sweden, Iceland, Italy, Russia, Spain and Scotland before the summer is out, 2014 is shaping up to be one of David Guetta‟s biggest years to date.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000319236362-zxqwtp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:4904351"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000004904351-vnOusx-{size}.jpg",
+                                        "created_at": "2011/05/25 14:29:00 +0000"
+                                    }
+                                },
+                                "_links": {
+                                    "related": {
+                                        "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:151518058/related"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "track": {
+                                "monetizable": true,
+                                "snipped": false,
+                                "blocked": false,
+                                "syncable": true,
+                                "ad_supported": false,
+                                "sub_mid_tier": false,
+                                "sub_high_tier": false,
+                                "monetization_model": "BLACKBOX",
+                                "policy": "MONETIZE",
+                                "urn": "soundcloud:tracks:4872148",
+                                "title": "THERION - Sitra Ahra",
+                                "created_at": "2010/08/26 19:38:10 +0000",
+                                "duration": 327020,
+                                "full_duration": 327020,
+                                "snip_duration": 30000,
+                                "commentable": true,
+                                "genre": "Symphonic Metal",
+                                "sharing": "public",
+                                "waveform_url": "https://wis.sndcdn.com/r8PMKfVqfe1U_m.json",
+                                "permalink_url": "https://soundcloud.com/nuclearblastrecords/therion-sitra-ahra",
+                                "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:4872148/streams/https",
+                                "user_tags": [
+                                    "Therion",
+                                    "Symphonic",
+                                    "Gothic",
+                                    "Metal"
+                                ],
+                                "station_urns": [
+                                    "soundcloud:track-stations:4872148"
+                                ],
+                                "description": "From THERION album, Sitra Ahra - Out September 17, 2010 (Europe) and October 26, 2010 (North America)",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000002188345-e0l8hg-{size}.jpg",
+                                "_embedded": {
+                                    "stats": {
+                                        "playback_count": 144286,
+                                        "comments_count": 45,
+                                        "reposts_count": 133,
+                                        "likes_count": 1093
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:1302868",
+                                        "permalink": "nuclearblastrecords",
+                                        "username": "NuclearBlastRecords",
+                                        "first_name": "Nuclear Blast",
+                                        "last_name": "Records",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                        "city": "Germany, USA, UK",
+                                        "tracks_count": 504,
+                                        "followers_count": 2873780,
+                                        "followings_count": 61,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:1302868"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                        "created_at": "2010/07/09 18:44:31 +0000"
+                                    }
+                                },
+                                "_links": {
+                                    "related": {
+                                        "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:4872148/related"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "_links": {}
+                }
+            },
+            {
+                "urn": "soundcloud:search-buckets:users",
+                "totalResults": 5750,
+                "results": {
+                    "collection": [
+                        {
+                            "user": {
+                                "urn": "soundcloud:users:1302868",
+                                "permalink": "nuclearblastrecords",
+                                "username": "NuclearBlastRecords",
+                                "first_name": "Nuclear Blast",
+                                "last_name": "Records",
+                                "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                "city": "Germany, USA, UK",
+                                "tracks_count": 504,
+                                "followers_count": 2873780,
+                                "followings_count": 61,
+                                "verified": false,
+                                "is_pro": false,
+                                "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                "station_urns": [
+                                    "soundcloud:artist-stations:1302868"
+                                ],
+                                "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                "created_at": "2010/07/09 18:44:31 +0000"
+                            }
+                        },
+                        {
+                            "user": {
+                                "urn": "soundcloud:users:287077",
+                                "permalink": "cast-a-blast",
+                                "username": "Blend Mishkin",
+                                "first_name": "Rewind Guaranteed, Cast-a-Blast,",
+                                "last_name": "Nice Up!",
+                                "avatar_url": "https://i1.sndcdn.com/avatars-000273496080-ome92b-large.jpg",
+                                "city": "Athens",
+                                "country": "Greece",
+                                "country_code": "GR",
+                                "tracks_count": 124,
+                                "followers_count": 517504,
+                                "followings_count": 730,
+                                "verified": false,
+                                "is_pro": false,
+                                "description": "Athens based producer has been putting in work since the late 90's with releases on seminal record labels such as Nice Up!, Irish Moss, Totally Dubwise, Pork Recordings, Tru Thoughts, Shadow Records and many more and has successfully worked with/produced for a plethora of artists such as Gappy Ranks, Skarra Mucci, Screechy Dan, Brother Culture, Jamalski, Carlton Livingstone whilst also being called upon for remix projects with bands/artists like the Dub Pistols, Wax Tailor, Mr. Williamz, DJ Spooky and more besides. His 2015 album “Survival Of The Fittest” for UK label Nice Up! has been praised internationally, getting supports from the likes of David Rodigan, Toddla T, Seanie B and many more. \n\nRead more: http://blendmishkin.com/ \n\nBooking info: blendmishkin.bookings@gmail.com",
+                                "avatar_url_template": "https://i1.sndcdn.com/avatars-000273496080-ome92b-{size}.jpg",
+                                "station_urns": [
+                                    "soundcloud:artist-stations:287077"
+                                ],
+                                "visual_url_template": "https://i1.sndcdn.com/visuals-000000287077-OTsMgY-{size}.jpg",
+                                "created_at": "2009/09/30 12:03:55 +0000"
+                            }
+                        },
+                        {
+                            "user": {
+                                "urn": "soundcloud:users:61590415",
+                                "permalink": "sportsblast",
+                                "username": "The Sports Blast",
+                                "first_name": "ESPN New Hampshire",
+                                "last_name": "",
+                                "avatar_url": "https://i1.sndcdn.com/avatars-000065280423-iy615s-large.jpg",
+                                "city": "900 AM Nashua & 1250 AM Manchester",
+                                "tracks_count": 416,
+                                "followers_count": 202,
+                                "followings_count": 1,
+                                "verified": false,
+                                "is_pro": false,
+                                "description": "\"The Sports Blast,\" with Aashish Sharma, Brian Roach, David Pollard and Mark Loiselle, airs Saturdays 11 AM-2 PM on ESPN NH.",
+                                "avatar_url_template": "https://i1.sndcdn.com/avatars-000065280423-iy615s-{size}.jpg",
+                                "station_urns": [
+                                    "soundcloud:artist-stations:61590415"
+                                ],
+                                "visual_url_template": "https://i1.sndcdn.com/visuals-000061590415-SZHZho-{size}.jpg",
+                                "created_at": "2013/10/10 22:58:52 +0000"
+                            }
+                        },
+                        {
+                            "user": {
+                                "urn": "soundcloud:users:14654989",
+                                "permalink": "dj-blast-nyc",
+                                "username": "DJ BLAST NYC",
+                                "first_name": "Xavier ",
+                                "last_name": "Blass",
+                                "avatar_url": "https://i1.sndcdn.com/avatars-000128326516-mg6bx1-large.jpg",
+                                "city": "Atlanta ",
+                                "country": "United States",
+                                "country_code": "US",
+                                "tracks_count": 294,
+                                "followers_count": 1030,
+                                "followings_count": 248,
+                                "verified": false,
+                                "is_pro": false,
+                                "description": "The Name Is Xavier Blass Aka DJ Blast. Official DJ of \"El Movimiento Crew\" and \"Chosen Few DJs Mundial\" DJ Crews. Formally known as \"DJBlassnyc\"\nDJ/ Producer/ Remixer/ Party Rocker/ Crowd Mover\nEx. DJ at La Mega 96.5 FM (Atlanta)\nEx. DJ from La Mega Mezcla\nOfficial Chosen Few DJ's Mundial\nOfficial DJ of \"El Movimiento Crew\" DJ Crew\nFacebook: \n\nhttps://www.facebook.com/DjBlastNyc/\n\n\nInstagram: \n\nhttps://www.instagram.com/djblastnyc/\n\n\nTwitter: \n\nhttps://twitter.com/djblastnyc?lang=en\n\n\nYoutube: \n\nhttps://www.youtube.com/channel/UCHWdo8bWUyhR9vrnI73-stw\n\n\nwww.djblast.com \n\nAlso don't forget to download the DJ Blast App available for free at all the app stores for more hot mixes and mixtapes!\n\nAndroid Link (Google Play Store):\n\nplay.google.com/store/apps/de...\n\nApple Link (Apple Store):\n\nappsto.re/us/vGkk6.i\n\nApp Advice Profile: \n\nhttps://appadvice.com/app/dj-blast/975742997\n\n\nIf you like the app please share it & tell people you know about it.",
+                                "avatar_url_template": "https://i1.sndcdn.com/avatars-000128326516-mg6bx1-{size}.jpg",
+                                "station_urns": [
+                                    "soundcloud:artist-stations:14654989"
+                                ],
+                                "visual_url_template": "https://i1.sndcdn.com/visuals-000014654989-5cJTxL-{size}.jpg",
+                                "created_at": "2012/04/03 23:58:19 +0000"
+                            }
+                        }
+                    ],
+                    "_links": {}
+                }
+            },
+            {
+                "urn": "soundcloud:search-buckets:albums",
+                "totalResults": 1523,
+                "results": {
+                    "collection": [
+                        {
+                            "playlist": {
+                                "urn": "soundcloud:playlists:242606330",
+                                "title": "Blast off EP",
+                                "created_at": "2016/07/19 07:37:36 +0000",
+                                "duration": 550215,
+                                "permalink_url": "https://soundcloud.com/davidguetta/sets/blast-off-ep-2",
+                                "artwork_url": "https://i1.sndcdn.com/artworks-0514c716-3644-4fe1-bff3-165fc87566e0-0-large.jpg",
+                                "track_count": 3,
+                                "sharing": "public",
+                                "user_tags": [],
+                                "_embedded": {
+                                    "stats": {
+                                        "likes_count": 46,
+                                        "reposts_count": 1
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:4904351",
+                                        "permalink": "davidguetta",
+                                        "username": "David Guetta",
+                                        "first_name": "David",
+                                        "last_name": "Guetta",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000319236362-zxqwtp-large.jpg",
+                                        "city": "Paris",
+                                        "country": "France",
+                                        "country_code": "FR",
+                                        "tracks_count": 551,
+                                        "followers_count": 2243511,
+                                        "followings_count": 7,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "Universally accredited with being one of the first DJs to open up the world of electronic music to global chart audiences, transforming the sound of radio and with it, the musical tastes of millions of listeners across the world in the process, David Guetta has established himself as a true, modern day dance icon.\nAfter first making his presence most notably felt in the US with his production work on the Black Eyed Peas‟ „I Gotta Feeling‟ in 2009, a track that has since gone on to record over 8.3 million sales and establish itself as the biggest selling download in U.S. history, Guetta effectively laid the foundations for what is now a burgeoning, worldwide dance music scene. This success translated across the Atlantic too, with both „I Gotta Feeling‟ and the equally anthemic „When Love Takes Over‟, featuring former Destiny‟s Child songstress Kelly Rowland, both rocketing straight to the top of the UK Singles charts. Similarly, Sexy Bitch ft Akon, hit the top spot in multiple countries and made David not only king of the clubs, but a household name.\nFollowing the subsequent release of Grammy-nominated, platinum selling albums „One Love‟ in 2009 and follow up „Nothing But The Beat‟, both of which have boasted numerous #1 singles such as „Titanium‟, „She Wolf‟, „Without You‟ and featured collaborations with everyone from Snoop Dogg to Sia; Usher to Nicki Minaj; Lil Wayne to Rihanna, Guetta has continued to build on his vastly impressive, ever-growing musical legacy.\nIn total, Guetta has sold more than 8 million albums and 40 million tracks. Not bad for a DJ!\nFast forward to 2014 and having focused on his own „Jack Back’ imprint throughout the first half of year - the label from which he cultivated the careers of then-budding DJ‟s Nicky Romero, Avicci, Afrojack, Showtek and more – David released a trio of club singles including „Bad‟ and „Shot Me Down‟ that have each hit the #1 spot at Beatport within their first respective weeks, he is now channeling all his efforts towards what will be an incredible sixth studio album. The new major single “Lovers On The Sun” will bring together the three Jack Back singles for a summer 2014 EP; sure to be an anthem in the Balearics and beyond.\nIt is also worth noting that Guetta is now regarded as one of the world‟s most popular figures on both social media and streaming platforms. He has close to 55 million Facebook fans, 15 million Twitter followers and 2 billion YouTube views. Plus 5 million Spotify followers which is well over half their registered user base. The stats speak for themselves.\nAs well as his influence on the culture of dance music and its subsequent impact on popular music across the world, Guetta has also helped solidify the notion of the DJ being the artist. Not just prolific and talented producer, David is a DJ first and foremost and tours non-stop. He has already played to well over 1.5 million people in 2014 alone, reinforcing not only the global reach of his music, but the unprecedented demand that exists to watch DJs perform. Headlining multi genre festivals, EDM gatherings and his own stadium shows, he has helped lead the change of the landscape - forever.\nHaving also recently announced coveted Ibiza residences at both Pacha and Ushuaia, as well as an extended run of European festival dates across France, Germany, Estonia, Italy, Sweden, Iceland, Italy, Russia, Spain and Scotland before the summer is out, 2014 is shaping up to be one of David Guetta‟s biggest years to date.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000319236362-zxqwtp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:4904351"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000004904351-vnOusx-{size}.jpg",
+                                        "created_at": "2011/05/25 14:29:00 +0000"
+                                    }
+                                },
+                                "is_album": true,
+                                "set_type": "album",
+                                "release_date": "2014-06-30",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-0514c716-3644-4fe1-bff3-165fc87566e0-0-{size}.jpg",
+                                "genre": "Dance"
+                            }
+                        },
+                        {
+                            "playlist": {
+                                "urn": "soundcloud:playlists:169223844",
+                                "title": "NUCLEAR BLAST - Releases 2016",
+                                "created_at": "2015/11/26 09:17:44 +0000",
+                                "duration": 14815583,
+                                "permalink_url": "https://soundcloud.com/nuclearblastrecords/sets/nuclear-blast-releases-2016",
+                                "artwork_url": "https://i1.sndcdn.com/artworks-000142720908-5eyjwt-large.jpg",
+                                "track_count": 56,
+                                "sharing": "public",
+                                "user_tags": [
+                                    "Progressive Metal",
+                                    "Metalcore"
+                                ],
+                                "_embedded": {
+                                    "stats": {
+                                        "likes_count": 523,
+                                        "reposts_count": 75
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:1302868",
+                                        "permalink": "nuclearblastrecords",
+                                        "username": "NuclearBlastRecords",
+                                        "first_name": "Nuclear Blast",
+                                        "last_name": "Records",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                        "city": "Germany, USA, UK",
+                                        "tracks_count": 504,
+                                        "followers_count": 2873780,
+                                        "followings_count": 61,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:1302868"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                        "created_at": "2010/07/09 18:44:31 +0000"
+                                    }
+                                },
+                                "is_album": true,
+                                "set_type": "compilation",
+                                "release_date": "2016-01-01",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000142720908-5eyjwt-{size}.jpg",
+                                "genre": "Metal"
+                            }
+                        }
+                    ],
+                    "_links": {}
+                }
+            },
+            {
+                "urn": "soundcloud:search-buckets:playlists",
+                "totalResults": 9776,
+                "results": {
+                    "collection": [
+                        {
+                            "playlist": {
+                                "urn": "soundcloud:playlists:295606175",
+                                "title": "Blast in 👡👡👠👠",
+                                "created_at": "2017/01/28 22:46:46 +0000",
+                                "duration": 117398893,
+                                "permalink_url": "https://soundcloud.com/jimmie-ryan/sets/blast-in",
+                                "artwork_url": "",
+                                "track_count": 461,
+                                "sharing": "public",
+                                "user_tags": [],
+                                "_embedded": {
+                                    "stats": {
+                                        "likes_count": 13,
+                                        "reposts_count": 14
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:13223453",
+                                        "permalink": "jimmie-ryan",
+                                        "username": "Jimmie Ryan aka JimBOBlbc",
+                                        "first_name": "Jimmie",
+                                        "last_name": "Ryan",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000314318912-a4k7ex-large.jpg",
+                                        "city": "San Francisco",
+                                        "country": "United States",
+                                        "country_code": "US",
+                                        "tracks_count": 0,
+                                        "followers_count": 752,
+                                        "followings_count": 688,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "Record Reaction LBC, PCDJs, KROQ Friday Night Dance Party, MARS FM, Groove Radio (all incarnations) mix show production/producer, syndicated to 17 major US markets (52 million Arbitron  rated average listener 8 hours!)...",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000314318912-a4k7ex-{size}.jpg",
+                                        "station_urns": [],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000013223453-oIFcvc-{size}.jpg",
+                                        "created_at": "2012/03/07 04:41:00 +0000"
+                                    }
+                                },
+                                "is_album": false,
+                                "set_type": "",
+                                "release_date": ""
+                            }
+                        },
+                        {
+                            "playlist": {
+                                "urn": "soundcloud:playlists:2320202",
+                                "title": "Nuclear Blast Player",
+                                "created_at": "2012/08/06 12:30:27 +0000",
+                                "duration": 14049024,
+                                "permalink_url": "https://soundcloud.com/nuclearblastrecords/sets/nuclear-blast-player",
+                                "artwork_url": "https://i1.sndcdn.com/artworks-000142720555-hm99a7-large.jpg",
+                                "track_count": 50,
+                                "sharing": "public",
+                                "user_tags": [
+                                    "Death Metal",
+                                    "Thrash Metal",
+                                    "Nuclear Blast",
+                                    "Nuclear Blast Records",
+                                    "Metal Albums",
+                                    "Kreator",
+                                    "Bury Tomorrow",
+                                    "Destruction",
+                                    "Sylosis"
+                                ],
+                                "_embedded": {
+                                    "stats": {
+                                        "likes_count": 846,
+                                        "reposts_count": 175
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:1302868",
+                                        "permalink": "nuclearblastrecords",
+                                        "username": "NuclearBlastRecords",
+                                        "first_name": "Nuclear Blast",
+                                        "last_name": "Records",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                        "city": "Germany, USA, UK",
+                                        "tracks_count": 504,
+                                        "followers_count": 2873780,
+                                        "followings_count": 61,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:1302868"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                        "created_at": "2010/07/09 18:44:31 +0000"
+                                    }
+                                },
+                                "is_album": false,
+                                "set_type": "",
+                                "release_date": "",
+                                "artwork_url_template": "https://i1.sndcdn.com/artworks-000142720555-hm99a7-{size}.jpg",
+                                "genre": "Metal"
+                            }
+                        },
+                        {
+                            "playlist": {
+                                "urn": "soundcloud:playlists:297899915",
+                                "title": "NUCLEAR BLAST - Releases 2017",
+                                "created_at": "2017/02/06 14:27:57 +0000",
+                                "duration": 11441482,
+                                "permalink_url": "https://soundcloud.com/nuclearblastrecords/sets/nuclear-blast-releases-2017",
+                                "artwork_url": "",
+                                "track_count": 41,
+                                "sharing": "public",
+                                "user_tags": [],
+                                "_embedded": {
+                                    "stats": {
+                                        "likes_count": 172,
+                                        "reposts_count": 22
+                                    },
+                                    "user": {
+                                        "urn": "soundcloud:users:1302868",
+                                        "permalink": "nuclearblastrecords",
+                                        "username": "NuclearBlastRecords",
+                                        "first_name": "Nuclear Blast",
+                                        "last_name": "Records",
+                                        "avatar_url": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-large.jpg",
+                                        "city": "Germany, USA, UK",
+                                        "tracks_count": 504,
+                                        "followers_count": 2873780,
+                                        "followings_count": 61,
+                                        "verified": false,
+                                        "is_pro": false,
+                                        "description": "The #1 in Extreme Music! As the world's biggest independent Heavy Metal label we give you access to always the latest songs, official music videos, interviews, live performances and more from artists like Slayer, Machine Head, Nightwish, Eluveitie, Exodus, Anthrax, Meshuggah, Hatebreed, Testament, Sepultura, Children Of Bodom, Dimmu Borgir, Avantasia and many more.",
+                                        "avatar_url_template": "https://i1.sndcdn.com/avatars-000297402324-1t7csp-{size}.jpg",
+                                        "station_urns": [
+                                            "soundcloud:artist-stations:1302868"
+                                        ],
+                                        "visual_url_template": "https://i1.sndcdn.com/visuals-000001302868-4NlIAy-{size}.jpg",
+                                        "created_at": "2010/07/09 18:44:31 +0000"
+                                    }
+                                },
+                                "is_album": false,
+                                "set_type": "",
+                                "release_date": ""
+                            }
+                        }
+                    ],
+                    "_links": {}
+                }
+            }
+        ],
+        "_links": {},
+        "query_urn": "soundcloud:search:db00142ff19f435098f9a5972879c165"
+    }
+}

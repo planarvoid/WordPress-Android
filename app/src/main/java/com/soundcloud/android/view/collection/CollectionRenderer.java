@@ -4,13 +4,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.AsyncLoadingState;
 import com.soundcloud.android.presentation.DividerItemDecoration;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.RecyclerViewPaginator;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.subjects.PublishSubject;
 
@@ -32,26 +36,32 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     private Unbinder unbinder;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
-    private final PublishSubject<RxSignal> onRefresh = PublishSubject.create();
 
-    private final RecyclerItemAdapter<ItemT, VH> adapter;
+    private final PublishSubject<RxSignal> onRefresh = PublishSubject.create();
+    private final PublishSubject<RxSignal> onNextPage = PublishSubject.create();
+    private boolean requestMoreOnScroll;
+
+    private final PagingRecyclerItemAdapter<ItemT, VH> adapter;
     private final BiFunction<ItemT, ItemT, Boolean> areItemsTheSame;
     private final BiFunction<ItemT, ItemT, Boolean> areContentsTheSame;
+    private EmptyAdapter emptyAdapter;
     private final boolean animateLayoutChangesInItems;
     private final boolean showDividers;
-    private EmptyAdapter emptyAdapter;
+    private RecyclerViewPaginator paginator;
 
-    public CollectionRenderer(RecyclerItemAdapter<ItemT, VH> adapter,
+    public CollectionRenderer(PagingRecyclerItemAdapter<ItemT, VH> adapter,
                               BiFunction<ItemT, ItemT, Boolean> areItemsTheSame,
                               BiFunction<ItemT, ItemT, Boolean> areContentsTheSame,
                               EmptyStateProvider emptyStateProvider,
-                              boolean animateLayoutChangesInItems, boolean showDividers) {
+                              boolean animateLayoutChangesInItems,
+                              boolean showDividers) {
         this.adapter = adapter;
         this.areItemsTheSame = areItemsTheSame;
         this.areContentsTheSame = areContentsTheSame;
         this.emptyStateProvider = emptyStateProvider;
         this.animateLayoutChangesInItems = animateLayoutChangesInItems;
         this.showDividers = showDividers;
+        adapter.setOnErrorRetryListener(v -> onNextPage.onNext(RxSignal.SIGNAL));
     }
 
     public void attach(View view, boolean renderEmptyAtTop, RecyclerView.LayoutManager layoutmanager) {
@@ -68,13 +78,31 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         // handle swipe to refresh
         swipeRefreshLayout.setSwipeableChildren(recyclerView);
         swipeRefreshLayout.setOnRefreshListener(() -> onRefresh.onNext(RxSignal.SIGNAL));
+
+        paginator = new RecyclerViewPaginator(recyclerView, this::nextPage);
+        paginator.start();
+
+
+    }
+
+    private void nextPage() {
+        if (requestMoreOnScroll) {
+            onNextPage.onNext(RxSignal.SIGNAL);
+        }
     }
 
     public PublishSubject<RxSignal> onRefresh() {
         return onRefresh;
     }
 
+    @SuppressWarnings("unused")
+    public Observable<RxSignal> onNextPage() {
+        return onNextPage;
+    }
+
     public void detach() {
+        paginator.stop();
+
         if (emptyViewObserver != null) {
             adapter.unregisterAdapterDataObserver(emptyViewObserver);
         }
@@ -86,6 +114,11 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     }
 
     public void render(CollectionRendererState<ItemT> state) {
+
+        requestMoreOnScroll = state.collectionLoadingState().requestMoreOnScroll();
+
+        adapter.setNewAppendState(getAppendState(state.collectionLoadingState()));
+
         swipeRefreshLayout.setRefreshing(state.collectionLoadingState().isRefreshing());
         if (state.items().isEmpty()) {
             if (recyclerView.getAdapter() != emptyAdapter) {
@@ -104,6 +137,16 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
                 onNewItems(state.items());
             }
 
+        }
+    }
+
+    private PagingRecyclerItemAdapter.AppendState getAppendState(AsyncLoadingState asyncLoadingState) {
+        if (asyncLoadingState.isLoadingNextPage()) {
+            return PagingRecyclerItemAdapter.AppendState.LOADING;
+        } else if (asyncLoadingState.nextPageError().isPresent()) {
+            return PagingRecyclerItemAdapter.AppendState.ERROR;
+        } else {
+            return PagingRecyclerItemAdapter.AppendState.IDLE;
         }
     }
 

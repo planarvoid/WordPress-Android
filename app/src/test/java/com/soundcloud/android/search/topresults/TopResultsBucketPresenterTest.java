@@ -10,7 +10,6 @@ import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
@@ -21,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TopResultsBucketPresenterTest {
-    private static final Bucket.Kind KIND = Bucket.Kind.GO_TRACKS;
+    private static final TopResultsBucketViewModel.Kind KIND = TopResultsBucketViewModel.Kind.GO_TRACKS;
     private static final Urn QUERY_URN = new Urn("soundcloud:query:urn");
 
     @Mock EventTracker eventTracker;

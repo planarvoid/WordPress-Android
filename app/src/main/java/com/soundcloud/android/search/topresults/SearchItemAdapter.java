@@ -17,9 +17,9 @@ class SearchItemAdapter extends PagingRecyclerItemAdapter<SearchItem, RecyclerVi
     SearchItemAdapter(@Provided SearchTrackRendererFactory searchTrackRendererFactory,
                       @Provided SearchPlaylistRendererFactory searchPlaylistRendererFactory,
                       @Provided SearchUserRendererFactory searchUserRendererFactory,
-                      PublishSubject<SearchItem.Track> trackClick,
-                      PublishSubject<SearchItem.Playlist> playlistClick,
-                      PublishSubject<SearchItem.User> userClick) {
+                      PublishSubject<UiAction.TrackClick> trackClick,
+                      PublishSubject<UiAction.PlaylistClick> playlistClick,
+                      PublishSubject<UiAction.UserClick> userClick) {
         super(new CellRendererBinding<>(SearchItem.Kind.TRACK.ordinal(), searchTrackRendererFactory.create(trackClick)),
               new CellRendererBinding<>(SearchItem.Kind.PLAYLIST.ordinal(), searchPlaylistRendererFactory.create(playlistClick)),
               new CellRendererBinding<>(SearchItem.Kind.USER.ordinal(), searchUserRendererFactory.create(userClick)));

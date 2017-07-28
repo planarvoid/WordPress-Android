@@ -32,7 +32,7 @@ public abstract class TestAsyncState<ModelType> {
         assertThatEventually(() -> f.apply(lastState()), matcher);
     }
 
-    private <MatcherType> MatcherType lastState() {
+    public <MatcherType> MatcherType lastState() {
         final List<ModelType> modelTypes = states().get();
         final ModelType last = getLast(modelTypes);
         return (MatcherType) last;

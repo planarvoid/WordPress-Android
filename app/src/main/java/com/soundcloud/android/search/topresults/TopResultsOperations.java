@@ -4,15 +4,10 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.associations.FollowingStateProvider;
-import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.search.CacheUniversalSearchCommand;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
@@ -29,44 +24,17 @@ class TopResultsOperations {
     private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
-    private final LikesStateProvider likedStatuses;
-    private final FollowingStateProvider followingStatuses;
-    private final PlaySessionStateProvider playSessionStateProvider;
-    private final EntityItemCreator entityItemCreator;
 
     @Inject
     TopResultsOperations(ApiClientRxV2 apiClientRx,
                          @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                         CacheUniversalSearchCommand cacheUniversalSearchCommand,
-                         LikesStateProvider likedStatuses,
-                         FollowingStateProvider followingStatuses,
-                         PlaySessionStateProvider playSessionStateProvider,
-                         EntityItemCreator entityItemCreator) {
+                         CacheUniversalSearchCommand cacheUniversalSearchCommand) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
-        this.likedStatuses = likedStatuses;
-        this.followingStatuses = followingStatuses;
-        this.playSessionStateProvider = playSessionStateProvider;
-        this.entityItemCreator = entityItemCreator;
     }
 
-    public Observable<SearchResult> search(SearchParams params) {
-        return searchDataSource(params).map(SearchResult.Data::create)
-                                       .onErrorReturn(SearchResult.Error::create)
-                                       .startWith(SearchResult.Loading.create(params.isRefreshing()));
-    }
-
-    private io.reactivex.Observable<TopResults> searchDataSource(SearchParams search) {
-        final Single<ApiTopResults> searchMaybe = apiSearch(search);
-        return searchMaybe.toObservable().flatMap(result -> io.reactivex.Observable.combineLatest(
-                likedStatuses.likedStatuses(),
-                followingStatuses.followingStatuses(),
-                playSessionStateProvider.nowPlayingUrn(),
-                (likedStatuses, followingStatuses, urn) -> ApiTopResultsMapper.toDomainModel(result, entityItemCreator, likedStatuses, followingStatuses, urn)));
-    }
-
-    private Single<ApiTopResults> apiSearch(SearchParams search) {
+    Single<ApiTopResults> apiSearch(SearchParams search) {
         Optional<Urn> queryUrn = search.queryUrn();
         final ApiRequest.Builder requestBuilder = ApiRequest.get(ApiEndpoints.SEARCH_TOP_RESULTS.path())
                                                             .forPrivateApi()

@@ -46,6 +46,10 @@ class ExperimentStorage {
         return file.exists() ? readAssignmentFile() : Assignment.empty();
     }
 
+    public void clear() {
+        IOUtils.deleteFile(file);
+    }
+
     private Assignment readAssignmentFile() {
         String json = Strings.EMPTY;
         try {

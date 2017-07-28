@@ -12,7 +12,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
-import com.soundcloud.android.search.topresults.TopResults;
+import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
+import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;
@@ -27,7 +28,7 @@ public abstract class NavigationTarget {
 
     // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
 
-    public abstract Date creationDate();
+    @IgnoreHashEquals public abstract Date creationDate();
 
     public abstract Optional<DeepLink> deeplink();
 
@@ -221,7 +222,7 @@ public abstract class NavigationTarget {
         return forNavigationDeeplink(DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
     }
 
-    public static NavigationTarget forSearchViewAll(Optional<Urn> queryUrn, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
+    public static NavigationTarget forSearchViewAll(Optional<Urn> queryUrn, String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
         return forNavigationDeeplink(DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
                 .toBuilder()
                 .queryUrn(queryUrn)
@@ -427,11 +428,11 @@ public abstract class NavigationTarget {
     abstract static class TopResultsMetaData {
         abstract String query();
 
-        abstract TopResults.Bucket.Kind kind();
+        abstract TopResultsBucketViewModel.Kind kind();
 
         abstract boolean isPremium();
 
-        static TopResultsMetaData create(String query, TopResults.Bucket.Kind kind, boolean isPremium) {
+        static TopResultsMetaData create(String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
             return new AutoValue_NavigationTarget_TopResultsMetaData(query, kind, isPremium);
         }
     }

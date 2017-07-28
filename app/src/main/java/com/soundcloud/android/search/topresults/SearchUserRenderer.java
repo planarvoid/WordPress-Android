@@ -11,27 +11,32 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 @AutoFactory
 class SearchUserRenderer implements CellRenderer<SearchItem.User> {
     private final FollowableUserItemRenderer userItemRenderer;
-    private final PublishSubject<SearchItem.User> userClick;
+    private final PublishSubject<UiAction.UserClick> userClick;
+    private final Map<View, UiAction.UserClick> argsMap = new WeakHashMap<>();
 
-    SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<SearchItem.User> userClick) {
+    SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<UiAction.UserClick> userClick) {
         this.userItemRenderer = userItemRenderer;
         this.userClick = userClick;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return userItemRenderer.createItemView(parent);
+        final View itemView = userItemRenderer.createItemView(parent);
+        itemView.setOnClickListener(view -> userClick.onNext(argsMap.get(itemView)));
+        return itemView;
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<SearchItem.User> items) {
         final SearchItem.User user = items.get(position);
-        itemView.setOnClickListener(view -> userClick.onNext(user));
-        userItemRenderer.bindItemView(position, itemView, user.userItem(), Optional.of(user.source().key));
+        argsMap.put(itemView, user.clickAction());
+        userItemRenderer.bindItemView(position, itemView, user.userItem(), Optional.of(user.clickAction().clickParams().get().clickSource().key));
     }
 
 }

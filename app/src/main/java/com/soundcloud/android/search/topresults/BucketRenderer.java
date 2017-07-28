@@ -1,6 +1,6 @@
 package com.soundcloud.android.search.topresults;
 
-import static com.soundcloud.android.search.topresults.TopResults.Bucket.Kind.GO_TRACKS;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.GO_TRACKS;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -30,19 +30,19 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     private final SearchItemAdapterFactory searchItemAdapterFactory;
     private final CondensedNumberFormatter numberFormatter;
     private final FeatureOperations featureOperations;
-    private final PublishSubject<SearchItem.Track> trackClick;
-    private final PublishSubject<SearchItem.Playlist> playlistClick;
-    private final PublishSubject<SearchItem.User> userClick;
-    private final PublishSubject<TopResults.Bucket.Kind> viewAllClick;
+    private final PublishSubject<UiAction.TrackClick> trackClick;
+    private final PublishSubject<UiAction.PlaylistClick> playlistClick;
+    private final PublishSubject<UiAction.UserClick> userClick;
+    private final PublishSubject<UiAction.ViewAllClick> viewAllClick;
     private final PublishSubject<UiAction.HelpClick> helpClick;
 
     BucketRenderer(@Provided SearchItemAdapterFactory searchItemAdapterFactory,
                    @Provided CondensedNumberFormatter numberFormatter,
                    @Provided FeatureOperations featureOperations,
-                   PublishSubject<SearchItem.Track> trackClick,
-                   PublishSubject<SearchItem.Playlist> playlistClick,
-                   PublishSubject<SearchItem.User> userClick,
-                   PublishSubject<TopResults.Bucket.Kind> viewAllClick,
+                   PublishSubject<UiAction.TrackClick> trackClick,
+                   PublishSubject<UiAction.PlaylistClick> playlistClick,
+                   PublishSubject<UiAction.UserClick> userClick,
+                   PublishSubject<UiAction.ViewAllClick> viewAllClick,
                    PublishSubject<UiAction.HelpClick> helpClick) {
         this.searchItemAdapterFactory = searchItemAdapterFactory;
         this.numberFormatter = numberFormatter;
@@ -88,12 +88,12 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private void bindViewAll(View itemView, Resources resources, TopResultsBucketViewModel bucket) {
         final View viewAllButton = itemView.findViewById(R.id.bucket_view_all);
-        viewAllButton.setVisibility(bucket.shouldShowViewAll() ? View.VISIBLE : View.GONE);
-        if (bucket.shouldShowViewAll() && bucket.viewAllResourceId().isPresent()) {
+        viewAllButton.setVisibility(bucket.viewAllAction().isPresent() ? View.VISIBLE : View.GONE);
+        if (bucket.viewAllAction().isPresent() && bucket.viewAllResourceId().isPresent()) {
             String resultsCountString = numberFormatter.format(bucket.totalResults());
             final String viewAllText = resources.getString(bucket.viewAllResourceId().get(), resultsCountString);
             ((TextView) itemView.findViewById(R.id.bucket_view_all_text)).setText(viewAllText);
-            viewAllButton.setOnClickListener(view -> viewAllClick.onNext(bucket.kind()));
+            viewAllButton.setOnClickListener(view -> viewAllClick.onNext(bucket.viewAllAction().get()));
         }
     }
 

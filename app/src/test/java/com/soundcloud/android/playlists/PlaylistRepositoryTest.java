@@ -67,7 +67,7 @@ public class PlaylistRepositoryTest {
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(playlists));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
+        when(syncinitiator.syncPlaylist(playlist.urn())).thenReturn(syncSubject);
 
         final TestObserver<Playlist> test = playlistRepository.withUrn(playlist.urn()).test();
 
@@ -83,7 +83,7 @@ public class PlaylistRepositoryTest {
         final List<Urn> urns = singletonList(playlist.urn());
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
+        when(syncinitiator.syncPlaylist(playlist.urn())).thenReturn(syncSubject);
 
         final TestObserver<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
         subscriber.assertNoValues();
@@ -100,7 +100,7 @@ public class PlaylistRepositoryTest {
         final List<Urn> urns = singletonList(playlist.urn());
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
-        when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
+        when(syncinitiator.syncPlaylist(playlist.urn())).thenReturn(syncSubject);
 
         final TestObserver<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
         subscriber.assertNoValues();

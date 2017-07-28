@@ -11,7 +11,10 @@ import com.soundcloud.android.sync.SyncJobResult;
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,11 +42,22 @@ public class PlaylistRepository {
         final Collection<Urn> requestedPlaylists = singletonList(playlistUrn);
         return playlistStorage
                 .availablePlaylists(requestedPlaylists)
-                .flatMap(syncMissingPlaylists(requestedPlaylists))
+                .flatMap(syncMissingPlaylist(playlistUrn))
                 .flatMap(o -> playlistStorage.loadPlaylists(requestedPlaylists))
                 .subscribeOn(scheduler)
                 .filter(list -> !list.isEmpty())
                 .map(playlistItems -> playlistItems.get(0));
+    }
+
+    @NonNull
+    private Function<List<Urn>, SingleSource<? extends Boolean>> syncMissingPlaylist(Urn playlistUrn) {
+        return playlistsAvailable -> {
+            if (playlistsAvailable.contains(playlistUrn)) {
+                return Single.just(true);
+            } else {
+                return syncInitiator.syncPlaylist(playlistUrn).map(SyncJobResult::wasSuccess).observeOn(scheduler);
+            }
+        };
     }
 
     public Single<Map<Urn, Playlist>> withUrns(final Collection<Urn> requestedPlaylists) {

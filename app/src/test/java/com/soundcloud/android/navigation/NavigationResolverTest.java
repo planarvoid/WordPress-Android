@@ -57,7 +57,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.search.topresults.TopResults;
+import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
 import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.assertions.IntentAssert;
@@ -1809,7 +1809,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigationDeeplink_shouldOpenSearchTopResultsViewAllPage() throws Exception {
-        NavigationTarget navigationTarget = NavigationTarget.forSearchViewAll(Optional.of(Urn.NOT_SET), "test", TopResults.Bucket.Kind.GO_TRACKS, true);
+        NavigationTarget navigationTarget = NavigationTarget.forSearchViewAll(Optional.of(Urn.NOT_SET), "test", TopResultsBucketViewModel.Kind.GO_TRACKS, true);
 
         assertTarget(navigationTarget, IntentFactory.createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn()));
     }

@@ -9,12 +9,18 @@ import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.android.utils.collection.AsyncLoaderState;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Lists;
@@ -47,17 +53,19 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Inject NavigationExecutor navigationExecutor;
+    @Inject Navigator navigator;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
 
     private final BehaviorSubject<UiAction.Search> searchIntent = BehaviorSubject.create();
 
-    private final PublishSubject<SearchItem.Track> trackClick = PublishSubject.create();
-    private final PublishSubject<SearchItem.Playlist> playlistClick = PublishSubject.create();
-    private final PublishSubject<SearchItem.User> userClick = PublishSubject.create();
-    private final PublishSubject<TopResults.Bucket.Kind> viewAllClick = PublishSubject.create();
+    private final PublishSubject<UiAction.TrackClick> trackClick = PublishSubject.create();
+    private final PublishSubject<UiAction.PlaylistClick> playlistClick = PublishSubject.create();
+    private final PublishSubject<UiAction.UserClick> userClick = PublishSubject.create();
+    private final PublishSubject<UiAction.ViewAllClick> viewAllClick = PublishSubject.create();
     private final PublishSubject<UiAction.HelpClick> helpClick = PublishSubject.create();
-
 
     public static TopResultsFragment newInstance(String apiQuery,
                                                  String userQuery,
@@ -96,9 +104,10 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     @Override
-    public void accept(@NonNull ViewModel viewModel) throws Exception {
+    public void accept(@NonNull AsyncLoaderState<TopResultsViewModel> viewModel) throws Exception {
         final CollectionRendererState<TopResultsBucketViewModel> newState = toLegacyModel(viewModel);
         collectionRenderer.render(newState);
+
         if (!newState.collectionLoadingState().isLoadingNextPage()) {
             MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_EVERYTHING.toString());
             PerformanceMetric metric = PerformanceMetric.builder()
@@ -109,12 +118,8 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         }
     }
 
-    private CollectionRendererState<TopResultsBucketViewModel> toLegacyModel(ViewModel viewModel) {
-        final CollectionLoadingState.Builder builder = CollectionLoadingState.builder();
-        builder.isRefreshing(viewModel.isRefreshing());
-        builder.isLoadingNextPage(viewModel.isLoading());
-        builder.refreshError(viewModel.error());
-        return CollectionRendererState.create(builder.build(), viewModel.data().isPresent() ? viewModel.data().get().buckets() : Lists.newArrayList());
+    private CollectionRendererState<TopResultsBucketViewModel> toLegacyModel(AsyncLoaderState<TopResultsViewModel> viewModel) {
+        return CollectionRendererState.create(viewModel.asyncLoadingState(), viewModel.data().isPresent() ? viewModel.data().get().buckets() : Lists.newArrayList());
     }
 
     private boolean isTheSameItem(TopResultsBucketViewModel item1, TopResultsBucketViewModel item2) {
@@ -145,22 +150,22 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public Observable<UiAction.TrackClick> trackClick() {
-        return trackClick.map(track -> UiAction.TrackClick.create(apiQuery(), track));
+        return trackClick;
     }
 
     @Override
     public Observable<UiAction.PlaylistClick> playlistClick() {
-        return playlistClick.map(playlist -> UiAction.PlaylistClick.create(apiQuery(), playlist));
+        return playlistClick;
     }
 
     @Override
     public Observable<UiAction.UserClick> userClick() {
-        return userClick.map(user -> UiAction.UserClick.create(apiQuery(), user));
+        return userClick;
     }
 
     @Override
     public Observable<UiAction.ViewAllClick> viewAllClick() {
-        return viewAllClick.map(kind -> UiAction.ViewAllClick.create(apiQuery(), kind));
+        return viewAllClick;
     }
 
     @Override
@@ -169,8 +174,18 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     @Override
-    public void handleActionResult(ClickResultAction action) {
-        action.run(getActivity());
+    public void showPlaybackResult(PlaybackResult playbackResult) {
+        expandPlayerSubscriber.onNext(playbackResult);
+    }
+
+    @Override
+    public void navigateTo(NavigationTarget navigationTarget) {
+        navigator.navigateTo(navigationTarget);
+    }
+
+    @Override
+    public void openUpgrade(UpsellContext upsellContext) {
+        navigationExecutor.openUpgrade(getActivity(), upsellContext);
     }
 
     private String apiQuery() {

@@ -1,5 +1,7 @@
 package com.soundcloud.android.transformers;
 
+import com.soundcloud.android.rx.ObservableDoOnFirst;
+import io.reactivex.functions.Consumer;
 import rx.Observable;
 
 import android.support.annotation.NonNull;
@@ -35,5 +37,9 @@ public class Transformers {
      */
     public static <S, T> TakePairWhenTransformer<S, T> takePairWhen(final @NonNull Observable<T> when) {
         return new TakePairWhenTransformer<>(when);
+    }
+
+    public static <T> ObservableDoOnFirst<T> doOnFirst(final Consumer<T> action) {
+        return new ObservableDoOnFirst<>(action);
     }
 }

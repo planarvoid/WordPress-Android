@@ -11,27 +11,33 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 @AutoFactory
 class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist> {
-    private final PlaylistItemRenderer playlistItemRenderer;
-    private final PublishSubject<SearchItem.Playlist> playlistClick;
 
-    SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<SearchItem.Playlist> playlistClick) {
+    private final PlaylistItemRenderer playlistItemRenderer;
+    private final PublishSubject<UiAction.PlaylistClick> playlistClick;
+    private final Map<View, UiAction.PlaylistClick> argsMap = new WeakHashMap<>();
+
+    SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<UiAction.PlaylistClick> playlistClick) {
         this.playlistItemRenderer = playlistItemRenderer;
         this.playlistClick = playlistClick;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return playlistItemRenderer.createItemView(parent);
+        final View itemView = playlistItemRenderer.createItemView(parent);
+        itemView.setOnClickListener(view -> playlistClick.onNext(argsMap.get(itemView)));
+        return itemView;
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<SearchItem.Playlist> items) {
         final SearchItem.Playlist playlist = items.get(position);
-        itemView.setOnClickListener(view -> playlistClick.onNext(playlist));
-        playlistItemRenderer.bindPlaylistView(playlist.playlistItem(), itemView, Optional.absent(), Optional.of(playlist.source().key));
+        argsMap.put(itemView, playlist.clickAction());
+        playlistItemRenderer.bindPlaylistView(playlist.playlistItem(), itemView, Optional.absent(), Optional.of(playlist.clickAction().clickParams().get().clickSource().key));
     }
 
 }

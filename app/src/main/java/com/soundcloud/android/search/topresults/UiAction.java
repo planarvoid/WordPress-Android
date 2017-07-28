@@ -1,56 +1,60 @@
 package com.soundcloud.android.search.topresults;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.java.optional.Optional;
+
+import java.util.List;
 
 abstract class UiAction {
+
+    public abstract Optional<ClickParams> clickParams();
+
     @AutoValue
     abstract static class TrackClick extends UiAction {
-        abstract String searchQuery();
+        abstract Urn trackUrn();
 
-        abstract SearchItem.Track clickedTrack();
+        public abstract TrackSourceInfo trackSourceInfo();
 
-        static TrackClick create(String searchQuery, SearchItem.Track track) {
-            return new AutoValue_UiAction_TrackClick(searchQuery, track);
+        public abstract List<Urn> allTracks();
+
+        public abstract int trackPosition();
+
+        static TrackClick create(ClickParams clickParams, Urn trackUrn, TrackSourceInfo trackSourceInfo, List<Urn> allTracks, int position) {
+            return new AutoValue_UiAction_TrackClick(Optional.of(clickParams), trackUrn, trackSourceInfo, allTracks, position);
         }
     }
 
     @AutoValue
     abstract static class PlaylistClick extends UiAction {
-        abstract String searchQuery();
 
-        abstract SearchItem.Playlist clickedPlaylist();
-
-        static PlaylistClick create(String searchQuery, SearchItem.Playlist playlist) {
-            return new AutoValue_UiAction_PlaylistClick(searchQuery, playlist);
+        static PlaylistClick create(ClickParams clickParams) {
+            return new AutoValue_UiAction_PlaylistClick(Optional.of(clickParams));
         }
     }
 
     @AutoValue
     abstract static class UserClick extends UiAction {
-        abstract String searchQuery();
 
-        abstract SearchItem.User clickedUser();
-
-        static UserClick create(String searchQuery, SearchItem.User user) {
-            return new AutoValue_UiAction_UserClick(searchQuery, user);
+        static UserClick create(ClickParams clickParams) {
+            return new AutoValue_UiAction_UserClick(Optional.of(clickParams));
         }
     }
 
     @AutoValue
     abstract static class ViewAllClick extends UiAction {
-        abstract String searchQuery();
+        abstract TopResultsBucketViewModel.Kind bucketKind();
 
-        abstract TopResults.Bucket.Kind bucketKind();
-
-        static ViewAllClick create(String searchQuery, TopResults.Bucket.Kind bucketKind) {
-            return new AutoValue_UiAction_ViewAllClick(searchQuery, bucketKind);
+        static ViewAllClick create(ClickParams clickParams, TopResultsBucketViewModel.Kind bucketKind) {
+            return new AutoValue_UiAction_ViewAllClick(Optional.of(clickParams), bucketKind);
         }
     }
 
     @AutoValue
     abstract static class HelpClick extends UiAction {
         static HelpClick create() {
-            return new AutoValue_UiAction_HelpClick();
+            return new AutoValue_UiAction_HelpClick(Optional.absent());
         }
     }
 
@@ -59,7 +63,7 @@ abstract class UiAction {
         abstract SearchParams searchParams();
 
         static Search create(SearchParams searchParams) {
-            return new AutoValue_UiAction_Search(searchParams);
+            return new AutoValue_UiAction_Search(Optional.absent(), searchParams);
         }
     }
 
@@ -68,7 +72,7 @@ abstract class UiAction {
         abstract SearchParams searchParams();
 
         static Refresh create(SearchParams searchParams) {
-            return new AutoValue_UiAction_Refresh(searchParams);
+            return new AutoValue_UiAction_Refresh(Optional.absent(), searchParams);
         }
     }
 
@@ -78,7 +82,7 @@ abstract class UiAction {
         abstract String searchQuery();
 
         static Enter create(long timestamp, String searchQuery) {
-            return new AutoValue_UiAction_Enter(timestamp, searchQuery);
+            return new AutoValue_UiAction_Enter(Optional.absent(), timestamp, searchQuery);
         }
     }
 }

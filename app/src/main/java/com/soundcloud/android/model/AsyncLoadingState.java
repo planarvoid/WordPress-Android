@@ -7,7 +7,7 @@ import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class CollectionLoadingState {
+public abstract class AsyncLoadingState {
 
     public abstract boolean isLoadingNextPage();
 
@@ -17,45 +17,25 @@ public abstract class CollectionLoadingState {
 
     public abstract Optional<ViewError> refreshError();
 
-    public abstract boolean hasMorePages();
+    public abstract boolean requestMoreOnScroll();
 
     public abstract Builder toBuilder();
 
     public static Builder builder() {
-        return new AutoValue_CollectionLoadingState.Builder()
+        return new AutoValue_AsyncLoadingState.Builder()
                 .nextPageError(Optional.absent())
                 .refreshError(Optional.absent())
                 .isLoadingNextPage(false)
                 .isRefreshing(false)
-                .hasMorePages(true);
+                .requestMoreOnScroll(false);
     }
 
-    public CollectionLoadingState toNextPageLoaded(boolean hasMorePages) {
-        return toBuilder().nextPageError(Optional.absent())
-                          .isLoadingNextPage(false)
-                          .isRefreshing(false)
-                          .hasMorePages(hasMorePages)
-                          .build();
-    }
-
-    public CollectionLoadingState toNextPageLoading() {
-        return toBuilder().nextPageError(Optional.absent())
-                          .isLoadingNextPage(true)
-                          .build();
-    }
-
-    public CollectionLoadingState toNextPageError(Throwable throwable) {
-        return toBuilder().nextPageError(Optional.of(ViewError.from(throwable)))
-                          .isLoadingNextPage(false)
-                          .build();
-    }
-
-    public CollectionLoadingState toRefreshStarted() {
+    public AsyncLoadingState toRefreshStarted() {
         return toBuilder().isRefreshing(true)
                           .build();
     }
 
-    public CollectionLoadingState toRefreshError(Throwable throwable) {
+    public AsyncLoadingState toRefreshError(Throwable throwable) {
         return toBuilder().isRefreshing(false)
                           .refreshError(of(ViewError.from(throwable)))
                           .build();
@@ -72,8 +52,8 @@ public abstract class CollectionLoadingState {
 
         public abstract Builder refreshError(Optional<ViewError> value);
 
-        public abstract Builder hasMorePages(boolean value);
+        public abstract Builder requestMoreOnScroll(boolean value);
 
-        public abstract CollectionLoadingState build();
+        public abstract AsyncLoadingState build();
     }
 }

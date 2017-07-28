@@ -159,7 +159,7 @@ class SpecValidator {
                 throw new MrLocalLocalException(String.format("Event doesn't contain timestamp ('%s') key in payload. (╯°□°)╯︵ ┻━┻", KEY_TIMESTAMP));
             }
             long timestamp = Long.valueOf(String.valueOf(event.payload().get(KEY_TIMESTAMP)));
-            if (startTimestamp < timestamp) {
+            if (startTimestamp <= timestamp) {
                 survivors.add(event);
             }
         }

@@ -26,6 +26,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.comments.CommentsFragment;
 import com.soundcloud.android.comments.TrackCommentsActivity;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordFragment;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
@@ -131,6 +132,7 @@ import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
 import com.soundcloud.android.search.topresults.TopResultsFragment;
+import com.soundcloud.android.search.topresults.TopResultsPresenter;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
@@ -393,7 +395,9 @@ public interface ApplicationComponent {
     //Features Module --------
 
     // For testing purpose
+    ExperimentOperations experimentOperations();
     PlaylistDetailsPresenterFactory playlistDetailsPresenterFactory();
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
+    TopResultsPresenter topResultsPresenter();
 }
