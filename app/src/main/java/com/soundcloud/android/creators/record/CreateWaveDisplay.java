@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -37,8 +38,13 @@ public class CreateWaveDisplay extends TouchLayout {
     private Rect waveformRect;
     private long lastSeekX = -1;
     private Listener listener;
-    private int waveformWidth, leftDragOffsetX, rightDragOffsetX;
-    private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
+    private int waveformWidth;
+    private int leftDragOffsetX;
+    private int rightDragOffsetX;
+    private Optional<TrimAction> newTrimActionLeft = Optional.absent();
+    private Optional<TrimAction> newTrimActionRight = Optional.absent();
+    private Optional<TrimAction> lastTrimActionLeft = Optional.absent();
+    private Optional<TrimAction> lastTrimActionRight = Optional.absent();
 
     public CreateWaveDisplay(Context context) {
         super(context);
@@ -155,11 +161,11 @@ public class CreateWaveDisplay extends TouchLayout {
                 if (leftDragOffsetX == Consts.NOT_SET) {
                     leftDragOffsetX = x - leftHandle.getLeft();
                 }
-                newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
+                newTrimActionLeft = Optional.of(new TrimAction(System.currentTimeMillis(),
                                                    Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
                                                                         (leftHandleTouchIndex == 0 ?
                                                                          input.x :
-                                                                         input.pointerX) - leftDragOffsetX)));
+                                                                         input.pointerX) - leftDragOffsetX))));
 
             }
 
@@ -167,12 +173,12 @@ public class CreateWaveDisplay extends TouchLayout {
                 if (rightDragOffsetX == Consts.NOT_SET) {
                     rightDragOffsetX = x - rightHandle.getRight();
                 }
-                newTrimActionRight = new TrimAction(System.currentTimeMillis(),
+                newTrimActionRight = Optional.of(new TrimAction(System.currentTimeMillis(),
                                                     Math.min(getWidth(),
                                                              Math.max(leftHandle.getRight() + rightHandle.getWidth(),
                                                                       (rightHandleTouchIndex == 0 ?
                                                                        input.x :
-                                                                       input.pointerX) - rightDragOffsetX)));
+                                                                       input.pointerX) - rightDragOffsetX))));
             }
 
             queueTrim(UI_UPDATE_TRIM);
@@ -232,7 +238,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private void processHandleUpFromPointer(int pointerIndex) {
         if (leftHandleTouchIndex == pointerIndex) {
-            newTrimActionLeft = null;
+            newTrimActionLeft = Optional.absent();
             leftHandleTouchIndex = Consts.NOT_SET;
             leftDragOffsetX = Consts.NOT_SET;
             if (rightHandleTouchIndex > pointerIndex) {
@@ -240,7 +246,7 @@ public class CreateWaveDisplay extends TouchLayout {
             }
         }
         if (rightHandleTouchIndex == pointerIndex) {
-            newTrimActionRight = null;
+            newTrimActionRight = Optional.absent();
             rightHandleTouchIndex = Consts.NOT_SET;
             rightDragOffsetX = Consts.NOT_SET;
             if (leftHandleTouchIndex > pointerIndex) {
@@ -358,27 +364,34 @@ public class CreateWaveDisplay extends TouchLayout {
                 case UI_UPDATE_TRIM:
                     view.lastTrimAction = System.currentTimeMillis();
 
-                    if (view.newTrimActionLeft != null && view.newTrimActionLeft.hasMovedFrom(view.lastTrimActionLeft)) {
-                        view.leftHandle.update(view.newTrimActionLeft.position);
-                        if (view.listener != null) {
-                            view.listener.onAdjustTrimLeft(Math.max(0,
-                                                                    ((float) view.newTrimActionLeft.position / view.waveformWidth)),
-                                                           view.newTrimActionLeft.timestamp - view.lastTrimActionLeft.timestamp);
+                    view.newTrimActionLeft.ifPresent(newTrimActionLeft -> {
+                        if (newTrimActionLeft.hasMovedFrom(view.lastTrimActionLeft)) {
+                            view.leftHandle.update(newTrimActionLeft.position);
+                            if (view.listener != null) {
+                                view.listener.onAdjustTrimLeft(Math.max(0,
+                                                                        (float) newTrimActionLeft.position / view.waveformWidth),
+                                                               newTrimActionLeft.timestamp - view.lastTrimActionLeft.get().timestamp);
+                            }
+                            view.waveformView.invalidate();
                         }
-                        view.waveformView.invalidate();
-                    }
-                    view.lastTrimActionLeft = view.newTrimActionLeft;
+                        view.lastTrimActionLeft = view.newTrimActionLeft;
 
-                    if (view.newTrimActionRight != null && view.newTrimActionRight.hasMovedFrom(view.lastTrimActionRight)) {
-                        view.rightHandle.update(view.waveformWidth - view.newTrimActionRight.position);
-                        if (view.listener != null) {
-                            view.listener.onAdjustTrimRight(Math.min(1,
-                                                                     ((float) view.newTrimActionRight.position / view.waveformWidth)),
-                                                            view.newTrimActionRight.timestamp - view.lastTrimActionRight.timestamp);
+                    });
+
+                    view.newTrimActionRight.ifPresent(newTrimActionRight -> {
+                        if (newTrimActionRight.hasMovedFrom(view.lastTrimActionRight)) {
+                            view.rightHandle.update(view.waveformWidth - newTrimActionRight.position);
+                            if (view.listener != null) {
+                                view.listener.onAdjustTrimRight(Math.min(1,
+                                                                         (float) newTrimActionRight.position / view.waveformWidth),
+                                                                newTrimActionRight.timestamp - view.lastTrimActionRight.get().timestamp);
+                            }
+                            view.waveformView.invalidate();
                         }
-                        view.waveformView.invalidate();
-                    }
-                    view.lastTrimActionRight = view.newTrimActionRight;
+                        view.lastTrimActionRight = view.newTrimActionRight;
+
+                    });
+
                     break;
 
                 case UI_ON_TRIM_STATE:
@@ -402,8 +415,8 @@ public class CreateWaveDisplay extends TouchLayout {
             this.position = position;
         }
 
-        public boolean hasMovedFrom(TrimAction lastTrimActionLeft) {
-            return lastTrimActionLeft != null && lastTrimActionLeft.position != position;
+        public boolean hasMovedFrom(Optional<TrimAction> lastTrimAction) {
+            return lastTrimAction.isPresent() && lastTrimAction.get().position != position;
         }
     }
 }
