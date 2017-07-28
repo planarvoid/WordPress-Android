@@ -97,6 +97,7 @@ ext {
           androidPalette               : "com.android.support:palette-v7:$androidSupportVersion",
           androidDesign                : "com.android.support:design:$androidSupportVersion",
           androidConstraintLayout      : "com.android.support.constraint:constraint-layout:1.0.2",
+          androidChromeCustomTabs      : "com.android.support:customtabs:$androidSupportVersion",
           androidPlayServicesBase      : "com.google.android.gms:play-services-base:$googleServicesVersion",
           androidPlayServicesAuth      : "com.google.android.gms:play-services-auth:$googleServicesVersion",
           androidPlayServicesCast      : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",

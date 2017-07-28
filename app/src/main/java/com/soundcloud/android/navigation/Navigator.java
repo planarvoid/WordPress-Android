@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.navigation.customtabs.CustomTabsHelper;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -82,6 +83,8 @@ public class Navigator {
                 result.playbackResult()
                       .filter(PlaybackResult::isSuccess)
                       .ifPresent(expandPlayerObserver::onSuccess);
+
+                result.customTabsMetadata().ifPresent(customTabsMetadata -> CustomTabsHelper.openCustomTab(activity, customTabsMetadata.getCustomTabsIntent(), customTabsMetadata.getUri()));
 
                 if (!result.intent().isPresent()) {
                     return;

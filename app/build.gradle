@@ -238,6 +238,7 @@ dependencies {
   compile libraries.androidRecyclerView
   compile libraries.androidCardView
   compile libraries.androidConstraintLayout
+  compile libraries.androidChromeCustomTabs
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesAuth
   compile libraries.androidPlayServicesCast

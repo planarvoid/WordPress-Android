@@ -58,6 +58,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.customtabs.CustomTabsHelper;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -270,6 +271,8 @@ public class NavigationResolver {
                 return showSearchResultViewAllScreen(navigationTarget);
             case WEB_VIEW:
                 return startWebView(navigationTarget);
+            case TRACKED_REDIRECT:
+                return resolveTarget(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_UPSELL:
                 return showUpgradeScreen(navigationTarget);
             case SOUNDCLOUD_GO_BUY:
@@ -542,7 +545,19 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> startWebView(NavigationTarget navigationTarget) {
-        return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createWebViewIntent(context, navigationTarget.linkNavigationParameters().get().targetUri())))
+        if (CustomTabsHelper.isChromeCustomTabsAvailable(context)) {
+            return Single.just(NavigationResult.forChromeCustomTab(navigationTarget,
+                                                                   CustomTabsHelper.createMetadata(context, navigationTarget.linkNavigationParameters().get().targetUri())))
+                         .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
+        } else {
+            return startNativeWebView(navigationTarget);
+        }
+    }
+
+    @CheckResult
+    private Single<NavigationResult> startNativeWebView(NavigationTarget navigationTarget) {
+        return Single.just(NavigationResult.create(navigationTarget,
+                                                   IntentFactory.createWebViewIntent(context, navigationTarget.linkNavigationParameters().get().targetUri())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 

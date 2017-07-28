@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.robolectric.Shadows.shadowOf;
 
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
@@ -46,6 +47,8 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.customtabs.CustomTabsHelper;
+import com.soundcloud.android.navigation.customtabs.CustomTabsMetadata;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.olddiscovery.charts.Chart;
@@ -70,11 +73,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.robolectric.Shadows;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.res.builder.RobolectricPackageManager;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 
@@ -457,7 +464,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForWebScheme() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -479,7 +486,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -501,7 +508,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -534,7 +541,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void deeplink_shouldLaunchRecordForCrawlers() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
@@ -1234,7 +1241,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigation_shouldLaunchRecordForWebScheme() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1256,7 +1263,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1278,7 +1285,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
     @Test
     public void navigation_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
-        Shadows.shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
+        shadowOf(activity().getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
 
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1959,15 +1966,42 @@ public class NavigationResolverTest extends AndroidUnitTest {
         assertTarget(navigationTarget, createStreamIntent(Screen.UNKNOWN));
     }
 
+    @Test
+    public void resetPasswordLinkNavigatesToNativeWebView() throws Exception {
+        String resetPasswordLink = "http%3A%2F%2Fsoundcloud.com%2Flogin%2Freset%2F123456789abcdef1234567";
+        final String redirectTrackedLink = "http://soundcloud.com/-/t/click/postman-email-account_lifecycle-password_reset_request?url=" + resetPasswordLink;
+        when(resolveOperations.resolve(redirectTrackedLink)).thenReturn(Single.just(ResolveResult.error(Uri.parse(resetPasswordLink), null)));
+        NavigationTarget navigationTarget = NavigationTarget.forExternalDeeplink(redirectTrackedLink, "");
+
+        resolveTarget(navigationTarget);
+
+        verify(resolveOperations).resolve(redirectTrackedLink);
+        assertTarget(navigationTarget, IntentFactory.createViewIntent(Uri.parse(resetPasswordLink)));
+    }
+
     // Fallback Errors
 
     @Test
-    public void fallbackToWebView() throws Exception {
+    public void fallbackToChromeCustomTabsIfNoResolving() throws Exception {
+        addChromeCustomTabsIntentResolverInPackageManager();
+
         String target = "https://soundcloud.com/jobs/";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, IntentFactory.createWebViewIntent(context, Uri.parse(target)));
+        resolveTarget(navigationTarget);
 
+        assertTargetWithChromeCustomTabsMetadata(navigationTarget, Uri.parse(target));
+        verifyZeroInteractions(resolveOperations);
+    }
+
+    @Test
+    public void fallbackToNativeWebViewIfNoResolvingAndChromeIsNotInstalled() {
+        String target = "https://soundcloud.com/jobs/";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        assertTarget(navigationTarget, IntentFactory.createWebViewIntent(context, Uri.parse(target)));
         verifyZeroInteractions(resolveOperations);
     }
 
@@ -2082,6 +2116,15 @@ public class NavigationResolverTest extends AndroidUnitTest {
         assertThat(result.toastMessage().get()).isEqualTo(toastMessage);
     }
 
+    private void assertTargetWithChromeCustomTabsMetadata(NavigationTarget navigationTarget, Uri uri) {
+        NavigationResult result = resolver.resolveNavigationResult(navigationTarget)
+                                          .test()
+                                          .assertNoErrors()
+                                          .values().get(0);
+
+        assertThat(result.customTabsMetadata().get().getUri()).isEqualTo(uri);
+    }
+
     private void assertTarget(NavigationTarget navigationTarget, Intent expected) {
         assertTarget(navigationTarget, expected, Collections.emptyList(), Optional.absent());
     }
@@ -2116,5 +2159,26 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolver.resolveNavigationResult(navigationTarget)
                 .test()
                 .assertNoErrors();
+    }
+
+    private void addChromeCustomTabsIntentResolverInPackageManager() {
+        RobolectricPackageManager packageManager = shadowOf(RuntimeEnvironment.application.getPackageManager());
+        String chromePackageName = CustomTabsHelper.STABLE_PACKAGE;
+
+        ApplicationInfo applicationInfo = new ApplicationInfo();
+        applicationInfo.packageName = chromePackageName;
+        ActivityInfo activityInfo = new ActivityInfo();
+        activityInfo.packageName = chromePackageName;
+        activityInfo.applicationInfo = applicationInfo;
+        ResolveInfo info = new ResolveInfo();
+        info.activityInfo = activityInfo;
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(CustomTabsHelper.URL_TO_BE_MATCHED_AGAINST_VIEW_INTENT));
+        packageManager.addResolveInfoForIntent(intent, info);
+
+        Intent serviceIntent = new Intent();
+        serviceIntent.setAction(CustomTabsHelper.ACTION_CUSTOM_TABS_CONNECTION);
+        serviceIntent.setPackage(chromePackageName);
+        packageManager.addResolveInfoForIntent(serviceIntent, info);
     }
 }

@@ -31,6 +31,11 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldFlagSoundCloudTrackedUrlsAsTrackedRedirectDeepLink() {
+        assertDeeplink(DeepLink.TRACKED_REDIRECT, "http://soundcloud.com/-/t/click/postman-email-account_lifecycle-password_reset_request?url=http%3A%2F%2Fsoundcloud.com%2Flogin%2Freset%2F123456789abcdef1234567");
+    }
+
+    @Test
     public void shouldLinkExternalToUnknown() throws Exception {
         assertDeeplink(DeepLink.UNKNOWN, "http://www.google.com");
         assertDeeplink(DeepLink.UNKNOWN, "mailto:sctest@soundcloud.com");

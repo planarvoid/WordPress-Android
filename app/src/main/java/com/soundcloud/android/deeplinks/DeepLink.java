@@ -18,6 +18,7 @@ public enum DeepLink {
     RECORD,
     THE_UPLOAD,
     WEB_VIEW,
+    TRACKED_REDIRECT,
     STATION,
     ENTITY,
     SOUNDCLOUD_GO_PLUS_UPSELL,
@@ -110,7 +111,8 @@ public enum DeepLink {
                        TRACK_ENTITY,
                        USER_ENTITY,
                        PLAYLIST_ENTITY,
-                       SYSTEM_PLAYLIST_ENTITY);
+                       SYSTEM_PLAYLIST_ENTITY,
+                       TRACKED_REDIRECT);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -121,6 +123,10 @@ public enum DeepLink {
             Pattern.compile("^/terms-of-use$"),
             Pattern.compile("^/connect(/.*)?$"),
             Pattern.compile("^/jobs(/.*)?$")
+    };
+
+    private static final Pattern[] TRACKED_REDIRECT_URL_PATTERNS = {
+            Pattern.compile("^/-/.*$"),
     };
 
     private static final Pattern[] LEGACY_DEEPLINKS = {
@@ -173,6 +179,15 @@ public enum DeepLink {
 
     private static boolean isWebViewUrl(Uri uri) {
         for (Pattern pattern : WEB_VIEW_URL_PATTERNS) {
+            if (pattern.matcher(uri.getPath()).matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isTrackedRedirect(Uri uri) {
+        for (Pattern pattern : TRACKED_REDIRECT_URL_PATTERNS) {
             if (pattern.matcher(uri.getPath()).matches()) {
                 return true;
             }
@@ -352,6 +367,8 @@ public enum DeepLink {
                     return CHARTS;
                 } else if (isStationsUrl(uri.getPath())) {
                     return STATION;
+                } else if (isTrackedRedirect(uri)) {
+                    return TRACKED_REDIRECT;
                 } else if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
                 } else {
