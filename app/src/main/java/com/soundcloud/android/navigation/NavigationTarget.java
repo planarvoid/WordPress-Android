@@ -306,6 +306,13 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forExternalPackage(String packageNameCreators) {
+        return forNavigationDeeplink(DeepLink.EXTERNAL_APP, Screen.UNKNOWN)
+                .toBuilder()
+                .deeplinkTarget(Optional.of(packageNameCreators))
+                .build();
+    }
+
     NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }

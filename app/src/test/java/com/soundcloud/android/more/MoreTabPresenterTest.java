@@ -29,9 +29,9 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
@@ -73,10 +73,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
-    @Mock private OfflineSettingsStorage storage;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private FeedbackController feedbackController;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
@@ -98,16 +98,17 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          navigator,
                                          bugReporter,
                                          appProperties,
-                                         storage,
                                          configurationOperations,
                                          feedbackController,
+                                         featureFlags,
                                          performanceMetricsEngine);
 
+        activity = activity();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(USER));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        activity = activity();
+        when(fragment.getContext()).thenReturn(activity);
     }
 
     @Test

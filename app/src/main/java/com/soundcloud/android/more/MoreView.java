@@ -25,6 +25,7 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @BindView(R.id.header_layout) View headerLayout;
     @BindView(R.id.image) ImageView profileImageView;
     @BindView(R.id.username) TextView username;
+    @BindView(R.id.more_creators_link) TextView creatorsText;
     @BindView(R.id.more_version_text) TextView versionText;
     @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
     @BindView(R.id.more_report_bug) View reportBug;
@@ -96,10 +97,29 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         restore.setClickable(enabled);
     }
 
+    void creatorVisibility(int visibility) {
+        creatorsText.setVisibility(visibility);
+    }
+
+    void showCreatorNavigation() {
+        creatorsText.setText(R.string.more_go_to_creators);
+    }
+
+    void showInstallCreatorsApp() {
+        creatorsText.setText(R.string.more_download_creators);
+    }
+
     @OnClick(R.id.header_layout)
     void onHeaderLayoutClicked(View view) {
         if (listener != null) {
             listener.onProfileClicked();
+        }
+    }
+
+    @OnClick(R.id.more_creators_link)
+    void onCreatorsLinkClicked(View view) {
+        if (listener != null) {
+            listener.onCreatorsClicked(view);
         }
     }
 
@@ -208,6 +228,8 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         void onUpsellClicked(View view);
 
         void onRestoreSubscriptionClicked(View view);
+
+        void onCreatorsClicked(View view);
     }
 
 }

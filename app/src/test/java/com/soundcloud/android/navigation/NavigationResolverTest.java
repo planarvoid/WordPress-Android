@@ -4,6 +4,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createCollectionIn
 import static com.soundcloud.android.navigation.IntentFactory.createDirectCheckoutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createExternalAppIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createNotificationPreferencesFromDeeplinkIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
@@ -1691,6 +1692,13 @@ public class NavigationResolverTest extends AndroidUnitTest {
         assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
 
         verify(eventTracker).trackNavigation(event);
+    }
+
+    @Test
+    public void navigation_shouldOpenExternalApp() {
+        String packageName = "com.soundcloud.android";
+        NavigationTarget navigationTarget = NavigationTarget.forExternalPackage(packageName);
+        assertTarget(navigationTarget, createExternalAppIntent(context, packageName));
     }
 
     // For Deeplink Navigation

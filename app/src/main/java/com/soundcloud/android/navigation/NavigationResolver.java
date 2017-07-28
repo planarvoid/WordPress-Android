@@ -6,6 +6,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createAllGenresInt
 import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createConversionIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createExternalAppIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
@@ -224,7 +225,7 @@ public class NavigationResolver {
                                                                                                                                                                   .fallback()
                                                                                                                                                                   .orNull(), e);
             return resolveNavigationResult(fallbackAwareTarget.withTarget(fallbackAwareTarget.linkNavigationParameters().get().fallback().get())
-                                                                       .withFallback(Optional.absent()))
+                                                              .withFallback(Optional.absent()))
                     .map(result -> {
                         if (applicationProperties.isDebuggableFlavor()) {
                             return result.withToast("Retry resolve with fallback");
@@ -333,9 +334,16 @@ public class NavigationResolver {
                 return showLegal(navigationTarget);
             case BASIC_SETTINGS:
                 return showBasicSettings(navigationTarget);
+            case EXTERNAL_APP:
+                return showExternalApp(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
+    }
+
+    private Single<NavigationResult> showExternalApp(NavigationTarget navigationTarget) {
+        return Single.just(NavigationResult.create(navigationTarget, createExternalAppIntent(context, navigationTarget.deeplinkTarget().get())))
+                     .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult

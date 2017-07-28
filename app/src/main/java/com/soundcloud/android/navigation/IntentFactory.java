@@ -17,6 +17,7 @@ import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.creators.CreatorUtilsKt;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.creators.upload.UploadService;
@@ -371,6 +372,19 @@ public final class IntentFactory {
         return intent;
     }
 
+    static Intent createExternalAppIntent(Context context, String targetPackage) {
+        if (CreatorUtilsKt.isAppInstalled(context, targetPackage)) {
+            Intent launchIntent = CreatorUtilsKt.getLaunchIntent(context, targetPackage);
+            if (launchIntent != null) {
+                return launchIntent;
+            }
+        }
+        if (CreatorUtilsKt.isPlayStoreInstalled(context)) {
+            return createViewIntent(Uri.parse(CreatorUtilsKt.PLAY_STORE_URL));
+        }
+        return createViewIntent(Uri.parse(CreatorUtilsKt.PLAY_STORE_WEB_URL));
+    }
+
     static Intent createNotificationPreferencesIntent(Context context) {
         return new Intent(context, NotificationPreferencesActivity.class);
     }
@@ -384,11 +398,11 @@ public final class IntentFactory {
     }
 
     static Intent createCollectionAsRootIntent() {
-        return rootScreen(createCollectionIntent().setFlags(IntentFactory.FLAGS_TOP));
+        return rootScreen(createCollectionIntent().setFlags(FLAGS_TOP));
     }
 
     static Intent createMoreIntent() {
-        return new Intent(Actions.MORE).setFlags(IntentFactory.FLAGS_TOP);
+        return new Intent(Actions.MORE).setFlags(FLAGS_TOP);
     }
 
     static Intent createRemoteSignInIntent(Context context, Uri uri) {

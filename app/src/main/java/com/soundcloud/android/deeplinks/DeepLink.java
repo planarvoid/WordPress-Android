@@ -62,7 +62,8 @@ public enum DeepLink {
     LIKED_STATIONS,
     HELP_CENTER,
     LEGAL,
-    BASIC_SETTINGS;
+    BASIC_SETTINGS,
+    EXTERNAL_APP;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 

@@ -16,6 +16,7 @@ import com.soundcloud.android.analytics.eventlogger.DevEventLoggerMonitorActivit
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.creators.CreatorUtilsKt;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ChartDetails;
@@ -50,6 +51,8 @@ import org.mockito.Mock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 
 public class IntentFactoryTest extends AndroidUnitTest {
@@ -343,9 +346,9 @@ public class IntentFactoryTest extends AndroidUnitTest {
         String email = "email@address.com";
 
         assertIntent(IntentFactory.createEmailIntent(email))
-                                   .containsAction(Intent.ACTION_SENDTO)
-                                   .containsUri(Uri.parse("mailto:"))
-                                   .containsExtra(Intent.EXTRA_EMAIL, new String[]{email});
+                .containsAction(Intent.ACTION_SENDTO)
+                .containsUri(Uri.parse("mailto:"))
+                .containsExtra(Intent.EXTRA_EMAIL, new String[]{email});
     }
 
     @Test
@@ -353,8 +356,64 @@ public class IntentFactoryTest extends AndroidUnitTest {
         String url = "http://facebook.com/whatever";
 
         assertIntent(IntentFactory.createViewIntent(Uri.parse(url)))
-                                   .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(Uri.parse(url));
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse(url));
+    }
+
+    @Test
+    public void openExternalAppIfInstalled() throws Exception {
+        String packageName = "com.soundcloud.android";
+
+        Intent intent = mock(Intent.class);
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.getApplicationInfo(packageName, 0)).thenReturn(mock(ApplicationInfo.class));
+        when(packageManager.getLaunchIntentForPackage(packageName)).thenReturn(intent);
+        when(context.getPackageManager()).thenReturn(packageManager);
+
+        assertIntent(IntentFactory.createExternalAppIntent(context, packageName))
+                .isEqualTo(intent);
+    }
+
+    @Test
+    public void openExternalAppIfInstalledButNoLauncherIntentFound() throws Exception {
+        String packageName = "com.soundcloud.android";
+
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.getApplicationInfo(packageName, 0)).thenReturn(mock(ApplicationInfo.class));
+        when(packageManager.getLaunchIntentForPackage(packageName)).thenReturn(null);
+        when(context.getPackageManager()).thenReturn(packageManager);
+
+        assertIntent(IntentFactory.createExternalAppIntent(context, packageName))
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse(CreatorUtilsKt.PLAY_STORE_URL));
+    }
+
+    @Test
+    public void openExternalAppIfNotInstalledAndPlayStoreInstalled() throws Exception {
+        String packageName = "com.soundcloud.android";
+
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.getApplicationInfo(packageName, 0)).thenThrow(new PackageManager.NameNotFoundException("error"));
+        when(packageManager.getApplicationInfo(CreatorUtilsKt.PACKAGE_NAME_PLAY_STORE, 0)).thenReturn(mock(ApplicationInfo.class));
+        when(context.getPackageManager()).thenReturn(packageManager);
+
+        assertIntent(IntentFactory.createExternalAppIntent(context, packageName))
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse(CreatorUtilsKt.PLAY_STORE_URL));
+    }
+
+    @Test
+    public void openExternalAppIfNotInstalledAndPlayStoreNotInstalled() throws Exception {
+        String packageName = "com.soundcloud.android";
+
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.getApplicationInfo(packageName, 0)).thenThrow(new PackageManager.NameNotFoundException("error"));
+        when(packageManager.getApplicationInfo(CreatorUtilsKt.PACKAGE_NAME_PLAY_STORE, 0)).thenThrow(new PackageManager.NameNotFoundException("error"));
+        when(context.getPackageManager()).thenReturn(packageManager);
+
+        assertIntent(IntentFactory.createExternalAppIntent(context, packageName))
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse(CreatorUtilsKt.PLAY_STORE_WEB_URL));
     }
 
     private IntentAssert assertIntent(Intent intent) {
