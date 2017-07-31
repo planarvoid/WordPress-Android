@@ -24,7 +24,7 @@ class OfflineContentCleanupHelperTest : StorageIntegrationTest() {
         //Playlist not marked for offline
         testFixtures().insertPlaylist()
 
-        val playlistsToKeep = offlineContentCleanupHelper.playlistsToKeep()
+        val playlistsToKeep = offlineContentCleanupHelper.playlistsToKeep
 
         assertThat(playlistsToKeep).containsOnly(offlinePlaylist.urn)
     }

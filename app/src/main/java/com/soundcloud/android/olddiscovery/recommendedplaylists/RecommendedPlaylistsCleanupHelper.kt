@@ -10,9 +10,9 @@ import javax.inject.Inject
 internal class RecommendedPlaylistsCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
 
-    override fun playlistsToKeep(): Set<Urn> {
+    override fun getPlaylistsToKeep(): MutableSet<Urn> {
         return propeller.query(Query.from(Tables.RecommendedPlaylist.TABLE).select(Tables.RecommendedPlaylist.PLAYLIST_ID))
                 .map { Urn.forPlaylist(it.getLong(Tables.RecommendedPlaylist.PLAYLIST_ID)) }
-                .toSet()
+                .toMutableSet()
     }
 }

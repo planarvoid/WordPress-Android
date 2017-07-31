@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class ChartsCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
-    override fun tracksToKeep(): Set<Urn> {
-        return propeller.query(Query.from(ChartTracks.TABLE).select(ChartTracks.TRACK_ID)).map({ Urn.forTrack(it.getLong(ChartTracks.TRACK_ID)) }).toSet()
+    override fun getTracksToKeep(): MutableSet<Urn> {
+        return propeller.query(Query.from(ChartTracks.TABLE).select(ChartTracks.TRACK_ID)).map({ Urn.forTrack(it.getLong(ChartTracks.TRACK_ID)) }).toMutableSet()
     }
 }

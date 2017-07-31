@@ -2,8 +2,6 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activities.ActivitiesCleanupHelper;
-import com.soundcloud.android.collection.playhistory.PlayHistoryCleanupHelper;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedCleanupHelper;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.likes.LikeCleanupHelper;
 import com.soundcloud.android.offline.OfflineContentCleanupHelper;
@@ -11,13 +9,9 @@ import com.soundcloud.android.olddiscovery.charts.ChartsCleanupHelper;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouCleanupHelper;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendationsCleanupHelper;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsCleanupHelper;
-import com.soundcloud.android.playback.PlayQueueCleanupHelper;
 import com.soundcloud.android.profile.PostsCleanupHelper;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.users.UserAssociationCleanupHelper;
-import com.soundcloud.android.stations.StationsCleanupHelper;
-import com.soundcloud.android.stream.StreamCleanupHelper;
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsCleanupHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.android.waveform.WaveformCacheSerializer;
@@ -361,21 +355,15 @@ public class StorageModule {
 
     @Provides
     @Named(DB_CLEANUP_HELPERS)
-    List<CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
-                                              NewForYouCleanupHelper newForYouCleanupHelper,
-                                              ChartsCleanupHelper chartsCleanupHelper,
-                                              RecommendationsCleanupHelper recommendationsCleanupHelper,
-                                              RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper,
-                                              ActivitiesCleanupHelper activitiesCleanupHelper,
-                                              PostsCleanupHelper postsCleanupHelper,
-                                              UserAssociationCleanupHelper userAssociationCleanupHelper,
-                                              OfflineContentCleanupHelper offlineContentCleanupHelper,
-                                              PlayQueueCleanupHelper playQueueCleanupHelper,
-                                              StationsCleanupHelper stationsCleanupHelper,
-                                              StreamCleanupHelper streamCleanupHelper,
-                                              SuggestedCreatorsCleanupHelper suggestedCreatorsCleanupHelper,
-                                              RecentlyPlayedCleanupHelper recentlyPlayedCleanupHelper,
-                                              PlayHistoryCleanupHelper playHistoryCleanupHelper) {
+    List<DatabaseCleanupService.CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
+                                                                     NewForYouCleanupHelper newForYouCleanupHelper,
+                                                                     ChartsCleanupHelper chartsCleanupHelper,
+                                                                     RecommendationsCleanupHelper recommendationsCleanupHelper,
+                                                                     RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper,
+                                                                     ActivitiesCleanupHelper activitiesCleanupHelper,
+                                                                     PostsCleanupHelper postsCleanupHelper,
+                                                                     UserAssociationCleanupHelper userAssociationCleanupHelper,
+                                                                     OfflineContentCleanupHelper offlineContentCleanupHelper) {
         return Lists.newArrayList(likeCleanupHelper,
                                   newForYouCleanupHelper,
                                   chartsCleanupHelper,
@@ -384,14 +372,7 @@ public class StorageModule {
                                   activitiesCleanupHelper,
                                   postsCleanupHelper,
                                   userAssociationCleanupHelper,
-                                  offlineContentCleanupHelper,
-                                  recommendedPlaylistsCleanupHelper,
-                                  playQueueCleanupHelper,
-                                  stationsCleanupHelper,
-                                  streamCleanupHelper,
-                                  suggestedCreatorsCleanupHelper,
-                                  recentlyPlayedCleanupHelper,
-                                  playHistoryCleanupHelper);
+                                  offlineContentCleanupHelper);
     }
 
 

@@ -9,9 +9,9 @@ import javax.inject.Inject
 
 class OfflineContentCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
-    override fun playlistsToKeep(): Set<Urn> {
+    override fun getPlaylistsToKeep(): MutableSet<Urn> {
         return propeller.query(Query.from(Tables.OfflineContent.TABLE).select(Tables.OfflineContent._ID).whereEq(Tables.OfflineContent._TYPE, Tables.OfflineContent.TYPE_PLAYLIST))
                 .map { Urn.forPlaylist(it.getLong(Tables.OfflineContent._ID)) }
-                .toSet()
+                .toMutableSet()
     }
 }

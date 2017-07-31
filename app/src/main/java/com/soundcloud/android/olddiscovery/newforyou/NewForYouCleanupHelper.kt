@@ -7,7 +7,7 @@ import javax.inject.Inject
 internal class NewForYouCleanupHelper
 @Inject constructor(private val newForYouStorage: NewForYouStorage) : DefaultCleanupHelper() {
 
-    override fun tracksToKeep(): Set<Urn> {
-        return newForYouStorage.newForYou().map { it.tracks() }.blockingGet().map { it.urn() }.toSet()
+    override fun getTracksToKeep(): MutableSet<Urn> {
+        return newForYouStorage.newForYou().map { it.tracks() }.blockingGet().map { it.urn() }.toMutableSet()
     }
 }

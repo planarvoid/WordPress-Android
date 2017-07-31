@@ -23,7 +23,7 @@ class RecommendedPlaylistsCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnsRecommendedPlaylistsToKeep() {
-        val tracksToKeep = cleanupHelper.playlistsToKeep()
+        val tracksToKeep = cleanupHelper.playlistsToKeep
 
         Assertions.assertThat(tracksToKeep).containsOnly(playlistUrn)
     }

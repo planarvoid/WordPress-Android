@@ -9,10 +9,10 @@ import javax.inject.Inject
 
 class UserAssociationCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
-    override fun usersToKeep(): Set<Urn> {
+    override fun getUsersToKeep(): MutableSet<Urn> {
         return propeller.query(Query.from(Tables.UserAssociations.TABLE).select(Tables.UserAssociations.TARGET_ID))
                 .map { Urn.forUser(it.getLong(Tables.UserAssociations.TARGET_ID)) }
-                .toSet()
+                .toMutableSet()
     }
 }
 

@@ -17,7 +17,7 @@ class UserAssociationCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnsUserToKeep() {
-        val usersToKeep = userAssociationCleanupHelper.usersToKeep()
+        val usersToKeep = userAssociationCleanupHelper.usersToKeep
 
         assertThat(usersToKeep).containsOnly(followedUser)
     }

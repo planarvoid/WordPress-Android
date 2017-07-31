@@ -9,12 +9,12 @@ import javax.inject.Inject
 
 class PostsCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
-    override fun tracksToKeep(): Set<Urn> {
-        return loadPosts().filter { it.isTrack }.toSet()
+    override fun getTracksToKeep(): MutableSet<Urn> {
+        return loadPosts().filter { it.isTrack }.toMutableSet()
     }
 
-    override fun playlistsToKeep(): Set<Urn> {
-        return loadPosts().filter { it.isPlaylist }.toSet()
+    override fun getPlaylistsToKeep(): MutableSet<Urn> {
+        return loadPosts().filter { it.isPlaylist }.toMutableSet()
     }
 
     private fun loadPosts(): List<Urn> {

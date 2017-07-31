@@ -27,7 +27,7 @@ class ChartsCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnTracksFromChartsToKeep() {
-        val tracksToKeep = cleanupHelper.tracksToKeep()
+        val tracksToKeep = cleanupHelper.tracksToKeep
 
         Assertions.assertThat(tracksToKeep).containsOnly(track1, track2)
     }

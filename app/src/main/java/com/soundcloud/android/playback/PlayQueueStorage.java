@@ -106,12 +106,9 @@ public class PlayQueueStorage {
     }
 
     Single<List<PlayQueueItem>> load() {
-        return loadPlayableQueueItems().map(playableQueueItems -> Lists.transform(playableQueueItems, input -> (PlayQueueItem) input));
-    }
-
-    Single<List<PlayableQueueItem>> loadPlayableQueueItems() {
         return propellerRx.queryResult(Query.from(TABLE.name()))
                           .map(queryResult -> queryResult.toList(new PlayableQueueItemMapper()))
+                          .map(playableQueueItems -> Lists.transform(playableQueueItems, input -> (PlayQueueItem) input))
                           .singleOrError();
     }
 

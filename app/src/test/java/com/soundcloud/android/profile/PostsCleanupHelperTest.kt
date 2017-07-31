@@ -24,14 +24,14 @@ class PostsCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnsTrackToKeep() {
-        val tracksToKeep = cleanupHelper.tracksToKeep()
+        val tracksToKeep = cleanupHelper.tracksToKeep
 
         Assertions.assertThat(tracksToKeep).containsOnly(postedTrack.urn)
     }
 
     @Test
     fun returnsPlaylistToKeep() {
-        val playlistsToKeep = cleanupHelper.playlistsToKeep()
+        val playlistsToKeep = cleanupHelper.playlistsToKeep
 
         Assertions.assertThat(playlistsToKeep).containsOnly(postedPlaylist.urn)
     }
