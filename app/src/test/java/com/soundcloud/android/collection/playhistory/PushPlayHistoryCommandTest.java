@@ -44,7 +44,7 @@ public class PushPlayHistoryCommandTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playHistoryStorage.loadUnSyncedPlayHistory()).thenReturn(UN_SYNCED_PLAY_HISTORY);
+        when(playHistoryStorage.loadUnSynced()).thenReturn(UN_SYNCED_PLAY_HISTORY);
 
         command = new PushPlayHistoryCommand(playHistoryStorage, apiClient);
     }
@@ -55,7 +55,7 @@ public class PushPlayHistoryCommandTest extends AndroidUnitTest {
 
         command.call();
 
-        verify(playHistoryStorage).setSynced(UN_SYNCED_PLAY_HISTORY);
+        verify(playHistoryStorage).insert(UN_SYNCED_PLAY_HISTORY);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class PushPlayHistoryCommandTest extends AndroidUnitTest {
 
         command.call();
 
-        verify(playHistoryStorage, never()).setSynced(UN_SYNCED_PLAY_HISTORY);
+        verify(playHistoryStorage, never()).insert(UN_SYNCED_PLAY_HISTORY);
     }
 
     @Test

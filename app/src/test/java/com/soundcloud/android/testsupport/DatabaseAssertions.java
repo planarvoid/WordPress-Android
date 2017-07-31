@@ -112,7 +112,6 @@ import com.soundcloud.android.storage.Tables.Charts;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.storage.Tables.OfflineContent;
-import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.storage.Tables.RecentlyPlayed;
 import com.soundcloud.android.storage.Tables.Sounds;
@@ -401,20 +400,6 @@ public class DatabaseAssertions {
         assertThat(select(from(StationsCollections.TABLE)
                                   .whereIn(StationsCollections.STATION_URN, stations)
                                   .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
-    }
-
-    public void assertPlayHistory(PlayHistoryRecord record, int count) {
-        assertThat(select(from(PlayHistory.TABLE)
-                                  .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
-                                  .whereEq(PlayHistory.TIMESTAMP, record.timestamp()))).counts(count);
-    }
-
-    public void assertPlayHistory(PlayHistoryRecord record) {
-        assertPlayHistory(record, 1);
-    }
-
-    public void assertPlayHistoryCount(int count) {
-        assertThat(select(from(PlayHistory.TABLE))).counts(count);
     }
 
     public void assertRecentlyPlayed(PlayHistoryRecord record, int count) {

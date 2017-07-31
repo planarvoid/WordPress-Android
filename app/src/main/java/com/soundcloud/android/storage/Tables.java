@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.playlists.PlaylistQueries;
 import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
@@ -709,6 +710,10 @@ public interface Tables {
         }
     }
 
+    /**
+     * @deprecated Play history moved to its own storage {@link PlayHistoryStorage}
+     */
+    @Deprecated
     class PlayHistory extends SCBaseTable {
         public static final PlayHistory TABLE = new PlayHistory();
 

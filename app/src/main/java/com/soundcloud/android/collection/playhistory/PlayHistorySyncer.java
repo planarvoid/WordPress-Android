@@ -25,7 +25,6 @@ class PlayHistorySyncer implements Callable<Boolean> {
     private final FetchTracksCommand fetchTracksCommand;
     private final StoreTracksCommand storeTracksCommand;
     private final EventBus eventBus;
-    private final OptimizePlayHistoryCommand optimizePlayHistoryCommand;
 
     @Inject
     PlayHistorySyncer(PlayHistoryStorage playHistoryStorage,
@@ -33,15 +32,13 @@ class PlayHistorySyncer implements Callable<Boolean> {
                       PushPlayHistoryCommand pushPlayHistoryCommand,
                       FetchTracksCommand fetchTracksCommand,
                       StoreTracksCommand storeTracksCommand,
-                      EventBus eventBus,
-                      OptimizePlayHistoryCommand optimizePlayHistoryCommand) {
+                      EventBus eventBus) {
         this.playHistoryStorage = playHistoryStorage;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.fetchPlayHistoryCommand = fetchPlayHistoryCommand;
         this.fetchTracksCommand = fetchTracksCommand;
         this.storeTracksCommand = storeTracksCommand;
         this.eventBus = eventBus;
-        this.optimizePlayHistoryCommand = optimizePlayHistoryCommand;
     }
 
     @Override
@@ -52,13 +49,13 @@ class PlayHistorySyncer implements Callable<Boolean> {
     }
 
     private void pushUnSyncedPlayHistory() {
-        optimizePlayHistoryCommand.call(PlayHistoryOperations.MAX_HISTORY_ITEMS);
+        playHistoryStorage.trim(PlayHistoryOperations.MAX_HISTORY_ITEMS);
         pushPlayHistoryCommand.call();
     }
 
     private boolean updateLocalStorage() throws Exception {
         Collection<PlayHistoryRecord> remote = fetchPlayHistoryCommand.call();
-        Collection<PlayHistoryRecord> current = playHistoryStorage.loadSyncedPlayHistory();
+        Collection<PlayHistoryRecord> current = playHistoryStorage.loadSynced();
 
         boolean hasChanges = !current.equals(remote);
 
@@ -78,7 +75,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
 
         if (!insertRecords.isEmpty()) {
             preloadNewTracks(insertRecords);
-            playHistoryStorage.insertPlayHistory(insertRecords);
+            playHistoryStorage.insert(insertRecords);
         }
     }
 
@@ -88,7 +85,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
         removeRecords.removeAll(remote);
 
         if (!removeRecords.isEmpty()) {
-            playHistoryStorage.removePlayHistory(removeRecords);
+            playHistoryStorage.removeAll(removeRecords);
         }
     }
 

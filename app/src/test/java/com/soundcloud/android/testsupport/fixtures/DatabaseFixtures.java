@@ -192,14 +192,6 @@ public class DatabaseFixtures {
         insertInto(StationsCollections.TABLE, cv.get());
     }
 
-    public void insertPlayHistory(long timestamp, Urn urn) {
-        ContentValues cv = new ContentValues();
-        cv.put(Tables.PlayHistory.TIMESTAMP.name(), timestamp);
-        cv.put(Tables.PlayHistory.TRACK_ID.name(), urn.getNumericId());
-        cv.put(Tables.PlayHistory.SYNCED.name(), true);
-        insertInto(Tables.PlayHistory.TABLE, cv);
-    }
-
     public void insertRecentlyPlayed(long timestamp, Urn urn) {
         ContentValues cv = new ContentValues();
         PlayHistoryRecord record = PlayHistoryRecord.create(timestamp, Urn.NOT_SET, urn);
@@ -207,14 +199,6 @@ public class DatabaseFixtures {
         cv.put(Tables.RecentlyPlayed.CONTEXT_TYPE.name(), record.getContextType());
         cv.put(Tables.RecentlyPlayed.CONTEXT_ID.name(), record.contextUrn().getNumericId());
         insertInto(Tables.RecentlyPlayed.TABLE, cv);
-    }
-
-    public void insertUnsyncedPlayHistory(long timestamp, Urn urn) {
-        ContentValues cv = new ContentValues();
-        cv.put(Tables.PlayHistory.TIMESTAMP.name(), timestamp);
-        cv.put(Tables.PlayHistory.TRACK_ID.name(), urn.getNumericId());
-        cv.put(Tables.PlayHistory.SYNCED.name(), false);
-        insertInto(Tables.PlayHistory.TABLE, cv);
     }
 
     public void insertSuggestedCreator(ApiSuggestedCreator apiSuggestedCreator) {

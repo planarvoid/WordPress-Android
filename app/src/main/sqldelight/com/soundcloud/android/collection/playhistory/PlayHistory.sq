@@ -1,0 +1,48 @@
+CREATE TABLE IF NOT EXISTS PlayHistory (
+    timestamp INTEGER NOT NULL,
+    track_id INTEGER NOT NULL,
+    synced INTEGER AS Boolean DEFAULT 0,
+    PRIMARY KEY (timestamp, track_id)
+);
+
+selectAll:
+SELECT *
+FROM PlayHistory;
+
+selectUniqueTrackIdsWithLimit:
+SELECT DISTINCT track_id
+FROM PlayHistory
+ORDER BY timestamp DESC
+LIMIT ?;
+
+selectUniqueTrackIds:
+SELECT DISTINCT track_id
+FROM PlayHistory
+ORDER BY timestamp DESC;
+
+unsyncedTracksCount:
+SELECT COUNT(track_id)
+FROM PlayHistory
+WHERE synced = 0;
+
+selectTracksBySyncStatus:
+SELECT track_id, timestamp
+FROM PlayHistory
+WHERE synced = ?;
+
+insertRow:
+INSERT OR REPLACE INTO PlayHistory(track_id, timestamp, synced)
+VALUES (?, ?, ?);
+
+upsertRow:
+INSERT OR REPLACE INTO PlayHistory(track_id, timestamp, synced)
+VALUES (?1, ?2, COALESCE((SELECT synced from PlayHistory WHERE track_id = ?1 AND timestamp = ?2), 0) );
+
+deleteRowByIdAndTimestamp:
+DELETE FROM PlayHistory WHERE track_id = ? AND timestamp = ?;
+
+trim:
+DELETE FROM PlayHistory WHERE timestamp <= COALESCE(
+(SELECT timestamp from PlayHistory
+ORDER BY timestamp DESC
+LIMIT 1 OFFSET ?), 0);

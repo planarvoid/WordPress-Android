@@ -49,7 +49,7 @@ public class PlayHistoryController {
             };
 
     private final EventBusV2 eventBus;
-    private final WritePlayHistoryCommand playHistoryStoreCommand;
+    private final PlayHistoryStorage playHistoryStorage;
     private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
     private final PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
@@ -57,13 +57,13 @@ public class PlayHistoryController {
 
     @Inject
     public PlayHistoryController(EventBusV2 eventBus,
-                                 WritePlayHistoryCommand playHistoryStoreCommand,
+                                 PlayHistoryStorage playHistoryStorage,
                                  WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
                                  PushPlayHistoryCommand pushPlayHistoryCommand,
                                  PushRecentlyPlayedCommand pushRecentlyPlayedCommand,
                                  @Named(RX_LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
-        this.playHistoryStoreCommand = playHistoryStoreCommand;
+        this.playHistoryStorage = playHistoryStorage;
         this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
@@ -79,7 +79,7 @@ public class PlayHistoryController {
                 .observeOn(scheduler)
                 .filter(IS_ELIGIBLE_FOR_HISTORY)
                 .map(TO_PLAY_HISTORY_RECORD)
-                .doOnNext(playHistoryStoreCommand.toConsumer())
+                .doOnNext(playHistoryStorage::upsertRow)
                 .doOnNext(recentlyPlayedStoreCommand.toConsumer())
                 .doOnNext(publishNewPlayHistory())
                 .doOnNext(pushPlayHistoryCommand.toConsumer())

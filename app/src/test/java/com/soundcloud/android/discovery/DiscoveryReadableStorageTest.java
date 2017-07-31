@@ -43,7 +43,7 @@ public class DiscoveryReadableStorageTest
 
     private void initSelectionItemTable(Urn cardUrn, Urn selectionItemUrn) {
         final DbModel.SelectionItem selectionItem = DbModel.SelectionItem.CREATOR.create(1, cardUrn, selectionItemUrn, null, null, null, null, null, null, null);
-        when(discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL, DbModel.SelectionItem.MAPPER)).thenReturn(Single.just(Lists.newArrayList(selectionItem)));
+        when(discoveryDatabase.executeAsyncQuery(DbModel.SelectionItem.SELECT_ALL, DbModel.SelectionItem.MAPPER)).thenReturn(Single.just(Lists.newArrayList(selectionItem)));
     }
 
     private void initDiscoveryCardTable(Urn cardUrn, long cardId) {
@@ -59,6 +59,6 @@ public class DiscoveryReadableStorageTest
                                                                                                                                   Lists.newArrayList());
         final DbModel.FullDiscoveryCard card = DbModel.FullDiscoveryCard.CREATOR.create(singleContentSelectionDbCard, null);
 
-        when(discoveryDatabase.selectList(DbModel.DiscoveryCard.SELECT_ALL, DbModel.FullDiscoveryCard.MAPPER)).thenReturn(Single.just(Lists.newArrayList(card)));
+        when(discoveryDatabase.executeAsyncQuery(DbModel.DiscoveryCard.SELECT_ALL, DbModel.FullDiscoveryCard.MAPPER)).thenReturn(Single.just(Lists.newArrayList(card)));
     }
 }

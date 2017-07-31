@@ -43,7 +43,6 @@ public class DebugStorageTest extends StorageIntegrationTest {
                 Pair.of("Comments", 0),
                 Pair.of("Charts", 0),
                 Pair.of("ChartTracks", 0),
-                Pair.of("PlayHistory", 0),
                 Pair.of("RecentlyPlayed", 0),
                 Pair.of("SuggestedCreators", 0),
                 Pair.of("RecommendedPlaylist", 0),

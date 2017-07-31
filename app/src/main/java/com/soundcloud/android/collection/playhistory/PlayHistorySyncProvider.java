@@ -28,7 +28,7 @@ public class PlayHistorySyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public Boolean isOutOfSync() {
-        return playHistoryStorage.hasPendingTracksToSync();
+        return playHistoryStorage.hasPendingItemsToSync();
     }
 
     @Override

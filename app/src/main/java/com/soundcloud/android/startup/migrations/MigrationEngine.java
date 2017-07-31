@@ -25,11 +25,13 @@ public class MigrationEngine {
 
     @Inject
     public MigrationEngine(SharedPreferences sharedPreferences,
-                           SettingsMigration settingsMigration, DiskCacheMigration diskCacheMigration,
-                           StreamCacheMigration streamCacheMigration) {
+                           SettingsMigration settingsMigration,
+                           DiskCacheMigration diskCacheMigration,
+                           StreamCacheMigration streamCacheMigration,
+                           PlayHistoryMigration playHistoryMigration) {
         this(BuildConfig.VERSION_CODE,
              sharedPreferences,
-             settingsMigration, diskCacheMigration, streamCacheMigration);
+             settingsMigration, diskCacheMigration, streamCacheMigration, playHistoryMigration);
     }
 
     @VisibleForTesting

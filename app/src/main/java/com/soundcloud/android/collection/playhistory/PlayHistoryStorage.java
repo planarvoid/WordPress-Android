@@ -1,145 +1,106 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.propeller.query.ColumnFunctions.count;
-import static com.soundcloud.propeller.query.Field.field;
-import static com.soundcloud.propeller.query.Filter.filter;
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
+import static com.soundcloud.android.collection.DbModel.PlayHistory.FACTORY;
+import static com.soundcloud.android.collection.playhistory.PlayHistoryModel.DeleteRowByIdAndTimestamp;
+import static com.soundcloud.android.collection.playhistory.PlayHistoryModel.TABLE_NAME;
+import static com.soundcloud.android.collection.playhistory.PlayHistoryModel.TIMESTAMP;
+import static com.soundcloud.android.collection.playhistory.PlayHistoryModel.TRACK_ID;
 
+import com.soundcloud.android.collection.CollectionDatabase;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables.PlayHistory;
-import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRxV2;
-import com.soundcloud.propeller.rx.RxResultMapperV2;
-import com.soundcloud.propeller.schema.BulkInsertValues;
-import io.reactivex.Observable;
+import com.squareup.sqldelight.RowMapper;
 import io.reactivex.Single;
 
+import android.support.annotation.VisibleForTesting;
+
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class PlayHistoryStorage {
 
-    private static final RxResultMapperV2<Urn> URN_MAPPER = new RxResultMapperV2<Urn>() {
-        @Override
-        public Urn map(CursorReader cursorReader) {
-            return Urn.forTrack(cursorReader.getLong(PlayHistory.TRACK_ID.name()));
-        }
+    private static final RowMapper<Urn> URN_ROW_MAPPER = cursor -> Urn.forTrack(cursor.getLong(cursor.getColumnIndex(TRACK_ID)));
+
+    private static final RowMapper<PlayHistoryRecord> PLAY_HISTORY_RECORD_ROW_MAPPER = cursor -> {
+        final int timestampIndex = cursor.getColumnIndex(TIMESTAMP);
+        final int trackIdIndex = cursor.getColumnIndex(TRACK_ID);
+        return PlayHistoryRecord.create(
+                cursor.getLong(timestampIndex),
+                Urn.forTrack(cursor.getLong(trackIdIndex)),
+                Urn.NOT_SET);
     };
 
-    private final PropellerDatabase database;
-    private final PropellerRxV2 rxDatabase;
+    private final CollectionDatabase collectionDatabase;
 
     @Inject
-    public PlayHistoryStorage(PropellerDatabase database) {
-        this.database = database;
-        this.rxDatabase = new PropellerRxV2(database);
+    public PlayHistoryStorage(CollectionDatabase collectionDatabase) {
+        this.collectionDatabase = collectionDatabase;
     }
 
-    Single<List<Urn>> loadTracks(int limit) {
-        return rxDatabase.queryResult(loadTracksQuery(limit))
-                         .map(result -> result.toList(URN_MAPPER))
-                         .singleOrError();
+    Single<List<Urn>> loadTrackUrns(int limit) {
+        return collectionDatabase.executeAsyncQuery(FACTORY.selectUniqueTrackIdsWithLimit(limit), URN_ROW_MAPPER);
     }
 
-    List<PlayHistoryRecord> loadUnSyncedPlayHistory() {
-        return syncedPlayHistory(false);
+    Single<List<Urn>> loadTrackUrnsForPlayback() {
+        return collectionDatabase.executeAsyncQuery(FACTORY.selectUniqueTrackIds(), URN_ROW_MAPPER);
     }
 
-    List<PlayHistoryRecord> loadSyncedPlayHistory() {
-        return syncedPlayHistory(true);
+    List<PlayHistoryRecord> loadUnSynced() {
+        return collectionDatabase.executeQuery(FACTORY.selectTracksBySyncStatus(false), PLAY_HISTORY_RECORD_ROW_MAPPER);
     }
 
-    void setSynced(List<PlayHistoryRecord> playHistoryRecords) {
-        database.bulkInsert(PlayHistory.TABLE, buildBulkValues(playHistoryRecords));
+    @VisibleForTesting
+    List<PlayHistoryRecord> loadAll() {
+        return collectionDatabase.executeQuery(FACTORY.selectAll(), PLAY_HISTORY_RECORD_ROW_MAPPER);
     }
 
-    TxnResult removePlayHistory(final List<PlayHistoryRecord> removeRecords) {
-        return database.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                for (PlayHistoryRecord removeRecord : removeRecords) {
-                    step(database.delete(PlayHistory.TABLE, buildMatchFilter(removeRecord)));
-                    if (!success()) {
-                        break;
-                    }
-                }
+    List<PlayHistoryRecord> loadSynced() {
+        return collectionDatabase.executeQuery(FACTORY.selectTracksBySyncStatus(true), PLAY_HISTORY_RECORD_ROW_MAPPER);
+    }
+
+    void insert(List<PlayHistoryRecord> records) {
+        insertAll(records);
+    }
+
+    private void insertAll(List<PlayHistoryRecord> playHistoryRecords) {
+        collectionDatabase.runInTransaction(() -> {
+            PlayHistoryModel.InsertRow insertRow = new PlayHistoryModel.InsertRow(collectionDatabase.writableDatabase());
+            for (PlayHistoryRecord playHistoryRecord : playHistoryRecords) {
+                insertRow.bind(playHistoryRecord.trackUrn().getNumericId(), playHistoryRecord.timestamp(), true);
+                collectionDatabase.insert(TABLE_NAME, insertRow.program);
             }
         });
     }
 
-    TxnResult insertPlayHistory(List<PlayHistoryRecord> addRecords) {
-        return database.bulkInsert(PlayHistory.TABLE, buildBulkValues(addRecords));
+    public void upsertRow(PlayHistoryRecord playHistoryRecord) {
+        PlayHistoryModel.UpsertRow upsertRow = new PlayHistoryModel.UpsertRow(collectionDatabase.writableDatabase());
+        upsertRow.bind(playHistoryRecord.trackUrn().getNumericId(), playHistoryRecord.timestamp());
+        collectionDatabase.insert(TABLE_NAME, upsertRow.program);
     }
 
-    Single<List<Urn>> loadPlayHistoryForPlayback() {
-        return rxDatabase.queryResult(loadForPlaybackQuery())
-                         .flatMap(Observable::fromIterable)
-                         .map(URN_MAPPER)
-                         .filter(Urn::isTrack)
-                         .toList();
+    void removeAll(final List<PlayHistoryRecord> removeRecords) {
+        collectionDatabase.runInTransaction(() -> {
+            DeleteRowByIdAndTimestamp delete = new DeleteRowByIdAndTimestamp(collectionDatabase.writableDatabase());
+            for (PlayHistoryRecord record : removeRecords) {
+                delete.bind(record.trackUrn().getNumericId(), record.timestamp());
+                collectionDatabase.updateOrDelete(TABLE_NAME, delete.program);
+            }
+        });
     }
 
-    boolean hasPendingTracksToSync() {
-        Query query = Query.from(PlayHistory.TABLE)
-                           .select(count(PlayHistory.TRACK_ID))
-                           .whereEq(PlayHistory.SYNCED, false);
+    boolean hasPendingItemsToSync() {
+        final List<Long> resultList = collectionDatabase.executeQuery(FACTORY.unsyncedTracksCount(), FACTORY.unsyncedTracksCountMapper());
+        long unsyncedTracksCount = resultList.get(0);
+        return unsyncedTracksCount > 0;
+    }
 
-        return database.query(query).first(scalar(Integer.class)) > 0;
+    void trim(int limit) {
+        PlayHistoryModel.Trim trim = new PlayHistoryModel.Trim(collectionDatabase.writableDatabase());
+        trim.bind(limit);
+        collectionDatabase.updateOrDelete(TABLE_NAME, trim.program);
     }
 
     public void clear() {
-        database.delete(PlayHistory.TABLE);
+        collectionDatabase.clear(TABLE_NAME);
     }
 
-    private Query loadTracksQuery(int limit) {
-        return Query.from(PlayHistory.TABLE)
-                    .select(PlayHistory.TRACK_ID.name(),
-                            field("max(" + PlayHistory.TIMESTAMP.name() + ")").as("max_timestamp"))
-                    .groupBy(PlayHistory.TRACK_ID)
-                    .order("max_timestamp", Query.Order.DESC)
-                    .limit(limit);
-    }
-
-    private Query loadForPlaybackQuery() {
-        return Query.from(PlayHistory.TABLE.name())
-                    .select("DISTINCT " + PlayHistory.TRACK_ID.name())
-                    .order(PlayHistory.TIMESTAMP, Query.Order.DESC);
-    }
-
-    private List<PlayHistoryRecord> syncedPlayHistory(boolean synced) {
-        return database.query(loadSyncedTracksQuery(synced))
-                       .toList(reader -> PlayHistoryRecord.create(
-                               reader.getLong(PlayHistory.TIMESTAMP),
-                               Urn.forTrack(reader.getLong(PlayHistory.TRACK_ID)),
-                               Urn.NOT_SET));
-    }
-
-    private Query loadSyncedTracksQuery(boolean synced) {
-        return Query.from(PlayHistory.TABLE)
-                    .select(PlayHistory.TIMESTAMP, PlayHistory.TRACK_ID)
-                    .whereEq(PlayHistory.SYNCED, synced);
-    }
-
-    private BulkInsertValues buildBulkValues(Collection<PlayHistoryRecord> records) {
-        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(Arrays.asList(
-                PlayHistory.SYNCED, PlayHistory.TIMESTAMP, PlayHistory.TRACK_ID
-        ));
-
-        for (PlayHistoryRecord record : records) {
-            builder.addRow(Arrays.asList(true, record.timestamp(), record.trackUrn().getNumericId()));
-        }
-        return builder.build();
-    }
-
-    private Where buildMatchFilter(PlayHistoryRecord record) {
-        return filter()
-                .whereEq(PlayHistory.TIMESTAMP, record.timestamp())
-                .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId());
-    }
 }

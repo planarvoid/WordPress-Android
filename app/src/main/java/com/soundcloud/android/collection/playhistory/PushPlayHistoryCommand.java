@@ -33,7 +33,7 @@ class PushPlayHistoryCommand extends Command<PlayHistoryRecord, List<PlayHistory
 
     @Override
     public List<PlayHistoryRecord> call(PlayHistoryRecord ignore) {
-        List<PlayHistoryRecord> unSyncedRecords = playHistoryStorage.loadUnSyncedPlayHistory();
+        List<PlayHistoryRecord> unSyncedRecords = playHistoryStorage.loadUnSynced();
 
         if (!unSyncedRecords.isEmpty()) {
             pushPlayHistory(unSyncedRecords);
@@ -51,7 +51,7 @@ class PushPlayHistoryCommand extends Command<PlayHistoryRecord, List<PlayHistory
         ApiResponse response = apiClient.fetchResponse(request);
 
         if (response.isSuccess()) {
-            playHistoryStorage.setSynced(unSyncedRecords);
+            playHistoryStorage.insert(unSyncedRecords);
         }
     }
 

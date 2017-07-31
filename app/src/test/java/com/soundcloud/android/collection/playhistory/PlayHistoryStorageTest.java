@@ -2,171 +2,249 @@ package com.soundcloud.android.collection.playhistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.collection.CollectionDatabase;
+import com.soundcloud.android.collection.CollectionDatabaseOpenHelper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
+
+import android.content.ContentValues;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PlayHistoryStorageTest extends StorageIntegrationTest {
+public class PlayHistoryStorageTest extends AndroidUnitTest {
+
+    private static Urn urn1 = Urn.forTrack(1000L);
+    private static Urn urn2 = Urn.forTrack(2000L);
+    private static Urn urn3 = Urn.forTrack(3000L);
 
     private PlayHistoryStorage storage;
+    private CollectionDatabaseOpenHelper dbHelper;
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlayHistoryStorage(propeller());
+        dbHelper = new CollectionDatabaseOpenHelper(RuntimeEnvironment.application);
+        CollectionDatabase collectionDatabase = new CollectionDatabase(dbHelper, Schedulers.trampoline());
+        storage = new PlayHistoryStorage(collectionDatabase);
     }
 
     @Test
     public void loadTracksReturnsTracksSortedInReverseTimestampOrder() {
-        final Track expected1 = insertTrackWithPlayHistory(1000L);
-        final Track expected2 = insertTrackWithPlayHistory(2000L);
+        insertTrackWithPlayHistory(urn2);
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn3);
 
-        storage.loadTracks(10).test()
+        storage.loadTrackUrns(10).test()
                .assertValueCount(1)
-               .assertValue(Arrays.asList(expected2.urn(), expected1.urn()));
+               .assertValue(Arrays.asList(urn3, urn2, urn1));
     }
 
     @Test
-    public void loadTracksGroupsByLastPlayed() {
-        final Track track1 = insertTrackWithPlayHistory(1000L);
-        final Track track2 = insertTrackWithPlayHistory(2000L);
-        final Track track3 = insertTrackWithPlayHistory(3000L);
+    public void loadTracksGroupedByLastPlayed() {
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn2);
+        insertTrackWithPlayHistory(urn3);
 
         // played on another device after sync
-        insertPlayHistory(track3.urn(), 4000L);
-        insertPlayHistory(track2.urn(), 1500L);
-        insertPlayHistory(track1.urn(), 2500L);
+        insertTrackWithPlayHistory(urn3, 6000L);
+        insertTrackWithPlayHistory(urn2, 4000L);
+        insertTrackWithPlayHistory(urn1, 5000L);
 
-        storage.loadTracks(10).test()
+        storage.loadTrackUrns(10).test()
                .assertValueCount(1)
-               .assertValue(Arrays.asList(track3.urn(), track1.urn(), track2.urn()));
-    }
-
-    @Test
-    public void loadTracksSetDownloadState() {
-        final Track expected = insertTrackWithPlayHistory(1000L);
-        testFixtures().insertCompletedTrackDownload(expected.urn(), 1000L, 2000L);
-
-        Urn actual = storage.loadTracks(10).test()
-                              .assertValueCount(1)
-                              .values().get(0).get(0);
-
-        assertThat(actual).isEqualTo(expected.urn());
+               .assertValue(Arrays.asList(urn3, urn1, urn2));
     }
 
     @Test
     public void loadTracksReturnsTracks() {
-        final Track expected = insertTrackWithPlayHistory(1000L);
+        insertTrackWithPlayHistory(urn1);
 
-        Urn actual = storage.loadTracks(10).test().values().get(0).get(0);
+        Urn actual = storage.loadTrackUrns(10).test().values().get(0).get(0);
 
-        assertThat(actual).isEqualTo(expected.urn());
+        assertThat(actual).isEqualTo(urn1);
     }
 
     @Test
     public void loadUnSyncedPlayHistoryReturnsOnlyUnsynced() {
-        final Urn trackUrn = Urn.forTrack(123L);
-        testFixtures().insertUnsyncedPlayHistory(1000L, trackUrn);
-        testFixtures().insertPlayHistory(2000L, trackUrn);
+        insertUnsyncedPlayHistory(urn1, 1000L);
 
-        final List<PlayHistoryRecord> playHistoryRecords = storage.loadUnSyncedPlayHistory();
+        insertSyncedPlayHistory(urn1, 2000L);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadUnSynced();
 
         assertThat(playHistoryRecords.size()).isEqualTo(1);
-        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(trackUrn);
+        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(urn1);
         assertThat(playHistoryRecords.get(0).timestamp()).isEqualTo(1000L);
     }
 
     @Test
     public void loadSyncedPlayHistoryReturnsOnlySynced() {
-        final Urn trackUrn = Urn.forTrack(123L);
-        testFixtures().insertUnsyncedPlayHistory(1000L, trackUrn);
-        testFixtures().insertPlayHistory(2000L, trackUrn);
+        insertUnsyncedPlayHistory(urn1, 1000L);
+        insertSyncedPlayHistory(urn1, 2000L);
 
-        final List<PlayHistoryRecord> playHistoryRecords = storage.loadSyncedPlayHistory();
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadSynced();
 
         assertThat(playHistoryRecords.size()).isEqualTo(1);
-        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(trackUrn);
+        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(urn1);
         assertThat(playHistoryRecords.get(0).timestamp()).isEqualTo(2000L);
     }
 
     @Test
-    public void setSyncedUpdatesEntries() {
-        final Urn trackUrn = Urn.forTrack(123L);
-        final Urn trackUrn2 = Urn.forTrack(234L);
-        testFixtures().insertUnsyncedPlayHistory(1000L, trackUrn);
-        testFixtures().insertUnsyncedPlayHistory(1500L, trackUrn2);
-        testFixtures().insertPlayHistory(2000L, trackUrn);
-
-        storage.setSynced(Arrays.asList(
-                PlayHistoryRecord.create(1000L, trackUrn, Urn.NOT_SET),
-                PlayHistoryRecord.create(1500L, trackUrn2, Urn.NOT_SET)));
-
-        assertThat(storage.loadUnSyncedPlayHistory().size()).isEqualTo(0);
-    }
-
-    @Test
     public void removePlayHistoryRemovesEntries() {
-        final Track trackItem1 = insertTrackWithPlayHistory(2000L);
-        final Track trackItem2 = insertTrackWithPlayHistory(3000L);
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn2);
+        insertTrackWithPlayHistory(urn3);
 
-        storage.removePlayHistory(Collections.singletonList(
-                PlayHistoryRecord.create(2000L, trackItem1.urn(), Urn.NOT_SET)));
+        storage.removeAll(Collections.singletonList(PlayHistoryRecord.create(urn2.getNumericId(), urn2, Urn.NOT_SET)));
 
-        final List<Urn> existingTracks = storage.loadTracks(10).test()
-                                                  .assertValueCount(1)
-                                                  .values().get(0);
+        final List<Urn> existingTracks = storage.loadTrackUrns(10).test()
+                                                .assertValueCount(1)
+                                                .values().get(0);
 
-        assertThat(existingTracks.size()).isEqualTo(1);
+        assertThat(existingTracks.size()).isEqualTo(2);
 
-        assertThat(trackItem2.urn()).isEqualTo(existingTracks.get(0));
+        assertThat(urn3).isEqualTo(existingTracks.get(0));
+        assertThat(urn1).isEqualTo(existingTracks.get(1));
     }
 
     @Test
     public void insertPlayHistoryAddsEntriesAsSynced() {
-        insertPlayHistory(Urn.forTrack(123), 1000L);
-        insertPlayHistory(Urn.forTrack(234), 2000L);
+        insertSyncedPlayHistory(urn1, 1000L);
+        insertSyncedPlayHistory(urn2, 2000L);
 
-        storage.insertPlayHistory(Collections.singletonList(
-                PlayHistoryRecord.create(3000L, Urn.forTrack(123), Urn.NOT_SET)));
+        storage.insert(Collections.singletonList(
+                PlayHistoryRecord.create(3000L, urn1, Urn.NOT_SET)));
 
-        assertThat(storage.loadSyncedPlayHistory().size()).isEqualTo(3);
+        assertThat(storage.loadSynced().size()).isEqualTo(3);
     }
 
     @Test
     public void loadPlayHistoryForPlaybackGetsOnlyUrnsWithoutDuplicates() {
-        final Urn urn1 = insertTrackWithPlayHistory(1000L).urn();
-        final Urn urn2 = insertTrackWithPlayHistory(2000L).urn();
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn2);
 
-        insertPlayHistory(urn1, 3000L);
+        insertSyncedPlayHistory(urn1, 3000L);
 
-        storage.loadPlayHistoryForPlayback().test()
+        storage.loadTrackUrnsForPlayback().test()
                .assertValueCount(1)
                .assertValues(Arrays.asList(urn1, urn2));
     }
 
     @Test
     public void clearClearsTable() {
-        testFixtures().insertUnsyncedPlayHistory(1500L, Urn.forTrack(123L));
-        testFixtures().insertPlayHistory(2000L, Urn.forTrack(234L));
+        insertUnsyncedPlayHistory(urn1, 1500L);
+        insertSyncedPlayHistory(urn2, 2000L);
 
         storage.clear();
 
-        databaseAssertions().assertPlayHistoryCount(0);
+        storage.loadTrackUrnsForPlayback().test()
+               .assertValueCount(1)
+               .assertValue(Collections.emptyList());
     }
 
-    private Track insertTrackWithPlayHistory(long timestamp) {
-        final Track track = Track.from(testFixtures().insertTrack());
-        insertPlayHistory(track.urn(), timestamp);
-        return track;
+    @Test
+    public void hasPendingTracksToSync() throws Exception {
+        insertUnsyncedPlayHistory(urn1, 1000L);
+        assertThat(storage.hasPendingItemsToSync()).isTrue();
     }
 
-    private void insertPlayHistory(Urn urn, long timestamp) {
-        testFixtures().insertPlayHistory(timestamp, urn);
+    @Test
+    public void hasNoPendingTracksToSync() throws Exception {
+        insertSyncedPlayHistory(urn1, 1000L);
+        assertThat(storage.hasPendingItemsToSync()).isFalse();
+    }
+
+    @Test
+    public void insertsNewPlayHistory() {
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
+
+        storage.upsertRow(record);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadUnSynced();
+        assertThat(playHistoryRecords.size()).isEqualTo(1);
+        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(Urn.forTrack(123L));
+        assertThat(playHistoryRecords.get(0).timestamp()).isEqualTo(1000L);
+    }
+
+    @Test
+    public void insertsMultipleTimesTheSamePlayHistoryWithDifferentTimestamp() {
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
+        storage.upsertRow(record);
+
+        PlayHistoryRecord record2 = PlayHistoryRecord.create(2000L, Urn.forTrack(123L), Urn.NOT_SET);
+        storage.upsertRow(record2);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadUnSynced();
+        assertThat(playHistoryRecords.size()).isEqualTo(2);
+        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(Urn.forTrack(123L));
+        assertThat(playHistoryRecords.get(0).timestamp()).isEqualTo(1000L);
+        assertThat(playHistoryRecords.get(1).trackUrn()).isEqualTo(Urn.forTrack(123L));
+        assertThat(playHistoryRecords.get(1).timestamp()).isEqualTo(2000L);
+    }
+
+    @Test
+    public void insertsOnlyOnceWhenTimestampAlreadyExistsForSameTrack() {
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
+        storage.upsertRow(record);
+        storage.upsertRow(record);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadUnSynced();
+        assertThat(playHistoryRecords.size()).isEqualTo(1);
+        assertThat(playHistoryRecords.get(0).trackUrn()).isEqualTo(Urn.forTrack(123L));
+        assertThat(playHistoryRecords.get(0).timestamp()).isEqualTo(1000L);
+    }
+
+    @Test
+    public void trimsDatabaseToLimit() throws Exception {
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn2);
+        insertTrackWithPlayHistory(urn3);
+
+        storage.trim(1);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadAll();
+        assertThat(playHistoryRecords.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotDeleteAnythingWhenAlreadyBelowLimit() throws Exception {
+        insertTrackWithPlayHistory(urn1);
+        insertTrackWithPlayHistory(urn2);
+        insertTrackWithPlayHistory(urn3);
+
+        storage.trim(10);
+
+        final List<PlayHistoryRecord> playHistoryRecords = storage.loadAll();
+        assertThat(playHistoryRecords.size()).isEqualTo(3);
+    }
+
+    private void insertTrackWithPlayHistory(Urn urn, long timestamp) {
+        insertSyncedPlayHistory(urn, timestamp);
+    }
+
+    private void insertTrackWithPlayHistory(Urn urn) {
+        insertSyncedPlayHistory(urn, urn.getNumericId());
+    }
+
+    public void insertSyncedPlayHistory(Urn urn, long timestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(PlayHistoryModel.TIMESTAMP, timestamp);
+        cv.put(PlayHistoryModel.TRACK_ID, urn.getNumericId());
+        cv.put(PlayHistoryModel.SYNCED, 1);
+        dbHelper.getWritableDatabase().insert(PlayHistoryModel.TABLE_NAME, PlayHistoryModel.SYNCED, cv);
+    }
+
+    public void insertUnsyncedPlayHistory(Urn urn, long timestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(PlayHistoryModel.TIMESTAMP, timestamp);
+        cv.put(PlayHistoryModel.TRACK_ID, urn.getNumericId());
+        cv.put(PlayHistoryModel.SYNCED, 0);
+        dbHelper.getWritableDatabase().insert(PlayHistoryModel.TABLE_NAME, PlayHistoryModel.SYNCED, cv);
     }
 
 }

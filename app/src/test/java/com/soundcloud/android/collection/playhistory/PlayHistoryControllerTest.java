@@ -37,8 +37,7 @@ public class PlayHistoryControllerTest {
     private static final PlayHistoryRecord RECORD2 = PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN);
     private static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
 
-    @Mock FeatureFlags featureFlags;
-    @Mock WritePlayHistoryCommand playHistoryStoreCommand;
+    @Mock PlayHistoryStorage playHistoryStorage;
     @Mock WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     @Mock PlayHistoryOperations playHistoryOperations;
     @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
@@ -51,7 +50,7 @@ public class PlayHistoryControllerTest {
     @Before
     public void setUp() throws Exception {
         PlayHistoryController controller = new PlayHistoryController(eventBus,
-                                                                     playHistoryStoreCommand,
+                                                                     playHistoryStorage,
                                                                      recentlyPlayedStoreCommand,
                                                                      pushPlayHistoryCommand,
                                                                      pushRecentlyPlayedCommand,
@@ -64,7 +63,7 @@ public class PlayHistoryControllerTest {
     public void storesPlayHistory() {
         publishStateEvents(RECORD);
 
-        verify(playHistoryStoreCommand).call(RECORD);
+        verify(playHistoryStorage).upsertRow(RECORD);
     }
 
     @Test
@@ -79,9 +78,9 @@ public class PlayHistoryControllerTest {
         publishStateEvents(RECORD);
         publishStateEvents(RECORD2);
 
-        verify(playHistoryStoreCommand).call(RECORD);
+        verify(playHistoryStorage).upsertRow(RECORD);
         verify(recentlyPlayedStoreCommand).call(RECORD);
-        verify(playHistoryStoreCommand).call(RECORD2);
+        verify(playHistoryStorage).upsertRow(RECORD2);
         verify(recentlyPlayedStoreCommand).call(RECORD2);
     }
 

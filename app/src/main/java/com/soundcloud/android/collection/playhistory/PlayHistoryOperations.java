@@ -72,7 +72,7 @@ public class PlayHistoryOperations {
     }
 
     private Single<List<TrackItem>> tracks(int limit) {
-        return playHistoryStorage.loadTracks(limit)
+        return playHistoryStorage.loadTrackUrns(limit)
                                  .flatMap(trackRepository::trackListFromUrns)
                                  .map(tracks -> Lists.transform(tracks, entityItemCreator::trackItem));
     }
@@ -88,7 +88,7 @@ public class PlayHistoryOperations {
     }
 
     private Single<List<Urn>> getAllTracksForPlayback() {
-        return playHistoryStorage.loadPlayHistoryForPlayback()
+        return playHistoryStorage.loadTrackUrnsForPlayback()
                                  //to filter out missing tracks
                                  .flatMap(trackRepository::availableTracks)
                                  .subscribeOn(scheduler);

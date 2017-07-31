@@ -56,7 +56,7 @@ public class PlayHistoryOperationsTest {
     @Before
     public void setUp() throws Exception {
         final List<Urn> urns = Lists.transform(TRACKS, Track::urn);
-        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Single.just(urns));
+        when(playHistoryStorage.loadTrackUrns(anyInt())).thenReturn(Single.just(urns));
         when(trackRepository.trackListFromUrns(urns)).thenReturn(Single.just(TRACKS));
         trackItems = new ArrayList<>(TRACKS.size());
         for (Track track : TRACKS) {
@@ -102,7 +102,7 @@ public class PlayHistoryOperationsTest {
 
     @Test
     public void shouldFilterOutUnavailableTracks() {
-        when(playHistoryStorage.loadPlayHistoryForPlayback()).thenReturn(Single.just(TRACK_URNS));
+        when(playHistoryStorage.loadTrackUrnsForPlayback()).thenReturn(Single.just(TRACK_URNS));
         final Single<List<Urn>> availableTracksSingle = Single.just(AVAILABLE_TRACK_URNS);
         when(trackRepository.availableTracks(TRACK_URNS)).thenReturn(availableTracksSingle);
         operations.startPlaybackFrom(TRACK_URN, screen);

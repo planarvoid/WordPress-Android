@@ -33,26 +33,25 @@ public class PlayHistorySyncerTest {
     @Mock private PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private FetchTracksCommand fetchTracksCommand;
     @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private OptimizePlayHistoryCommand optimizePlayHistoryCommand;
     @Mock private EventBus eventBus;
 
     private PlayHistorySyncer syncer;
 
     @Before
     public void setUp() throws Exception {
-        when(playHistoryStorage.loadSyncedPlayHistory()).thenReturn(LOCAL);
+        when(playHistoryStorage.loadSynced()).thenReturn(LOCAL);
         when(fetchPlayHistoryCommand.call()).thenReturn(REMOTE);
 
         syncer = new PlayHistorySyncer(playHistoryStorage, fetchPlayHistoryCommand, pushPlayHistoryCommand,
-                                       fetchTracksCommand, storeTracksCommand, eventBus, optimizePlayHistoryCommand);
+                                       fetchTracksCommand, storeTracksCommand, eventBus);
     }
 
     @Test
     public void shouldSyncExistingPlayHistory() throws Exception {
         syncer.call();
 
-        verify(playHistoryStorage).insertPlayHistory(singletonList(MISSING));
-        verify(playHistoryStorage).removePlayHistory(singletonList(REMOVED));
+        verify(playHistoryStorage).insert(singletonList(MISSING));
+        verify(playHistoryStorage).removeAll(singletonList(REMOVED));
     }
 
     @Test
@@ -78,7 +77,7 @@ public class PlayHistorySyncerTest {
     public void shouldOptimizeTable() throws Exception {
         syncer.call();
 
-        verify(optimizePlayHistoryCommand).call(1000);
+        verify(playHistoryStorage).trim(1000);
     }
 
 }
