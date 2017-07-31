@@ -262,7 +262,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public long seek(long position) {
+    public void seek(long position) {
         bufferUnderrunListener.onSeek();
         skippy.seek(position);
 
@@ -270,7 +270,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         if (playerListener != null && duration != 0) {
             playerListener.onProgressEvent(position, duration);
         }
-        return position;
     }
 
     @Override

@@ -12,7 +12,7 @@ public interface Player {
 
     void pause();
 
-    long seek(long ms);
+    void seek(long ms);
 
     long getProgress();
 

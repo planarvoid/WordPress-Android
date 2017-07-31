@@ -137,8 +137,8 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.pause();
     }
 
-    public long seek(long ms) {
-        return currentPlayer.seek(ms);
+    public void seek(long ms) {
+        currentPlayer.seek(ms);
     }
 
     public long getProgress() {

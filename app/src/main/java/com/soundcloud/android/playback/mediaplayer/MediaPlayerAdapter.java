@@ -29,6 +29,7 @@ import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -43,7 +44,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
@@ -297,9 +297,7 @@ public class MediaPlayerAdapter implements
 
     @Override
     public void onSeekComplete(MediaPlayer mp) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onSeekComplete(state=" + internalState + ")");
-        }
+        Log.d(TAG, "onSeekComplete(state=" + internalState + ")");
         //noinspection ObjectEquality
         if (mediaPlayer == mp) {
 
@@ -336,9 +334,7 @@ public class MediaPlayerAdapter implements
 
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + internalState + ")");
-        }
+        Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + internalState + ")");
 
         if (internalState == PlaybackState.PREPARING) {
             return true; // swallow info callbacks if preparing. HTC Bug
@@ -353,7 +349,7 @@ public class MediaPlayerAdapter implements
             if (seekPos != -1 && !waitingForSeek) {
                 playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                 playerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
-            } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+            } else {
                 Log.d(TAG, "Not clearing seek, waiting for seek to finish");
             }
 
@@ -371,7 +367,7 @@ public class MediaPlayerAdapter implements
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         if (mediaPlayer == mp) {
-            if (Log.isLoggable(TAG, Log.DEBUG) && loadPercent != percent) {
+            if (loadPercent != percent) {
                 Log.d(TAG, "onBufferingUpdate(" + percent + ")");
             }
 
@@ -522,34 +518,23 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public long seek(long position) {
+    public void seek(long position) {
         if (isSeekable()) {
             if (position < 0) {
                 throw new IllegalArgumentException("Trying to seek before 0");
             }
 
-            final long currentPos = (mediaPlayer != null && !internalState.isError()) ?
-                                    mediaPlayer.getCurrentPosition() :
-                                    0;
-            if (mediaPlayer == null) {
-                return currentPos;
-            } else {
-                if (position != currentPos) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "seeking to " + position);
-                    }
+            final long currentPos = (mediaPlayer != null && !internalState.isError()) ? mediaPlayer.getCurrentPosition() : 0;
+            if (mediaPlayer != null && position != currentPos) {
+                Log.d(TAG, "seeking to " + position);
 
-                    resetConnectionRetries();
-                    playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                    seekPos = position;
-                    waitingForSeek = true;
-                    bufferUnderrunListener.onSeek();
-                    mediaPlayer.seekTo((int) position);
-                }
-                return position;
+                resetConnectionRetries();
+                playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
+                seekPos = position;
+                waitingForSeek = true;
+                bufferUnderrunListener.onSeek();
+                mediaPlayer.seekTo((int) position);
             }
-        } else {
-            return POS_NOT_SET;
         }
     }
 

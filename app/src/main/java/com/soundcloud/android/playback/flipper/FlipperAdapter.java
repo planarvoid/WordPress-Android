@@ -130,11 +130,10 @@ public class FlipperAdapter extends PlayerListener implements Player {
     }
 
     @Override
-    public long seek(long position) {
+    public void seek(long position) {
         Log.d(TAG, "seek() called with: position = [" + position + "]");
         setSeekingState(position);
         flipper.seek(position);
-        return position;
     }
 
     private void setSeekingState(long position) {

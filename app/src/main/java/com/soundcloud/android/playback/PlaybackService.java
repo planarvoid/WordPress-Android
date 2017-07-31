@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
+import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -272,11 +272,11 @@ public class PlaybackService extends Service
         }
     }
 
-    public long seek(long pos) {
+    public void seek(long pos) {
         Log.d(TAG, "Seeking to " + pos);
         resetVolume(pos);
         mediaSessionController.onSeek(pos);
-        return streamPlayer.seek(pos);
+        streamPlayer.seek(pos);
     }
 
     public boolean isPlaying() {
