@@ -11,12 +11,12 @@ import javax.inject.Inject
 class LikeCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
 
-    override fun getTracksToKeep(): MutableSet<Urn> {
-        return loadLikes().filter { it.isTrack }.toMutableSet()
+    override fun tracksToKeep(): Set<Urn> {
+        return loadLikes().filter { it.isTrack }.toSet()
     }
 
-    override fun getPlaylistsToKeep(): MutableSet<Urn> {
-        return loadLikes().filter { it.isPlaylist }.toMutableSet()
+    override fun playlistsToKeep(): Set<Urn> {
+        return loadLikes().filter { it.isPlaylist }.toSet()
     }
 
     private fun loadLikes(): List<Urn> {

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.storage.DatabaseCleanupService.CleanupHelper;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,13 +33,13 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
         ApiUser user2 = testFixtures().insertUser();
         ApiUser user3 = testFixtures().insertUser();
 
-        when(cleanupHelper1.getUsersToKeep()).thenReturn(singleton(user1.getUrn()));
-        when(cleanupHelper1.getTracksToKeep()).thenReturn(emptySet());
-        when(cleanupHelper1.getPlaylistsToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.usersToKeep()).thenReturn(singleton(user1.getUrn()));
+        when(cleanupHelper1.tracksToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.playlistsToKeep()).thenReturn(emptySet());
 
-        when(cleanupHelper2.getUsersToKeep()).thenReturn(singleton(user2.getUrn()));
-        when(cleanupHelper2.getTracksToKeep()).thenReturn(emptySet());
-        when(cleanupHelper2.getPlaylistsToKeep()).thenReturn(emptySet());
+        when(cleanupHelper2.usersToKeep()).thenReturn(singleton(user2.getUrn()));
+        when(cleanupHelper2.tracksToKeep()).thenReturn(emptySet());
+        when(cleanupHelper2.playlistsToKeep()).thenReturn(emptySet());
 
         service.onHandleIntent(new Intent());
 
@@ -57,13 +56,13 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
         ApiTrack apiTrack1 = testFixtures().insertTrack();
         ApiTrack apiTrack2 = testFixtures().insertTrack();
 
-        when(cleanupHelper1.getUsersToKeep()).thenReturn(singleton(user1.getUrn()));
-        when(cleanupHelper1.getTracksToKeep()).thenReturn(emptySet());
-        when(cleanupHelper1.getPlaylistsToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.usersToKeep()).thenReturn(singleton(user1.getUrn()));
+        when(cleanupHelper1.tracksToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.playlistsToKeep()).thenReturn(emptySet());
 
-        when(cleanupHelper2.getUsersToKeep()).thenReturn(emptySet());
-        when(cleanupHelper2.getTracksToKeep()).thenReturn(singleton(apiTrack1.getUrn()));
-        when(cleanupHelper2.getPlaylistsToKeep()).thenReturn(emptySet());
+        when(cleanupHelper2.usersToKeep()).thenReturn(emptySet());
+        when(cleanupHelper2.tracksToKeep()).thenReturn(singleton(apiTrack1.getUrn()));
+        when(cleanupHelper2.playlistsToKeep()).thenReturn(emptySet());
 
         service.onHandleIntent(new Intent());
 
@@ -86,9 +85,9 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
         ApiPlaylist playlistToDelete = testFixtures().insertPlaylist();
         ApiTrack playlistToDeleteTrack = testFixtures().insertPlaylistTrack(playlistToDelete, 0);
 
-        when(cleanupHelper1.getPlaylistsToKeep()).thenReturn(singleton(playlistToKeep.getUrn()));
-        when(cleanupHelper1.getTracksToKeep()).thenReturn(emptySet());
-        when(cleanupHelper1.getUsersToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.playlistsToKeep()).thenReturn(singleton(playlistToKeep.getUrn()));
+        when(cleanupHelper1.tracksToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.usersToKeep()).thenReturn(emptySet());
 
         service.onHandleIntent(new Intent());
 

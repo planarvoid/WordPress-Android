@@ -33,21 +33,21 @@ class ActivitiesCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnsTrackToKeep() {
-        val tracksToKeep = cleanupHelper.tracksToKeep
+        val tracksToKeep = cleanupHelper.tracksToKeep()
 
         Assertions.assertThat(tracksToKeep).containsOnly(likedTrack.urn)
     }
 
     @Test
     fun returnsPlaylistToKeep() {
-        val playlistsToKeep = cleanupHelper.playlistsToKeep
+        val playlistsToKeep = cleanupHelper.playlistsToKeep()
 
         Assertions.assertThat(playlistsToKeep).containsOnly(repostedPlaylist.urn)
     }
 
     @Test
     fun returnsUsersToKeep() {
-        val usersToKeep = cleanupHelper.usersToKeep
+        val usersToKeep = cleanupHelper.usersToKeep()
 
         Assertions.assertThat(usersToKeep).containsOnly(likingUser.urn, repostingUser.urn)
     }
