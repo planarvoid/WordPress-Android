@@ -83,6 +83,14 @@ public class StreamScreen extends Screen {
                         TrackItemElement.NotPromoted(testDriver))));
     }
 
+    public StreamCardElement scrollToFirstNotPromotedLongTrackCard() {
+        return new StreamCardElement(testDriver, scrollToItem(
+                With.and(
+                        With.id(R.id.track_list_item),
+                        TrackItemElement.NotPromoted(testDriver),
+                        TrackItemElement.LongTrack(testDriver))));
+    }
+
     public StreamCardElement scrollToFirstPlaylistTrackCard() {
         return new StreamCardElement(testDriver, scrollToItem(With.id(R.id.playlist_list_item)));
     }
@@ -96,6 +104,10 @@ public class StreamScreen extends Screen {
 
     public VisualPlayerElement clickFirstRepostedTrack() {
         return scrollToFirstRepostedTrack().clickToPlay();
+    }
+
+    public VisualPlayerElement clickFirstNonPromotedLongTrack() {
+        return scrollToFirstNotPromotedLongTrackCard().clickToPlay();
     }
 
     public TrackItemMenuElement clickFirstTrackCardOverflowButton() {

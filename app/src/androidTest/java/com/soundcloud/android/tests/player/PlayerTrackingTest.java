@@ -97,7 +97,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
     }
 
     public void testTrackPlayerScrub() throws Exception {
-        final VisualPlayerElement player = streamScreen.clickFirstRepostedTrack()
+        final VisualPlayerElement player = streamScreen.clickFirstNonPromotedLongTrack()
                                                        .waitForExpandedPlayer();
 
         mrLocalLocal.startEventTracking();
