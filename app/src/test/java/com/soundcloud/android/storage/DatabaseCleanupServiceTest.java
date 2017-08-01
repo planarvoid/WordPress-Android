@@ -3,13 +3,16 @@ package com.soundcloud.android.storage;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.DatabaseCleanupService.CleanupHelper;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,10 +25,11 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
 
     @Mock private CleanupHelper cleanupHelper1;
     @Mock private CleanupHelper cleanupHelper2;
+    private TestEventBusV2 eventBusV2 = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
-        service = new DatabaseCleanupService(propeller(), asList(cleanupHelper1, cleanupHelper2));
+        service = new DatabaseCleanupService(propeller(), eventBusV2, asList(cleanupHelper1, cleanupHelper2));
     }
 
     @Test
@@ -101,5 +105,23 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
         databaseAssertions().assertTrackNotInserted(playlistToDeleteTrack.getUrn());
         databaseAssertions().assertUserNotStored(playlistToDelete.getUser().getUrn());
         databaseAssertions().assertUserNotStored(playlistToDeleteTrack.getUser().getUrn());
+    }
+
+    @Test
+    public void sendsCleanupMetrics() throws Exception {
+
+        ApiPlaylist playlistToKeep = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistTrack(playlistToKeep, 0);
+
+        ApiPlaylist playlistToDelete = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistTrack(playlistToDelete, 0);
+
+        when(cleanupHelper1.getPlaylistsToKeep()).thenReturn(singleton(playlistToKeep.getUrn()));
+        when(cleanupHelper1.getTracksToKeep()).thenReturn(emptySet());
+        when(cleanupHelper1.getUsersToKeep()).thenReturn(emptySet());
+
+        service.onHandleIntent(new Intent());
+
+        assertThat(eventBusV2.lastEventOn(EventQueue.TRACKING)).isEqualTo(StorageCleanupEvent.create(2, 1, 1));
     }
 }

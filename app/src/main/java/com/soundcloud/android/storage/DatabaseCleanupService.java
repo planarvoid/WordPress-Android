@@ -7,11 +7,14 @@ import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -31,6 +34,7 @@ public class DatabaseCleanupService extends IntentService {
     private static final int BATCH_SIZE = 500;
 
     @Inject PropellerDatabase propellerDatabase;
+    @Inject EventBusV2 eventBusV2;
     @Inject @Named(DB_CLEANUP_HELPERS) List<CleanupHelper> cleanupHelpers;
 
     public DatabaseCleanupService() {
@@ -40,9 +44,11 @@ public class DatabaseCleanupService extends IntentService {
 
     @VisibleForTesting
     public DatabaseCleanupService(PropellerDatabase propellerDatabase,
+                                  EventBusV2 eventBusV2,
                                   List<CleanupHelper> cleanupHelpers) {
         super(TAG);
         this.propellerDatabase = propellerDatabase;
+        this.eventBusV2 = eventBusV2;
         this.cleanupHelpers = cleanupHelpers;
     }
 
@@ -62,30 +68,43 @@ public class DatabaseCleanupService extends IntentService {
         usersToKeep.addAll(getUsersForTrack(tracksToKeep));
         usersToKeep.addAll(getUsersForPlaylist(playlistsToKeep));
 
-        propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
+        List<Urn> playlistsToDelete = getPlaylistsToDelete(playlistsToKeep);
+        List<Urn> allTracksToDelete = getTracksToDelete(tracksToKeep);
+        List<Urn> allUsersToDelete = getUsersToDelete(usersToKeep);
+
+        TxnResult txnResult = propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propellerDatabase) {
 
                 // playlists
-                for (List<Urn> urnBatch : Lists.partition(getPlaylistsToDelete(playlistsToKeep), BATCH_SIZE)) {
+                for (List<Urn> urnBatch : Lists.partition(playlistsToDelete, BATCH_SIZE)) {
                     step(propellerDatabase.delete(Table.PlaylistTracks, filter().whereIn(TableColumns.PlaylistTracks.PLAYLIST_ID, Lists.transform(urnBatch, Urn::getNumericId))));
                     step(propellerDatabase.delete(Tables.Sounds.TABLE, filter().whereEq(Tables.Sounds._TYPE, TYPE_PLAYLIST).whereIn(Tables.Sounds._ID, Lists.transform(urnBatch, Urn::getNumericId))));
                 }
 
                 // tracks
-                List<Urn> allTracksToDelete = getTracksToDelete(tracksToKeep);
                 for (List<Urn> urnBatch : Lists.partition(allTracksToDelete, BATCH_SIZE)) {
                     step(propellerDatabase.delete(Tables.Sounds.TABLE, filter().whereEq(Tables.Sounds._TYPE, TYPE_TRACK).whereIn(Tables.Sounds._ID, Lists.transform(urnBatch, Urn::getNumericId))));
                     step(propellerDatabase.delete(Tables.TrackPolicies.TABLE, filter().whereIn(Tables.TrackPolicies.TRACK_ID, Lists.transform(urnBatch, Urn::getNumericId))));
                 }
 
                 // users
-                List<Urn> allUsersToDelete = getUsersToDelete(usersToKeep);
                 for (List<Urn> urnBatch : Lists.partition(allUsersToDelete, BATCH_SIZE)) {
                     step(propellerDatabase.delete(Tables.Users.TABLE, filter().whereIn(Tables.Users._ID, Lists.transform(urnBatch, Urn::getNumericId))));
                 }
             }
         });
+
+
+        if (txnResult.success()) {
+            eventBusV2.publish(EventQueue.TRACKING, StorageCleanupEvent.create(allUsersToDelete.size(),
+                                                                               allTracksToDelete.size(),
+                                                                               playlistsToDelete.size()));
+        } else {
+            throw new IllegalStateException("Could not cleanup database " + StorageCleanupEvent.create(allUsersToDelete.size(),
+                                                                                                       allTracksToDelete.size(),
+                                                                                                       playlistsToDelete.size()));
+        }
 
     }
 
