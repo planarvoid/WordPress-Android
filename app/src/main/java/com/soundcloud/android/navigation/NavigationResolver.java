@@ -545,19 +545,22 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> startWebView(NavigationTarget navigationTarget) {
+        final Uri targetUri = navigationTarget
+                .linkNavigationParameters()
+                .transform(NavigationTarget.LinkNavigationParameters::targetUri)
+                .or(Uri.parse(navigationTarget.deeplinkTarget().get()));
+
         if (CustomTabsHelper.isChromeCustomTabsAvailable(context)) {
-            return Single.just(NavigationResult.forChromeCustomTab(navigationTarget,
-                                                                   CustomTabsHelper.createMetadata(context, navigationTarget.linkNavigationParameters().get().targetUri())))
+            return Single.just(NavigationResult.forChromeCustomTab(navigationTarget, CustomTabsHelper.createMetadata(context, targetUri)))
                          .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
         } else {
-            return startNativeWebView(navigationTarget);
+            return startNativeWebView(navigationTarget, targetUri);
         }
     }
 
     @CheckResult
-    private Single<NavigationResult> startNativeWebView(NavigationTarget navigationTarget) {
-        return Single.just(NavigationResult.create(navigationTarget,
-                                                   IntentFactory.createWebViewIntent(context, navigationTarget.linkNavigationParameters().get().targetUri())))
+    private Single<NavigationResult> startNativeWebView(NavigationTarget navigationTarget, Uri uri) {
+        return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createWebViewIntent(context, uri)))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 

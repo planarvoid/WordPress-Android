@@ -10,10 +10,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -23,6 +23,7 @@ import javax.inject.Inject;
 public class LegalFragment extends PreferenceFragment implements OnPreferenceClickListener {
 
     @Inject FeatureOperations featureOperations;
+    @Inject Navigator navigator;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static LegalFragment create() {
@@ -53,9 +54,7 @@ public class LegalFragment extends PreferenceFragment implements OnPreferenceCli
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        final Intent intent = new Intent(getActivity(), WebViewActivity.class);
-        intent.setData(preference.getIntent().getData());
-        startActivity(intent);
+        navigator.navigateTo(NavigationTarget.forWebView(preference.getIntent().getData().toString()));
         return true;
     }
 

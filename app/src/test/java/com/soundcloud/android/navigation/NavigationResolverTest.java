@@ -1986,7 +1986,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         addChromeCustomTabsIntentResolverInPackageManager();
 
         String target = "https://soundcloud.com/jobs/";
-        NavigationTarget navigationTarget = getTargetForNavigation(target);
+        NavigationTarget navigationTarget = NavigationTarget.forWebView(target);
 
         resolveTarget(navigationTarget);
 
@@ -1997,7 +1997,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Test
     public void fallbackToNativeWebViewIfNoResolvingAndChromeIsNotInstalled() {
         String target = "https://soundcloud.com/jobs/";
-        NavigationTarget navigationTarget = getTargetForNavigation(target);
+        NavigationTarget navigationTarget = NavigationTarget.forWebView(target);
 
         resolveTarget(navigationTarget);
 

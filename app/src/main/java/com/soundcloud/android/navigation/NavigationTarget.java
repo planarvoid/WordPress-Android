@@ -307,6 +307,13 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forWebView(String target) {
+        return forNavigationDeeplink(DeepLink.WEB_VIEW, Screen.UNKNOWN)
+                .toBuilder()
+                .deeplinkTarget(Optional.of(target))
+                .build();
+    }
+
     public static NavigationTarget forExternalPackage(String packageNameCreators) {
         return forNavigationDeeplink(DeepLink.EXTERNAL_APP, Screen.UNKNOWN)
                 .toBuilder()
