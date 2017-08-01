@@ -56,6 +56,7 @@ import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsController;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.DatabaseCleanupScheduler;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
@@ -121,6 +122,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject Lazy<DefaultCastSessionController> castControllerProvider;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
+    @Inject DatabaseCleanupScheduler databaseCleanupScheduler;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
@@ -256,6 +258,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         stationsController.subscribe();
         dailyUpdateScheduler.schedule();
+        databaseCleanupScheduler.schedule();
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();

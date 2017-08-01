@@ -12,6 +12,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
+import com.soundcloud.android.storage.DatabaseCleanupService;
 import com.soundcloud.java.optional.Optional;
 
 import android.app.PendingIntent;
@@ -21,12 +22,17 @@ import android.content.Intent;
 public final class PendingIntentFactory {
 
     private static final int POLICY_UPDATE_REQUEST_ID = R.id.policy_update_request_id;
+    private static final int DATABASE_CLEANUP_REQUEST_ID = R.id.database_cleanup_request_id;
     private static final int NO_FLAGS = 0;
 
     public static PendingIntent createUpdateSchedulerIntent(Context context, int flag) {
         Intent intent = new Intent(context, AlarmManagerReceiver.class);
         intent.setAction(ACTION_START);
         return PendingIntent.getBroadcast(context, POLICY_UPDATE_REQUEST_ID, intent, flag);
+    }
+
+    public static PendingIntent createCleanupSchedulerIntent(Context context, int flag) {
+        return PendingIntent.getService(context, DATABASE_CLEANUP_REQUEST_ID, DatabaseCleanupService.createIntent(context), flag);
     }
 
     public static PendingIntent createPendingOfflineSettings(Context context) {

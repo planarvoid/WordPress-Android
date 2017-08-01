@@ -16,6 +16,7 @@ import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.storage.DatabaseCleanupService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -183,6 +184,11 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                   return true;
               });
 
+        screen.findPreference(getString(R.string.dev_drawer_action_database_cleanup_key))
+              .setOnPreferenceClickListener(preference -> {
+                  getActivity().getApplicationContext().startService(DatabaseCleanupService.createIntent(getActivity().getApplicationContext()));
+                  return true;
+              });
 
         screen.findPreference(getString(R.string.dev_drawer_action_crash_key))
               .setOnPreferenceClickListener(preference -> {

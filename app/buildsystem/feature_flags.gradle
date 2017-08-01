@@ -28,7 +28,8 @@ enum Feature {
   RECOMMENDED_PLAYLISTS,
   DYNAMIC_LINK_SHARING,
   FIREBASE_PERFORMANCE_MONITORING,
-  CREATOR_APP_LINK;
+  CREATOR_APP_LINK,
+  DATABASE_CLEANUP_SERVICE;
 }
 
 android {
@@ -54,6 +55,7 @@ android {
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -74,6 +76,7 @@ android {
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -97,6 +100,7 @@ android {
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -114,6 +118,7 @@ android {
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
     }
 
     release {
@@ -129,6 +134,7 @@ android {
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
     }
   }
 }

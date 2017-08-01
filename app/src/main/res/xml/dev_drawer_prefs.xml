@@ -44,6 +44,9 @@
             android:key="@string/dev_drawer_action_policy_sync_key"
             android:title="@string/dev_drawer_action_policy_sync_title" />
         <Preference
+            android:key="@string/dev_drawer_action_database_cleanup_key"
+            android:title="@string/dev_drawer_action_database_cleanup_title" />
+        <Preference
             android:key="@string/dev_drawer_action_crash_key"
             android:title="@string/dev_drawer_action_crash_title" />
         <Preference

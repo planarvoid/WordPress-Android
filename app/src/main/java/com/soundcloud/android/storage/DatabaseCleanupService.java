@@ -9,6 +9,8 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
@@ -17,6 +19,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.rx.eventbus.EventBusV2;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,12 +33,14 @@ import java.util.Set;
 
 public class DatabaseCleanupService extends IntentService {
 
-    static final String TAG = "DatabaseCleanupService";
+    public static final String ACTION_START = "action_start_database_cleanup";
+    public static final String TAG = "DatabaseCleanupService";
     private static final int BATCH_SIZE = 500;
 
     @Inject PropellerDatabase propellerDatabase;
     @Inject EventBusV2 eventBusV2;
     @Inject @Named(DB_CLEANUP_HELPERS) List<CleanupHelper> cleanupHelpers;
+    @Inject FeatureFlags featureFlags;
 
     public DatabaseCleanupService() {
         super(TAG);
@@ -45,15 +50,26 @@ public class DatabaseCleanupService extends IntentService {
     @VisibleForTesting
     public DatabaseCleanupService(PropellerDatabase propellerDatabase,
                                   EventBusV2 eventBusV2,
-                                  List<CleanupHelper> cleanupHelpers) {
+                                  List<CleanupHelper> cleanupHelpers,
+                                  FeatureFlags featureFlags) {
         super(TAG);
         this.propellerDatabase = propellerDatabase;
         this.eventBusV2 = eventBusV2;
         this.cleanupHelpers = cleanupHelpers;
+        this.featureFlags = featureFlags;
+    }
+
+    public static Intent createIntent(Context context) {
+        final Intent intent = new Intent(context, DatabaseCleanupService.class);
+        intent.setAction(ACTION_START);
+        return intent;
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        if (!featureFlags.isEnabled(Flag.DATABASE_CLEANUP_SERVICE)) {
+            return;
+        }
         Set<Urn> usersToKeep = new HashSet<>();
         Set<Urn> tracksToKeep = new HashSet<>();
         Set<Urn> playlistsToKeep = new HashSet<>();

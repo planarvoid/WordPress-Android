@@ -10,6 +10,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
@@ -24,11 +26,13 @@ public class DatabaseCleanupServiceTest extends StorageIntegrationTest {
 
     @Mock private CleanupHelper cleanupHelper1;
     @Mock private CleanupHelper cleanupHelper2;
+    @Mock private FeatureFlags featureFlags;
     private TestEventBusV2 eventBusV2 = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
-        service = new DatabaseCleanupService(propeller(), eventBusV2, asList(cleanupHelper1, cleanupHelper2));
+        service = new DatabaseCleanupService(propeller(), eventBusV2, asList(cleanupHelper1, cleanupHelper2), featureFlags);
+        when(featureFlags.isEnabled(Flag.DATABASE_CLEANUP_SERVICE)).thenReturn(true);
     }
 
     @Test
