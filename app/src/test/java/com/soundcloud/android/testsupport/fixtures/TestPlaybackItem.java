@@ -25,12 +25,20 @@ public class TestPlaybackItem {
         return AudioPlaybackItem.create(urn, position, duration, PlaybackType.AUDIO_DEFAULT);
     }
 
+    public static AudioPlaybackItem offline() {
+        return AudioPlaybackItem.create(URN, 0, DURATION, PlaybackType.AUDIO_OFFLINE);
+    }
+
     public static AudioPlaybackItem audioAd() {
         return audioAd(URN, 0, DURATION);
     }
 
     public static AudioPlaybackItem audioAd(Urn urn, long position, long duration) {
         return AudioPlaybackItem.create(urn, position, duration, PlaybackType.AUDIO_AD);
+    }
+
+    public static AudioPlaybackItem videoAd() {
+        return videoAd(URN, 0, DURATION);
     }
 
     public static AudioPlaybackItem videoAd(Urn urn, long position, long duration) {

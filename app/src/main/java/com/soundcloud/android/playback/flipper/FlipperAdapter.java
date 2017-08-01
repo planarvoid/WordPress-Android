@@ -23,7 +23,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.flippernative.api.ErrorReason;
-import com.soundcloud.flippernative.api.PlayerListener;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.flippernative.api.error_message;
@@ -37,12 +36,12 @@ import android.content.Context;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AvoidCatchingThrowable")
-public class FlipperAdapter extends PlayerListener implements Player {
+public class FlipperAdapter implements Player {
 
     private static final String TAG = "FlipperAdapter";
     private static final String TRUE_STRING = String.valueOf(true);
 
-    private final com.soundcloud.flippernative.api.Player flipper;
+    private final FlipperWrapper flipperWrapper;
     private final Context context;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
@@ -64,18 +63,19 @@ public class FlipperAdapter extends PlayerListener implements Player {
     private long progress;
 
     @Inject
-    FlipperAdapter(AccountOperations accountOperations,
+    FlipperAdapter(FlipperWrapperFactory flipperWrapperFactory,
+                   AccountOperations accountOperations,
                    HlsStreamUrlBuilder hlsStreamUrlBuilder,
                    ConnectionHelper connectionHelper,
                    LockUtil lockUtil,
                    StateChangeHandler stateChangeHandler,
                    ProgressChangeHandler progressChangeHandler,
                    CurrentDateProvider dateProvider,
-                   FlipperFactory flipperFactory,
                    EventBus eventBus,
                    CryptoOperations cryptoOperations,
                    Context context,
                    PerformanceReporter performanceReporter) {
+        this.flipperWrapper = flipperWrapperFactory.create(this);
         this.accountOperations = accountOperations;
         this.hlsStreamUrlBuilder = hlsStreamUrlBuilder;
         this.stateHandler = stateChangeHandler;
@@ -84,7 +84,6 @@ public class FlipperAdapter extends PlayerListener implements Player {
         this.connectionHelper = connectionHelper;
         this.lockUtil = lockUtil;
         this.eventBus = eventBus;
-        this.flipper = flipperFactory.create(this);
         this.context = context;
         this.performanceReporter = performanceReporter;
         this.isSeekPending = false;
@@ -93,7 +92,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public void preload(PreloadItem preloadItem) {
-        flipper.prefetch(hlsStreamUrlBuilder.buildStreamUrl(preloadItem));
+        flipperWrapper.prefetch(hlsStreamUrlBuilder.buildStreamUrl(preloadItem));
     }
 
     @Override
@@ -126,14 +125,14 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public void pause() {
-        flipper.pause();
+        flipperWrapper.pause();
     }
 
     @Override
     public void seek(long position) {
         Log.d(TAG, "seek() called with: position = [" + position + "]");
         setSeekingState(position);
-        flipper.seek(position);
+        flipperWrapper.seek(position);
     }
 
     private void setSeekingState(long position) {
@@ -148,17 +147,17 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public float getVolume() {
-        return (float) flipper.getVolume();
+        return flipperWrapper.getVolume();
     }
 
     @Override
-    public void setVolume(float v) {
-        flipper.setVolume(v);
+    public void setVolume(float level) {
+        flipperWrapper.setVolume(level);
     }
 
     @Override
     public void stop() {
-        flipper.pause();
+        flipperWrapper.pause();
     }
 
     @Override
@@ -168,7 +167,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
 
     @Override
     public void destroy() {
-        flipper.destroy();
+        flipperWrapper.destroy();
     }
 
     @Override
@@ -191,13 +190,10 @@ public class FlipperAdapter extends PlayerListener implements Player {
         return PlayerType.FLIPPER;
     }
 
-    @Override
-    public void onProgressChanged(state_change event) {
+    void onProgressChanged(state_change event) {
         try {
-            if (isCurrentStreamUrl(event.getUri())) {
-                if (!isSeekPending) {
-                    reportProgress(event.getPosition(), event.getDuration());
-                }
+            if (isCurrentStreamUrl(event.getUri()) && !isSeekPending) {
+                reportProgress(event.getPosition(), event.getDuration());
             }
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
@@ -209,8 +205,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
         progressChangeHandler.report(position, duration);
     }
 
-    @Override
-    public void onPerformanceEvent(audio_performance event) {
+    void onPerformanceEvent(audio_performance event) {
         try {
             performanceReporter.report(currentPlaybackItem, event, getPlayerType());
         } catch (Throwable t) {
@@ -222,14 +217,12 @@ public class FlipperAdapter extends PlayerListener implements Player {
         return uri.equals(currentStreamUrl);
     }
 
-    @Override
-    public void onStateChanged(state_change event) {
+    void onStateChanged(state_change event) {
         ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
         handleStateChanged(event);
     }
 
-    @Override
-    public void onBufferingChanged(state_change event) {
+    void onBufferingChanged(state_change event) {
         Log.i(TAG, "onBufferingChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
         handleStateChanged(event);
     }
@@ -247,14 +240,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
         }
     }
 
-    @Override
-    public void onDurationChanged(state_change event) {
-        // FIXME DO NOT CALL SUPER AS IT WILL CRASH THE APP WHILE SEEKING
-        // FIXME Check JIRA: PLAYBACK-2706
-    }
-
-    @Override
-    public void onSeekingStatusChanged(state_change event) {
+    void onSeekingStatusChanged(state_change event) {
         try {
             if (isCurrentStreamUrl(event.getUri())) {
                 isSeekPending = event.getSeekingInProgress();
@@ -264,7 +250,6 @@ public class FlipperAdapter extends PlayerListener implements Player {
         }
     }
 
-    @Override
     public void onError(error_message message) {
         try {
             ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
@@ -378,11 +363,11 @@ public class FlipperAdapter extends PlayerListener implements Player {
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-                flipper.open(currentStreamUrl, playbackItem.getStartPosition());
+                flipperWrapper.open(currentStreamUrl, playbackItem.getStartPosition());
                 break;
             case AUDIO_OFFLINE:
                 final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
-                flipper.openEncrypted(currentStreamUrl, deviceSecret.getKey(), deviceSecret.getInitVector(), playbackItem.getStartPosition());
+                flipperWrapper.openEncrypted(currentStreamUrl, deviceSecret.getKey(), deviceSecret.getInitVector(), playbackItem.getStartPosition());
                 break;
             case AUDIO_AD:
             case VIDEO_AD:
@@ -392,7 +377,7 @@ public class FlipperAdapter extends PlayerListener implements Player {
     }
 
     private void startPlayback() {
-        flipper.play();
+        flipperWrapper.play();
     }
 
     private static class FlipperException extends Exception {
