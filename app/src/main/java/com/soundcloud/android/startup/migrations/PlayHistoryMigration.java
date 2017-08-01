@@ -21,6 +21,6 @@ public class PlayHistoryMigration implements Migration {
 
     @Override
     public int getApplicableAppVersionCode() {
-        return 722;
+        return 732;
     }
 }
