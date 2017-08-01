@@ -195,11 +195,8 @@ public class FlipperAdapter extends PlayerListener implements Player {
     public void onProgressChanged(state_change event) {
         try {
             if (isCurrentStreamUrl(event.getUri())) {
-                final long position = event.getPosition();
-
-                isSeekPending = isSeekPending && position != progress;
                 if (!isSeekPending) {
-                    reportProgress(position, event.getDuration());
+                    reportProgress(event.getPosition(), event.getDuration());
                 }
             }
         } catch (Throwable t) {
@@ -257,9 +254,14 @@ public class FlipperAdapter extends PlayerListener implements Player {
     }
 
     @Override
-    public void onSeekingStatusChanged(state_change evt) {
-        // FIXME DO NOT CALL SUPER AS IT WILL CRASH THE APP WHILE SEEKING
-        // FIXME Check JIRA: PLAYBACK-2706
+    public void onSeekingStatusChanged(state_change event) {
+        try {
+            if (isCurrentStreamUrl(event.getUri())) {
+                isSeekPending = event.getSeekingInProgress();
+            }
+        } catch (Throwable t) {
+            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+        }
     }
 
     @Override
