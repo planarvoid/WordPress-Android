@@ -39,6 +39,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -47,6 +48,7 @@ import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,7 +120,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(Single.just(OfflineState.NOT_OFFLINE));
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
         when(headerViewFactory.create(any(View.class),
                                       any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
@@ -304,7 +306,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablesOfflineLikesWithoutDialogWhenExperimentEnabled() {
-        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(rx.Observable.just(null));
+        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.just(RxSignal.SIGNAL));
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
 
         createAndBindView();
@@ -326,7 +328,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void disablesLikesSyncingWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(rx.Observable.just(null));
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(RxSignal.SIGNAL));
         createAndBindView();
 
         presenter.onMakeAvailableOffline(false);
@@ -369,7 +371,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowIntroductoryOverlayIfLikesEnabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         createAndBindView();
@@ -379,7 +381,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowIntroductoryOverlayIfExperimentNotEnabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         createAndBindView();
@@ -389,7 +391,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowIntroductoryOverlayIfNoConnection() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
@@ -399,7 +401,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showIntroductoryOverlayIfLikesNotEnabledAndExperimentEnabledAndHasConnection() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         createAndBindView();
@@ -419,7 +421,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineDownloadOptionWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         createAndBindView();
 
         verify(headerView).setDownloadedButtonState(false);
@@ -427,7 +429,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineRemovalOptionWhenOfflineTracksEnabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
         createAndBindView();
 
         verify(headerView).setDownloadedButtonState(true);
@@ -456,7 +458,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(rx.Observable.empty());
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.empty());
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
         createAndBindView();
 

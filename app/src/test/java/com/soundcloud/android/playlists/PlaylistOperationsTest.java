@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
@@ -26,19 +24,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.subjects.MaybeSubject;
+import io.reactivex.Observable;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +40,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
 import rx.functions.Action0;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -62,7 +54,6 @@ public class PlaylistOperationsTest {
     private PlaylistOperations operations;
 
     @Mock private SyncInitiator syncInitiator;
-    @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private PlaylistTracksStorage playlistTracksStorage;
     @Mock private PlaylistRepository playlistRepository;
     @Mock private TrackRepository trackRepository;
@@ -85,19 +76,11 @@ public class PlaylistOperationsTest {
     @Captor private ArgumentCaptor<EditPlaylistCommandParams> editPlaylistCommandParamsCaptor;
 
     private final Playlist playlist = ModelFixtures.playlist();
-    private final Track track1 = ModelFixtures.trackBuilder().build();
-    private final Track track2 = ModelFixtures.trackBuilder().build();
-    private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
-    private final TrackItem trackItem2 = ModelFixtures.trackItem(track2);
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final List<Urn> newTrackList = asList(trackUrn);
     private TestEventBus eventBus;
-    private TestSubscriber<Playlist> playlistSubscriber = new TestSubscriber<>();
     private SingleSubject<SyncJobResult> playlistSyncSubject = SingleSubject.create();
-
-    private final ApiPlaylistPost playlistPost = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
-
 
     @Before
     public void setUp() {
@@ -111,10 +94,8 @@ public class PlaylistOperationsTest {
                                             addTrackToPlaylistCommand,
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
-                                            syncInitiatorBridge,
                                             offlineContentOperations,
                                             eventBus);
-        when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(playlistSyncSubject);
     }
 
     @Test
@@ -122,71 +103,13 @@ public class PlaylistOperationsTest {
         final TestSubscriber<List<Urn>> observer = new TestSubscriber<>();
         final List<Urn> urnList = asList(Urn.forTrack(123L), Urn.forTrack(456L));
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(loadPlaylistTrackUrns.toObservable(playlistUrn)).thenReturn(Observable.just(urnList));
+        when(loadPlaylistTrackUrns.toObservable(playlistUrn)).thenReturn(rx.Observable.just(urnList));
 
         operations.trackUrnsForPlayback(playlistUrn).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0)).isEqualTo(urnList);
         assertThat(observer.getOnCompletedEvents()).hasSize(1);
-    }
-
-    @Test
-    public void loadsPlaylistWithTracksFromStorage() {
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
-
-        operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
-
-        playlistSubscriber.assertReceivedOnNext(singletonList(playlist));
-        playlistSubscriber.assertCompleted();
-    }
-
-    @Test
-    public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.empty(), Maybe.just(playlist));
-        final MaybeSubject<Playlist> playlistSource = MaybeSubject.create();
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(playlistSource);
-
-        operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
-
-        playlistSubscriber.assertNoValues();
-        playlistSyncSubject.onSuccess(TestSyncJobResults.successWithChange());
-        playlistSource.onSuccess(playlist);
-        playlistSubscriber.assertReceivedOnNext(singletonList(playlist));
-        playlistSubscriber.assertCompleted();
-    }
-
-    @Test
-    public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
-        when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(Single.just(SyncJobResult.success(
-                Syncable.PLAYLIST.name(),
-                true)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.empty(), Maybe.empty());
-
-        operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
-
-        playlistSubscriber.assertNoValues();
-        playlistSyncSubject.onSuccess(TestSyncJobResults.successWithChange());
-        playlistSubscriber.assertError(PlaylistOperations.PlaylistMissingException.class);
-    }
-
-    @Test
-    public void loadsLocalPlaylistAndRequestsMyPlaylistSyncWhenEmitting() {
-        final List<Track> trackList = asList(track1, track2);
-        final Playlist localPlaylist = ModelFixtures.playlistBuilder().urn(Urn.forTrack(-123L)).build();
-
-        SingleSubject<SyncJobResult> myPlaylistSyncSubject = SingleSubject.create();
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(myPlaylistSyncSubject);
-        when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(Maybe.just(localPlaylist));
-        when(syncInitiator.syncPlaylist(localPlaylist.urn())).thenReturn(playlistSyncSubject);
-
-        operations.playlist(localPlaylist.urn()).subscribe(playlistSubscriber);
-
-        playlistSubscriber.assertReceivedOnNext(singletonList(localPlaylist));
-        playlistSubscriber.assertCompleted();
-
-        assertThat(myPlaylistSyncSubject.hasObservers()).isTrue();
-        assertThat(playlistSyncSubject.hasObservers()).isFalse();
     }
 
     @Test
@@ -204,7 +127,7 @@ public class PlaylistOperationsTest {
         TestSubscriber<Urn> observer = new TestSubscriber<>();
         Urn playlistUrn = Urn.forPlaylist(123);
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(playlistUrn));
-        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(Observable.just(null));
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(Observable.just(RxSignal.SIGNAL));
 
         operations.createNewPlaylist("title", true, true, Urn.forTrack(123)).subscribe(observer);
 
@@ -262,7 +185,7 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldNotPublishEntityChangedEventWhenAddingTrackToPlaylistFailed() {
         when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class)))
-                .thenReturn(Observable.error(new Exception()));
+                .thenReturn(rx.Observable.error(new Exception()));
 
         operations.addTrackToPlaylist(playlist.urn(), trackUrn).subscribe(new TestSubscriber<>());
 
@@ -298,7 +221,7 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldNotPublishEntityChangedEventWhenRemovingTrackFromPlaylistFailed() {
         when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class)))
-                .thenReturn(Observable.error(new Exception()));
+                .thenReturn(rx.Observable.error(new Exception()));
 
         operations.removeTrackFromPlaylist(playlist.urn(), trackUrn).subscribe(new TestSubscriber<>());
 
@@ -333,17 +256,13 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldNotPublishEntityChangedEventAfterEditingPlaylistFailed() {
         when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class)))
-                .thenReturn(Observable.error(new Exception()));
+                .thenReturn(rx.Observable.error(new Exception()));
 
         operations.editPlaylist(playlist.urn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn))
                   .subscribe(new TestSubscriber<>());
 
         verifyEditPlaylistCommandParams();
         eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
-    }
-
-    private List<TrackItem> trackItems() {
-        return asList(trackItem1, trackItem2);
     }
 
     private void verifyAddToPlaylistParams() {
@@ -364,10 +283,5 @@ public class PlaylistOperationsTest {
         assertThat(editPlaylistCommandParamsCaptor.getValue().trackList).isEqualTo(newTrackList);
         assertThat(editPlaylistCommandParamsCaptor.getValue().isPrivate.get()).isEqualTo(IS_PRIVATE);
         assertThat(editPlaylistCommandParamsCaptor.getValue().playlistTitle.get()).isEqualTo(NEW_TITLE);
-    }
-
-    private PlaylistDetailOtherPlaylistsItem createOtherPlaylistItem() {
-        return new PlaylistDetailOtherPlaylistsItem(
-                playlist.creatorName(), singletonList(ModelFixtures.playlistItem(playlistPost.getApiPlaylist())), false);
     }
 }

@@ -253,7 +253,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeAvailableOfflineWithOwnerPlaylistMakesAvailableOffline() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
+        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
@@ -274,7 +274,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineDoesNotMakeOtherUsersPlaylistOfflineWithFailedLike() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
+        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -292,7 +292,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
+        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -312,7 +312,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
+        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
@@ -345,7 +345,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineMakesOfflineUnavailable() throws Exception {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
+        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(offlineSubject);
 
         inputs.onMakeOfflineUnavailable();
@@ -367,7 +367,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(rx.subjects.PublishSubject.create());
+        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(PublishSubject.create());
 
         inputs.onMakeOfflineUnavailable();
 

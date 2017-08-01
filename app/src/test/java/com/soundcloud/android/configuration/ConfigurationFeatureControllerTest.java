@@ -52,7 +52,7 @@ public class ConfigurationFeatureControllerTest {
 
         featureUpdatesObservable.onNext(false);
 
-        verify(offlineController).unsubscribe();
+        verify(offlineController).dispose();
     }
 
     @Test

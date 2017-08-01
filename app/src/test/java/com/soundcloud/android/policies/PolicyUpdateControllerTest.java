@@ -15,11 +15,12 @@ import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 
@@ -59,7 +60,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.empty());
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Single.never());
         when(policyOperations.getMostRecentPolicyUpdateTimestamp()).thenReturn(Observable.empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
@@ -114,7 +115,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate30DaysAgo() {
-        final PublishSubject<RxSignal> clearOfflineContentSubject = PublishSubject.create();
+        final SingleSubject<RxSignal> clearOfflineContentSubject = SingleSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())
@@ -127,7 +128,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate33DaysAgo() {
-        final PublishSubject<RxSignal> clearOfflineContentSubject = PublishSubject.create();
+        final SingleSubject<RxSignal> clearOfflineContentSubject = SingleSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())

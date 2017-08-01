@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -10,6 +8,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -53,7 +52,7 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        fireAndForget(offlineOperations.enableOfflineLikedTracks());
+        offlineOperations.enableOfflineLikedTracks().subscribe(new DefaultObserver<>());
         eventBus.publish(EventQueue.TRACKING,
                          OfflineInteractionEvent.fromEnableOfflineLikes(screenProvider.getLastScreenTag()));
     }

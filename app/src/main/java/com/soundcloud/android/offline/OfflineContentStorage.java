@@ -14,9 +14,10 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
-import rx.Observable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -33,12 +34,12 @@ class OfflineContentStorage {
     private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
     private static final String OFFLINE_CONTENT = "has_content_offline";
 
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final SharedPreferences sharedPreferences;
     private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
 
     @Inject
-    public OfflineContentStorage(PropellerRx propellerRx,
+    public OfflineContentStorage(PropellerRxV2 propellerRx,
                                  @Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences,
                                  IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand) {
         this.propellerRx = propellerRx;
@@ -58,8 +59,8 @@ class OfflineContentStorage {
         sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, true).apply();
     }
 
-    public Observable<Boolean> isOfflinePlaylist(Urn playlistUrn) {
-        return propellerRx.query(isMarkedForOfflineQuery(playlistUrn)).map(scalar(Boolean.class));
+    public Single<Boolean> isOfflinePlaylist(Urn playlistUrn) {
+        return propellerRx.queryResult(isMarkedForOfflineQuery(playlistUrn)).map(queryResult -> queryResult.toList(scalar(Boolean.class)).get(0)).singleOrError();
     }
 
     public io.reactivex.Single<Boolean> isOfflineLikesEnabled() {

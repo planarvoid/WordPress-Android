@@ -218,8 +218,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new RemoveEntityListSubscriber(adapter)),
 
-                offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
-                                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
+                RxJava.toV1Observable(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 
         likeSubscription = eventBus.queue(LIKE_CHANGED)
@@ -233,8 +232,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private Subscription subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
             return RxJava.toV1Observable(offlinePropertiesProvider.states())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new OfflinePropertiesSubscriber<>(adapter));
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(new OfflinePropertiesSubscriber<>(adapter));
         } else {
             return eventBus.queue(OFFLINE_CONTENT_CHANGED)
                            .observeOn(AndroidSchedulers.mainThread())

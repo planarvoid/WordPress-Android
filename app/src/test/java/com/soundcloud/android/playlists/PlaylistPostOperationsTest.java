@@ -9,15 +9,15 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistPostOperationsTest {
@@ -26,13 +26,13 @@ public class PlaylistPostOperationsTest {
 
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private SyncInitiator syncInitiator;
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
 
-    private Scheduler scheduler = Schedulers.immediate();
+    private Scheduler scheduler = Schedulers.trampoline();
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
         operations = new PlaylistPostOperations(
                 playlistPostStorage,
                 scheduler,

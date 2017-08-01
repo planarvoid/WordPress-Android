@@ -7,7 +7,6 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestObserver;
 
 public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest {
 
@@ -16,7 +15,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
 
     @Before
     public void setUp() {
-        contentStorage = new OfflineContentStorage(propellerRx(), null, isOfflineLikedTracksEnabledCommand);
+        contentStorage = new OfflineContentStorage(propellerRxV2(), null, isOfflineLikedTracksEnabledCommand);
     }
 
     @Test
@@ -39,21 +38,18 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
 
     @Test
     public void isOfflinePlaylistReturnsTrueForOfflinePlaylist() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
         final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
 
-        contentStorage.isOfflinePlaylist(playlistUrn).subscribe(testObserver);
+        final io.reactivex.observers.TestObserver<Boolean> testObserver = contentStorage.isOfflinePlaylist(playlistUrn).test();
 
-        testObserver.assertReceivedOnNext(singletonList(true));
+        testObserver.assertValue(Boolean.TRUE);
     }
 
     @Test
     public void isOfflinePlaylistReturnsFalseForNonOfflinePlaylist() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
+        final io.reactivex.observers.TestObserver<Boolean> testObserver = contentStorage.isOfflinePlaylist(Urn.forPlaylist(123L)).test();
 
-        contentStorage.isOfflinePlaylist(Urn.forPlaylist(123L)).subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(singletonList(false));
+        testObserver.assertValue(Boolean.FALSE);
     }
 
     @Test

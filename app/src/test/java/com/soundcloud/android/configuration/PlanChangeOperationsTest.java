@@ -14,15 +14,16 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,12 +39,11 @@ public class PlanChangeOperationsTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PlaySessionController playSessionController;
 
-    private TestEventBus eventBus = new TestEventBus();
-    private TestSubscriber<Object> subscriber = new TestSubscriber<>();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
-        when(offlineContentOperations.disableOfflineFeature()).thenReturn(Observable.just(null));
+        when(offlineContentOperations.disableOfflineFeature()).thenReturn(Single.just(RxSignal.SIGNAL));
         operations = new PlanChangeOperations(configurationOperations, pendingPlanOperations, policyOperations, playSessionController, offlineContentOperations, eventBus);
     }
 
@@ -54,7 +54,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        final TestObserver<Object> subscriber = operations.awaitAccountDowngrade().test();
 
         subscriber.assertValueCount(1);
         subscriber.assertNoErrors();
@@ -68,7 +68,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         final PolicyUpdateEvent event = eventBus.lastEventOn(EventQueue.POLICY_UPDATES);
         assertThat(event.getTracks()).containsExactly(track1, track2);
@@ -81,7 +81,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingDowngrade())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         verify(playSessionController).resetPlaySession();
     }
@@ -103,7 +103,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         verify(pendingPlanOperations).clearPendingPlanChanges();
     }
@@ -115,7 +115,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.error(new IOException()));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         verify(pendingPlanOperations, never()).clearPendingPlanChanges();
     }
@@ -127,7 +127,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.error(new Exception()));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         verify(pendingPlanOperations).clearPendingPlanChanges();
     }
@@ -139,7 +139,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountUpgrade().subscribe(subscriber);
+        final TestObserver<Object> subscriber = operations.awaitAccountUpgrade().test();
 
         subscriber.assertValue(singletonList(Urn.forTrack(123L)));
     }
@@ -151,7 +151,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.never());
 
-        operations.awaitAccountUpgrade().subscribe(subscriber);
+        operations.awaitAccountUpgrade().test();
 
         verify(playSessionController).resetPlaySession();
     }
@@ -163,7 +163,7 @@ public class PlanChangeOperationsTest {
         when(policyOperations.refreshedTrackPolicies())
                 .thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountUpgrade().subscribe(subscriber);
+        operations.awaitAccountUpgrade().test();
 
         verify(pendingPlanOperations).clearPendingPlanChanges();
     }
@@ -173,7 +173,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.error(new IOException()));
 
-        operations.awaitAccountUpgrade().subscribe(subscriber);
+        operations.awaitAccountUpgrade().test();
 
         verify(pendingPlanOperations, never()).clearPendingPlanChanges();
     }
@@ -183,18 +183,18 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingUpgrade())
                 .thenReturn(Observable.error(new Exception()));
 
-        operations.awaitAccountUpgrade().subscribe(subscriber);
+        operations.awaitAccountUpgrade().test();
 
         verify(pendingPlanOperations).clearPendingPlanChanges();
     }
 
     @Test
     public void downgradeToFreeResetsOfflineFeature() {
-        final PublishSubject<RxSignal> clearObservable = PublishSubject.create();
+        final SingleSubject<RxSignal> clearObservable = SingleSubject.create();
         when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.free()));
         when(offlineContentOperations.disableOfflineFeature()).thenReturn(clearObservable);
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         assertThat(clearObservable.hasObservers()).isTrue();
     }
@@ -204,7 +204,7 @@ public class PlanChangeOperationsTest {
         when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.midTier()));
         when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123L))));
 
-        operations.awaitAccountDowngrade().subscribe(subscriber);
+        operations.awaitAccountDowngrade().test();
 
         verify(offlineContentOperations, never()).disableOfflineFeature();
     }

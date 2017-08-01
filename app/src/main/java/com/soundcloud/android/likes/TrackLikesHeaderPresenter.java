@@ -1,7 +1,6 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventContextMetadata.builder;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
@@ -26,7 +25,6 @@ import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -180,8 +178,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private Observable<Boolean> getOfflineLikesEnabledObservable() {
         if (featureOperations.isOfflineContentEnabled()) {
-            return RxJava.toV2Observable(offlineContentOperations.getOfflineLikedTracksStatusChanges())
-                         .observeOn(AndroidSchedulers.mainThread());
+            return offlineContentOperations.getOfflineLikedTracksStatusChanges()
+                                           .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(false);
         }
@@ -204,7 +202,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     public void onShuffle() {
         compositeDisposables.add(playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
                                                   .doOnEvent((a, b) -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(builder().pageName(Screen.LIKES.get())
-                                                                                                                                            .build())))
+                                                                                                                                          .build())))
                                                   .subscribeWith(expandPlayerObserverProvider.get()));
     }
 
@@ -233,7 +231,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private void handleEnableOfflineLikes() {
         if (goOnboardingTooltipExperiment.isEnabled()) {
-            fireAndForget(offlineContentOperations.enableOfflineLikedTracks());
+            offlineContentOperations.enableOfflineLikedTracks().subscribe(new DefaultObserver<>());
         } else {
             syncLikesDialogProvider.get().show(fragment.getFragmentManager());
         }
@@ -243,7 +241,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         if (offlineContentOperations.isOfflineCollectionEnabled()) {
             ConfirmRemoveOfflineDialogFragment.showForLikes(fragment.getFragmentManager());
         } else {
-            fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
+            offlineContentOperations.disableOfflineLikedTracks().subscribe(new DefaultObserver<>());
             eventBus.publish(EventQueue.TRACKING,
                              OfflineInteractionEvent.fromRemoveOfflineLikes(Screen.LIKES.get()));
         }
@@ -268,9 +266,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
         @Inject
         UpdateHeaderViewObserver(OfflineSettingsOperations offlineSettings,
-                                   ConnectionHelper connectionHelper,
-                                   EventBusV2 eventBus,
-                                   GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
+                                 ConnectionHelper connectionHelper,
+                                 EventBusV2 eventBus,
+                                 GoOnboardingTooltipExperiment goOnboardingTooltipExperiment) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;
             this.eventBus = eventBus;

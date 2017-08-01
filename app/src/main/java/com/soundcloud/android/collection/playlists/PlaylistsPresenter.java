@@ -316,9 +316,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private void updateFromPlaylistChange(PlaylistChangedEvent event) {
-        final Set<Urn> urns = PlaylistChangedEvent.TO_URNS.call(event);
+        final Set urns = event.changeMap().keySet();
         if (urns.size() == 1) {
-            final Urn urn = urns.iterator().next();
+            final Urn urn = (Urn) urns.iterator().next();
             for (int position = 0; position < adapter.getItems().size(); position++) {
                 PlaylistCollectionItem item = adapter.getItem(position);
 

@@ -1,9 +1,7 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -21,21 +19,23 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
@@ -47,7 +47,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     private final Context appContext;
     private final EventBus eventBus;
-    private final PlaylistOperations playlistOperations;
+    private final PlaylistRepository playlistRepository;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
     private final SharePresenter sharePresenter;
@@ -64,7 +64,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
 
-    private Subscription playlistSubscription = RxUtils.invalidSubscription();
+    private Disposable playlistDisposable = RxUtils.invalidDisposable();
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
     private Urn playlistUrn;
 
@@ -76,7 +76,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     @Inject
     public PlaylistItemMenuPresenter(Context appContext,
                                      EventBus eventBus,
-                                     PlaylistOperations playlistOperations,
+                                     PlaylistRepository playlistRepository,
                                      LikeOperations likeOperations,
                                      RepostOperations repostOperations,
                                      SharePresenter sharePresenter,
@@ -94,7 +94,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      FeedbackController feedbackController) {
         this.appContext = appContext;
         this.eventBus = eventBus;
-        this.playlistOperations = playlistOperations;
+        this.playlistRepository = playlistRepository;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
         this.sharePresenter = sharePresenter;
@@ -151,8 +151,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     @Override
     public void onDismiss() {
-        playlistSubscription.unsubscribe();
-        playlistSubscription = Subscriptions.empty();
+        playlistDisposable.dispose();
+        playlistDisposable = Disposables.empty();
         isShowing = false;
     }
 
@@ -194,7 +194,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                                                playlistUrn,
                                                                promotedSourceInfo.orNull());
         } else {
-            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
+            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
             eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                     screenProvider.getLastScreenTag(),
                     playlistUrn,
@@ -229,7 +229,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                        entityMetadata));
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike, playlist)) {
-            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
+            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
         }
     }
 
@@ -275,7 +275,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     private void saveOffline() {
-        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn));
+        offlineContentOperations.makePlaylistAvailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
     }
 
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {
@@ -290,18 +290,16 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     // this is really ugly. We should introduce a PlaylistRepository.
     // https://github.com/soundcloud/android-listeners/issues/2942
     private void loadPlaylist(Urn urn) {
-        playlistSubscription.unsubscribe();
-        playlistSubscription = playlistOperations
-                .playlist(urn)
-                .first()
-                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-                .subscribe(new PlaylistSubscriber());
+        playlistDisposable.dispose();
+        playlistDisposable = playlistRepository.withUrn(urn)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new PlaylistSubscriber());
     }
 
-    private final class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
+    private final class PlaylistSubscriber extends DefaultMaybeObserver<Playlist> {
 
         @Override
-        public void onNext(Playlist playlist) {
+        public void onSuccess(Playlist playlist) {
             renderer.render(entityItemCreator.playlistItem(playlist));
         }
     }

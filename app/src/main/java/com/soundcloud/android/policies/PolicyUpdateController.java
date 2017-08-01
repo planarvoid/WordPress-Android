@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -95,7 +96,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
                 if (shouldDeleteOfflineContent(lastPolicyUpdate)) {
                     Log.d(TAG, "No policy update in last 30 days");
-                    fireAndForget(offlineContentOperations.clearOfflineContent());
+                    offlineContentOperations.clearOfflineContent().subscribe(new DefaultSingleObserver<>());
                 }
             }
         }

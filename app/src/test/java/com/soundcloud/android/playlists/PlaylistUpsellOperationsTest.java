@@ -26,7 +26,7 @@ public class PlaylistUpsellOperationsTest {
     private final List<TrackItem> defaultTracks = Arrays.asList(
             PlayableFixtures.expectedTrackForListItem(Urn.forTrack(425L)),
             PlayableFixtures.expectedTrackForListItem(Urn.forTrack(752L)));
-    private final Playlist playlist = ModelFixtures.playlist();
+    private final Playlist.Builder playlistBuilder = ModelFixtures.playlistBuilder();
     @Mock private AccountOperations accountOperations;
     @Mock private InlineUpsellOperations upsellOperations;
 
@@ -45,7 +45,11 @@ public class PlaylistUpsellOperationsTest {
 
     @Test
     public void returnUpsellForFirstUpsellableTrack() {
+        final Playlist playlist = playlistBuilder.creatorUrn(Urn.forUser(111L)).build();
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
+
+        assertThat(playlist.creatorUrn().equals(accountOperations.getLoggedInUserUrn())).isFalse();
+        assertThat(upsellOperations.shouldDisplayInPlaylist()).isTrue();
 
         final Optional<PlaylistDetailUpsellItem> upsell = operations.getUpsell(playlist, upsellableTracks);
         assertThat(upsell.get().track()).isEqualTo(track2);
@@ -55,22 +59,22 @@ public class PlaylistUpsellOperationsTest {
     public void upsellIsAbsentWhenNoUpsellableTracksPresent() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
 
-        assertThat(operations.getUpsell(playlist, defaultTracks)).isEqualTo(Optional.absent());
+        assertThat(operations.getUpsell(playlistBuilder.build(), defaultTracks)).isEqualTo(Optional.absent());
     }
 
     @Test
     public void upsellIsAbsentWhenPlaylistIsOwnedByUser() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(true);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlist.creatorUrn());
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistBuilder.build().creatorUrn());
 
-        assertThat(operations.getUpsell(playlist, upsellableTracks)).isEqualTo(Optional.absent());
+        assertThat(operations.getUpsell(playlistBuilder.build(), upsellableTracks)).isEqualTo(Optional.absent());
     }
 
     @Test
     public void upsellIsAbsentWhenDismissed() {
         when(upsellOperations.shouldDisplayInPlaylist()).thenReturn(false);
 
-        assertThat(operations.getUpsell(playlist, upsellableTracks)).isEqualTo(Optional.absent());
+        assertThat(operations.getUpsell(playlistBuilder.build(), upsellableTracks)).isEqualTo(Optional.absent());
     }
 
     @Test

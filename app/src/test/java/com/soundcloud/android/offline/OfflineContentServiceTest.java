@@ -19,15 +19,15 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import android.app.Notification;
 import android.content.Intent;
@@ -61,7 +61,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
     private final DownloadState inaccessibleStorage = DownloadState.inaccessibleStorage(downloadRequest1);
 
-    private Observable<List<Urn>> deletePendingRemoval;
+    private Single<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
     private Message downloadMessage;
     private DownloadQueue downloadQueue;
@@ -69,7 +69,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         downloadMessage = new Message();
-        deletePendingRemoval = Observable.empty();
+        deletePendingRemoval = Single.never();
         downloadQueue = new DownloadQueue();
 
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class)))
@@ -77,7 +77,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(downloadOperations.isConnectionValid()).thenReturn(true);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(offlineContentOperations.loadOfflineContentUpdates())
-                .thenReturn(Observable.never());
+                .thenReturn(Single.never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
         service = new OfflineContentService(downloadOperations,
                                             offlineContentOperations,
@@ -86,7 +86,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                                             handlerFactory,
                                             publisher,
                                             downloadQueue,
-                                            Schedulers.immediate(),
+                                            Schedulers.trampoline(),
                                             performanceMetricsEngine);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
@@ -132,9 +132,9 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void deletePendingRemovalsWhenStarting() {
         final List<Urn> tracksToBeRemoved = Arrays.asList(TRACK_1, TRACK_2);
-        deletePendingRemoval = Observable.just(tracksToBeRemoved);
+        deletePendingRemoval = Single.just(tracksToBeRemoved);
 
-        when(downloadOperations.removeOfflineTracks(tracksToBeRemoved)).thenReturn(Observable.empty());
+        when(downloadOperations.removeOfflineTracks(tracksToBeRemoved)).thenReturn(Single.never());
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         startService();
 
@@ -435,13 +435,13 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void startServiceWithCancelDownloadActionStopRequestProcessing() {
-        final PublishSubject<OfflineContentUpdates> observable = PublishSubject.create();
+        final SingleSubject<OfflineContentUpdates> observable = SingleSubject.create();
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(observable);
 
         startService();
         stopService();
 
-        observable.onNext(builder().build());
+        observable.onSuccess(builder().build());
 
         verify(notificationController, never()).onPendingRequests(any(DownloadQueue.class));
         verify(downloadHandler).quit();
@@ -478,7 +478,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void destroyServiceUnsubscribesObservables() {
-        PublishSubject<OfflineContentUpdates> loadUpdates = PublishSubject.create();
+        SingleSubject<OfflineContentUpdates> loadUpdates = SingleSubject.create();
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(loadUpdates);
 
         startService();
@@ -583,7 +583,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setUpOfflineContentUpdates(OfflineContentUpdates updates) {
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Single.just(updates));
     }
 
 }

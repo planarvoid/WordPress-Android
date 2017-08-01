@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -25,6 +24,7 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
@@ -39,10 +39,12 @@ import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +52,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowAlertDialog;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -64,7 +64,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     private static final String SCREEN = "some tag";
 
     @Mock private Context context;
-    @Mock private PlaylistOperations playlistOperations;
+    @Mock private PlaylistRepository playlistRepository;
     @Mock private LikeOperations likeOperations;
     @Mock private RepostOperations repostOperations;
     @Mock private SharePresenter sharePresenter;
@@ -93,8 +93,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.empty());
-        when(playlistOperations.trackUrnsForPlayback(any(Urn.class))).thenReturn(Observable.just(Lists.newArrayList(Urn.NOT_SET)));
+        when(playlistRepository.withUrn(any(Urn.class))).thenReturn(Maybe.empty());
         when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
@@ -105,7 +104,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         button = new View(activity());
         presenter = new PlaylistItemMenuPresenter(context,
                                                   eventBus,
-                                                  playlistOperations,
+                                                  playlistRepository,
                                                   likeOperations,
                                                   repostOperations,
                                                   sharePresenter,
@@ -291,7 +290,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickIgnoredWhileShowing() {
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlist));
+        when(playlistRepository.withUrn(any(Urn.class))).thenReturn(Maybe.just(playlist));
 
         presenter.show(button, playlistItem);
         presenter.show(button, playlistItem);
@@ -301,7 +300,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickAfterDismissalShowsPopup() {
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlist));
+        when(playlistRepository.withUrn(any(Urn.class))).thenReturn(Maybe.just(playlist));
 
         presenter.show(button, playlistItem);
         presenter.onDismiss();

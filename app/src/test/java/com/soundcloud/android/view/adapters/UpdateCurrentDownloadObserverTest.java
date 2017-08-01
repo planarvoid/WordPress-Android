@@ -23,7 +23,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 
-public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
+public class UpdateCurrentDownloadObserverTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);

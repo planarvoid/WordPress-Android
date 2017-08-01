@@ -4,18 +4,11 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
-import rx.functions.Func1;
 
 import java.util.Collection;
 import java.util.Collections;
 
 public final class OfflineContentChangedEvent {
-
-    public static final Func1<OfflineContentChangedEvent, OfflineState> TO_OFFLINE_STATE = event -> event.state;
-
-    public static final Func1<OfflineContentChangedEvent, Boolean> HAS_LIKED_COLLECTION_CHANGE = event -> event.isLikedTrackCollection;
-
-    static final Func1<OfflineContentChangedEvent, Boolean> TO_LIKES_COLLECTION_MARKED_OFFLINE = event -> event.state != OfflineState.NOT_OFFLINE;
 
     public final OfflineState state;
     public final Collection<Urn> entities;

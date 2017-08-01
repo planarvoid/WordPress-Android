@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
@@ -47,6 +46,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxSignal;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings({"PMD.GodClass"})
 @AutoFactory
 public class PlaylistDetailsPresenter {
 
@@ -360,13 +361,13 @@ public class PlaylistDetailsPresenter {
         final Urn creatorUrn = model.metadata().creatorUrn();
         final PlaySessionSource playSessionSource = pair.second();
 
-        final Observable<RxSignal> operation = RxJava.toV2Observable(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)
-                                                                                         .doOnNext(signal -> {
-                                                                                             final OfflineInteractionEvent event = getOfflinePlaylistTrackingEvent(playlistUrn,
-                                                                                                                                                                   true,
-                                                                                                                                                                   playSessionSource);
-                                                                                             eventBus.publish(EventQueue.TRACKING, event);
-                                                                                         }));
+        final Observable<RxSignal> operation = offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)
+                                                                       .doOnNext(signal -> {
+                                                                           final OfflineInteractionEvent event = getOfflinePlaylistTrackingEvent(playlistUrn,
+                                                                                                                                                 true,
+                                                                                                                                                 playSessionSource);
+                                                                           eventBus.publish(EventQueue.TRACKING, event);
+                                                                       });
         if (isInUserCollection(playlistUrn, creatorUrn)) {
             return operation.flatMap(ignored -> submitUpdateViewModel(true));
         } else {
@@ -443,7 +444,7 @@ public class PlaylistDetailsPresenter {
     }
 
     private void makePlaylistUnAvailableOffline(Pair<Urn, PlaySessionSource> urnSourcePair) {
-        fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()));
+        offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()).subscribeWith(new DefaultObserver<>());
         eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urnSourcePair.first(), false, urnSourcePair.second()));
     }
 
@@ -846,8 +847,8 @@ public class PlaylistDetailsPresenter {
                 final PlaylistDetailsViewModel previewViewModel = previous.data().get();
 
                 final PlaylistDetailTrackItem.Builder detailTrackItemBuilder = PlaylistDetailTrackItem.builder().inEditMode(previewViewModel.metadata().isInEditMode())
-                        .playlistUrn(previewViewModel.metadata().urn())
-                        .playlistOwnerUrn(previewViewModel.metadata().creatorUrn());
+                                                                                                      .playlistUrn(previewViewModel.metadata().urn())
+                                                                                                      .playlistOwnerUrn(previewViewModel.metadata().creatorUrn());
                 final List<PlaylistDetailTrackItem> updatedTracksList = transform(tracksList, track -> detailTrackItemBuilder.trackItem(track).build());
                 final PlaylistDetailsMetadata updatedMetadata = previewViewModel.metadata().toBuilder().with(resources, tracksList).build();
 

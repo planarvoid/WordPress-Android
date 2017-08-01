@@ -20,8 +20,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.support.v4.app.FragmentManager;
@@ -89,7 +89,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onStartClicked();
 
         subject.onNext(accountUpgradeSignal);
-        subject.onCompleted();
+        subject.onComplete();
 
         verify(navigationExecutor).openCollectionAsRootScreen(any(Activity.class));
     }
@@ -156,7 +156,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
         presenter.onStartClicked();
         success.onNext(accountUpgradeSignal);
-        success.onCompleted();
+        success.onComplete();
 
         verify(navigationExecutor).openCollectionAsRootScreen(any(Activity.class));
     }

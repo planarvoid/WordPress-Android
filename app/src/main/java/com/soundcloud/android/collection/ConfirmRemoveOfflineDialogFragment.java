@@ -1,7 +1,5 @@
 package com.soundcloud.android.collection;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -13,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
@@ -93,13 +92,13 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     }
 
     private void removeOfflineLikes() {
-        fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
+        offlineContentOperations.disableOfflineLikedTracks().subscribe(new DefaultObserver<>());
         eventBus.publish(EventQueue.TRACKING,
                          OfflineInteractionEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
     }
 
     private void removeOfflinePlaylist(Urn urn) {
-        fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urn));
+        offlineContentOperations.makePlaylistUnavailableOffline(urn).subscribe(new DefaultObserver<>());
         eventBus.publish(EventQueue.TRACKING,
                          OfflineInteractionEvent.fromRemoveOfflinePlaylist(screenProvider.getLastScreenTag(),
                                                                            urn,

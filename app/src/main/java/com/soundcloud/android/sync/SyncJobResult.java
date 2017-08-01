@@ -6,7 +6,7 @@ import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.objects.MoreObjects;
-import rx.functions.Func1;
+import io.reactivex.functions.Predicate;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -16,9 +16,7 @@ import java.util.List;
 
 public final class SyncJobResult implements Parcelable, UrnEvent {
 
-    public static final Func1<SyncJobResult, Urn> TO_URN = syncJobResult -> syncJobResult.getFirstUrn();
-
-    public static final Func1<SyncJobResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = syncJobResult -> Syncable.PLAYLIST.name().equals(syncJobResult.getAction())
+    public static final Predicate<SyncJobResult> IS_SINGLE_PLAYLIST_SYNCED_FILTER = syncJobResult -> Syncable.PLAYLIST.name().equals(syncJobResult.getAction())
             && syncJobResult.wasChanged()
             && syncJobResult.hasChangedEntities();
 

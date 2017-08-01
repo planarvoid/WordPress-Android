@@ -22,8 +22,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
@@ -93,7 +93,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onContinueClicked();
 
         subject.onNext(downgradeResult);
-        subject.onCompleted();
+        subject.onComplete();
 
         verify(navigationExecutor).openHomeAsRootScreen(any(Activity.class));
     }
@@ -203,7 +203,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         subject.onNext(downgradeResult);
-        subject.onCompleted();
+        subject.onComplete();
 
         verify(navigationExecutor).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }
@@ -270,7 +270,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
         presenter.onResubscribeClicked();
         success.onNext(downgradeResult);
-        success.onCompleted();
+        success.onComplete();
 
         verify(navigationExecutor).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }

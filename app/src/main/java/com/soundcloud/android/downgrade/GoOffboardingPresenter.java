@@ -2,19 +2,19 @@ package com.soundcloud.android.downgrade;
 
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,7 +35,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private final Plan plan;
 
     private Fragment fragment;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
 
     private Strategy strategy;
     private StrategyContext context;
@@ -83,7 +83,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     @Override
     public void onDestroy(Fragment fragment) {
-        subscription.unsubscribe();
+        disposable.dispose();
         this.fragment = null;
     }
 
@@ -97,10 +97,10 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         strategy = strategy.proceed();
     }
 
-    private class DowngradeCompleteSubscriber extends DefaultSubscriber<Object> {
+    private class DowngradeCompleteObserver extends DefaultObserver<Object> {
 
         @Override
-        public void onCompleted() {
+        public void onComplete() {
             strategy = new SuccessStrategy().proceed();
         }
 
@@ -132,10 +132,10 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         @Override
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
-            subscription.unsubscribe();
-            subscription = planChangeOperations.awaitAccountDowngrade()
-                                     .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new DowngradeCompleteSubscriber());
+            disposable.dispose();
+            disposable = planChangeOperations.awaitAccountDowngrade()
+                                             .observeOn(AndroidSchedulers.mainThread())
+                                             .subscribeWith(new DowngradeCompleteObserver());
             return strategy;
         }
     }

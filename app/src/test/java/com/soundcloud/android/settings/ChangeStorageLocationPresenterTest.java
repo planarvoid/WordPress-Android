@@ -16,11 +16,11 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowAlertDialog;
-import rx.subjects.PublishSubject;
 
 import android.app.Dialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +37,7 @@ public class ChangeStorageLocationPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
+        final SingleSubject<RxSignal> offlineObservable = SingleSubject.create();
         when(offlineContentOperations.resetOfflineContent(any(OfflineContentLocation.class))).thenReturn(offlineObservable);
 
         activity.setContentView(R.layout.change_storage_location_activity);

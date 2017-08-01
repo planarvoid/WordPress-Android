@@ -2,7 +2,6 @@ package com.soundcloud.android.settings;
 
 import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORAGE;
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,6 +15,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -122,7 +122,7 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
         eventBus.publish(EventQueue.TRACKING, OfflineContentLocation.DEVICE_STORAGE == offlineContentLocation
                                               ? OfflineInteractionEvent.forOfflineStorageLocationDevice()
                                               : OfflineInteractionEvent.forOfflineStorageLocationSdCard());
-        fireAndForget(offlineContentOperations.resetOfflineContent(offlineContentLocation));
+        offlineContentOperations.resetOfflineContent(offlineContentLocation).subscribe(new DefaultSingleObserver<>());
         activity.finish();
     }
 

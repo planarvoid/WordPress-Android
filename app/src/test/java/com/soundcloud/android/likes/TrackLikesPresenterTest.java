@@ -49,9 +49,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
+import io.reactivex.Observable;
 import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -66,7 +66,7 @@ import java.util.List;
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
-    private final io.reactivex.subjects.PublishSubject<OfflineProperties> offlinePropertiesSubject = io.reactivex.subjects.PublishSubject.create();
+    private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();
 
     private TrackLikesPresenter presenter;
 
@@ -85,7 +85,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
-    private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
+    private final rx.subjects.PublishSubject<TrackLikesPage> likedTracksObservable = rx.subjects.PublishSubject.create();
     private final Single<List<Urn>> likedTrackUrns = Single.just(Arrays.asList(Urn.forTrack(1),
                                                                                Urn.forTrack(2)));
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -113,8 +113,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             changeLikeToSaveExperimentStringHelper);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
-        when(likeOperations.onTrackLiked()).thenReturn(io.reactivex.Observable.empty());
-        when(likeOperations.onTrackUnliked()).thenReturn(io.reactivex.Observable.empty());
+        when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
+        when(likeOperations.onTrackUnliked()).thenReturn(Observable.empty());
         when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
         when(intentResolver.consumePlaybackRequest()).thenReturn(false);
     }

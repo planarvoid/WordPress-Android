@@ -3,7 +3,6 @@ package com.soundcloud.android.settings;
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_CHANGE_STORAGE_LOCATION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
@@ -30,15 +29,13 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -58,7 +55,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject OfflineUsage offlineUsage;
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject FeatureOperations featureOperations;
-    @Inject EventBus eventBus;
+    @Inject EventBusV2 eventBus;
     @Inject OfflinePropertiesProvider offlinePropertiesProvider;
     @Inject NavigationExecutor navigationExecutor;
     @Inject FeatureFlags featureFlags;
@@ -67,7 +64,6 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
-    private CompositeSubscription subscription;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     public static OfflineSettingsFragment create() {
@@ -81,7 +77,6 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscription = new CompositeSubscription();
         addPreferencesFromResource(R.xml.settings_offline_listening);
         setupOffline();
     }
@@ -121,8 +116,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private int getChangeStorageLocationSummary() {
         return OfflineContentLocation.DEVICE_STORAGE == offlineSettings.getOfflineContentLocation()
-                              ? R.string.pref_offline_change_storage_location_description_device_storage
-                              : R.string.pref_offline_change_storage_location_description_sd_card;
+               ? R.string.pref_offline_change_storage_location_description_device_storage
+               : R.string.pref_offline_change_storage_location_description_sd_card;
     }
 
     private void setupClearContent() {
@@ -131,24 +126,23 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupSubscription() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            subscription.add(RxJava.toV1Observable(offlinePropertiesProvider.states())
-                                                             .observeOn(AndroidSchedulers.mainThread())
-                                                             .subscribe(new CurrentDownloadSubscriber()));
+            disposables.add(offlinePropertiesProvider.states()
+                                                     .observeOn(AndroidSchedulers.mainThread())
+                                                     .subscribeWith(new CurrentDownloadObserver()));
         } else {
-            subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
+            disposables.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                                      .filter(event -> event.state == OfflineState.DOWNLOADED)
                                      .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new CurrentDownloadSubscriber()));
+                                     .subscribeWith(new CurrentDownloadObserver()));
         }
 
         disposables.add(offlineSettings.getOfflineContentLocationChange()
-                               .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
-                               .subscribeWith(new ChangeStorageLocationSubscriber()));
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribeWith(new ChangeStorageLocationSubscriber()));
     }
 
     @Override
     public void onDestroyView() {
-        subscription.unsubscribe();
         disposables.clear();
         super.onDestroyView();
     }
@@ -175,7 +169,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void onAutomaticCollectionSyncToggle(boolean automaticSyncEnabled) {
         if (automaticSyncEnabled) {
-            fireAndForget(offlineContentOperations.enableOfflineCollection());
+            offlineContentOperations.enableOfflineCollection().subscribe(new DefaultObserver<>());
             eventBus.publish(EventQueue.TRACKING,
                              OfflineInteractionEvent.fromEnableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
         } else {
@@ -267,21 +261,22 @@ public class OfflineSettingsFragment extends PreferenceFragment
         eventBus.publish(EventQueue.TRACKING,
                          OfflineInteractionEvent.fromDisableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
 
-        subscription.add(offlineContentOperations
+        disposables.add(offlineContentOperations
                                  .disableOfflineFeature()
                                  .observeOn(AndroidSchedulers.mainThread())
-                                 .subscribe(new ClearOfflineContentSubscriber()));
+                                 .subscribeWith(new ClearOfflineContentObserver()));
     }
 
-    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Object> {
+    private final class ClearOfflineContentObserver extends DefaultSingleObserver<Object> {
         @Override
-        public void onNext(Object ignored) {
+        public void onSuccess(Object ignored) {
             setOfflineCollectionChecked(false);
             refreshStoragePreference();
+            super.onSuccess(ignored);
         }
     }
 
-    private final class CurrentDownloadSubscriber extends DefaultSubscriber<Object> {
+    private final class CurrentDownloadObserver extends DefaultObserver<Object> {
         @Override
         public void onNext(final Object signal) {
             refreshStoragePreference();

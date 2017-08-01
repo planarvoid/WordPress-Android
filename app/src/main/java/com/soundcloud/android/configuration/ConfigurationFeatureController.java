@@ -39,7 +39,7 @@ public class ConfigurationFeatureController {
             if (enabled) {
                 offlineContentController.subscribe();
             } else {
-                offlineContentController.unsubscribe();
+                offlineContentController.dispose();
             }
         }
     }

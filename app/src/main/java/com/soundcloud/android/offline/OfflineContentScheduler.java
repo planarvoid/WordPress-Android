@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
-import rx.functions.Action1;
+import io.reactivex.functions.Consumer;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -55,7 +55,7 @@ class OfflineContentScheduler {
         }
     }
 
-    Action1<Object> scheduleCleanupAction() {
+    Consumer<Object> scheduleCleanupConsumer() {
         return ignored -> scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY,
                                   CLEANUP_REQUEST_ID);
     }

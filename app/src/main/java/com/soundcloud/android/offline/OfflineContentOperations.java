@@ -20,17 +20,18 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class OfflineContentOperations {
 
@@ -51,20 +52,9 @@ public class OfflineContentOperations {
     private final CollectionOperations collectionOperations;
     private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
-
-    private final Func1<Collection<Urn>, Observable<?>> UPDATE_POLICIES =
-            new Func1<Collection<Urn>, Observable<?>>() {
-                @Override
-                public Observable<?> call(Collection<Urn> urns) {
-                    if (urns.isEmpty()) {
-                        return Observable.just(null);
-                    }
-                    return policyOperations.updatePolicies(urns);
-                }
-            };
 
     @Inject
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
@@ -72,7 +62,7 @@ public class OfflineContentOperations {
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
                              ClearOfflineContentCommand clearOfflineContentCommand,
                              ResetOfflineContentCommand resetOfflineContentCommand,
-                             EventBus eventBus,
+                             EventBusV2 eventBus,
                              OfflineContentStorage offlineContentStorage,
                              PolicyOperations policyOperations,
                              LoadExpectedContentCommand loadExpectedContentCommand,
@@ -85,7 +75,7 @@ public class OfflineContentOperations {
                              TrackDownloadsStorage tracksStorage,
                              CollectionOperations collectionOperations,
                              LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
-                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                             @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                              IntroductoryOverlayOperations introductoryOverlayOperations) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.publisher = publisher;
@@ -114,17 +104,17 @@ public class OfflineContentOperations {
                 .addLikedTrackCollection()
                 .flatMap(o -> setMyPlaylistsAsOfflinePlaylists())
                 .doOnNext(ignored -> offlineContentStorage.addOfflineCollection())
-                .doOnNext(serviceInitiator.startFromUserAction())
+                .doOnNext(serviceInitiator.startFromUserConsumer())
                 .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
-                .flatMap(ignored -> RxJava.toV1Observable(syncInitiatorBridge.refreshMyPlaylists()))
+                .flatMapSingle(ignored -> syncInitiatorBridge.refreshMyPlaylists())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
     private Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
-        return RxJava.toV1Observable(collectionOperations.myPlaylists())
-                     .map(playlists -> Lists.transform(playlists, Playlist::urn))
-                     .flatMap(offlineContentStorage::resetOfflinePlaylists);
+        return collectionOperations.myPlaylists()
+                                   .map(playlists -> Lists.transform(playlists, Playlist::urn))
+                                   .flatMapObservable(offlineContentStorage::resetOfflinePlaylists);
     }
 
     public void disableOfflineCollection() {
@@ -139,35 +129,33 @@ public class OfflineContentOperations {
         return offlineContentStorage.removeLikedTrackCollection()
                                     .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED,
                                                                       OfflineContentChangedEvent.removed(true)))
-                                    .doOnNext(serviceInitiator.startFromUserAction())
-                                    .doOnNext(serviceScheduler.scheduleCleanupAction())
+                                    .doOnNext(serviceInitiator.startFromUserConsumer())
+                                    .doOnNext(serviceScheduler.scheduleCleanupConsumer())
                                     .map(RxUtils.TO_SIGNAL)
                                     .subscribeOn(scheduler);
     }
 
     public Observable<RxSignal> enableOfflineLikedTracks() {
         return offlineContentStorage.addLikedTrackCollection()
-                                    .doOnNext(serviceInitiator.startFromUserAction())
+                                    .doOnNext(serviceInitiator.startFromUserConsumer())
                                     .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
                                     .map(RxUtils.TO_SIGNAL)
                                     .subscribeOn(scheduler);
     }
 
-    Observable<Boolean> isOfflineLikedTracksEnabled() {
-        return RxJava.toV1Observable(offlineContentStorage
-                .isOfflineLikesEnabled())
-                .subscribeOn(scheduler);
+    Single<Boolean> isOfflineLikedTracksEnabled() {
+        return offlineContentStorage.isOfflineLikesEnabled().subscribeOn(scheduler);
     }
 
     public Observable<Boolean> getOfflineLikedTracksStatusChanges() {
         final Observable<Boolean> changedEventObservable = eventBus
                 .queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
-                .map(OfflineContentChangedEvent.TO_LIKES_COLLECTION_MARKED_OFFLINE);
-        return isOfflineLikedTracksEnabled().concatWith(changedEventObservable);
+                .filter(event -> event.isLikedTrackCollection)
+                .map(event -> event.state != OfflineState.NOT_OFFLINE);
+        return isOfflineLikedTracksEnabled().toObservable().concatWith(changedEventObservable);
     }
 
-    Observable<Boolean> isOfflinePlaylist(Urn playlist) {
+    Single<Boolean> isOfflinePlaylist(Urn playlist) {
         return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
@@ -175,11 +163,15 @@ public class OfflineContentOperations {
         return makePlaylistAvailableOffline(singletonList(playlist));
     }
 
+    Observable<RxSignal> makePlaylistAvailableOffline(final Set<Urn> playlistUrns) {
+        return makePlaylistAvailableOffline(Lists.newArrayList(playlistUrns));
+    }
+
     Observable<RxSignal> makePlaylistAvailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .storeAsOfflinePlaylists(playlistUrns)
                 .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED, fromPlaylistsMarkedForDownload(playlistUrns)))
-                .doOnNext(serviceInitiator.startFromUserAction())
+                .doOnNext(serviceInitiator.startFromUserConsumer())
                 .doOnNext(ignored -> syncInitiator.syncPlaylistsAndForget(playlistUrns))
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
@@ -189,6 +181,10 @@ public class OfflineContentOperations {
         return makePlaylistUnavailableOffline(singletonList(playlistUrn));
     }
 
+    Observable<RxSignal> makePlaylistUnavailableOffline(final Set<Urn> playlistUrns) {
+        return makePlaylistUnavailableOffline(Lists.newArrayList(playlistUrns));
+    }
+
     Observable<RxSignal> makePlaylistUnavailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .removePlaylistsFromOffline(playlistUrns)
@@ -196,71 +192,71 @@ public class OfflineContentOperations {
                                                   fromPlaylistsUnmarkedForDownload(playlistUrns)))
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED,
                                                   OfflineContentChangedEvent.removed(playlistUrns)))
-                .doOnNext(serviceInitiator.startFromUserAction())
-                .doOnNext(serviceScheduler.scheduleCleanupAction())
+                .doOnNext(serviceInitiator.startFromUserConsumer())
+                .doOnNext(serviceScheduler.scheduleCleanupConsumer())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
     public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
-        return RxJava.toV1Observable(featureOperations.offlineContentEnabled()).concatWith(getOfflineLikedTracksStatusChanges());
+        return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
 
-    public io.reactivex.Observable<Boolean> getOfflineContentOrOfflineLikesStatusChangesV2() {
-        return featureOperations.offlineContentEnabled().concatWith(RxJava.toV2Observable(getOfflineLikedTracksStatusChanges()));
+    public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChangesV2() {
+        return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
 
-    public Observable<RxSignal> disableOfflineFeature() {
+    public Single<RxSignal> disableOfflineFeature() {
         return clearOfflineContent()
-                .doOnCompleted(this::disableOfflineCollection);
+                .doOnSuccess(signal -> disableOfflineCollection());
     }
 
-    public Observable<RxSignal> clearOfflineContent() {
+    public Single<RxSignal> clearOfflineContent() {
         return notifyOfflineContentRemoved()
-                .flatMap(ignored -> clearOfflineContentCommand.toObservable(null))
-                .doOnNext(serviceInitiator.startFromUserAction())
+                .flatMap(ignored -> clearOfflineContentCommand.toSingle())
+                .doOnSuccess(serviceInitiator.startFromUserConsumer())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
-    public Observable<RxSignal> resetOfflineContent(OfflineContentLocation location) {
+    public Single<RxSignal> resetOfflineContent(OfflineContentLocation location) {
         return notifyOfflineContentRequested()
-                .flatMap(ignored -> resetOfflineContentCommand.toObservable(location))
-                .doOnNext(serviceInitiator.startFromUserAction())
+                .flatMap(ignored -> resetOfflineContentCommand.toSingle(location))
+                .doOnSuccess(serviceInitiator.startFromUserConsumer())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
-    private Observable<?> notifyOfflineContentRemoved() {
+    private Single<?> notifyOfflineContentRemoved() {
         return notifyOfflineContent(OfflineState.NOT_OFFLINE);
     }
 
-    private Observable<?> notifyOfflineContentRequested() {
+    private Single<?> notifyOfflineContentRequested() {
         return notifyOfflineContent(OfflineState.REQUESTED);
     }
 
-    private Observable<?> notifyOfflineContent(OfflineState state) {
-        return Observable.zip(
-                loadOfflinePlaylistsCommand.toObservable(null),
+    private Single<?> notifyOfflineContent(OfflineState state) {
+        return Single.zip(
+                loadOfflinePlaylistsCommand.toSingle(),
                 isOfflineLikedTracksEnabled(),
                 (playlists, isOfflineLikedTracks) -> new OfflineContentChangedEvent(state,
                                                                                     playlists,
                                                                                     isOfflineLikedTracks))
-                         .doOnNext(event -> eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event));
+                     .doOnSuccess(event -> eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event));
     }
 
-    Observable<OfflineContentUpdates> loadOfflineContentUpdates() {
+    Single<OfflineContentUpdates> loadOfflineContentUpdates() {
         return tryToUpdatePolicies()
-                .flatMap(loadExpectedContentCommand.toContinuation())
-                .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
-                .doOnNext(this::storeAndPublishUpdates)
+                .andThen(loadExpectedContentCommand.toSingle())
+                .flatMap(loadOfflineContentUpdatesCommand::toSingle)
+                .doOnSuccess(this::storeAndPublishUpdates)
                 .subscribeOn(scheduler);
     }
 
     private void storeAndPublishUpdates(OfflineContentUpdates offlineContentUpdates) {
         // Store and Publish must be atomic from an RX perspective.
         // i.e. do not store without publishing upon unsubscribe
-        storeDownloadUpdatesCommand.toAction1().call(offlineContentUpdates);
+        storeDownloadUpdatesCommand.call(offlineContentUpdates);
         publishUpdates(offlineContentUpdates);
     }
 
@@ -271,20 +267,18 @@ public class OfflineContentOperations {
         publisher.publishUnavailable(updates.unavailableTracks());
     }
 
-    private Observable<?> tryToUpdatePolicies() {
-        final Observable<?> resumeObservable = Observable.just(null);
-        return updateOfflineContentStalePolicies().onErrorResumeNext(resumeObservable);
+    private Completable tryToUpdatePolicies() {
+        return updateOfflineContentStalePolicies().onErrorComplete();
     }
 
-    Observable<List<Urn>> loadContentToDelete() {
-        return RxJava.toV1Observable(tracksStorage.getTracksToRemove()).subscribeOn(scheduler);
+    Single<List<Urn>> loadContentToDelete() {
+        return tracksStorage.getTracksToRemove().subscribeOn(scheduler);
     }
 
     @VisibleForTesting
-    Observable<Object> updateOfflineContentStalePolicies() {
-        return loadTracksWithStalePolicies.toObservable(null)
-                                          .flatMap(UPDATE_POLICIES)
-                                          .cast(Object.class)
+    Completable updateOfflineContentStalePolicies() {
+        return loadTracksWithStalePolicies.toSingle()
+                                          .flatMapCompletable(urns -> urns.isEmpty() ? Completable.complete() : RxJava.toV2Completable(policyOperations.updatePolicies(urns)))
                                           .subscribeOn(scheduler);
     }
 

@@ -1,11 +1,10 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
 
@@ -54,7 +53,7 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
     }
 
     private void deletePlaylist() {
-        fireAndForget(operations.remove(urn()));
+        operations.remove(urn()).subscribe(new DefaultObserver<>());
     }
 
     private Urn urn() {

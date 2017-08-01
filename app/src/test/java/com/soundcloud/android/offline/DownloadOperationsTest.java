@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +59,7 @@ public class DownloadOperationsTest {
                                             deleteOfflineContent,
                                             playQueueManager,
                                             streamUrlBuilder,
-                                            Schedulers.immediate(),
+                                            Schedulers.trampoline(),
                                             assetDownloader,
                                             downloadConnectionHelper,
                                             offlineSettingsStorage);

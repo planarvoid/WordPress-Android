@@ -13,8 +13,8 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,7 +46,7 @@ class DownloadOperations {
                        DeleteOfflineTrackCommand deleteOfflineContent,
                        PlayQueueManager playQueueManager,
                        StreamUrlBuilder urlBuilder,
-                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                       @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                        OfflineTrackAssetDownloader assetDownloader,
                        DownloadConnectionHelper downloadConnectionHelper,
                        OfflineSettingsStorage offlineSettingsStorage) {
@@ -65,9 +65,9 @@ class DownloadOperations {
         return !downloadConnectionHelper.isNetworkDisconnected() && downloadConnectionHelper.isDownloadPermitted();
     }
 
-    Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
+    Single<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
         return deleteOfflineContent
-                .toObservable(MoreCollections.filter(requests, isNotCurrentTrackFilter))
+                .toSingle(MoreCollections.filter(requests, isNotCurrentTrackFilter))
                 .subscribeOn(scheduler);
     }
 

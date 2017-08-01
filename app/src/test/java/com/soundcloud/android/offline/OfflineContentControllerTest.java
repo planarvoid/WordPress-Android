@@ -16,21 +16,20 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.RxSignal;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
-import rx.functions.Action0;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,25 +44,21 @@ public class OfflineContentControllerTest {
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineServiceInitiator serviceInitiator;
-    @Mock private Action0 startServiceAction;
-    @Mock private Action0 stopServiceAction;
 
     private OfflineContentController controller;
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
     private io.reactivex.subjects.PublishSubject<Boolean> wifiOnlyToggleSetting;
     private PublishSubject<Void> onCollectionChanged;
-    private TestSubscriber<Object> startServiceSubscriber;
+    private TestObserver<Object> startServiceObserver;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
-        wifiOnlyToggleSetting = io.reactivex.subjects.PublishSubject.create();
+        eventBus = new TestEventBusV2();
+        wifiOnlyToggleSetting = PublishSubject.create();
         onCollectionChanged = PublishSubject.create();
 
-        startServiceSubscriber = new TestSubscriber<>();
-        when(serviceInitiator.start()).thenReturn(startServiceAction);
-        when(serviceInitiator.stop()).thenReturn(stopServiceAction);
-        when(serviceInitiator.startSubscriber()).thenReturn(startServiceSubscriber);
+        startServiceObserver = new TestObserver<>();
+        when(serviceInitiator.startObserver()).thenReturn(new TestDefaultObserver());
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
         controller = new OfflineContentController(eventBus,
                                                   settingsStorage,
@@ -75,16 +70,16 @@ public class OfflineContentControllerTest {
     public void startsServiceWhenSubscribes() {
         controller.subscribe();
 
-        verify(startServiceAction).call();
+        verify(serviceInitiator).start();
     }
 
     @Test
-    public void stopServiceWhenUnsubscribed() {
+    public void stopServiceWhenUnsubscribed() throws Exception {
         controller.subscribe();
 
-        controller.unsubscribe();
+        controller.dispose();
 
-        verify(stopServiceAction).call();
+        verify(serviceInitiator).stop();
     }
 
     @Test
@@ -93,27 +88,27 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.TRACK_LIKES.name(), true));
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
     public void startsOfflineSyncWhenATrackIsLiked() {
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Single.just(true));
 
         controller.subscribe();
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(TRACK, true, 1));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void startsOfflineSyncWhenATrackIsUnliked() {
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Single.just(true));
 
         controller.subscribe();
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(TRACK, false, 1));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -122,19 +117,19 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.TRACK_LIKES.name(), false));
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
     public void ignoreStartEventsWhenUnsubscribed() {
         controller.subscribe();
 
-        controller.unsubscribe();
+        controller.dispose();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(Collections.emptyList(), true));
         onCollectionChanged.onNext(SIGNAL);
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
@@ -143,7 +138,7 @@ public class OfflineContentControllerTest {
 
         wifiOnlyToggleSetting.onNext(false);
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -152,7 +147,7 @@ public class OfflineContentControllerTest {
 
         wifiOnlyToggleSetting.onNext(true);
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -161,51 +156,51 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.OFFLINE);
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void startsOfflineSyncWhenPlaylistMarkedAsAvailableOfflineIsEdited() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(true));
         Playlist editedPlaylist = ModelFixtures.playlistBuilder().urn(PLAYLIST).build();
 
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromPlaylistEdited(editedPlaylist));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void startsOfflineSyncWhenTrackAddedToPlaylistMarkedAsAvailableOffline() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(true));
 
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void doesNotStartOfflineSyncWhenTrackAddedToNonOfflinePlaylist() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(false));
 
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, fromTrackAddedToPlaylist(PLAYLIST, 1));
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
     public void startOfflineSyncWhenPlaylistMarkedAsOfflineSyncedAndChanged() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(true));
 
         controller.subscribe();
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -214,17 +209,17 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), false, PLAYLIST));
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
     public void doesNotStartOfflineSyncOnSyncResultEventForPlaylistNotMarkedAsOffline() {
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(false));
 
         controller.subscribe();
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
     @Test
@@ -233,7 +228,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(singletonList(Urn.forTrack(123L))));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -242,15 +237,15 @@ public class OfflineContentControllerTest {
         Urn playlist2 = Urn.forPlaylist(456L);
 
         PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
+        when(offlineContentOperations.makePlaylistUnavailableOffline(Sets.newHashSet(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
         controller.subscribe();
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntitiesDeleted(Sets.newHashSet(playlist1, playlist2)));
 
-        startServiceSubscriber.assertNoValues();
-        makePlaylistUnavailableOffline.onNext(null);
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertNoValues();
+        makePlaylistUnavailableOffline.onNext(RxSignal.SIGNAL);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -259,7 +254,7 @@ public class OfflineContentControllerTest {
         Urn playlist2 = Urn.forPlaylist(456L);
 
         PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
+        when(offlineContentOperations.makePlaylistUnavailableOffline(Sets.newHashSet(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
         controller.subscribe();
@@ -268,51 +263,51 @@ public class OfflineContentControllerTest {
         likes.put(playlist2, LikesStatusEvent.LikeStatus.create(playlist2, false));
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(likes));
 
-        startServiceSubscriber.assertNoValues();
-        makePlaylistUnavailableOffline.onNext(null);
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertNoValues();
+        makePlaylistUnavailableOffline.onNext(RxSignal.SIGNAL);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
         PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
+        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(
                 makeAvailableOffline);
 
         controller.subscribe();
 
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(PLAYLIST));
 
-        startServiceSubscriber.assertValueCount(0);
-        makeAvailableOffline.onNext(null);
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(0);
+        makeAvailableOffline.onNext(RxSignal.SIGNAL);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
+        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(
                 makeAvailableOffline);
 
         controller.subscribe();
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(PLAYLIST, true, 1));
 
-        startServiceSubscriber.assertValueCount(0);
-        makeAvailableOffline.onNext(null);
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(0);
+        makeAvailableOffline.onNext(RxSignal.SIGNAL);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void dontAddAgainOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         // Note : If not, this would trigger an inifinite loop.
-        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(true));
 
         controller.subscribe();
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
-        startServiceSubscriber.assertValueCount(1);
+        startServiceObserver.assertValueCount(1);
     }
 
     @Test
@@ -320,7 +315,23 @@ public class OfflineContentControllerTest {
         controller.subscribe();
         onCollectionChanged.onNext(SIGNAL);
 
-        startServiceSubscriber.assertNoValues();
+        startServiceObserver.assertNoValues();
     }
 
+    private class TestDefaultObserver extends DefaultObserver<Object> {
+        public void onNext(Object object) {
+            super.onNext(object);
+            startServiceObserver.onNext(object);
+        }
+
+        public void onError(Throwable throwable) {
+            super.onError(throwable);
+            startServiceObserver.onError(throwable);
+        }
+
+        public void onComplete() {
+            super.onComplete();
+            startServiceObserver.onComplete();
+        }
+    }
 }

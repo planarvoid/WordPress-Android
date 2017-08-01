@@ -1,9 +1,7 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Subscriber;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import io.reactivex.functions.Consumer;
 
 import android.content.Context;
 
@@ -17,20 +15,20 @@ class OfflineServiceInitiator {
         this.context = context;
     }
 
-    Action0 start() {
-        return () -> OfflineContentService.start(context);
+    void start() {
+        OfflineContentService.start(context);
     }
 
-    Action0 stop() {
-        return () -> OfflineContentService.stop(context);
+    void stop() {
+        OfflineContentService.stop(context);
     }
 
-    Action1<Object> startFromUserAction() {
+    Consumer<Object> startFromUserConsumer() {
         return ignored -> OfflineContentService.startFromUserAction(context);
     }
 
-    Subscriber<Object> startSubscriber() {
-        return new DefaultSubscriber<Object>() {
+    DefaultObserver<Object> startObserver() {
+        return new DefaultObserver<Object>() {
             @Override
             public void onNext(Object ignored) {
                 OfflineContentService.start(context);

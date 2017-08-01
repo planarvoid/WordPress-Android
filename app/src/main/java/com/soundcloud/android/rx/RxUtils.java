@@ -19,15 +19,13 @@ import java.util.List;
 
 public final class RxUtils {
 
-    public static final Func1<Boolean, Boolean> IS_TRUE = isTrue -> isTrue;
-
     public static final Predicate<Boolean> TRUE = isTrue -> isTrue;
 
     public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = ts -> ts != Consts.NOT_SET;
 
     public static final Object EMPTY_VALUE = new Object();
 
-    public static final Func1<Object, RxSignal> TO_SIGNAL = ignore -> RxSignal.SIGNAL;
+    public static final io.reactivex.functions.Function<Object, RxSignal> TO_SIGNAL = ignore -> RxSignal.SIGNAL;
 
     private RxUtils() {
     }

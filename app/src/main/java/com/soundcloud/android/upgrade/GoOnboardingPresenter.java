@@ -9,11 +9,10 @@ import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +34,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final EventBus eventBus;
 
     private AppCompatActivity activity;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
 
     private Plan plan;
     private Strategy strategy;
@@ -95,7 +94,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     @Override
     public void onDestroy(AppCompatActivity activity) {
         view.unbind();
-        subscription.unsubscribe();
+        disposable.dispose();
         this.activity = null;
     }
 
@@ -105,17 +104,18 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         strategy = strategy.proceed();
     }
 
-    private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
+    private class UpgradeCompleteObserver extends com.soundcloud.android.rx.observers.DefaultObserver<Object> {
 
         private boolean hasPlan = false;
 
         @Override
-        public void onCompleted() {
+        public void onComplete() {
             if (hasPlan) {
                 strategy = new SuccessStrategy().proceed();
             } else {
                 strategy = new UnrecoverableErrorStrategy().proceed();
             }
+            super.onComplete();
         }
 
         @Override
@@ -151,9 +151,9 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
-            subscription = planChangeOperations.awaitAccountUpgrade()
-                                               .observeOn(AndroidSchedulers.mainThread())
-                                               .subscribe(new UpgradeCompleteSubscriber());
+            disposable = planChangeOperations.awaitAccountUpgrade()
+                                             .observeOn(AndroidSchedulers.mainThread())
+                                             .subscribeWith(new UpgradeCompleteObserver());
             return strategy;
         }
     }

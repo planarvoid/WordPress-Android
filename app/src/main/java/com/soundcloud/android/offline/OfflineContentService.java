@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 import static com.soundcloud.android.offline.DownloadRequest.TO_TRACK_URN;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
@@ -15,13 +14,13 @@ import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.Log;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.functions.Func1;
 
 import android.app.Service;
 import android.content.Context;
@@ -49,19 +48,19 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject OfflineStatePublisher publisher;
     @Inject DownloadQueue queue;
     @Inject DownloadHandler.Builder builder;
-    @Inject @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler;
+    @Inject @Named(ApplicationModule.RX_LOW_PRIORITY) Scheduler scheduler;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
     private DownloadHandler downloadHandler;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
 
     private boolean isStopping;
     private boolean showResult;
     private long totalDownloadedDuration;
 
-    private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
+    private final Function<List<Urn>, Single<Collection<Urn>>> removeTracks = new Function<List<Urn>, Single<Collection<Urn>>>() {
         @Override
-        public Observable<Collection<Urn>> call(List<Urn> urns) {
+        public Single<Collection<Urn>> apply(List<Urn> urns) {
             return downloadOperations.removeOfflineTracks(urns);
         }
     };
@@ -127,18 +126,18 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         offlineContentScheduler.cancelPendingRetries();
 
         if (ACTION_START.equalsIgnoreCase(action)) {
-            fireAndForget(offlineContentOperations.loadContentToDelete().flatMap(removeTracks));
+            offlineContentOperations.loadContentToDelete().flatMap(removeTracks).subscribeWith(new DefaultSingleObserver<>());
 
-            subscription.unsubscribe();
-            subscription = offlineContentOperations
+            disposable.dispose();
+            disposable = offlineContentOperations
                     .loadOfflineContentUpdates()
                     .observeOn(scheduler)
-                    .subscribe(new OfflineContentRequestsSubscriber());
+                    .subscribeWith(new OfflineContentRequestsObserver());
 
         } else if (ACTION_STOP.equalsIgnoreCase(action)) {
             // ACTION_STOP is used to stop immediately without any states update.
             // It is currently only used when logging out.
-            subscription.unsubscribe();
+            disposable.dispose();
             if (downloadHandler.isDownloading()) {
                 downloadHandler.cancel();
             } else {
@@ -246,14 +245,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        subscription.unsubscribe();
+        disposable.dispose();
         super.onDestroy();
     }
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
         measureOfflineSync();
-        subscription.unsubscribe();
+        disposable.dispose();
         downloadHandler.quit();
 
         stopForeground(false);
@@ -270,9 +269,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentUpdates> {
+    private class OfflineContentRequestsObserver extends DefaultSingleObserver<OfflineContentUpdates> {
         @Override
-        public void onNext(OfflineContentUpdates updates) {
+        public void onSuccess(OfflineContentUpdates updates) {
             Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + updates);
 
             final List<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
@@ -293,6 +292,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                 totalDownloadedDuration = 0;
                 performanceMetricsEngine.startMeasuring(MetricType.OFFLINE_SYNC);
             }
+            super.onSuccess(updates);
         }
     }
 

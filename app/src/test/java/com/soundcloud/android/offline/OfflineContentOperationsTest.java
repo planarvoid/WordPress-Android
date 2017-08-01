@@ -21,6 +21,7 @@ import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -28,18 +29,19 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
-import rx.functions.Action1;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,29 +71,29 @@ public class OfflineContentOperationsTest {
     @Mock private ClearOfflineContentCommand clearOfflineContentCommand;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private Action1<Object> startServiceAction;
-    @Mock private Action1<Object> scheduleCleanupAction;
+    @Mock private Consumer<Object> startServiceConsumer;
+    @Mock private Consumer<Object> scheduleCleanupConsumer;
     @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     @Mock private OfflineContentScheduler serviceScheduler;
     @Mock private ResetOfflineContentCommand resetOfflineContentCommand;
     @Mock private IntroductoryOverlayOperations introductoryOverlayOperations;
 
     private OfflineContentOperations operations;
-    private TestEventBus eventBus;
+    private TestEventBusV2 eventBus;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
+        eventBus = new TestEventBusV2();
 
-        when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
-        when(serviceScheduler.scheduleCleanupAction()).thenReturn(scheduleCleanupAction);
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
+        when(serviceInitiator.startFromUserConsumer()).thenReturn(startServiceConsumer);
+        when(serviceScheduler.scheduleCleanupConsumer()).thenReturn(scheduleCleanupConsumer);
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
-                Observable.just(Collections.emptyList()));
+                rx.Observable.just(Collections.emptyList()));
 
         final Urn offlinePlaylist = Urn.forPlaylist(112233L);
         final List<Urn> offlinePlaylists = singletonList(offlinePlaylist);
-        when(loadOfflinePlaylistsCommand.toObservable(null)).thenReturn(Observable.just(offlinePlaylists));
+        when(loadOfflinePlaylistsCommand.toSingle()).thenReturn(Single.just(offlinePlaylists));
 
         operations = new OfflineContentOperations(
                 storeDownloadUpdatesCommand,
@@ -112,13 +114,13 @@ public class OfflineContentOperationsTest {
                 trackDownloadsStorage,
                 collectionOperations,
                 loadOfflinePlaylistsCommand,
-                Schedulers.immediate(),
+                Schedulers.trampoline(),
                 introductoryOverlayOperations);
     }
 
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(new ArrayList<>()));
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(new ArrayList<>()));
         operations.updateOfflineContentStalePolicies().subscribe();
 
         verifyZeroInteractions(policyOperations);
@@ -127,7 +129,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void updateStalePoliciesRequestsPolicyUpdatesFromPolicyOperations() {
         final List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(tracks));
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(tracks));
 
         operations.updateOfflineContentStalePolicies().subscribe();
 
@@ -139,9 +141,9 @@ public class OfflineContentOperationsTest {
         final ExpectedOfflineContent downloadRequests = getExpectedOfflineContent();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(Collections.emptyList()));
+        when(loadExpectedContentCommand.toSingle()).thenReturn(Single.just(downloadRequests));
+        when(loadOfflineContentUpdatesCommand.toSingle(downloadRequests)).thenReturn(Single.just(offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe();
 
@@ -159,9 +161,9 @@ public class OfflineContentOperationsTest {
                 .tracksToDownload(singletonList(downloadRequests))
                 .build();
 
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(expectedContent));
-        when(loadOfflineContentUpdatesCommand.toObservable(expectedContent)).thenReturn(Observable.just(updates));
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(Collections.emptyList()));
+        when(loadExpectedContentCommand.toSingle()).thenReturn(Single.just(expectedContent));
+        when(loadOfflineContentUpdatesCommand.toSingle(expectedContent)).thenReturn(Single.just(updates));
 
         operations.loadOfflineContentUpdates().subscribe();
 
@@ -172,22 +174,21 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void loadOfflineContentReturnsContentUpdates() throws Exception {
-        final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
         final ExpectedOfflineContent downloadRequests = getExpectedOfflineContent();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
+        when(loadTracksWithStalePolicies.toSingle()).thenReturn(Single.just(Collections.emptyList()));
+        when(loadExpectedContentCommand.toSingle()).thenReturn(Single.just(downloadRequests));
+        when(loadOfflineContentUpdatesCommand.toSingle(downloadRequests)).thenReturn(Single.just(
                 offlineContentUpdates));
 
-        operations.loadOfflineContentUpdates().subscribe(subscriber);
+        final TestObserver<OfflineContentUpdates> observer = operations.loadOfflineContentUpdates().test();
 
-        subscriber.assertValue(offlineContentUpdates);
+        observer.assertValue(offlineContentUpdates);
     }
 
     @Test
-    public void enableOfflineCollectionStartsService() {
+    public void enableOfflineCollectionStartsService() throws Exception {
         final Urn playlist1 = Urn.forPlaylist(123L);
         final Urn playlist2 = Urn.forPlaylist(456L);
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
@@ -200,7 +201,7 @@ public class OfflineContentOperationsTest {
 
         operations.enableOfflineCollection().subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
         verify(introductoryOverlayOperations).setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true);
         assertThat(refreshSubject.hasObservers()).isTrue();
     }
@@ -211,20 +212,19 @@ public class OfflineContentOperationsTest {
         List<Urn> playlists = singletonList(playlistUrn);
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
 
-        operations.makePlaylistAvailableOffline(playlistUrn).test().assertValueCount(1).assertCompleted();
+        operations.makePlaylistAvailableOffline(playlistUrn).test().assertValueCount(1).assertComplete();
     }
 
     @Test
     public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() {
-        TestSubscriber<Object> subscriber = new TestSubscriber<>();
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
                 changeResult));
 
-        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(subscriber);
+        final TestObserver<RxSignal> observer = operations.makePlaylistUnavailableOffline(playlistUrn).test();
 
-        subscriber.assertValueCount(1);
-        subscriber.assertCompleted();
+        observer.assertValueCount(1);
+        observer.assertComplete();
     }
 
     @Test
@@ -275,73 +275,74 @@ public class OfflineContentOperationsTest {
     }
 
     @Test
-    public void makePlaylistUnavailableOfflineStartsService() {
+    public void makePlaylistUnavailableOfflineStartsService() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
                 changeResult));
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
     }
 
     @Test
-    public void makePlaylistUnavailableOfflineScheduleFilesCleaUp() {
+    public void makePlaylistUnavailableOfflineScheduleFilesCleaUp() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
                 changeResult));
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
-        verify(scheduleCleanupAction).call(any());
+        verify(scheduleCleanupConsumer).accept(any());
     }
 
 
     @Test
-    public void clearOfflineContentStartsService() {
+    public void clearOfflineContentStartsService() throws Exception {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
-        when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
+        when(clearOfflineContentCommand.toSingle()).thenReturn(Single.just(removed));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.clearOfflineContent().subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
     }
 
     @Test
-    public void resetOfflineContentStartsService() {
+    public void resetOfflineContentStartsService() throws Exception {
         OfflineContentLocation location = OfflineContentLocation.DEVICE_STORAGE;
         List<Urn> reset = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
-        when(resetOfflineContentCommand.toObservable(location)).thenReturn(Observable.just(reset));
+        when(resetOfflineContentCommand.toSingle(location)).thenReturn(Single.just(reset));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.resetOfflineContent(location).subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
     }
 
     @Test
-    public void resetOfflineFeature() {
+    public void resetOfflineFeature() throws Exception {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
-        when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
+        when(clearOfflineContentCommand.toSingle()).thenReturn(Single.just(removed));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Single.just(true));
 
         operations.disableOfflineFeature().subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
         verify(offlineContentStorage).removeOfflineCollection();
     }
 
     @Test
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
-        final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
-
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
-                Observable.error(new RuntimeException("Test exception")));
-        operations.loadOfflineContentUpdates().subscribe(subscriber);
+                rx.Observable.error(new RuntimeException("Test exception")));
+        final ExpectedOfflineContent expectedOfflineContent = mock(ExpectedOfflineContent.class);
+        when(loadExpectedContentCommand.toSingle()).thenReturn(Single.just(expectedOfflineContent));
+        when(loadOfflineContentUpdatesCommand.toSingle(expectedOfflineContent)).thenReturn(Single.just(mock(OfflineContentUpdates.class)));
+        final TestObserver<OfflineContentUpdates> observer = operations.loadOfflineContentUpdates().test();
 
-        subscriber.assertCompleted();
-        subscriber.assertNoErrors();
+        observer.assertComplete();
+        observer.assertNoErrors();
     }
 
     @Test
@@ -356,19 +357,19 @@ public class OfflineContentOperationsTest {
     }
 
     @Test
-    public void disableOfflineLikedTracksStartsService() {
+    public void disableOfflineLikedTracksStartsService() throws Exception {
         when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
         operations.disableOfflineLikedTracks().subscribe();
 
-        verify(startServiceAction).call(any());
+        verify(startServiceConsumer).accept(any());
     }
 
     @Test
-    public void disableOfflineLikedTracksScheduleFilesCleanUp() {
+    public void disableOfflineLikedTracksScheduleFilesCleanUp() throws Exception {
         when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
         operations.disableOfflineLikedTracks().subscribe();
 
-        verify(scheduleCleanupAction).call(any());
+        verify(scheduleCleanupConsumer).accept(any());
     }
 
     private ExpectedOfflineContent getExpectedOfflineContent() {

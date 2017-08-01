@@ -13,17 +13,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
-import io.reactivex.Maybe;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -48,7 +44,6 @@ public class PlaylistOperations {
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final EditPlaylistCommand editPlaylistCommand;
     private final SyncInitiator syncInitiator;
-    private final SyncInitiatorBridge syncInitiatorBridge;
     private final OfflineContentOperations offlineContentOperations;
     private final EventBus eventBus;
 
@@ -62,7 +57,6 @@ public class PlaylistOperations {
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EditPlaylistCommand editPlaylistCommand,
-                       SyncInitiatorBridge syncInitiatorBridge,
                        OfflineContentOperations offlineContentOperations,
                        EventBus eventBus) {
         this.scheduler = scheduler;
@@ -74,7 +68,6 @@ public class PlaylistOperations {
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.editPlaylistCommand = editPlaylistCommand;
-        this.syncInitiatorBridge = syncInitiatorBridge;
         this.offlineContentOperations = offlineContentOperations;
         this.eventBus = eventBus;
     }
@@ -88,16 +81,12 @@ public class PlaylistOperations {
     Observable<Urn> createNewPlaylist(String title, boolean isPrivate, boolean isOffline, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
                                     .flatMap(urn -> isOffline ?
-                                                    offlineContentOperations.makePlaylistAvailableOffline(urn)
-                                                                            .map(aVoid -> urn) :
+                                                    RxJava.toV1Observable(offlineContentOperations.makePlaylistAvailableOffline(urn))
+                                                          .map(aVoid -> urn) :
                                                     Observable.just(urn))
                                     .doOnNext(publishPlaylistCreatedEvent)
                                     .subscribeOn(scheduler)
                                     .doOnCompleted(syncInitiator::requestSystemSync);
-    }
-
-    Observable<Playlist> editPlaylist(Playlist playlist, List<Urn> tracks) {
-        return editPlaylist(playlist.urn(), playlist.title(), playlist.isPrivate(), tracks);
     }
 
     Observable<Playlist> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
@@ -150,35 +139,10 @@ public class PlaylistOperations {
                                             });
     }
 
-    public Observable<Playlist> playlist(final Urn playlistUrn) {
-        return RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn))
-                     .flatMap(syncIfNecessary(playlistUrn))
-                     .switchIfEmpty(updatedPlaylist(playlistUrn));
-    }
-
-    private Observable<Playlist> updatedPlaylist(final Urn playlistUrn) {
-        return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn))
-                     .observeOn(scheduler)
-                     .flatMap(playlistWasUpdated -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)
-                                                                                            .switchIfEmpty(Maybe.error(new PlaylistMissingException()))));
-    }
-
     private Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
         return RxJava.toV1Observable(syncInitiator.syncPlaylist(playlistUrn)
                                                   .flatMap(syncJobResult -> loadPlaylistTrackUrnsProvider.get().toSingle(playlistUrn)))
                      .subscribeOn(scheduler);
-    }
-
-    private Func1<Playlist, Observable<Playlist>> syncIfNecessary(final Urn playlistUrn) {
-        return playlist -> {
-            final boolean isLocalPlaylist = playlistUrn.getNumericId() < 0;
-            if (isLocalPlaylist) {
-                syncInitiatorBridge.refreshMyPlaylists().subscribe(new DefaultSingleObserver<>());
-                return just(playlist);
-            } else {
-                return just(playlist);
-            }
-        };
     }
 
     public static class PlaylistMissingException extends Exception {
