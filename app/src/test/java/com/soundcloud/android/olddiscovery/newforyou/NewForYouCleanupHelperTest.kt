@@ -31,7 +31,7 @@ class NewForYouCleanupHelperTest {
 
     @Test
     fun returnNewForYouTracksToKeep() {
-        val tracksToKeep = cleanupHelper.tracksToKeep
+        val tracksToKeep = cleanupHelper.tracksToKeep()
 
         Assertions.assertThat(tracksToKeep).containsOnly(trackUrn)
     }

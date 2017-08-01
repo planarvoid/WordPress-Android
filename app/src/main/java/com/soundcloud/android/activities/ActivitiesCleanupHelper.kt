@@ -11,18 +11,18 @@ import javax.inject.Inject
 
 class ActivitiesCleanupHelper
 @Inject constructor(private val propeller: PropellerDatabase) : DefaultCleanupHelper() {
-    override fun getUsersToKeep(): MutableSet<Urn> {
+    override fun usersToKeep(): Set<Urn> {
         return propeller.query(Query.from(Table.ActivityView).select(TableColumns.ActivityView.USER_ID))
                 .map { Urn.forUser(it.getLong(TableColumns.ActivityView.USER_ID)) }
-                .toMutableSet()
+                .toSet()
     }
 
-    override fun getTracksToKeep(): MutableSet<Urn> {
-        return loadSounds().filter { it.isTrack }.toMutableSet()
+    override fun tracksToKeep(): Set<Urn> {
+        return loadSounds().filter { it.isTrack }.toSet()
     }
 
-    override fun getPlaylistsToKeep(): MutableSet<Urn> {
-        return loadSounds().filter { it.isPlaylist }.toMutableSet()
+    override fun playlistsToKeep(): Set<Urn> {
+        return loadSounds().filter { it.isPlaylist }.toSet()
     }
 
     private fun loadSounds(): List<Urn> {

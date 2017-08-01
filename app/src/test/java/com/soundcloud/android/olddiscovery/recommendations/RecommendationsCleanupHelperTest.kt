@@ -27,7 +27,7 @@ class RecommendationsCleanupHelperTest : StorageIntegrationTest() {
 
     @Test
     fun returnRecommendedTracksToKeep() {
-        val tracksToKeep = cleanupHelper.tracksToKeep
+        val tracksToKeep = cleanupHelper.tracksToKeep()
 
         Assertions.assertThat(tracksToKeep).containsOnly(seedTrackUrn, recommendedTrackUrn)
     }

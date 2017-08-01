@@ -59,9 +59,9 @@ public class DatabaseCleanupService extends IntentService {
         Set<Urn> playlistsToKeep = new HashSet<>();
 
         for (CleanupHelper cleanupHelper : cleanupHelpers) {
-            usersToKeep.addAll(cleanupHelper.getUsersToKeep());
-            tracksToKeep.addAll(cleanupHelper.getTracksToKeep());
-            playlistsToKeep.addAll(cleanupHelper.getPlaylistsToKeep());
+            usersToKeep.addAll(cleanupHelper.usersToKeep());
+            tracksToKeep.addAll(cleanupHelper.tracksToKeep());
+            playlistsToKeep.addAll(cleanupHelper.playlistsToKeep());
         }
 
         tracksToKeep.addAll(getTracksForPlaylists(playlistsToKeep));
@@ -182,12 +182,4 @@ public class DatabaseCleanupService extends IntentService {
         return usersFromPlaylists;
     }
 
-    public interface CleanupHelper {
-
-        Set<Urn> getUsersToKeep();
-
-        Set<Urn> getTracksToKeep();
-
-        Set<Urn> getPlaylistsToKeep();
-    }
 }
