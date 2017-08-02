@@ -1,0 +1,69 @@
+{
+  "description": "user profile info",
+  "request": {
+    "method": "GET",
+    "path": "/users/soundcloud:users:125153855/profile/info",
+    "headers": {
+      "Authorization": "OAuth 1-103-155931161-62489c78fa7e2de1"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "social_media_links": {
+        "collection": [
+          {
+            "title": "Facebook",
+            "network": "facebook",
+            "url": "http://facebook.com"
+          },
+          {
+            "title": "Twitter",
+            "network": "twitter",
+            "url": "http://twitter.com"
+          },
+          {
+            "title": "Website",
+            "network": "personal",
+            "url": "http://google.com"
+          },
+          {
+            "title": "",
+            "network": "youtube",
+            "url": "http://www.youtube.com/watch?v=gKQ7fj9j3Z4"
+          }
+        ],
+        "_links": {}
+      },
+      "description": "",
+      "user": {
+        "urn": "soundcloud:users:125153855",
+        "permalink": "dilemma-upon-issue",
+        "username": "Dilemma Upon Issue",
+        "first_name": "Dilemma",
+        "last_name": "",
+        "city": "",
+        "followers_count": 8,
+        "followings_count": 11,
+        "description": "",
+        "avatar_url_template": "https://i1.sndcdn.com/avatars-000250717917-uexk35-{size}.jpg",
+        "station_urns": [
+          "soundcloud:artist-stations:125153855"
+        ],
+        "visual_url_template": "https://i1.sndcdn.com/visuals-000125153855-uoiBlP-{size}.jpg",
+        "created_at": "2014/11/28 10:14:18 +0000"
+      }
+    },
+    "matchingRules": {
+      "$.body.user.followers_count": {
+        "match": "type"
+      },
+      "$.body.user.followings_count": {
+        "match": "type"
+      }
+    }
+  }
+}
