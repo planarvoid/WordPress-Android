@@ -240,18 +240,7 @@ public class FlipperAdapter implements Player {
         }
     }
 
-<<<<<<< HEAD
     void onSeekingStatusChanged(state_change event) {
-=======
-    @Override
-    public void onDurationChanged(state_change event) {
-        // FIXME DO NOT CALL SUPER AS IT WILL CRASH THE APP WHILE SEEKING
-        // FIXME Check JIRA: PLAYBACK-2706
-    }
-
-    @Override
-    public void onSeekingStatusChanged(state_change event) {
->>>>>>> origin/release
         try {
             if (isCurrentStreamUrl(event.getUri())) {
                 isSeekPending = event.getSeekingInProgress();
