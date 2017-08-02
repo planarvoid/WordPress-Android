@@ -264,6 +264,9 @@ dependencies {
   testCompile unitTestLibraries.sqliteJdbc
 
   /* Acceptance Tests */
+  androidTestCompile libraries.androidMultidex
+  androidTestCompile acceptanceTestLibraries.multidexInstrumentation
+
   androidTestCompile (acceptanceTestLibraries.androidTestRunner) {
     exclude group: 'com.android.support', module: 'support-annotations'
   }
