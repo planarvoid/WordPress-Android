@@ -2,11 +2,11 @@
 
 For [consumer driven contract testing](https://martinfowler.com/articles/consumerDrivenContracts.html) in `api-mobile` we use the [Pact](https://docs.pact.io/) framework.
 
-[api-mobile-cdc](https://ci.dev.s-cloud.net/go/tab/pipeline/history/api-mobile-cdc) verifies all the [pacts](https://docs.pact.io/documentation/how_does_pact_work.html) published by consumers of `api-mobile`. These pacts are pulled from our central [pact broker](http://pact-broker.dev.s-cloud.net/).
+The [api-mobile-cdc](https://ci.dev.s-cloud.net/go/tab/pipeline/history/api-mobile-cdc) pipeline verifies all the [pacts](https://docs.pact.io/documentation/how_does_pact_work.html) published by consumers of `api-mobile`. These pacts are pulled from our central [pact broker](http://pact-broker.dev.s-cloud.net/).
 
-This `pacts` folder lists all the interactions(`*_interaction.json` files) that will be integrated as part of a single pact file(`android-api-mobile.json`) which will be published to the pact broker.
+A pact between a consumer(like `android`) and a producer(like `api-mobile`) consists of multiple interactions. This `pacts` folder lists all the interactions(`*_interaction.json` files) that make up the pact between `android` and `api-mobile`.
 
-There are scripts to generate(`generate.sh`) and publish(`publish.sh`) these pacts, which will run automatically on CI.
+The [android-api-mobile-pact](https://ci.dev.s-cloud.net/go/tab/pipeline/history/android-api-mobile-pact) pipeline is responsible for generating and publishing the pact for Android. Note that a new pact will only be published if it succeeds.
 
 ### Defining a new interaction
 
@@ -17,10 +17,10 @@ There are scripts to generate(`generate.sh`) and publish(`publish.sh`) these pac
 
 ### Testing the interactions
 
-* `pacts/generate.sh` to generate the pact file(`pacts/android-api-mobile.json`) for `api-mobile`.
-* Copy `pacts/android-api-mobile.json` to `pacts` folder under `api-mobile` root directory. Create the folder if it does not already exist.
+* `pacts/generate.sh` to generate the pact file(`pacts/android-api-mobile.json`).
+* Copy `pacts/android-api-mobile.json` to the `pacts` folder under `api-mobile`'s root directory. Create the folder if it does not already exist.
 * Go to the `api-mobile` root directory.
 * Run `make pact-verify` (you will need VPN, [cd-tools](https://github.com/soundcloud/cd-tools) and `docker` for this to work).
 
-Note: The generated pact file contains 'all' interactions defined by the files(`*_interaction.json`) in this folder. So `pact-verify` will verify all the interactions.
+Note: The generated pact file contains 'all' interactions defined by the files(`*_interaction.json`) in this folder. So `pact-verify` will verify all the interactions and not just the new interaction.
 
