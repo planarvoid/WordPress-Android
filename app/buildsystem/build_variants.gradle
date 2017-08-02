@@ -48,7 +48,7 @@ android {
       zipAlignEnabled true
       signingConfig signingConfigs.release
       multiDexEnabled true
-      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg'
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
       buildConfigField "String", "APP_ENVIRONMENT", "\"prod\""
     }
@@ -67,7 +67,7 @@ android {
     beta.initWith(buildTypes.release)
     beta {
       versionNameSuffix '-beta'
-      proguardFiles = ['buildsystem/proguard.cfg']
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'buildsystem/proguard.cfg'
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
       buildConfigField "String", "APP_ENVIRONMENT", "\"beta\""
     }
@@ -89,7 +89,7 @@ android {
       versionNameSuffix '-debug'
       debuggable true
       signingConfig signingConfigs.debug
-      proguardFiles ['buildsystem/proguard.cfg']
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'buildsystem/proguard.cfg'
       minifyEnabled false
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
