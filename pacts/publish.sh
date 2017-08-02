@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR=$(dirname "$0")
 PACT_BROKER=pact-broker.dev.s-cloud.net
