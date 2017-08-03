@@ -363,4 +363,11 @@ public class TestUser {
             295619524,
             false);
 
+    public static final TestUser resolverUser = new TestUser(
+            "android_resolverUser",
+            "soundcloud.Android.android_resolverUser@tests.soundcloud",
+            "UG1OWrD4KPvNI0Vv9obXMTvjU",
+            "1-276024-323929107-14f698534b63e",
+            323929107,
+            false);
 }

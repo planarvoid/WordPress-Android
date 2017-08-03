@@ -18,7 +18,7 @@ public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return TestUser.resolverUser;
     }
 
     @Override
