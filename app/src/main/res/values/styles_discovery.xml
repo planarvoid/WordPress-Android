@@ -40,6 +40,10 @@
         <item name="android:paddingRight">@dimen/search_suggestions_list_item_padding</item>
     </style>
 
+    <style name="Search.Suggestion.Container.Autocomplete" parent="Search.Suggestion.Container">
+        <item name="android:paddingRight">0dp</item>
+    </style>
+
     <style name="Search.Suggestion.AutocompleteIcon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -57,6 +61,15 @@
         <item name="android:layout_width">@dimen/search_suggestion_type_dimension</item>
         <item name="android:scaleType">centerInside</item>
         <item name="android:layout_marginRight">0dp</item>
+    </style>
+
+    <style name="Search.Suggestion.Arrow">
+        <item name="android:layout_height">@dimen/search_suggestion_arrow_dimension</item>
+        <item name="android:layout_width">@dimen/search_suggestion_arrow_dimension</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:layout_marginRight">@dimen/search_suggestions_list_item_padding</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>
 
     <style name="Search.Suggestion.Text">

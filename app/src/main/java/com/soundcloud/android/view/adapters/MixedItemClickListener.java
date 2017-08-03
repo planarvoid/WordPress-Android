@@ -52,7 +52,7 @@ public class MixedItemClickListener {
         this.navigator = navigator;
     }
 
-    public void onItemClick(Observable<List<Urn>> playables, View view, int position, ListItem clickedItem) {
+    public void onItemClick(Observable<List<Urn>> playables, int position, ListItem clickedItem) {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
@@ -144,13 +144,9 @@ public class MixedItemClickListener {
                                                               screen,
                                                               Optional.fromNullable(searchQuerySourceInfo),
                                                               promotedPlaylistInfo(item),
-                                                              Optional.of(UIEvent.fromNavigation(entityUrn,
-                                                                                                 getEventContextMetadata((PlayableItem) item, module)))));
+                                                              Optional.of(UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)))));
         } else if (entityUrn.isPlaylist()) {
-            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(entityUrn,
-                                                                    screen,
-                                                                    Optional.of(searchQuerySourceInfo),
-                                                                    promotedPlaylistInfo(item)));
+            navigator.navigateTo(NavigationTarget.forLegacyPlaylist(entityUrn, screen, Optional.of(searchQuerySourceInfo), promotedPlaylistInfo(item)));
         } else if (entityUrn.isUser()) {
             navigator.navigateTo(NavigationTarget.forProfile(entityUrn, Optional.absent(), Optional.of(screen), Optional.of(searchQuerySourceInfo)));
         } else {
@@ -162,8 +158,7 @@ public class MixedItemClickListener {
     private EventContextMetadata getEventContextMetadata(PlayableItem item, Optional<Module> module) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
                                                                          .pageName(screen.get())
-                                                                         .attributingActivity(AttributingActivity.fromPlayableItem(
-                                                                                 item))
+                                                                         .attributingActivity(AttributingActivity.fromPlayableItem(item))
                                                                          .linkType(LinkType.SELF);
 
         if (module.isPresent()) {

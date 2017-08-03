@@ -2227,6 +2227,26 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsSearchUpdateJson() throws Exception {
+        final String SELECTED_SEARCH_TERM = "thing";
+        SearchEvent event = SearchEvent.searchFormulationUpdate(Screen.SEARCH_MAIN,
+                                                                SEARCH_QUERY,
+                                                                SELECTED_SEARCH_TERM,
+                                                                Optional.of(QUERY_URN),
+                                                                Optional.of(QUERY_POSITION));
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(SearchEvent.ClickName.FORMULATION_UPDATE.key)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .selectedSearchTerm(SELECTED_SEARCH_TERM)
+                                               .pageName(Screen.SEARCH_MAIN.get())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION));
+    }
+
+    @Test
     public void createsSearchEndJson() throws Exception {
         SearchEvent event = SearchEvent.searchFormulationEnd(Screen.SEARCH_MAIN,
                                                              SEARCH_QUERY,
@@ -2241,6 +2261,19 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(Screen.SEARCH_MAIN.get())
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION));
+    }
+
+    @Test
+    public void createsSearchExitJson() throws Exception {
+        SearchEvent event = SearchEvent.searchFormulationExit(Screen.SEARCH_MAIN,
+                                                              SEARCH_QUERY);
+
+        jsonDataBuilder.buildForSearchEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .clickName(SearchEvent.ClickName.FORMULATION_EXIT.key)
+                                               .searchQuery(SEARCH_QUERY)
+                                               .pageName(Screen.SEARCH_MAIN.get()));
     }
 
     @Test

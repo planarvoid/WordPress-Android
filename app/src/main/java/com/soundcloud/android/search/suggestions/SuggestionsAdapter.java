@@ -9,6 +9,9 @@ import android.view.View;
 import javax.inject.Inject;
 
 class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerView.ViewHolder> {
+
+    private final AutocompletionItemRenderer autocompletionItemRenderer;
+
     @Inject
     SuggestionsAdapter(AutocompletionItemRenderer autocompletionItemRenderer,
                        SearchSuggestionItemRenderer searchItemRenderer,
@@ -20,6 +23,7 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
               new CellRendererBinding<>(SuggestionItem.Kind.TrackItem.ordinal(), trackItemRenderer),
               new CellRendererBinding<>(SuggestionItem.Kind.UserItem.ordinal(), userItemRenderer),
               new CellRendererBinding<>(SuggestionItem.Kind.PlaylistItem.ordinal(), playlistItemRenderer));
+        this.autocompletionItemRenderer = autocompletionItemRenderer;
     }
 
     @Override
@@ -42,5 +46,9 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, RecyclerVie
         //we swap from serving content to serving search queries.
         clear();
         super.onNext(items);
+    }
+
+    void setAutocompleteArrowClickListener(AutocompletionItemRenderer.ArrowClickListener arrowClickListener) {
+        autocompletionItemRenderer.setArrowClickListener(arrowClickListener);
     }
 }

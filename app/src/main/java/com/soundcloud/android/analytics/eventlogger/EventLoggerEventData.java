@@ -70,6 +70,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPEAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.RESOURCE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SELECTED_SEARCH_TERM;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SHARE_LINK_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_POSITION;
@@ -603,6 +604,13 @@ class EventLoggerEventData {
     public EventLoggerEventData searchQuery(String query) {
         if (Strings.isNotBlank(query)) {
             getClickAttributes().put(QUERY, query);
+        }
+        return this;
+    }
+
+    public EventLoggerEventData selectedSearchTerm(String selectedSearchTerm) {
+        if (Strings.isNotBlank(selectedSearchTerm)) {
+            getClickAttributes().put(SELECTED_SEARCH_TERM, selectedSearchTerm);
         }
         return this;
     }

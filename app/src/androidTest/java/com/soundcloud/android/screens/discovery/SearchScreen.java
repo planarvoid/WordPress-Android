@@ -1,11 +1,12 @@
 package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ImageViewElement;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -43,26 +44,36 @@ public class SearchScreen extends Screen {
     }
 
     public ProfileScreen clickOnUserSuggestion() {
-        testDriver.findOnScreenElement(UserSuggestion()).click();
+        testDriver.findOnScreenElement(userSuggestion()).click();
         return new ProfileScreen(testDriver);
     }
 
     public VisualPlayerElement clickOnTrackSuggestion() {
-        testDriver.findOnScreenElement(TrackSuggestion()).click();
+        testDriver.findOnScreenElement(trackSuggestion()).click();
         return new VisualPlayerElement(testDriver);
     }
 
     public PlaylistDetailsScreen clickOnPlaylistSuggestion() {
-        testDriver.findOnScreenElement(PlaylistSuggestion()).click();
+        testDriver.findOnScreenElement(playlistSuggestion()).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public SearchResultsScreen clickOnAutocompleteSuggestion(String target) {
-        testDriver
-                .findOnScreenElement(With.and(AutocompleteSuggestion(), With.text(target)))
+    public String firstAutocompleteSuggestionText() {
+        return new TextElement(testDriver.findOnScreenElement(autocompleteSuggestion())).getText();
+    }
+
+    public SearchResultsScreen clickOnFirstAutocompleteSuggestion() {
+        testDriver.findOnScreenElement(autocompleteSuggestion())
                 .click();
 
         return new SearchResultsScreen(testDriver);
+    }
+
+    public SearchScreen clickOnFirstAutocompleteSuggestionArrow() {
+        testDriver.findOnScreenElement(autocompleteSuggestionArrow())
+                  .click();
+
+        return this;
     }
 
     public SearchScreen dismissSearch() {
@@ -74,23 +85,27 @@ public class SearchScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.ak_recycler_view)).isOnScreen();
     }
 
-    private static With UserSuggestion() {
-        return Suggestion(R.drawable.ic_search_user, "user");
+    private static With userSuggestion() {
+        return suggestion(R.drawable.ic_search_user, "user");
     }
 
-    private static With TrackSuggestion() {
-        return Suggestion(R.drawable.ic_search_sound, "sound");
+    private static With trackSuggestion() {
+        return suggestion(R.drawable.ic_search_sound, "sound");
     }
 
-    private static With PlaylistSuggestion() {
-        return Suggestion(R.drawable.ic_search_playlist, "playlist");
+    private static With playlistSuggestion() {
+        return suggestion(R.drawable.ic_search_playlist, "playlist");
     }
 
-    private static With AutocompleteSuggestion() {
+    private static With autocompleteSuggestion() {
         return With.id(R.id.search_title);
     }
 
-    private static With Suggestion(final int drawableId, final String description) {
+    private static With autocompleteSuggestionArrow() {
+        return With.id(R.id.arrow_icon);
+    }
+
+    private static With suggestion(final int drawableId, final String description) {
         return new With() {
             @Override
             public String getSelector() {

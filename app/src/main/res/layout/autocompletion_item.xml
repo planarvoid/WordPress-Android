@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Search.Suggestion.Container.Autocomplete">
 
-    <FrameLayout
-        style="@style/Search.Suggestion.Container">
+    <ImageView
+        android:id="@+id/search_icon"
+        style="@style/Search.Suggestion.AutocompleteIcon"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/search_icon" />
 
-        <ImageView
-            android:id="@+id/search_icon"
-            android:src="@drawable/search_icon"
-            android:layout_gravity="center_vertical"
-            style="@style/Search.Suggestion.AutocompleteIcon" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/search_title"
-            android:layout_marginLeft="@dimen/search_suggestion_left_margin"
             style="@style/Search.Suggestion.Text"
-            android:layout_width="match_parent" />
-    </FrameLayout>
+            android:layout_width="0dp"
+            android:layout_marginLeft="@dimen/search_suggestion_left_margin"
+            android:layout_weight="1" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/arrow_icon"
+            style="@style/Search.Suggestion.Arrow"
+            android:src="@drawable/ic_searcharrow_18_charcoal" />
+
+    </LinearLayout>
+
+</FrameLayout>

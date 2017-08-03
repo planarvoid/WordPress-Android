@@ -9,7 +9,9 @@ import com.soundcloud.android.mrlocallocal.data.Spec;
 import android.content.Context;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MrLocalLocal {
     private static final int RETRY_WINDOW_MILLIS = 5000;
@@ -32,9 +34,13 @@ public class MrLocalLocal {
     }
 
     public void verify(String specName) throws Exception {
+        verify(specName, new HashMap<String, String>());
+    }
+
+    public void verify(String specName, Map<String, String> stringSubstitutions) throws Exception {
         logger.info("The spec name is: " + specName);
         long start = System.currentTimeMillis();
-        Spec spec = specReader.readSpec(specName);
+        Spec spec = specReader.readSpec(specName, stringSubstitutions);
 
         MrLocalLocalResult result = null;
         boolean shouldVerifyAgain = true;

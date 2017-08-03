@@ -147,6 +147,11 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
     }
 
+    void onAutocompleteArrowClicked(String userQuery, String selectedSearchTerm, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+        showOutputText(Optional.of(selectedSearchTerm));
+        eventTracker.trackSearch(SearchEvent.searchFormulationUpdate(screenProvider.getLastScreen(), userQuery, selectedSearchTerm, queryUrn, queryPosition));
+    }
+
     void onScrollChanged() {
         hideKeyboard();
     }
@@ -295,9 +300,10 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void showOutputText(Optional<String> outputText) {
-        if (outputText.isPresent()) {
-            searchTextView.setText(outputText.get());
-        }
+        outputText.ifPresent(text -> {
+            searchTextView.setText(text);
+            searchTextView.setSelection(text.length());
+        });
     }
 
     private void showSuggestionsFor(String query) {
@@ -408,6 +414,8 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private class SearchCloseClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            eventTracker.trackSearch(SearchEvent.searchFormulationExit(screenProvider.getLastScreen(),
+                                                                       searchTextView.getText().toString()));
             searchTextView.setText(Strings.EMPTY);
             hideSearchSuggestionsView();
             hideCloseButton();

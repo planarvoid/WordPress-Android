@@ -64,4 +64,9 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     public void onAutocompleteClicked(String searchQuery, String userQuery, String output, Optional<Urn> queryUrn, int position) {
         presenter.performSearch(searchQuery, userQuery, Optional.of(output), queryUrn, Optional.of(position));
     }
+
+    @Override
+    public void onAutocompleteArrowClicked(String userQuery, String selectedSearchTerm, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+        presenter.onAutocompleteArrowClicked(userQuery, selectedSearchTerm, queryUrn, queryPosition);
+    }
 }

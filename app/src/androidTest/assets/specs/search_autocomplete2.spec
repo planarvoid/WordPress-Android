@@ -4,6 +4,18 @@ whitelisted_events:
 - click
 expected_events:
 - !ruby/object:MrLoggerLogger::Event
+  name: pageview
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    client_id: '3152'
+    page_name: discovery:main
+    user: soundcloud:users:285710974
+    query_urn: soundcloud:systemplaylists:(\w|-)+
+    app_version: '[0-9]+'
+    connection_type: wifi
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
   name: click
   params:
     anonymous_id: (\w|-)+
@@ -13,7 +25,7 @@ expected_events:
     user: soundcloud:users:285710974
     connection_type: wifi
     click_name: search_formulation_init
-    page_name: search:main
+    page_name: discovery:main
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
@@ -35,13 +47,13 @@ expected_events:
     client_id: '3152'
     user: soundcloud:users:285710974
     click_name: search
-    query_position: '[0-9]+'
+    query_position: '0'
     page_name: search:main
     connection_type: wifi
     app_version: '[0-9]+'
     click_name: search_formulation_end
     click_attributes:
-          q: 'clown'
+          q: '$first_user_query$'
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
@@ -67,7 +79,7 @@ expected_events:
     click_name: search_formulation_init
     page_name: search:everything
     click_attributes:
-          q: 'clowns'
+          q: '$selected_search_term$'
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
@@ -84,7 +96,7 @@ expected_events:
     app_version: '[0-9]+'
     click_name: item_navigation
     click_attributes:
-          q: 'a'
+          q: '$second_user_query$'
           source: 'search-autocomplete'
   version: '1'
 - !ruby/object:MrLoggerLogger::Event

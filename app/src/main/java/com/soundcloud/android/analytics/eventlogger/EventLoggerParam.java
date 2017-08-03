@@ -112,6 +112,7 @@ class EventLoggerParam {
     static final String QUERY_URN = "query_urn";
     static final String QUERY_POSITION = "query_position";
     static final String QUERY = "q";
+    static final String SELECTED_SEARCH_TERM = "term";
 
     // foreground
     static final String PAGE_URN = "page_urn";

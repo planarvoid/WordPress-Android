@@ -28,9 +28,11 @@ import android.widget.NumberPicker;
 import javax.inject.Inject;
 import java.util.List;
 
-public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<SuggestionItem>, SuggestionItem> {
+public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<SuggestionItem>, SuggestionItem>
+        implements AutocompletionItemRenderer.ArrowClickListener {
 
     public interface SuggestionListener {
+
         void onScrollChanged();
 
         void onSearchClicked(String apiQuery, String userQuery);
@@ -38,14 +40,19 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
         void onSuggestionClicked();
 
         void onAutocompleteClicked(String query, String userQuery, String output, Optional<Urn> queryUrn, int position);
+
+        void onAutocompleteArrowClicked(String userQuery, String selectedSearchTerm, Optional<Urn> queryUrn, Optional<Integer> queryInteger);
+
     }
 
     private final SuggestionsAdapter adapter;
+
     private final SearchSuggestionOperations operations;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final EventTracker eventTracker;
 
     private CollectionBinding<List<SuggestionItem>, SuggestionItem> collectionBinding;
+
     private SuggestionListener suggestionListener;
     private String searchQuery;
 
@@ -60,6 +67,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
         this.operations = operations;
         this.clickListenerFactory = clickListenerFactory;
         this.eventTracker = eventTracker;
+        adapter.setAutocompleteArrowClickListener(this);
     }
 
     @Override
@@ -82,6 +90,11 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    @Override
+    public void handleClick(String userQuery, String selectedSearchTerm, Optional<Urn> queryUrn, int queryInteger) {
+        suggestionListener.onAutocompleteArrowClicked(userQuery, selectedSearchTerm, queryUrn, Optional.of(queryInteger));
     }
 
     private CollectionBinding<List<SuggestionItem>, SuggestionItem> createCollection(String query) {

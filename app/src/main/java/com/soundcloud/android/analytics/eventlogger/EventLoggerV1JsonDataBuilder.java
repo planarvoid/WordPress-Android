@@ -536,6 +536,9 @@ class EventLoggerV1JsonDataBuilder {
         if (event.query().isPresent()) {
             eventData.searchQuery(event.query().get());
         }
+        if (event.selectedSearchTerm().isPresent()) {
+            eventData.selectedSearchTerm(event.selectedSearchTerm().get());
+        }
         if (event.queryUrn().isPresent()) {
             eventData.queryUrn(event.queryUrn().get().toString());
         }

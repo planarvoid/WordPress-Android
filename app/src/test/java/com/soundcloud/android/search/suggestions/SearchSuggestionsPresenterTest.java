@@ -70,6 +70,17 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void triggersSearchEventOnSearchItemArrowClicked() {
+        Optional<Urn> queryUrn = Optional.of(Urn.forTrack(123L));
+        final SuggestionItem suggestionItem = SuggestionItem.forAutocompletion(Autocompletion.create(API_QUERY, USER_QUERY), USER_QUERY, queryUrn);
+        when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
+
+        presenter.handleClick(USER_QUERY, API_QUERY, queryUrn, CLICK_POSITION);
+
+        verify(suggestionListener).onAutocompleteArrowClicked(USER_QUERY, API_QUERY, queryUrn, Optional.of(CLICK_POSITION));
+    }
+
+    @Test
     public void triggersSearchEventOnSearchItemClicked() {
         final SuggestionItem suggestionItem = SuggestionItem.forAutocompletion(Autocompletion.create(API_QUERY, USER_QUERY), USER_QUERY, Optional.absent());
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);

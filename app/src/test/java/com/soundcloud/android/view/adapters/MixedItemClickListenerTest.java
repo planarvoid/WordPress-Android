@@ -165,7 +165,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
         PlaylistItem playlistItem = PlayableFixtures.expectedPromotedPlaylist();
 
-        listener.onItemClick(playables, view, 0, playlistItem);
+        listener.onItemClick(playables, 0, playlistItem);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(playlistItem.getUrn(),
                                                                                                                 screen,
@@ -187,7 +187,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         final SearchSuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(0), Optional.absent(), "", Optional.absent(), "");
 
-        listener.onItemClick(playables, view, 0, suggestionItem);
+        listener.onItemClick(playables, 0, suggestionItem);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forLegacyPlaylist(suggestionItem.getUrn(),
                                                                                                                       screen,
@@ -224,7 +224,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                           eq(1),
                                           eq(new PlaySessionSource(screen)))).thenReturn(Single.just(playbackResult));
 
-        listener.onItemClick(tracklist, view, 1, track1);
+        listener.onItemClick(tracklist, 1, track1);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
@@ -235,7 +235,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getUrn());
 
-        listener.onItemClick(Observable.just(items), view, 1, playlistItem);
+        listener.onItemClick(Observable.just(items), 1, playlistItem);
 
         verify(navigator).navigateTo(
                                 argThat(matchesNavigationTarget(NavigationTarget.forPlaylist(items.get(1),
@@ -258,7 +258,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                         Urn.forPlaylist(123L),
                                         userItem.getUrn());
 
-        listener.onItemClick(Observable.just(items), view, 2, userItem);
+        listener.onItemClick(Observable.just(items), 2, userItem);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(userItem.getUrn(),
                                                                                                                Optional.absent(),

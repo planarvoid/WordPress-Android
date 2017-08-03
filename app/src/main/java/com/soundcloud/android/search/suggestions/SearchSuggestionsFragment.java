@@ -78,4 +78,11 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
             ((SuggestionListener) getActivity()).onAutocompleteClicked(query, userQuery, output, queryUrn, position);
         }
     }
+
+    @Override
+    public void onAutocompleteArrowClicked(String userQuery, String selectedSearchTerm, Optional<Urn> queryUrn, Optional<Integer> queryInteger) {
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onAutocompleteArrowClicked(userQuery, selectedSearchTerm, queryUrn, queryInteger);
+        }
+    }
 }

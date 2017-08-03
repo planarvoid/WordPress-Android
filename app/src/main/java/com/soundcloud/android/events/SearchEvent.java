@@ -13,7 +13,9 @@ public abstract class SearchEvent extends TrackingEvent {
     public enum ClickName {
         ITEM_NAVIGATION("item_navigation"),
         FORMULATION_INIT("search_formulation_init"),
+        FORMULATION_UPDATE("search_formulation_update"),
         FORMULATION_END("search_formulation_end"),
+        FORMULATION_EXIT("search_formulation_exit"),
         SEARCH("search");
 
         ClickName(String key) {
@@ -54,6 +56,8 @@ public abstract class SearchEvent extends TrackingEvent {
     public abstract Optional<Urn> queryUrn();
 
     public abstract Optional<String> query();
+
+    public abstract Optional<String> selectedSearchTerm();
 
     public abstract Optional<Integer> queryPosition();
 
@@ -125,6 +129,21 @@ public abstract class SearchEvent extends TrackingEvent {
                 .build();
     }
 
+    public static SearchEvent searchFormulationUpdate(Screen screen,
+                                                      String userQuery,
+                                                      String selectedSearchTerm,
+                                                      Optional<Urn> queryUrn,
+                                                      Optional<Integer> queryPosition) {
+        return emptyBuilder()
+                .query(Optional.fromNullable(userQuery))
+                .selectedSearchTerm(Optional.fromNullable(selectedSearchTerm))
+                .pageName(Optional.of(screen.get()))
+                .clickName(Optional.of(ClickName.FORMULATION_UPDATE))
+                .queryUrn(queryUrn)
+                .queryPosition(queryPosition)
+                .build();
+    }
+
     public static SearchEvent searchFormulationEnd(Screen screen,
                                                    String query,
                                                    Optional<Urn> queryUrn,
@@ -135,6 +154,14 @@ public abstract class SearchEvent extends TrackingEvent {
                 .clickName(Optional.of(ClickName.FORMULATION_END))
                 .queryUrn(queryUrn)
                 .queryPosition(queryPosition)
+                .build();
+    }
+
+    public static SearchEvent searchFormulationExit(Screen screen, String query) {
+        return emptyBuilder()
+                .query(Optional.fromNullable(query))
+                .pageName(Optional.of(screen.get()))
+                .clickName(Optional.of(ClickName.FORMULATION_EXIT))
                 .build();
     }
 
@@ -150,6 +177,7 @@ public abstract class SearchEvent extends TrackingEvent {
                                                   .clickSource(Optional.absent())
                                                   .queryUrn(Optional.absent())
                                                   .query(Optional.absent())
+                                                  .selectedSearchTerm(Optional.absent())
                                                   .queryPosition(Optional.absent());
     }
 
@@ -170,6 +198,7 @@ public abstract class SearchEvent extends TrackingEvent {
                                                   .clickSource(Optional.absent())
                                                   .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
                                                   .query(Optional.fromNullable(searchQuerySourceInfo.getQueryString()))
+                                                  .selectedSearchTerm(Optional.absent())
                                                   .queryPosition(optionalClickPosition);
     }
 
@@ -192,6 +221,8 @@ public abstract class SearchEvent extends TrackingEvent {
         public abstract Builder queryUrn(Optional<Urn> queryUrn);
 
         public abstract Builder query(Optional<String> query);
+
+        public abstract Builder selectedSearchTerm(Optional<String> selectedSearchTerm);
 
         public abstract Builder queryPosition(Optional<Integer> clickPosition);
 
