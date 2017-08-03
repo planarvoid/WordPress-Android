@@ -81,12 +81,12 @@ public class TopResultsPresenter {
     void attachView(TopResultsView topResultsView) {
         ConnectableObservable<SearchParams> sharedSearchIntent = topResultsView.searchIntent().map(UiAction.Search::searchParams).publish();
         viewSubscription.add(sharedSearchIntent.take(1).subscribe(this::trackFirstSearch));
-        Observable<AsyncLoaderState<TopResultsViewModel>> stateWithViewModel = AsyncLoader.startWith(sharedSearchIntent.autoConnect(), this::search)
-                                                                                          .withRefresh(refreshIntent(topResultsView), this::search)
-                                                                                          .build()
-                                                                                          .publish()
-                                                                                          .autoConnect()
-                                                                                          .observeOn(AndroidSchedulers.mainThread());
+        Observable<AsyncLoaderState<TopResultsViewModel>> stateWithViewModel = AsyncLoader.Companion.startWith(sharedSearchIntent.autoConnect(), this::search)
+                                                                                                    .withRefresh(refreshIntent(topResultsView), this::search)
+                                                                                                    .build()
+                                                                                                    .publish()
+                                                                                                    .autoConnect()
+                                                                                                    .observeOn(AndroidSchedulers.mainThread());
 
 
 
@@ -136,7 +136,7 @@ public class TopResultsPresenter {
     private Observable<AsyncLoader.PageResult<TopResultsViewModel>> search(SearchParams params) {
         return operations.apiSearch(params).toObservable()
                          .flatMap(result -> topResultsMapper.toViewModel(result, params.userQuery()))
-                         .map(AsyncLoader.PageResult::from);
+                         .map(AsyncLoader.PageResult.Companion::from);
     }
 
     void detachView() {
