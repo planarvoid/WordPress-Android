@@ -23,6 +23,7 @@
         android:src="@drawable/close_icon"
         android:visibility="invisible"
         android:layout_marginLeft="@dimen/discovery_search_close_icon_margin_left"
-        android:layout_marginRight="@dimen/discovery_search_close_icon_margin_right"/>
+        android:layout_marginRight="@dimen/discovery_search_close_icon_margin_right"
+        android:background="?selectableItemBackgroundBorderless" />
 
 </LinearLayout>
