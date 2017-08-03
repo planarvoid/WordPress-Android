@@ -386,7 +386,7 @@ class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, Co
         private CollectionItem updateTrackLikedPreviewItem(OfflineProperties states, PreviewCollectionItem collectionItem) {
             CollectionItem updateItem;
             final PreviewCollectionItem previewCollectionItem = collectionItem;
-            updateItem = previewCollectionItem.updatedWithOfflineState(states.likedTracksState());
+            updateItem = previewCollectionItem.updatedWithOfflineState(states.getLikedTracksState());
             return updateItem;
         }
 

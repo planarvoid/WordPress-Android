@@ -13,13 +13,16 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
+
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,7 +43,8 @@ public class OfflinePropertiesProvider {
     private final AccountOperations accountOperations;
     private final BehaviorSubject<OfflineProperties> subject = BehaviorSubject.create();
 
-    Disposable disposable;
+    @SuppressLint("sc.MissingCompositeDisposableRecycle")
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     public OfflinePropertiesProvider(TrackDownloadsStorage trackDownloadsStorage,
@@ -58,7 +62,7 @@ public class OfflinePropertiesProvider {
     }
 
     public void subscribe() {
-        disposable = userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribeWith(LambdaObserver.onNext(subject::onNext));
+        disposable.add(userSessionStart().switchMap(trigger -> notifyStateChanges()).subscribeWith(LambdaObserver.onNext(subject::onNext)));
     }
 
     private Observable<Boolean> userSessionStart() {
@@ -72,7 +76,7 @@ public class OfflinePropertiesProvider {
     private Observable<OfflineProperties> notifyStateChanges() {
         return loadOfflineStates()
                 .toObservable()
-                .startWith(OfflineProperties.empty())
+                .startWith(new OfflineProperties())
                 .switchMap(this::loadStateUpdates)
                 .subscribeOn(scheduler);
     }
@@ -82,7 +86,7 @@ public class OfflinePropertiesProvider {
     }
 
     private OfflineProperties reduce(OfflineProperties properties, OfflineContentChangedEvent event) {
-        return OfflineProperties.from(updateEntitiesStates(properties, event), updateLikedStates(properties, event));
+        return new OfflineProperties(updateEntitiesStates(properties, event), updateLikedStates(properties, event));
     }
 
     private Maybe<OfflineProperties> loadOfflineStates() {
@@ -98,7 +102,7 @@ public class OfflinePropertiesProvider {
         final Map<Urn, OfflineState> allOfflineStates = createMap();
         allOfflineStates.putAll(tracksOfflineStates);
         allOfflineStates.putAll(playlistOfflineStates);
-        return OfflineProperties.from(allOfflineStates, likedTracksState);
+        return new OfflineProperties(allOfflineStates, likedTracksState);
     }
 
     private Maybe<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
@@ -138,7 +142,7 @@ public class OfflinePropertiesProvider {
     }
 
     private HashMap<Urn, OfflineState> updateEntitiesStates(OfflineProperties properties, OfflineContentChangedEvent event) {
-        final HashMap<Urn, OfflineState> updatedEntitiesStates = new HashMap<>(properties.offlineEntitiesStates());
+        final HashMap<Urn, OfflineState> updatedEntitiesStates = new HashMap<>(properties.getOfflineEntitiesStates());
         for (Urn urn : event.entities) {
             updatedEntitiesStates.put(urn, event.state);
         }
@@ -149,11 +153,11 @@ public class OfflinePropertiesProvider {
         if (event.isLikedTrackCollection) {
             return event.state;
         } else {
-            return properties.likedTracksState();
+            return properties.getLikedTracksState();
         }
     }
 
     public Observable<OfflineProperties> states() {
-        return subject;
+        return subject.scan(OfflineProperties::apply).toFlowable(BackpressureStrategy.LATEST).toObservable();
     }
 }

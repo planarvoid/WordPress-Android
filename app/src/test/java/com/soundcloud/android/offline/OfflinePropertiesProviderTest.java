@@ -94,7 +94,7 @@ public class OfflinePropertiesProviderTest {
 
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(expectedEntitiesStates, OfflineState.NOT_OFFLINE));
+                .assertValue(new OfflineProperties(expectedEntitiesStates, OfflineState.NOT_OFFLINE));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class OfflinePropertiesProviderTest {
 
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.empty());
+                .assertValue(new OfflineProperties());
     }
 
     @Test
@@ -136,13 +136,13 @@ public class OfflinePropertiesProviderTest {
         expectedEntitiesStates.put(playlist.urn(), OfflineState.DOWNLOADED);
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(expectedEntitiesStates, OfflineState.NOT_OFFLINE));
+                .assertValue(new OfflineProperties(expectedEntitiesStates, OfflineState.NOT_OFFLINE));
 
         resetStorage();
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, forUserUpdated(Urn.forUser(123L)));
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(emptyMap(), OfflineState.NOT_OFFLINE));
+                .assertValue(new OfflineProperties(emptyMap(), OfflineState.NOT_OFFLINE));
     }
 
     private void resetStorage() {
@@ -163,28 +163,28 @@ public class OfflinePropertiesProviderTest {
 
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(emptyMap(), OfflineState.NOT_OFFLINE));
+                .assertValue(new OfflineProperties(emptyMap(), OfflineState.NOT_OFFLINE));
 
 
         // Likes update
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(emptyList(), true));
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(emptyMap(), REQUESTED));
+                .assertValue(new OfflineProperties(emptyMap(), REQUESTED));
 
         // Playlist update
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(Urn.forPlaylist(1L)), false));
         states.put(Urn.forPlaylist(1L), REQUESTED);
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(states, REQUESTED));
+                .assertValue(new OfflineProperties(states, REQUESTED));
 
         // Track Update
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloading(singletonList(Urn.forTrack(2L)), false));
         states.put(Urn.forTrack(2L), OfflineState.DOWNLOADING);
         provider.states()
                 .test()
-                .assertValue(OfflineProperties.from(states, REQUESTED));
+                .assertValue(new OfflineProperties(states, REQUESTED));
     }
 
     private void storageEmitsOfflineTracksLiked(OfflineState state) {

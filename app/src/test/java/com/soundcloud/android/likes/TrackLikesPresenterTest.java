@@ -42,16 +42,17 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.Pager;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.SingleSubject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import io.reactivex.Observable;
-import rx.observers.TestSubscriber;
-import io.reactivex.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -85,12 +86,12 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
-    private final rx.subjects.PublishSubject<TrackLikesPage> likedTracksObservable = rx.subjects.PublishSubject.create();
+    private final SingleSubject<TrackLikesPage> likedTracksObservable = SingleSubject.create();
     private final Single<List<Urn>> likedTrackUrns = Single.just(Arrays.asList(Urn.forTrack(1),
                                                                                Urn.forTrack(2)));
-    private TestSubscriber testSubscriber = new TestSubscriber();
+    private TestObserver testSubscriber = new TestObserver<>();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setup() {
@@ -148,7 +149,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(mock(View.class), 0);
 
-        testSubscriber.assertReceivedOnNext(singletonList(playbackResult));
+        testSubscriber.assertValue(playbackResult);
     }
 
     @Test
@@ -219,7 +220,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         trackLikesTrackItems.add(TrackLikesTrackItem.create(ModelFixtures.trackItem(track)));
 
         when(adapter.getItems()).thenReturn(trackLikesTrackItems);
-        offlinePropertiesSubject.onNext(OfflineProperties.from(singletonMap(track.getUrn(), OfflineState.DOWNLOADING), OfflineState.NOT_OFFLINE));
+        offlinePropertiesSubject.onNext(new OfflineProperties(singletonMap(track.getUrn(), OfflineState.DOWNLOADING), OfflineState.NOT_OFFLINE));
 
         verify(adapter).notifyItemChanged(0);
     }
@@ -244,8 +245,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
+        likedTracksObservable.onSuccess(TrackLikesPage.withHeader(Collections.emptyList()));
 
         verify(headerPresenter).updateTrackCount(likedTrackUrns.size());
     }
@@ -271,9 +271,9 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         when(likeOperations.likedTracks()).thenReturn(Single.just(tracks));
 
         dataSource = new DataSource(likeOperations);
-        dataSource.initialTrackLikes().subscribe(testSubscriber);
+        final TestObserver<TrackLikesPage> observer = dataSource.initialTrackLikes().test();
 
-        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
+        observer.assertValue(TrackLikesPage.withHeader(tracks));
     }
 
     @Test
@@ -284,7 +284,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         new DataSource(likeOperations).updatedTrackLikes().subscribe(testSubscriber);
 
-        testSubscriber.assertReceivedOnNext(singletonList(TrackLikesPage.withHeader(tracks)));
+        testSubscriber.assertValue(TrackLikesPage.withHeader(tracks));
     }
 
     @Test
@@ -300,7 +300,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         new DataSource(likeOperations).pagingFunction().call(TrackLikesPage.withHeader(emptyList()));
 
-        testSubscriber.assertReceivedOnNext(emptyList());
+        testSubscriber.assertNoValues();
     }
 
     @Test
@@ -313,7 +313,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldEndMeasuringFirstPageTimeLoad() {
         presenter.onCreate(fragmentRule.getFragment(), null);
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
+        likedTracksObservable.onSuccess(TrackLikesPage.withHeader(Collections.emptyList()));
 
         verify(performanceMetricsEngine).endMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
     }

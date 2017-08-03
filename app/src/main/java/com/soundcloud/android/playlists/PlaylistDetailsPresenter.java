@@ -650,7 +650,7 @@ public class PlaylistDetailsPresenter {
         static Observable<EditModeResult> toResult(BehaviorSubject<Boolean> editMode, Observable<OfflineProperties> states) {
             return editMode
                     .withLatestFrom(states, (isEditMode, offlineProperties) -> {
-                        final OfflineProperties properties = isEditMode ? OfflineProperties.empty() : offlineProperties;
+                        final OfflineProperties properties = isEditMode ? new OfflineProperties() : offlineProperties;
                         return new EditModeResult(isEditMode, properties);
                     });
         }

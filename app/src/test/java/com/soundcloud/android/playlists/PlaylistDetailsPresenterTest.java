@@ -129,7 +129,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
     private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
-    private final BehaviorSubject<OfflineProperties> offlineProperties = BehaviorSubject.createDefault(OfflineProperties.empty());
+    private final BehaviorSubject<OfflineProperties> offlineProperties = BehaviorSubject.createDefault(new OfflineProperties());
     private final SingleSubject<SyncJobResult> syncPlaylist = SingleSubject.create();
 
     private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), false);
@@ -741,7 +741,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private void emitOfflineEntities(Map<Urn, OfflineState> offlineStateMap) {
-        offlineProperties.onNext(OfflineProperties.from(offlineStateMap, OfflineState.NOT_OFFLINE));
+        offlineProperties.onNext(new OfflineProperties(offlineStateMap, OfflineState.NOT_OFFLINE));
     }
 
     private PlaySessionSource createPlaySessionSource() {

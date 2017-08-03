@@ -4,13 +4,13 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 
-public class UpdateCurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+public class UpdateCurrentDownloadObserver extends DefaultObserver<OfflineContentChangedEvent> {
     private final RecyclerItemAdapter adapter;
 
-    public UpdateCurrentDownloadSubscriber(RecyclerItemAdapter adapter) {
+    public UpdateCurrentDownloadObserver(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 

@@ -28,13 +28,13 @@ public class UpdateCurrentDownloadObserverTest extends AndroidUnitTest {
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
 
-    private UpdateCurrentDownloadSubscriber subscriber;
+    private UpdateCurrentDownloadObserver subscriber;
 
     @Mock private RecyclerItemAdapter<TrackItem, ?> adapter;
 
     @Before
     public void setUp() throws Exception {
-        subscriber = new UpdateCurrentDownloadSubscriber(adapter);
+        subscriber = new UpdateCurrentDownloadObserver(adapter);
     }
 
     @Test

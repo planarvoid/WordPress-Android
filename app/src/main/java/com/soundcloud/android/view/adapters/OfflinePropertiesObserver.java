@@ -5,17 +5,17 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 
 import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
 
-public class OfflinePropertiesSubscriber<ItemT, VH extends RecyclerView.ViewHolder> extends DefaultSubscriber<OfflineProperties> {
+public class OfflinePropertiesObserver<ItemT, VH extends RecyclerView.ViewHolder> extends DefaultObserver<OfflineProperties> {
 
     private final RecyclerItemAdapter<ItemT, VH> adapter;
 
-    public OfflinePropertiesSubscriber(RecyclerItemAdapter adapter) {
+    public OfflinePropertiesObserver(RecyclerItemAdapter adapter) {
         this.adapter = adapter;
     }
 

@@ -21,37 +21,39 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
-import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
+import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayableAdapterObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
-import com.soundcloud.android.view.adapters.OfflinePropertiesSubscriber;
-import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
-import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
-import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
-import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
-import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
+import com.soundcloud.android.view.adapters.LikeEntityListObserver;
+import com.soundcloud.android.view.adapters.OfflinePropertiesObserver;
+import com.soundcloud.android.view.adapters.PrependItemToListObserver;
+import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
+import com.soundcloud.android.view.adapters.RepostEntityListObserver;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadObserver;
+import com.soundcloud.android.view.adapters.UpdateTrackListObserver;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.Pager;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -80,19 +82,19 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private final PlaybackInitiator playbackInitiator;
     private final OfflineContentOperations offlineContentOperations;
     private final TrackLikesAdapter adapter;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final EventBus eventBus;
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
+    private final EventBusV2 eventBus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
-    private CompositeSubscription viewLifeCycle;
+    private CompositeDisposable viewLifeCycle;
 
-    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
-    private Subscription collectionSubscription = RxUtils.invalidSubscription();
-    private Subscription likeSubscription = RxUtils.invalidSubscription();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Disposable collectionDisposable = RxUtils.invalidDisposable();
+    private Disposable likeDisposable = RxUtils.invalidDisposable();
 
-    private static final Func1<TrackLikesPage, ? extends Iterable<TrackLikesItem>> TO_TRACK_LIKES_ITEMS =
-            (Func1<TrackLikesPage, Iterable<TrackLikesItem>>) page -> {
+    private static final Function<TrackLikesPage, ? extends Iterable<TrackLikesItem>> TO_TRACK_LIKES_ITEMS =
+            (Function<TrackLikesPage, Iterable<TrackLikesItem>>) page -> {
                 List<TrackLikesItem> trackLikesItems = new ArrayList<>(page.getTrackLikes().size() + EXTRA_LIST_ITEMS);
                 if (page.hasHeader() && !page.getTrackLikes().isEmpty()) {
                     trackLikesItems.add(TrackLikesHeaderItem.create());
@@ -110,7 +112,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         OfflineContentOperations offlineContentOperations,
                         TrackLikesAdapterFactory adapterFactory,
                         TrackLikesHeaderPresenter headerPresenter,
-                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
+                        Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider,
+                        EventBusV2 eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         TrackLikesIntentResolver intentResolver,
                         DataSource dataSource,
@@ -131,7 +134,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.expandPlayerObserverProvider = expandPlayerObserverProvider;
         this.eventBus = eventBus;
         this.intentResolver = intentResolver;
     }
@@ -144,7 +147,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     @Override
     protected CollectionBinding<TrackLikesPage, TrackLikesItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(dataSource.initialTrackLikes(), TO_TRACK_LIKES_ITEMS)
+        return CollectionBinding.fromV2(dataSource.initialTrackLikes(), TO_TRACK_LIKES_ITEMS)
                                 .withAdapter(adapter)
                                 .withPager(dataSource.pagingFunction())
                                 .addObserver(onNext(o -> endMeasuringFirstPageLoadingTime()))
@@ -157,7 +160,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     @Override
     protected CollectionBinding<TrackLikesPage, TrackLikesItem> onRefreshBinding() {
-        return CollectionBinding.from(dataSource.updatedTrackLikes(), TO_TRACK_LIKES_ITEMS)
+        return CollectionBinding.fromV2(dataSource.updatedTrackLikes(), TO_TRACK_LIKES_ITEMS)
                                 .withAdapter(adapter)
                                 .withPager(dataSource.pagingFunction())
                                 .build();
@@ -166,15 +169,13 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @Override
     protected void onSubscribeBinding(CollectionBinding<TrackLikesPage, TrackLikesItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
-        Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
-                                                                   .first()
-                                                                   .flatMap(o -> RxJava.toV1Observable(likeOperations.likedTrackUrns()))
-                                                                   .observeOn(AndroidSchedulers.mainThread())
-                                                                   .cache();
-        collectionSubscription = allLikedTrackUrns
-                .doOnNext(tick -> checkAutoPlayIntent())
-                .map(List::size)
-                .subscribe(LambdaSubscriber.onNext(headerPresenter::updateTrackCount));
+        Single<List<Urn>> allLikedTrackUrns = RxJava.toV2Single(collectionBinding.items())
+                                                    .flatMap(o -> likeOperations.likedTrackUrns())
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .cache();
+        collectionDisposable = allLikedTrackUrns.doOnSuccess(tick -> checkAutoPlayIntent())
+                                                .map(List::size)
+                                                .subscribeWith(LambdaSingleObserver.onNext(headerPresenter::updateTrackCount));
     }
 
     private void checkAutoPlayIntent() {
@@ -198,56 +199,55 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         getEmptyView().setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIST_EMPTY_YOU_LIKES_MESSAGE));
         getEmptyView().setBackgroundResource(R.color.page_background);
 
-        viewLifeCycle = new CompositeSubscription(
+        viewLifeCycle = new CompositeDisposable(
 
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
-                                   new UpdatePlayableAdapterSubscriber(adapter)),
+                                   new UpdatePlayableAdapterObserver(adapter)),
 
                 subscribeToOfflineContent(),
 
-                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
-                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
-                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
+                eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListObserver(adapter)),
+                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListObserver(adapter)),
+                eventBus.subscribe(REPOST_CHANGED, new RepostEntityListObserver(adapter)),
 
-                RxJava.toV1Observable(likeOperations.onTrackLiked()
-                                                    .map(TrackLikesTrackItem::create))
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                likeOperations.onTrackLiked()
+                              .map(TrackLikesTrackItem::create)
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribeWith(new PrependItemToListObserver<>(adapter)),
 
-                RxJava.toV1Observable(likeOperations.onTrackUnliked())
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new RemoveEntityListSubscriber(adapter)),
+                likeOperations.onTrackUnliked()
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribeWith(new RemoveEntityListObserver(adapter)),
 
-                RxJava.toV1Observable(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
+                offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges().subscribeWith(new RefreshRecyclerViewAdapterObserver(adapter))
         );
 
-        likeSubscription = eventBus.queue(LIKE_CHANGED)
-                                   .filter(LikesStatusEvent::containsTrackChange)
-                                   .flatMap(o -> RxJava.toV1Observable(likeOperations.likedTrackUrns()))
-                                   .map(List::size)
-                                   .observeOn(AndroidSchedulers.mainThread())
-                                   .subscribe(onNext(headerPresenter::updateTrackCount));
+        likeDisposable = eventBus.queue(LIKE_CHANGED)
+                                 .filter(LikesStatusEvent::containsTrackChange)
+                                 .flatMapSingle(o -> likeOperations.likedTrackUrns())
+                                 .map(List::size)
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribeWith(LambdaObserver.onNext(headerPresenter::updateTrackCount));
     }
 
-    private Subscription subscribeToOfflineContent() {
+    private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return RxJava.toV1Observable(offlinePropertiesProvider.states())
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(new OfflinePropertiesSubscriber<>(adapter));
+            return offlinePropertiesProvider.states()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeWith(new OfflinePropertiesObserver<>(adapter));
         } else {
             return eventBus.queue(OFFLINE_CONTENT_CHANGED)
                            .observeOn(AndroidSchedulers.mainThread())
-                           .subscribe(new UpdateCurrentDownloadSubscriber(adapter));
+                           .subscribeWith(new UpdateCurrentDownloadObserver(adapter));
         }
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        // TODO create subscription light cycle
-        compositeSubscription.clear();
-        likeSubscription.unsubscribe();
-        collectionSubscription.unsubscribe();
-        viewLifeCycle.unsubscribe();
+        compositeDisposable.clear();
+        likeDisposable.dispose();
+        collectionDisposable.dispose();
+        viewLifeCycle.clear();
         super.onDestroyView(fragment);
     }
 
@@ -267,9 +267,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             Urn initialTrack = trackItem.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
 
-            compositeSubscription.add(RxJava.toV1Observable(playbackInitiator
-                                                                    .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource))
-                                            .subscribe(expandPlayerSubscriberProvider.get()));
+            compositeDisposable.add(playbackInitiator.playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)
+                                                     .subscribeWith(expandPlayerObserverProvider.get()));
         }
     }
 
@@ -303,12 +302,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             this.trackLikeOperations = trackLikeOperations;
         }
 
-        Observable<TrackLikesPage> initialTrackLikes() {
-            return wrapLikedTracks(RxJava.toV1Observable(trackLikeOperations.likedTracks()), true);
+        Single<TrackLikesPage> initialTrackLikes() {
+            return wrapLikedTracks(trackLikeOperations.likedTracks(), true);
         }
 
-        Observable<TrackLikesPage> updatedTrackLikes() {
-            return wrapLikedTracks(RxJava.toV1Observable(trackLikeOperations.updatedLikedTracks()), true);
+        Single<TrackLikesPage> updatedTrackLikes() {
+            return wrapLikedTracks(trackLikeOperations.updatedLikedTracks(), true);
         }
 
 
@@ -318,13 +317,13 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                     return Pager.finish();
                 } else {
                     final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
-                    return wrapLikedTracks(RxJava.toV1Observable(trackLikeOperations.likedTracks(oldestLike)), false);
+                    return RxJava.toV1Observable(wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false));
                 }
             };
         }
 
-        private Observable<TrackLikesPage> wrapLikedTracks(Observable<List<LikeWithTrack>> listObservable,
-                                                           final boolean hasHeader) {
+        private Single<TrackLikesPage> wrapLikedTracks(Single<List<LikeWithTrack>> listObservable,
+                                                       final boolean hasHeader) {
             return listObservable.map(likes -> hasHeader ? TrackLikesPage.withHeader(likes)
                                                          : TrackLikesPage.withoutHeader(likes));
         }
