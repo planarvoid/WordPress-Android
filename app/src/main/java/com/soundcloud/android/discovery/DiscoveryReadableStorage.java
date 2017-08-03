@@ -4,7 +4,6 @@ import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.MultiMap;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
@@ -17,10 +16,6 @@ public class DiscoveryReadableStorage {
     @Inject
     DiscoveryReadableStorage(DiscoveryDatabase discoveryDatabase) {
         this.discoveryDatabase = discoveryDatabase;
-    }
-
-    Observable<List<DbModel.SelectionItem>> liveSelectionItems() {
-        return discoveryDatabase.executeObservableQuery(DbModel.SelectionItem.FACTORY.selectAllMapper(), SelectionItemModel.TABLE_NAME, DbModel.SelectionItem.FACTORY.selectAll().statement);
     }
 
     Single<List<DbModel.SelectionItem>> selectionItems() {
@@ -38,18 +33,6 @@ public class DiscoveryReadableStorage {
                                                             .toMaybe();
 
         return systemPlaylistMaybe.zipWith(trackUrns, DbModelMapper::mapSystemPlaylist);
-    }
-
-    Observable<List<DiscoveryCard>> liveDiscoveryCards() {
-        final Observable<List<DbModel.FullDiscoveryCard>> discoveryCardsObservable = discoveryDatabase.executeObservableQuery(DbModel.FullDiscoveryCard.MAPPER,
-                                                                                                                              DiscoveryCardModel.TABLE_NAME,
-                                                                                                                              DbModel.DiscoveryCard.FACTORY.selectAll().statement);
-
-        final Observable<MultiMap<Urn, DbModel.SelectionItem>> selectionItemsObservable = discoveryDatabase.executeObservableQuery(DbModel.SelectionItem.FACTORY.selectAllMapper(),
-                                                                                                                                   SelectionItemModel.TABLE_NAME,
-                                                                                                                                   DbModel.SelectionItem.FACTORY.selectAll().statement)
-                                                                                                           .map(DbModelMapper::toMultiMap);
-        return Observable.combineLatest(discoveryCardsObservable, selectionItemsObservable, DbModelMapper::mapDiscoveryCardsWithSelectionItems).distinct();
     }
 
     Maybe<List<DiscoveryCard>> discoveryCards() {

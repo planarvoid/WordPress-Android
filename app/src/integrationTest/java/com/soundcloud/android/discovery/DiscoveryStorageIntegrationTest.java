@@ -12,7 +12,6 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
-import io.reactivex.observers.TestObserver;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,22 +56,6 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void insertAndReadSelectionItemsFromLiveObservable() throws Exception {
-        final long itemId1 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(Urn.forSystemPlaylist("123"), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK),
-                                                                          SELECTION_URN);
-        final TestObserver<List<DbModel.SelectionItem>> test = discoveryReadableStorage.liveSelectionItems().test();
-        test.awaitCount(1);
-        test.assertValueCount(1);
-        assertThat(test.values().get(0).get(0)._id()).isEqualTo(itemId1);
-        final long itemId2 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(Urn.forSystemPlaylist("124"), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK),
-                                                                          SELECTION_URN);
-        test.awaitCount(2);
-        test.assertValueCount(2);
-        assertThat(test.values().get(1).get(0)._id()).isEqualTo(itemId1);
-        assertThat(test.values().get(1).get(1)._id()).isEqualTo(itemId2);
-    }
-
-    @Test
     public void insertAndReadDiscoveryCard() throws Exception {
         discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2), Optional.of(PARENT_QUERY_URN));
         final List<DiscoveryCard> discoveryCards = discoveryReadableStorage.discoveryCards().test().assertValueCount(1).values().get(0);
@@ -81,18 +64,6 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
         assertThat(discoveryCards.get(0).kind()).isEqualTo(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
         assertThat(discoveryCards.get(1).kind()).isEqualTo(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD);
-    }
-
-    @Test
-    public void insertAndReadDiscoveryCardFromLiveObservable() throws Exception {
-        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(1), Optional.of(PARENT_QUERY_URN));
-        final TestObserver<List<DiscoveryCard>> test = discoveryReadableStorage.liveDiscoveryCards().test();
-
-        test.awaitCount(1);
-        test.assertValueCount(1);
-        discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2), Optional.of(PARENT_QUERY_URN));
-        test.awaitCount(2);
-        test.assertValueCount(2);
     }
 
     @Test
