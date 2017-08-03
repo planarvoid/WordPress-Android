@@ -1,0 +1,57 @@
+
+<pipeline name="android-api-mobile-pact">
+  <materials>
+    <git dest="android-listeners" invertFilter="true" materialName="android-listeners" shallowClone="true" url="git@github.com:soundcloud/android-listeners.git">
+      <filter>
+        <ignore pattern="pacts" />
+      </filter>
+    </git>
+    <git dest="api-mobile" invertFilter="true" materialName="api-mobile" shallowClone="true" url="git@github.com:soundcloud/api-mobile.git">
+      <filter>
+        <ignore pattern="pacts" />
+      </filter>
+    </git>
+  </materials>
+  <stage name="generate_pact">
+    <jobs>
+      <job name="generate_pact">
+        <tasks>
+          <exec command="android-listeners/pacts/generate.sh">
+            <runif status="passed" />
+          </exec>
+        </tasks>
+        <artifacts>
+          <artifact src="android-listeners/pacts/android-api-mobile.json" />
+        </artifacts>
+      </job>
+    </jobs>
+  </stage>
+  <stage name="test_pact">
+    <jobs>
+      <job name="test_pact">
+        <tasks>
+          <fetchartifact dest="api-mobile/pacts/" job="generate_pact" pipeline="android-api-mobile-pact" srcfile="android-api-mobile.json" stage="generate_pact">
+            <runif status="passed" />
+          </fetchartifact>
+          <exec command="make" workingdir="api-mobile">
+            <arg>pact-verify</arg>
+            <runif status="passed" />
+          </exec>
+        </tasks>
+      </job>
+    </jobs>
+  </stage>
+  <stage name="publish_pact">
+    <jobs>
+      <job name="publish_pact">
+        <tasks>
+          <fetchartifact dest="android-listeners/pacts/" job="generate_pact" pipeline="android-api-mobile-pact" srcfile="android-api-mobile.json" stage="generate_pact">
+            <runif status="passed" />
+          </fetchartifact>
+          <exec command="pacts/publish.sh" workingdir="android-listeners" />
+        </tasks>
+      </job>
+    </jobs>
+  </stage>
+</pipeline>
+  

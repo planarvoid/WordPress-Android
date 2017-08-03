@@ -6,7 +6,7 @@ The [api-mobile-cdc](https://ci.dev.s-cloud.net/go/tab/pipeline/history/api-mobi
 
 A pact between a consumer(like `android`) and a producer(like `api-mobile`) consists of multiple interactions. This `pacts` folder lists all the interactions(`*_interaction.json` files) that make up the pact between `android` and `api-mobile`.
 
-The [android-api-mobile-pact](https://ci.dev.s-cloud.net/go/tab/pipeline/history/android-api-mobile-pact) pipeline is responsible for generating and publishing the pact for Android. Note that a new pact will only be published if it succeeds.
+The [android-api-mobile-pact](https://ci.dev.s-cloud.net/go/tab/pipeline/history/android-api-mobile-pact) pipeline is responsible for generating and publishing the pact for Android. Note that a new interaction will only be published if it succeeds.
 
 ### Defining a new interaction
 
