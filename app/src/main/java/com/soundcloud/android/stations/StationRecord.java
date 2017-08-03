@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface StationRecord extends ImageResource {
 
-    Function<StationRecord, Urn> TO_URN = station -> station.getUrn();
-
     List<StationTrack> getTracks();
 
     String getType();

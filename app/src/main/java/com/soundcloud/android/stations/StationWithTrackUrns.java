@@ -12,18 +12,45 @@ import java.util.List;
 abstract class StationWithTrackUrns implements UrnHolder {
 
     public abstract String type();
+
     public abstract String title();
+
     public abstract Optional<String> permalink();
+
     public abstract List<Urn> trackUrns();
+
     public abstract Optional<String> imageUrlTemplate();
+
     public abstract int lastPlayedTrackPosition();
+
     public abstract boolean liked();
 
-    public static StationWithTrackUrns create(Urn urn, String type, String title, Optional<String> permalink, Optional<String> imageUrlTemplate, int lastPlayedTrackPosition, boolean liked) {
-        return new AutoValue_StationWithTrackUrns(urn, type, title, permalink, Collections.emptyList(), imageUrlTemplate, lastPlayedTrackPosition, liked);
+    public static StationWithTrackUrns.Builder builder() {
+        return new AutoValue_StationWithTrackUrns.Builder()
+                .trackUrns(Collections.emptyList());
     }
 
-    public StationWithTrackUrns copyWithTrackUrns(List<Urn> trackUrns) {
-        return new AutoValue_StationWithTrackUrns(urn(), type(), title(), permalink(), trackUrns, imageUrlTemplate(), lastPlayedTrackPosition(), liked());
+    abstract Builder toBuilder();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+        public abstract StationWithTrackUrns.Builder urn(Urn urn);
+
+        public abstract StationWithTrackUrns.Builder type(String type);
+
+        public abstract StationWithTrackUrns.Builder title(String title);
+
+        public abstract StationWithTrackUrns.Builder permalink(Optional<String> permalink);
+
+        public abstract StationWithTrackUrns.Builder imageUrlTemplate(Optional<String> imageUrlTemplate);
+
+        public abstract StationWithTrackUrns.Builder lastPlayedTrackPosition(int lastPlayedTrackPosition);
+
+        public abstract StationWithTrackUrns.Builder liked(boolean liked);
+
+        public abstract StationWithTrackUrns.Builder trackUrns(List<Urn> trackUrns);
+
+        public abstract StationWithTrackUrns build();
     }
 }

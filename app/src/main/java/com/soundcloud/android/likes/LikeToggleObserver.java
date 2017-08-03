@@ -7,13 +7,13 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 
 import android.content.Context;
 import android.widget.Toast;
 
-public class LikeToggleObserver extends DefaultSingleObserver<Object> {
+public class LikeToggleObserver extends DefaultCompletableObserver {
     private final Context context;
     private final boolean likeStatus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
@@ -33,20 +33,20 @@ public class LikeToggleObserver extends DefaultSingleObserver<Object> {
     }
 
     @Override
-    public void onSuccess(Object ignored) {
+    public void onComplete() {
+        super.onComplete();
         if (changeLikeToSaveExperiment.isEnabled()) {
             showAddSnackbar();
         } else {
             showLikeToast();
         }
-        super.onSuccess(ignored);
     }
 
     private void showAddSnackbar() {
         feedbackController.showFeedback(likeStatus
                                         ? Feedback.create(R.string.add_snackbar_overflow_action,
-                                                                     R.string.btn_view,
-                                                                     v -> navigateToCollection(v.getContext()))
+                                                          R.string.btn_view,
+                                                          v -> navigateToCollection(v.getContext()))
                                         : Feedback.create(R.string.remove_snackbar_overflow_action));
     }
 

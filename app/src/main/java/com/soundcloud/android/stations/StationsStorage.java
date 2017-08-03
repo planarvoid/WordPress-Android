@@ -9,35 +9,33 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
 import com.soundcloud.propeller.schema.Column;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
 import android.content.ContentValues;
-import android.content.SharedPreferences;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +45,6 @@ public class StationsStorage {
 
     private static final String STATION_LIKE = "STATION_LIKE";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
-    private final SharedPreferences sharedPreferences;
     private final PropellerDatabase propellerDatabase;
     private final PropellerRxV2 propellerRx;
     private final DateProvider dateProvider;
@@ -58,11 +55,9 @@ public class StationsStorage {
     }
 
     @Inject
-    public StationsStorage(@Named(StorageModule.STATIONS) SharedPreferences sharedPreferences,
-                           PropellerDatabase propellerDatabase,
+    public StationsStorage(PropellerDatabase propellerDatabase,
                            PropellerRxV2 propellerRx,
                            CurrentDateProvider dateProvider) {
-        this.sharedPreferences = sharedPreferences;
         this.propellerDatabase = propellerDatabase;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
@@ -96,13 +91,19 @@ public class StationsStorage {
         }));
     }
 
-
-    Single<List<StationTrack>> loadPlayQueue(Urn station, int startPosition) {
+    Single<List<StationTrack>> loadStationPlayQueue(Urn station, int startPosition) {
         return propellerRx.queryResult(Query.from(StationsPlayQueues.TABLE)
                                             .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                                             .whereGe(StationsPlayQueues.POSITION, startPosition)
                                             .order(StationsPlayQueues.POSITION, Query.Order.ASC))
                           .map(result -> result.toList(new StationTrackMapper()))
+                          .first(Collections.emptyList());
+    }
+
+    Single<List<StationMetadata>> loadStationsMetadata(List<Urn> stations) {
+        return propellerRx.queryResult(Query.from(StationsPlayQueues.TABLE)
+                                            .whereIn(StationsPlayQueues.STATION_URN, Lists.transform(stations, Urn::toString)))
+                          .map(result -> result.toList(new StationMetadataMapper()))
                           .first(Collections.emptyList());
     }
 
@@ -118,7 +119,7 @@ public class StationsStorage {
                           .firstElement();
     }
 
-    Single<TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {
+    Completable clearExpiredPlayQueue(final Urn stationUrn) {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
@@ -131,11 +132,12 @@ public class StationsStorage {
                     step(resetLastPlayedTrackPosition(stationUrn));
                 }
             }
-        }).firstOrError();
+        }).ignoreElements();
     }
 
-    Single<ChangeResult> updateLocalStationLike(Urn stationUrn, boolean liked) {
-        return propellerRx.upsert(StationsCollections.TABLE, contentValuesForStationLikeToggled(stationUrn, liked)).firstOrError();
+    Completable updateLocalStationLike(Urn stationUrn, boolean liked) {
+        return propellerRx.upsert(StationsCollections.TABLE, contentValuesForStationLikeToggled(stationUrn, liked))
+                          .ignoreElements();
     }
 
     private ContentValues contentValuesForStationLikeToggled(Urn stationUrn, boolean liked) {
@@ -151,7 +153,6 @@ public class StationsStorage {
         propellerDatabase.delete(Stations.TABLE);
         propellerDatabase.delete(StationsCollections.TABLE);
         propellerDatabase.delete(StationsPlayQueues.TABLE);
-        sharedPreferences.edit().clear().apply();
     }
 
     Single<List<StationRecord>> getStationsCollection(int type) {
@@ -184,7 +185,6 @@ public class StationsStorage {
 
             if (result != null) {
                 final List<StationTrack> stationTracks = propellerDatabase.query(buildTracksListQuery(station)).toList(new StationTrackMapper());
-
                 return Station.stationWithTracks(result, stationTracks);
             }
             return null;
@@ -198,7 +198,9 @@ public class StationsStorage {
 
             if (stationWithTracks != null) {
                 final List<Urn> trackUrns = propellerDatabase.query(stationInfoTracksQuery(station)).toList(new StationTrackUrnMapper());
-                return stationWithTracks.copyWithTrackUrns(trackUrns);
+                return stationWithTracks.toBuilder()
+                                        .trackUrns(trackUrns)
+                                        .build();
             }
             return null;
         });
@@ -313,18 +315,31 @@ public class StationsStorage {
         }
     }
 
-    private final class StationWithTracksMapper implements ResultMapper<StationWithTrackUrns> {
+    private final class StationMetadataMapper implements ResultMapper<StationMetadata> {
+        @Override
+        public StationMetadata map(CursorReader reader) {
+            return StationMetadata.builder()
+                                  .urn(new Urn(reader.getString(Stations.STATION_URN)))
+                                  .type(reader.getString(Stations.TYPE))
+                                  .title(reader.getString(Stations.TITLE))
+                                  .permalink(fromNullable(reader.getString(Stations.PERMALINK)))
+                                  .imageUrlTemplate(fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)))
+                                  .build();
+        }
+    }
 
+    private final class StationWithTracksMapper implements ResultMapper<StationWithTrackUrns> {
         @Override
         public StationWithTrackUrns map(CursorReader reader) {
-            return StationWithTrackUrns.create(new Urn(reader.getString(Stations.STATION_URN)),
-                                               reader.getString(Stations.TYPE),
-                                               reader.getString(Stations.TITLE),
-                                               fromNullable(reader.getString(Stations.PERMALINK)),
-                                               Optional.fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)),
-                                               reader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
-                                               reader.getBoolean(STATION_LIKE)
-            );
+            return StationWithTrackUrns.builder()
+                                       .urn(new Urn(reader.getString(Stations.STATION_URN)))
+                                       .type(reader.getString(Stations.TYPE))
+                                       .title(reader.getString(Stations.TITLE))
+                                       .permalink(fromNullable(reader.getString(Stations.PERMALINK)))
+                                       .imageUrlTemplate(fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)))
+                                       .lastPlayedTrackPosition(reader.getInt(Stations.LAST_PLAYED_TRACK_POSITION))
+                                       .liked(reader.getBoolean(STATION_LIKE))
+                                       .build();
         }
     }
 

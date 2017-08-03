@@ -299,6 +299,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private void handleLike() {
         final boolean addLike = !track.isUserLike();
         likeOperations.toggleLike(track.getUrn(), addLike)
+                      .toCompletable()
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleObserver(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 

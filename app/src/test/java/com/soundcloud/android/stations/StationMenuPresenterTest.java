@@ -14,13 +14,12 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
 
 import android.view.View;
 
@@ -43,7 +42,7 @@ public class StationMenuPresenterTest extends AndroidUnitTest {
         when(stationsOperations.stationWithTracks(any(Urn.class), eq(Optional.absent())))
                 .thenReturn(Maybe.just(STATION));
         when(stationsOperations.toggleStationLike(any(Urn.class), anyBoolean()))
-                .thenReturn(Single.error(new IllegalArgumentException()));
+                .thenReturn(Completable.error(new IllegalArgumentException()));
 
         presenter = new StationMenuPresenter(context(), stationMenuRenderFactory, stationsOperations, changeLikeToSaveExperiment, feedbackController, navigationExecutor);
 
@@ -55,7 +54,7 @@ public class StationMenuPresenterTest extends AndroidUnitTest {
         final PublishSubject<ChangeResult> likeObservable = PublishSubject.create();
 
         when(stationsOperations.toggleStationLike(STATION.getUrn(), !STATION.isLiked()))
-                .thenReturn(likeObservable.firstOrError());
+                .thenReturn(likeObservable.firstOrError().toCompletable());
 
         presenter.show(button, STATION.getUrn());
         presenter.handleLike(STATION);

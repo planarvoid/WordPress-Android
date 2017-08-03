@@ -11,13 +11,14 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.FetchAndStoreStationsCommand;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stations.StationsRepository;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,17 +41,18 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Mock private EventBus eventBus;
     @Mock private StationsOperations stationsOperations;
     @Mock private OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand;
-    @Mock private FetchAndStoreStationsCommand fetchAndStoreStationsCommand;
+    @Mock private StationsRepository stationsRepository;
 
     @Before
     public void setUp() throws Exception {
         when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.emptyList());
         when(stationsOperations.station(any(Urn.class))).thenReturn(Maybe.empty());
+        when(stationsRepository.syncStationsMetadata(any())).thenReturn(Completable.complete());
 
         syncer = new RecentlyPlayedSyncer(recentlyPlayedStorage, fetchRecentlyPlayedCommand, pushRecentlyPlayedCommand,
                                           fetchPlaylistsCommand, storePlaylistsCommand, fetchUsersCommand,
                                           storeUsersCommand, eventBus,
-                                          optimizeRecentlyPlayedCommand, fetchAndStoreStationsCommand);
+                                          optimizeRecentlyPlayedCommand, stationsRepository);
     }
 
     @Test
@@ -99,7 +101,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
 
         syncer.call();
 
-        verify(fetchAndStoreStationsCommand).call(Collections.singletonList(stationUrn));
+        verify(stationsRepository).syncStationsMetadata(Collections.singletonList(stationUrn));
     }
 
     @Test

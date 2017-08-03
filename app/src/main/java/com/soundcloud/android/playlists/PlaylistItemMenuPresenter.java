@@ -219,6 +219,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         boolean addLike = !playlist.isUserLike();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
+                      .toCompletable()
                       .subscribe(new LikeToggleObserver(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(
@@ -269,8 +270,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         final boolean addLike = true;
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .observeOn(AndroidSchedulers.mainThread())
-                      .doOnSuccess(ignored -> saveOffline())
+                      .toCompletable()
+                      .doOnComplete(this::saveOffline)
                       .subscribe(new LikeToggleObserver(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
     }
 

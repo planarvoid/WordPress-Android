@@ -1,5 +1,10 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
+import static java.lang.Math.min;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -8,37 +13,30 @@ import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
-import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
-import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
-import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
-import static java.lang.Math.min;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecommendedStationsOperations {
     @VisibleForTesting
     static final int STATIONS_IN_BUCKET = 12;
-    private final StationsStorage stationsStorage;
+    private final StationsRepository stationsRepository;
     private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
     private final NewSyncOperations syncOperations;
 
     @Inject
-    RecommendedStationsOperations(StationsStorage stationsStorage,
+    RecommendedStationsOperations(StationsRepository stationsRepository,
                                   PlayQueueManager playQueueManager,
                                   @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
                                   NewSyncOperations syncOperations) {
-        this.stationsStorage = stationsStorage;
+        this.stationsRepository = stationsRepository;
         this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
@@ -61,12 +59,12 @@ public class RecommendedStationsOperations {
     }
 
     public void clearData() {
-        stationsStorage.clear();
+        stationsRepository.clearData();
     }
 
     private Single<List<StationRecord>> getCollection(int collectionType) {
-        return stationsStorage.getStationsCollection(collectionType)
-                              .subscribeOn(scheduler);
+        return stationsRepository.loadStationsCollection(collectionType)
+                                 .subscribeOn(scheduler);
     }
 
     private List<StationViewModel> transformToStationViewModels(List<StationRecord> records) {

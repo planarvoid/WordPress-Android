@@ -13,7 +13,6 @@ import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
@@ -47,8 +46,7 @@ public class RecommendedStationsOperationsTest {
 
     PublishSubject<SyncResult> syncSubject;
 
-    @Mock StationsStorage stationsStorage;
-    @Mock SyncStateStorage syncStateStorage;
+    @Mock StationsRepository stationsRepository;
     @Mock NewSyncOperations syncOperations;
     @Mock PlayQueueManager playQueueManager;
 
@@ -58,17 +56,17 @@ public class RecommendedStationsOperationsTest {
     @Before
     public void setUp() throws Exception {
         syncSubject = PublishSubject.create();
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList()));
-        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(RECENT_1, RECENT_2)));
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList()));
+        when(stationsRepository.loadStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(RECENT_1, RECENT_2)));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject.firstOrError());
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
 
-        operations = new RecommendedStationsOperations(stationsStorage, playQueueManager, scheduler, syncOperations);
+        operations = new RecommendedStationsOperations(stationsRepository, playQueueManager, scheduler, syncOperations);
     }
 
     @Test
     public void shouldReturnStoredRecommendations() {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, SUGGESTED_2)));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
@@ -81,7 +79,7 @@ public class RecommendedStationsOperationsTest {
 
     @Test
     public void shouldReorderRecentStations() {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2)));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
@@ -93,9 +91,9 @@ public class RecommendedStationsOperationsTest {
 
     @Test
     public void shouldNotReorderWhenNoRecentStations() {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2)));
-        when(stationsStorage.getStationsCollection(RECENT))
+        when(stationsRepository.loadStationsCollection(RECENT))
                 .thenReturn(Single.just(Lists.newArrayList()));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
@@ -107,9 +105,9 @@ public class RecommendedStationsOperationsTest {
 
     @Test
     public void shouldNotAddRecentWhenNotSuggested() {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, RECENT_1)));
-        when(stationsStorage.getStationsCollection(RECENT))
+        when(stationsRepository.loadStationsCollection(RECENT))
                 .thenReturn(Single.just(Lists.newArrayList(RECENT_2)));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
@@ -121,7 +119,7 @@ public class RecommendedStationsOperationsTest {
     @Test
     public void shouldSetCorrectNoPlayingStatus() {
         when(playQueueManager.getCollectionUrn()).thenReturn(SUGGESTED_1.getUrn());
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Single.just(Lists.newArrayList(SUGGESTED_1, SUGGESTED_2)));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
@@ -135,8 +133,8 @@ public class RecommendedStationsOperationsTest {
     public void shouldAlwaysReturnGivenNumberOfSuggestedStations() {
         List<StationRecord> recommendedStations = stationRecordsList(STATIONS_IN_BUCKET + 2);
         List<StationRecord> recentlyPlayed = stationRecordsList(STATIONS_IN_BUCKET);
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList(recommendedStations)));
-        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(recentlyPlayed)));
+        when(stationsRepository.loadStationsCollection(RECOMMENDATIONS)).thenReturn(Single.just(Lists.newArrayList(recommendedStations)));
+        when(stationsRepository.loadStationsCollection(RECENT)).thenReturn(Single.just(Lists.newArrayList(recentlyPlayed)));
 
         TestObserver<OldDiscoveryItem> subscriber = operations.recommendedStations().test();
         syncSubject.onNext(SyncResult.syncing());
@@ -150,7 +148,7 @@ public class RecommendedStationsOperationsTest {
     public void clearData() throws Exception {
         operations.clearData();
 
-        verify(stationsStorage).clear();
+        verify(stationsRepository).clearData();
     }
 
     private List<StationRecord> stationRecordsList(int count) {

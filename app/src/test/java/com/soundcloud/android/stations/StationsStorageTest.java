@@ -11,8 +11,6 @@ import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.SharedPreferences;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,17 +20,14 @@ public class StationsStorageTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private final Urn stationUrn = Urn.forTrackStation(123L);
     private final long BEFORE_24H = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(25L);
-    private SharedPreferences sharedPreferences = sharedPreferences();
 
     private StationsStorage storage;
 
     @Before
     public void setup() {
-        storage = new StationsStorage(
-                sharedPreferences,
-                propeller(),
-                propellerRxV2(),
-                dateProvider
+        storage = new StationsStorage(propeller(),
+                                      propellerRxV2(),
+                                      dateProvider
         );
     }
 
@@ -77,7 +72,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayQueueReturnsEmptyWhenNoContent() {
-        storage.loadPlayQueue(stationUrn, 30)
+        storage.loadStationPlayQueue(stationUrn, 30)
                .test()
                .assertValue(Lists.emptyList())
                .assertComplete();
@@ -88,7 +83,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         final ApiStation station = StationFixtures.getApiStation(stationUrn, 10);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(stationUrn, 0).test()
+        storage.loadStationPlayQueue(stationUrn, 0).test()
                .assertValue(station.getTracks())
                .assertComplete();
     }
@@ -99,7 +94,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         final ApiStation station = StationFixtures.getApiStation(stationUrn, size);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(stationUrn, 5).test()
+        storage.loadStationPlayQueue(stationUrn, 5).test()
                .assertValue(station.getTracks().subList(5, size))
                .assertComplete();
     }
@@ -276,8 +271,8 @@ public class StationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertStation();
 
         storage.urnForPermalink("testing")
-                .test()
-                .assertNoValues()
-                .assertComplete();
+               .test()
+               .assertNoValues()
+               .assertComplete();
     }
 }

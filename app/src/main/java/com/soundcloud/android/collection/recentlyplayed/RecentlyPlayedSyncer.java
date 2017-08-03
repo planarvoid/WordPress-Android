@@ -13,7 +13,8 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.FetchAndStoreStationsCommand;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
+import com.soundcloud.android.stations.StationsRepository;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -39,7 +40,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
     private final EventBus eventBus;
     private final OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
-    private final FetchAndStoreStationsCommand fetchAndStoreStationsCommand;
+    private final StationsRepository stationsRepository;
 
     @Inject
     RecentlyPlayedSyncer(RecentlyPlayedStorage recentlyPlayedStorage,
@@ -51,7 +52,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
                          StoreUsersCommand storeUsersCommand,
                          EventBus eventBus,
                          OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand,
-                         FetchAndStoreStationsCommand fetchAndStoreStationsCommand) {
+                         StationsRepository stationsRepository) {
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
         this.fetchRecentlyPlayedCommand = fetchRecentlyPlayedCommand;
@@ -61,7 +62,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
         this.storeUsersCommand = storeUsersCommand;
         this.eventBus = eventBus;
         this.optimizeRecentlyPlayedCommand = optimizeRecentlyPlayedCommand;
-        this.fetchAndStoreStationsCommand = fetchAndStoreStationsCommand;
+        this.stationsRepository = stationsRepository;
     }
 
     @Override
@@ -131,7 +132,8 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
                     break;
                 case CONTEXT_TRACK_STATION:
                 case CONTEXT_ARTIST_STATION:
-                    fetchAndStoreStationsCommand.call(urns);
+                    stationsRepository.syncStationsMetadata(urns)
+                                      .subscribe(new DefaultCompletableObserver());
                     break;
             }
         }
