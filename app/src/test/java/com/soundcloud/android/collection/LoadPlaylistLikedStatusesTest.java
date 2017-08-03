@@ -27,7 +27,7 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
         likedPlaylist = testFixtures().insertLikedPlaylist(new Date());
         playlist = testFixtures().insertPlaylist();
 
-        command = new LoadPlaylistLikedStatuses(propeller());
+        command = new LoadPlaylistLikedStatuses(new LoadLikedStatuses(propeller()));
     }
 
     @Test

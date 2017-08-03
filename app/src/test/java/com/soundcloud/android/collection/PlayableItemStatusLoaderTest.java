@@ -22,10 +22,8 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayableItemStatusLoaderTest {
 
-    @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
-    @Mock private LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
-    @Mock private LoadTrackLikedStatuses loadTrackLikedStatuses;
-    @Mock private LoadTrackRepostStatuses loadTrackRepostStatuses;
+    @Mock private LoadLikedStatuses loadLikedStatuses;
+    @Mock private LoadRepostStatuses loadRepostStatuses;
 
     private PlayableItemStatusLoader subject;
     private Map<Urn, Boolean> statusMap;
@@ -34,8 +32,7 @@ public class PlayableItemStatusLoaderTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new PlayableItemStatusLoader(loadPlaylistLikedStatuses, loadPlaylistRepostStatuses,
-                                               loadTrackLikedStatuses, loadTrackRepostStatuses);
+        subject = new PlayableItemStatusLoader(loadLikedStatuses, loadRepostStatuses);
 
         playlistItem = ModelFixtures.playlistItem();
         trackItem = ModelFixtures.trackItem();
@@ -45,7 +42,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdatePlaylistLikedStatusToTrue() throws Exception {
         statusMap.put(playlistItem.getUrn(), true);
-        when(loadPlaylistLikedStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
         final Iterable<PlayableItem> playableItems = subject.call(singletonList(playlistItem));
 
@@ -57,7 +54,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdatePlaylistLikedStatusToFalse() throws Exception {
         statusMap.put(playlistItem.getUrn(), false);
-        when(loadPlaylistLikedStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistItem));
 
@@ -67,7 +64,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdatePlaylistRepostStatusToTrue() throws Exception {
         statusMap.put(playlistItem.getUrn(), true);
-        when(loadPlaylistRepostStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
         final Iterable<PlayableItem> playableItems = subject.call(singletonList(playlistItem));
 
@@ -79,7 +76,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdatePlaylistRepostStatusToFalse() throws Exception {
         statusMap.put(playlistItem.getUrn(), false);
-        when(loadPlaylistRepostStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
         subject.call(singletonList(playlistItem));
 
@@ -89,7 +86,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdateTrackLikedStatusToTrue() throws Exception {
         statusMap.put(trackItem.getUrn(), true);
-        when(loadTrackLikedStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
         final Iterable<PlayableItem> playableItems = subject.call(singletonList(trackItem));
 
@@ -101,7 +98,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdateTrackLikedStatusToFalse() throws Exception {
         statusMap.put(trackItem.getUrn(), false);
-        when(loadTrackLikedStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
         subject.call(singletonList(trackItem));
 
@@ -111,7 +108,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdateTrackRepostStatusToTrue() throws Exception {
         statusMap.put(trackItem.getUrn(), true);
-        when(loadTrackRepostStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
         final Iterable<PlayableItem> playableItems = subject.call(singletonList(trackItem));
 
@@ -123,7 +120,7 @@ public class PlayableItemStatusLoaderTest {
     @Test
     public void shouldUpdateTrackRepostStatusToFalse() throws Exception {
         statusMap.put(trackItem.getUrn(), false);
-        when(loadTrackRepostStatuses.call(anyIterable())).thenReturn(statusMap);
+        when(loadRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
         subject.call(singletonList(trackItem));
 

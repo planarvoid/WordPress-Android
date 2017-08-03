@@ -68,6 +68,13 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertTrack(Urn urn) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setUrn(urn);
+        insertTrack(track);
+        return track;
+    }
+
     public ApiTrack insertBlockedTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setBlocked(true);
@@ -280,6 +287,14 @@ public class DatabaseFixtures {
 
     public ApiPlaylist insertPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
+    public ApiPlaylist insertPlaylist(Urn playlistUrn) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setUrn(playlistUrn);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
@@ -709,6 +724,10 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrack(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        return insertLikedTrack(likedDate, track);
+    }
+
+    public ApiTrack insertLikedTrack(Date likedDate, ApiTrack track) {
         insertUser(track.getUser());
         insertTrack(track);
         insertLike(track.getId(), Tables.Sounds.TYPE_TRACK, likedDate);
@@ -727,9 +746,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrackPendingRemoval(Date likedDate, Date unlikedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser(track.getUser());
-        insertTrack(track);
-        insertLike(track.getId(), Tables.Sounds.TYPE_TRACK, likedDate);
+        insertLikedTrack(likedDate, track);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
                                  + " WHERE _id=" + track.getUrn().getNumericId()
                                  + " AND _type=" + Tables.Sounds.TYPE_TRACK);
@@ -738,9 +755,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrackPendingAddition(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser(track.getUser());
-        insertTrack(track);
-        insertLike(track.getId(), Tables.Sounds.TYPE_TRACK, likedDate);
+        insertLikedTrack(likedDate, track);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
                                  + " WHERE _id=" + track.getUrn().getNumericId()
                                  + " AND _type=" + Tables.Sounds.TYPE_TRACK);

@@ -22,7 +22,7 @@ public class LoadPlaylistRepostStatusesTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new LoadPlaylistRepostStatuses(propeller());
+        command = new LoadPlaylistRepostStatuses(new LoadRepostStatuses(propeller()));
     }
 
     @Test
