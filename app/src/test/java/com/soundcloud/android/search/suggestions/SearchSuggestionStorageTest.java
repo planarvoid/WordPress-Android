@@ -185,6 +185,20 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void removesDuplicateWhenUserSearchesByArtistNameAndLikedTrackWithTitleContainingArtistName() {
+        ApiTrack likedTrackWithArtistName = testFixtures().insertTrackWithTitle("Great song by " + creator.getUsername(), creator);
+        testFixtures().insertLikedTrack(likedTrackWithArtistName, 500L);
+        final SearchSuggestion likedTrackWithArtistNameSearchSuggestion = buildSearchSuggestionFromApiTrack(likedTrackWithArtistName);
+
+        final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(creator.getUsername().substring(0, 3), loggedInUser.getUrn(), 6);
+        final TestObserver<List<SearchSuggestion>> subscriber = suggestions.test();
+
+        subscriber.assertValue(Lists.newArrayList(likedTrackWithArtistNameSearchSuggestion,
+                                                  likedTrackArtistUsernameSearchSuggestion,
+                                                  likedPlaylistArtistUsernameSearchSuggestion));
+    }
+
+    @Test
     public void returnsUserAndLikedTrackAndPlaylistInCorrectOrderWhenCreatorIsFollowed() {
         testFixtures().insertFollowing(creator.getUrn());
         final Single<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(creator.getUsername().substring(0, 3), loggedInUser.getUrn(), 4);
@@ -214,7 +228,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void returnsMultipleMatchesForFollowingUserByMostRecentlyFollowed() {
+    public void returnsMultipleMatchesForFollowingUserSortedByMostRecentlyFollowed() {
         final ApiUser secondFollowingUser = testFixtures().insertUser(followingUser.getUsername(), followingUser.getCreatedAt().get().getTime() - 1);
         testFixtures().insertFollowing(secondFollowingUser.getUrn(), 500L);
         final SearchSuggestion secondFollowingUserSearchSuggestion = buildSearchSuggestionFromApiUser(secondFollowingUser);
@@ -236,9 +250,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
                                                   followingUserSearchSuggestion,
                                                   loggedInUserSearchSuggestion,
                                                   ownedTrackSearchSuggestion,
-                                                  ownedPlaylistSearchSuggestion,
-                                                  likedTrackArtistUsernameSearchSuggestion,
-                                                  likedPlaylistArtistUsernameSearchSuggestion));
+                                                  ownedPlaylistSearchSuggestion));
     }
 
     @Test

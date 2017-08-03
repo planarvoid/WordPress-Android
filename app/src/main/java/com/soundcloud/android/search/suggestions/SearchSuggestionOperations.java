@@ -38,7 +38,8 @@ class SearchSuggestionOperations {
                                @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
                                AccountOperations accountOperations,
-                               SearchSuggestionFiltering searchSuggestionFiltering, LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment) {
+                               SearchSuggestionFiltering searchSuggestionFiltering,
+                               LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;

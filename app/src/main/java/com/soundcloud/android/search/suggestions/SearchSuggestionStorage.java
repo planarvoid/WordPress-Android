@@ -1,5 +1,8 @@
 package com.soundcloud.android.search.suggestions;
 
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.Tables;
@@ -106,7 +109,11 @@ class SearchSuggestionStorage {
     }
 
     Single<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
-        return RxJava.toV2Single(propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn)).limit(limit).map(new SearchSuggestionMapper()).toList());
+        return RxJava.toV2Single(propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn))
+                                            .limit(limit)
+                                            .map(new SearchSuggestionMapper())
+                                            .toList()
+                                            .map(this::removeDuplicates));
     }
 
     @NonNull
@@ -142,5 +149,23 @@ class SearchSuggestionStorage {
         public SearchSuggestion map(CursorReader cursorReader) {
             return DatabaseSearchSuggestion.create(getUrn(cursorReader), cursorReader.getString(DISPLAY_TEXT), Optional.fromNullable(cursorReader.getString(IMAGE_URL)));
         }
+    }
+
+    // It's possible that we might have some duplicates, e.g. if the user is searching by artist name and has liked a track or playlist whose title contains the artist name, then there would be two
+    // suggestions per entity: one for "track/playlist name" and one for "artist name - track/playlist name". We only want to keep the former.
+    private List<SearchSuggestion> removeDuplicates(List<SearchSuggestion> items) {
+        final String splitOperator = " - ";
+        List<SearchSuggestion> result = items;
+        final List<SearchSuggestion> tracksOrPlaylistsRecommendedBasedOnArtistName = newArrayList(filter(items, item -> item.getQuery().contains(splitOperator)));
+        for (SearchSuggestion item : tracksOrPlaylistsRecommendedBasedOnArtistName) {
+            final String title = item.getQuery().split(splitOperator)[1];
+            for (SearchSuggestion otherSuggestion : items) {
+                if (otherSuggestion.getQuery().equals(title)) {
+                    result.remove(item);
+                    break;
+                }
+            }
+        }
+        return newArrayList(result);
     }
 }
