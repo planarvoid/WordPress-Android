@@ -9,6 +9,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.deeplinks.ShortcutController.Shortcut;
+import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -33,6 +34,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
     @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private RootActivity rootActivity;
     @Mock private MainTabsView mainTabsView;
+    @Mock private DiscoveryConfiguration discoveryConfiguration;
 
     private MainTabsPresenter mainTabsPresenter;
 
@@ -45,9 +47,11 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
                                                   featureOperations,
                                                   offlineContentOperations,
                                                   goOnboardingTooltipExperiment,
+                                                  discoveryConfiguration,
                                                   mainTabsView);
 
         when(featureOperations.developmentMenuEnabled()).thenReturn(Observable.just(false));
+        when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(false);
     }
 
     @Test
@@ -78,6 +82,17 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldResolveDataForDiscoverBackend() {
+        Uri searchUri = Uri.parse("https://soundcloud.com/search");
+        when(rootActivity.getIntent()).thenReturn(createIntent(null, searchUri));
+        when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(true);
+
+        mainTabsPresenter.onCreate(rootActivity, null);
+
+        verify(mainTabsView).selectItem(Screen.DISCOVER);
+    }
+
+    @Test
     public void shouldResolveIntentFromStreamAction() {
         when(rootActivity.getIntent()).thenReturn(createIntent(Actions.STREAM, null));
 
@@ -105,6 +120,16 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldResolveDiscoverBackendIntentFromDiscoveryAction() {
+        when(rootActivity.getIntent()).thenReturn(createIntent(Actions.DISCOVERY, null));
+        when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(true);
+
+        mainTabsPresenter.onCreate(rootActivity, null);
+
+        verify(mainTabsView).selectItem(Screen.DISCOVER);
+    }
+
+    @Test
     public void shouldResolveIntentFromSearchAction() {
         final Intent intent = createIntent(Actions.SEARCH, null);
         when(rootActivity.getIntent()).thenReturn(intent);
@@ -112,6 +137,18 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
         mainTabsPresenter.onCreate(rootActivity, null);
 
         verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(navigationExecutor).openSearch(rootActivity, intent);
+    }
+
+    @Test
+    public void shouldResolveDiscoverBackendIntentFromSearchAction() {
+        final Intent intent = createIntent(Actions.SEARCH, null);
+        when(rootActivity.getIntent()).thenReturn(intent);
+        when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(true);
+
+        mainTabsPresenter.onCreate(rootActivity, null);
+
+        verify(mainTabsView).selectItem(Screen.DISCOVER);
         verify(navigationExecutor).openSearch(rootActivity, intent);
     }
 
@@ -132,6 +169,18 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         verify(shortcutController).reportUsage(Shortcut.SEARCH);
         verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(navigationExecutor).openSearchFromShortcut(rootActivity);
+    }
+
+    @Test
+    public void shouldResolveDiscoverBackendIntentFromSearchShortcut() {
+        when(rootActivity.getIntent()).thenReturn(createIntent(Actions.SHORTCUT_SEARCH, null));
+        when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(true);
+
+        mainTabsPresenter.onCreate(rootActivity, null);
+
+        verify(shortcutController).reportUsage(Shortcut.SEARCH);
+        verify(mainTabsView).selectItem(Screen.DISCOVER);
         verify(navigationExecutor).openSearchFromShortcut(rootActivity);
     }
 

@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.deeplinks.ShortcutController;
+import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -14,9 +15,9 @@ import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
-import io.reactivex.Observable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +35,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
+    private final DiscoveryConfiguration discoveryConfiguration;
 
     private RootActivity activity;
 
@@ -49,6 +51,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       FeatureOperations featureOperations,
                       OfflineContentOperations offlineContentOperations,
                       GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
+                      DiscoveryConfiguration discoveryConfiguration,
                       MainTabsView mainTabsView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
@@ -57,6 +60,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
+        this.discoveryConfiguration = discoveryConfiguration;
         this.mainTabsView = mainTabsView;
     }
 
@@ -131,7 +135,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         if (NavigationIntentHelper.shouldGoToStream(data)) {
             mainTabsView.selectItem(Screen.STREAM);
         } else if (NavigationIntentHelper.shouldGoToSearch(data)) {
-            mainTabsView.selectItem(Screen.SEARCH_MAIN);
+            selectDiscovery();
         }
     }
 
@@ -144,10 +148,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 mainTabsView.selectItem(Screen.COLLECTIONS);
                 break;
             case Actions.DISCOVERY:
-                mainTabsView.selectItem(Screen.SEARCH_MAIN);
+                selectDiscovery();
                 break;
             case Actions.SEARCH:
-                mainTabsView.selectItem(Screen.SEARCH_MAIN);
+                selectDiscovery();
                 navigationExecutor.openSearch(activity, intent);
                 break;
             case Actions.MORE:
@@ -155,7 +159,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 break;
             case Actions.SHORTCUT_SEARCH:
                 shortcutController.reportUsage(SEARCH);
-                mainTabsView.selectItem(Screen.SEARCH_MAIN);
+                selectDiscovery();
                 navigationExecutor.openSearchFromShortcut(activity);
                 break;
             case Actions.SHORTCUT_PLAY_LIKES:
@@ -165,6 +169,14 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 break;
             default:
                 break;
+        }
+    }
+
+    private void selectDiscovery() {
+        if (discoveryConfiguration.shouldShowDiscoverBackendContent()) {
+            mainTabsView.selectItem(Screen.DISCOVER);
+        } else {
+            mainTabsView.selectItem(Screen.SEARCH_MAIN);
         }
     }
 

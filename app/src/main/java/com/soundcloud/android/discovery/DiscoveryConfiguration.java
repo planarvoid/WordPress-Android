@@ -23,7 +23,7 @@ public class DiscoveryConfiguration {
         return shouldShowDiscoverBackendContent() ? new DiscoveryNavigationTarget() : new OldDiscoveryNavigationTarget();
     }
 
-    private boolean shouldShowDiscoverBackendContent() {
+    public boolean shouldShowDiscoverBackendContent() {
         return isDiscoverBackendFeatureFlagEnabled() && !staticDiscoverContentExperiment.isEnabled();
     }
 
