@@ -12,8 +12,8 @@ import java.util.Arrays;
 
 @ActiveExperiment
 public class FlipperExperiment {
-    private static final String NAME = "flipper-android-3";
-    private static final String VARIANT_CONTROL = "control";
+    private static final String NAME = "flipper_skippy_4";
+    private static final String VARIANT_CONTROL = "skippy";
     private static final String VARIANT_FLIPPER = "flipper";
 
     public static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
