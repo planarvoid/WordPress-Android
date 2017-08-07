@@ -61,7 +61,7 @@ class CommentsOperations {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn))
                                              .forPrivateApi()
                                              .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
-                                             .addQueryParam("threaded", 1)
+                                             .addQueryParam("threaded", 0)
                                              .build();
         return apiClientRx.mappedResponse(request, TYPE_TOKEN).subscribeOn(scheduler);
     }

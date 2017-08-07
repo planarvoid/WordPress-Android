@@ -45,6 +45,7 @@ public class CommentsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(
                 isApiRequestTo("GET", "/tracks/soundcloud%3Atracks%3A123/comments")
                         .withQueryParam("limit", String.valueOf(COMMENTS_PAGE_SIZE))
+                        .withQueryParam("threaded", "0")
         ), eq(CommentsOperations.TYPE_TOKEN))).thenReturn(apiComments);
 
         Urn track = Urn.forTrack(123L);
