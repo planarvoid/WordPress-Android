@@ -32,7 +32,7 @@ public class FlipperExperimentTest {
 
     @Test
     public void disabledIfExperimentDisabled() throws Exception {
-        whenVariant("control");
+        whenVariant("skippy");
 
         assertThat(config.isEnabled()).isFalse();
     }
