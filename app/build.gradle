@@ -211,7 +211,6 @@ dependencies {
   compile libraries.rxJavaInterop
   compile libraries.universalImageLoader
   compile libraries.sqlBrite
-  compile libraries.sqlBriteInterop
   compile libraries.dualCache
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {

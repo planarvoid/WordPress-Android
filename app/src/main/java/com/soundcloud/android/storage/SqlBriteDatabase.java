@@ -44,7 +44,7 @@ public class SqlBriteDatabase {
     }
 
     public int clear(String table) {
-        return briteDatabase.delete(table, null, null);
+        return briteDatabase.delete(table, null, (String[]) null);
     }
 
     public void runInTransaction(Runnable runnable) {
