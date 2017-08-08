@@ -545,10 +545,12 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> startWebView(NavigationTarget navigationTarget) {
-        final Uri targetUri = navigationTarget
-                .linkNavigationParameters()
-                .transform(NavigationTarget.LinkNavigationParameters::targetUri)
-                .or(Uri.parse(navigationTarget.deeplinkTarget().get()));
+        final Uri targetUri;
+        if (navigationTarget.linkNavigationParameters().isPresent()) {
+            targetUri = navigationTarget.linkNavigationParameters().get().targetUri();
+        } else {
+            targetUri = Uri.parse(navigationTarget.deeplinkTarget().get());
+        }
 
         if (CustomTabsHelper.isChromeCustomTabsAvailable(context)) {
             return Single.just(NavigationResult.forChromeCustomTab(navigationTarget, CustomTabsHelper.createMetadata(context, targetUri)))

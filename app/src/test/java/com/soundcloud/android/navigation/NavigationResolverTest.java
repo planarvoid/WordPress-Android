@@ -1979,6 +1979,20 @@ public class NavigationResolverTest extends AndroidUnitTest {
         assertTarget(navigationTarget, IntentFactory.createViewIntent(Uri.parse(resetPasswordLink)));
     }
 
+    @Test
+    public void redirectionToSoundCloudConnectWithCaptchaForSignUpNavigatesToWebView() throws Exception {
+        addChromeCustomTabsIntentResolverInPackageManager();
+
+        final String url = "https://soundcloud.com/connect?c=true&highlight=signup&client_id=dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf&redirect_uri=soundcloud://auth&response_type=code&scope=non-expiring";
+        when(resolveOperations.resolve(url)).thenReturn(Single.just(ResolveResult.error(Uri.parse(url), null)));
+        NavigationTarget navigationTarget = NavigationTarget.forExternalDeeplink(url, "");
+
+        resolveTarget(navigationTarget);
+
+        assertTargetWithChromeCustomTabsMetadata(navigationTarget, Uri.parse(url));
+        verifyZeroInteractions(resolveOperations);
+    }
+
     // Fallback Errors
 
     @Test
