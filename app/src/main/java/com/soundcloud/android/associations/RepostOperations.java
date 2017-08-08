@@ -4,6 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -12,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
@@ -54,8 +56,17 @@ public class RepostOperations {
     private Function<RepostStatus, Single<RepostResult>> pushRemoveAndRevertWhenFailed() {
         return repostStatus -> pushRemoveRepost(repostStatus.urn())
                 .map(o -> RepostResult.UNREPOST_SUCCEEDED)
-                .onErrorResumeNext(addRepostLocally(repostStatus.urn())
-                                           .map(repostStatus1 -> RepostResult.UNREPOST_FAILED));
+                .onErrorResumeNext(throwable -> handleUnpostError(repostStatus, throwable));
+    }
+
+    private SingleSource<? extends RepostResult> handleUnpostError(RepostStatus repostStatus, Throwable throwable) {
+        if (throwable instanceof ApiRequestException){
+            if (((ApiRequestException) throwable).reason().equals(ApiRequestException.Reason.NOT_FOUND)) {
+                return Single.just(RepostResult.UNREPOST_SUCCEEDED);
+            }
+        }
+        return addRepostLocally(repostStatus.urn())
+                .map(__ -> RepostResult.UNREPOST_FAILED);
     }
 
     private Single<RepostStatus> addRepostLocally(final Urn soundUrn) {

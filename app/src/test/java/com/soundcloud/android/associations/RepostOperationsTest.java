@@ -10,6 +10,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.commands.Command;
@@ -38,7 +39,6 @@ public class RepostOperationsTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
     private RepostOperations operations;
-    private TestObserver<RepostOperations.RepostResult> testObserver = new TestObserver<>();
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Mock private RepostStorage repostStorage;
@@ -65,9 +65,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
-
-        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
+        assertThat(operations.toggleRepost(TRACK_URN, true).test().values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
@@ -75,9 +73,8 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
+        assertThat(operations.toggleRepost(PLAYLIST_URN, true).test().values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
@@ -85,7 +82,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, true).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -101,7 +98,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         SingleSubject<ApiResponse> subject = SingleSubject.create();
         when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        TestObserver<RepostOperations.RepostResult> testObserver = operations.toggleRepost(TRACK_URN, true).test();
         subject.onSuccess(TestApiResponses.ok()); // this must not propagate
 
         assertThat(testObserver.values()).isEmpty();
@@ -112,7 +109,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     public void shouldNotPublishRepostedEventIfInsertFailed() throws Exception {
         when(addRepost.toSingle(TRACK_URN)).thenReturn(Single.error(mock(PropellerWriteException.class)));
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, true).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -125,7 +122,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.error(new IOException()));
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        TestObserver<RepostOperations.RepostResult> testObserver = operations.toggleRepost(TRACK_URN, true).test();
 
         verify(removeRepost).toSingle(TRACK_URN);
         assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_FAILED);
@@ -136,7 +133,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.error(new IOException()));
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, true).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -149,9 +146,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
-
-        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+        assertThat(operations.toggleRepost(TRACK_URN, false).test().values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
@@ -159,9 +154,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
-
-        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+        assertThat(operations.toggleRepost(PLAYLIST_URN, false).test().values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
@@ -169,7 +162,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.just(TestApiResponses.status(200)));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, false).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -181,7 +174,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     public void shouldPublishRepostedEventIfRepostRemovalFailed() throws Exception {
         when(removeRepost.toSingle(TRACK_URN)).thenReturn(Single.error(mock(PropellerWriteException.class)));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, false).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -194,7 +187,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.error(new IOException()));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        TestObserver<RepostOperations.RepostResult> testObserver = operations.toggleRepost(TRACK_URN, false).test();
 
         verify(addRepost).toSingle(TRACK_URN);
         assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_FAILED);
@@ -205,7 +198,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Single.error(new IOException()));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        operations.toggleRepost(TRACK_URN, false).test();
 
         final RepostsStatusEvent event = eventBus.lastEventOn(EventQueue.REPOST_CHANGED);
         final RepostsStatusEvent.RepostStatus next = event.reposts().values().iterator().next();
@@ -214,5 +207,12 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(next.repostCount().get()).isEqualTo(REPOST_COUNT);
     }
 
+    @Test
+    public void shouldAllowUnpostOn404() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+                .thenReturn(Single.error(ApiRequestException.notFound(null, null)));
+
+        assertThat(operations.toggleRepost(TRACK_URN, false).test().values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+    }
 
 }

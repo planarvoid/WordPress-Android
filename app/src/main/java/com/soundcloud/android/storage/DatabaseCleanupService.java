@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
@@ -117,9 +118,9 @@ public class DatabaseCleanupService extends IntentService {
                                                                                allTracksToDelete.size(),
                                                                                playlistsToDelete.size()));
         } else {
-            throw new IllegalStateException("Could not cleanup database " + StorageCleanupEvent.create(allUsersToDelete.size(),
-                                                                                                       allTracksToDelete.size(),
-                                                                                                       playlistsToDelete.size()));
+            ErrorUtils.handleSilentException(new IllegalStateException("Could not cleanup database " + StorageCleanupEvent.create(allUsersToDelete.size(),
+                                                                                                        allTracksToDelete.size(),
+                                                                                                        playlistsToDelete.size())));
         }
 
     }

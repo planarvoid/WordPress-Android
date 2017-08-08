@@ -6,4 +6,5 @@ import com.soundcloud.android.model.Entity;
 /**
  * The base interface for all presentation models that act as items in Android ListViews.
  */
-interface ListItem: Entity, ImageResource
+public interface ListItem extends Entity, ImageResource {
+}
