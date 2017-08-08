@@ -13,10 +13,9 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.ads.AdsStorage;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.ads.AdsStorage;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -35,6 +34,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
@@ -53,6 +53,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
@@ -307,6 +308,14 @@ public class OnboardActivity extends FragmentActivity
         super.onResume();
         adsStorage.preventPrestitialFetchForTimeInterval();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this));
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if (featureFlags.isEnabled(Flag.FETCH_FEATURE_FLAGS_ON_LOGIN) && !this.isChangingConfigurations()) {
+            featureFlags.fetchRemoteFlags(this);
+        }
     }
 
     @Override

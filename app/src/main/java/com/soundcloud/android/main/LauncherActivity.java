@@ -1,9 +1,9 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
@@ -52,5 +52,4 @@ public class LauncherActivity extends RootActivity {
         intent.putExtra(EXTRA_FROM_LAUNCHER, true);
         navigationExecutor.launchHome(this, intent.getExtras());
     }
-
 }
