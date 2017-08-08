@@ -293,7 +293,8 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     }
 
     public ApiUser toApiMobileUser() {
-        final ApiUser apiUser = new ApiUser(getUrn());
+        final ApiUser apiUser = new ApiUser();
+        apiUser.setUrn(getUrn());
         apiUser.setPermalink(getPermalink());
         apiUser.setAvatarUrlTemplate(imageUrlToTemplate(avatar_url).orNull());
         apiUser.setCountry(country);

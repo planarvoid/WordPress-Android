@@ -51,13 +51,17 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, A
 
     public ApiUser() { /* for Deserialization */ }
 
-    public ApiUser(Urn urn) {
+    ApiUser(Urn urn) {
         this.urn = urn;
     }
 
     @Override
     public Urn getUrn() {
         return urn;
+    }
+
+    public void setUrn(Urn urn) {
+        this.urn = urn;
     }
 
     @Override
