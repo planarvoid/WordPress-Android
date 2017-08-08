@@ -104,6 +104,7 @@ android {
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -122,6 +123,7 @@ android {
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
     }
 
     release {
@@ -138,6 +140,7 @@ android {
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
     }
   }
 }
