@@ -101,8 +101,8 @@ public class StationsStorage {
     }
 
     Single<List<StationMetadata>> loadStationsMetadata(List<Urn> stations) {
-        return propellerRx.queryResult(Query.from(StationsPlayQueues.TABLE)
-                                            .whereIn(StationsPlayQueues.STATION_URN, Lists.transform(stations, Urn::toString)))
+        return propellerRx.queryResult(Query.from(Stations.TABLE)
+                                            .whereIn(Stations.STATION_URN, Lists.transform(stations, Urn::toString)))
                           .map(result -> result.toList(new StationMetadataMapper()))
                           .first(Collections.emptyList());
     }

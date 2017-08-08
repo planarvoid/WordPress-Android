@@ -23,7 +23,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -221,17 +221,21 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         }
     }
 
-    private class ClearSubscriber extends DefaultObserver<Boolean> {
+    private class ClearSubscriber extends DefaultCompletableObserver {
+
         @Override
-        public void onNext(Boolean wasSuccessful) {
-            if (!wasSuccessful) {
-                feedbackController.showFeedback(Feedback.create(R.string.collections_recently_played_clear_error_message,
-                                                                LENGTH_LONG));
-            } else {
-                adapter.clear();
-                retryWith(onBuildBinding(null));
-                eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
-            }
+        public void onComplete() {
+            super.onComplete();
+            feedbackController.showFeedback(Feedback.create(R.string.collections_recently_played_clear_error_message,
+                                                            LENGTH_LONG));
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+            adapter.clear();
+            retryWith(onBuildBinding(null));
+            eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
         }
     }
 

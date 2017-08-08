@@ -23,6 +23,14 @@ public abstract class PlayHistoryRecord {
                 .build();
     }
 
+    public static PlayHistoryRecord forRecentlyPlayed(long timestamp, Urn contextUrn) {
+        return builder()
+                .timestamp(timestamp)
+                .trackUrn(Urn.NOT_SET)
+                .contextUrn(contextUrn)
+                .build();
+    }
+
     public static Builder builder() {
         return new AutoValue_PlayHistoryRecord.Builder();
     }
@@ -45,6 +53,22 @@ public abstract class PlayHistoryRecord {
         } else {
             return CONTEXT_OTHER;
         }
+    }
+
+    public boolean isPlaylist() {
+        return getContextType() == CONTEXT_PLAYLIST;
+    }
+
+    public boolean isArtist() {
+        return getContextType() == CONTEXT_ARTIST;
+    }
+
+    public boolean isTrackStation() {
+        return getContextType() == CONTEXT_TRACK_STATION;
+    }
+
+    public boolean isArtistStation() {
+        return getContextType() == CONTEXT_ARTIST_STATION;
     }
 
     public static Urn contextUrnFor(int contextType, long contextId) {

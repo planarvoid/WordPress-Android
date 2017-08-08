@@ -173,8 +173,8 @@ public class CollectionOperations {
 
     private Single<LikesItem> likesItem() {
         return Single.zip(tracksLiked(),
-                              likedTracksOfflineState(),
-                              LikesItem::create);
+                          likedTracksOfflineState(),
+                          LikesItem::create);
     }
 
     private Single<List<TrackItem>> playHistoryItems() {
@@ -204,8 +204,8 @@ public class CollectionOperations {
         return Single.zip(
                 myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()).toSingle(),
                 Single.zip(refreshLikesAndLoadPreviews(),
-                               likedTracksOfflineState(),
-                               LikesItem::create),
+                           likedTracksOfflineState(),
+                           LikesItem::create),
                 refreshStationsAndLoad(),
                 refreshPlayHistoryItems(),
                 refreshRecentlyPlayedItems(),

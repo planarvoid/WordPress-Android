@@ -18,6 +18,32 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     private final boolean isPrivate;
     private final boolean isLiked;
 
+    public static RecentlyPlayedPlayableItem forPlaylist(Urn urn,
+                                                         Optional<String> imageUrl,
+                                                         String title,
+                                                         int trackCount,
+                                                         boolean isAlbum,
+                                                         Optional<OfflineState> offlineState,
+                                                         boolean isLiked,
+                                                         boolean isPrivate,
+                                                         long timestamp) {
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, trackCount, isAlbum, offlineState, isLiked, isPrivate, timestamp);
+    }
+
+    public static RecentlyPlayedPlayableItem forUser(Urn urn,
+                                                     String title,
+                                                     Optional<String> imageUrl,
+                                                     long timestamp) {
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp);
+    }
+
+    public static RecentlyPlayedPlayableItem forStation(Urn urn,
+                                                     String title,
+                                                     Optional<String> imageUrl,
+                                                     long timestamp) {
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp);
+    }
+
     public RecentlyPlayedPlayableItem(Urn urn,
                                       Optional<String> imageUrl,
                                       String title,

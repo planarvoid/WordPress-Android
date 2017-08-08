@@ -30,8 +30,8 @@ public class PlaylistRepository {
 
     @Inject
     public PlaylistRepository(PlaylistStorage playlistStorage,
-                                SyncInitiator syncInitiator,
-                                @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
+                              SyncInitiator syncInitiator,
+                              @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.playlistStorage = playlistStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
@@ -68,7 +68,15 @@ public class PlaylistRepository {
                 .onErrorResumeNext(playlistStorage.loadPlaylists(requestedPlaylists))
                 .map(playlistItems -> asMap(playlistItems, Playlist::urn))
                 .subscribeOn(scheduler);
+    }
 
+    public Single<List<Playlist>> loadPlaylistsByUrn(final Collection<Urn> requestedPlaylists) {
+        return playlistStorage
+                .availablePlaylists(requestedPlaylists)
+                .flatMap(syncMissingPlaylists(requestedPlaylists))
+                .flatMap(o -> playlistStorage.loadPlaylists(requestedPlaylists))
+                .onErrorResumeNext(playlistStorage.loadPlaylists(requestedPlaylists))
+                .subscribeOn(scheduler);
     }
 
     private Function<List<Urn>, Single<Boolean>> syncMissingPlaylists(final Collection<Urn> requestedPlaylists) {
