@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -20,8 +21,6 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -305,7 +304,7 @@ public class IOUtils {
         return false;
     }
 
-    public static void cleanDir(@NonNull File dir) {
+    public static void cleanDir(@NotNull File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
             if (files != null && files.length > 0) {

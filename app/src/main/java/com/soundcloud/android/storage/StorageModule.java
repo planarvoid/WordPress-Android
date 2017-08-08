@@ -131,11 +131,19 @@ public class StorageModule {
         int maxSizeDiskMB = 1024 * 1024 * 2;
         int maxSizeRamMB = 1024 * 512;
         int version = 1;
-        return new Builder<WaveformData>("waveform", version)
-                .useSerializerInDisk(maxSizeDiskMB, IOUtils.createExternalStorageDir(context, "waveform"), waveformCacheSerializer)
+
+        Builder<WaveformData> builder = new Builder<WaveformData>("waveform", version)
                 .useSerializerInRam(maxSizeRamMB, waveformCacheSerializer)
-                .enableLog()
-                .build();
+                .enableLog();
+
+        File storageDir = IOUtils.createExternalStorageDir(context, "waveform");
+        if (storageDir != null) {
+            builder.useSerializerInDisk(maxSizeDiskMB, storageDir, waveformCacheSerializer);
+        } else {
+            builder.noDisk();
+        }
+
+        return builder.build();
     }
 
     @Provides
