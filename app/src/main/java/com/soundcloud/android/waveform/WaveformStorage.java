@@ -3,6 +3,7 @@ package com.soundcloud.android.waveform;
 import static com.soundcloud.android.storage.StorageModule.WAVEFORM_CACHE;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.vincentbrison.openlibraries.android.dualcache.DualCache;
 import io.reactivex.Maybe;
 
@@ -19,7 +20,16 @@ public class WaveformStorage {
     }
 
     Maybe<WaveformData> waveformData(Urn trackUrn) {
-        return Maybe.fromCallable(() -> waveformCache.get(getKey(trackUrn)));
+        return Maybe.fromCallable(() -> {
+            try {
+                waveformCache.get(getKey(trackUrn));
+            } catch (Exception e) {
+                // This is causing an NPE sometimes. We don't want to crash in production, its better to just pretend it is not stored
+                // https://soundcloud.atlassian.net/browse/DROID-1594
+                ErrorUtils.handleSilentException(e);
+            }
+            return null;
+        });
     }
 
     public boolean isWaveformStored(Urn trackUrn) {
