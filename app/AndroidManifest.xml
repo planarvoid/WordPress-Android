@@ -214,7 +214,8 @@
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            tools:replace="android:theme"/>
 
         <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:name=".profile.ProfileActivity">

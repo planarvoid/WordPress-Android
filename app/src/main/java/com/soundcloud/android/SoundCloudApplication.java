@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.analytics.performance.MetricType.DEV_APP_ON_CREATE;
 
-import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -268,7 +267,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         repostsStateProvider.subscribe();
         offlinePropertiesProvider.subscribe();
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
