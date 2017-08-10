@@ -14,7 +14,7 @@ ext {
   propellerVersion = '0.74'
   findBugsVersion = '3.0.0'
   skippyVersion = '6.3.1'
-  flipperVersion = '1.1.4'
+  flipperVersion = '1.1.5'
   mockitoVersion = '2.7.22'
   robolectricVersion = '3.4.2'
   pmdVersion = '5.7.0'
