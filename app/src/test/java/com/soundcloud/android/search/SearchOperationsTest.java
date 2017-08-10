@@ -71,7 +71,6 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
-    @Mock private FeatureFlags featureFlags;
     @Mock private TrackItemRepository trackRepository;
 
     private ApiTrack track;

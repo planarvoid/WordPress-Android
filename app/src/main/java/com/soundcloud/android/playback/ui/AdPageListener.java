@@ -94,7 +94,7 @@ class AdPageListener extends PageListener {
         switch (deepLink) {
             case USER_ENTITY:
             case PLAYLIST_ENTITY:
-                openUserOrPlaylistDeeplink(activityContext, deepLink, clickThrough);
+                openUserOrPlaylistDeeplink(deepLink, clickThrough);
                 break;
             default:
                 navigator.navigateTo(NavigationTarget.forAdClickthrough(clickThrough.toString()));
@@ -105,7 +105,7 @@ class AdPageListener extends PageListener {
                          UIEvent.fromPlayableClickThrough(adData, playQueueManager.getCurrentTrackSourceInfo()));
     }
 
-    private void openUserOrPlaylistDeeplink(Context activityContext, DeepLink deeplink, Uri uri) {
+    private void openUserOrPlaylistDeeplink(DeepLink deeplink, Uri uri) {
         if (playQueueManager.getCurrentPlayQueueItem().isAd()) {
             playQueueManager.moveToNextPlayableItem();
         }

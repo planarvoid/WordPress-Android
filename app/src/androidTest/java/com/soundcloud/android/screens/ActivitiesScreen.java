@@ -31,7 +31,6 @@ public class ActivitiesScreen extends Screen {
     }
 
     public TrackCommentsScreen clickComment() {
-        List<ViewElement> views = cellElementsWithText("commented on ");
         cellElementsWithText("commented on ").get(0).click();
         return new TrackCommentsScreen(testDriver);
     }

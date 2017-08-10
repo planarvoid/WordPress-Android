@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import org.junit.Before;
@@ -28,7 +27,6 @@ public class GcmManagerTest extends AndroidUnitTest {
     @Mock private GooglePlayServicesWrapper googlePlayServices;
     @Mock private AppCompatActivity activity;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private FeatureFlags featureFlags;
 
     @Captor ArgumentCaptor<Intent> intentCaptor;
 

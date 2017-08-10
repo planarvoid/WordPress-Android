@@ -67,7 +67,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd, holder));
         holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
-        holder.fullscreenButton.setOnClickListener(view -> listener.ifPresent(callback -> callback.onVideoFullscreenClicked(view.getContext(), videoAd)));
+        holder.fullscreenButton.setOnClickListener(view -> listener.ifPresent(callback -> callback.onVideoFullscreenClicked(videoAd)));
 
         bindVideoSurface(itemView, videoAd);
         lastStateProvider.get(videoAd.uuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));

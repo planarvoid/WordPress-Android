@@ -32,11 +32,6 @@ public class SearchPremiumResultsScreen extends Screen {
         return visualPlayerElement;
     }
 
-    public SearchResultsScreen goBack() {
-        testDriver.goBack();
-        return new SearchResultsScreen(testDriver);
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;

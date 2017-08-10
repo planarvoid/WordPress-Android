@@ -16,10 +16,6 @@ public class ConfirmRemoveOfflineContentScreen extends Screen {
         return OfflineSettingsActivity.class;
     }
 
-    public void clickCancel() {
-        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.btn_cancel))).click();
-    }
-
     public void clickConfirm() {
         testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.btn_continue))).click();
         waiter.waitForDialogToClose();

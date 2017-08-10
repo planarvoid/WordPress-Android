@@ -191,16 +191,6 @@ public class UploadService extends Service {
         return thread.getLooper();
     }
 
-    public void upload(Recording recording) {
-        final SoundRecorder soundRecorder = SoundRecorder.getInstance(getApplicationContext());
-        if (soundRecorder.isActive() && soundRecorder.getRecording().equals(recording)) {
-            soundRecorder.gotoIdleState();
-        }
-
-        recording.setUploading();
-        queueUpload(recording);
-    }
-
     void cancel(Recording recording) {
         Upload u = uploads.get(recording.getId());
         if (u != null) {
@@ -213,26 +203,6 @@ public class UploadService extends Service {
             Log.d(TAG, "onCancel() called without any active uploads");
             stopSelf();
         }
-    }
-
-    @VisibleForTesting
-    /* package */ Handler getUploadHandler() {
-        return uploadHandler;
-    }
-
-    @VisibleForTesting
-    /* package */ Handler getProcessingHandler() {
-        return processingHandler;
-    }
-
-    @VisibleForTesting
-    /* package */ WifiManager.WifiLock getWifiLock() {
-        return wifiLock;
-    }
-
-    @VisibleForTesting
-    /* package */ PowerManager.WakeLock getWakeLock() {
-        return wakeLock;
     }
 
     private static class Upload {

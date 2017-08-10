@@ -72,7 +72,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
         presenter.handleOpenStation(activity, USER);
 
-        verify(stationHandler).startStation(activity, Urn.forArtistStation(USER.urn().getNumericId()));
+        verify(stationHandler).startStation(Urn.forArtistStation(USER.urn().getNumericId()));
     }
 
 }

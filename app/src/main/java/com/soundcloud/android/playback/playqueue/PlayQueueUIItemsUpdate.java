@@ -49,8 +49,4 @@ public abstract class PlayQueueUIItemsUpdate {
         return kind() == QUEUE_REORDER;
     }
 
-    public boolean isTrackChanged() {
-        return kind() == TRACK_CHANGED;
-    }
-
 }

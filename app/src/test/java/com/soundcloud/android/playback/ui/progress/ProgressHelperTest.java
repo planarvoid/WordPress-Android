@@ -19,7 +19,6 @@ public class ProgressHelperTest {
 
     private TestProgressHelper progressHelper;
 
-    @Mock private ProgressAnimator progressAnimator;
     @Mock private View progressView;
 
     @Before

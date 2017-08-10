@@ -20,15 +20,6 @@ public class StationElement {
         return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
     }
 
-    public boolean isVisible() {
-        return wrapped.isOnScreen();
-    }
-
-    public VisualPlayerElement click() {
-        wrapped.click();
-        return new VisualPlayerElement(testDriver);
-    }
-
     public StationHomeScreen open() {
         wrapped.click();
         return new StationHomeScreen(testDriver);

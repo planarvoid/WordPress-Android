@@ -34,7 +34,6 @@ import rx.observables.ConnectableObservable;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,7 +45,6 @@ public class PullToRefreshControllerTest {
 
     private RefreshableFragment fragment = new RefreshableFragment();
 
-    @Mock private FragmentActivity activity;
     @Mock private Bundle bundle;
     @Mock private OnRefreshListener listener;
     @Mock private SwipeRefreshAttacher wrapper;

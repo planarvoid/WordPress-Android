@@ -25,7 +25,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesIn
 import static com.soundcloud.android.navigation.IntentFactory.createViewAllRecommendationsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.Plan;
@@ -33,7 +32,6 @@ import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.optional.Optional;
@@ -56,14 +54,6 @@ import java.util.List;
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class NavigationExecutor {
-
-    protected final EventTracker eventTracker;
-    protected final FeatureFlags featureFlags;
-
-    public NavigationExecutor(EventTracker eventTracker, FeatureFlags featureFlags) {
-        this.eventTracker = eventTracker;
-        this.featureFlags = featureFlags;
-    }
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));

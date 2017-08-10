@@ -1,12 +1,8 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.support.annotation.VisibleForTesting;
 import android.view.View;
-
-import java.util.List;
 
 public abstract class ProgressAnimator {
 
@@ -48,11 +44,6 @@ public abstract class ProgressAnimator {
 
     protected void removeListener(AnimatorListenerAdapter listenerAdapter) {
         wrappedAnimator.removeListener(listenerAdapter);
-    }
-
-    @VisibleForTesting
-    List<Animator.AnimatorListener> getWrappedAnimationListeners() {
-        return wrappedAnimator.getListeners();
     }
 
 }

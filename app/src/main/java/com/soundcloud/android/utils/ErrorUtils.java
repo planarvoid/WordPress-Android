@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.image.BitmapLoadingAdapter;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ViewError;
@@ -195,12 +194,6 @@ public final class ErrorUtils {
                 Crashlytics.setString(contextKey, contextValue);
             }
             Crashlytics.logException(e);
-        }
-    }
-
-    public static void logInBetaAndBelow(int priority, String tag, String message, Object... args) {
-        if (ApplicationProperties.isBetaOrBelow()) {
-            log(priority, tag, String.format(message, args));
         }
     }
 

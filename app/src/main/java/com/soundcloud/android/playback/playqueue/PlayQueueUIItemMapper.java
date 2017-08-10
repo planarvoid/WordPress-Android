@@ -83,7 +83,7 @@ class PlayQueueUIItemMapper implements BiFunction<List<TrackAndPlayQueueItem>, M
 
         private void addMagicBox() {
             if (!isStation && !uiItems.isEmpty()) {
-                uiItems.add(new MagicBoxPlayQueueUIItem(PlayState.COMING_UP, repeatMode, isAutoPlay));
+                uiItems.add(new MagicBoxPlayQueueUIItem(PlayState.COMING_UP, repeatMode));
             }
         }
 

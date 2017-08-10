@@ -113,7 +113,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
 
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            stationHandler.startStation(ViewUtils.getFragmentActivity(view), urn);
+            stationHandler.startStation(urn);
         };
     }
 }

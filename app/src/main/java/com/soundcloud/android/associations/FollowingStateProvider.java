@@ -86,8 +86,4 @@ public class FollowingStateProvider {
     public Observable<FollowingStatuses> followingStatuses() {
         return statuses;
     }
-
-    public FollowingStatuses latest() {
-        return statuses.getValue();
-    }
 }

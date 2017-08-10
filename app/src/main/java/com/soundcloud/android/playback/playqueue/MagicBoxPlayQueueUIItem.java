@@ -4,13 +4,9 @@ import com.soundcloud.android.playback.PlayQueueManager;
 
 class MagicBoxPlayQueueUIItem extends PlayQueueUIItem {
 
-    private boolean isAutoPlay;
-
     MagicBoxPlayQueueUIItem(PlayState playState,
-                            PlayQueueManager.RepeatMode repeatMode,
-                            boolean isAutoPlay) {
+                            PlayQueueManager.RepeatMode repeatMode) {
         super(playState, repeatMode, false);
-        this.isAutoPlay = isAutoPlay;
     }
 
     @Override
@@ -22,13 +18,4 @@ class MagicBoxPlayQueueUIItem extends PlayQueueUIItem {
     long getUniqueId() {
         return System.identityHashCode(Kind.MAGIC_BOX);
     }
-
-    void setAutoPlay(boolean isAutoPlay) {
-        this.isAutoPlay = isAutoPlay;
-    }
-
-    boolean isAutoPlay() {
-        return isAutoPlay;
-    }
-
 }

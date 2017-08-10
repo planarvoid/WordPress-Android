@@ -59,12 +59,9 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     private Context appContext;
     private Activity activityContext;
 
-    @Mock private EventTracker eventTracker;
-    @Mock private FeatureFlags featureFlags;
-
     @Before
     public void setUp() throws Exception {
-        navigationExecutor = new NavigationExecutor(eventTracker, featureFlags);
+        navigationExecutor = new NavigationExecutor();
         appContext = context();
         activityContext = activity();
     }

@@ -2,7 +2,6 @@ package com.soundcloud.android.sync.entities;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.ResultReceiver;
@@ -16,17 +15,14 @@ public class EntitySyncRequestFactory {
     private final Provider<EntitySyncJob> tracksSyncJob;
     private final Provider<EntitySyncJob> playlistsSyncJob;
     private final Provider<EntitySyncJob> usersSyncJob;
-    private final EventBus eventBus;
 
     @Inject
     public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Provider<EntitySyncJob> trackSyncJob,
                                     @Named(EntitySyncModule.PLAYLISTS_SYNC) Provider<EntitySyncJob> playlistsSyncJob,
-                                    @Named(EntitySyncModule.USERS_SYNC) Provider<EntitySyncJob> usersSyncJob,
-                                    EventBus eventBus) {
+                                    @Named(EntitySyncModule.USERS_SYNC) Provider<EntitySyncJob> usersSyncJob) {
         this.tracksSyncJob = trackSyncJob;
         this.playlistsSyncJob = playlistsSyncJob;
         this.usersSyncJob = usersSyncJob;
-        this.eventBus = eventBus;
     }
 
     public EntitySyncRequest create(@NotNull Syncable syncable,
@@ -34,7 +30,7 @@ public class EntitySyncRequestFactory {
                                     @NotNull ResultReceiver resultReceiver) {
         final EntitySyncJob syncJob = getEntitySyncJob(syncable);
         syncJob.setUrns(entities);
-        return new EntitySyncRequest(syncJob, syncable, eventBus, resultReceiver);
+        return new EntitySyncRequest(syncJob, syncable, resultReceiver);
     }
 
     private EntitySyncJob getEntitySyncJob(Syncable syncable) {

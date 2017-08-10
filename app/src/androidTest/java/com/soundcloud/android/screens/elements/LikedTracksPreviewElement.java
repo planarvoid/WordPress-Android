@@ -14,10 +14,6 @@ public class LikedTracksPreviewElement {
         this.wrapped = wrapped;
     }
 
-    public boolean isOnScreen() {
-        return wrapped.isOnScreen();
-    }
-
     public TrackLikesScreen click() {
         wrapped.click();
         return new TrackLikesScreen(testDriver);

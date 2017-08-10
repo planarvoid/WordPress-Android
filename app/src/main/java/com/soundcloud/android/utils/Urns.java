@@ -43,14 +43,6 @@ public final class Urns {
         return Strings.joinOn(delimiter).join(idStrings);
     }
 
-    public static Predicate<Urn> trackPredicate() {
-        return urn -> urn.isTrack();
-    }
-
-    public static Predicate<Urn> playlistPredicate() {
-        return urn -> urn.isPlaylist();
-    }
-
     public static Optional<Urn> optionalFromNotSetUrn(Urn urn) {
         return Urn.NOT_SET.equals(urn) ? Optional.absent() : Optional.of(urn);
     }

@@ -29,10 +29,6 @@ public class StreamCardElement {
         return new ProfileScreen(testDriver);
     }
 
-    public boolean hasReposter() {
-        return wrapped.isElementOnScreen(With.id(R.id.reposter));
-    }
-
     public boolean isReposted() {
         return repostItem().isChecked();
     }
@@ -44,14 +40,6 @@ public class StreamCardElement {
     public StreamScreen toggleRepost() {
         repostItem().click();
         return new StreamScreen(testDriver);
-    }
-
-    public boolean isTrack() {
-        return wrapped.getId() == R.id.track_list_item;
-    }
-
-    public boolean isPlaylist() {
-        return wrapped.getId() == R.id.playlist_list_item;
     }
 
     public StreamScreen toggleLike() {
@@ -90,10 +78,6 @@ public class StreamCardElement {
     public PlaylistDetailsScreen clickToOpenPlaylist() {
         wrapped.findOnScreenElement(With.id(R.id.title)).click();
         return new PlaylistDetailsScreen(testDriver);
-    }
-
-    private ViewElement reposter() {
-        return wrapped.findOnScreenElement(With.id(R.id.reposter));
     }
 
     private ViewElement repostItem() {

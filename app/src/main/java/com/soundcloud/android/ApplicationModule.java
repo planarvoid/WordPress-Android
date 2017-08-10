@@ -349,11 +349,11 @@ public class ApplicationModule {
 
     @SuppressLint("VisibleForTests")
     @Provides
-    public NavigationExecutor provideNavigationExecutor(EventTracker eventTracker, FeatureFlags featureFlags) {
+    public NavigationExecutor provideNavigationExecutor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigationExecutor(eventTracker, featureFlags);
+            return new SmoothNavigationExecutor();
         } else {
-            return new NavigationExecutor(eventTracker, featureFlags);
+            return new NavigationExecutor();
         }
     }
 

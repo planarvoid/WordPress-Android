@@ -13,7 +13,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -25,7 +24,6 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -60,10 +58,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private StreamItemViewHolder itemView;
     @Mock private ImageView imageView;
     @Mock private View view;
-    @Mock private FeatureOperations featureOperations;
     @Mock private Navigator navigator;
-
-    @Mock private FeatureFlags flags;
 
     private StreamCardViewPresenter presenter;
 

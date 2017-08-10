@@ -10,7 +10,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -21,15 +20,9 @@ public class Processor implements Runnable {
 
     @Inject EventBus eventBus;
 
-    public Processor(Recording recording) {
+    Processor(Recording recording) {
         this.recording = recording;
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @VisibleForTesting
-    public Processor(Recording recording, EventBus eventBus) {
-        this.recording = recording;
-        this.eventBus = eventBus;
     }
 
     @Override

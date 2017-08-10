@@ -2,9 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.PendingIntentFactory;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.objects.MoreObjects;
@@ -32,8 +30,6 @@ class DownloadNotificationController {
     private final Resources resources;
     private final NotificationManager notificationManager;
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
-    private final NavigationExecutor navigationExecutor;
-    private final FeatureFlags featureFlags;
 
     private int totalDownloads;
     private long totalBytesToDownload;
@@ -46,14 +42,11 @@ class DownloadNotificationController {
     @Inject
     DownloadNotificationController(Context context, NotificationManager notificationManager,
                                    Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                   Resources resources, NavigationExecutor navigationExecutor,
-                                   FeatureFlags featureFlags) {
+                                   Resources resources) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
         this.notificationBuilderProvider = notificationBuilderProvider;
-        this.navigationExecutor = navigationExecutor;
-        this.featureFlags = featureFlags;
     }
 
     Notification onPendingRequests(DownloadQueue pendingQueue) {

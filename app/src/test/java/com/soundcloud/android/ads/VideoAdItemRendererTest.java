@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.res.Resources;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -40,7 +39,6 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
     private static final List<StreamItem> ITEMS = Lists.transform(VIDEOS, StreamItem::forVideoAd);
 
-    @Mock private Resources resources;
     @Mock private VideoAdItemRenderer.Listener listener;
     @Mock private CurrentDateProvider currentDateProvider;
     @Mock private AdStateProvider stateProvider;
@@ -97,7 +95,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.call_to_action_without_title).performClick();
 
-        verify(listener).onAdItemClicked(adView.getContext(), VIDEO_AD_1);
+        verify(listener).onAdItemClicked(VIDEO_AD_1);
     }
 
     @Test
@@ -106,7 +104,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.call_to_action_with_title).performClick();
 
-        verify(listener).onAdItemClicked(adView.getContext(), VIDEO_AD_2);
+        verify(listener).onAdItemClicked(VIDEO_AD_2);
     }
 
     @Test
@@ -192,7 +190,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.video_fullscreen_control).performClick();
 
-        verify(listener).onVideoFullscreenClicked(adView.getContext(), VIDEO_AD_1);
+        verify(listener).onVideoFullscreenClicked(VIDEO_AD_1);
     }
 
     @Test

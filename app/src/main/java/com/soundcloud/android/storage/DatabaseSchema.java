@@ -32,14 +32,6 @@ final class DatabaseSchema {
             "tracking_track_impression_urls TEXT" +
             ");";
 
-    static final String DATABASE_CREATE_WAVEFORMS = "(" +
-            "track_id INTEGER, " +
-            "max_amplitude INTEGER, " +
-            "samples TEXT, " +
-            "created_at INTEGER," +
-            "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
-            ");";
-
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
             "playlist_id INTEGER, " +
             "track_id INTEGER," +

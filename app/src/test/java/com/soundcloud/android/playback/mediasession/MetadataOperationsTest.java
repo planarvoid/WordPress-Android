@@ -28,7 +28,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
 
@@ -41,7 +40,6 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     private static final String ADVERTISING_TITLE = "Advertisement";
     private static final String OLD_TITLE = "old title";
 
-    @Mock Resources resources;
     @Mock TrackItemRepository trackRepository;
     @Mock ImageOperations imageOperations;
     @Mock Bitmap adBitmap;

@@ -673,7 +673,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onAdItemClicked(activity, appInstall);
+        presenter.onAdItemClicked(appInstall);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(appInstall.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -687,7 +687,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onAdItemClicked(activity, videoAd);
+        presenter.onAdItemClicked(videoAd);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forAdClickthrough(videoAd.clickThroughUrl()))));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -763,7 +763,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onVideoFullscreenClicked(activity, videoAd);
+        presenter.onVideoFullscreenClicked(videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()))));

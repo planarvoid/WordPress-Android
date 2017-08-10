@@ -50,7 +50,7 @@ public class StartStationHandlerTest {
 
     @Test
     public void opensInfoPage() {
-        stationHandler.startStation(activity, STATION_URN);
+        stationHandler.startStation(STATION_URN);
 
         verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forStationInfo(STATION_URN,
                                                                                                      Optional.absent(),
@@ -67,7 +67,7 @@ public class StartStationHandlerTest {
 
     @Test
     public void shouldStartMeasuringLoadStationPerformanceOnStartStation() {
-        stationHandler.startStation(activity, STATION_URN);
+        stationHandler.startStation(STATION_URN);
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.LOAD_STATION);
     }

@@ -382,7 +382,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onAdItemClicked(Context context, AdData adData) {
+    public void onAdItemClicked(AdData adData) {
         final boolean isAppInstall = adData instanceof AppInstallAd;
         final String clickthrough = isAppInstall ? ((AppInstallAd) adData).clickThroughUrl()
                                                  : ((VideoAd) adData).clickThroughUrl();
@@ -405,7 +405,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
+    public void onVideoFullscreenClicked(VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
         navigator.navigateTo(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()));
     }

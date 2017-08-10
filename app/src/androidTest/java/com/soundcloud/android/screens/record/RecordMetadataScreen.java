@@ -16,10 +16,6 @@ public class RecordMetadataScreen extends Screen {
         waiter.assertForFragmentByTag("metadata_fragment");
     }
 
-    public String getTitle() {
-        return actionBar().getTitle();
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;

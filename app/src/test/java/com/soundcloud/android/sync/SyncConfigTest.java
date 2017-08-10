@@ -22,7 +22,7 @@ public class SyncConfigTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        syncConfig = new SyncConfig(sharedPreferences, new TestDateProvider(10000L), context());
+        syncConfig = new SyncConfig(sharedPreferences, new TestDateProvider(10000L));
     }
 
     @Test

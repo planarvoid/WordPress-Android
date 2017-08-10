@@ -3,22 +3,18 @@ package com.soundcloud.android.associations;
 import static com.soundcloud.android.associations.UpdateFollowingCommand.UpdateFollowingParams;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 public class UpdateFollowingCommandTest extends StorageIntegrationTest {
 
     private UpdateFollowingCommand command;
     private Urn targetUrn;
     private ApiUser apiUser;
-
-    @Mock AccountOperations accountOperations;
 
     @Before
     public void setUp() {

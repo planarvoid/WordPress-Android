@@ -94,11 +94,6 @@ public class ProfileScreen extends Screen {
         return new VisualPlayerElement(testDriver);
     }
 
-    public ProfileScreen clickUserAt(int index) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return getUsers().get(index).click();
-    }
-
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         return new TrackItemElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.track_list_item)))
                 .clickOverflowButton();

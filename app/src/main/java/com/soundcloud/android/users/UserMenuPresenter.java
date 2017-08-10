@@ -59,7 +59,7 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
 
     @Override
     public void handleOpenStation(Activity activity, User user) {
-        stationHandler.startStation(activity, Urn.forArtistStation(user.urn().getNumericId()));
+        stationHandler.startStation(Urn.forArtistStation(user.urn().getNumericId()));
     }
 
     @Override

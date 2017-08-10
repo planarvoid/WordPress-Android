@@ -180,10 +180,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         return playlist().duration();
     }
 
-    public boolean isPublic() {
-        return !isPrivate();
-    }
-
     public String getReleaseDate() {
         return releaseDate();
     }

@@ -10,9 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.PendingIntentFactory;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -46,8 +44,6 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
-    @Mock private NavigationExecutor navigationExecutor;
-    @Mock private FeatureFlags featureFlags;
 
     private DownloadNotificationController notificationController;
     private Provider<NotificationCompat.Builder> notificationBuilderProvider = new Provider<NotificationCompat.Builder>() {
@@ -64,9 +60,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
                 context(),
                 notificationManager,
                 notificationBuilderProvider,
-                resources(),
-                navigationExecutor,
-                featureFlags);
+                resources());
     }
 
     @Test

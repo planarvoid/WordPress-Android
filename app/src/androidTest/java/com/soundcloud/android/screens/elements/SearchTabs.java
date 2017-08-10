@@ -14,10 +14,6 @@ public class SearchTabs extends Tabs {
         super(testDriver);
     }
 
-    public SearchResultsScreen swipeLeftToAllTab() {
-        return swipeLeftToTab(R.string.search_type_all);
-    }
-
     public SearchResultsScreen swipeLeftToTracksTab() {
         return swipeLeftToTab(R.string.search_type_tracks);
     }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import java.util.List;
-
 /**
  * Custom exception to propagate pass API error messaging from Auth Tasks
  */
@@ -11,14 +9,6 @@ public class AuthTaskException extends Exception {
 
     public AuthTaskException(String... errors) {
         this.errors = errors;
-    }
-
-    public AuthTaskException(List<String> errors) {
-        this.errors = errors.toArray(new String[errors.size()]);
-    }
-
-    public String[] getErrors() {
-        return errors;
     }
 
     public String getFirstError() {

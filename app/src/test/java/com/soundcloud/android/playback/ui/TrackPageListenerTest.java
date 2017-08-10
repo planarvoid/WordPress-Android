@@ -23,17 +23,13 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import android.support.v7.app.AppCompatActivity;
 
 public class TrackPageListenerTest extends AndroidUnitTest {
 
@@ -42,10 +38,8 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private LikeOperations likeOperations;
     @Mock private NavigationExecutor navigationExecutor;
-    @Mock private TrackRepository trackRepository;
     @Mock private EngagementsTracking engagementsTracking;
     @Mock private Navigator navigator;
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
@@ -122,7 +116,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
-        AppCompatActivity activity = activity();
         listener.onGotoUser(USER_URN);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 

@@ -34,7 +34,6 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
@@ -158,7 +157,7 @@ public class TrackPageMenuController
     private void handleStartStation() {
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                .subscribe(new StartStationPageSubscriber(activity, track));
+                .subscribe(new StartStationPageSubscriber(track));
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
     }
 
@@ -306,11 +305,9 @@ public class TrackPageMenuController
     }
 
     private class StartStationPageSubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        private final Activity activity;
         private final PlayerTrackState track;
 
-        StartStationPageSubscriber(Activity activity, PlayerTrackState track) {
-            this.activity = activity;
+        StartStationPageSubscriber(PlayerTrackState track) {
             this.track = track;
         }
 

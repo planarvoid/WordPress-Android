@@ -153,7 +153,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 listener.onPlayerClose();
                 break;
             case R.id.profile_link:
-                final Context activityContext = view.getContext();
                 final Urn userUrn = (Urn) view.getTag();
                 listener.onGotoUser(userUrn);
                 break;

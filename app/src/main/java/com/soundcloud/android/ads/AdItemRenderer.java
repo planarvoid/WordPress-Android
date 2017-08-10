@@ -16,9 +16,9 @@ import android.view.View;
 public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
 
     public interface Listener {
-        void onAdItemClicked(Context context, AdData adData);
+        void onAdItemClicked(AdData adData);
         void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd);
-        void onVideoFullscreenClicked(Context context, VideoAd videoAd);
+        void onVideoFullscreenClicked(VideoAd videoAd);
         void onWhyAdsClicked(Context context);
     }
 
@@ -39,7 +39,7 @@ public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
     View.OnClickListener getClickthroughListener(final AdData adData) {
         return view -> {
             if (listener.isPresent()) {
-                listener.get().onAdItemClicked(view.getContext(), adData);
+                listener.get().onAdItemClicked(adData);
             }
         };
     }

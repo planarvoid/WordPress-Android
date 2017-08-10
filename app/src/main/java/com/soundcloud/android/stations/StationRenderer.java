@@ -7,7 +7,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -67,6 +66,6 @@ class StationRenderer implements CellRenderer<StationViewModel> {
     }
 
     private View.OnClickListener startStation(final StationRecord station) {
-        return view -> stationHandler.startStation(ViewUtils.getFragmentActivity(view), station.getUrn());
+        return view -> stationHandler.startStation(station.getUrn());
     }
 }

@@ -1,9 +1,7 @@
 package com.soundcloud.android.navigation;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.olddiscovery.SearchActivity;
-import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -24,10 +22,6 @@ import java.util.List;
 @SuppressLint("NewApi")
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class SmoothNavigationExecutor extends NavigationExecutor {
-
-    public SmoothNavigationExecutor(EventTracker eventTracker, FeatureFlags featureFlags) {
-        super(eventTracker, featureFlags);
-    }
 
     @Override
     public void openSearch(Activity activity) {

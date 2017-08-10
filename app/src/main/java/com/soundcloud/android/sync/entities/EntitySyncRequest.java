@@ -5,7 +5,6 @@ import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncRequest;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
@@ -18,17 +17,14 @@ import java.util.Collections;
 class EntitySyncRequest implements SyncRequest {
 
     private final EntitySyncJob entitySyncJob;
-    private final EventBus eventBus;
     private final Syncable syncable;
     private SyncJobResult resultEvent;
     @Nullable private final ResultReceiver resultReceiver;
 
     EntitySyncRequest(EntitySyncJob entitySyncJob,
                       Syncable syncable,
-                      EventBus eventBus,
                       @Nullable ResultReceiver resultReceiver) {
         this.entitySyncJob = entitySyncJob;
-        this.eventBus = eventBus;
         this.syncable = syncable;
         this.resultReceiver = resultReceiver;
     }

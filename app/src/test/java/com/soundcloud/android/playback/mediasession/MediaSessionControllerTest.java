@@ -72,8 +72,6 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     @Mock PlayerInteractionsTracker playerInteractionsTracker;
     @Mock PlaySessionStateProvider playSessionStateProvider;
 
-    private TestEventBus eventBus = new TestEventBus();
-
     private MediaSessionController controller;
 
     @Before
@@ -84,7 +82,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
                                                 actionController, metadataOperations, playQueueManager, adsOperations,
-                                                navigationExecutor, eventBus, playerInteractionsTracker, playSessionStateProvider);
+                                                navigationExecutor, playerInteractionsTracker, playSessionStateProvider);
 
         setupMetadataMocks();
     }

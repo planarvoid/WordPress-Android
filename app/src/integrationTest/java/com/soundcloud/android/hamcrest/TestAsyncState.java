@@ -5,8 +5,8 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.utils.Function;
 import com.soundcloud.android.utils.Supplier;
+import com.soundcloud.java.functions.Function;
 import org.hamcrest.Matcher;
 
 import java.util.List;
@@ -15,16 +15,6 @@ public abstract class TestAsyncState<ModelType> {
 
     public <MatcherType> void assertState(Matcher<MatcherType> matcher) {
         assertThatEventually((Supplier<MatcherType>) states(), matcher);
-    }
-
-    public <MatcherType> void assertState(Function<List<ModelType>, MatcherType> f, Matcher<MatcherType> matcher) {
-        System.out.flush();
-        assertThatEventually(() -> f.apply(states().get()), matcher);
-    }
-
-    public <MatcherType> void assertLastState(Matcher<MatcherType> matcher) {
-        assertState(not(empty()));
-        assertThatEventually(this::lastState, matcher);
     }
 
     public <MatcherType> void assertLastState(Function<ModelType, MatcherType> f, Matcher<MatcherType> matcher) {

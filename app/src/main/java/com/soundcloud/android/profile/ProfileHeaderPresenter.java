@@ -180,7 +180,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         if (hasArtistStation) {
             stationButton.setOnClickListener(v -> {
                 updateStationButton();
-                stationHandler.startStation(ViewUtils.getFragmentActivity(v), user.artistStation().get());
+                stationHandler.startStation(user.artistStation().get());
             });
             stationButton.setVisibility(View.VISIBLE);
             updateStationButton();

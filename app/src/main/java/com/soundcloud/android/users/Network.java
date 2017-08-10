@@ -55,8 +55,4 @@ enum Network {
     public int drawableId() {
         return drawableId;
     }
-
-    public boolean isEmail() {
-        return network.equals(Network.EMAIL.network);
-    }
 }

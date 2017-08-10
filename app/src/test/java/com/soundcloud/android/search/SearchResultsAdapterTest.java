@@ -13,7 +13,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -24,33 +23,23 @@ import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import android.support.v4.app.Fragment;
-import android.view.ViewGroup;
-
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchResultsAdapterTest {
 
     private static final int SEARCH_RESULTS_COUNT = 100;
 
-    @Mock private FeatureFlags featureFlags;
     @Mock private FollowableUserItemRenderer userRenderer;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private SearchPremiumContentRenderer premiumContentRenderer;
     @Mock private SearchUpsellRenderer searchUpsellRenderer;
-    @Mock private ViewGroup itemView;
-    @Mock private Fragment fragment;
     @Mock private SearchResultHeaderRenderer searchResultHeaderRenderer;
 
-    @Captor private ArgumentCaptor<List<PlaylistItem>> playlistItemCaptor;
     private SearchResultsAdapter adapter;
 
     @Before

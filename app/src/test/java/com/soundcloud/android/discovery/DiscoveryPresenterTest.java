@@ -147,7 +147,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
-        final RootActivity rootActivity = initRootActivity();
+        initRootActivity();
 
         presenter.onCreate(fragment, null);
 
@@ -165,7 +165,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
-        final RootActivity rootActivity = initRootActivity();
+        initRootActivity();
 
         presenter.onCreate(fragment, null);
 

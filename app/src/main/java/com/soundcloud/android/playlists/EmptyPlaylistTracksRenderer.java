@@ -41,8 +41,4 @@ class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewA
     public void setEmptyViewStatus(EmptyView.Status emptyViewStatus) {
         this.emptyViewStatus = emptyViewStatus;
     }
-
-    public void setEmptyStateMessage(String title, String description) {
-        this.viewBuilder.withMessageText(title).withSecondaryText(description);
-    }
 }

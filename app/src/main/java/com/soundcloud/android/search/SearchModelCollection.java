@@ -87,13 +87,4 @@ public class SearchModelCollection<T> extends ModelCollection<T> {
                                             usersCount);
     }
 
-    public SearchModelCollection<T> prepend(SearchModelCollection<T> previousCollection) {
-        return new SearchModelCollection<>(newArrayList(Iterables.concat(previousCollection.collection, collection)),
-                                            links,
-                                            queryUrn,
-                                            premiumContent,
-                                            tracksCount,
-                                            playlistsCount,
-                                            usersCount);
-    }
 }

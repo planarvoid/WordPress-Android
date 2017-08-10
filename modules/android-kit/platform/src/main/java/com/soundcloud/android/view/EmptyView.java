@@ -132,10 +132,6 @@ public class EmptyView extends RelativeLayout {
         return true;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     private void showError(Status status) {
         if (errorView == null) {
             errorView = addErrorView();

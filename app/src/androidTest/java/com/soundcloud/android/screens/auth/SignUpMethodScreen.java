@@ -14,10 +14,6 @@ public class SignUpMethodScreen extends Screen {
         super(testDriver);
     }
 
-    private ViewElement googleSignInButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.google_plus_btn));
-    }
-
     private ViewElement facebookSignInButton() {
         return testDriver.findOnScreenElement(With.id(R.id.facebook_btn));
     }

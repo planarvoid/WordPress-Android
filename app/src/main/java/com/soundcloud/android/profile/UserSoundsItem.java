@@ -8,7 +8,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
@@ -132,16 +131,6 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
             return toBuilder().trackItem(trackItem().get().updatedWithTrack(track)).build();
         }
         return this;
-    }
-
-    public UserSoundsItem updatedWithOfflineState(OfflineState offlineState) {
-        if (isTrack()) {
-            return copyWithTrackItem(trackItem().get().updatedWithOfflineState(offlineState));
-        } else if (isPlaylist()) {
-            return copyWithPlaylistItem(playlistItem().get().updatedWithOfflineState(offlineState));
-        } else {
-            return this;
-        }
     }
 
     @Override

@@ -43,7 +43,6 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private static final int LETTERBOX_VIDEO_HEIGHT = 100;
 
     @Mock private ImageOperations imageOperations;
-    @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private DeviceHelper deviceHelper;

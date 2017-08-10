@@ -97,7 +97,7 @@ public class LoginLayout extends AuthLayout {
 
     @OnEditorAction(R.id.txt_password)
     @SuppressWarnings({"SimplifiableIfStatement"})
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+    public boolean onEditorAction(int actionId, KeyEvent event) {
         boolean done = actionId == EditorInfo.IME_ACTION_DONE;
         boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
         boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;

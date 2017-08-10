@@ -119,12 +119,12 @@ class UserDetailsView {
     }
 
     @OnClick(R.id.view_followers)
-    void onViewFollowersClicked(View item) {
+    void onViewFollowersClicked() {
         listener.onViewFollowersClicked();
     }
 
     @OnClick(R.id.view_following)
-    void onViewFollowingClicked(View item) {
+    void onViewFollowingClicked() {
         listener.onViewFollowingClicked();
     }
 }

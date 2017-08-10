@@ -108,32 +108,8 @@ public class PlaylistDetailsScreen extends Screen {
         return visualPlayerElement;
     }
 
-    public String getFirstPlaylistInMoreTitle() {
-        return scrollToAndGetFirstMorePlaylistsItem().getTitle();
-    }
-
-    public PlaylistDetailsScreen clickFirstPlaylistInMorePlaylists() {
-        return scrollToAndGetFirstMorePlaylistsItem().click();
-    }
-
-    public VisualPlayerElement clickLastTrack() {
-        return scrollToLastTrackItem()
-                .trackItemElements()
-                .get(trackItemElements().size() - 1)
-                .click();
-    }
-
     private TrackItemElement scrollToAndGetFirstTrackItem() {
         return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
-    }
-
-    private PlaylistElement scrollToAndGetFirstMorePlaylistsItem() {
-        return toPlaylistItemElement.apply(scrollToItem(With.id(R.id.carousel_playlist_item)));
-    }
-
-    private PlaylistDetailsScreen scrollToLastTrackItem() {
-        testDriver.scrollListToLine(getTrackCount() - 1);
-        return this;
     }
 
     public TrackItemMenuElement findAndClickFirstTrackOverflowButton() {

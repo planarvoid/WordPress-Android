@@ -32,10 +32,6 @@ public abstract class CurrentPlayQueueItemEvent {
         return getKind() == POSITION_REPEAT;
     }
 
-    public boolean hasPositionChanged() {
-        return getKind() == POSITION_CHANGED;
-    }
-
     public abstract PlayQueueItem getCurrentPlayQueueItem();
 
     public abstract Urn getCollectionUrn();

@@ -69,7 +69,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.call_to_action).performClick();
 
-        verify(listener).onAdItemClicked(adView.getContext(), APP_INSTALLS.get(0));
+        verify(listener).onAdItemClicked(APP_INSTALLS.get(0));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.image).performClick();
 
-        verify(listener).onAdItemClicked(adView.getContext(), APP_INSTALLS.get(0));
+        verify(listener).onAdItemClicked(APP_INSTALLS.get(0));
     }
 
     @Test

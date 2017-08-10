@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,15 +21,11 @@ public class EntitySyncRequestTest {
     private EntitySyncRequest entitySyncRequest;
 
     @Mock private EntitySyncJob entitySyncJob;
-    @Mock private EntitySyncJob playlistsSyncer;
     @Mock private ResultReceiver resultReceiver;
-
-    private TestEventBus eventBus = new TestEventBus();
-
 
     @Before
     public void setUp() throws Exception {
-        entitySyncRequest = new EntitySyncRequest(entitySyncJob, SYNCABLE, eventBus, resultReceiver);
+        entitySyncRequest = new EntitySyncRequest(entitySyncJob, SYNCABLE, resultReceiver);
     }
 
     @Test

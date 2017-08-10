@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SharePresenterTest extends AndroidUnitTest {
 
-    private static final String SCREEN_TAG = "screen_tag";
     private static final String PAGE_NAME = "page_name";
     private static final Urn PAGE_URN = Urn.forPlaylist(234L);
     private static final TrackItem TRACK = PlayableFixtures.expectedTrackForPlayer();

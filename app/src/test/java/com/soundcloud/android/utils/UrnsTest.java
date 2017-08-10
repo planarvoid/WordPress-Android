@@ -51,7 +51,7 @@ public class UrnsTest extends AndroidUnitTest {
 
     @Test
     public void shouldExtractIdsFromUrnsMatchingPredicate() throws Exception {
-        List<Long> ids = Urns.extractIds(sampleUrns(), Optional.of(Urns.playlistPredicate()));
+        List<Long> ids = Urns.extractIds(sampleUrns(), Optional.of(urn -> urn.isPlaylist()));
 
         assertThat(ids).containsExactly(2L);
     }

@@ -27,8 +27,7 @@ public class EntitySyncRequestFactoryTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         factory = new EntitySyncRequestFactory(InjectionSupport.providerOf(tracksSyncJob),
                                                InjectionSupport.providerOf(playlistsSyncJob),
-                                               InjectionSupport.providerOf(usersSyncJob),
-                                               new TestEventBus());
+                                               InjectionSupport.providerOf(usersSyncJob));
     }
 
     @Test

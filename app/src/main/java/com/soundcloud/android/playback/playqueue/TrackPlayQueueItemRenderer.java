@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.playqueue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -23,8 +22,6 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     interface TrackClickListener {
         void trackClicked(int listPosition);
     }
-
-    private static final int EXTENDED_TOUCH_DP = 6;
 
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
@@ -114,20 +111,6 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
         imageView.setAlpha(alpha);
         textHolder.setAlpha(alpha);
         goIndicator.setAlpha(alpha);
-    }
-
-    static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
-                                  PlayQueueManager.RepeatMode newRepeatMode,
-                                  PlayState playstate) {
-        if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE) {
-            return playstate == PlayState.COMING_UP;
-        } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL) {
-            return playstate == PlayState.PLAYED || playstate == PlayState.COMING_UP;
-        } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE) {
-            return playstate == PlayState.PLAYED;
-        } else {
-            return false;
-        }
     }
 
     private void setupOverFlow(final TrackPlayQueueUIItem item, final ImageView overflowButton, final int position) {

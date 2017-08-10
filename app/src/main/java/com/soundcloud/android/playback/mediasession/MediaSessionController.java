@@ -26,7 +26,6 @@ import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -58,7 +57,6 @@ public class MediaSessionController {
     private final MediaSessionCompat mediaSession;
     private final AudioManager audioManager;
     private final NavigationExecutor navigationExecutor;
-    private final EventBus eventBus;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private int playbackState;
@@ -72,7 +70,6 @@ public class MediaSessionController {
                                   @Provided PlayQueueManager playQueueManager,
                                   @Provided AdsOperations adsOperations,
                                   @Provided NavigationExecutor navigationExecutor,
-                                  @Provided EventBus eventBus,
                                   @Provided PlayerInteractionsTracker playerInteractionsTracker,
                                   @Provided PlaySessionStateProvider playSessionStateProvider) {
         this.context = context;
@@ -84,7 +81,6 @@ public class MediaSessionController {
 
         audioFocusListener = new AudioFocusListener(listener);
         this.navigationExecutor = navigationExecutor;
-        this.eventBus = eventBus;
         audioManager = mediaSessionWrapper.getAudioManager(context);
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
         mediaSession.setCallback(new MediaSessionListener(this,

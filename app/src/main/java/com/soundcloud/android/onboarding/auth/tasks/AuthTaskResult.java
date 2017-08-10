@@ -61,10 +61,6 @@ public class AuthTaskResult {
         return failure(new AuthTaskException(errorMessage));
     }
 
-    public static AuthTaskResult failure(String errorMessge, ApiRequestException exception) {
-        return new AuthTaskResult(TaskResultKind.FAILURE, errorMessge, exception);
-    }
-
     public static AuthTaskResult emailTaken(ApiRequestException exception) {
         return new AuthTaskResult(TaskResultKind.EMAIL_TAKEN, exception);
     }
@@ -183,10 +179,6 @@ public class AuthTaskResult {
 
     public Bundle getLoginBundle() {
         return loginBundle;
-    }
-
-    public TaskResultKind getKind() {
-        return kind;
     }
 
     public String getErrorMessage() {

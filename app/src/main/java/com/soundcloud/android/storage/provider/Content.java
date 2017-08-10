@@ -47,21 +47,6 @@ public enum Content {
         }
     }
 
-    private Uri.Builder buildUpon() {
-        return uri.buildUpon();
-    }
-
-    public Uri forId(long id) {
-        final String uriString = uri.toString();
-        if (uriString.contains("#")) {
-            return Uri.parse(uriString.replace("#", String.valueOf(id)));
-        } else if (uriString.contains("*")) {
-            return Uri.parse(uriString.replace("*", String.valueOf(id)));
-        } else {
-            return buildUpon().appendEncodedPath(String.valueOf(id)).build();
-        }
-    }
-
     @Override
     public String toString() {
         return "Content." + name();

@@ -24,7 +24,5 @@ public final class Consts {
 
     public static final class PrefKeys {
         public static final String C2DM_DEVICE_URL = "c2dm.device_url";
-        public static final String LAST_USER_SYNC = "lastUserSync";
-        public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     }
 }
