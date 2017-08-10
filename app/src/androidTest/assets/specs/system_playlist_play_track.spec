@@ -13,7 +13,7 @@
       page_urn: soundcloud:system-playlists:the-upload:soundcloud:users:183
       player_type: Skippy|Flipper|MediaPlayer
       consumer_subs_plan: high_tier
-      monetization_model: BLACKBOX
+      monetization_model: (\w)+
       user: soundcloud:users:18173653
       playlist_position: 0
       ts: '[0-9]+'
