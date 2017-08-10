@@ -4,8 +4,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ART;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
@@ -14,13 +13,15 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -40,7 +41,7 @@ class MetadataOperations {
     MetadataOperations(Resources resources,
                        TrackItemRepository trackRepository,
                        ImageOperations imageOperations,
-                       @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                       @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.resources = resources;
         this.trackRepository = trackRepository;
         this.imageOperations = imageOperations;
@@ -51,27 +52,27 @@ class MetadataOperations {
                                              boolean isAd,
                                              Optional<MediaMetadataCompat> existingMetadata) {
         if (urn.isTrack()) {
-            return RxJava.toV1Observable(trackRepository.track(urn))
-                         .filter(track -> track != null)
-                         .flatMap(toTrackWithBitmap(existingMetadata))
-                         .map(toMediaMetadata(isAd))
-                         .subscribeOn(scheduler);
+            return trackRepository.track(urn)
+                                  .filter(track -> track != null)
+                                  .flatMapObservable(toTrackWithBitmap(existingMetadata))
+                                  .map(toMediaMetadata(isAd))
+                                  .subscribeOn(scheduler);
         } else if (isAd) {
-            return adMediaMetadata();
+            return adMediaMetadata().toObservable();
         } else {
             return Observable.empty();
         }
     }
 
     void preload(final Urn trackUrn) {
-        fireAndForget(metadata(trackUrn, false, Optional.absent()));
+        metadata(trackUrn, false, Optional.absent()).subscribeWith(new DefaultObserver<>());
     }
 
-    private Observable<MediaMetadataCompat> adMediaMetadata() {
-        return Observable.just(new MediaMetadataCompat.Builder()
-                                       .putString(METADATA_KEY_TITLE, resources.getString(R.string.ads_advertisement))
-                                       .putString(METADATA_KEY_ARTIST, Strings.EMPTY)
-                                       .putBitmap(METADATA_KEY_ART, getAdArtwork()).build());
+    private Single<MediaMetadataCompat> adMediaMetadata() {
+        return Single.just(new MediaMetadataCompat.Builder()
+                                   .putString(METADATA_KEY_TITLE, resources.getString(R.string.ads_advertisement))
+                                   .putString(METADATA_KEY_ARTIST, Strings.EMPTY)
+                                   .putBitmap(METADATA_KEY_ART, getAdArtwork()).build());
     }
 
     @Nullable
@@ -79,7 +80,7 @@ class MetadataOperations {
         return imageOperations.decodeResource(resources, R.drawable.notification_loading);
     }
 
-    private Func1<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
+    private Function<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
         return trackItem -> {
             final SimpleImageResource imageResource = SimpleImageResource.create(trackItem);
             final Bitmap cachedBitmap = getCachedBitmap(imageResource);
@@ -87,10 +88,8 @@ class MetadataOperations {
             if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
                 return Observable.just(new TrackAndBitmap(trackItem, Optional.of(cachedBitmap)));
             } else {
-                return Observable.concat(
-                        Observable.just(new TrackAndBitmap(trackItem, getCurrentBitmap(existingMetadata))),
-                        loadArtwork(trackItem, imageResource)
-                );
+                return Single.concat(Single.just(new TrackAndBitmap(trackItem, getCurrentBitmap(existingMetadata))),
+                                     loadArtwork(trackItem, imageResource)).toObservable();
             }
         };
     }
@@ -100,11 +99,11 @@ class MetadataOperations {
         return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);
     }
 
-    private Observable<TrackAndBitmap> loadArtwork(final TrackItem trackItem, final SimpleImageResource imageResource) {
+    private Single<TrackAndBitmap> loadArtwork(final TrackItem trackItem, final SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
 
-        return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
-                              .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
+        return RxJava.toV2Single(imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize))
+                     .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
     }
 
     @Nullable
@@ -126,7 +125,7 @@ class MetadataOperations {
         return ApiImageSize.getNotificationLargeIconImageSize(resources);
     }
 
-    private Func1<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata(boolean isAd) {
+    private Function<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata(boolean isAd) {
         return trackAndBitmap -> {
             NotificationTrack notificationTrack =
                     new NotificationTrack(resources, trackAndBitmap.trackItem, isAd);

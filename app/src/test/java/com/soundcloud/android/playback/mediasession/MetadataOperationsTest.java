@@ -21,12 +21,11 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Maybe;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
@@ -46,17 +45,16 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     @Mock Bitmap bitmap;
     @Mock Bitmap oldBitmap;
 
-    private TestSubscriber<MediaMetadataCompat> subscriber = new TestSubscriber<>();
     private MetadataOperations operations;
 
     @Before
     public void setUp() throws Exception {
         operations = new MetadataOperations(context().getResources(), trackRepository,
-                                            imageOperations, Schedulers.immediate());
+                                            imageOperations, Schedulers.trampoline());
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
         when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
-                                     any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
+                                     any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(rx.Observable.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
                 .thenReturn(adBitmap);
     }
@@ -65,19 +63,19 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void metadataShouldOnlyEmitOnceWhenCachedBitmapIsAvailable() throws Exception {
         setCachedBitmap(TRACK, oldBitmap);
 
-        operations.metadata(TRACK_URN, false, EMPTY_METADATA).subscribe(subscriber);
-
-        subscriber.assertValueCount(1);
-        subscriber.assertCompleted();
+        operations.metadata(TRACK_URN, false, EMPTY_METADATA)
+                  .test()
+                  .assertValueCount(1)
+                  .assertComplete();
     }
 
     @Test
     public void metadataShouldEmitCachedBitmapWhenAvailable() throws Exception {
         setCachedBitmap(TRACK, oldBitmap);
 
-        operations.metadata(TRACK_URN, false, EMPTY_METADATA).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(TRACK_URN, false, EMPTY_METADATA).test();
 
-        assertThat(getBitmap(0)).isEqualTo(oldBitmap);
+        assertThat(getBitmap(testObserver, 0)).isEqualTo(oldBitmap);
     }
 
     @Test
@@ -85,70 +83,70 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         setCachedBitmap(TRACK, oldBitmap);
         when(oldBitmap.isRecycled()).thenReturn(true);
 
-        operations.metadata(TRACK_URN, false, EMPTY_METADATA).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(TRACK_URN, false, EMPTY_METADATA).test();
 
-        assertThat(getBitmap(0)).isNotEqualTo(oldBitmap);
-        assertThat(getBitmap(1)).isEqualTo(bitmap);
+        assertThat(getBitmap(testObserver, 0)).isNotEqualTo(oldBitmap);
+        assertThat(getBitmap(testObserver, 1)).isEqualTo(bitmap);
     }
 
     @Test
     public void metadataEmitsTwiceWhenIsNotCached() throws Exception {
-        operations.metadata(TRACK_URN, false, EMPTY_METADATA).subscribe(subscriber);
-
-        subscriber.assertValueCount(2);
-        subscriber.assertCompleted();
+        operations.metadata(TRACK_URN, false, EMPTY_METADATA)
+                  .test()
+                  .assertValueCount(2)
+                  .assertComplete();
     }
 
     @Test
     public void metadataEmitsMediaMetadataWithExistingArtworkOnlyOnFirstEmit() throws Exception {
-        operations.metadata(TRACK_URN, false, Optional.of(previousMetadata())).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(TRACK_URN, false, Optional.of(previousMetadata())).test();
 
-        assertThat(getBitmap(0)).isEqualTo(oldBitmap);
-        assertThat(getTitle(0)).isNotEqualTo("old title");
+        assertThat(getBitmap(testObserver, 0)).isEqualTo(oldBitmap);
+        assertThat(getTitle(testObserver, 0)).isNotEqualTo("old title");
     }
 
     @Test
     public void metadataEmitsMediaMetadataWithNewArtworkOnSecondEmit() throws Exception {
-        operations.metadata(TRACK_URN, false, Optional.of(previousMetadata())).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(TRACK_URN, false, Optional.of(previousMetadata())).test();
 
-        assertThat(getBitmap(1)).isEqualTo(bitmap);
-        assertThat(getTitle(1)).isEqualTo(TRACK.title());
+        assertThat(getBitmap(testObserver, 1)).isEqualTo(bitmap);
+        assertThat(getTitle(testObserver, 1)).isEqualTo(TRACK.title());
     }
 
     @Test
     public void metadataEmitsOnlyOnceWhenIsAVideoAd() throws Exception {
-        operations.metadata(VIDEO_URN, true, EMPTY_METADATA).subscribe(subscriber);
-
-        subscriber.assertValueCount(1);
-        subscriber.assertCompleted();
+        operations.metadata(VIDEO_URN, true, EMPTY_METADATA)
+                  .test()
+                  .assertValueCount(1)
+                  .assertComplete();
     }
 
     @Test
     public void metadataEmitsAdMetadataWhenIsAVideoAd() throws Exception {
-        operations.metadata(VIDEO_URN, true, EMPTY_METADATA).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(VIDEO_URN, true, EMPTY_METADATA).test();
 
-        assertThat(getTitle(0)).isEqualTo(ADVERTISING_TITLE);
-        assertThat(getBitmap(0)).isEqualTo(adBitmap);
+        assertThat(getTitle(testObserver, 0)).isEqualTo(ADVERTISING_TITLE);
+        assertThat(getBitmap(testObserver, 0)).isEqualTo(adBitmap);
     }
 
     @Test
     public void metadataDoesNotLoadTrackWhenIsVideoAd() throws Exception {
-        operations.metadata(VIDEO_URN, true, EMPTY_METADATA).subscribe(subscriber);
+        operations.metadata(VIDEO_URN, true, EMPTY_METADATA).test();
 
         verify(trackRepository, never()).track(VIDEO_URN);
     }
 
     @Test
     public void metadataEmitsAdMetadataWhenIsAnAudioAd() throws Exception {
-        operations.metadata(TRACK_URN, true, EMPTY_METADATA).subscribe(subscriber);
+        TestObserver<MediaMetadataCompat> testObserver = operations.metadata(TRACK_URN, true, EMPTY_METADATA).test();
 
-        assertThat(getTitle(1)).isEqualTo(ADVERTISING_TITLE);
-        assertThat(getBitmap(1)).isEqualTo(adBitmap);
+        assertThat(getTitle(testObserver, 1)).isEqualTo(ADVERTISING_TITLE);
+        assertThat(getBitmap(testObserver, 1)).isEqualTo(adBitmap);
     }
 
     @Test
     public void metadataLoadsTrackWhenIsAnAudioAd() throws Exception {
-        operations.metadata(TRACK_URN, true, EMPTY_METADATA).subscribe(subscriber);
+        operations.metadata(TRACK_URN, true, EMPTY_METADATA).test();
 
         verify(trackRepository).track(TRACK_URN);
     }
@@ -176,16 +174,16 @@ public class MetadataOperationsTest extends AndroidUnitTest {
                                              any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
     }
 
-    private MediaMetadataCompat getMetadata(int position) {
-        return subscriber.getOnNextEvents().get(position);
+    private MediaMetadataCompat getMetadata(TestObserver<MediaMetadataCompat> observer, int position) {
+        return observer.values().get(position);
     }
 
-    private Bitmap getBitmap(int position) {
-        return getMetadata(position).getBitmap(METADATA_KEY_ART);
+    private Bitmap getBitmap(TestObserver<MediaMetadataCompat> observer, int position) {
+        return getMetadata(observer, position).getBitmap(METADATA_KEY_ART);
     }
 
-    private String getTitle(int position) {
-        return getMetadata(position).getString(METADATA_KEY_TITLE);
+    private String getTitle(TestObserver<MediaMetadataCompat> observer, int position) {
+        return getMetadata(observer, position).getString(METADATA_KEY_TITLE);
     }
 
     private MediaMetadataCompat previousMetadata() {

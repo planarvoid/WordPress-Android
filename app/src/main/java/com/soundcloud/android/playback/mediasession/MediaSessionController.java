@@ -24,10 +24,10 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.optional.Optional;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 import android.app.Notification;
 import android.content.Context;
@@ -57,7 +57,7 @@ public class MediaSessionController {
     private final MediaSessionCompat mediaSession;
     private final AudioManager audioManager;
     private final NavigationExecutor navigationExecutor;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
 
     private int playbackState;
     private long playbackPosition;
@@ -134,11 +134,14 @@ public class MediaSessionController {
     }
 
     private void updateMetadata(Urn urn, boolean isAd) {
-        subscription.unsubscribe();
-        subscription = metadataOperations
+        disposable.dispose();
+        disposable = metadataOperations
                 .metadata(urn, isAd, getMetadata())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new MetadataSubscriber());
+                .subscribeWith(LambdaObserver.onNext(mediaMetadata -> {
+                    mediaSession.setMetadata(mediaMetadata);
+                    showNotification();
+                }));
     }
 
 
@@ -231,13 +234,4 @@ public class MediaSessionController {
 
         void onFocusLoss(boolean isTransient, boolean canDuck);
     }
-
-    class MetadataSubscriber extends DefaultSubscriber<MediaMetadataCompat> {
-        @Override
-        public void onNext(MediaMetadataCompat metadata) {
-            mediaSession.setMetadata(metadata);
-            showNotification();
-        }
-    }
-
 }
