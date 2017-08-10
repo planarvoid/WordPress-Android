@@ -225,8 +225,8 @@ dependencies {
     exclude group: 'com.android.support'
   }
 
-  compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
-  compile 'com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:2.0.0'
+  compile libraries.rxBinding
+  compile libraries.rxBindingRecyclerView
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

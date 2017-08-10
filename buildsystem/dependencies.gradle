@@ -75,7 +75,9 @@ ext {
           rxJavaInterop               : "com.github.akarnokd:rxjava2-interop:0.10.2",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
           sqlBrite                    : "com.squareup.sqlbrite2:sqlbrite:2.0.0",
-          dualCache                    : "com.vincentbrison.openlibraries.android:dualcache:3.1.1",
+          dualCache                   : "com.vincentbrison.openlibraries.android:dualcache:3.1.1",
+          rxBinding                   : 'com.jakewharton.rxbinding2:rxbinding:2.0.0',
+          rxBindingRecyclerView       : 'com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:2.0.0',
 
           // UI libraries
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",
