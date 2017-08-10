@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.mediasession;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ART;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;

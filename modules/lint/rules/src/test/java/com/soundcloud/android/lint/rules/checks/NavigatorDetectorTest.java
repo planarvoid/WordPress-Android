@@ -1,6 +1,6 @@
 package com.soundcloud.android.lint.rules.checks;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest;
 import com.android.tools.lint.detector.api.Detector;

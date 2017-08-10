@@ -3,7 +3,7 @@ package com.soundcloud.android.configuration.experiments;
 import static com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig.CONFIGURATION;
 import static com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig.CONTROL;
 import static com.soundcloud.android.properties.Flag.OTHER_PLAYLISTS_BY_CREATOR;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.FeatureFlags;

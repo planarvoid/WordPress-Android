@@ -3,7 +3,7 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;

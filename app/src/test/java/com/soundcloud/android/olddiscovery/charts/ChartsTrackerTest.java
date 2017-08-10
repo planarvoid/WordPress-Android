@@ -7,7 +7,7 @@ import static com.soundcloud.android.main.Screen.AUDIO_TRENDING;
 import static com.soundcloud.android.main.Screen.MUSIC_TOP_50;
 import static com.soundcloud.android.main.Screen.MUSIC_TRENDING;
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;

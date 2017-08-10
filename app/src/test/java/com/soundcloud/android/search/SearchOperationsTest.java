@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

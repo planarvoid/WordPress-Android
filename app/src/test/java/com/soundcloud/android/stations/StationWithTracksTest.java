@@ -2,7 +2,7 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.stations.StationFixtures.createStationInfoTrack;
 import static com.soundcloud.android.stations.StationFixtures.getStationWithTracks;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import org.junit.Test;

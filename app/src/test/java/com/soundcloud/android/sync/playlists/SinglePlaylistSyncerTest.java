@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.PlaylistEntityChangedEvent.forUpdate
 import static com.soundcloud.android.playlists.Playlist.from;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static java.util.Collections.singleton;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;

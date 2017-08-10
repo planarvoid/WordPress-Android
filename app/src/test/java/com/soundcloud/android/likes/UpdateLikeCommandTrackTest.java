@@ -2,7 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 import static com.soundcloud.propeller.query.Filter.filter;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;

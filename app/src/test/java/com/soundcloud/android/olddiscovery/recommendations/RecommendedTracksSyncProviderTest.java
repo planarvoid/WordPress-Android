@@ -1,6 +1,6 @@
 package com.soundcloud.android.olddiscovery.recommendations;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.sync.Syncable;
 import org.junit.Before;

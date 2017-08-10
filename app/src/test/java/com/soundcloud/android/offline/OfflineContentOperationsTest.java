@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.offline.OfflineContentUpdates.builder;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.Mockito.mock;

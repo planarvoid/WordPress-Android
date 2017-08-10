@@ -5,7 +5,7 @@ import static com.soundcloud.android.analytics.TrackingDbHelper.TrackingColumns.
 import static com.soundcloud.android.analytics.TrackingDbHelper.TrackingColumns.DATA;
 import static com.soundcloud.android.analytics.TrackingDbHelper.TrackingColumns.TIMESTAMP;
 import static com.soundcloud.propeller.query.Query.from;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;

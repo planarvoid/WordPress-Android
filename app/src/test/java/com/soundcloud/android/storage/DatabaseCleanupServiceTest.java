@@ -3,7 +3,7 @@ package com.soundcloud.android.storage;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;

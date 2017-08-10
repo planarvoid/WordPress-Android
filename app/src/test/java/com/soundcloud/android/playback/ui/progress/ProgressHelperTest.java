@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;

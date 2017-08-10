@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.PlayStateReason.ERROR_FAILED;
 import static com.soundcloud.android.playback.PlayStateReason.PLAYBACK_COMPLETE;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions.buffering;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions.idle;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;

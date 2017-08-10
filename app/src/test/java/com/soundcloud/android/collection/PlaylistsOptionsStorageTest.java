@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

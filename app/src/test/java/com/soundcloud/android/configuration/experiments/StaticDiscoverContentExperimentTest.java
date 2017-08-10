@@ -2,7 +2,7 @@ package com.soundcloud.android.configuration.experiments;
 
 import static com.soundcloud.android.configuration.experiments.StaticDiscoverContentExperiment.VARIANT_CONTROL;
 import static com.soundcloud.android.configuration.experiments.StaticDiscoverContentExperiment.VARIANT_STATIC_DISCOVER_CONTENT;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;

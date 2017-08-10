@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery.systemplaylist;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.ApiDateFormat;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;

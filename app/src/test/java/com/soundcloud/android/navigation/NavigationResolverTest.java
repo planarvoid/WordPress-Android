@@ -48,7 +48,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.customtabs.CustomTabsHelper;
-import com.soundcloud.android.navigation.customtabs.CustomTabsMetadata;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.olddiscovery.charts.Chart;
@@ -74,7 +73,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.res.builder.RobolectricPackageManager;
+import org.robolectric.shadows.ShadowPackageManager;
 
 import android.Manifest;
 import android.content.Context;
@@ -2176,7 +2175,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     private void addChromeCustomTabsIntentResolverInPackageManager() {
-        RobolectricPackageManager packageManager = shadowOf(RuntimeEnvironment.application.getPackageManager());
+        ShadowPackageManager packageManager = shadowOf(RuntimeEnvironment.application.getPackageManager());
         String chromePackageName = CustomTabsHelper.STABLE_PACKAGE;
 
         ApplicationInfo applicationInfo = new ApplicationInfo();

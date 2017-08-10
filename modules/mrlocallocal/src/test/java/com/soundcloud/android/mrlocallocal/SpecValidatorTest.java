@@ -2,7 +2,7 @@ package com.soundcloud.android.mrlocallocal;
 
 import static com.soundcloud.android.mrlocallocal.SpecValidator.KEY_TIMESTAMP;
 import static com.soundcloud.android.mrlocallocal.SpecValidator.KEY_WHITELISTED_ALL;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.mrlocallocal.data.LoggedEvent;
 import com.soundcloud.android.mrlocallocal.data.MrLocalLocalException;

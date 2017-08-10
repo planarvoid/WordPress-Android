@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.performance;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PerformanceEvent;

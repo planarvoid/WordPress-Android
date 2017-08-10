@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayNewQueue;
 import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;

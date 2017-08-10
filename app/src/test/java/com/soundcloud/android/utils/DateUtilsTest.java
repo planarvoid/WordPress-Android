@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;

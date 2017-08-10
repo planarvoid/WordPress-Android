@@ -7,7 +7,7 @@ import static com.soundcloud.android.offline.OfflineState.REQUESTED;
 import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;

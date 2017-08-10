@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.userBuilder;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.userItem;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;

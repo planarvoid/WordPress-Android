@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

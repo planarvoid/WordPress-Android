@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;

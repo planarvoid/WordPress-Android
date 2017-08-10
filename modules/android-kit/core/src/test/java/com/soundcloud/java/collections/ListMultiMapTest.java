@@ -1,7 +1,7 @@
 package com.soundcloud.java.collections;
 
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.java.test.EqualsTester;
 import org.junit.Test;

@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.DURAT
 import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.ITEM;
 import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.PLAY_ID;
 import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.PROGRESS;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

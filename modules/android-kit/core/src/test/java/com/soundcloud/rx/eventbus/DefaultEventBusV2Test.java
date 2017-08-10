@@ -1,6 +1,6 @@
 package com.soundcloud.rx.eventbus;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import io.reactivex.functions.Function;
 import io.reactivex.observers.TestObserver;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 
 import com.soundcloud.android.ads.AdData;

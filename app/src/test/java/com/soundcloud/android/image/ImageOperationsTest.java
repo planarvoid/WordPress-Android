@@ -3,7 +3,7 @@ package com.soundcloud.android.image;
 import static com.soundcloud.android.image.ImageOperations.DEFAULT_CACHE_KEY;
 import static com.soundcloud.android.image.ImageOptionsFactory.DELAY_BEFORE_LOADING;
 import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;

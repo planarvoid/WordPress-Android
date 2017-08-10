@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import static junit.framework.Assert.assertEquals;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.junit.Test;
 

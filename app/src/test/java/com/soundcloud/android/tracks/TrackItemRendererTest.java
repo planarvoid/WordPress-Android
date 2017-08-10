@@ -5,7 +5,7 @@ import static com.soundcloud.android.api.model.ChartType.TRENDING;
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;

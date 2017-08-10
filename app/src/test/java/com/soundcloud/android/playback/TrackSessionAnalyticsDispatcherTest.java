@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_SKIP;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration.features;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.crypto.Obfuscator;

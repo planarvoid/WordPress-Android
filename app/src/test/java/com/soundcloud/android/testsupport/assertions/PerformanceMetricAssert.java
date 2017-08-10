@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.assertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;

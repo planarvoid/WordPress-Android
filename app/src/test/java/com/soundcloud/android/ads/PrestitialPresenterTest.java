@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.AdPlaybackEvent.AdProgressEvent;
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin.PRESTITIAL;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;

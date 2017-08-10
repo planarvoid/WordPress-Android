@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromNewQueue;
 import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromPositionChanged;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;

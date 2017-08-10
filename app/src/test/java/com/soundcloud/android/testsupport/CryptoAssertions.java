@@ -1,7 +1,7 @@
 package com.soundcloud.android.testsupport;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class CryptoAssertions {
 

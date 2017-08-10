@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerEventData.ITEM_INTERACTION;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.soundcloud.android.events.ForegroundEvent;

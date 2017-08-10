@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;

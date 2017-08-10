@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.events.UIEvent.PlayerInterface.FULLSCREEN;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;

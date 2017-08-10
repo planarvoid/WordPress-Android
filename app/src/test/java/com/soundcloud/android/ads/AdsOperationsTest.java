@@ -4,7 +4,7 @@ import static com.soundcloud.android.ads.AdFixtures.apiVisualPrestitialAd;
 import static com.soundcloud.android.ads.AdFixtures.getApiAudioAd;
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

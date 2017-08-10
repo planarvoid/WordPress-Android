@@ -1,6 +1,6 @@
 package com.soundcloud.android.olddiscovery.welcomeuser;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;

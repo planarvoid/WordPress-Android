@@ -1,6 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;

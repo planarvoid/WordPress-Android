@@ -3,7 +3,7 @@ package com.soundcloud.android.configuration.experiments;
 import static com.soundcloud.android.configuration.experiments.ExperimentOperations.matches;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

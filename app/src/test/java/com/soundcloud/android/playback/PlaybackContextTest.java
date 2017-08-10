@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlaySessionSource.forChart;
 import static com.soundcloud.android.playback.PlaySessionSource.forRecommendations;
 import static com.soundcloud.android.playback.PlaybackContext.create;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ChartType;

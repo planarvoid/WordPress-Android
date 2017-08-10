@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;

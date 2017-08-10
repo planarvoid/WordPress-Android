@@ -4,7 +4,7 @@ import static com.soundcloud.android.stations.RecommendedStationsOperations.STAT
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.java.collections.Lists.transform;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

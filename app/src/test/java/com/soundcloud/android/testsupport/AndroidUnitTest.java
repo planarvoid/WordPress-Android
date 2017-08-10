@@ -9,7 +9,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.fakes.RoboSharedPreferences;
 import org.robolectric.shadows.ShadowApplication;
 
 import android.content.Context;
@@ -18,8 +17,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
-
-import java.util.HashMap;
 
 /**
  * Base class for unit tests that have hard dependencies on the Android platform.
@@ -68,6 +65,6 @@ public abstract class AndroidUnitTest {
     }
 
     protected static SharedPreferences sharedPreferences() {
-        return new RoboSharedPreferences(new HashMap<>(), "Test", Context.MODE_PRIVATE);
+        return context().getSharedPreferences("Test", Context.MODE_PRIVATE);
     }
 }

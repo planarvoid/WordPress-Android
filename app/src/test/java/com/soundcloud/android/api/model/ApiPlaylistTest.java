@@ -1,6 +1,6 @@
 package com.soundcloud.android.api.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;

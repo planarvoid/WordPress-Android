@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 

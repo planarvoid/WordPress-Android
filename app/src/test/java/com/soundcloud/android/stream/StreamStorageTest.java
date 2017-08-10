@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Filter.filter;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 

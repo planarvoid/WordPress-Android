@@ -2,7 +2,7 @@ package com.soundcloud.android.cast.api.json;
 
 import static com.soundcloud.android.cast.api.json.RemoteTrackSerializer.ID_FIELD_NAME;
 import static com.soundcloud.android.cast.api.json.RemoteTrackSerializer.URN_FIELD_NAME;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;

@@ -8,7 +8,7 @@ import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_SI
 import static com.soundcloud.android.payments.googleplay.BillingUtil.RESULT_ERROR;
 import static com.soundcloud.android.payments.googleplay.BillingUtil.RESULT_OK;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;

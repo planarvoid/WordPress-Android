@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.flipper;
 
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.flippernative.api.StreamingProtocol;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import org.junit.Test;
 
 public class FlipperPlaybackProtocolMapperTest {

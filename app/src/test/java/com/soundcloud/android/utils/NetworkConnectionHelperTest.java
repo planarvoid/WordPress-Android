@@ -2,7 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static junit.framework.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ConnectionType;

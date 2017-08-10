@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;

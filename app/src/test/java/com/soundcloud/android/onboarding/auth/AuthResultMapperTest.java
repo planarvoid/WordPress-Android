@@ -5,7 +5,7 @@ import static com.soundcloud.android.onboarding.auth.AuthResultMapper.EMAIL_TAKE
 import static com.soundcloud.android.onboarding.auth.AuthResultMapper.INCORRECT_CREDENTIALS;
 import static com.soundcloud.android.onboarding.auth.AuthResultMapper.INVALID_EMAIL;
 import static com.soundcloud.android.onboarding.auth.AuthResultMapper.SPAMMING;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;

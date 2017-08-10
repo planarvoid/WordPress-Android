@@ -21,7 +21,7 @@ import static com.soundcloud.java.collections.Iterators.get;
 import static com.soundcloud.java.collections.Iterators.getLast;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;

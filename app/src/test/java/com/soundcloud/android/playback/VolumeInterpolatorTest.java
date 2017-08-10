@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.VolumeInterpolator.ACCELERATE;
 import static com.soundcloud.android.playback.VolumeInterpolator.ACCELERATE_DECELERATE;
 import static com.soundcloud.android.playback.VolumeInterpolator.DECELERATE;
 import static com.soundcloud.android.playback.VolumeInterpolator.LINEAR;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;

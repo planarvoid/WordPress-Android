@@ -2,7 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
 import static com.soundcloud.android.events.AdPlaybackEvent.NoVideoOnScreen;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

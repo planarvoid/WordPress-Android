@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;

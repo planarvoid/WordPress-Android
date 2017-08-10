@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.analytics.TrackingRecord;
 import io.reactivex.observers.TestObserver;

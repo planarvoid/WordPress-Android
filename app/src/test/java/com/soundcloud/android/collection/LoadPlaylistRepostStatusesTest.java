@@ -1,7 +1,7 @@
 package com.soundcloud.android.collection;
 
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;

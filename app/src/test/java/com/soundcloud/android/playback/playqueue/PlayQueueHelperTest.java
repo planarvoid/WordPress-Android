@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

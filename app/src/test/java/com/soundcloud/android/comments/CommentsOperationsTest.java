@@ -5,7 +5,7 @@ import static com.soundcloud.android.comments.CommentsOperations.CommentsCollect
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;

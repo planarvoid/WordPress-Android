@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;

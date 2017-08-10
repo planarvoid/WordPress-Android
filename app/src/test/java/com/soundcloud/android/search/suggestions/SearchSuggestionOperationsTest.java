@@ -2,7 +2,7 @@ package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.android.search.suggestions.SuggestionItem.forAutocompletion;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyListOf;

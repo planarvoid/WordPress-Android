@@ -17,13 +17,10 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.fakes.RoboSharedPreferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-
-import java.util.HashMap;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(packageName = "com.soundcloud.android",
@@ -57,7 +54,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
     }
 
     protected static SharedPreferences sharedPreferences() {
-        return new RoboSharedPreferences(new HashMap<>(), "Test", Context.MODE_PRIVATE);
+        return context().getSharedPreferences("Test", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -68,6 +65,10 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
 
     private ApplicationProperties provideApplicationProperties() {
         return new ApplicationProperties(RuntimeEnvironment.application.getResources());
+    }
+
+    private static Context context() {
+        return RuntimeEnvironment.application;
     }
 
     public final class HelperObjectsRule extends ExternalResource {

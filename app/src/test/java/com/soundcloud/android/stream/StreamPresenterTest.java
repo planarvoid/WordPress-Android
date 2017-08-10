@@ -6,7 +6,7 @@ import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvite
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedLikedPlaylistForPlaylistsScreen;
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack;
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedTrackForListItem;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isNull;

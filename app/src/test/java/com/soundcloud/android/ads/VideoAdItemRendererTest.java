@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

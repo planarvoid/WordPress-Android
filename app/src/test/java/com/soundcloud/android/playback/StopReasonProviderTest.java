@@ -6,7 +6,7 @@ import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;

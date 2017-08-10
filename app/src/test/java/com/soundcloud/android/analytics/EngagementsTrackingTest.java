@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityMetadata;

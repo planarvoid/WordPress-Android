@@ -16,7 +16,7 @@
 
 package com.soundcloud.java.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 import com.soundcloud.java.collections.Pair;

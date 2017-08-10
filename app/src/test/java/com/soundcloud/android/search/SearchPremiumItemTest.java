@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.search.SearchPremiumItem.PREMIUM_URN;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;

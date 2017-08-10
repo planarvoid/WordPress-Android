@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.assertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.assertj.core.api.AbstractAssert;
 import org.robolectric.Shadows;

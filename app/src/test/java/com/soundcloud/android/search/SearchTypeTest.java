@@ -5,7 +5,7 @@ import static com.soundcloud.android.search.SearchType.ALL;
 import static com.soundcloud.android.search.SearchType.PLAYLISTS;
 import static com.soundcloud.android.search.SearchType.TRACKS;
 import static com.soundcloud.android.search.SearchType.USERS;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import org.junit.Test;

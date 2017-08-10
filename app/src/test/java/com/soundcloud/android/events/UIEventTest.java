@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdData.MonetizationType;
 import com.soundcloud.android.ads.AdFixtures;

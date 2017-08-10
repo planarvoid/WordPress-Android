@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;

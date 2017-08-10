@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.utils.DeviceHelper.USER_AGENT_PRODUCT_TAG;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.BuildConfig;

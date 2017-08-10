@@ -4,7 +4,7 @@ import static com.soundcloud.android.offline.OfflineContentChangedEvent.download
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

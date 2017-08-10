@@ -1,7 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.api.model.ChartCategory.NONE;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartType;

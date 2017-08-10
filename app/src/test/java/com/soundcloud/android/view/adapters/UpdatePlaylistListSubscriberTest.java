@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

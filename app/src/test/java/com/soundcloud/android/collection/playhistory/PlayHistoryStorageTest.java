@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.collection.CollectionDatabase;
 import com.soundcloud.android.collection.CollectionDatabaseOpenHelper;

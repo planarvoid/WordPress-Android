@@ -2,7 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 

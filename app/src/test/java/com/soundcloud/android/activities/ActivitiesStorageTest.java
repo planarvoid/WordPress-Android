@@ -3,7 +3,7 @@ package com.soundcloud.android.activities;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackCommentActivity;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLikeActivity;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiUserFollowActivity;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.strings.Charsets;

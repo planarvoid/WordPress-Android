@@ -6,7 +6,7 @@ import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.C
 import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.DISMISS_INTERVAL_MS;
 import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.REST_AFTER_DISMISS_COUNT;
 import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.facebookapi.FacebookApi;

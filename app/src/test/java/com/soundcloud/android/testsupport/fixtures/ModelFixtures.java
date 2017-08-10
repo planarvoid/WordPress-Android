@@ -2,7 +2,7 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;

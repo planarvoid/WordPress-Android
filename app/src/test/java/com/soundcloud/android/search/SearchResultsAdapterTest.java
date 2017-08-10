@@ -6,7 +6,7 @@ import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_PREMI
 import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_TRACK;
 import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_UPSELL;
 import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_USER;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;

@@ -4,7 +4,7 @@ import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_BIRTHD
 import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_GENDER;
 import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_PASSWORD;
 import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_USERNAME;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;

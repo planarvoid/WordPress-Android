@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;

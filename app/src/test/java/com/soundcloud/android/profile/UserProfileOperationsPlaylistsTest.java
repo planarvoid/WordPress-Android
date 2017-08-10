@@ -2,7 +2,7 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

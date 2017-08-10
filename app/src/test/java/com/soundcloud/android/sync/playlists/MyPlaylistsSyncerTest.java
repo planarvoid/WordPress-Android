@@ -4,7 +4,7 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;

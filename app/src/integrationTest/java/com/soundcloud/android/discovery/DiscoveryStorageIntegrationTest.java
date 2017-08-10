@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;

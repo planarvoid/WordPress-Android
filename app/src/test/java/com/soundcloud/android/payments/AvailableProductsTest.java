@@ -3,7 +3,7 @@ package com.soundcloud.android.payments;
 import static com.soundcloud.android.payments.AvailableProducts.Product;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORAGE;
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.CryptoOperations;

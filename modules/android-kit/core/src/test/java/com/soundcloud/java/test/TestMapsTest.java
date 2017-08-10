@@ -1,6 +1,6 @@
 package com.soundcloud.java.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;

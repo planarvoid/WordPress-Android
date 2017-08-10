@@ -9,7 +9,7 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackIte
 import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 

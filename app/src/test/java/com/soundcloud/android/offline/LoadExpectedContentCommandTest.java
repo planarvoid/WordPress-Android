@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromLikes;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromLikesAndPlaylists;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromPlaylists;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.search.topresults;
 
 import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.TOP_RESULT;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.SearchEvent;

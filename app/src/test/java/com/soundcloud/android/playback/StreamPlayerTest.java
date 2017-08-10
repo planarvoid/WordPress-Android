@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.ads.AdFixtures.getVideoAd;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;

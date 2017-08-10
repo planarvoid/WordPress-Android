@@ -10,14 +10,10 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.fakes.RoboSharedPreferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Base class for unit tests that have hard dependencies on the Android platform.
@@ -50,6 +46,6 @@ public abstract class AndroidUnitTest {
     }
 
     protected static SharedPreferences sharedPreferences(String name, int mode) {
-        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), name, mode);
+        return context().getSharedPreferences(name, mode);
     }
 }

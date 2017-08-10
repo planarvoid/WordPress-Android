@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import static com.soundcloud.android.image.ImageOperations.FallbackImageListener;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Matchers.anyInt;
