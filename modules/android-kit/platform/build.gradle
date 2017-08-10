@@ -59,6 +59,7 @@ dependencies {
   compile libraries.rxJava2
   compile libraries.rxJavaInterop
 
+  testCompile libraries.androidSupportLibrary
   testCompile unitTestLibraries.junit
   testCompile unitTestLibraries.mockito
   testCompile unitTestLibraries.assertj

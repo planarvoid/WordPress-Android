@@ -51,7 +51,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsTitleWhenPresent() {
-        TextView title = (TextView) itemView.findViewById(R.id.single_card_title);
+        TextView title = itemView.findViewById(R.id.single_card_title);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
@@ -61,7 +61,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     @Test
     public void doesNotBindTitleWhenNotPresent() {
         when(card.title()).thenReturn(Optional.absent());
-        TextView title = (TextView) itemView.findViewById(R.id.single_card_title);
+        TextView title = itemView.findViewById(R.id.single_card_title);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
@@ -70,7 +70,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsDescriptionWhenPresent() {
-        TextView description = (TextView) itemView.findViewById(R.id.single_card_description);
+        TextView description = itemView.findViewById(R.id.single_card_description);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
@@ -79,7 +79,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindDescriptionWhenNotPresent() {
-        TextView description = (TextView) itemView.findViewById(R.id.single_card_description);
+        TextView description = itemView.findViewById(R.id.single_card_description);
         when(card.description()).thenReturn(Optional.absent());
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
@@ -89,8 +89,8 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsSelectionItemCountWhenPresent() {
-        TextView count = (TextView) itemView.findViewById(R.id.single_card_track_count);
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.single_card_artwork);
+        TextView count = itemView.findViewById(R.id.single_card_track_count);
+        ImageView imageView = itemView.findViewById(R.id.single_card_artwork);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
@@ -101,8 +101,8 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindSelectionItemCountWhenNotPresent() {
-        TextView count = (TextView) itemView.findViewById(R.id.single_card_track_count);
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.single_card_artwork);
+        TextView count = itemView.findViewById(R.id.single_card_track_count);
+        ImageView imageView = itemView.findViewById(R.id.single_card_artwork);
 
         when(selectionItem.count()).thenReturn(Optional.absent());
 
@@ -117,16 +117,16 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     public void bindsSocialProofWhenPresent() {
         when(card.socialProofAvatarUrlTemplates()).thenReturn(Arrays.asList("link1", "link2"));
         when(resources.getConfiguration()).thenReturn(new Configuration());
-        TextView socialProofText = (TextView) itemView.findViewById(R.id.single_card_social_proof);
+        TextView socialProofText = itemView.findViewById(R.id.single_card_social_proof);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
         assertThat(socialProofText).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_1)).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_2)).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_1)).isVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_2)).isVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
     @Test
@@ -135,40 +135,40 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
     @Test
     public void doesNotBindSocialProofWhenNotPresent() {
-        TextView socialProofText = (TextView) itemView.findViewById(R.id.single_card_social_proof);
+        TextView socialProofText = itemView.findViewById(R.id.single_card_social_proof);
         when(card.socialProof()).thenReturn(Optional.absent());
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
         assertThat(socialProofText).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
     @Test
     public void doesNotBindSocialProofAvatarsWhenNotPresent() {
-        TextView socialProofText = (TextView) itemView.findViewById(R.id.single_card_social_proof);
+        TextView socialProofText = itemView.findViewById(R.id.single_card_social_proof);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
         assertThat(socialProofText).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_1)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_2)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
     @Test
@@ -176,16 +176,16 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
         when(card.socialProofAvatarUrlTemplates()).thenReturn(Arrays.asList("link1", "link2"));
         when(card.socialProof()).thenReturn(Optional.absent());
         when(resources.getConfiguration()).thenReturn(new Configuration());
-        TextView socialProofText = (TextView) itemView.findViewById(R.id.single_card_social_proof);
+        TextView socialProofText = itemView.findViewById(R.id.single_card_social_proof);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
 
         assertThat(socialProofText).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_1)).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_2)).isVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
-        assertThat(itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_1)).isVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_2)).isVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_3)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_4)).isNotVisible();
+        assertThat((View) itemView.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
     @Test

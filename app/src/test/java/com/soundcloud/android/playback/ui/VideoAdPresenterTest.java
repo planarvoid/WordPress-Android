@@ -66,16 +66,16 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void videoViewNotVisibleOnVerticalVideoBind() {
         bindVerticalVideo(true);
 
-        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isNotVisible();
     }
 
     @Test
     public void letterboxVideoBindShowsLoadingIndicatorAndLetterboxBackgroundButNotVideoView() {
         bindLetterboxVideo(true);
 
-        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
-        assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
-        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.letterbox_background)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isVisible();
     }
 
 
@@ -83,23 +83,23 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void letterboxVideoBindDoesntShowLoadingIndicatorAndLetterboxBackgroundButNotVideoViewWithInactivePlaySession() {
         bindLetterboxVideo(false);
 
-        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
-        assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
-        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.letterbox_background)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test
     public void loadingIndicatorVisibleOnVerticalVideoBind() {
         bindVerticalVideo(true);
 
-        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isVisible();
     }
 
     @Test
     public void loadingIndicatorNotVisibleOnVerticalVideoBindWithInactivePlaySession() {
         bindVerticalVideo(false);
 
-        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test
@@ -107,8 +107,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         bindLetterboxVideo(true);
 
         presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
-        assertThat(adView.findViewById(R.id.video_view)).isVisible();
-        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test
@@ -118,8 +118,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
         presenter.setPlayState(adView, TestPlayStates.buffering(), true, true);
 
-        assertThat(adView.findViewById(R.id.video_view)).isVisible();
-        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isVisible();
     }
 
     @Test
@@ -128,7 +128,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
         presenter.setPlayState(adView, TestPlayStates.idle(), true, true);
 
-        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test

@@ -53,9 +53,9 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
 
         assertThat(itemView).isNotNull();
         assertThat(itemView.getTag()).isNotNull(); // contains the private ViewHolder instance
-        assertThat(itemView.findViewById(R.id.image)).isNotNull();
-        assertThat(itemView.findViewById(R.id.creator)).isNotNull();
-        assertThat(itemView.findViewById(R.id.title)).isNotNull();
+        assertThat((View) itemView.findViewById(R.id.image)).isNotNull();
+        assertThat((View) itemView.findViewById(R.id.creator)).isNotNull();
+        assertThat((View) itemView.findViewById(R.id.title)).isNotNull();
     }
 
     @Test

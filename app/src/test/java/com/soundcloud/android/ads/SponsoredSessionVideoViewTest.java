@@ -65,7 +65,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.idle());
 
-        assertThat(view.findViewById(R.id.player_play)).isVisible();
+        assertThat((View) view.findViewById(R.id.player_play)).isVisible();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.idle());
 
-        assertThat(view.findViewById(R.id.video_overlay)).isVisible();
+        assertThat((View) view.findViewById(R.id.video_overlay)).isVisible();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.playing());
 
-        assertThat(view.findViewById(R.id.player_play)).isGone();
+        assertThat((View) view.findViewById(R.id.player_play)).isGone();
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.playing());
 
-        assertThat(view.findViewById(R.id.video_overlay)).isGone();
+        assertThat((View) view.findViewById(R.id.video_overlay)).isGone();
     }
 
     @Test
@@ -97,7 +97,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.playing());
 
-        assertThat(view.findViewById(R.id.video_view)).isVisible();
+        assertThat((View) view.findViewById(R.id.video_view)).isVisible();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
         videoView.setPlayState(TestPlayerTransitions.buffering());
 
-        assertThat(view.findViewById(R.id.video_progress)).isVisible();
+        assertThat((View) view.findViewById(R.id.video_progress)).isVisible();
     }
 
     @Test
@@ -113,13 +113,13 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
 
         videoView.setPlayState(TestPlayerTransitions.idle());
-        assertThat(view.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) view.findViewById(R.id.video_progress)).isGone();
 
         videoView.setPlayState(TestPlayerTransitions.playing());
-        assertThat(view.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) view.findViewById(R.id.video_progress)).isGone();
 
         videoView.setPlayState(TestPlayerTransitions.complete());
-        assertThat(view.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) view.findViewById(R.id.video_progress)).isGone();
     }
 
     @Test

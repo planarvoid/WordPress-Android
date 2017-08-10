@@ -31,7 +31,7 @@ import android.util.AttributeSet;
 @Config(packageName = "com.soundcloud.android",
         constants = BuildConfig.class,
         application = ApplicationStub.class,
-        shadows={ShadowSupportMediaRouter.class},
+        shadows = {ShadowSupportMediaRouter.class},
         sdk = 22)
 public abstract class AndroidUnitTest {
 

@@ -86,18 +86,18 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
     public void showErrorSetupsVisibilityForBlockedError() {
         errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
 
-        assertThat(errorLayout.findViewById(R.id.playback_error_blocked)).isVisible();
-        assertThat(errorLayout.findViewById(R.id.playback_error_reason)).isNotVisible();
-        assertThat(errorLayout.findViewById(R.id.playback_error)).isNotVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error_blocked)).isVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error_reason)).isNotVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error)).isNotVisible();
     }
 
     @Test
     public void showErrorSetupsVisibilityForNonBlockedError() {
         errorViewController.showError(ErrorViewController.ErrorState.FAILED);
 
-        assertThat(errorLayout.findViewById(R.id.playback_error_blocked)).isNotVisible();
-        assertThat(errorLayout.findViewById(R.id.playback_error_reason)).isVisible();
-        assertThat(errorLayout.findViewById(R.id.playback_error)).isVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error_blocked)).isNotVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error_reason)).isVisible();
+        assertThat((View) errorLayout.findViewById(R.id.playback_error)).isVisible();
     }
 
     @Test

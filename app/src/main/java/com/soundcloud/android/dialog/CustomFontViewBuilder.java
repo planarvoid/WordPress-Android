@@ -27,7 +27,7 @@ public class CustomFontViewBuilder {
     }
 
     public CustomFontViewBuilder setIcon(@DrawableRes int drawable) {
-        final ImageView image = (ImageView) view.findViewById(R.id.custom_dialog_image);
+        final ImageView image = view.findViewById(R.id.custom_dialog_image);
         image.setImageResource(drawable);
         image.setVisibility(View.VISIBLE);
         return this;

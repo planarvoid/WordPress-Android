@@ -148,7 +148,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     public void conpanionlessTextIsNotVisibleIfCompanionExists() {
         bindSkippableAd();
 
-        assertThat(adView.findViewById(R.id.companionless_ad_text)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.companionless_ad_text)).isNotVisible();
     }
 
     @Test
@@ -157,7 +157,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
         bindCompanionlessAd();
 
-        assertThat(adView.findViewById(R.id.companionless_ad_text)).isVisible();
+        assertThat((View) adView.findViewById(R.id.companionless_ad_text)).isVisible();
     }
 
     @Test
@@ -231,8 +231,8 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
         bindNonClickableAd();
 
-        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isGone();
-        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isVisible();
+        assertThat((View) adView.findViewById(R.id.centered_ad_clickable_overlay)).isGone();
+        assertThat((View) adView.findViewById(R.id.centered_ad_artwork)).isVisible();
         assertFullbleedLayoutInvisible();
     }
 
@@ -242,8 +242,8 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         bindNonClickableAd();
 
         assertCenteredLayoutInvisible();
-        assertThat(adView.findViewById(R.id.cta_button)).isGone();
-        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
+        assertThat((View) adView.findViewById(R.id.cta_button)).isGone();
+        assertThat((View) adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
     }
 
     @Test
@@ -347,7 +347,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
                                TestPlayStates.playing(),
                                true,
                                true);
-        assertThat(adView.findViewById(R.id.play_controls)).isGone();
+        assertThat((View) adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
@@ -356,7 +356,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
                                TestPlayStates.buffering(),
                                true,
                                true);
-        assertThat(adView.findViewById(R.id.play_controls)).isGone();
+        assertThat((View) adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
@@ -365,7 +365,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
                                TestPlayStates.idle(),
                                true,
                                true);
-        assertThat(adView.findViewById(R.id.play_controls)).isVisible();
+        assertThat((View) adView.findViewById(R.id.play_controls)).isVisible();
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
@@ -385,23 +385,23 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     }
 
     private void assertFullbleedLayoutVisible() {
-        assertThat(adView.findViewById(R.id.cta_button)).isVisible();
-        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
+        assertThat((View) adView.findViewById(R.id.cta_button)).isVisible();
+        assertThat((View) adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
     }
 
     private void assertFullbleedLayoutInvisible() {
-        assertThat(adView.findViewById(R.id.cta_button)).isInvisible();
-        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isInvisible();
+        assertThat((View) adView.findViewById(R.id.cta_button)).isInvisible();
+        assertThat((View) adView.findViewById(R.id.fullbleed_ad_artwork)).isInvisible();
     }
 
     private void assertCenteredLayoutVisible() {
-        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isVisible();
-        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isVisible();
+        assertThat((View) adView.findViewById(R.id.centered_ad_clickable_overlay)).isVisible();
+        assertThat((View) adView.findViewById(R.id.centered_ad_artwork)).isVisible();
     }
 
     private void assertCenteredLayoutInvisible() {
-        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isInvisible();
-        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isInvisible();
+        assertThat((View) adView.findViewById(R.id.centered_ad_clickable_overlay)).isInvisible();
+        assertThat((View) adView.findViewById(R.id.centered_ad_artwork)).isInvisible();
     }
 
     private Bitmap buildBitmap(int width, int height) {

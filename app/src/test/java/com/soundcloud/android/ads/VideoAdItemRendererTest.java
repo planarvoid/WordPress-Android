@@ -174,7 +174,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     public void videoViewInvisibleAfterBind() {
         renderer.bindItemView(0, adView, ITEMS);
 
-        assertThat(adView.findViewById(R.id.video_view)).isInvisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isInvisible();
     }
 
     @Test
@@ -183,7 +183,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
 
-        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isVisible();
     }
 
     @Test
@@ -201,7 +201,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
 
-        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        final IconToggleButton view = adView.findViewById(R.id.video_volume_control);
         assertThat(view.isChecked()).isTrue();
     }
 
@@ -211,7 +211,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), true);
 
-        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        final IconToggleButton view = adView.findViewById(R.id.video_volume_control);
         assertThat(view.isChecked()).isFalse();
     }
 
@@ -221,8 +221,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.complete(), false);
 
-        assertThat(adView.findViewById(R.id.video_volume_control)).isGone();
-        assertThat(adView.findViewById(R.id.video_fullscreen_control)).isGone();
+        assertThat((View) adView.findViewById(R.id.video_volume_control)).isGone();
+        assertThat((View) adView.findViewById(R.id.video_fullscreen_control)).isGone();
     }
 
     @Test
@@ -231,7 +231,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
 
-        assertThat(adView.findViewById(R.id.player_play)).isVisible();
+        assertThat((View) adView.findViewById(R.id.player_play)).isVisible();
     }
 
     @Test
@@ -240,7 +240,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
 
-        assertThat(adView.findViewById(R.id.player_play)).isGone();
+        assertThat((View) adView.findViewById(R.id.player_play)).isGone();
     }
 
     @Test
@@ -249,7 +249,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.complete(), false);
 
-        assertThat(adView.findViewById(R.id.player_play)).isVisible();
+        assertThat((View) adView.findViewById(R.id.player_play)).isVisible();
     }
 
     @Test
@@ -258,7 +258,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.buffering(), false);
 
-        assertThat(adView.findViewById(R.id.player_play)).isGone();
+        assertThat((View) adView.findViewById(R.id.player_play)).isGone();
     }
 
     @Test
@@ -267,7 +267,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.buffering(), false);
 
-        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isVisible();
     }
 
     @Test
@@ -275,9 +275,9 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, adView, ITEMS);
 
         renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
-        assertThat(adView.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isGone();
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
-        assertThat(adView.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isGone();
     }
 
     @Test
@@ -287,18 +287,18 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.bindItemView(0, adView, ITEMS);
 
-        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        final IconToggleButton view = adView.findViewById(R.id.video_volume_control);
         assertThat(view.isChecked()).isTrue();
-        assertThat(adView.findViewById(R.id.video_progress)).isGone();
-        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat((View) adView.findViewById(R.id.video_progress)).isGone();
+        assertThat((View) adView.findViewById(R.id.video_view)).isVisible();
     }
 
     @Test
     public void doesntSetPlayStateOnBindIfPreviousStateForAdDoesNotExist() {
         renderer.bindItemView(0, adView, ITEMS);
 
-        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        final IconToggleButton view = adView.findViewById(R.id.video_volume_control);
         assertThat(view.isChecked()).isFalse();
-        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat((View) adView.findViewById(R.id.video_view)).isNotVisible();
     }
 }

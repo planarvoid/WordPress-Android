@@ -36,6 +36,7 @@ import rx.subjects.PublishSubject;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.view.View;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -271,7 +272,7 @@ public class SharePresenterTest extends AndroidUnitTest {
     private void assertShareDialogShowing() {
         assertThat(ShadowDialog.getLatestDialog()).isNotNull();
         assertThat(ShadowDialog.getLatestDialog().isShowing()).isTrue();
-        assertThat(ShadowDialog.getLatestDialog().findViewById(R.id.share_dialog_progress)).isNotNull();
+        assertThat((View) ShadowDialog.getLatestDialog().findViewById(R.id.share_dialog_progress)).isNotNull();
     }
 
     private void assertShareDialogNotShowing() {
@@ -279,7 +280,7 @@ public class SharePresenterTest extends AndroidUnitTest {
         if (latestDialog == null) {
             return;
         }
-        assertThat(latestDialog.findViewById(R.id.share_dialog_progress)).isNotNull();
+        assertThat((View) latestDialog.findViewById(R.id.share_dialog_progress)).isNotNull();
         assertThat(latestDialog.isShowing()).isFalse();
     }
 }

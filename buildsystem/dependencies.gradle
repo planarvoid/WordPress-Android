@@ -1,12 +1,12 @@
 ext {
-  androidBuildToolsVersion = '25.0.2'
-  androidCompileSdkVersion = 25
+  androidBuildToolsVersion = '26.0.1'
+  androidCompileSdkVersion = 26
   androidMinSdkVersion = 16
   androidTargetSdkVersion = 25
 
   // Dependency versions
   androidMultiDex = "1.0.2"
-  androidSupportVersion = '25.4.0'
+  androidSupportVersion = '26.0.1'
   lintVersion = '25.3.3'
   googleServicesVersion = '11.0.4'
   lightCycleVersion = '1.6.1'
