@@ -53,14 +53,9 @@ class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private va
         Observable.combineLatest(sequenceStarters.switchMap { this.createSequenceState(it) },
                 refreshStateSubject,
                 BiFunction<AsyncLoaderState<PageData>, RefreshState, AsyncLoaderState<PageData>> { pageDataAsyncLoaderState, refreshState -> this.updateWithRefresh(pageDataAsyncLoaderState, refreshState) })
-                .doOnDispose(this::cleanup)
+                .doOnDispose { compositeDisposable.clear() }
                 .subscribe(observer)
     }
-
-    private fun cleanup() {
-        compositeDisposable.dispose()
-    }
-
 
     private fun refreshes(): Observable<Observable<PageState>> {
         return refreshRequested
@@ -69,11 +64,11 @@ class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private va
                 }
                 .flatMap { refreshObservable ->
                     Observable.create<Observable<PageState>> { e ->
-                        refreshObservable.take(1)
+                        compositeDisposable.add(refreshObservable.take(1)
                                 .doOnSubscribe { refreshStateSubject.onNext(RefreshState(true)) }
                                 .doOnError { throwable -> refreshStateSubject.onNext(RefreshState(false, Optional.of(throwable))) }
                                 .doOnNext { p -> refreshStateSubject.onNext(RefreshState(false)) }
-                                .subscribe { e.onNext(refreshObservable.lift(doOnFirst(this::keepNextPageObservable)).map { loadedPageState(it) }) }
+                                .subscribe { e.onNext(refreshObservable.lift(doOnFirst(this::keepNextPageObservable)).map { loadedPageState(it) }) })
                     }
                 }
     }

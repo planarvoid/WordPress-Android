@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.utils.collection.AsyncLoader;
 import com.soundcloud.android.utils.collection.AsyncLoaderState;
+import com.soundcloud.android.view.BasePresenter;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
@@ -25,7 +26,7 @@ import io.reactivex.observables.ConnectableObservable;
 
 import javax.inject.Inject;
 
-public class TopResultsPresenter {
+public class TopResultsPresenter extends BasePresenter {
 
     private static final Screen SCREEN = Screen.SEARCH_EVERYTHING;
 
@@ -81,25 +82,21 @@ public class TopResultsPresenter {
     void attachView(TopResultsView topResultsView) {
         ConnectableObservable<SearchParams> sharedSearchIntent = topResultsView.searchIntent().map(UiAction.Search::searchParams).publish();
         viewSubscription.add(sharedSearchIntent.take(1).subscribe(this::trackFirstSearch));
-        Observable<AsyncLoaderState<TopResultsViewModel>> stateWithViewModel = AsyncLoader.Companion.startWith(sharedSearchIntent.autoConnect(), this::search)
+        ConnectableObservable<AsyncLoaderState<TopResultsViewModel>> stateWithViewModel = AsyncLoader.Companion.startWith(sharedSearchIntent.autoConnect(), this::search)
                                                                                                     .withRefresh(refreshIntent(topResultsView), this::search)
                                                                                                     .build()
-                                                                                                    .publish()
-                                                                                                    .autoConnect()
-                                                                                                    .observeOn(AndroidSchedulers.mainThread());
-
-
+                                                                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                                                                    .publish();
 
         //View model subscription
         viewSubscription.add(stateWithViewModel.subscribe(topResultsView));
-
-
         Observable<TopResultsViewModel> viewModel = stateWithViewModel.filter(item -> item.data().isPresent()).map(item -> item.data().get());
-
 
         //Handling enter screen event and tracking of page view, emits only when new enter screen event is emitted
         viewSubscription.add(Observable.combineLatest(topResultsView.enterScreen(), viewModel, (action, model) -> Pair.of(action, model.queryUrn()))
                                        .subscribe(this::trackPageView));
+
+        viewSubscription.add(stateWithViewModel.connect());
 
         //Handling clicks
         viewSubscription.addAll(topResultsView.trackClick()

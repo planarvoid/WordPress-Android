@@ -21,10 +21,13 @@ import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.collection.AsyncLoaderState;
+import com.soundcloud.android.view.BaseFragment;
+import com.soundcloud.android.view.BasePresenter;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import dagger.Lazy;
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.subjects.BehaviorSubject;
@@ -32,7 +35,6 @@ import io.reactivex.subjects.PublishSubject;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,7 +43,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class TopResultsFragment extends Fragment implements TopResultsPresenter.TopResultsView {
+public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implements TopResultsPresenter.TopResultsView {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
@@ -49,7 +51,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     private static final String KEY_QUERY_URN = "queryUrn";
     private static final String KEY_QUERY_POSITION = "queryPosition";
 
-    @Inject TopResultsPresenter presenter;
+    @Inject Lazy<TopResultsPresenter> presenterLazy;
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
@@ -86,8 +88,8 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     public TopResultsFragment() {
+        super();
         SoundCloudApplication.getObjectGraph().inject(this);
-        setRetainInstance(true);
     }
 
     @Override
@@ -128,9 +130,23 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public void onDestroy() {
-        presenter.detachView();
         super.onDestroy();
         leakCanaryWrapper.watch(this);
+    }
+
+    @Override
+    protected void disconnectPresenter(TopResultsPresenter presenter) {
+        presenter.detachView();
+    }
+
+    @Override
+    protected void connectPresenter(TopResultsPresenter presenter) {
+        presenter.attachView(this);
+    }
+
+    @Override
+    protected TopResultsPresenter createPresenter() {
+        return presenterLazy.get();
     }
 
     @Override
@@ -211,9 +227,8 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         collectionRenderer.attach(view, false, new LinearLayoutManager(view.getContext()));
-        presenter.attachView(this);
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
