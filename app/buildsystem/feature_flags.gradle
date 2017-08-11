@@ -76,7 +76,6 @@ android {
     alpha {
       buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
