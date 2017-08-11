@@ -2,7 +2,6 @@ package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
-import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
@@ -21,7 +20,6 @@ import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
@@ -32,7 +30,6 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
@@ -129,7 +126,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     @Override
     protected CollectionBinding<List<PlayHistoryItem>, PlayHistoryItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.fromV2(playHistoryOperations.playHistory()
-                                                           .map(toPlayHistoryItem()))
+                                                             .map(toPlayHistoryItem()))
                                 .withAdapter(adapter)
                                 .addObserver(onNext(items -> endMeasuringListeningHistoryLoad(Iterables.size(items))))
                                 .build();
@@ -185,15 +182,9 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     }
 
     private Disposable subscribeToOfflineContent() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeWith(new OfflinePropertiesObserver());
-        } else {
-            return eventBus.queue(OFFLINE_CONTENT_CHANGED)
-                           .observeOn(AndroidSchedulers.mainThread())
-                           .subscribeWith(new CurrentDownloadObserver());
-        }
+        return offlinePropertiesProvider.states()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new OfflinePropertiesObserver());
     }
 
     @Override
@@ -249,7 +240,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         }
     }
 
-    class OfflinePropertiesObserver extends UpdateObserver<OfflineProperties> {
+    private class OfflinePropertiesObserver extends UpdateObserver<OfflineProperties> {
 
         @Override
         TrackItem getUpdatedTrackItem(OfflineProperties properties, TrackItem trackItem) {
@@ -265,15 +256,4 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         }
     }
 
-    private class CurrentDownloadObserver extends UpdateObserver<OfflineContentChangedEvent> {
-        @Override
-        TrackItem getUpdatedTrackItem(OfflineContentChangedEvent event, TrackItem trackItem) {
-            return trackItem.updatedWithOfflineState(event.state);
-        }
-
-        @Override
-        boolean containsTrackUrn(OfflineContentChangedEvent event, Urn urn) {
-            return event.entities.contains(urn);
-        }
-    }
 }

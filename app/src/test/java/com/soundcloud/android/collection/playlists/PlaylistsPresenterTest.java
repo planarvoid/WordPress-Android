@@ -23,6 +23,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -92,6 +93,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
                 performanceMetricsEngine);
 
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Maybe.just(PLAYLISTS));
+        when(offlinePropertiesProvider.states()).thenReturn(PublishSubject.create());
     }
 
     @Test

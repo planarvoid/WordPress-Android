@@ -11,6 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -19,6 +22,7 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
+import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -54,6 +58,11 @@ public class PlaylistOperationsTest {
     @Mock private RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     @Mock private EditPlaylistCommand editPlaylistCommand;
     @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private ProfileApiMobile profileApiMobile;
+    @Mock private PlaylistUpsellOperations upsellOperations;
+    @Mock private MyPlaylistsOperations myPlaylistsOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private FeatureOperations featureOperations;
 
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;

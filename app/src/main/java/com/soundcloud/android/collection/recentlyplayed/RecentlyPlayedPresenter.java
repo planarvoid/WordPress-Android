@@ -13,14 +13,11 @@ import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.feedback.Feedback;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
@@ -54,7 +51,6 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     private final Resources resources;
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
-    private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private Fragment fragment;
     private FeedbackController feedbackController;
@@ -62,15 +58,14 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public RecentlyPlayedPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                                   RecentlyPlayedAdapterFactory adapterFactory,
-                                   Resources resources,
-                                   RecentlyPlayedOperations recentlyPlayedOperations,
-                                   FeedbackController feedbackController,
-                                   EventBus eventBus,
-                                   OfflinePropertiesProvider offlinePropertiesProvider,
-                                   FeatureFlags featureFlags,
-                                   PerformanceMetricsEngine performanceMetricsEngine) {
+    RecentlyPlayedPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                            RecentlyPlayedAdapterFactory adapterFactory,
+                            Resources resources,
+                            RecentlyPlayedOperations recentlyPlayedOperations,
+                            FeedbackController feedbackController,
+                            EventBus eventBus,
+                            OfflinePropertiesProvider offlinePropertiesProvider,
+                            PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, new Options.Builder().useDividers(Options.DividerMode.NONE).build());
         this.adapter = adapterFactory.create(false, this);
         this.resources = resources;
@@ -78,7 +73,6 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         this.feedbackController = feedbackController;
         this.eventBus = eventBus;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
-        this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -124,7 +118,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     @Override
     protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onRefreshBinding() {
         return CollectionBinding.fromV2(recentlyPlayedOperations.refreshRecentlyPlayed()
-                                                              .map(augmentRecentlyPlayedItems()))
+                                                                .map(augmentRecentlyPlayedItems()))
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -153,13 +147,9 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     }
 
     private void subscribeToOfflineContent() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            subscription = RxJava.toV1Observable(offlinePropertiesProvider.states())
-                                 .observeOn(AndroidSchedulers.mainThread())
-                                 .subscribe(new OfflineContentSubscriber(adapter));
-        } else {
-            subscription = eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new CurrentDownloadSubscriber(adapter));
-        }
+        subscription = RxJava.toV1Observable(offlinePropertiesProvider.states())
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribe(new OfflineContentSubscriber(adapter));
     }
 
     private void setupRecyclerView(View view) {
@@ -236,19 +226,6 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
             adapter.clear();
             retryWith(onBuildBinding(null));
             eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
-        }
-    }
-
-    private static class CurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
-        private final RecentlyPlayedAdapter adapter;
-
-        CurrentDownloadSubscriber(RecentlyPlayedAdapter adapter) {
-            this.adapter = adapter;
-        }
-
-        @Override
-        public void onNext(OfflineContentChangedEvent event) {
-            adapter.updateOfflineState(event);
         }
     }
 

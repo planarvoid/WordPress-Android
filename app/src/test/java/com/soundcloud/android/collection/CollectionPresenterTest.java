@@ -121,6 +121,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             featureFlags,
                                             performanceMetricEngine,
                                             goOnboardingTooltipExperiment);
+
+        when(offlinePropertiesProvider.states()).thenReturn(PublishSubject.create());
     }
 
     @Test

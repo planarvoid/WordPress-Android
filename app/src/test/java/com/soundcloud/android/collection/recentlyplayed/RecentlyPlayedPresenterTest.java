@@ -72,7 +72,6 @@ public class RecentlyPlayedPresenterTest extends AndroidUnitTest {
                                                               feedbackController,
                                                               eventBus,
                                                               offlinePropertiesProvider,
-                                                              featureFlags,
                                                               performanceMetricsEngine);
     }
 

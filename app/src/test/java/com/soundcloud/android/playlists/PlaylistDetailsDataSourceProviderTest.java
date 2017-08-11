@@ -19,7 +19,6 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
-import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
@@ -56,7 +55,6 @@ public class PlaylistDetailsDataSourceProviderTest {
 
     @Mock private PlaylistRepository playlistRepository;
     @Mock private TrackRepository trackRepository;
-    @Mock private OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     @Mock private AccountOperations accountOperations;
     @Mock private MyPlaylistsOperations myPlaylistOperations;
     @Mock private ProfileApiMobile profileApiMobile;
@@ -122,13 +120,10 @@ public class PlaylistDetailsDataSourceProviderTest {
         when(myPlaylistOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build())).thenReturn(myOtherPlaylists);
         when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(syncResultSubject);
 
-        when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
-
         dataSourceProvider = new DataSourceProvider(
                 playlistRepository,
                 trackRepository,
                 eventBus,
-                otherPlaylistsByUserConfig,
                 accountOperations,
                 myPlaylistOperations,
                 profileApiMobile,
@@ -213,12 +208,10 @@ public class PlaylistDetailsDataSourceProviderTest {
         when(profileApiMobile.userAlbums(album.creatorUrn())).thenReturn(otherUserOtherPlaylists);
         when(trackRepository.forPlaylist(album.urn(), STALE_TIME_MILLIS)).thenReturn(tracklistSubject);
 
-
         dataSourceProvider = new DataSourceProvider(
                 playlistRepository,
                 trackRepository,
                 eventBus,
-                otherPlaylistsByUserConfig,
                 accountOperations,
                 myPlaylistOperations,
                 profileApiMobile,
@@ -306,20 +299,6 @@ public class PlaylistDetailsDataSourceProviderTest {
                 // Initial "Eager" Emission
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build(),
                 // Error Emission
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build()
-        );
-    }
-
-    @Test
-    public void emitsInitialPlaylistMetadataThenTracksWhenOtherPlaylistsByUserIsDisabled() throws Exception {
-        when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(false);
-        TestObserver<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
-
-        tracklistSubject.onSuccess(trackItems);
-
-        test.assertValues(
-                PlaylistWithExtrasState.initialState(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build()
         );
     }

@@ -81,31 +81,27 @@ public class AdsOperations {
         final String endpoint = ApiEndpoints.INLAY_ADS.path();
         final ApiRequest request = buildApiRequest(endpoint, requestData);
         return apiClientRx.mappedResponse(request, ApiAdsForStream.class)
-                .subscribeOn(scheduler)
-                .doOnError(onRequestFailure(requestData, endpoint, false, true))
-                .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
-                .map(adsForStream -> adsForStream.getAds(dateProvider));
+                          .subscribeOn(scheduler)
+                          .doOnError(onRequestFailure(requestData, endpoint, false, true))
+                          .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
+                          .map(adsForStream -> adsForStream.getAds(dateProvider));
     }
 
     public Observable<AdData> prestitialAd(AdRequestData requestData) {
-        if (featureFlags.isEnabled(Flag.PRESTITIAL)) {
-            final String endpoint = ApiEndpoints.PRESTITIALS.path();
-            return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiPrestitialAd.class)
-                              .subscribeOn(scheduler)
-                              .doOnError(onRequestFailure(requestData, endpoint, false, true))
-                              .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
-                              .flatMap(apiPrestitial -> {
-                                  final Optional<AdData> adData = apiPrestitial.toAdData();
-                                  return adData.isPresent() ? Observable.just(adData.get()) : Observable.empty();
-                              });
-        } else {
-            return Observable.empty();
-        }
+        final String endpoint = ApiEndpoints.PRESTITIALS.path();
+        return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiPrestitialAd.class)
+                          .subscribeOn(scheduler)
+                          .doOnError(onRequestFailure(requestData, endpoint, false, true))
+                          .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
+                          .flatMap(apiPrestitial -> {
+                              final Optional<AdData> adData = apiPrestitial.toAdData();
+                              return adData.isPresent() ? Observable.just(adData.get()) : Observable.empty();
+                          });
     }
 
     private ApiRequest buildApiRequest(String endpoint, AdRequestData requestData) {
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
-                .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.getRequestId());
+                                                     .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.getRequestId());
 
         if (requestData.getKruxSegments().isPresent()) {
             request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.getKruxSegments().get());

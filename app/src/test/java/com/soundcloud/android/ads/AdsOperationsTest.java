@@ -12,7 +12,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
@@ -29,7 +28,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -511,20 +509,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void prestitialAdReturnsEmptyObservableIfFeatureFlagIsOff() {
-        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(false);
-        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
-
-        final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
-        adsOperations.prestitialAd(requestData).subscribe(subscriber);
-
-        verifyZeroInteractions(apiClientRx);
-        subscriber.assertNoValues();
-    }
-
-    @Test
-    public void prestitialAdMakesRequestAndReturnsDisplayPrestitialWhenFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
+    public void prestitialAdMakesRequestAndReturnsDisplayPrestitial() {
         final ApiPrestitialAd prestitial = apiVisualPrestitialAd();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                         .thenReturn(Observable.just(prestitial));
@@ -540,8 +525,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void prestitialAdMakesRequestAndReturnsSponsoredSessionWhenFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
+    public void prestitialAdMakesRequestAndReturnsSponsoredSession() {
         final ApiPrestitialAd prestitial = AdFixtures.apiSponsoredSessionAd();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                 .thenReturn(Observable.just(prestitial));
@@ -557,8 +541,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void prestitialAdMakesRequestAndReturnsNothingWhenNonSupportedAdDataAndFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
+    public void prestitialAdMakesRequestAndReturnsNothingWhenNonSupportedAdData() {
         final ApiPrestitialAd prestitial = new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiAudioAd())));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                 .thenReturn(Observable.just(prestitial));

@@ -12,7 +12,6 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
-import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -46,7 +45,6 @@ class DataSourceProvider {
     private final PlaylistRepository playlistRepository;
     private final TrackRepository trackRepository;
     private final EventBusV2 eventBus;
-    private final OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     private final AccountOperations accountOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final ProfileApiMobile profileApiMobile;
@@ -57,7 +55,6 @@ class DataSourceProvider {
     DataSourceProvider(PlaylistRepository playlistRepository,
                        TrackRepository trackRepository,
                        EventBusV2 eventBus,
-                       OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
                        AccountOperations accountOperations,
                        MyPlaylistsOperations myPlaylistsOperations,
                        ProfileApiMobile profileApiMobile,
@@ -65,7 +62,6 @@ class DataSourceProvider {
         this.playlistRepository = playlistRepository;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
-        this.otherPlaylistsByUserConfig = otherPlaylistsByUserConfig;
         this.accountOperations = accountOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.profileApiMobile = profileApiMobile;
@@ -119,9 +115,7 @@ class DataSourceProvider {
     }
 
     private Observable<List<Playlist>> otherPlaylistsByUser(Playlist playlist) {
-        if (!otherPlaylistsByUserConfig.isEnabled()) {
-            return just(Collections.emptyList());
-        } else if (isOwner(playlist)) {
+        if (isOwner(playlist)) {
             return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()).toObservable()
                          .map(playlistsWithExclusion(playlist));
         } else {

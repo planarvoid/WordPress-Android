@@ -231,15 +231,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     }
 
     private Disposable subscribeToOfflineContent() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeWith(new OfflinePropertiesObserver<>(adapter));
-        } else {
-            return eventBus.queue(OFFLINE_CONTENT_CHANGED)
-                           .observeOn(AndroidSchedulers.mainThread())
-                           .subscribeWith(new UpdateCurrentDownloadObserver(adapter));
-        }
+        return offlinePropertiesProvider.states()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new OfflinePropertiesObserver<>(adapter));
     }
 
     @Override

@@ -21,7 +21,6 @@ import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
@@ -34,7 +33,6 @@ import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -306,13 +304,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private Disposable subscribeToOfflineContent() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeWith(new OfflinePropertiesObserver());
-        } else {
-            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdatePlaylistsDownloadObserver());
-        }
+        return offlinePropertiesProvider.states()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new OfflinePropertiesObserver());
     }
 
     private void updateFromPlaylistChange(PlaylistChangedEvent event) {
@@ -339,21 +333,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         public void accept(List<PlaylistCollectionItem> ignored) {
             adapter.clear();
             subscribeForUpdates();
-        }
-    }
-
-    private class UpdatePlaylistsDownloadObserver extends DefaultObserver<OfflineContentChangedEvent> {
-        @Override
-        public void onNext(final OfflineContentChangedEvent event) {
-            for (int position = 0; position < adapter.getItems().size(); position++) {
-                PlaylistCollectionItem item = adapter.getItem(position);
-                if (item.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && event.entities.contains(item.getUrn())) {
-                    final PlaylistCollectionPlaylistItem playlistItem = (PlaylistCollectionPlaylistItem) item;
-                    if (position < adapter.getItems().size()) {
-                        adapter.setItem(position, playlistItem.updatedWithOfflineState(event.state));
-                    }
-                }
-            }
         }
     }
 

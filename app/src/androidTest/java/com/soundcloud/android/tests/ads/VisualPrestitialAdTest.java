@@ -8,8 +8,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.VisualPrestitialScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -32,17 +30,6 @@ public class VisualPrestitialAdTest extends ActivityTest<LauncherActivity> {
     public void setUp() throws Exception {
         super.setUp();
         prestitialScreen = new VisualPrestitialScreen(solo);
-    }
-
-    @Override
-    protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).enable(Flag.PRESTITIAL);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).reset(Flag.PRESTITIAL);
-        super.tearDown();
     }
 
     public void testAdLoadsAndIsDismissed() throws Exception {

@@ -93,7 +93,6 @@ class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, Co
     private final FeatureOperations featureOperations;
     private final NavigationExecutor navigationExecutor;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
-    private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
@@ -128,7 +127,6 @@ class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, Co
         this.featureOperations = featureOperations;
         this.navigationExecutor = navigationExecutor;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
-        this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
 
@@ -280,13 +278,9 @@ class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, Co
     }
 
     private Disposable subscribeToOfflineContent() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeWith(new OfflinePropertiesSubscriber(adapter));
-        } else {
-            return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter));
-        }
+        return offlinePropertiesProvider.states()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new OfflinePropertiesSubscriber(adapter));
     }
 
     private List<CollectionItem> collectionWithOnboarding(List<CollectionItem> collectionItems) {
@@ -344,7 +338,7 @@ class CollectionPresenter extends RecyclerViewPresenter<List<CollectionItem>, Co
 
         private final CollectionAdapter adapter;
 
-        public OfflinePropertiesSubscriber(CollectionAdapter adapter) {
+        OfflinePropertiesSubscriber(CollectionAdapter adapter) {
             this.adapter = adapter;
         }
 

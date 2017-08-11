@@ -1,6 +1,5 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -25,7 +24,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.TrackLikesPresenter.DataSource;
 import com.soundcloud.android.likes.TrackLikesPresenter.TrackLikesPage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
@@ -35,7 +33,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -188,28 +185,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
-        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(false);
-
-        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final OfflineContentChangedEvent downloadingEvent = downloading(singletonList(track.getUrn()), true);
-
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        reset(adapter);
-
-        final List<TrackLikesItem> trackLikesTrackItems = new ArrayList<>();
-        trackLikesTrackItems.add(TrackLikesTrackItem.create(ModelFixtures.trackItem(track)));
-
-        when(adapter.getItems()).thenReturn(trackLikesTrackItems);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
-
-        verify(adapter).notifyItemChanged(0);
-    }
-
-    @Test
-    public void shouldUpdateAdapterWhenLikedTrackDownloadedWhenOfflinePropertiesProviderIsEnabled() {
-        when(featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)).thenReturn(true);
-
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         presenter.onCreate(fragmentRule.getFragment(), null);

@@ -125,19 +125,12 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private void setupSubscription() {
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            disposables.add(offlinePropertiesProvider.states()
-                                                     .observeOn(AndroidSchedulers.mainThread())
-                                                     .subscribeWith(new CurrentDownloadObserver()));
-        } else {
-            disposables.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                     .filter(event -> event.state == OfflineState.DOWNLOADED)
-                                     .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribeWith(new CurrentDownloadObserver()));
-        }
+        disposables.add(offlinePropertiesProvider.states()
+                                                 .observeOn(AndroidSchedulers.mainThread())
+                                                 .subscribeWith(new CurrentDownloadObserver()));
 
         disposables.add(offlineSettings.getOfflineContentLocationChange()
-                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
                                        .subscribeWith(new ChangeStorageLocationSubscriber()));
     }
 
