@@ -57,7 +57,7 @@ android {
   buildTypes {
     debug {
       buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
@@ -97,7 +97,7 @@ android {
     beta {
       buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
