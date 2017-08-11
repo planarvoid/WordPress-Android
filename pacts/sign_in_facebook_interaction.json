@@ -75,7 +75,7 @@
           ],
           "plan": {
             "id": "none",
-            "manageable": true,
+            "manageable": true
           },
           "device_management": {
             "authorized": true,
