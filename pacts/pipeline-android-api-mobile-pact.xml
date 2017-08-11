@@ -1,11 +1,7 @@
 
 <pipeline name="android-api-mobile-pact">
   <materials>
-    <git dest="android-listeners" invertFilter="true" materialName="android-listeners" shallowClone="true" url="git@github.com:soundcloud/android-listeners.git">
-      <filter>
-        <ignore pattern="pacts" />
-      </filter>
-    </git>
+    <git dest="android-listeners" materialName="android-listeners" shallowClone="true" url="git@github.com:soundcloud/android-listeners.git" />
     <git dest="api-mobile" invertFilter="true" materialName="api-mobile" shallowClone="true" url="git@github.com:soundcloud/api-mobile.git">
       <filter>
         <ignore pattern="pacts" />
@@ -54,4 +50,4 @@
     </jobs>
   </stage>
 </pipeline>
-  
+
