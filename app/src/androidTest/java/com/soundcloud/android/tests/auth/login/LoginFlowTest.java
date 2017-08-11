@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.screens.HomeScreen;
@@ -17,6 +18,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.screens.auth.TermsOfUseScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
+import org.junit.Ignore;
 
 /*
  * As a User
@@ -38,6 +40,7 @@ public class LoginFlowTest extends LoginTest {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow() {
+        addMockedResponse(ApiEndpoints.SIGN_IN.path(), "sign-in-success.json");
         final StreamScreen streamScreen = homeScreen
                 .clickLogInButton()
                 .loginDefault(defaultUser.getEmail(), defaultUser.getPassword());
@@ -50,6 +53,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
+    @Ignore
     @GoogleAccountTest
     public void testGPlusLoginFlow() {
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
@@ -64,16 +68,12 @@ public class LoginFlowTest extends LoginTest {
         assertThat(streamScreen, visible());
     }
 
-    private void assertTermsOfUseDisplayed(TermsOfUseScreen termsOfUseScreen) {
-        assertThat(termsOfUseScreen, is(visible()));
-        assertEquals(termsOfUseScreen.getTitle(), solo.getString(R.string.auth_disclaimer_title));
-        assertEquals(termsOfUseScreen.getDisclaimer(), solo.getString(R.string.auth_disclaimer_message));
-    }
 
     /*
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
+    @Ignore
     @GoogleAccountTest
     public void testNoGooglePlusAccountLogin() {
         final TermsOfUseScreen termsOfUseScreen = homeScreen
@@ -93,6 +93,8 @@ public class LoginFlowTest extends LoginTest {
     * So that I don't need to create another account
     */
     public void testLoginWithFacebookWebFlow() {
+        addMockedResponse(ApiEndpoints.SIGN_IN.path(), 200, "sign-in-facebook.json");
+
         final TermsOfUseScreen termsOfUseScreen = homeScreen
                 .clickLogInButton()
                 .clickOnFBSignInButton();
@@ -114,6 +116,8 @@ public class LoginFlowTest extends LoginTest {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
+        addMockedResponse(ApiEndpoints.SIGN_IN.path(), 400, "sign-in-wrong-password.json");
+
         LoginErrorScreen loginErrorScreen = homeScreen
                 .clickLogInButton()
                 .failToLoginAs(defaultUser.getEmail(), "wrong-password");
@@ -132,6 +136,8 @@ public class LoginFlowTest extends LoginTest {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout() {
+        addMockedResponse(ApiEndpoints.SIGN_IN.path(), "sign-in-success.json");
+
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginDefault(scAccount.getEmail(), scAccount.getPassword());
 
@@ -139,23 +145,9 @@ public class LoginFlowTest extends LoginTest {
                                 .clickLogoutAndConfirm(), is(visible()));
     }
 
-    /*
-    * As a User
-    * I want to be notified if I accidentally tap OK button while recovering my password
-    * So that I know what went wrong
-    */
-    public void testRecoverPasswordNoInput() {
-        homeScreen
-                .clickLogInButton()
-                .clickForgotPassword()
-                .clickOkButton();
-
-        String message = solo.getString(R.string.authentication_error_incomplete_fields);
-        assertTrue(waiter.expectToastWithText(toastObserver, message));
-    }
-
-    @Override
-    protected void observeToastsHelper() {
-        toastObserver.observe();
+    private void assertTermsOfUseDisplayed(TermsOfUseScreen termsOfUseScreen) {
+        assertThat(termsOfUseScreen, is(visible()));
+        assertEquals(termsOfUseScreen.getTitle(), solo.getString(R.string.auth_disclaimer_title));
+        assertEquals(termsOfUseScreen.getDisclaimer(), solo.getString(R.string.auth_disclaimer_message));
     }
 }

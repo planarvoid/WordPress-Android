@@ -1,0 +1,163 @@
+{
+  "description": "sign in successful with username and password",
+  "request": {
+    "method": "POST",
+    "path": "/sign_in",
+    "query": "client_id=dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf",
+    "headers": {
+      "X-Real-IP": "1.2.3.4",
+      "Device-Locale": "en"
+    },
+    "body": {
+      "auth_method": "password",
+      "client_id": "dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf",
+      "client_secret": "aBK1xbehZvrBw0dtVYNY3BuJJOuDFrYs",
+      "create_if_not_found": true,
+      "credentials": {
+        "identifier": "jan+android-testing@soundcloud.com",
+        "password": "android-testing"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "token": {
+        "access_token": "1-276024-18173653-d1a1cffa738f57"
+      },
+      "me": {
+        "user": {
+          "urn": "soundcloud:users:18173653",
+          "permalink": "android-testing",
+          "username": "android-testing",
+          "first_name": "Android",
+          "last_name": "Testing",
+          "avatar_url": "http://a1.sndcdn.com/images/default_avatar_large.png?1502283789",
+          "city": "Testville",
+          "country": "United States",
+          "country_code": "US",
+          "tracks_count": 11181,
+          "followers_count": 346,
+          "followings_count": 36,
+          "verified": false,
+          "is_pro": false,
+          "station_urns": [
+            "soundcloud:artist-stations:18173653"
+          ],
+          "created_at": "2012/06/06 12:21:08 +0000"
+        },
+        "configuration": {
+          "features": [
+            {
+              "name": "offline_sync",
+              "enabled": true,
+              "plans": [
+                "mid_tier",
+                "high_tier"
+              ]
+            },
+            {
+              "name": "no_audio_ads",
+              "enabled": true,
+              "plans": [
+                "mid_tier",
+                "high_tier"
+              ]
+            },
+            {
+              "name": "development_menu",
+              "enabled": true,
+              "plans": []
+            },
+            {
+              "name": "ads_krux",
+              "enabled": false,
+              "plans": []
+            },
+            {
+              "name": "new_home",
+              "enabled": true,
+              "plans": []
+            }
+          ],
+          "plan": {
+            "id": "high_tier",
+            "manageable": true,
+            "vendor": "sonar"
+          },
+          "device_management": {
+            "authorized": true,
+            "recoverable": false
+          },
+          "image_size_specs": [
+            "t2480x520",
+            "t1240x260",
+            "t500x500",
+            "t500x",
+            "t300x300",
+            "t250x250",
+            "tx250",
+            "t240x240",
+            "t200x200",
+            "t120x120",
+            "t80x80",
+            "t67x67",
+            "t60x60",
+            "t50x50",
+            "t47x47",
+            "t40x40",
+            "t20x20"
+          ]
+        },
+        "primary_email_confirmed": true
+      }
+    },
+    "matchingRules": {
+      "$.body.me.user.followers_count": {
+        "match": "type"
+      },
+      "$.body.me.user.tracks_count": {
+        "match": "type"
+      },
+      "$.body.me.user.followings_count": {
+        "match": "type"
+      },
+      "$.body.token.access_token": {
+        "match": "type"
+      },
+      "$.body.configuration.features[*].name": {
+        "match": "type"
+      },
+      "$.body.configuration.features[*].enabled": {
+        "match": "type"
+      },
+      "$.body.configuration.features[*].plans": {
+        "match": "type"
+      },
+      "$.body.configuration.plan.id": {
+        "match": "type"
+      },
+      "$.body.configuration.plan.manageable": {
+        "match": "type"
+      },
+      "$.body.configuration.plan.vendor": {
+        "match": "type"
+      },
+      "$.body.configuration.plan.plan_upsells": {
+        "match": "type"
+      },
+      "$.body.configuration.device_management.authorized": {
+        "match": "type"
+      },
+      "$.body.configuration.device_management.recoverable": {
+        "match": "type"
+      },
+      "$.body.configuration.image_size_specs": {
+        "match": "type"
+      }
+    }
+  }
+}

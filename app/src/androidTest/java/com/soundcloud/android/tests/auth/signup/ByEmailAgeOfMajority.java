@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -17,6 +18,8 @@ public class ByEmailAgeOfMajority extends SignUpTest {
     }
 
     public void testCanFollowAgeGatedProfile() throws Exception {
+        addMockedResponse(ApiEndpoints.SIGN_UP.path(), "sign-up-success.json");
+
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 

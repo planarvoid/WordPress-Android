@@ -1,0 +1,38 @@
+{
+  "token": {
+    "access_token": "1-276024-41264271-81d12c65583aa0"
+  },
+  "me": {
+    "user": {
+      "urn": "soundcloud:users:41264271",
+      "permalink": "steven-testowy",
+      "username": "Steven Testowy",
+      "avatar_url": "https://i1.sndcdn.com/avatars-000041829273-5e1wdh-large.jpg",
+      "tracks_count": 10,
+      "followers_count": 18,
+      "followings_count": 24,
+      "verified": false,
+      "is_pro": false,
+      "avatar_url_template": "https://i1.sndcdn.com/avatars-000041829273-5e1wdh-{size}.jpg",
+      "station_urns": [
+        "soundcloud:artist-stations:41264271"
+      ],
+      "created_at": "2013/04/07 19:42:26 +0000"
+    },
+    "configuration": {
+      "features": [],
+      "plan": {
+        "id": "none",
+        "manageable": true,
+        "plan_upsells": [],
+        "upsells": []
+      },
+      "device_management": {
+        "authorized": true,
+        "recoverable": false
+      },
+      "image_size_specs": []
+    },
+    "primary_email_confirmed": true
+  }
+}

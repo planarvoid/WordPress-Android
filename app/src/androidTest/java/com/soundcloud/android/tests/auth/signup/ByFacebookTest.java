@@ -5,6 +5,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
@@ -22,6 +23,8 @@ public class ByFacebookTest extends SignUpTest {
     }
 
     public void testUserSuccess() throws Exception {
+        addMockedResponse(ApiEndpoints.SIGN_UP.path(), "sign-up-success.json");
+
         signUpMethodScreen = homeScreen.clickSignUpButton();
 
         signUpMethodScreen.clickFacebookButton();

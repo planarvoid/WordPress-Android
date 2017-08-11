@@ -1,5 +1,11 @@
 package com.soundcloud.android.tests;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.di.TestApiModule;
@@ -117,6 +123,22 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         addInitialStubMappings();
         mrLocalLocal = new MrLocalLocal(getInstrumentation().getContext(), wireMockServer, TestApiModule.EVENTS_URL);
+    }
+
+    protected void addMockedResponse(String url, String file) {
+        final Resources resources = getInstrumentation().getContext().getResources();
+        final String body = readBodyOfFile(resources, file);
+
+        assertFalse(body.isEmpty());
+        wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withBody(body))));
+    }
+
+    protected void addMockedResponse(String url, int statusCode, String file) {
+        final Resources resources = getInstrumentation().getContext().getResources();
+        final String body = readBodyOfFile(resources, file);
+
+        assertFalse(body.isEmpty());
+        wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withBody(body))));
     }
 
     protected boolean wiremockLoggingEnabled() {

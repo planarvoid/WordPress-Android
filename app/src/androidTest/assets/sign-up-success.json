@@ -1,0 +1,35 @@
+{
+  "token": {
+    "access_token": "2-276024-325330619-KnV4UKKYaqJYg6"
+  },
+  "me": {
+    "user": {
+      "urn": "soundcloud:users:325330619",
+      "permalink": "user-835518681",
+      "username": "User 835518681",
+      "avatar_url": "http://a1.sndcdn.com/images/default_avatar_large.png?1502283789",
+      "tracks_count": 0,
+      "followers_count": 0,
+      "followings_count": 0,
+      "verified": false,
+      "is_pro": false,
+      "station_urns": [],
+      "created_at": "2017/08/10 13:56:59 +0000"
+    },
+    "configuration": {
+      "features": [],
+      "plan": {
+        "id": "none",
+        "manageable": true,
+        "plan_upsells": [],
+        "upsells": []
+      },
+      "device_management": {
+        "authorized": true,
+        "recoverable": false
+      },
+      "image_size_specs": []
+    },
+    "primary_email_confirmed": false
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "token": {
+    "access_token": "1-276024-18173653-d1a1cffa738f57"
+  },
+  "me": {
+    "user": {
+      "urn": "soundcloud:users:18173653",
+      "permalink": "android-testing",
+      "username": "android-testing",
+      "first_name": "Android",
+      "last_name": "Testing",
+      "avatar_url": "http://a1.sndcdn.com/images/default_avatar_large.png?1502283789",
+      "city": "Testville",
+      "country": "United States",
+      "country_code": "US",
+      "tracks_count": 11181,
+      "followers_count": 346,
+      "followings_count": 36,
+      "verified": false,
+      "is_pro": false,
+      "station_urns": [
+        "soundcloud:artist-stations:18173653"
+      ],
+      "created_at": "2012/06/06 12:21:08 +0000"
+    },
+    "configuration": {
+      "features": [],
+      "plan": {
+        "id": "none",
+        "manageable": true,
+        "plan_upsells": [],
+        "upsells": []
+      },
+      "device_management": {
+        "authorized": true,
+        "recoverable": false
+      },
+      "image_size_specs": []
+    },
+    "primary_email_confirmed": true
+  }
+}
