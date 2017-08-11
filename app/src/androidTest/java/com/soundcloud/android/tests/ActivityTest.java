@@ -138,7 +138,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         final String body = readBodyOfFile(resources, file);
 
         assertFalse(body.isEmpty());
-        wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withBody(body))));
+        wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withStatus(statusCode).withBody(body))));
     }
 
     protected boolean wiremockLoggingEnabled() {
