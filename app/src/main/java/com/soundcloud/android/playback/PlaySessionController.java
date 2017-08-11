@@ -25,10 +25,9 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
@@ -49,7 +48,7 @@ public class PlaySessionController {
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final String SKIP_ORIGIN = "controller";
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final AdsOperations adsOperations;
 
     private final PlayerAdsController playerAdsController;
@@ -62,11 +61,12 @@ public class PlaySessionController {
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final PlaybackServiceController playbackServiceController;
     private final PlaybackProgressRepository playbackProgressRepository;
+    private PlayQueueItem lastPlayQueueItem = PlayQueueItem.EMPTY;
 
     private Disposable disposable = Disposables.disposed();
 
     @Inject
-    public PlaySessionController(EventBus eventBus,
+    public PlaySessionController(EventBusV2 eventBus,
                                  AdsOperations adsOperations,
                                  PlayerAdsController playerAdsController,
                                  PlayQueueManager playQueueManager,
@@ -88,10 +88,6 @@ public class PlaySessionController {
         this.castConnectionHelper = castConnectionHelper;
         this.playbackProgressRepository = playbackProgressRepository;
         this.performanceMetricsEngine = performanceMetricsEngine;
-    }
-
-    public void subscribe() {
-        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
     }
 
     public void reloadQueueAndShowPlayerIfEmpty() {
@@ -260,38 +256,30 @@ public class PlaySessionController {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-
-        private PlayQueueItem lastPlayQueueItem = PlayQueueItem.EMPTY;
-
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
-            final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
-            if (playQueueItem.isTrack()) {
-                playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
-                if (castConnectionHelper.isCasting()) {
-                    onNextTrackWhileCasting(event, playQueueItem);
-                } else if (shouldPlayTrack(event, playQueueItem) || playSessionStateProvider.isInErrorState()) {
-                    playCurrent();
-                }
-            } else if (playQueueItem.isAd()) {
-                if (playSessionStateProvider.isPlaying()) {
-                    playCurrent();
-                }
-            }
-            lastPlayQueueItem = playQueueItem;
-        }
-
-        private void onNextTrackWhileCasting(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
-            if (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem)) {
+    void onPlayQueueItemEvent(CurrentPlayQueueItemEvent event) {
+        final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
+        if (playQueueItem.isTrack()) {
+            playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
+            if (castConnectionHelper.isCasting()) {
+                onNextTrackWhileCasting(event, playQueueItem);
+            } else if (shouldPlayTrack(event, playQueueItem) || playSessionStateProvider.isInErrorState()) {
                 playCurrent();
             }
+        } else if (playQueueItem.isAd() && playSessionStateProvider.isPlaying()) {
+            playCurrent();
         }
+        lastPlayQueueItem = playQueueItem;
+    }
 
-        private boolean shouldPlayTrack(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
-            return playSessionStateProvider.isPlaying()
-                    && (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem));
+
+    private void onNextTrackWhileCasting(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
+        if (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem)) {
+            playCurrent();
         }
+    }
 
+    private boolean shouldPlayTrack(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
+        return playSessionStateProvider.isPlaying()
+                && (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem));
     }
 }

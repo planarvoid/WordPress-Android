@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -17,7 +16,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,6 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @SuppressWarnings("FieldCanBeLocal")
     private PeripheralsController controller;
-    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private Context context;
     @Mock private TrackRepository trackRepository;
@@ -40,39 +37,31 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        controller = new PeripheralsController(context, eventBus, trackRepository);
-        controller.subscribe();
-    }
-
-    @Test
-    public void shouldSendBroadcastWithNotPlayingExtraOnSubscribingToPlaybackStateChangedQueue() {
-        verify(context).sendBroadcast(captor.capture());
-        Intent firstBroadcast = captor.getAllValues().get(0);
-        assertThat(firstBroadcast.getExtras().get("playing")).isEqualTo(false);
+        controller = new PeripheralsController(context, trackRepository);
     }
 
     @Test
     public void shouldSendBroadcastWithPlayingExtraOnReceivingPlaybackState() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
+        controller.onPlayStateEvent(TestPlayStates.playing());
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getExtras().get("playing")).isEqualTo(true);
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getExtras().get("playing")).isEqualTo(true);
     }
 
     @Test
     public void shouldSendBroadcastWithPlayingExtraOnReceivingIdlePlayState() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
+        controller.onPlayStateEvent(TestPlayStates.idle());
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getExtras().get("playing")).isEqualTo(false);
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getExtras().get("playing")).isEqualTo(false);
     }
 
     @Test
     public void shouldSendBroadcastWithPlayStateActionOnReceivingPlaybackStateChange() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
+        controller.onPlayStateEvent(TestPlayStates.playing());
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.playstatechanged");
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getAction()).isEqualTo("com.android.music.playstatechanged");
     }
 
     @Test
@@ -81,29 +70,28 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
-                                                                Urn.NOT_SET,
-                                                                0));
+        controller.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
+                                                                                 Urn.NOT_SET,
+                                                                                 0));
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
-        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.urn().getNumericId());
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.creatorName());
-        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.title());
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.fullDuration());
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getAction()).isEqualTo("com.android.music.metachanged");
+        assertThat(broadcast.getExtras().get("id")).isEqualTo(track.urn().getNumericId());
+        assertThat(broadcast.getExtras().get("artist")).isEqualTo(track.creatorName());
+        assertThat(broadcast.getExtras().get("track")).isEqualTo(track.title());
+        assertThat(broadcast.getExtras().get("duration")).isEqualTo(track.fullDuration());
     }
 
     @Test
     public void shouldResetTrackInformationOnUserLogout() {
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+        controller.onCurrentUserChanged(CurrentUserChangedEvent.forLogout());
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
-        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo("");
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");
-        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo("");
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(0);
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getAction()).isEqualTo("com.android.music.metachanged");
+        assertThat(broadcast.getExtras().get("id")).isEqualTo("");
+        assertThat(broadcast.getExtras().get("artist")).isEqualTo("");
+        assertThat(broadcast.getExtras().get("track")).isEqualTo("");
+        assertThat(broadcast.getExtras().get("duration")).isEqualTo(0);
     }
 
     @Test
@@ -112,18 +100,17 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
-                                                                Urn.NOT_SET,
-                                                                0));
+        controller.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
+                                                                                 Urn.NOT_SET,
+                                                                                 0));
 
-        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");
+        Intent broadcast = verifyBroadcastSentAndCapture();
+        assertThat(broadcast.getExtras().get("artist")).isEqualTo("");
     }
 
-    private Intent verifyTwoBroadcastsSentAndCaptureTheSecond() {
-        verify(context, times(2)).sendBroadcast(captor.capture());
-        return captor.getAllValues().get(1);
+    private Intent verifyBroadcastSentAndCapture() {
+        verify(context, times(1)).sendBroadcast(captor.capture());
+        return captor.getAllValues().get(0);
     }
 
 }

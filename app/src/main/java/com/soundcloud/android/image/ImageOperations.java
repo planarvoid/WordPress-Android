@@ -89,7 +89,9 @@ public class ImageOperations {
     private ImageProcessor imageProcessor;
 
     @Inject
-    public ImageOperations(PlaceholderGenerator placeholderGenerator,
+    public ImageOperations(Context context,
+                           ApplicationProperties properties,
+                           PlaceholderGenerator placeholderGenerator,
                            CircularPlaceholderGenerator circularPlaceholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory,
                            BitmapLoadingAdapter.Factory bitmapAdapterFactory,
@@ -97,7 +99,9 @@ public class ImageOperations {
                            ImageUrlBuilder imageUrlBuilder,
                            UserAgentImageDownloaderFactory imageDownloaderFactory,
                            DeviceHelper deviceHelper) {
-        this(ImageLoader.getInstance(),
+        this(context,
+             properties,
+             ImageLoader.getInstance(),
              imageUrlBuilder,
              placeholderGenerator,
              circularPlaceholderGenerator,
@@ -112,7 +116,9 @@ public class ImageOperations {
     }
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader,
+    ImageOperations(Context context,
+                    ApplicationProperties properties,
+                    ImageLoader imageLoader,
                     ImageUrlBuilder imageUrlBuilder,
                     PlaceholderGenerator placeholderGenerator,
                     CircularPlaceholderGenerator circularPlaceholderGenerator,
@@ -136,9 +142,11 @@ public class ImageOperations {
         this.fileNameGenerator = fileNameGenerator;
         this.imageDownloaderFactory = imageDownloaderFactory;
         this.deviceHelper = deviceHelper;
+
+        initialise(context, properties);
     }
 
-    public void initialise(Context context, ApplicationProperties properties) {
+    public final void initialise(Context context, ApplicationProperties properties) {
         final Context appContext = context.getApplicationContext();
 
         final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(appContext);
@@ -306,7 +314,7 @@ public class ImageOperations {
     }
 
     /**
-     * @deprecated  use {@see #displayWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
+     * @deprecated use {@see #displayWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
      */
     @Deprecated
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
@@ -323,7 +331,7 @@ public class ImageOperations {
     }
 
     /**
-     * @deprecated  use {@see #displayCircularWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
+     * @deprecated use {@see #displayCircularWithPlaceholder(Optional<Urn>, Optional<String>, ApiImageSize, ImageView)}
      */
     @Deprecated
     public void displayCircularWithPlaceholder(ImageResource imageResource,

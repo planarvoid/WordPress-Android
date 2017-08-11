@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromNewQueue;
-import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromPositionChanged;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -14,7 +12,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -24,7 +21,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import org.assertj.core.util.Lists;
@@ -48,7 +44,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     private final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private final PlayQueue recommendedPlayQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L),
                                                                           playSessionSource);
-    private TestEventBusV2 eventBus = new TestEventBusV2();
+    private PlayQueueExtender extender;
 
     @Before
     public void setUp() throws Exception {
@@ -61,20 +57,17 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(eq(LAST_URN), anyBoolean(), any(PlaySessionSource.class)))
                 .thenReturn(Single.just(recommendedPlayQueue));
         when(castConnectionHelper.isCasting()).thenReturn(false);
-
-        PlayQueueExtender extender = new PlayQueueExtender(playQueueManager,
-                                                           playQueueOperations,
-                                                           stationsOperations,
-                                                           eventBus,
-                                                           castConnectionHelper);
-        extender.subscribe();
+        extender = new PlayQueueExtender(playQueueManager,
+                                         playQueueOperations,
+                                         stationsOperations,
+                                         castConnectionHelper);
     }
 
     @Test
     public void appendsRecommendedTracksWhenAtTolerance() {
         when(playQueueManager.getQueueSize()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -83,7 +76,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void appendsRecommendedTracksWhenAtEnd() {
         setWithinToleranceAtEnd();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -99,7 +92,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(station);
         when(stationsOperations.fetchUpcomingTracks(station, queueSize, playSessionSource)).thenReturn(Single.just(playQueue));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, station, 0));
+        extender.loadRecommendations(station);
 
         verify(playQueueManager).appendPlayQueueItems(playQueue);
     }
@@ -109,7 +102,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.DEEPLINK));
         setWithinToleranceAtEnd();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -119,7 +112,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.SEARCH_SUGGESTIONS));
         setWithinToleranceAtEnd();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -128,7 +121,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void doesNotAppendRecommendedTracksWhenQueueIsEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verifyZeroInteractions(playQueueOperations);
     }
@@ -137,7 +130,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void doesNotAppendRecommendedTracksMoreThanTolerance() {
         when(playQueueManager.getPlayableQueueItemsRemaining()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE + 1);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verifyZeroInteractions(playQueueOperations);
     }
@@ -149,8 +142,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
                 .thenReturn(Single.error(new IOException()))
                 .thenReturn(Single.just(recommendedPlayQueue));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -164,8 +157,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
                 .thenReturn(Single.just(playQueue))
                 .thenReturn(Single.just(recommendedPlayQueue));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -179,17 +172,17 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
                 .thenReturn(recommendedSubject)
                 .thenReturn(secondRecommendedSubject);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
         assertThat(recommendedSubject.hasObservers()).isTrue();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
+        extender.onPlayQueueEvent(PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
         assertThat(recommendedSubject.hasObservers()).isFalse();
         assertThat(secondRecommendedSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void appendsRecommendedTracks() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
@@ -199,7 +192,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         setWithinToleranceAtEnd();
         when(castConnectionHelper.isCasting()).thenReturn(true);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verify(playQueueManager, never()).appendPlayQueueItems(recommendedPlayQueue);
     }

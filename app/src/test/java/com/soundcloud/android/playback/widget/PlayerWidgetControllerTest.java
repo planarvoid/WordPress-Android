@@ -10,14 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -33,7 +31,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Maybe;
 import org.junit.Before;
@@ -42,14 +39,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
 
 import android.content.Context;
 
 public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     private PlayerWidgetController controller;
-    private final TestEventBus eventBus = new TestEventBus();
 
     private static TrackItem widgetTrack = ModelFixtures.expectedTrackEntityForWidget();
     private static final Urn WIDGET_TRACK_URN = widgetTrack.getUrn();
@@ -59,7 +54,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackItemRepository trackRepository;
-    @Mock private AdsOperations adsOperations;
     @Mock private LikeOperations likeOperations;
     @Mock private EngagementsTracking engagementsTracking;
 
@@ -71,7 +65,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                                                 playSessionStateProvider,
                                                 playQueueManager,
                                                 trackRepository,
-                                                eventBus,
                                                 likeOperations,
                                                 engagementsTracking);
         when(context.getResources()).thenReturn(resources());
@@ -79,32 +72,20 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePlayStateWithNotPlayingOnSubscribingToPlaybackStateChangedQueue() {
-        controller.subscribe();
-
-        verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));
-    }
-
-    @Test
     public void shouldUpdatePresenterWithDefaultPlayStateFollowedByReceivedPlayStateOnSubscribeAndReceivePlaybackStateChangedEvent() {
-        controller.subscribe();
-
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
+        controller.onPlaybackStateUpdate(TestPlayStates.playing());
 
         InOrder inOrder = Mockito.inOrder(playerWidgetPresenter);
-        inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));
         inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(true));
     }
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsNotAudioAd() {
         when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.just(widgetTrack));
-        controller.subscribe();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN),
-                                                                Urn.NOT_SET,
-                                                                0));
+        controller.onCurrentItemChange(CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN),
+                                                                              Urn.NOT_SET,
+                                                                              0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -115,10 +96,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem = TestPlayQueueItem.createAudioAd(audioAd);
 
         when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.just(widgetTrack));
-        controller.subscribe();
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.NOT_SET, 0));
+        controller.onCurrentItemChange(CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -126,12 +104,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForPositionChange() throws CreateModelException {
         when(trackRepository.track(any(Urn.class))).thenReturn(Maybe.just(widgetTrack));
-        controller.subscribe();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN),
-                                                                       Urn.NOT_SET,
-                                                                       0));
+        controller.onCurrentItemChange(CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN),
+                                                                                     Urn.NOT_SET,
+                                                                                     0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -144,9 +120,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(WIDGET_TRACK_URN));
         when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Maybe.just(widgetTrack));
         LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
-        controller.subscribe();
 
-        eventBus.publish(EventQueue.LIKE_CHANGED, event);
+        controller.onTrackLikeChange(event);
 
         ArgumentCaptor<TrackItem> captor = ArgumentCaptor.forClass(TrackItem.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
@@ -160,9 +135,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(WIDGET_TRACK_URN));
 
         LikesStatusEvent event = LikesStatusEvent.create(WIDGET_TRACK_URN, true, 1);
-        controller.subscribe();
 
-        eventBus.publish(EventQueue.LIKE_CHANGED, event);
+        controller.onTrackLikeChange(event);
 
         verify(playerWidgetPresenter).updateForAudioAd(eq(context));
     }
@@ -174,9 +148,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(currentlyPlayingTrackUrn));
         LikesStatusEvent event = LikesStatusEvent.create(likedUrn, true, 1);
 
-        controller.subscribe();
+        controller.onTrackLikeChange(event);
 
-        eventBus.publish(EventQueue.LIKE_CHANGED, event);
         verify(playerWidgetPresenter, never()).updateTrackInformation(any(Context.class), any(TrackItem.class));
     }
 
@@ -184,9 +157,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     public void callsResetActionWhenCurrentUserChangedEventReceivedForUserRemoved() {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
 
-        controller.subscribe();
+        controller.onCurrentUserChanged(event);
 
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
         verify(playerWidgetPresenter).reset(context);
     }
 
@@ -194,9 +166,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     public void doesNotResetPresentationWhenCurrentUserChangedEventReceivedForUserUpdated() {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(Urn.forUser(123));
 
-        controller.subscribe();
+        controller.onCurrentUserChanged(event);
 
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
         verify(playerWidgetPresenter, never()).reset(any(Context.class));
     }
 

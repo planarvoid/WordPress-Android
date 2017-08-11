@@ -25,25 +25,24 @@ import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
-import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.configuration.ForceUpdateHandler;
 import com.soundcloud.android.crypto.CryptoOperations;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.main.ApplicationStartupMeterFactory;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineStorageOperations;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.peripherals.PeripheralsController;
-import com.soundcloud.android.playback.PlayPublisher;
-import com.soundcloud.android.playback.PlayQueueExtender;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.peripherals.PeripheralsControllerProxy;
+import com.soundcloud.android.playback.PlayPublisherProxy;
+import com.soundcloud.android.playback.PlayQueueExtenderProxy;
+import com.soundcloud.android.playback.PlaySessionControllerProxy;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackMeter;
-import com.soundcloud.android.playback.PlaylistExploder;
+import com.soundcloud.android.playback.PlaylistExploderProxy;
 import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
-import com.soundcloud.android.playback.widget.PlayerWidgetController;
+import com.soundcloud.android.playback.widget.PlayerWidgetControllerProxy;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -99,16 +98,15 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Inject MigrationEngine migrationEngine;
     @Inject NetworkConnectivityListener networkConnectivityListener;
-    @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
-    @Inject ConfigurationManager configurationManager;
-    @Inject PlayerWidgetController widgetController;
-    @Inject PeripheralsController peripheralsController;
-    @Inject PlaySessionController playSessionController;
+    @Inject ForceUpdateHandler forceUpdateHandler;
+    @Inject PlayerWidgetControllerProxy widgetControllerListener;
+    @Inject PeripheralsControllerProxy peripheralsControllerProxy;
+    @Inject PlaySessionControllerProxy playSessionControllerProxy;
     @Inject PlaySessionStateProvider playSessionStateProvider;
-    @Inject PlaylistExploder playlistExploder;
-    @Inject PlayQueueExtender playQueueExtender;
-    @Inject PlayPublisher playPublisher;
+    @Inject PlaylistExploderProxy playlistExploderProxy;
+    @Inject PlayQueueExtenderProxy playQueueExtenderProxy;
+    @Inject PlayPublisherProxy playPublisherProxy;
     @Inject PlayerAdsController playerAdsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject SkippyFactory skippyFactory;
@@ -225,16 +223,14 @@ public class SoundCloudApplication extends MultiDexApplication {
         // initialise skippy so it can do it's expensive one-shot ops
         skippyFactory.create().preload();
 
-        imageOperations.initialise(this, applicationProperties);
-
         setupCurrentUserAccount();
 
         offlineStorageOperations.init();
         cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         networkConnectivityListener.startListening();
-        widgetController.subscribe();
-        peripheralsController.subscribe();
-        playSessionController.subscribe();
+        widgetControllerListener.subscribe();
+        peripheralsControllerProxy.subscribe();
+        playSessionControllerProxy.subscribe();
         playerAdsController.subscribe();
         screenProvider.subscribe();
         playSessionOriginScreenProvider.subscribe();
@@ -247,12 +243,12 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         trackOfflineStateProvider.subscribe();
-        playQueueExtender.subscribe();
+        playQueueExtenderProxy.subscribe();
         playHistoryController.subscribe();
-        playlistExploder.subscribe();
+        playlistExploderProxy.subscribe();
 
         if (applicationProperties.enforceConcurrentStreamingLimitation()) {
-            playPublisher.subscribe();
+            playPublisherProxy.subscribe();
         }
 
         stationsController.subscribe();
@@ -269,7 +265,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
-        configurationManager.checkForForcedApplicationUpdate();
+        forceUpdateHandler.checkPendingForcedUpdate();
     }
 
     private void initializePreInjectionObjects() {

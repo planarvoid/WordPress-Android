@@ -1,21 +1,15 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
-import android.annotation.SuppressLint;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -31,57 +25,33 @@ public class PlayQueueExtender {
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final StationsOperations stationsOperations;
-    private final EventBusV2 eventBus;
     private final CastConnectionHelper castConnectionHelper;
 
     private Disposable loadRecommendedDisposable = RxUtils.invalidDisposable();
     private boolean isLoadingRecommendations;
 
-    @SuppressLint("sc.MissingCompositeDisposableRecycle") // disposable tied to app lifecycle
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-
     @Inject
     PlayQueueExtender(PlayQueueManager playQueueManager,
                       PlayQueueOperations playQueueOperations,
                       StationsOperations stationsOperations,
-                      EventBusV2 eventBus,
                       CastConnectionHelper castConnectionHelper) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.stationsOperations = stationsOperations;
-        this.eventBus = eventBus;
         this.castConnectionHelper = castConnectionHelper;
     }
 
-    @SuppressLint("sc.CheckResult")
-    public void subscribe() {
-        compositeDisposable.addAll(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackObserver()),
-                eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueObserver())
-        );
-    }
-
-    private class PlayQueueObserver extends DefaultObserver<PlayQueueEvent> {
-        @Override
-        public void onNext(PlayQueueEvent event) {
-            if (event.isNewQueue()) {
-                isLoadingRecommendations = false;
-                loadRecommendedDisposable.dispose();
-                extendPlayQueue(event.getCollectionUrn());
-            } else if (event.isAutoPlayEnabled()) {
-                loadRecommendations(event.getCollectionUrn());
-            }
-        }
-    }
-
-    private class PlayQueueTrackObserver extends DefaultObserver<CurrentPlayQueueItemEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
+    void onPlayQueueEvent(PlayQueueEvent event) {
+        if (event.isNewQueue()) {
+            isLoadingRecommendations = false;
+            loadRecommendedDisposable.dispose();
+            extendPlayQueue(event.getCollectionUrn());
+        } else if (event.isAutoPlayEnabled()) {
             loadRecommendations(event.getCollectionUrn());
         }
     }
 
-    private void loadRecommendations(Urn collectionUrn) {
+    void loadRecommendations(Urn collectionUrn) {
         if (!isLoadingRecommendations && withinRecommendedFetchTolerance()) {
             extendPlayQueue(collectionUrn);
         }

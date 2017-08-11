@@ -33,14 +33,13 @@ public class ConfigurationManagerTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private DeviceManagementStorage deviceManagementStorage;
-    @Mock private ForceUpdateHandler forceUpdateHandler;
 
     private ConfigurationManager manager;
 
     @Before
     public void setUp() throws Exception {
         manager = new ConfigurationManager(configurationOperations, accountOperations,
-                                           deviceManagementStorage, forceUpdateHandler);
+                                           deviceManagementStorage);
     }
 
     @Test

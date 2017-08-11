@@ -2,17 +2,14 @@ package com.soundcloud.android.peripherals;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,20 +22,12 @@ public class PeripheralsController {
     private static final String AVRCP_META_CHANGED = "com.android.music.metachanged";
 
     private final Context context;
-    private final EventBus eventBus;
     private final TrackRepository trackRepository;
 
     @Inject
-    public PeripheralsController(Context context, EventBus eventBus, TrackRepository trackRepository) {
+    PeripheralsController(Context context, TrackRepository trackRepository) {
         this.context = context;
-        this.eventBus = eventBus;
         this.trackRepository = trackRepository;
-    }
-
-    public void subscribe() {
-        eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
-        eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateChangedSubscriber());
-        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).subscribe(new PlayQueueChangedSubscriber());
     }
 
     private void notifyPlayStateChanged(boolean isPlaying) {
@@ -74,36 +63,29 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
-        @Override
-        public void onNext(CurrentUserChangedEvent event) {
+    void onCurrentUserChanged(CurrentUserChangedEvent event) {
+        resetTrackInformation();
+    }
+
+    void onPlayStateEvent(PlayStateEvent state) {
+        notifyPlayStateChanged(state.playSessionIsActive());
+    }
+
+    void onCurrentPlayQueueItem(CurrentPlayQueueItemEvent event) {
+        PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
+        if (playQueueItem.isTrack()) {
+            trackRepository.track(playQueueItem.getUrn()).subscribe(new CurrentTrackSubscriber());
+        } else {
             resetTrackInformation();
         }
     }
 
-    private class PlayStateChangedSubscriber extends DefaultSubscriber<PlayStateEvent> {
+    private class CurrentTrackSubscriber extends DefaultMaybeObserver<Track> {
         @Override
-        public void onNext(PlayStateEvent state) {
-            notifyPlayStateChanged(state.playSessionIsActive());
-        }
-    }
-
-    private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
-            PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
-            if (playQueueItem.isTrack()) {
-                RxJava.toV1Observable(trackRepository.track(playQueueItem.getUrn())).subscribe(new CurrentTrackSubscriber());
-            } else {
-                resetTrackInformation();
-            }
-        }
-    }
-
-    private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
-        @Override
-        public void onNext(Track track) {
+        public void onSuccess(Track track) {
+            super.onSuccess(track);
             notifyPlayQueueChanged(track);
         }
     }
+
 }

@@ -25,6 +25,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.DisplayMetricsStub;
@@ -110,6 +111,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock Configuration configuration;
     @Mock UserAgentImageDownloaderFactory imageDownloaderFactory;
     @Mock DeviceHelper deviceHelper;
+    @Mock ApplicationProperties properties;
 
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
@@ -119,6 +121,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(
+                context(),
+                properties,
                 imageLoader,
                 new ImageUrlBuilder(apiUrlBuilder),
                 placeholderGenerator,

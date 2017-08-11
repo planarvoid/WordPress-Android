@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
-class ImageUrlBuilder {
+public class ImageUrlBuilder {
 
     private static final String SIZE_TOKEN = "\\{size\\}";
 

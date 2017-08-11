@@ -9,13 +9,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +30,6 @@ public class PlaylistExploderTest extends AndroidUnitTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlayQueueManager playQueueManager;
 
-    private TestEventBus eventBus;
     private PlayQueueItem trackPlayQueueItem;
 
     private PlaylistExploder playlistExploder;
@@ -40,9 +37,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         trackPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
-        eventBus = new TestEventBus();
-        playlistExploder = new PlaylistExploder(eventBus, playlistOperations, playQueueManager);
-        playlistExploder.subscribe();
+        playlistExploder = new PlaylistExploder(playlistOperations, playQueueManager);
     }
 
     @Test
@@ -62,8 +57,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Observable.just(trackUrns2));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn3)).thenReturn(Observable.just(trackUrns3));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
         verify(playQueueManager).insertPlaylistTracks(playlistUrn2, trackUrns2);
@@ -79,12 +73,10 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(
                 Observable.error(new IOException()), Observable.just(trackUrns1));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(playQueueManager, never()).insertPlaylistTracks(any(Urn.class), anyList());
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
     }
 
@@ -102,8 +94,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad1);
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad2);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playlistLoad1.hasObservers()).isTrue();
         assertThat(playlistLoad2.hasObservers()).isTrue();
@@ -111,7 +102,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad3);
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad4);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
+        playlistExploder.onPlayQueue(PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         assertThat(playlistLoad1.hasObservers()).isFalse();
         assertThat(playlistLoad2.hasObservers()).isFalse();

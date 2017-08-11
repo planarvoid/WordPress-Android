@@ -18,19 +18,16 @@ public class ConfigurationManager {
     private final ConfigurationOperations configurationOperations;
     private final AccountOperations accountOperations;
     private final DeviceManagementStorage deviceManagementStorage;
-    private final ForceUpdateHandler forceUpdateHandler;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public ConfigurationManager(ConfigurationOperations configurationOperations,
                                 AccountOperations accountOperations,
-                                DeviceManagementStorage deviceManagementStorage,
-                                ForceUpdateHandler forceUpdateHandler) {
+                                DeviceManagementStorage deviceManagementStorage) {
         this.configurationOperations = configurationOperations;
         this.accountOperations = accountOperations;
         this.deviceManagementStorage = deviceManagementStorage;
-        this.forceUpdateHandler = forceUpdateHandler;
     }
 
     public void forceConfigurationUpdate() {
@@ -43,10 +40,6 @@ public class ConfigurationManager {
         Log.d(TAG, "Requesting configuration fetch");
         subscription.unsubscribe();
         subscription = configurationOperations.fetchIfNecessary().subscribe(new ConfigurationSubscriber());
-    }
-
-    public void checkForForcedApplicationUpdate() {
-        forceUpdateHandler.checkPendingForcedUpdate();
     }
 
     public boolean shouldDisplayDeviceConflict() {

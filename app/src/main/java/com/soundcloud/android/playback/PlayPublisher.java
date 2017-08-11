@@ -1,25 +1,21 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Scheduler;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
@@ -34,50 +30,32 @@ public class PlayPublisher {
     private final Resources resources;
     private final GcmStorage gcmStorage;
     private final DateProvider dateProvider;
-    private final EventBus eventBus;
     private final Scheduler scheduler;
-    private final ApiClient apiClient;
-
-    private static final Func1<PlayStateEvent, Boolean> IS_PLAYER_PLAYING_A_TRACK =
-            playStateEvent -> !playStateEvent.getPlayingItemUrn().isAd() && playStateEvent.isPlayerPlaying();
-
-    private Func1<PlayStateEvent, Observable<ApiResponse>> toApiResponse = new Func1<PlayStateEvent, Observable<ApiResponse>>() {
-        @Override
-        public Observable<ApiResponse> call(final PlayStateEvent stateTransition) {
-            return Observable
-                    .defer(() -> {
-                        final Payload payload = createPayload(stateTransition);
-                        final ApiRequest apiRequest = ApiRequest
-                                .post(ApiEndpoints.PLAY_PUBLISH.path())
-                                .forPublicApi()
-                                .withContent(payload)
-                                .build();
-                        return Observable.just(apiClient.fetchResponse(apiRequest));
-                    })
-                    .subscribeOn(scheduler);
-        }
-    };
+    private final ApiClientRxV2 apiClient;
 
     @Inject
-    public PlayPublisher(Resources resources,
+    PlayPublisher(Resources resources,
                          GcmStorage gcmStorage,
                          CurrentDateProvider dateProvider,
-                         EventBus eventBus,
-                         @Named(HIGH_PRIORITY) Scheduler scheduler,
-                         ApiClient apiClient) {
+                         @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
+                         ApiClientRxV2 apiClient) {
         this.resources = resources;
         this.gcmStorage = gcmStorage;
         this.dateProvider = dateProvider;
-        this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.apiClient = apiClient;
     }
 
-    public void subscribe() {
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(IS_PLAYER_PLAYING_A_TRACK)
-                .flatMap(toApiResponse)
-                .subscribe(new ResponseLogger());
+    void onPlaybackStateChanged(PlayStateEvent stateTransition) {
+        final Payload payload = createPayload(stateTransition);
+        final ApiRequest apiRequest = ApiRequest
+                .post(ApiEndpoints.PLAY_PUBLISH.path())
+                .forPublicApi()
+                .withContent(payload)
+                .build();
+        apiClient.response(apiRequest)
+                 .subscribeOn(scheduler)
+                 .subscribe(new ResponseLogger());
     }
 
     @NonNull
@@ -88,9 +66,10 @@ public class PlayPublisher {
                            playStateEvent.getPlayingItemUrn());
     }
 
-    private static class ResponseLogger extends DefaultSubscriber<ApiResponse> {
+    private static class ResponseLogger extends DefaultSingleObserver<ApiResponse> {
         @Override
-        public void onNext(ApiResponse response) {
+        public void onSuccess(ApiResponse response) {
+            super.onSuccess(response);
             Log.d(TAG, "Posted play with response code " + response.getStatusCode());
         }
     }

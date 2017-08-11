@@ -5,7 +5,6 @@ import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.TrackChangedEvent;
@@ -16,14 +15,12 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.functions.Function;
 
 import android.content.Context;
@@ -42,7 +39,6 @@ public class PlayerWidgetController {
     private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
     private final TrackItemRepository trackItemRepository;
-    private final EventBus eventBus;
     private final LikeOperations likeOperations;
     private final EngagementsTracking engagementsTracking;
 
@@ -52,7 +48,6 @@ public class PlayerWidgetController {
                                   PlaySessionStateProvider playSessionsStateProvider,
                                   PlayQueueManager playQueueManager,
                                   TrackItemRepository trackItemRepository,
-                                  EventBus eventBus,
                                   LikeOperations likeOperations,
                                   EngagementsTracking engagementsTracking) {
         this.context = context;
@@ -60,18 +55,8 @@ public class PlayerWidgetController {
         this.playSessionsStateProvider = playSessionsStateProvider;
         this.playQueueManager = playQueueManager;
         this.trackItemRepository = trackItemRepository;
-        this.eventBus = eventBus;
         this.likeOperations = likeOperations;
         this.engagementsTracking = engagementsTracking;
-    }
-
-    public void subscribe() {
-        eventBus.subscribe(EventQueue.TRACK_CHANGED, new TrackMetadataChangeSubscriber());
-        eventBus.subscribe(EventQueue.LIKE_CHANGED, new TrackLikeChangeSubscriber());
-        eventBus.subscribe(EventQueue.REPOST_CHANGED, new TrackRepostChangeSubscriber());
-        eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
-        eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
-        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new CurrentItemSubscriber());
     }
 
     public void update() {
@@ -122,67 +107,46 @@ public class PlayerWidgetController {
                                    .build();
     }
 
-    /**
-     * When the user logs out, reset all widget instances
-     */
-    private final class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
-        @Override
-        public void onNext(CurrentUserChangedEvent event) {
-            if (event.isUserRemoved()) {
-                presenter.reset(context);
-            }
+    void onCurrentUserChanged(CurrentUserChangedEvent event) {
+        if (event.isUserRemoved()) {
+            presenter.reset(context);
         }
     }
 
-    private class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
-        @Override
-        public void onNext(PlayStateEvent state) {
-            presenter.updatePlayState(context, state.playSessionIsActive());
-        }
+    void onPlaybackStateUpdate(PlayStateEvent state) {
+        presenter.updatePlayState(context, state.playSessionIsActive());
     }
 
-    private class CurrentItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent event) {
-            updatePlayableInformation(trackItem -> trackItem);
-        }
+    void onCurrentItemChange(CurrentPlayQueueItemEvent event) {
+        updatePlayableInformation(trackItem -> trackItem);
     }
 
-    private final class TrackMetadataChangeSubscriber extends DefaultSubscriber<TrackChangedEvent> {
-        @Override
-        public void onNext(final TrackChangedEvent event) {
-            if (!playQueueManager.isQueueEmpty()) {
-                for (Track updatedTrack : event.changeMap().values()) {
-                    if (playQueueManager.isCurrentTrack(updatedTrack.urn())) {
-                        updatePlayableInformation(track -> track.updatedWithTrack(updatedTrack));
-                    }
+    void onTrackMetadataChange(final TrackChangedEvent event) {
+        if (!playQueueManager.isQueueEmpty()) {
+            for (Track updatedTrack : event.changeMap().values()) {
+                if (playQueueManager.isCurrentTrack(updatedTrack.urn())) {
+                    updatePlayableInformation(track -> track.updatedWithTrack(updatedTrack));
                 }
             }
         }
     }
 
-    private final class TrackLikeChangeSubscriber extends DefaultSubscriber<LikesStatusEvent> {
-        @Override
-        public void onNext(final LikesStatusEvent event) {
-            final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
-            if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
-                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(currentItemUrn.get());
-                if (likeStatus.isPresent()) {
-                    updatePlayableInformation(track -> track.updatedWithLike(likeStatus.get()));
-                }
+    void onTrackLikeChange(final LikesStatusEvent event) {
+        final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
+        if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
+            final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(currentItemUrn.get());
+            if (likeStatus.isPresent()) {
+                updatePlayableInformation(track -> track.updatedWithLike(likeStatus.get()));
             }
         }
     }
 
-    private final class TrackRepostChangeSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
-        @Override
-        public void onNext(final RepostsStatusEvent event) {
-            final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
-            if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
-                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(currentItemUrn.get());
-                if (repostStatus.isPresent()) {
-                    updatePlayableInformation(track -> track.updatedWithRepost(repostStatus.get()));
-                }
+    void onTrackRepostChange(final RepostsStatusEvent event) {
+        final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
+        if (currentItemUrn.isPresent() && currentItemUrn.get().isTrack()) {
+            final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(currentItemUrn.get());
+            if (repostStatus.isPresent()) {
+                updatePlayableInformation(track -> track.updatedWithRepost(repostStatus.get()));
             }
         }
     }
