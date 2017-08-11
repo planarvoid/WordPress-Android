@@ -203,6 +203,10 @@ public class ProfileScreen extends Screen {
         return testDriver.getString(R.string.btn_follow);
     }
 
+    private String getActionFollowingText() {
+        return testDriver.getString(R.string.btn_following);
+    }
+
     @Override
     protected Class getActivity() {
         return ProfileActivity.class;
@@ -218,6 +222,10 @@ public class ProfileScreen extends Screen {
     }
 
     public void waitToBeFollowing() {
+        waiter.waitForElementTextToChange(new TextElement(followButton()), getActionFollowText());
+    }
+
+    public void waitToNotBeFollowing() {
         waiter.waitForElementTextToChange(new TextElement(followButton()), getActionFollowText());
     }
 

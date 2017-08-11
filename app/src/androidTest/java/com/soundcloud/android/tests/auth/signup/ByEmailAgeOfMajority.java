@@ -37,7 +37,12 @@ public class ByEmailAgeOfMajority extends SignUpTest {
                                                          .goToPeopleTab()
                                                          .findAndClickFirstUserItem();
 
-        assertThat(profileScreen.areCurrentlyFollowing(), is(false));
+        boolean alreadyFollowing = profileScreen.areCurrentlyFollowing();
+
+        if (alreadyFollowing) {
+            profileScreen.clickFollowToggle();
+            profileScreen.waitToNotBeFollowing();
+        }
 
         profileScreen.clickFollowToggle();
         profileScreen.waitToBeFollowing();
