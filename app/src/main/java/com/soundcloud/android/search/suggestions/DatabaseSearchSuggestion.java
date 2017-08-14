@@ -5,8 +5,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class DatabaseSearchSuggestion extends SearchSuggestion {
-    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate) {
-        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate);
+abstract class DatabaseSearchSuggestion extends SearchSuggestion {
+
+    public abstract Optional<String> title();
+
+    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate, Optional<String> title) {
+        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate, title);
     }
 }

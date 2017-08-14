@@ -4,6 +4,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import org.assertj.core.util.Lists;
@@ -279,26 +280,26 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiTrack(final ApiTrack apiTrack) {
-        return DatabaseSearchSuggestion.create(apiTrack.getUrn(), apiTrack.getTitle(), apiTrack.getImageUrlTemplate());
+        return DatabaseSearchSuggestion.create(apiTrack.getUrn(), apiTrack.getTitle(), apiTrack.getImageUrlTemplate(), Optional.absent());
     }
 
     @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiTrackArtistUsername(final ApiTrack apiTrack) {
-        return DatabaseSearchSuggestion.create(apiTrack.getUrn(), apiTrack.getUserName() + " - " + apiTrack.getTitle(), apiTrack.getImageUrlTemplate());
+        return DatabaseSearchSuggestion.create(apiTrack.getUrn(), apiTrack.getUserName() + " - " + apiTrack.getTitle(), apiTrack.getImageUrlTemplate(), Optional.of(apiTrack.getTitle()));
     }
 
     @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiPlaylist(final ApiPlaylist apiPlaylist) {
-        return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate());
+        return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate(), Optional.absent());
     }
 
     @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiPlaylistArtistUsername(final ApiPlaylist apiPlaylist) {
-        return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getUsername() + " - " + apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate());
+        return DatabaseSearchSuggestion.create(apiPlaylist.getUrn(), apiPlaylist.getUsername() + " - " + apiPlaylist.getTitle(), apiPlaylist.getImageUrlTemplate(), Optional.of(apiPlaylist.getTitle()));
     }
 
     @NonNull
     private SearchSuggestion buildSearchSuggestionFromApiUser(final ApiUser apiUser) {
-        return DatabaseSearchSuggestion.create(apiUser.getUrn(), apiUser.getUsername(), apiUser.getImageUrlTemplate());
+        return DatabaseSearchSuggestion.create(apiUser.getUrn(), apiUser.getUsername(), apiUser.getImageUrlTemplate(), Optional.absent());
     }
 }

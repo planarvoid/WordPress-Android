@@ -26,6 +26,7 @@ class SearchSuggestionStorage {
     private static final String DISPLAY_TEXT = "display_text";
     private static final String IMAGE_URL = "image_url";
     private static final String CREATION_DATE = "creation_date";
+    private static final String TITLE = "title";
     private static final String KIND_LIKE = "like";
     private static final String KIND_FOLLOWING = "following";
     private static final String KIND_POST = "post";
@@ -35,6 +36,7 @@ class SearchSuggestionStorage {
             "'" + KIND_LIKE + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
+            "'' AS " + TITLE + ", " +
             "title AS " + DISPLAY_TEXT + ", " +
             "artwork_url AS " + IMAGE_URL + ", " +
             "Likes.created_at AS " + CREATION_DATE + " " +
@@ -48,6 +50,7 @@ class SearchSuggestionStorage {
             "'" + KIND_FOLLOWING + "' AS " + KIND + ", " +
             "Users._id AS " + ID + ", " +
             "0 AS " + TYPE + ", " +
+            "'' AS " + TITLE + ", " +
             "username AS " + DISPLAY_TEXT + ", " +
             "avatar_url AS " + IMAGE_URL + ", " +
             "UserAssociations.created_at AS " + CREATION_DATE + " " +
@@ -60,6 +63,7 @@ class SearchSuggestionStorage {
             "'" + KIND_FOLLOWING + "' AS " + KIND + ", " +
             "Users._id AS " + ID + ", " +
             "0 AS " + TYPE + ", " +
+            "'' AS " + TITLE + ", " +
             "username AS " + DISPLAY_TEXT + ", " +
             "avatar_url AS " + IMAGE_URL + ", " +
             "0 AS " + CREATION_DATE + " " +
@@ -72,6 +76,7 @@ class SearchSuggestionStorage {
             "'" + KIND_POST + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
+            "'' AS " + TITLE + ", " +
             "title AS " + DISPLAY_TEXT + ", " +
             "artwork_url AS " + IMAGE_URL + ", " +
             "Posts.created_at AS " + CREATION_DATE + " " +
@@ -86,6 +91,7 @@ class SearchSuggestionStorage {
             "'" + KIND_LIKE_USERNAME + "' AS " + KIND + ", " +
             "Sounds._id AS " + ID + ", " +
             "Sounds._type AS " + TYPE + ", " +
+            "title AS " + TITLE + ", " +
             "(username || ' - ' || title) AS " + DISPLAY_TEXT + ", " +
             "artwork_url AS " + IMAGE_URL + ", " +
             "Likes.created_at AS " + CREATION_DATE + " " +
@@ -111,7 +117,7 @@ class SearchSuggestionStorage {
     Single<List<SearchSuggestion>> getSuggestions(String searchQuery, Urn loggedInUserUrn, int limit) {
         return RxJava.toV2Single(propellerRx.query(getQuery(), getWhere(searchQuery, loggedInUserUrn))
                                             .limit(limit)
-                                            .map(new SearchSuggestionMapper())
+                                            .map(new DatabaseSearchSuggestionMapper())
                                             .toList()
                                             .map(this::removeDuplicates));
     }
@@ -144,21 +150,24 @@ class SearchSuggestionStorage {
         }
     }
 
-    private static class SearchSuggestionMapper extends RxResultMapper<SearchSuggestion> {
+    private static class DatabaseSearchSuggestionMapper extends RxResultMapper<DatabaseSearchSuggestion> {
         @Override
-        public SearchSuggestion map(CursorReader cursorReader) {
-            return DatabaseSearchSuggestion.create(getUrn(cursorReader), cursorReader.getString(DISPLAY_TEXT), Optional.fromNullable(cursorReader.getString(IMAGE_URL)));
+        public DatabaseSearchSuggestion map(CursorReader cursorReader) {
+            final Optional<String> title = KIND_LIKE_USERNAME.equals(cursorReader.getString(KIND)) ? Optional.of(cursorReader.getString(TITLE)) : Optional.absent();
+            return DatabaseSearchSuggestion.create(getUrn(cursorReader),
+                                                   cursorReader.getString(DISPLAY_TEXT),
+                                                   Optional.fromNullable(cursorReader.getString(IMAGE_URL)),
+                                                   title);
         }
     }
 
     // It's possible that we might have some duplicates, e.g. if the user is searching by artist name and has liked a track or playlist whose title contains the artist name, then there would be two
     // suggestions per entity: one for "track/playlist name" and one for "artist name - track/playlist name". We only want to keep the former.
-    private List<SearchSuggestion> removeDuplicates(List<SearchSuggestion> items) {
-        final String splitOperator = " - ";
-        List<SearchSuggestion> result = items;
-        final List<SearchSuggestion> tracksOrPlaylistsRecommendedBasedOnArtistName = newArrayList(filter(items, item -> item.getQuery().contains(splitOperator)));
-        for (SearchSuggestion item : tracksOrPlaylistsRecommendedBasedOnArtistName) {
-            final String title = item.getQuery().split(splitOperator)[1];
+    private List<SearchSuggestion> removeDuplicates(List<DatabaseSearchSuggestion> items) {
+        List<DatabaseSearchSuggestion> result = newArrayList(items);
+        final List<DatabaseSearchSuggestion> tracksOrPlaylistsRecommendedBasedOnArtistName = newArrayList(filter(items, item -> item.title().isPresent()));
+        for (DatabaseSearchSuggestion item : tracksOrPlaylistsRecommendedBasedOnArtistName) {
+            final String title = item.title().get();
             for (SearchSuggestion otherSuggestion : items) {
                 if (otherSuggestion.getQuery().equals(title)) {
                     result.remove(item);
