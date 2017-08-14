@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
@@ -57,9 +56,9 @@ public class FacebookInvitesOperations {
     public Maybe<StreamItem> creatorInvites() {
         return canShowForCreators()
                 .filter(canShowForCreators -> canShowForCreators)
-                .flatMapObservable(o -> myProfileOperations.lastPublicPostedTrack()
+                .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
                                                            .flatMapMaybe(toCreatorInvitesItem)
-                                                           .onErrorResumeNext(Observable.empty())).firstElement();
+                                                           .onErrorResumeNext(Maybe.empty()));
     }
 
     public Maybe<StreamItem> listenerInvites() {

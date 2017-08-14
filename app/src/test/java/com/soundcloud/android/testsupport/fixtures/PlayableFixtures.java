@@ -214,6 +214,10 @@ public abstract class PlayableFixtures {
         return LastPostedTrack.create(Urn.forTrack(123L), new Date(), "http://permalink.url");
     }
 
+    public static LastPostedTrack expectedLastPostedTrack(Date date) {
+        return LastPostedTrack.create(Urn.forTrack(123L), date, "http://permalink.url");
+    }
+
     private static PlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {
         final Playlist playlist = ModelFixtures.playlistBuilder()
                                                .urn(Urn.forPlaylist(123L))
