@@ -1,96 +1,58 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func3;
-import rx.subjects.Subject;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import javax.inject.Inject;
 
-class AdOverlayImpressionOperations {
-    private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
-    private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
-    private final Subject<AdOverlayEvent, AdOverlayEvent> adOverlayEventQueue;
+public class AdOverlayImpressionOperations {
+    private final EventBusV2 eventBus;
     private final AccountOperations accountOperations;
 
-    private final Func1<VisualImpressionState, TrackingEvent> toTrackingEvent = new Func1<VisualImpressionState, TrackingEvent>() {
-        @Override
-        public AdOverlayTrackingEvent call(VisualImpressionState visualImpressionState) {
-            return AdOverlayTrackingEvent.forImpression(
-                    visualImpressionState.adData,
-                    visualImpressionState.currentPlayingUrn,
-                    accountOperations.getLoggedInUserUrn(),
-                    visualImpressionState.trackSourceInfo);
-        }
-    };
-
-    private final Action1<TrackingEvent> lockCurrentImpression = new Action1<TrackingEvent>() {
-        @Override
-        public void call(TrackingEvent event) {
-            impressionEventEmitted = true;
-        }
-    };
-
-    private final Action1<AdOverlayEvent> unlockCurrentImpression = new Action1<AdOverlayEvent>() {
-        @Override
-        public void call(AdOverlayEvent event) {
-            if (event.getKind() == AdOverlayEvent.HIDDEN) {
-                impressionEventEmitted = false;
-            }
-        }
-    };
-
-    private final Func1<VisualImpressionState, Boolean> isAdOverlayVisible = new Func1<VisualImpressionState, Boolean>() {
-        @Override
-        public Boolean call(VisualImpressionState visualImpressionState) {
-            return !impressionEventEmitted && visualImpressionState.adOverlayIsVisible && visualImpressionState.playerIsExpanding && visualImpressionState.isAppInForeground;
-        }
-    };
-
-    private final Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, VisualImpressionState> combineFunction =
-            (adOverlayEvent, event, playerUIEvent) -> new VisualImpressionState(
-                    adOverlayEvent.getKind() == AdOverlayEvent.SHOWN,
-                    event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                    playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED,
-                    adOverlayEvent.getCurrentPlayingUrn(),
-                    adOverlayEvent.getAdData(),
-                    adOverlayEvent.getTrackSourceInfo()
-            );
-
-    private boolean impressionEventEmitted = false;
+    private boolean impressionEventEmitted;
 
     @Inject
-    AdOverlayImpressionOperations(EventBus eventBus, AccountOperations accountOperations) {
+    AdOverlayImpressionOperations(EventBusV2 eventBus, AccountOperations accountOperations) {
+        this.eventBus = eventBus;
         this.accountOperations = accountOperations;
-        this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
-        this.adOverlayEventQueue = eventBus.queue(EventQueue.AD_OVERLAY);
     }
 
-    public Observable<TrackingEvent> trackImpression() {
-        return Observable
-                .combineLatest(
-                        adOverlayEventQueue.doOnNext(unlockCurrentImpression),
-                        activityLifeCycleQueue,
-                        playerUIEventQueue,
-                        combineFunction)
-                .filter(isAdOverlayVisible)
-                .map(toTrackingEvent)
-                .doOnNext(lockCurrentImpression);
+    public void onUnlockCurrentImpression(AdOverlayEvent event) {
+        if (event.getKind() == AdOverlayEvent.HIDDEN) {
+            impressionEventEmitted = false;
+        }
     }
 
-    private static final class VisualImpressionState {
+    public void onVisualImpressionState(VisualImpressionState state) {
+        if (isAdOverlayVisible(state)) {
+            AdOverlayTrackingEvent trackingEvent = createTrackingEvent(state);
+            lockCurrentImpression();
+            eventBus.publish(EventQueue.TRACKING, trackingEvent);
+        }
+    }
+
+    private boolean isAdOverlayVisible(VisualImpressionState visualImpressionState) {
+        return !impressionEventEmitted && visualImpressionState.adOverlayIsVisible && visualImpressionState.playerIsExpanding && visualImpressionState.isAppInForeground;
+    }
+
+    private void lockCurrentImpression() {
+        impressionEventEmitted = true;
+    }
+
+    private AdOverlayTrackingEvent createTrackingEvent(VisualImpressionState visualImpressionState) {
+        return AdOverlayTrackingEvent.forImpression(
+                visualImpressionState.adData,
+                visualImpressionState.currentPlayingUrn,
+                accountOperations.getLoggedInUserUrn(),
+                visualImpressionState.trackSourceInfo);
+    }
+
+    public static final class VisualImpressionState {
         private final boolean adOverlayIsVisible;
         private final boolean isAppInForeground;
         private final boolean playerIsExpanding;

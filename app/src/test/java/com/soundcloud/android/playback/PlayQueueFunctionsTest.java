@@ -12,11 +12,11 @@ import org.junit.Test;
 public class PlayQueueFunctionsTest extends AndroidUnitTest {
 
     @Test
-    public void isTrackQueueItemShouldReturnTrueIfCurrentPlayQueueItemEventHasTrack() {
+    public void isTrackQueueItemShouldReturnTrueIfCurrentPlayQueueItemEventHasTrack() throws Exception {
         final PlayQueueItem trackItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromNewQueue(trackItem, Urn.NOT_SET, 0);
 
-        assertThat(PlayQueueFunctions.IS_AUDIO_AD_QUEUE_ITEM.call(event)).isTrue();
+        assertThat(PlayQueueFunctions.IS_AUDIO_AD_QUEUE_ITEM.test(event)).isTrue();
     }
 
     @Test

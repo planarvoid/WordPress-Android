@@ -10,7 +10,6 @@ import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
@@ -27,14 +26,12 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,11 +48,9 @@ public class PlayerAdsController {
     private static final int MAX_CONCURRENT_AD_FETCHES = 2;
     private static final long DEFAULT_OPERATION_STALE_TIME = TimeUnit.MINUTES.toMillis(10);
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final AdsOperations adsOperations;
     private final FeatureOperations featureOperations;
-    private final VisualAdImpressionOperations visualAdImpressionOperations;
-    private final AdOverlayImpressionOperations adOverlayImpressionOperations;
     private final VideoSourceProvider videoSourceProvider;
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
@@ -72,39 +67,6 @@ public class PlayerAdsController {
     private boolean isForeground;
     private boolean isPlayerVisible;
 
-    private static final Func2<Track, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
-            (track, kruxSegments) -> AdRequestData.forPlayerAd(track.urn(), kruxSegments);
-
-    private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
-        @Override
-        public Boolean call(Object event) {
-            return featureOperations.shouldRequestAds()
-                    && !castConnectionHelper.isCasting()
-                    && playQueueManager.hasTrackAsNextItem()
-                    && !adsOperations.isNextItemAd()
-                    && !adsOperations.isCurrentItemAd()
-                    && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
-        }
-    };
-
-    private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
-        @Override
-        public Boolean call(Object event) {
-            return featureOperations.shouldRequestAds()
-                    && !castConnectionHelper.isCasting()
-                    && playQueueManager.getCurrentPlayQueueItem().isTrack()
-                    && !adsOperations.isCurrentItemAd()
-                    && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
-        }
-    };
-
-    private final Func1<PlayStateEvent, Boolean> isBufferingAd = new Func1<PlayStateEvent, Boolean>() {
-        @Override
-        public Boolean call(PlayStateEvent state) {
-            return state.isBuffering() && adsOperations.isCurrentItemAd();
-        }
-    };
-
     private final Func1<AdRequestData, Observable<ApiAdsForTrack>> fetchAds = new Func1<AdRequestData, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(AdRequestData adRequestData) {
@@ -113,49 +75,29 @@ public class PlayerAdsController {
         }
     };
 
-    private final Action1<PlayStateEvent> unsubscribeFailedAdSkip = new Action1<PlayStateEvent>() {
-        @Override
-        public void call(PlayStateEvent playStateEvent) {
-            if (playStateEvent.isPlayerPlaying() || playStateEvent.isPaused()) {
-                skipFailedAdSubscription.unsubscribe();
-            } else if (playStateEvent.getTransition().wasError() && adsOperations.isCurrentItemAd()) {
-                skipFailedAdSubscription.unsubscribe();
-                playQueueManager.autoMoveToNextPlayableItem();
-            }
-        }
-    };
-
     @Inject
-    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+    public PlayerAdsController(EventBusV2 eventBus, AdsOperations adsOperations,
                                FeatureOperations featureOperations,
-                               VisualAdImpressionOperations visualAdImpressionOperations,
-                               AdOverlayImpressionOperations adOverlayImpressionOperations,
                                VideoSourceProvider videoSourceProvider,
                                PlayQueueManager playQueueManager,
                                TrackRepository trackRepository, CastConnectionHelper castConnectionHelper) {
-        this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
+        this(eventBus, adsOperations, featureOperations, videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
     }
 
-    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+    public PlayerAdsController(EventBusV2 eventBus, AdsOperations adsOperations,
                                FeatureOperations featureOperations,
-                               VisualAdImpressionOperations visualAdImpressionOperations,
-                               AdOverlayImpressionOperations adOverlayImpressionOperations,
                                VideoSourceProvider videoSourceProvider,
                                PlayQueueManager playQueueManager,
                                TrackRepository trackRepository,
                                CastConnectionHelper castConnectionHelper,
                                Scheduler scheduler) {
 
-        this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler,
-             DEFAULT_OPERATION_STALE_TIME);
+        this(eventBus, adsOperations, featureOperations,
+             videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler, DEFAULT_OPERATION_STALE_TIME);
     }
 
-    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+    public PlayerAdsController(EventBusV2 eventBus, AdsOperations adsOperations,
                                FeatureOperations featureOperations,
-                               VisualAdImpressionOperations visualAdImpressionOperations,
-                               AdOverlayImpressionOperations adOverlayImpressionOperations,
                                VideoSourceProvider videoSourceProvider,
                                PlayQueueManager playQueueManager,
                                TrackRepository trackRepository,
@@ -165,42 +107,12 @@ public class PlayerAdsController {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.featureOperations = featureOperations;
-        this.visualAdImpressionOperations = visualAdImpressionOperations;
-        this.adOverlayImpressionOperations = adOverlayImpressionOperations;
         this.videoSourceProvider = videoSourceProvider;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.scheduler = scheduler;
         this.fetchOperationStaleTime = fetchOperationStaleTime;
         this.castConnectionHelper = castConnectionHelper;
-    }
-
-    public void subscribe() {
-        eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE)
-                .subscribe(new ActivityStateSubscriber());
-
-        eventBus.queue(EventQueue.PLAYER_UI)
-                .subscribe(new PlayerStateSubscriber());
-
-
-        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).subscribe(new ResetAdsOnTrackChange());
-
-        final Observable<Object> queueChangeForAd = Observable.merge(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
-                                                                     eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent::isQueueUpdate));
-
-        queueChangeForAd.filter(shouldFetchInterstitialForCurrentTrack)
-                        .subscribe(new FetchAdForCurrentTrackSubscriber());
-
-        queueChangeForAd.filter(shouldFetchAudioAdForNextItem)
-                        .subscribe(new FetchAdForNextTrackSubscriber());
-
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .doOnNext(unsubscribeFailedAdSkip)
-                .filter(isBufferingAd)
-                .subscribe(new SkipFailedAdSubscriber());
-
-        visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
-        adOverlayImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
     public void reconfigureAdForNextTrack() {
@@ -258,62 +170,102 @@ public class PlayerAdsController {
         return currentAdsFetches.containsKey(playQueueItem.getUrn());
     }
 
-    private final class FetchAdForNextTrackSubscriber extends DefaultSubscriber<Object> {
-        @Override
-        public void onNext(Object event) {
-            final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
-            final NextTrackSubscriber nextTrackSubscriber = new NextTrackSubscriber(playQueueManager.getCurrentPlayQueueItem());
-            createAdsFetchObservable(nextItem, nextTrackSubscriber);
-        }
-    }
-
-    private final class FetchAdForCurrentTrackSubscriber extends DefaultSubscriber<Object> {
-        @Override
-        public void onNext(Object event) {
-            final PlayQueueItem currentItem = playQueueManager.getCurrentPlayQueueItem();
-            final InterstitialSubscriber audioAdSubscriber = new InterstitialSubscriber(currentItem);
-            createAdsFetchObservable(currentItem, audioAdSubscriber);
-        }
-    }
-
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(RxJava.toV1Observable(trackRepository.track(playQueueItem.getUrn()))
-                                                                               .filter(Track::monetizable),
+                                                                               .filter(Track::monetizable)
+                                                                               .map(Track::urn),
                                                                          adsOperations.kruxSegments(),
-                                                                         TO_AD_REQUEST_DATA)
+                                                                         AdRequestData::forPlayerAd)
                                                                     .flatMap(fetchAds)
                                                                     .observeOn(AndroidSchedulers.mainThread());
 
         currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
 
-    private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueItemEvent currentItemEvent) {
-            adsForNextTrack = Optional.absent();
-            Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
-            while (iter.hasNext()) {
+    private boolean shouldFetchInterstitialForCurrentTrack() {
+        return featureOperations.shouldRequestAds()
+                && !castConnectionHelper.isCasting()
+                && playQueueManager.getCurrentPlayQueueItem().isTrack()
+                && !adsOperations.isCurrentItemAd()
+                && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
+    }
 
-                final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
-                final Urn monetizableUrn = operation.getKey();
+    private boolean shouldFetchAudioAdForNextItem() {
+        return featureOperations.shouldRequestAds()
+                && !castConnectionHelper.isCasting()
+                && playQueueManager.hasTrackAsNextItem()
+                && !adsOperations.isNextItemAd()
+                && !adsOperations.isCurrentItemAd()
+                && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
+    }
 
-                if (isNotCurrentOrNextItem(monetizableUrn) || operation.getValue().hasExpired()) {
-                    operation.getValue().subscription.unsubscribe();
-                    iter.remove();
-                }
-            }
+    void onQueueChangeForAd() {
+        if (shouldFetchInterstitialForCurrentTrack()) {
+            fetchAdForCurrentTrack();
+        }
 
+        if (shouldFetchAudioAdForNextItem()) {
+            fetchAdForNextTrack();
+        }
+    }
+
+    void onPlaybackStateChanged(PlayStateEvent playStateEvent) {
+        unsubscribeFailedAdSkip(playStateEvent);
+
+        if (isBufferingAd(playStateEvent)) {
+            skipFailedAd(playStateEvent);
+        }
+    }
+
+    private boolean isBufferingAd(PlayStateEvent state) {
+        return state.isBuffering() && adsOperations.isCurrentItemAd();
+    }
+
+    private void unsubscribeFailedAdSkip(PlayStateEvent playStateEvent) {
+        if (playStateEvent.isPlayerPlaying() || playStateEvent.isPaused()) {
             skipFailedAdSubscription.unsubscribe();
-            if (!adsOperations.isCurrentItemAd()) {
-                adsOperations.clearAllAdsFromQueue();
+        } else if (playStateEvent.getTransition().wasError() && adsOperations.isCurrentItemAd()) {
+            skipFailedAdSubscription.unsubscribe();
+            playQueueManager.autoMoveToNextPlayableItem();
+        }
+    }
+
+    private void fetchAdForNextTrack() {
+        final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
+        final NextTrackSubscriber nextTrackSubscriber = new NextTrackSubscriber(playQueueManager.getCurrentPlayQueueItem());
+        createAdsFetchObservable(nextItem, nextTrackSubscriber);
+    }
+
+    private void fetchAdForCurrentTrack() {
+        final PlayQueueItem currentItem = playQueueManager.getCurrentPlayQueueItem();
+        final InterstitialSubscriber audioAdSubscriber = new InterstitialSubscriber(currentItem);
+        createAdsFetchObservable(currentItem, audioAdSubscriber);
+    }
+
+    void onCurrentPlayQueueItem(CurrentPlayQueueItemEvent currentItemEvent) {
+        adsForNextTrack = Optional.absent();
+        Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
+        while (iter.hasNext()) {
+
+            final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
+            final Urn monetizableUrn = operation.getKey();
+
+            if (isNotCurrentOrNextItem(monetizableUrn) || operation.getValue().hasExpired()) {
+                operation.getValue().subscription.unsubscribe();
+                iter.remove();
             }
         }
 
-        private boolean isNotCurrentOrNextItem(Urn monetizableUrn) {
-            final Urn currentItemUrn = playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet();
-            final Urn nextItemUrn = playQueueManager.getNextPlayQueueItem().getUrnOrNotSet();
-            return !currentItemUrn.equals(monetizableUrn) && !nextItemUrn.equals(monetizableUrn);
+        skipFailedAdSubscription.unsubscribe();
+        if (!adsOperations.isCurrentItemAd()) {
+            adsOperations.clearAllAdsFromQueue();
         }
+    }
+
+    private boolean isNotCurrentOrNextItem(Urn monetizableUrn) {
+        final Urn currentItemUrn = playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet();
+        final Urn nextItemUrn = playQueueManager.getNextPlayQueueItem().getUrnOrNotSet();
+        return !currentItemUrn.equals(monetizableUrn) && !nextItemUrn.equals(monetizableUrn);
     }
 
     private final class NextTrackSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
@@ -350,57 +302,49 @@ public class PlayerAdsController {
                 adsOperations.applyInterstitialToTrack(currentItem, apiAdsForTrack);
             }
         }
+
     }
 
-    private final class SkipFailedAdSubscriber extends DefaultSubscriber<PlayStateEvent> {
-        @Override
-        public void onNext(final PlayStateEvent state) {
-            skipFailedAdSubscription.unsubscribe();
-            skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
-                                                 .subscribe(new DefaultSubscriber<Long>() {
-                                                     @Override
-                                                     public void onNext(Long args) {
-                                                         Log.i(ADS_TAG,
-                                                               "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
-                                                         eventBus.publish(EventQueue.TRACKING, createErrorEvent(state));
-                                                         playQueueManager.autoMoveToNextPlayableItem();
-                                                     }
-                                                 });
-        }
+    private void skipFailedAd(final PlayStateEvent state) {
+        skipFailedAdSubscription.unsubscribe();
+        skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
+                                             .subscribe(new DefaultSubscriber<Long>() {
+                                                 @Override
+                                                 public void onNext(Long args) {
+                                                     Log.i(ADS_TAG,
+                                                           "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
+                                                     eventBus.publish(EventQueue.TRACKING, createErrorEvent(state));
+                                                     playQueueManager.autoMoveToNextPlayableItem();
+                                                 }
+                                             });
+    }
 
-        private TrackingEvent createErrorEvent(PlayStateEvent state) {
-            final AdData adData = adsOperations.getCurrentTrackAdData().get();
-            if (adData instanceof VideoAd && videoSourceProvider.getCurrentSource().isPresent()) {
-                return AdPlaybackErrorEvent.failToBuffer(adData,
-                                                         state.getTransition(),
-                                                         videoSourceProvider.getCurrentSource().get());
-            } else {
-                return AdFailedToBufferEvent.create(state.getPlayingItemUrn(),
-                                                    state.getProgress(),
-                                                    FAILED_AD_WAIT_SECS);
-            }
+    private TrackingEvent createErrorEvent(PlayStateEvent state) {
+        final AdData adData = adsOperations.getCurrentTrackAdData().get();
+        if (adData instanceof VideoAd && videoSourceProvider.getCurrentSource().isPresent()) {
+            return AdPlaybackErrorEvent.failToBuffer(adData,
+                                                     state.getTransition(),
+                                                     videoSourceProvider.getCurrentSource().get());
+        } else {
+            return AdFailedToBufferEvent.create(state.getPlayingItemUrn(),
+                                                state.getProgress(),
+                                                FAILED_AD_WAIT_SECS);
         }
     }
 
-    private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
-        @Override
-        public void onNext(ActivityLifeCycleEvent latestState) {
-            isForeground = latestState.isForeground();
-        }
+    void onActivityLifeCycleEvent(ActivityLifeCycleEvent latestState) {
+        isForeground = latestState.isForeground();
     }
 
-    private class PlayerStateSubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        @Override
-        public void onNext(PlayerUIEvent latestState) {
-            isPlayerVisible = latestState.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
-        }
+    void onPlayerState(PlayerUIEvent latestState) {
+        isPlayerVisible = latestState.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
     }
 
-    private class AdsFetchOperation {
+    private final class AdsFetchOperation {
         private final Subscription subscription;
         private final long createdAtMillis;
 
-        private AdsFetchOperation(Subscription subscription) {
+        AdsFetchOperation(Subscription subscription) {
             this.subscription = subscription;
             this.createdAtMillis = System.currentTimeMillis();
         }
