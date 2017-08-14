@@ -1,10 +1,12 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
+import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -13,6 +15,7 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -20,6 +23,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,6 +35,7 @@ import org.mockito.Mock;
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,6 +89,29 @@ public class RecentlyPlayedPresenterTest extends AndroidUnitTest {
                 .hasMetricType(MetricType.RECENTLY_PLAYED_LOAD)
                 .containsMetricParam(MetricKey.RECENTLY_PLAYED_SIZE, RECENTLY_PLAYED_ITEMS_COUNT + 1); //+1 is for the header
     }
+
+    @Test
+    public void shouldDisplayAToastWhenClearFails() {
+        when(recentlyPlayedOperations.clearHistory()).thenReturn(Completable.error(new IOException()));
+
+        recentlyPlayedPresenter.onClearConfirmationClicked();
+
+        verify(feedbackController).showFeedback(Feedback.create(R.string.collections_recently_played_clear_error_message,
+                                                                LENGTH_LONG));
+    }
+
+
+    @Test
+    public void shouldReloadItemsOnClearSuccess() {
+        when(recentlyPlayedOperations.clearHistory()).thenReturn(Completable.complete());
+
+        recentlyPlayedPresenter.onClearConfirmationClicked();
+
+        verify(recentlyPlayedAdapter).clear();
+        verify(recentlyPlayedOperations).recentlyPlayed();
+        verifyZeroInteractions(feedbackController);
+    }
+
 
     private static List<RecentlyPlayedPlayableItem> createRecentlyPlayedFixtures(int count) {
         return Collections.nCopies(count, mock(RecentlyPlayedPlayableItem.class));

@@ -738,6 +738,10 @@ public interface Tables {
         }
     }
 
+    /**
+     * @deprecated RecentlyPlayed moved to its own storage {@link com.soundcloud.android.collection.DbModel.RecentlyPlayed}
+     */
+    @Deprecated
     class RecentlyPlayed extends SCBaseTable {
         public static final RecentlyPlayed TABLE = new RecentlyPlayed();
 

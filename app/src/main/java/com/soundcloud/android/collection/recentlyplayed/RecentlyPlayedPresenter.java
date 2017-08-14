@@ -216,16 +216,16 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         @Override
         public void onComplete() {
             super.onComplete();
-            feedbackController.showFeedback(Feedback.create(R.string.collections_recently_played_clear_error_message,
-                                                            LENGTH_LONG));
+            adapter.clear();
+            retryWith(onBuildBinding(null));
+            eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
         }
 
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            adapter.clear();
-            retryWith(onBuildBinding(null));
-            eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
+            feedbackController.showFeedback(Feedback.create(R.string.collections_recently_played_clear_error_message,
+                                                            LENGTH_LONG));
         }
     }
 

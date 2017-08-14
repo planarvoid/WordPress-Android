@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,7 +41,6 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private EventBus eventBus;
     @Mock private StationsOperations stationsOperations;
-    @Mock private OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand;
     @Mock private StationsRepository stationsRepository;
 
     @Before
@@ -51,8 +51,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
 
         syncer = new RecentlyPlayedSyncer(recentlyPlayedStorage, fetchRecentlyPlayedCommand, pushRecentlyPlayedCommand,
                                           fetchPlaylistsCommand, storePlaylistsCommand, fetchUsersCommand,
-                                          storeUsersCommand, eventBus,
-                                          optimizeRecentlyPlayedCommand, stationsRepository);
+                                          storeUsersCommand, eventBus, stationsRepository);
     }
 
     @Test
@@ -115,7 +114,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     public void shouldOptimizeRecentlyPlayed() throws Exception {
         syncer.call();
 
-        verify(optimizeRecentlyPlayedCommand).call(1000);
+        verify(recentlyPlayedStorage).trim(1000);
     }
 
     private PlayHistoryRecord contextFor(Urn urn) {

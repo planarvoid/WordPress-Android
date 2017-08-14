@@ -1,0 +1,47 @@
+CREATE TABLE IF NOT EXISTS RecentlyPlayed (
+    timestamp INTEGER NOT NULL,
+    context_type INTEGER NOT NULL,
+    context_id INTEGER NOT NULL,
+    synced INTEGER AS Boolean DEFAULT 0,
+    PRIMARY KEY (timestamp, context_type, context_id)
+
+);
+
+selectAll:
+SELECT * FROM RecentlyPlayed;
+
+selectIdsByContextType:
+SELECT DISTINCT context_id FROM RecentlyPlayed WHERE context_type = ?;
+
+selectRecentlyPlayed:
+SELECT context_id, context_type, max(timestamp) AS timestamp
+FROM RecentlyPlayed
+GROUP BY context_type, context_id
+ORDER BY 2 DESC;
+
+selectRecentlyPlayedBySyncStatus:
+SELECT context_id, context_type, timestamp
+FROM RecentlyPlayed
+WHERE synced = ?;
+
+unsyncedRecentlyPlayedCount:
+SELECT COUNT(context_id)
+FROM RecentlyPlayed
+WHERE synced = 0;
+
+insertRow:
+INSERT OR REPLACE INTO RecentlyPlayed (context_id, context_type, timestamp, synced)
+VALUES (?, ?, ?, ?);
+
+upsertRow:
+INSERT OR REPLACE INTO RecentlyPlayed (context_id, context_type, timestamp, synced)
+VALUES (?1, ?2, ?3, COALESCE((SELECT synced from RecentlyPlayed WHERE context_id = ?1 AND context_type = ?2 AND timestamp = ?3), 0) );
+
+deleteRecentlyPlayed:
+DELETE FROM RecentlyPlayed WHERE context_id = ? AND context_type = ? AND timestamp = ?;
+
+trim:
+DELETE FROM RecentlyPlayed WHERE timestamp <= COALESCE(
+(SELECT timestamp from RecentlyPlayed
+ORDER BY timestamp DESC
+LIMIT 1 OFFSET ?), 0);

@@ -28,10 +28,15 @@ public class MigrationEngine {
                            SettingsMigration settingsMigration,
                            DiskCacheMigration diskCacheMigration,
                            StreamCacheMigration streamCacheMigration,
-                           PlayHistoryMigration playHistoryMigration) {
+                           PlayHistoryMigration playHistoryMigration,
+                           RecentlyPlayedMigration recentlyPlayedMigration) {
         this(BuildConfig.VERSION_CODE,
              sharedPreferences,
-             settingsMigration, diskCacheMigration, streamCacheMigration, playHistoryMigration);
+             settingsMigration,
+             diskCacheMigration,
+             streamCacheMigration,
+             playHistoryMigration,
+             recentlyPlayedMigration);
     }
 
     @VisibleForTesting

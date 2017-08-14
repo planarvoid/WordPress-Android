@@ -38,7 +38,6 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
     private final FetchUsersCommand fetchUsersCommand;
     private final StoreUsersCommand storeUsersCommand;
     private final EventBus eventBus;
-    private final OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final StationsRepository stationsRepository;
 
@@ -51,7 +50,6 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
                          FetchUsersCommand fetchUsersCommand,
                          StoreUsersCommand storeUsersCommand,
                          EventBus eventBus,
-                         OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand,
                          StationsRepository stationsRepository) {
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
@@ -61,7 +59,6 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
         this.fetchUsersCommand = fetchUsersCommand;
         this.storeUsersCommand = storeUsersCommand;
         this.eventBus = eventBus;
-        this.optimizeRecentlyPlayedCommand = optimizeRecentlyPlayedCommand;
         this.stationsRepository = stationsRepository;
     }
 
@@ -73,7 +70,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
     }
 
     private void pushUnSyncedPlayHistory() {
-        optimizeRecentlyPlayedCommand.call(RecentlyPlayedOperations.MAX_RECENTLY_PLAYED);
+        recentlyPlayedStorage.trim(RecentlyPlayedOperations.MAX_RECENTLY_PLAYED);
         pushRecentlyPlayedCommand.call();
     }
 

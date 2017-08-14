@@ -1,10 +1,11 @@
 package com.soundcloud.android.collection.playhistory;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
-import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -13,7 +14,6 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -38,7 +38,7 @@ public class PlayHistoryControllerTest {
     private static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
 
     @Mock PlayHistoryStorage playHistoryStorage;
-    @Mock WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
+    @Mock RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock PlayHistoryOperations playHistoryOperations;
     @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
@@ -51,11 +51,10 @@ public class PlayHistoryControllerTest {
     public void setUp() throws Exception {
         PlayHistoryController controller = new PlayHistoryController(eventBus,
                                                                      playHistoryStorage,
-                                                                     recentlyPlayedStoreCommand,
+                                                                     recentlyPlayedStorage,
                                                                      pushPlayHistoryCommand,
                                                                      pushRecentlyPlayedCommand,
-                                                                     scheduler
-        );
+                                                                     scheduler);
         controller.subscribe();
     }
 
@@ -70,7 +69,15 @@ public class PlayHistoryControllerTest {
     public void storesPlayContexts() {
         publishStateEvents(RECORD);
 
-        verify(recentlyPlayedStoreCommand).call(RECORD);
+        verify(recentlyPlayedStorage).upsertRow(RECORD);
+    }
+
+    @Test
+    public void doesntStoreRecentlyPlayedForInvalidContextUrn() {
+        final PlayHistoryRecord playHistoryRecord = PlayHistoryRecord.create(START_EVENT, TRACK_URN, Urn.NOT_SET);
+        publishStateEvents(playHistoryRecord);
+
+        verify(recentlyPlayedStorage, never()).upsertRow(playHistoryRecord);
     }
 
     @Test
@@ -79,9 +86,9 @@ public class PlayHistoryControllerTest {
         publishStateEvents(RECORD2);
 
         verify(playHistoryStorage).upsertRow(RECORD);
-        verify(recentlyPlayedStoreCommand).call(RECORD);
+        verify(recentlyPlayedStorage).upsertRow(RECORD);
         verify(playHistoryStorage).upsertRow(RECORD2);
-        verify(recentlyPlayedStoreCommand).call(RECORD2);
+        verify(recentlyPlayedStorage).upsertRow(RECORD2);
     }
 
     @Test

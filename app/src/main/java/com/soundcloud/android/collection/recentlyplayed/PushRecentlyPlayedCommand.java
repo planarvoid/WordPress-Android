@@ -52,7 +52,7 @@ public class PushRecentlyPlayedCommand extends Command<PlayHistoryRecord, List<P
         ApiResponse response = apiClient.fetchResponse(request);
 
         if (response.isSuccess()) {
-            recentlyPlayedStorage.setSynced(unSyncedRecords);
+            recentlyPlayedStorage.markAsSynced(unSyncedRecords);
         }
     }
 

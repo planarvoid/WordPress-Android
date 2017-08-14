@@ -54,7 +54,7 @@ public class PushRecentlyPlayedCommandTest extends AndroidUnitTest {
 
         command.call();
 
-        verify(recentlyPlayedStorage).setSynced(UN_SYNCED_RECENTLY_PLAYED);
+        verify(recentlyPlayedStorage).markAsSynced(UN_SYNCED_RECENTLY_PLAYED);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class PushRecentlyPlayedCommandTest extends AndroidUnitTest {
 
         command.call();
 
-        verify(recentlyPlayedStorage, never()).setSynced(UN_SYNCED_RECENTLY_PLAYED);
+        verify(recentlyPlayedStorage, never()).markAsSynced(UN_SYNCED_RECENTLY_PLAYED);
     }
 
 }

@@ -3,7 +3,7 @@ package com.soundcloud.android.collection.playhistory;
 import static com.soundcloud.android.ApplicationModule.RX_LOW_PRIORITY;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
-import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -50,7 +50,7 @@ public class PlayHistoryController {
 
     private final EventBusV2 eventBus;
     private final PlayHistoryStorage playHistoryStorage;
-    private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
+    private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
     private final PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
     private final Scheduler scheduler;
@@ -58,13 +58,13 @@ public class PlayHistoryController {
     @Inject
     public PlayHistoryController(EventBusV2 eventBus,
                                  PlayHistoryStorage playHistoryStorage,
-                                 WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
+                                 RecentlyPlayedStorage recentlyPlayedStorage,
                                  PushPlayHistoryCommand pushPlayHistoryCommand,
                                  PushRecentlyPlayedCommand pushRecentlyPlayedCommand,
                                  @Named(RX_LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.playHistoryStorage = playHistoryStorage;
-        this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
+        this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
         this.scheduler = scheduler;
@@ -80,11 +80,17 @@ public class PlayHistoryController {
                 .filter(IS_ELIGIBLE_FOR_HISTORY)
                 .map(TO_PLAY_HISTORY_RECORD)
                 .doOnNext(playHistoryStorage::upsertRow)
-                .doOnNext(recentlyPlayedStoreCommand.toConsumer())
+                .doOnNext(this::storeRecentlyPlayed)
                 .doOnNext(publishNewPlayHistory())
                 .doOnNext(pushPlayHistoryCommand.toConsumer())
                 .doOnNext(pushRecentlyPlayedCommand.toConsumer())
                 .subscribe(new DefaultObserver<>());
+    }
+
+    void storeRecentlyPlayed(PlayHistoryRecord record) {
+        if (record.getContextType() != PlayHistoryRecord.CONTEXT_OTHER) {
+            recentlyPlayedStorage.upsertRow(record);
+        }
     }
 
     private Consumer<PlayHistoryRecord> publishNewPlayHistory() {

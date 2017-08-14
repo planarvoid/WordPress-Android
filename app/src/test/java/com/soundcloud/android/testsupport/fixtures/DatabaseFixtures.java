@@ -199,15 +199,6 @@ public class DatabaseFixtures {
         insertInto(StationsCollections.TABLE, cv.get());
     }
 
-    public void insertRecentlyPlayed(long timestamp, Urn urn) {
-        ContentValues cv = new ContentValues();
-        PlayHistoryRecord record = PlayHistoryRecord.create(timestamp, Urn.NOT_SET, urn);
-        cv.put(Tables.RecentlyPlayed.TIMESTAMP.name(), record.timestamp());
-        cv.put(Tables.RecentlyPlayed.CONTEXT_TYPE.name(), record.getContextType());
-        cv.put(Tables.RecentlyPlayed.CONTEXT_ID.name(), record.contextUrn().getNumericId());
-        insertInto(Tables.RecentlyPlayed.TABLE, cv);
-    }
-
     public void insertSuggestedCreator(ApiSuggestedCreator apiSuggestedCreator) {
         insertUser(apiSuggestedCreator.getSeedUser());
         insertUser(apiSuggestedCreator.getSuggestedUser());

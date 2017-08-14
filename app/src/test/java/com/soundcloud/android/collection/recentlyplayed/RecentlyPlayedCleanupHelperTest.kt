@@ -1,37 +1,46 @@
 package com.soundcloud.android.collection.recentlyplayed
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord
 import com.soundcloud.android.model.Urn
-import com.soundcloud.android.testsupport.StorageIntegrationTest
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
 
-class RecentlyPlayedCleanupHelperTest : StorageIntegrationTest() {
+@RunWith(MockitoJUnitRunner::class)
+class RecentlyPlayedCleanupHelperTest {
     private lateinit var cleanupHelper: RecentlyPlayedCleanupHelper
+
+    @Mock private lateinit var recentlyPlayedStorage: RecentlyPlayedStorage
 
     @Before
     fun setup() {
-        cleanupHelper = RecentlyPlayedCleanupHelper(propeller())
+        cleanupHelper = RecentlyPlayedCleanupHelper(recentlyPlayedStorage)
     }
 
     @Test
     fun returnUsersToKeep() {
-        val userUrn = Urn.forUser(2L)
-        testFixtures().insertRecentlyPlayed(2L, userUrn)
+        whenever(recentlyPlayedStorage.loadContextIdsByType(any())).thenReturn(setOf(1))
 
         val usersToKeep = cleanupHelper.usersToKeep()
 
-        Assertions.assertThat(usersToKeep).containsOnly(userUrn)
+        assertThat(usersToKeep).containsOnly(Urn.forUser(1))
+        verify(recentlyPlayedStorage).loadContextIdsByType(PlayHistoryRecord.CONTEXT_ARTIST)
     }
 
     @Test
     fun returnPlaylistsToKeep() {
-        val playlistUrn = Urn.forPlaylist(3L)
-        testFixtures().insertRecentlyPlayed(3L, playlistUrn)
+        whenever(recentlyPlayedStorage.loadContextIdsByType(any())).thenReturn(setOf(1))
 
         val playlistsToKeep = cleanupHelper.playlistsToKeep()
 
-        Assertions.assertThat(playlistsToKeep).containsOnly(playlistUrn)
+        assertThat(playlistsToKeep).containsOnly(Urn.forPlaylist(1))
+        verify(recentlyPlayedStorage).loadContextIdsByType(PlayHistoryRecord.CONTEXT_PLAYLIST)
     }
 }
 

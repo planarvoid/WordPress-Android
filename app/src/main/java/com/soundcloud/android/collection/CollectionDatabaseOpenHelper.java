@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 public class CollectionDatabaseOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     @Inject
     public CollectionDatabaseOpenHelper(Context context) {
@@ -18,10 +18,13 @@ public class CollectionDatabaseOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DbModel.PlayHistory.CREATE_TABLE);
+        db.execSQL(DbModel.RecentlyPlayed.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //nothing to do, for now
+        if (newVersion == 2) {
+            db.execSQL(DbModel.RecentlyPlayed.CREATE_TABLE);
+        }
     }
 }
