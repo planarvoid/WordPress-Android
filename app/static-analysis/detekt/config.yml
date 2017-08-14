@@ -6,7 +6,31 @@ build:
     complexity: 2
     formatting: 0
     LongParameterList: 1
-    comments: 0.5
+    comments: 0
+
+processors:
+  active: true
+  exclude:
+  # - 'FunctionCountProcessor'
+  # - 'PropertyCountProcessor'
+  # - 'ClassCountProcessor'
+  # - 'PackageCountProcessor'
+  # - 'KtFileCountProcessor'
+
+console-reports:
+  active: true
+  exclude:
+  #  - 'ProjectStatisticsReport'
+  #  - 'ComplexityReport'
+  #  - 'NotificationReport'
+  #  - 'FindingsReport'
+  #  - 'BuildFailureReport'
+
+output-reports:
+  active: true
+  exclude:
+  #  - 'PlainOutputReport'
+  #  - 'XmlOutputReport'
 
 potential-bugs:
   active: true
@@ -15,6 +39,8 @@ potential-bugs:
   EqualsWithHashCodeExist:
     active: true
   ExplicitGarbageCollectionCall:
+    active: true
+  UnreachableCode:
     active: true
   LateinitUsage:
     active: false
@@ -28,6 +54,8 @@ performance:
   ForEachOnRange:
     active: true
   SpreadOperator:
+    active: true
+  UnnecessaryTemporaryInstantiation:
     active: true
 
 exceptions:
@@ -111,13 +139,31 @@ formatting:
 
 style:
   active: true
+  ReturnCount:
+    active: true
+    max: 2
   NewLineAtEndOfFile:
+    active: true
+  OptionalAbstractKeyword:
     active: true
   ForbiddenComment:
     active: false
     values: 'TODO:,FIXME:,STOPSHIP:'
-  WildcardImport:
+  ForbiddenImport:
     active: false
+    imports: ''
+  ModifierOrder:
+    active: true
+  MagicNumber:
+    active: true
+    ignoreNumbers: '-1,0,1,2'
+    ignoreHashCodeFunction: false
+    ignorePropertyDeclaration: false
+    ignoreAnnotation: false
+  WildcardImport:
+    active: true
+  SafeCast:
+    active: true
   MaxLineLength:
     active: true
     maxLineLength: 200
@@ -139,6 +185,9 @@ comments:
     active: true
   UndocumentedPublicClass:
     active: false
+    searchInNestedClass: true
+    searchInInnerClass: true
+    searchInInnerInterface: true
   UndocumentedPublicFunction:
     active: false
 

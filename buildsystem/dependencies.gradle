@@ -19,7 +19,7 @@ ext {
   robolectricVersion = '3.4.2'
   pmdVersion = '5.7.0'
   kotlinVersion = '1.1.3-2'
-  detektVersion = '1.0.0.M13.1'
+  detektVersion = '1.0.0.RC2'
   mementoVersion = '0.2-SNAPSHOT'
 
   libraries = [
