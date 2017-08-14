@@ -23,6 +23,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -92,6 +93,13 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
                                 .build();
+    }
+
+    @Override
+    protected CollectionBinding<List<ActivityItem>, ActivityItem> rebuildBinding(@Nullable Bundle fragmentArgs) {
+        adapter.clear();
+        adapter.notifyDataSetChanged();
+        return super.rebuildBinding(fragmentArgs);
     }
 
     @Override

@@ -187,4 +187,13 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         verify(performanceMetricsEngine).endMeasuring(MetricType.ACTIVITIES_LOAD);
     }
+
+    @Test
+    public void shouldClearTheAdapterOnRebuildBinding() {
+
+        presenter.rebuildBinding(null);
+
+        verify(adapter).clear();
+        verify(adapter).notifyDataSetChanged();
+    }
 }
