@@ -11,11 +11,13 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.TooltipCompat;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.ImageView;
@@ -60,7 +62,13 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         super.onViewCreated(fragment, view, savedInstanceState);
         unbinder = ButterKnife.bind(this, view);
         initRecyclerView();
+        setUpTooltips(view.getResources());
         playQueuePresenter.attachView(this);
+    }
+
+    private void setUpTooltips(Resources resources) {
+        TooltipCompat.setTooltipText(repeatView, resources.getString(R.string.btn_repeat));
+        TooltipCompat.setTooltipText(shuffleView, resources.getString(R.string.btn_shuffle));
     }
 
     private void initRecyclerView() {
