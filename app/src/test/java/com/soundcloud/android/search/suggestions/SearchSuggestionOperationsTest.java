@@ -3,6 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import static com.soundcloud.android.search.suggestions.SuggestionItem.forAutocompletion;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.util.Lists.emptyList;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyListOf;
@@ -25,7 +26,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.schedulers.TestScheduler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,6 +37,7 @@ import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
@@ -43,6 +45,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private static final int MAX_RESULTS_NUMBER = 9;
     private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
     private static final Urn USER_URN = Urn.forUser(123);
+    private final TestScheduler testScheduler = new TestScheduler();
 
     @Mock private ApiClientRxV2 apiClientRx;
     @Mock private SearchSuggestionStorage suggestionStorage;
@@ -61,7 +64,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.trampoline(), suggestionStorage, accountOperations, searchSuggestionFiltering, localizedAutocompletionsExperiment);
+        operations = new SearchSuggestionOperations(apiClientRx, testScheduler, suggestionStorage, accountOperations, searchSuggestionFiltering, localizedAutocompletionsExperiment);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
     }
 
@@ -78,19 +81,94 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         final TestObserver<List<SuggestionItem>> suggestionsResultSubscriber = operations.suggestionsFor(SEARCH_QUERY).test();
 
-        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
-
         final SuggestionItem localItem = SuggestionItem.fromSearchSuggestion(localSuggestions.get(0), SEARCH_QUERY);
         final SuggestionItem autocompletionItem = forAutocompletion(autocompletion, SEARCH_QUERY, Optional.of(QUERY_URN));
 
         final List<SuggestionItem> firstItem = newArrayList(localItem);
-        final List<SuggestionItem> allItems = newArrayList(localItem,
-                                                           autocompletionItem);
+        final List<SuggestionItem> allItems = newArrayList(localItem, autocompletionItem);
 
+        testScheduler.triggerActions();
 
-        final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.values();
-        assertThat(onNextEvents.get(0)).isEqualTo(firstItem);
-        assertThat(onNextEvents.get(1)).isEqualTo(allItems);
+        final List<List<SuggestionItem>> localEmission = suggestionsResultSubscriber.values();
+        assertThat(localEmission.get(0)).isEqualTo(firstItem);
+
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
+
+        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
+
+        final List<List<SuggestionItem>> localAndRemoteEmissions = suggestionsResultSubscriber.values();
+
+        assertThat(localAndRemoteEmissions.get(0)).isEqualTo(firstItem);
+        assertThat(localAndRemoteEmissions.get(1)).isEqualTo(allItems);
+    }
+
+    @Test
+    public void returnsOnlyLocalSuggestionsWhenThereAreNoRemoteSearchSuggestionsAvailable() {
+        List<SearchSuggestion> localSuggestions = getLocalSuggestions();
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(localSuggestions));
+        final Optional<String> variant = Optional.of("variant123");
+        when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
+
+        final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(ModelCollection.EMPTY);
+        requestMatcher.withQueryParam("variant", variant.get());
+
+        final TestObserver<List<SuggestionItem>> suggestionsResultSubscriber = operations.suggestionsFor(SEARCH_QUERY).test();
+
+        final List<SuggestionItem> localItem = newArrayList(SuggestionItem.fromSearchSuggestion(localSuggestions.get(0), SEARCH_QUERY));
+
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
+
+        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
+
+        final List<List<SuggestionItem>> emissions = suggestionsResultSubscriber.values();
+
+        assertThat(emissions.get(0)).isEqualTo(localItem);
+        assertThat(emissions.get(1)).isEqualTo(localItem);
+    }
+
+    @Test
+    public void returnsOnlyRemoteSuggestionsWhenThereAreNoLocalSearchSuggestionsAvailable() {
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(emptyList()));
+        final Optional<String> variant = Optional.of("variant123");
+        when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
+
+        final Autocompletion autocompletion = Autocompletion.create("query", "output");
+        final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
+        requestMatcher.withQueryParam("variant", variant.get());
+
+        final TestObserver<List<SuggestionItem>> suggestionsResultSubscriber = operations.suggestionsFor(SEARCH_QUERY).test();
+
+        final List<SuggestionItem> remoteItem = newArrayList(forAutocompletion(autocompletion, SEARCH_QUERY, Optional.of(QUERY_URN)));
+
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
+
+        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
+
+        final List<List<SuggestionItem>> emissions = suggestionsResultSubscriber.values();
+
+        assertThat(emissions.get(0)).isEqualTo(emptyList());
+        assertThat(emissions.get(1)).isEqualTo(remoteItem);
+    }
+
+    @Test
+    public void returnsEmptyListWhenThereAreNoLocalOrRemoteSearchSuggestionsAvailable() {
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Single.just(emptyList()));
+        final Optional<String> variant = Optional.of("variant123");
+        when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
+
+        final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(ModelCollection.EMPTY);
+        requestMatcher.withQueryParam("variant", variant.get());
+
+        final TestObserver<List<SuggestionItem>> suggestionsResultSubscriber = operations.suggestionsFor(SEARCH_QUERY).test();
+
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
+
+        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
+
+        final List<List<SuggestionItem>> emissions = suggestionsResultSubscriber.values();
+
+        assertThat(emissions.get(0)).isEqualTo(emptyList());
+        assertThat(emissions.get(1)).isEqualTo(emptyList());
     }
 
     @Test
@@ -105,6 +183,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         requestMatcher.withAnonymity();
 
         operations.suggestionsFor(SEARCH_QUERY).test();
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
 
         verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
     }
@@ -120,6 +199,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
 
         operations.suggestionsFor(SEARCH_QUERY).test();
+        testScheduler.advanceTimeBy(SearchSuggestionOperations.API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS);
 
         verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
     }
@@ -135,14 +215,20 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(newArrayList(autocompletion),
                                                                                       new HashMap<>(),
                                                                                       QUERY_URN.toString());
+        return setupAutocompletionRemoteSuggestions(autocompletions);
+    }
+
+    @NonNull
+    private ApiRequestTo setupAutocompletionRemoteSuggestions(ModelCollection<Autocompletion> modelCollection) {
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
                 .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER))
                 .withAnonymity();
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken)))
-                .thenReturn(Single.just(autocompletions));
+                .thenReturn(Single.just(modelCollection));
 
         return requestMatcher;
     }
+
 }

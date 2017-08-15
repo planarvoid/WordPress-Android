@@ -13,16 +13,19 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.LocalizedAutocompletionsExperiment;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.reflect.TypeToken;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 class SearchSuggestionOperations {
     private static final int MAX_SUGGESTIONS_NUMBER = 9;
+    static final int API_FETCH_DELAY_MS = 300;
 
     private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
@@ -49,20 +52,20 @@ class SearchSuggestionOperations {
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
-        return Observable.concatArrayEager(localCollectionSuggestions(query).toObservable(), getAutocompletions(query).toObservable())
+        return Observable.concatArrayEager(localCollectionSuggestions(query).toObservable(),
+                                           Single.just(query).delay(API_FETCH_DELAY_MS, TimeUnit.MILLISECONDS, scheduler).flatMap(this::getAutocompletions).toObservable())
                          .scan((first, second) -> newArrayList(concat(first, second)));
     }
 
-    private Maybe<List<SuggestionItem>> localCollectionSuggestions(final String query) {
+    private Single<List<SuggestionItem>> localCollectionSuggestions(final String query) {
         return suggestionStorage.getSuggestions(query, accountOperations.getLoggedInUserUrn(), MAX_SUGGESTIONS_NUMBER)
                                 .map(suggestions -> Lists.transform(suggestions, item -> fromSearchSuggestion(item, query)))
                                 .map(searchSuggestionFiltering::filtered)
-                                .filter(list -> !list.isEmpty())
-                                .onErrorResumeNext(Maybe.empty())
+                                .onErrorResumeNext(Single.just(Collections.emptyList()))
                                 .subscribeOn(scheduler);
     }
 
-    private Maybe<List<SuggestionItem>> getAutocompletions(String query) {
+    private Single<List<SuggestionItem>> getAutocompletions(String query) {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE)
                                                      .addQueryParam("query", query)
                                                      .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
@@ -75,8 +78,7 @@ class SearchSuggestionOperations {
                                   autocompletion,
                                   query,
                                   modelCollection.getQueryUrn())))
-                          .filter(list -> !list.isEmpty())
-                          .onErrorResumeNext(Maybe.empty())
+                          .onErrorResumeNext(Single.just(Collections.emptyList()))
                           .subscribeOn(scheduler);
     }
 }
