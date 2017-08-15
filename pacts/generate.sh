@@ -15,7 +15,7 @@ read -r -d '' PACT_TEMPLATE << EOM
 EOM
 
 interactions_array=()
-for file in "$BASEDIR"/*_interaction.json
+for file in "$BASEDIR"/interactions/*.json
 do
   interactions_array=("${interactions_array[@]}" "`cat $file`")
 done
