@@ -5,11 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
-import org.junit.Ignore;
 
 public class ByEmailAgeOfMajority extends SignUpTest {
 
