@@ -9,6 +9,7 @@ import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
+import org.junit.Ignore;
 
 public class ByEmailAgeOfMajority extends SignUpTest {
 
@@ -17,6 +18,7 @@ public class ByEmailAgeOfMajority extends SignUpTest {
         FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
     }
 
+    @Ignore // https://soundcloud.atlassian.net/browse/DROID-1697
     public void testCanFollowAgeGatedProfile() throws Exception {
         addMockedResponse(ApiEndpoints.SIGN_UP.path(), "sign-up-success.json");
 
