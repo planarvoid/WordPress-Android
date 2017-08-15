@@ -21,6 +21,6 @@ public class RecentlyPlayedMigration implements Migration {
 
     @Override
     public int getApplicableAppVersionCode() {
-        return 738;
+        return 748;
     }
 }
