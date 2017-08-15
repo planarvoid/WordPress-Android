@@ -20,11 +20,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldFlagForgotUrlsAsWebView() {
-        assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/signin/forgot");
-    }
-
-    @Test
     public void shouldFlagSoundCloudConnectUrlsAsWebView() {
         assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/connect");
         assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/connect/");
