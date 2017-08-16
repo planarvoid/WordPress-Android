@@ -4,7 +4,7 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.objects.MoreObjects;
 
-class TrackAndPlayQueueItem {
+public class TrackAndPlayQueueItem {
     public final TrackItem trackItem;
     public final TrackQueueItem playQueueItem;
 

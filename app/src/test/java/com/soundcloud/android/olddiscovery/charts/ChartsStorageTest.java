@@ -64,8 +64,6 @@ public class ChartsStorageTest extends StorageIntegrationTest {
         assertThat(result.get(0).type()).isEqualTo(includedChart.type());
     }
 
-
-
     @Test
     public void chartsEmptyWhenNoValueInDb() {
         storage.featuredCharts().subscribe(observer);

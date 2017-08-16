@@ -6,8 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
-import com.soundcloud.propeller.TxnResult;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -59,8 +58,8 @@ public class PlayQueueOperations {
                                .subscribeOn(scheduler);
     }
 
-    Single<TxnResult> saveQueue(PlayQueue playQueue) {
-        return playQueueStorage.store(playQueue).subscribeOn(scheduler);
+    Completable saveQueue(PlayQueue playQueue) {
+        return Completable.fromAction(() -> playQueueStorage.store(playQueue));
     }
 
     void savePlayInfo(int position, PlaySessionSource playSessionSource) {
@@ -75,7 +74,10 @@ public class PlayQueueOperations {
         editor.remove(Keys.PLAY_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
-        playQueueStorage.clear().subscribeOn(scheduler).subscribeWith(new DefaultSingleObserver<>());
+
+        playQueueStorage.clear()
+                        .subscribeOn(scheduler)
+                        .subscribe();
     }
 
     Single<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {

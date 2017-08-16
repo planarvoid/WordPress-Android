@@ -41,12 +41,15 @@ public class TrackQueueItem extends PlayableQueueItem {
         return MoreObjects.toStringHelper(this)
                           .add("urn", urn)
                           .add("reposter", reposter)
-                          .add("relatedEntity", relatedEntity)
                           .add("source", source)
                           .add("sourceVersion", sourceVersion)
-                          .add("sourceUrn", sourceUrn)
                           .add("queryUrn", queryUrn)
+                          .add("relatedEntity", relatedEntity)
                           .add("blocked", blocked)
+                          .add("sourceUrn", sourceUrn)
+                          .add("adData", adData)
+                          .add("playbackContext", playbackContext)
+                          .add("played", played)
                           .toString();
     }
 

@@ -16,13 +16,12 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -65,7 +64,6 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Single.never());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
                 "origin:page");
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN),
@@ -154,17 +152,14 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
-        final SingleSubject<TxnResult> subject = SingleSubject.create();
-        when(playQueueStorage.store(playQueue)).thenReturn(subject);
-
-        playQueueOperations.saveQueue(playQueue);
+        playQueueOperations.saveQueue(playQueue).test();
 
         verify(playQueueStorage).store(playQueue);
     }
 
     @Test
     public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
-        when(playQueueStorage.clear()).thenReturn(Single.never());
+        when(playQueueStorage.clear()).thenReturn(Completable.complete());
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);

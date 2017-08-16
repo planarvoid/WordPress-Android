@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
+import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -12,7 +14,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
 import com.soundcloud.android.rx.RxJava;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -21,8 +22,8 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -30,6 +31,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +40,8 @@ import java.util.List;
 
 @Singleton
 public class PlayQueueManager {
+
+    private final Scheduler scheduler;
 
     public enum RepeatMode {
         REPEAT_NONE(""),
@@ -81,10 +85,12 @@ public class PlayQueueManager {
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            PlayQueueItemVerifier playQueueItemVerifier) {
+                            PlayQueueItemVerifier playQueueItemVerifier,
+                            @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
         this.playQueueItemVerifier = playQueueItemVerifier;
+        this.scheduler = scheduler;
     }
 
     public void shuffle() {
@@ -771,23 +777,11 @@ public class PlayQueueManager {
         saveQueue(PlayQueueEvent.fromQueueReordered(getCollectionUrn()));
     }
 
-
     private void saveQueueAndPublishEvent(PlayQueueEvent event) {
-        RxJava.toV1Observable(playQueueOperations.saveQueue(playQueue.copy()))
-              .observeOn(AndroidSchedulers.mainThread())
-              .subscribe(new SaveQueueSubscriber(event));
+        playQueueOperations.saveQueue(playQueue.copy())
+                           .subscribeOn(scheduler)
+                           .observeOn(mainThread())
+                           .subscribe(() -> eventBus.publish(EventQueue.PLAY_QUEUE, event));
     }
 
-    private class SaveQueueSubscriber extends DefaultSubscriber<TxnResult> {
-        private final PlayQueueEvent event;
-
-        SaveQueueSubscriber(PlayQueueEvent event) {
-            this.event = event;
-        }
-
-        @Override
-        public void onNext(TxnResult ignored) {
-            eventBus.publish(EventQueue.PLAY_QUEUE, event);
-        }
-    }
 }

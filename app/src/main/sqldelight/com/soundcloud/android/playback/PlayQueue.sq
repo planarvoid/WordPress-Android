@@ -1,0 +1,27 @@
+CREATE TABLE play_queue (
+    _id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_id INTEGER,
+    entity_type INTEGER,
+    reposter_id INTEGER,
+    related_entity TEXT,
+    source TEXT,
+    source_version TEXT,
+    source_urn TEXT,
+    query_urn TEXT,
+    context_type TEXT,
+    context_urn TEXT,
+    context_query TEXT,
+    played INTEGER as Boolean default 1
+);
+
+selectAll:
+SELECT * FROM play_queue;
+
+selectAllContextUrns:
+SELECT DISTINCT context_urn
+FROM play_queue
+WHERE context_urn IS NOT NULL;
+
+insertRow:
+INSERT OR REPLACE INTO play_queue(entity_id, entity_type, reposter_id, related_entity, source, source_version, source_urn, query_urn, context_type, context_urn, context_query, played)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);

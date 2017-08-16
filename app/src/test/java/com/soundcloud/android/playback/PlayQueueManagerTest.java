@@ -37,11 +37,11 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -78,7 +78,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void before() throws CreateModelException {
         playQueueManager = new PlayQueueManager(playQueueOperations,
                                                 eventBus,
-                                                playQueueItemVerifier);
+                                                playQueueItemVerifier, Schedulers.trampoline());
+
+        when(playQueueOperations.saveQueue(any())).thenReturn(Completable.complete());
 
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
@@ -86,7 +88,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
 
         playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS,
                                                               PLAYLIST_URN,
@@ -188,7 +189,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void appendPlayQueueItemsSavesQueue() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource);
         Mockito.reset(playQueueOperations);
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
+
+        when(playQueueOperations.saveQueue(any())).thenReturn(Completable.complete());
 
         playQueueManager.appendPlayQueueItems(createPlayQueue(TestUrns.createTrackUrns(4L, 5L)));
 
@@ -1511,7 +1513,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
 
         Mockito.reset(playQueueOperations);
-        when(playQueueOperations.saveQueue(any(PlayQueue.class))).thenReturn(Single.just(new TxnResult()));
+
+        when(playQueueOperations.saveQueue(any())).thenReturn(Completable.complete());
 
         playQueueManager.removeItem(item1);
         assertPlayQueueSaved(new SimplePlayQueue(singletonList(item2)));

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 public class PlaylistQueueItem extends PlayableQueueItem {
@@ -28,6 +29,23 @@ public class PlaylistQueueItem extends PlayableQueueItem {
               adData,
               playbackContext,
               played);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                          .add("urn", urn)
+                          .add("reposter", reposter)
+                          .add("source", source)
+                          .add("sourceVersion", sourceVersion)
+                          .add("queryUrn", queryUrn)
+                          .add("relatedEntity", relatedEntity)
+                          .add("blocked", blocked)
+                          .add("sourceUrn", sourceUrn)
+                          .add("adData", adData)
+                          .add("playbackContext", playbackContext)
+                          .add("played", played)
+                          .toString();
     }
 
     @Override
