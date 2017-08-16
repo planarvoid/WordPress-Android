@@ -429,12 +429,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
-        final TrackQueueItem nonPersistedItem = new TrackQueueItem.Builder(Urn.forTrack(4L)).persist(false)
-                                                                                            .withPlaybackContext(
-                                                                                                    PlaybackContext.create(
-                                                                                                            playlistSessionSource))
-                                                                                            .build();
+    public void saveProgressUpdatesSavePositionWithoutNonPersistentItem() throws CreateModelException {
+        final AudioAdQueueItem nonPersistedItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)),
                                          playlistSessionSource,
                                          1);
@@ -451,12 +447,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
-        final TrackQueueItem nonPersistedItem = new TrackQueueItem.Builder(Urn.forTrack(4L)).persist(false)
-                                                                                            .withPlaybackContext(
-                                                                                                    PlaybackContext.create(
-                                                                                                            playlistSessionSource))
-                                                                                            .build();
+    public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentItem() throws CreateModelException {
+        final AudioAdQueueItem nonPersistedItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)),
                                          playlistSessionSource,
                                          0);

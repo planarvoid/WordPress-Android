@@ -16,11 +16,6 @@ public class VideoAdQueueItem extends PlayQueueItem {
     }
 
     @Override
-    public boolean shouldPersist() {
-        return false;
-    }
-
-    @Override
     public Kind getKind() {
         return Kind.VIDEO_AD;
     }

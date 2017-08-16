@@ -15,7 +15,7 @@ class PlayQueueFixtures {
         final Urn track = Urn.forTrack(uniqueId);
         final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
         final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
-                                                                 Optional.absent(), false, Urn.NOT_SET,
+                                                                 Optional.absent(), Urn.NOT_SET,
                                                                  Urn.NOT_SET, false, playbackContext, true);
         final TrackItem trackItem = PlayableFixtures.expectedTrackForListItem(track);
         final int someResourceId = 123;

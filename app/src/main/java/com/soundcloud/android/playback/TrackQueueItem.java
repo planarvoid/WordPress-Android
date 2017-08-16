@@ -13,7 +13,6 @@ public class TrackQueueItem extends PlayableQueueItem {
                           String source,
                           String sourceVersion,
                           Optional<AdData> adData,
-                          boolean shouldPersist,
                           Urn sourceUrn,
                           Urn queryUrn,
                           boolean blocked,
@@ -26,7 +25,6 @@ public class TrackQueueItem extends PlayableQueueItem {
               queryUrn,
               relatedEntity,
               blocked,
-              shouldPersist,
               sourceUrn,
               adData,
               playbackContext,
@@ -48,7 +46,6 @@ public class TrackQueueItem extends PlayableQueueItem {
                           .add("sourceVersion", sourceVersion)
                           .add("sourceUrn", sourceUrn)
                           .add("queryUrn", queryUrn)
-                          .add("shouldPersist", shouldPersist)
                           .add("blocked", blocked)
                           .toString();
     }
@@ -71,7 +68,6 @@ public class TrackQueueItem extends PlayableQueueItem {
             super(monetizableItem.urn);
             reposter = monetizableItem.reposter;
             relatedEntity = monetizableItem.relatedEntity;
-            shouldPersist = monetizableItem.shouldPersist;
             blocked = monetizableItem.blocked;
             adData = monetizableItem.adData;
             playbackContext = monetizableItem.playbackContext;
@@ -84,7 +80,7 @@ public class TrackQueueItem extends PlayableQueueItem {
         }
 
         public TrackQueueItem build() {
-            return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
+            return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData,
                                       sourceUrn, queryUrn, blocked, playbackContext, played);
         }
     }

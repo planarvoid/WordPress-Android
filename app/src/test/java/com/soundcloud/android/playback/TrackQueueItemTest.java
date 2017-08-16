@@ -13,7 +13,6 @@ public class TrackQueueItemTest extends AndroidUnitTest {
         TrackQueueItem trackQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123))
                 .withAdData(AdFixtures.getAudioAd(Urn.forTrack(455)))
                 .relatedEntity(Urn.forPlaylist(678))
-                .persist(false)
                 .blocked(true)
                 .fromSource("source", "source-version")
                 .withPlaybackContext(PlaybackContext.create(PlaySessionSource.EMPTY))

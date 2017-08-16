@@ -175,7 +175,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public boolean shouldPersistItemAt(int position) {
-        return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
+        return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).isPlayable();
     }
 
     @Override

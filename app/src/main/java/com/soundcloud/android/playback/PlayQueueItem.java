@@ -51,8 +51,6 @@ public abstract class PlayQueueItem {
 
     public abstract Urn getUrn();
 
-    public abstract boolean shouldPersist();
-
     public abstract Kind getKind();
 
     private static class Empty extends PlayQueueItem {
@@ -63,11 +61,6 @@ public abstract class PlayQueueItem {
         @Override
         public Urn getUrn() {
             throw new IllegalArgumentException("Attempting to access URN of Empty PlayQueueItem");
-        }
-
-        @Override
-        public boolean shouldPersist() {
-            return false;
         }
 
         @Override

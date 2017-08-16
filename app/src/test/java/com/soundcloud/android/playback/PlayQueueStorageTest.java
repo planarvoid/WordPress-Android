@@ -127,23 +127,21 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldSavePersistantItems() {
+    public void shouldSavePlayableQueueItems() {
         final PlayableQueueItem playableQueueItem1 = new Builder(forTrack(1), forUser(1))
                 .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
-                .persist(true)
                 .build();
         final PlayableQueueItem playableQueueItem2 = new Builder(forPlaylist(2), forUser(2))
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .withPlaybackContext(PLAYBACK_CONTEXT)
-                .persist(false)
                 .build();
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.asList(playableQueueItem1,
                                                                          playableQueueItem2));
 
-        storage.store(playQueue).subscribe(new TestObserver<TxnResult>());
+        storage.store(playQueue).subscribe(new TestObserver<>());
 
-        QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
+        QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
     }
 
     @Test

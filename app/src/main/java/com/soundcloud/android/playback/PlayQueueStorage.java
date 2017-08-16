@@ -49,13 +49,11 @@ public class PlayQueueStorage {
     Single<TxnResult> store(final PlayQueue playQueue) {
         final BulkInsertValues.Builder bulkValues = new BulkInsertValues.Builder(getColumns());
         for (PlayQueueItem item : playQueue) {
-            if (item.shouldPersist()) {
-                if (item.isTrack() || item.isPlaylist()) {
-                    bulkValues.addRow(entityItemContentValues((PlayableQueueItem) item));
-                } else {
-                    ErrorUtils.handleSilentException(new IllegalStateException(
-                            "Tried to persist an unsupported play queue item"));
-                }
+            if (item.isTrack() || item.isPlaylist()) {
+                bulkValues.addRow(entityItemContentValues((PlayableQueueItem) item));
+            } else {
+                ErrorUtils.handleSilentException(new IllegalStateException(
+                        "Tried to persist an unsupported play queue item"));
             }
         }
 

@@ -15,7 +15,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
     protected final String sourceVersion;
     protected final Urn sourceUrn;
     protected final Urn queryUrn;
-    protected final boolean shouldPersist;
     protected final boolean blocked;
     protected final PlaybackContext playbackContext;
     protected boolean played;
@@ -27,7 +26,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
                              Urn queryUrn,
                              Urn relatedEntity,
                              boolean blocked,
-                             boolean shouldPersist,
                              Urn sourceUrn,
                              Optional<AdData> adData,
                              PlaybackContext playbackContext, boolean played) {
@@ -35,7 +33,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         this.source = source;
         this.queryUrn = queryUrn;
         this.blocked = blocked;
-        this.shouldPersist = shouldPersist;
         this.sourceUrn = sourceUrn;
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
@@ -77,10 +74,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         return relatedEntity;
     }
 
-    public boolean shouldPersist() {
-        return shouldPersist;
-    }
-
     public boolean isBlocked() {
         return blocked;
     }
@@ -118,7 +111,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         protected Urn relatedEntity = Urn.NOT_SET;
         protected Urn sourceUrn = Urn.NOT_SET;
         protected Urn queryUrn = Urn.NOT_SET;
-        protected boolean shouldPersist = true;
         protected PlaybackContext playbackContext;
         protected boolean played;
 
@@ -186,11 +178,6 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
 
         public T played(boolean played) {
             this.played = played;
-            return getThis();
-        }
-
-        public T persist(boolean shouldPersist) {
-            this.shouldPersist = shouldPersist;
             return getThis();
         }
 

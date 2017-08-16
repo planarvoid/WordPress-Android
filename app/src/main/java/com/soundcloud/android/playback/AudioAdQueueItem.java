@@ -16,11 +16,6 @@ public class AudioAdQueueItem extends PlayQueueItem {
     }
 
     @Override
-    public boolean shouldPersist() {
-        return false;
-    }
-
-    @Override
     public Kind getKind() {
         return Kind.AUDIO_AD;
     }

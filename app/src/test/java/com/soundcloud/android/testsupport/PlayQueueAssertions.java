@@ -61,7 +61,6 @@ public class PlayQueueAssertions {
         assertThat(playQueueItem1.getKind()).isEqualTo(playQueueItem2.getKind());
         assertThat(playQueueItem1.getUrn()).isEqualTo(playQueueItem2.getUrn());
         assertThat(playQueueItem1.getAdData()).isEqualTo(playQueueItem2.getAdData());
-        assertThat(playQueueItem1.shouldPersist()).isEqualTo(playQueueItem2.shouldPersist());
 
         if (playQueueItem1 instanceof PlayableQueueItem) {
             assertThat(((PlayableQueueItem) playQueueItem1).getQueryUrn())

@@ -26,11 +26,6 @@ public class PlayQueueItemTest {
         }
 
         @Override
-        public boolean shouldPersist() {
-            return true;
-        }
-
-        @Override
         public Kind getKind() {
             return Kind.TRACK;
         }

@@ -57,7 +57,6 @@ class PlayQueueCleanupHelperTest : StorageIntegrationTest() {
                 "source",
                 "1.0",
                 Optional.absent(),
-                false,
                 sourceUrn,
                 queryUrn,
                 false,
