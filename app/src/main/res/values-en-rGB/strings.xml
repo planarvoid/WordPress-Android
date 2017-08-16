@@ -676,6 +676,8 @@
   <!--__MORE-->
   <string name="more_activity">Notifications</string>
   <string name="more_record">Record</string>
+  <string name="more_go_to_creators">Open SoundCloud Pulse app for Creators</string>
+  <string name="more_download_creators">Install SoundCloud Pulse app for Creators</string>
   <string name="more_notification_settings">Notification settings</string>
   <string name="more_basic_settings">Basic settings</string>
   <string name="more_report_bug">Report bug</string>
@@ -1083,4 +1085,11 @@
   <string name="like_your_favorite_tracks_description">Tap to save to your collection and show support for your favourite artists.</string>
   <string name="add_your_favorite_tracks_title">Add to your collection</string>
   <string name="add_your_favorite_tracks_description">Tap to add tracks, playlists, and albums to your collection.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">What would you like to report?</string>
+  <string name="feedback_playback_issue">Playback issue</string>
+  <string name="feedback_sign_in_issue">Sign-in issue</string>
+  <string name="feedback_other_issue">Other issue</string>
+  <string name="feedback_email_subject">Report: %1$s</string>
+  <string name="feedback_action_chooser">Send feedback via email…</string>
 </resources>

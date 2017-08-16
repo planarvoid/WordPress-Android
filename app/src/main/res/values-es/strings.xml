@@ -66,7 +66,12 @@
     <item quantity="one">%s votación</item>
     <item quantity="other">%s votaciones</item>
   </plurals>
+  <string name="ads_watch_now">Ver ahora</string>
+  <string name="ads_no_thanks">No, gracias</string>
   <string name="ads_learn_more">Más información</string>
+  <string name="ads_opt_in_text">Pon freno a los anuncios: echa un vistazo a este vídeo y desbloquea %s minutos de música sin interrupción</string>
+  <string name="ads_start_session">Iniciar sesión</string>
+  <string name="ads_sponsored_session_unlocked">Has desbloqueado tu sesión de reproducción sin anuncios.</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">¿Has olvidado tu contraseña?</string>
   <string name="authentication_add_info_add_image_msg">¡Sonríe! Esta imagen aparecerá en tu perfil.</string>
@@ -370,6 +375,10 @@
   <string name="dialog_cancel_upload_message">¿Cancelar la subida?</string>
   <string name="sc_upload_private">\u00A0Privado</string>
   <string name="sc_upload_public">\u00A0Público</string>
+  <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Vaya, parece que no tienes conexión.</string>
+  <string name="discovery_error_failed_to_load">Vaya, no se ha podido cargar.</string>
+  <string name="discovery_error_retry_button">Inténtalo de nuevo</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TODO</string>
   <string name="search_type_tracks">PISTAS</string>
@@ -506,6 +515,10 @@
   <string name="stations_tracks_in_this_station">Pistas en esta emisora</string>
   <string name="stations_see_all_tracks">Ver todas las pistas</string>
   <string name="suggested_stations">Emisoras sugeridas</string>
+  <string name="stations_home_station_based_on_track">Emisora de pista basada en</string>
+  <string name="stations_home_station_based_on_genre">Emisora de género basada en</string>
+  <string name="stations_home_station_based_on_curator">Emisora de curador basada en</string>
+  <string name="stations_home_station_based_on_artist">Emisora de artista basada en</string>
   <string name="stations_home_description">Una mezcla infinita de música que incluye %1$s y más</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d segundos</string>
@@ -639,6 +652,9 @@
   <string name="collections_recently_played_profile">perfil</string>
   <string name="collections_upsell_title">Hazte con SoundCloud Go</string>
   <string name="collections_upsell_body">Escucha las pistas que te han gustado, tus listas, y tus álbumes sin conexión y sin anuncios</string>
+  <string name="collections_offline_onboarding_title">Escucha tu música sin conexión</string>
+  <string name="collections_offline_onboarding_body">Toca tus listas, álbumes y las pistas que te gustan para descargar tu música favorita en tu dispositivo.</string>
+  <string name="collections_offline_onboarding_body_tracks">Toca tus listas, álbumes y pistas para descargar tu música favorita en tu dispositivo.</string>
   <string name="collections_recently_played_clear_action">Borrar las pistas escuchadas recientemente</string>
   <string name="collections_recently_played_clear_dialog_title">¿Deseas borrar las pistas escuchadas recientemente?</string>
   <string name="collections_recently_played_clear_dialog_message">¿Seguro que quieres borrar las pistas escuchadas recientemente? No podrás deshacer esta acción.</string>
@@ -658,6 +674,8 @@
   <!--__MORE-->
   <string name="more_activity">Notificaciones</string>
   <string name="more_record">Grabar</string>
+  <string name="more_go_to_creators">Abrir la app SoundCloud Pulse para creadores</string>
+  <string name="more_download_creators">Instalar la app SoundCloud Pulse para creadores</string>
   <string name="more_notification_settings">Configuración de notificaciones</string>
   <string name="more_basic_settings">Configuración básica</string>
   <string name="more_report_bug">Informar de un error</string>
@@ -778,6 +796,14 @@
   <string name="offline_no_connection">Sin conexión</string>
   <string name="sd_card_cannot_be_found">No se encuentra la tarjeta SD</string>
   <string name="tap_here_to_change_storage_location">Toca aquí para cambiar la ubicación de almacenamiento</string>
+  <string name="overlay_listen_offline_likes_title">Escucha sin conexión</string>
+  <string name="overlay_listen_offline_likes_description">Toca la flecha para descargar las pistas que te gustan en tu dispositivo.</string>
+  <string name="overlay_search_go_plus_title">Pistas SoundCloud Go+</string>
+  <string name="overlay_search_go_plus_description">Tu nueva suscripción te da acceso a estas pistas premium.</string>
+  <string name="overlay_listen_offline_playlist_title">Escucha sin conexión</string>
+  <string name="overlay_listen_offline_playlist_description">Toca la flecha para descargar una lista o un álbum en tu dispositivo.</string>
+  <string name="overlay_offline_settings_title">Gestionar tu almacenamiento</string>
+  <string name="overlay_offline_settings_description">Toca para cambiar la configuración de reproducción y almacenamiento en el modo sin conexión. </string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenido a SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">¡Bienvenido a SoundCloud Go!</string>
@@ -925,7 +951,7 @@
   <string name="playback_upsell_button">Hazte con SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Prueba SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">La subida</string>
+  <string name="new_for_you_title">The Upload</string>
   <string name="new_for_you_intro">Pistas recién posteadas. Solo para ti.</string>
   <string name="new_for_you_action">Ver lista</string>
   <string name="system_playlist_duration">%1$d pistas, %2$s</string>
@@ -1000,7 +1026,7 @@
   <string name="play_queue_header_magic_box_subtitle">Nueva música basada en lo que estás escuchando</string>
   <string name="play_queue_header_auto_play_toggle">Reproducción automática de emisora</string>
   <string name="play_queue_header_cast">Enviando</string>
-  <string name="play_queue_header_new_for_you">De la subida</string>
+  <string name="play_queue_header_new_for_you">Desde The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Sigue a tus artistas favoritos para no perderte sus pistas más recientes</string>
@@ -1017,10 +1043,51 @@
   <string name="btn_remove_from_collection">Eliminar de la colección</string>
   <string name="accessibility_stats_user_added">Añadido por ti</string>
   <string name="accessibility_add_action">Añadir</string>
+  <plurals name="accessibility_stats_adds">
+    <item quantity="one">%d añadido</item>
+    <item quantity="other">%d añadidos</item>
+  </plurals>
+  <string name="shortcut_play_tracks">Reproducir pistas</string>
+  <string name="list_empty_you_tracks_message">Añade tus pistas favoritas para escucharlas de nuevo.</string>
+  <string name="add_snackbar_overflow_action">Añadido a mi colección</string>
+  <string name="remove_snackbar_overflow_action">Eliminado de mi colección</string>
+  <string name="add_error_snackbar_overflow_action">Estado de pista no modificado</string>
   <string name="tab_title_user_tracks">PISTAS</string>
+  <string name="recommendation_reason_because_you_added_tracktitle">Porque %1$s está en tu colección</string>
+  <string name="pref_sync_wifi_only_description_tracks">Actualizar nuevas pistas etc. solamente con conexión wifi</string>
+  <string name="added_stations_empty_view_message">Todavía no has añadido ninguna emisora</string>
   <string name="collections_tracks_header">Pistas</string>
   <string name="track_added_title">Pistas</string>
   <string name="collections_options_toggle_added">Añadido</string>
+  <string name="collections_empty_playlists_added">Aquí verás las listas y los álbumes que has añadido o creado.</string>
+  <string name="collections_onboarding_title_tracks">Tus pistas, tus listas, tus álbumes y tus emisoras.\nTodo en el mismo lugar.</string>
+  <string name="collections_upsell_body_tracks">Escucha tus pistas, tus listas, y tus álbumes sin conexión y sin anuncios</string>
+  <string name="notification_username_added_tracktitle">ha añadido %s</string>
+  <string name="offline_tracks_dialog_title">Guarda tus pistas sin conexión</string>
+  <string name="offline_tracks_dialog_message">Tus pistas actuales y futuras se guardarán sin conexión para poder escucharlas sin conexión wifi o de datos.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Si lo seleccionas, tus pistas, listas y álbumes actuales y futuros se guardarán automáticamente para escucharlos sin conexión.</string>
+  <string name="pref_offline_offline_collection_description_off_tracks">Activa esta opción para guardar tus pistas, listas y álbumes actuales y futuros sin conexión.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">Estás a punto de eliminar todo el contenido sin conexión. Además, las pistas, listas y álbumes que añadas ya no se guardarán automáticamente.</string>
+  <string name="disable_offline_collection_body_tracks">Las pistas, listas y álbumes que añadas dejarán de guardarse automáticamente y las pistas guardadas ya no se podrán escuchar sin conexión.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">Estás a punto de eliminar este contenido del modo sin conexión. Además, las listas que crees o que añadas ya no se guardarán sin conexión automáticamente.</string>
+  <string name="empty_you_sounds_message_secondary_add">Aquí aparecerán las pistas que añadas, que repostees o que subas.</string>
+  <string name="user_profile_sounds_header_tracks_in_collection">Pistas de su colección</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">Ver todas las pistas de su colección</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">Este usuario aún no ha añadido ninguna pista a su colección.</string>
   <string name="user_tracks_label">Pistas</string>
+  <string name="push_notifications_add">Post añadido a la colección</string>
+  <string name="email_notifications_add">Post añadido a la colección</string>
+  <string name="play_queue_header_tracks">De tus pistas</string>
+  <string name="suggested_creators_relation_added">Hace poco añadiste su pista a tu colección</string>
   <string name="like_your_favorite_tracks_title">Dale a Me gusta en tus pistas favoritas</string>
+  <string name="like_your_favorite_tracks_description">Toca para guardar tu colección y demuestra tu apoyo a tus artistas favoritos.</string>
+  <string name="add_your_favorite_tracks_title">Añadir a tu colección</string>
+  <string name="add_your_favorite_tracks_description">Toca para añadir pistas, listas y álbumes a tu colección.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">¿Sobre qué deseas informar?</string>
+  <string name="feedback_playback_issue">Problema al reproducir</string>
+  <string name="feedback_sign_in_issue">Problema al iniciar sesión</string>
+  <string name="feedback_other_issue">Otro problema</string>
+  <string name="feedback_email_subject">Informar: %1$s</string>
+  <string name="feedback_action_chooser">Enviar comentarios por correo electrónico</string>
 </resources>

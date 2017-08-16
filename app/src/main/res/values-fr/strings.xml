@@ -381,6 +381,8 @@
   <string name="sc_upload_private">\u00A0Privé</string>
   <string name="sc_upload_public">\u00A0Public</string>
   <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Nous sommes désolés, vous semblez être hors connexion.</string>
+  <string name="discovery_error_failed_to_load">Échec du chargement.</string>
   <string name="discovery_error_retry_button">Veuillez réessayer</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TOUT</string>
@@ -519,6 +521,8 @@
   <string name="stations_see_all_tracks">Voir tous les titres</string>
   <string name="suggested_stations">Stations suggérées</string>
   <string name="stations_home_station_based_on_track">Station de titres basée sur</string>
+  <string name="stations_home_station_based_on_genre">Station par genre basée sur</string>
+  <string name="stations_home_station_based_on_curator">Station de curateur basée sur</string>
   <string name="stations_home_station_based_on_artist">Station de l\'artiste basée sur</string>
   <string name="stations_home_description">Un mix de musique infini avec %1$s et bien d\'autres</string>
   <!--__TIME-->
@@ -653,6 +657,9 @@
   <string name="collections_recently_played_profile">profil</string>
   <string name="collections_upsell_title">Obtenir SoundCloud Go</string>
   <string name="collections_upsell_body">Écoutez vos favoris, vos playlists et vos albums hors connexion et sans publicité</string>
+  <string name="collections_offline_onboarding_title">Écoutez votre musique hors connexion</string>
+  <string name="collections_offline_onboarding_body">Sélectionnez les titres que vous avez aimés ou vos playlists et albums pour télécharger votre musique préférée sur votre appareil.</string>
+  <string name="collections_offline_onboarding_body_tracks">Sélectionnez les titres que vous avez aimés ou vos playlists et albums pour télécharger votre musique préférée sur votre appareil.</string>
   <string name="collections_recently_played_clear_action">Effacer les écoutes récentes</string>
   <string name="collections_recently_played_clear_dialog_title">Effacer les écoutes récentes ?</string>
   <string name="collections_recently_played_clear_dialog_message">Êtes vous certain de vouloir effacer votre liste d\'écoutes récentes ? Cette opération est irréversible.</string>
@@ -672,6 +679,8 @@
   <!--__MORE-->
   <string name="more_activity">Notifications</string>
   <string name="more_record">Enregistrer</string>
+  <string name="more_go_to_creators">Ouvrir l\'application SoundCloud Pulse pour les créateurs</string>
+  <string name="more_download_creators">Installer l\'application SoundCloud Pulse pour les créateurs</string>
   <string name="more_notification_settings">Paramètres de notification</string>
   <string name="more_basic_settings">Configuration basique</string>
   <string name="more_report_bug">Signaler un bug</string>
@@ -793,8 +802,13 @@
   <string name="sd_card_cannot_be_found">Carte SD introuvable</string>
   <string name="tap_here_to_change_storage_location">Appuyez ici pour modifier l\'emplacement de stockage</string>
   <string name="overlay_listen_offline_likes_title">Écoutez hors connexion</string>
+  <string name="overlay_listen_offline_likes_description">Appuyez sur la flèche pour télécharger les titres que vous aimez sur votre appareil.</string>
   <string name="overlay_search_go_plus_title">Titres SoundCloud Go+</string>
+  <string name="overlay_search_go_plus_description">Votre nouvel abonnement vous donne accès à ces titres premium.</string>
   <string name="overlay_listen_offline_playlist_title">Écoutez hors connexion</string>
+  <string name="overlay_listen_offline_playlist_description">Appuyez sur la flèche pour télécharger une playlist ou un album sur votre appareil.</string>
+  <string name="overlay_offline_settings_title">Gérez votre stockage</string>
+  <string name="overlay_offline_settings_description">Appuyez pour modifier les paramètres de l\'écoute hors connexion et de stockage.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenue dans SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Bienvenue sur SoundCloud Go !</string>
@@ -998,7 +1012,7 @@
   <string name="track_removed">Titre supprimé</string>
   <string name="tracks_removed">Titres supprimés</string>
   <string name="play_queue_header_search">À partir des résultats de recherche pour %1$s</string>
-  <string name="play_queue_header_stream">À partir de votre flux</string>
+  <string name="play_queue_header_stream">À partir de votre stream</string>
   <string name="play_queue_header_link">À partir d\'un lien</string>
   <string name="play_queue_header_profile">À partir du profil %1$s</string>
   <string name="play_queue_header_playlist">À partir de la playlist %1$s</string>
@@ -1070,4 +1084,11 @@
   <string name="like_your_favorite_tracks_description">Appuyez pour sauvegarder votre collection et soutenir vos artistes favoris.</string>
   <string name="add_your_favorite_tracks_title">Ajouter à votre collection</string>
   <string name="add_your_favorite_tracks_description">Appuyez pour ajouter des titres, playlists et albums à votre collection.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">Que souhaitez-vous signaler ?</string>
+  <string name="feedback_playback_issue">Problème de lecture</string>
+  <string name="feedback_sign_in_issue">Problème de connexion</string>
+  <string name="feedback_other_issue">Autre problème</string>
+  <string name="feedback_email_subject">Signalement : %1$s</string>
+  <string name="feedback_action_chooser">Envoyer des commentaires par e-mail...</string>
 </resources>

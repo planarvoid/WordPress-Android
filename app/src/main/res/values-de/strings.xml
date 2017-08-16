@@ -275,7 +275,7 @@
   <!--__PLAYLISTS-->
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist-Shuffle</string>
-  <string name="add_to_playlist">Zur Playlist hinzufügen</string>
+  <string name="add_to_playlist">Zu einer Playlist hinzufügen</string>
   <string name="remove_from_playlist">Aus Playlist entfernen</string>
   <string name="edit_playlist">Playlist bearbeiten</string>
   <string name="delete_playlist">Löschen</string>
@@ -287,7 +287,7 @@
   <string name="edit_playlists_introductory_overlay_title">Bearbeite deine Playlists spontan</string>
   <string name="edit_playlists_introductory_overlay_description">Du kannst deine Tracks jetzt neu anordnen oder einige davon aus deiner Playlist entfernen</string>
   <!--__PLAYLIST CREATION-->
-  <string name="add_track_to_playlist">Zur Playlist hinzufügen …</string>
+  <string name="add_track_to_playlist">Zu einer Playlist hinzufügen …</string>
   <string name="added_to_playlist">Zur Playlist hinzugefügt</string>
   <string name="create_new_playlist">Neue Playlist erstellen</string>
   <string name="create_new_playlist_hint">Titel der Playlist eingeben</string>
@@ -674,6 +674,8 @@
   <!--__MORE-->
   <string name="more_activity">Benachrichtigungen</string>
   <string name="more_record">Aufnahme</string>
+  <string name="more_go_to_creators">SoundCloud Pulse App für Ersteller öffnen</string>
+  <string name="more_download_creators">SoundCloud Pulse App für Ersteller installieren</string>
   <string name="more_notification_settings">Benachrichtigungseinstellungen</string>
   <string name="more_basic_settings">Grundlegende Einstellungen</string>
   <string name="more_report_bug">Fehler melden</string>
@@ -1081,4 +1083,11 @@
   <string name="like_your_favorite_tracks_description">Tippe, um deine Sammlung zu speichern und Support für deine bevorzugten Künstler anzuzeigen.</string>
   <string name="add_your_favorite_tracks_title">Zu deiner Sammlung hinzufügen</string>
   <string name="add_your_favorite_tracks_description">Tippe, um Tracks, Playlists und Alben zu deiner Sammlung hinzuzufügen.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">Was möchtest du melden?</string>
+  <string name="feedback_playback_issue">Fehler bei der Wiedergabe</string>
+  <string name="feedback_sign_in_issue">Fehler bei der Anmeldung</string>
+  <string name="feedback_other_issue">Sonstiger Fehler</string>
+  <string name="feedback_email_subject">Melden: %1$s</string>
+  <string name="feedback_action_chooser">Feedback per E-Mail senden...</string>
 </resources>

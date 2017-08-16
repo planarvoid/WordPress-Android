@@ -376,6 +376,8 @@
   <string name="sc_upload_private">\u00A0Privé</string>
   <string name="sc_upload_public">\u00A0Openbaar</string>
   <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Oeps... zo te zien ben je offline.</string>
+  <string name="discovery_error_failed_to_load">Oeps... laden mislukt.</string>
   <string name="discovery_error_retry_button">Opnieuw proberen</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">ALLES</string>
@@ -514,6 +516,8 @@
   <string name="stations_see_all_tracks">Alle tracks weergeven</string>
   <string name="suggested_stations">Voorgestelde zenders</string>
   <string name="stations_home_station_based_on_track">Trackzender op basis van</string>
+  <string name="stations_home_station_based_on_genre">Genrezender op basis van</string>
+  <string name="stations_home_station_based_on_curator">Curatorzender op basis van</string>
   <string name="stations_home_station_based_on_artist">Artiestenzender op basis van</string>
   <string name="stations_home_description">Een eindeloze mix van muziek inclusief %1$s en anderen</string>
   <!--__TIME-->
@@ -648,6 +652,9 @@
   <string name="collections_recently_played_profile">profiel</string>
   <string name="collections_upsell_title">SoundCloud Go downloaden</string>
   <string name="collections_upsell_body">Luister naar je likes, afspeellijsten en albums, offline en reclamevrij</string>
+  <string name="collections_offline_onboarding_title">Haal je muziek offline</string>
+  <string name="collections_offline_onboarding_body">Verzamel je gelikete tracks of afspeellijsten en albums om je favoriete muziek op je apparaat te downloaden.</string>
+  <string name="collections_offline_onboarding_body_tracks">Verzamel je tracks of afspeellijsten en albums om je favoriete muziek op je apparaat te downloaden.</string>
   <string name="collections_recently_played_clear_action">Lijst met recent afgespeelde tracks wissen</string>
   <string name="collections_recently_played_clear_dialog_title">Lijst met recent afgespeelde tracks wissen?</string>
   <string name="collections_recently_played_clear_dialog_message">Weet je zeker dat je de lijst met recent afgespeelde tracks wilt wissen? Je kunt deze actie niet ongedaan maken.</string>
@@ -667,6 +674,8 @@
   <!--__MORE-->
   <string name="more_activity">Meldingen</string>
   <string name="more_record">Opnemen</string>
+  <string name="more_go_to_creators">SoundCloud Pulse-app voor auteurs openen</string>
+  <string name="more_download_creators">SoundCloud Pulse-app voor auteurs installeren</string>
   <string name="more_notification_settings">Meldingsinstellingen</string>
   <string name="more_basic_settings">Basisinstellingen</string>
   <string name="more_report_bug">Bug rapporteren</string>
@@ -788,8 +797,13 @@
   <string name="sd_card_cannot_be_found">SD-kaart is niet gevonden</string>
   <string name="tap_here_to_change_storage_location">Tik hier om de opslaglocatie te wijzigen</string>
   <string name="overlay_listen_offline_likes_title">Offline luisteren</string>
+  <string name="overlay_listen_offline_likes_description">Tik op de pijl om je gelikete tracks op je apparaat te downloaden.</string>
   <string name="overlay_search_go_plus_title">SoundCloud Go+-tracks</string>
+  <string name="overlay_search_go_plus_description">Met je nieuwe abonnement heb je toegang tot deze premium-tracks.</string>
   <string name="overlay_listen_offline_playlist_title">Offline luisteren</string>
+  <string name="overlay_listen_offline_playlist_description">Tik op de pijl om een afspeellijst of album op je apparaat te downloaden.</string>
+  <string name="overlay_offline_settings_title">Je opslag beheren</string>
+  <string name="overlay_offline_settings_description">Tik hier om je instellingen voor offline luisteren en opslag te wijzigen.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welkom bij SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Welkom bij SoundCloud Go!</string>
@@ -1069,4 +1083,11 @@
   <string name="like_your_favorite_tracks_description">Tik om je verzameling op te slaan en steun te betuigen aan je favoriete artiesten.</string>
   <string name="add_your_favorite_tracks_title">Toevoegen aan je verzameling</string>
   <string name="add_your_favorite_tracks_description">Tik om tracks, afspeellijsten en albums toe te voegen aan je verzameling.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">Wat wil je melden?</string>
+  <string name="feedback_playback_issue">Probleem met afspelen</string>
+  <string name="feedback_sign_in_issue">Probleem met inloggen</string>
+  <string name="feedback_other_issue">Ander probleem</string>
+  <string name="feedback_email_subject">Melding: %1$s</string>
+  <string name="feedback_action_chooser">Feedback verzenden via e-mail...</string>
 </resources>

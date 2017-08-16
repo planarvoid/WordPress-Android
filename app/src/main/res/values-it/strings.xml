@@ -376,6 +376,8 @@
   <string name="sc_upload_private">\u00A0Privata</string>
   <string name="sc_upload_public">\u00A0Pubblica</string>
   <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Ops… sembra che tu sia offline.</string>
+  <string name="discovery_error_failed_to_load">Ops… impossibile caricare.</string>
   <string name="discovery_error_retry_button">Riprova</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TUTTO</string>
@@ -514,6 +516,8 @@
   <string name="stations_see_all_tracks">Visualizza tutte le tracce</string>
   <string name="suggested_stations">Stazioni consigliate</string>
   <string name="stations_home_station_based_on_track">Stazione traccia basata su</string>
+  <string name="stations_home_station_based_on_genre">Stazione genere basata su</string>
+  <string name="stations_home_station_based_on_curator">Stazione curatore basata su</string>
   <string name="stations_home_station_based_on_artist">Stazione artista basata su</string>
   <string name="stations_home_description">Un mix infinito di musica tra cui %1$s e altri ancora</string>
   <!--__TIME-->
@@ -648,6 +652,9 @@
   <string name="collections_recently_played_profile">profilo</string>
   <string name="collections_upsell_title">Ottieni SoundCloud Go</string>
   <string name="collections_upsell_body">Ascolta i tuoi preferiti, playlist e album offline e senza pubblicità</string>
+  <string name="collections_offline_onboarding_title">Salva la tua musica offline</string>
+  <string name="collections_offline_onboarding_body">Tocca le tue tracce o playlist preferite e gli album per scaricare la tua musica preferita sul dispositivo in uso.</string>
+  <string name="collections_offline_onboarding_body_tracks">Tocca le tue tracce o playlist e gli album per scaricare la tua musica preferita sul dispositivo in uso.</string>
   <string name="collections_recently_played_clear_action">Cancella gli ascolti recenti</string>
   <string name="collections_recently_played_clear_dialog_title">Cancellare gli ascolti recenti?</string>
   <string name="collections_recently_played_clear_dialog_message">Sei sicuro di voler cancellare gli ascolti recenti? Una volta confermata, questa azione non potrà essere annullata.</string>
@@ -667,6 +674,8 @@
   <!--__MORE-->
   <string name="more_activity">Notifiche</string>
   <string name="more_record">Registra</string>
+  <string name="more_go_to_creators">Apri l\'app SoundCloud Pulse per autori</string>
+  <string name="more_download_creators">Installa l\'app SoundCloud Pulse per autori</string>
   <string name="more_notification_settings">Impostazioni di notifica</string>
   <string name="more_basic_settings">Impostazioni di base</string>
   <string name="more_report_bug">Segnala un bug</string>
@@ -788,8 +797,13 @@
   <string name="sd_card_cannot_be_found">Impossibile trovare la scheda SD</string>
   <string name="tap_here_to_change_storage_location">Tocca qui per modificare il percorso di archiviazione</string>
   <string name="overlay_listen_offline_likes_title">Ascolta offline</string>
+  <string name="overlay_listen_offline_likes_description">Tocca la freccia per scaricare le tue tracce preferite sul dispositivo in uso.</string>
   <string name="overlay_search_go_plus_title">Tracce di SoundCloud Go+</string>
+  <string name="overlay_search_go_plus_description">Il tuo nuovo abbonamento ti consente di accedere a queste tracce premium.</string>
   <string name="overlay_listen_offline_playlist_title">Ascolta offline</string>
+  <string name="overlay_listen_offline_playlist_description">Tocca la freccia per scaricare una playlist o un album sul dispositivo in uso.</string>
+  <string name="overlay_offline_settings_title">Gestisci il tuo spazio</string>
+  <string name="overlay_offline_settings_description">Tocca per modificare le impostazioni di ascolto offline e spazio.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Benvenuto in SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Benvenuto in SoundCloud Go!</string>
@@ -1071,4 +1085,11 @@ Riavvia l\'applicazione.</string>
   <string name="like_your_favorite_tracks_description">Tocca per salvare la tua libreria e supportare i tuoi artisti preferiti.</string>
   <string name="add_your_favorite_tracks_title">Aggiunta alla tua libreria</string>
   <string name="add_your_favorite_tracks_description">Tocca per salvare tracce, playlist e album nella tua libreria</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">Cosa desideri segnalare?</string>
+  <string name="feedback_playback_issue">Problema di riproduzione</string>
+  <string name="feedback_sign_in_issue">Problema di accesso</string>
+  <string name="feedback_other_issue">Altro problema</string>
+  <string name="feedback_email_subject">Segnala: %1$s</string>
+  <string name="feedback_action_chooser">Invia feedback tramite e-mail...</string>
 </resources>

@@ -376,6 +376,8 @@
   <string name="sc_upload_private">\u00A0Privada</string>
   <string name="sc_upload_public">\u00A0Pública</string>
   <!--__DISCOVERY PAGE-->
+  <string name="discovery_error_offline">Ups... parece que você está offline.</string>
+  <string name="discovery_error_failed_to_load">Ups... não foi possível carregar.</string>
   <string name="discovery_error_retry_button">Tenta novamente</string>
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TUDO</string>
@@ -514,6 +516,8 @@
   <string name="stations_see_all_tracks">Ver todas as faixas</string>
   <string name="suggested_stations">Estações sugeridas</string>
   <string name="stations_home_station_based_on_track">Estação da faixa com base em</string>
+  <string name="stations_home_station_based_on_genre">Estação do gênero com base em</string>
+  <string name="stations_home_station_based_on_curator">Estação do curador com base em</string>
   <string name="stations_home_station_based_on_artist">Estação do artista com base em</string>
   <string name="stations_home_description">Um mix interminável, incluindo %1$s e mais</string>
   <!--__TIME-->
@@ -646,8 +650,11 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
-  <string name="collections_upsell_title">Obtenha a SoundCloud Go</string>
+  <string name="collections_upsell_title">Obter SoundCloud Go</string>
   <string name="collections_upsell_body">Ouça suas curtidas, playlists e álbuns offline e sem anúncios</string>
+  <string name="collections_offline_onboarding_title">Ouça sua música offline</string>
+  <string name="collections_offline_onboarding_body">Toque em Faixas curtidas ou Playlists e Álbuns para baixar suas músicas favoritas para seu dispositivo.</string>
+  <string name="collections_offline_onboarding_body_tracks">Toque em Faixas ou Playlists e Álbuns para baixar suas músicas favoritas para seu dispositivo.</string>
   <string name="collections_recently_played_clear_action">Limpar itens recém-reproduzidos</string>
   <string name="collections_recently_played_clear_dialog_title">Limpar itens recém-reproduzidos?</string>
   <string name="collections_recently_played_clear_dialog_message">Tem certeza de que deseja limpar os itens recém-reproduzidos? Esta ação não poderá ser desfeita.</string>
@@ -667,6 +674,8 @@
   <!--__MORE-->
   <string name="more_activity">Notificações</string>
   <string name="more_record">Gravar</string>
+  <string name="more_go_to_creators">Abrir o app SoundCloud Pulse para Criadores</string>
+  <string name="more_download_creators">Instalar o app SoundCloud Pulse para Criadores</string>
   <string name="more_notification_settings">Configurações de notificação</string>
   <string name="more_basic_settings">Configurações</string>
   <string name="more_report_bug">Relatar erro</string>
@@ -729,7 +738,7 @@
   <string name="conversion_restrictions_message_trial">Oferta limitada a %1$d dias de teste por usuário. Depois dos primeiros %2$d dias, a assinatura é renovada automaticamente, a menos que seja cancelada antes do término do %3$d dias de teste. A assinatura pode ser cancelada a qualquer momento na soundcloud.com. Todos os preços incluem taxas locais aplicáveis sobre as vendas.\n\nOs residentes de Quebec, no Canadá, não têm direito a testes por causa das restrições locais.</string>
   <string name="conversion_restrictions_message_no_trial">Esta assinatura não um período de teste, você já usou seu teste grátis ou é residente de Quebec e não tem direito ao teste por causa das restrições locais.\n\nAo adquirir uma assinatura, será cobrado o preço normal atual por mês (incluindo as taxas locais aplicáveis sobre as vendas), a menos que o serviço seja cancelado antes da próxima data de renovação.</string>
   <string name="conversion_restrictions_message_promo">A oferta só está disponível para os usuários que ainda não fizeram um teste grátis. Primeiros %1$s da assinatura para o total de %2$s. Se o usuário não cancelar a assinatura antes do final desses %1$s, ela será renovada automaticamente a cada mês, por um preço de %3$s/mês até que o usuário a cancele.\n\nA opção sem anúncios é definida pela remoção das interrupções no áudio e no vídeo.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Sempre que você vê ou ouve um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud gratuita para os ouvintes.\n\n\Quer pular as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com a SoundCloud Go.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Sempre que você vê ou ouve um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\n\Quer pular as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com a SoundCloud Go.</string>
   <string name="plan_conversion_error_dialog_title">Não foi possível mudar de plano</string>
   <string name="plan_conversion_error_message_generic">Ocorreu um erro, e não conseguimos alterar seu plano neste momento. Entre em contato com a equipe de suporte da comunidade.</string>
   <string name="plan_conversion_error_message_apple">Você tem atualmente uma assinatura da Apple iTunes. Para mudar de plano, é necessário encerrar primeiro a assinatura da Apple iTunes na App Store.</string>
@@ -788,8 +797,13 @@
   <string name="sd_card_cannot_be_found">Não foi possível encontrar o cartão SD</string>
   <string name="tap_here_to_change_storage_location">Toque aqui para alterar o local de armazenamento</string>
   <string name="overlay_listen_offline_likes_title">Ouvir offline</string>
+  <string name="overlay_listen_offline_likes_description">Toque na seta para baixar suas faixas curtidas para seu dispositivo.</string>
   <string name="overlay_search_go_plus_title">Faixas na SoundCloud Go+</string>
-  <string name="overlay_listen_offline_playlist_title">Ouvir off-line</string>
+  <string name="overlay_search_go_plus_description">Sua nova assinatura permite que você acesse essas faixas premium.</string>
+  <string name="overlay_listen_offline_playlist_title">Ouvir offline</string>
+  <string name="overlay_listen_offline_playlist_description">Toque na seta para baixar uma playlist ou álbum para seu dispositivo.</string>
+  <string name="overlay_offline_settings_title">Gerencie seu armazenamento</string>
+  <string name="overlay_offline_settings_description">Toque para alterar suas configurações de reprodução offline e de armazenamento.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bem-vindo à SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Bem-vindo à SoundCloud Go!</string>
@@ -799,7 +813,7 @@
   <string name="go_onboarding_offline_title">Ouça em qualquer lugar, a qualquer hora</string>
   <string name="go_onboarding_offline_body">Leve sua música com você. Toque na seta para baixar e ouvir offline</string>
   <string name="go_onboarding_no_ads_title">Sem anúncios</string>
-  <string name="go_onboarding_no_ads_body">Agora não fica nada entre você e sua música</string>
+  <string name="go_onboarding_no_ads_body">Agora nada fica entre você e sua música</string>
   <string name="go_onboarding_start_title">Vamos lá</string>
   <string name="go_onboarding_start_body">Agora você tem acesso a mais faixas do que qualquer outro serviço de streaming</string>
   <string name="go_onboarding_start">Comece a ouvir</string>
@@ -848,8 +862,8 @@
   <string name="disable_offline_collection_from_context_title">Remover tudo da reprodução offline?</string>
   <string name="disable_offline_collection_from_context_body">Você está prestes a remover isto do modo offline. Além disso, suas playlists recém-criadas ou curtidas não serão mais salvas automaticamente.</string>
   <string name="add_playlist_offline">Disponível offline</string>
-  <string name="title_offline_settings">Configurações de reprodução offline</string>
-  <string name="more_offline_sync_settings">Configurações de reprodução offline</string>
+  <string name="title_offline_settings">Configurações offline</string>
+  <string name="more_offline_sync_settings">Configurações offline</string>
   <string name="unlimited">ilimitado</string>
   <string name="change_storage_location">Alterar local de armazenamento</string>
   <string name="internal_device_storage">Armazenamento do dispositivo interno</string>
@@ -978,12 +992,12 @@
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
     <item quantity="one">1 nova publicação</item>
-    <item quantity="other">%s novas publicações</item>
+    <item quantity="other">%s publicações novas</item>
   </plurals>
   <!--__ACTIVITIES-->
   <plurals name="activities_new_notification" tools:ignore="ImpliedQuantity">
     <item quantity="one">1 nova notificação</item>
-    <item quantity="other">%s novas notificações</item>
+    <item quantity="other">%s notificações novas</item>
   </plurals>
   <!--__KILL SWITCH-->
   <string name="kill_switch_message">Para continuar usando o app da SoundCloud, atualize para a versão mais recente.</string>
@@ -992,7 +1006,7 @@
   <string name="play_next">Adicionar a Próximo</string>
   <string name="track_removed">Faixa removida</string>
   <string name="tracks_removed">Faixas removidas</string>
-  <string name="play_queue_header_search">De resultados de pesquisa para %1$s</string>
+  <string name="play_queue_header_search">Dos resultados de pesquisa para %1$s</string>
   <string name="play_queue_header_stream">Do seu stream</string>
   <string name="play_queue_header_link">De um link</string>
   <string name="play_queue_header_profile">Do perfil %1$s</string>
@@ -1011,7 +1025,7 @@
   <string name="play_queue_introductory_overlay_description">Controle o que será reproduzido em seguida, reorganize ou repita</string>
   <string name="play_queue_header_magic_box_subtitle">Nova música com base no que está sendo reproduzido</string>
   <string name="play_queue_header_auto_play_toggle">Reprodução automática da estação</string>
-  <string name="play_queue_header_cast">Enviando para</string>
+  <string name="play_queue_header_cast">Transmitindo para</string>
   <string name="play_queue_header_new_for_you">Do The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
@@ -1020,7 +1034,7 @@
   <string name="suggested_creators_relation_listened_to">Você ouviu recentemente</string>
   <string name="suggested_creators_relation_liked">Você curtiu recentemente</string>
   <string name="suggested_creators_relation_reposted">Você republicou recentemente</string>
-  <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa deles a uma playlist</string>
+  <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa a uma playlist</string>
   <string name="remote_signin_activity_title">Ativar</string>
   <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Enviar relatório de erros</string>
@@ -1045,28 +1059,35 @@
   <string name="collections_tracks_header">Faixas</string>
   <string name="track_added_title">Faixas</string>
   <string name="collections_options_toggle_added">Adicionado</string>
-  <string name="collections_empty_playlists_added">As playlists e álbuns que você curtiu ou criou vão aparecer aqui.</string>
+  <string name="collections_empty_playlists_added">As playlists e álbuns que você curtiu ou criou aparecerão aqui.</string>
   <string name="collections_onboarding_title_tracks">Suas faixas, playlists, álbuns e estações.\nTudo em um único lugar.</string>
   <string name="collections_upsell_body_tracks">Ouça suas faixas, playlists e álbuns offline e sem anúncios</string>
   <string name="notification_username_added_tracktitle">adicionou %s</string>
   <string name="offline_tracks_dialog_title">Salvar faixas offline</string>
-  <string name="offline_tracks_dialog_message">Isso vai salvar as faixas atuais e futuras offline, assim você poderá ouvir sem conexão Wi-Fi ou de dados.</string>
-  <string name="go_onboarding_offline_settings_subtext_tracks">Selecionar essa opção vai salvar todas as faixas, playlists e álbuns atuais e futuros offline automaticamente.</string>
+  <string name="offline_tracks_dialog_message">Isso salvará as faixas atuais e futuras offline, assim você poderá ouvir sem conexão Wi-Fi ou de dados.</string>
+  <string name="go_onboarding_offline_settings_subtext_tracks">Selecionar essa opção salvará todas as faixas, playlists e álbuns atuais e futuros offline automaticamente.</string>
   <string name="pref_offline_offline_collection_description_off_tracks">Ative este recurso para salvar todas as suas faixas, playlists e álbuns atuais e futuros offline.</string>
-  <string name="remove_offline_content_body_sync_collection_tracks">Você está prestes a retirar tudo das opções de música offline. Além disso, suas novas faixas, playlists e álbuns não serão salvos automaticamente.</string>
-  <string name="disable_offline_collection_body_tracks">Suas novas faixas, playlists e álbuns não serão mais salvos automaticamente, e as faixas salvas atuais serão removidas da opção de ouvir músicas offline.</string>
-  <string name="disable_offline_collection_from_context_body_tracks">Você está prestes a remover isso da opção offline. Além disso, suas playlists recém-criadas ou adicionadas não serão mais salvas off-line automaticamente.</string>
-  <string name="empty_you_sounds_message_secondary_add">As faixas que você adiciona, republica ou envia vão aparecer aqui.</string>
+  <string name="remove_offline_content_body_sync_collection_tracks">Você está prestes a retirar tudo da reprodução offline. Além disso, suas novas faixas, playlists e álbuns não serão salvos automaticamente.</string>
+  <string name="disable_offline_collection_body_tracks">Suas novas faixas, playlists e álbuns não serão mais salvos automaticamente, e as faixas salvas atuais serão removidas da reprodução offline.</string>
+  <string name="disable_offline_collection_from_context_body_tracks">Você está prestes a remover isto da reprodução offline. Além disso, suas playlists recém-criadas ou adicionadas não serão mais salvas offline automaticamente.</string>
+  <string name="empty_you_sounds_message_secondary_add">As faixas que você adiciona, republica ou envia aparecerão aqui.</string>
   <string name="user_profile_sounds_header_tracks_in_collection">Faixas na coleção deles</string>
-  <string name="user_profile_sounds_view_all_tracks_in_collection">Ver todas as faixas na coleção deles</string>
-  <string name="user_profile_sounds_tracks_in_collection_empty">Esta pessoa não tem faixas adicionadas na coleção dela ainda.</string>
+  <string name="user_profile_sounds_view_all_tracks_in_collection">Ver todas as faixas na coleção</string>
+  <string name="user_profile_sounds_tracks_in_collection_empty">Esta pessoa não tem faixas adicionadas na coleção ainda.</string>
   <string name="user_tracks_label">Faixas</string>
   <string name="push_notifications_add">Publicação adicionada à coleção</string>
   <string name="email_notifications_add">Publicação adicionada à coleção</string>
-  <string name="play_queue_header_tracks">De suas faixas</string>
-  <string name="suggested_creators_relation_added">Você adicionou recentemente a faixa deles a uma coleção</string>
+  <string name="play_queue_header_tracks">Das suas faixas</string>
+  <string name="suggested_creators_relation_added">Você adicionou recentemente a faixa a uma coleção</string>
   <string name="like_your_favorite_tracks_title">Curta suas faixas favoritas</string>
-  <string name="like_your_favorite_tracks_description">Toque para salvar em sua coleção e mostrar o suporte para suas artistas favoritas.</string>
+  <string name="like_your_favorite_tracks_description">Toque para salvar na sua coleção e apoiar seus artistas favoritos.</string>
   <string name="add_your_favorite_tracks_title">Adicionar à sua coleção</string>
   <string name="add_your_favorite_tracks_description">Toque para adicionar faixas, playlists e álbuns à sua coleção.</string>
+  <!--ALPHA / BETA Feedback strings-->
+  <string name="select_feedback_category">O que você gostaria de reportar?</string>
+  <string name="feedback_playback_issue">Problema na reprodução</string>
+  <string name="feedback_sign_in_issue">Problema no acesso</string>
+  <string name="feedback_other_issue">Outro problema</string>
+  <string name="feedback_email_subject">Reportar: %1$s</string>
+  <string name="feedback_action_chooser">Enviar feedback por e-mail…</string>
 </resources>
