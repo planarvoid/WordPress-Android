@@ -3,7 +3,6 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
@@ -13,7 +12,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -43,7 +41,7 @@ public class CommentRenderer implements CellRenderer<Comment> {
 
         setUserName(itemView, comment);
         textView(itemView, R.id.body).setText(comment.getText());
-        setUserAvatar(itemView, comment.getUserUrn());
+        setUserAvatar(itemView, comment);
         setDate(itemView, comment.getDate());
     }
 
@@ -55,12 +53,12 @@ public class CommentRenderer implements CellRenderer<Comment> {
                                                                          TimeUnit.MILLISECONDS)));
     }
 
-    private void setUserAvatar(View itemView, Urn userUrn) {
+    private void setUserAvatar(View itemView, Comment comment) {
         imageOperations.displayCircularInAdapterView(
-                Optional.of(userUrn),
-                Optional.absent(),
+                Optional.of(comment.getUserUrn()),
+                comment.getImageUrlTemplate(),
                 ApiImageSize.getListItemImageSize(resources),
-                (ImageView) itemView.findViewById(R.id.image));
+                itemView.findViewById(R.id.image));
     }
 
     private void setDate(View itemView, Date date) {

@@ -22,7 +22,7 @@ public class Comment implements ListItem {
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return Optional.absent();
+        return apiComment.getUser().getImageUrlTemplate();
     }
 
     Urn getUserUrn() {
