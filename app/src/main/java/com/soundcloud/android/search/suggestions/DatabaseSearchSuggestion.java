@@ -7,9 +7,13 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 abstract class DatabaseSearchSuggestion extends SearchSuggestion {
 
-    public abstract Optional<String> title();
+    public enum Kind {
+        Like, Following, Post, LikeByUsername
+    }
 
-    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate, Optional<String> title) {
-        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate, title);
+    public abstract Kind kind();
+
+    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate, Kind kind) {
+        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate, kind);
     }
 }
