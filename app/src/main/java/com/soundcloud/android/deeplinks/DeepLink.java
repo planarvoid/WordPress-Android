@@ -117,6 +117,7 @@ public enum DeepLink {
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
             Pattern.compile("^/login/forgot$"),
+            Pattern.compile("^/signin/forgot$"),
             Pattern.compile("^/emails/[0-9a-f]+$"),
             Pattern.compile("^/pro(/.*)?$"),
             Pattern.compile("^/pages/.*$"),
