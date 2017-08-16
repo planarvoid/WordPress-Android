@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tx pull
+tx pull -f
 
 if [ -f app/src/main/res/values-b+es+419/strings.xml ]; then
   mkdir -p app/src/main/res/values-es-rUS
