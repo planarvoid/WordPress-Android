@@ -125,6 +125,9 @@
       "$.body.me.user.followings_count": {
         "match": "type"
       },
+      "$.body.me.user.avatar_url": {
+        "match": "type"
+      },
       "$.body.token.access_token": {
         "match": "type"
       },

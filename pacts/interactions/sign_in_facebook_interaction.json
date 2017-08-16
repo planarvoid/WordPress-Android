@@ -69,7 +69,7 @@
             },
             {
               "name": "new_home",
-              "enabled": false,
+              "enabled": true,
               "plans": []
             }
           ],
@@ -112,6 +112,9 @@
         "match": "type"
       },
       "$.body.me.user.followings_count": {
+        "match": "type"
+      },
+      "$.body.me.user.avatar_url_template": {
         "match": "type"
       },
       "$.body.token.access_token": {
