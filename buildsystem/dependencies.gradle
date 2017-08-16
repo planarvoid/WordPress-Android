@@ -71,7 +71,7 @@ ext {
           rxJava                      : "io.reactivex:rxjava:1.3.0",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           rxAndroid2                  : "io.reactivex.rxjava2:rxandroid:2.0.1",
-          rxJava2                     : "io.reactivex.rxjava2:rxjava:2.1.2",
+          rxJava2                     : "io.reactivex.rxjava2:rxjava:2.1.3",
           rxJavaInterop               : "com.github.akarnokd:rxjava2-interop:0.10.2",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
           sqlBrite                    : "com.squareup.sqlbrite2:sqlbrite:2.0.0",
