@@ -22,9 +22,8 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -93,9 +92,8 @@ public class PlaySessionController {
     public void reloadQueueAndShowPlayerIfEmpty() {
         if (playQueueManager.isQueueEmpty()) {
             disposable.dispose();
-            disposable = RxJava.toV2Observable(playQueueManager.loadPlayQueueAsync()
-                                                               .doOnNext(playQueue -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer())))
-                               .subscribeWith(new DefaultObserver<>());
+            disposable = playQueueManager.loadPlayQueueAsync()
+                                         .subscribeWith(LambdaMaybeObserver.onNext(playQueueItems -> eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer())));
         }
     }
 
@@ -235,7 +233,7 @@ public class PlaySessionController {
     void playCurrent() {
         disposable.dispose();
         Completable playCurrentObservable = playQueueManager.isQueueEmpty()
-                                            ? RxJava.toV2Observable(playQueueManager.loadPlayQueueAsync()).flatMapCompletable(playQueueItems -> playbackStrategyProvider.get().playCurrent())
+                                            ? playQueueManager.loadPlayQueueAsync().flatMapCompletable(playQueueItems -> playbackStrategyProvider.get().playCurrent())
                                             : playbackStrategyProvider.get().playCurrent();
 
         disposable = playCurrentObservable.subscribeWith(new DefaultDisposableCompletableObserver() {

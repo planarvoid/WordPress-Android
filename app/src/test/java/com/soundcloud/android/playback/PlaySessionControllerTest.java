@@ -41,6 +41,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.MaybeSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -308,7 +309,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentWhenEmptyCallsLoadsQueueBeforePlayingCurrentOnPlaybackStrategy() {
-        final rx.subjects.PublishSubject<PlayQueue> subject = rx.subjects.PublishSubject.create();
+        final MaybeSubject<PlayQueue> subject = MaybeSubject.create();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
@@ -316,7 +317,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
 
-        subject.onNext(PlayQueue.empty());
+        subject.onSuccess(PlayQueue.empty());
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
@@ -695,7 +696,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueIfEmptyDoesNotReloadQueueIfQueueNotEmpty() {
-        final rx.subjects.PublishSubject<PlayQueue> subject = rx.subjects.PublishSubject.create();
+        final MaybeSubject<PlayQueue> subject = MaybeSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
         controller.reloadQueueAndShowPlayerIfEmpty();
@@ -705,7 +706,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueReloadsIfQueueEmpty() {
-        final rx.subjects.PublishSubject<PlayQueue> subject = rx.subjects.PublishSubject.create();
+        final MaybeSubject<PlayQueue> subject = MaybeSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 

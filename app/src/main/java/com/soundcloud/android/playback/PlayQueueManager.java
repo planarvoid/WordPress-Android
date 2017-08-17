@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.IndexHelper.checkElementIndex;
-import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -13,7 +12,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -22,13 +20,12 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -62,17 +59,8 @@ public class PlayQueueManager {
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
 
     private final PlayQueueOperations playQueueOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final PlayQueueItemVerifier playQueueItemVerifier;
-
-    private Action1<PlayQueue> onPlayQueueLoaded = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue savedQueue) {
-            currentPosition = playQueueOperations.getLastStoredPlayPosition();
-            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
-        }
-    };
 
     private int currentPosition;
     private boolean currentItemIsUserTriggered;
@@ -84,7 +72,7 @@ public class PlayQueueManager {
 
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
-                            EventBus eventBus,
+                            EventBusV2 eventBus,
                             PlayQueueItemVerifier playQueueItemVerifier,
                             @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.playQueueOperations = playQueueOperations;
@@ -551,12 +539,16 @@ public class PlayQueueManager {
         return adjustedPosition;
     }
 
-    Observable<PlayQueue> loadPlayQueueAsync() {
+    Maybe<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
-        return RxJava.toV1Observable(playQueueOperations.getLastStoredPlayQueue())
-                     .observeOn(AndroidSchedulers.mainThread())
-                     .doOnNext(onPlayQueueLoaded);
+        return playQueueOperations.getLastStoredPlayQueue()
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .doOnSuccess(savedQueue -> {
+                                      currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                                      setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                                      eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
+                                  });
     }
 
     private void publishPositionUpdate() {
@@ -780,8 +772,7 @@ public class PlayQueueManager {
     private void saveQueueAndPublishEvent(PlayQueueEvent event) {
         playQueueOperations.saveQueue(playQueue.copy())
                            .subscribeOn(scheduler)
-                           .observeOn(mainThread())
+                           .observeOn(AndroidSchedulers.mainThread())
                            .subscribe(() -> eventBus.publish(EventQueue.PLAY_QUEUE, event));
     }
-
 }

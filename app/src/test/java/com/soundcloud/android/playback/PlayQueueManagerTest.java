@@ -37,10 +37,11 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.observers.TestSubscriber;
 
 import android.support.annotation.NonNull;
 
@@ -67,7 +67,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(4L);
     private final List<Urn> queueUrns = asList(Urn.forTrack(123), Urn.forTrack(124));
     private PlayQueueManager playQueueManager;
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     @Mock private PlayQueue playQueue;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PolicyOperations policyOperations;
@@ -637,8 +637,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
         final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueue.getPlayQueueItem(1);
         final TrackQueueItem trackQueueItemWithOverlay = new TrackQueueItem.Builder(trackQueueItem)
-                                                                           .withAdData(AdFixtures.getInterstitialAd(Urn.forTrack(123L)))
-                                                                           .build();
+                .withAdData(AdFixtures.getInterstitialAd(Urn.forTrack(123L)))
+                .build();
         playQueue.replaceItem(1, Collections.singletonList(trackQueueItemWithOverlay));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
@@ -776,7 +776,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(playQueue));
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
-        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestObserver<>());
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
     }
@@ -787,7 +787,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         when(playQueueOperations.getLastStoredPlaySessionSource()).thenReturn(playlistSessionSource);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Maybe.just(playQueue));
-        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<>());
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestObserver<>());
 
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
     }
