@@ -8,7 +8,7 @@ ext {
   androidMultiDex = "1.0.2"
   androidSupportVersion = '26.0.1'
   lintVersion = '25.3.3'
-  googleServicesVersion = '11.0.4'
+  googleServicesVersion = '11.2.0'
   lightCycleVersion = '1.6.1'
   daggerVersion = '2.11'
   propellerVersion = '0.74'
