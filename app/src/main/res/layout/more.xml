@@ -24,9 +24,20 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.soundcloud.android.view.CircularBorderImageView
-                android:id="@+id/image"
-                style="@style/More.HeaderImage" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.soundcloud.android.view.CircularBorderImageView
+                    android:id="@+id/image"
+                    style="@style/More.HeaderImage" />
+
+                <ImageView
+                    android:id="@+id/pro_badge"
+                    style="@style/More.HeaderImage.ProBadge"
+                    android:layout_gravity="bottom|right" />
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"

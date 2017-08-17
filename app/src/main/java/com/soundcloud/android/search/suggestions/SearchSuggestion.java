@@ -13,4 +13,6 @@ public abstract class SearchSuggestion {
     abstract boolean isRemote();
 
     abstract Optional<String> getImageUrlTemplate();
+
+    abstract boolean isPro();
 }

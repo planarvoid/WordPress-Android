@@ -196,6 +196,7 @@ public interface Tables {
         public static final Column PUBLIC_LIKES_COUNT = Column.create(TABLE, "public_favorites_count", Long.class);
         public static final Column PRIVATE_TRACKS_COUNT = Column.create(TABLE, "private_tracks_count", Long.class);
         public static final Column SIGNUP_DATE = Column.create(TABLE, "signup_date", Long.class);
+        public static final Column IS_PRO = Column.create(TABLE, "is_pro", Boolean.class);
 
         public static final Column PLAN = Column.create(TABLE, "plan", String.class);
 
@@ -227,6 +228,8 @@ public interface Tables {
                 "myspace_name VARCHAR(255)," +
 
                 "visual_url VARCHAR(255)," +
+
+                "is_pro BOOLEAN," +
 
                 // counts
                 "track_count INTEGER DEFAULT -1," +
@@ -979,6 +982,7 @@ public interface Tables {
         public static final Column IS_FOLLOWING = Column.create(TABLE, "uv_is_following", Boolean.class);
         public static final Column SIGNUP_DATE = Column.create(TABLE, "uv_signup_date", String.class);
         public static final Column PERMALINK = Column.create(TABLE, "uv_permalink", String.class);
+        public static final Column IS_PRO = Column.create(TABLE, "uv_is_pro", String.class);
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS UsersView AS " +
                 Query.from(Users.TABLE)
@@ -1001,7 +1005,8 @@ public interface Tables {
                              Users.ARTIST_STATION.as(ARTIST_STATION.name()),
                              exists(followingQuery()).as(IS_FOLLOWING.name()),
                              Users.SIGNUP_DATE.as(SIGNUP_DATE.name()),
-                             Users.PERMALINK.as(PERMALINK.name())
+                             Users.PERMALINK.as(PERMALINK.name()),
+                             Users.IS_PRO.as(IS_PRO.name())
                      );
 
         static Query followingQuery() {

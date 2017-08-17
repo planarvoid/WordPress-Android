@@ -7,9 +7,22 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <com.soundcloud.android.view.CircularBorderImageView
-        android:id="@+id/image"
-        style="@style/ListItemImage.User" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/image"
+            style="@style/ListItemImage.User" />
+
+        <ImageView
+            android:id="@+id/pro_badge"
+            style="@style/ListItemImage.User.ProBadge"
+            android:layout_gravity="bottom|right"
+            android:src="@drawable/pro_badge_small"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"

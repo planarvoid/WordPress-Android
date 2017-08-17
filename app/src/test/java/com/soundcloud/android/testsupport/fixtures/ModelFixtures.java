@@ -215,6 +215,11 @@ public class ModelFixtures {
         return user(false);
     }
 
+    public static User proUser() {
+        return userBuilder().isPro(true)
+                            .build();
+    }
+
     public static User user(Urn urn) {
         return userBuilder(false).urn(urn).build();
     }
@@ -262,7 +267,8 @@ public class ModelFixtures {
                    .followingsCount(6)
                    .isFollowing(isFollowing)
                    .avatarUrl(of("avatar-url"))
-                   .visualUrl(of("visual-url"));
+                   .visualUrl(of("visual-url"))
+                   .isPro(false);
     }
 
     public static ApiLike apiTrackLike() {

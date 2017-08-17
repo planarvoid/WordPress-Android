@@ -53,7 +53,8 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                 Users.DISCOGS_NAME,
                 Users.MYSPACE_NAME,
                 Users.ARTIST_STATION,
-                Users.SIGNUP_DATE
+                Users.SIGNUP_DATE,
+                Users.IS_PRO
         ));
 
         for (UserRecord user : deduped) {
@@ -75,7 +76,8 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getDiscogsName().orNull(),
                     user.getMyspaceName().orNull(),
                     user.getArtistStationUrn().transform(urn -> urn.getContent()).orNull(),
-                    user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null
+                    user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null,
+                    user.isPro()
             ));
         }
         return builder.build();
@@ -107,7 +109,8 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.CITY, user.getCity())
                                    .put(Users.FOLLOWERS_COUNT, user.getFollowersCount())
                                    .put(Users.FOLLOWINGS_COUNT, user.getFollowingsCount())
-                                   .put(Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null);
+                                   .put(Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null)
+                                   .put(Users.IS_PRO, user.isPro());
     }
 
     private static <T> void putOptionalValue(ContentValuesBuilder baseBuilder, Optional<T> value, Column column) {

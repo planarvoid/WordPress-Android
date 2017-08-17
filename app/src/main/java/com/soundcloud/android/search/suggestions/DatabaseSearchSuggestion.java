@@ -13,7 +13,7 @@ abstract class DatabaseSearchSuggestion extends SearchSuggestion {
 
     public abstract Kind kind();
 
-    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate, Kind kind) {
-        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate, kind);
+    public static DatabaseSearchSuggestion create(Urn urn, String query, Optional<String> imageUrlTemplate, boolean isPro, Kind kind) {
+        return new AutoValue_DatabaseSearchSuggestion(urn, query, Optional.absent(), false, imageUrlTemplate, isPro, kind);
     }
 }

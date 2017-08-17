@@ -3,12 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.soundcloud.android.view.CircularBorderImageView
-        android:id="@+id/icon"
-        style="@style/Search.Suggestion.Icon"
-        android:src="@drawable/cloud_no_logo_sm"
-        app:cbiv_borderColor="@color/user_image_border_color"
-        app:cbiv_borderWidth="@dimen/user_image_border_width" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical">
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/icon"
+            style="@style/Search.Suggestion.Icon"
+            android:src="@drawable/cloud_no_logo_sm"
+            app:cbiv_borderColor="@color/user_image_border_color"
+            app:cbiv_borderWidth="@dimen/user_image_border_width" />
+
+        <ImageView
+            android:id="@+id/pro_badge"
+            style="@style/Search.Suggestion.Icon.ProBadge"
+            android:layout_gravity="bottom|right" />
+
+    </FrameLayout>
 
     <include layout="@layout/search_suggestion_content" />
 

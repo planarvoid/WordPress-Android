@@ -18,6 +18,13 @@
             android:id="@+id/image"
             style="@style/Profile.HeaderImage" />
 
+        <ImageView
+            android:id="@+id/pro_badge"
+            style="@style/Profile.HeaderImageProBadge"
+            android:layout_alignBottom="@id/image"
+            android:layout_alignEnd="@id/image"
+            android:src="@drawable/pro_badge_small" />
+
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/username"
             style="@style/Profile.Username"

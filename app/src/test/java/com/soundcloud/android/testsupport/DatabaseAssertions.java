@@ -83,6 +83,7 @@ import static com.soundcloud.android.storage.Tables.Users.COUNTRY;
 import static com.soundcloud.android.storage.Tables.Users.DESCRIPTION;
 import static com.soundcloud.android.storage.Tables.Users.DISCOGS_NAME;
 import static com.soundcloud.android.storage.Tables.Users.FOLLOWERS_COUNT;
+import static com.soundcloud.android.storage.Tables.Users.IS_PRO;
 import static com.soundcloud.android.storage.Tables.Users.MYSPACE_NAME;
 import static com.soundcloud.android.storage.Tables.Users.VISUAL_URL;
 import static com.soundcloud.android.storage.Tables.Users.WEBSITE_NAME;
@@ -759,7 +760,8 @@ public class DatabaseAssertions {
                 .whereEq(Tables.Users.USERNAME, user.getUsername())
                 .whereEq(Tables.Users.PERMALINK, user.getPermalink())
                 .whereEq(COUNTRY, user.getCountry())
-                .whereEq(FOLLOWERS_COUNT, user.getFollowersCount());
+                .whereEq(FOLLOWERS_COUNT, user.getFollowersCount())
+                .whereEq(IS_PRO, user.isPro());
 
         assertOptionalColumn(query, DESCRIPTION, user.getDescription());
         assertOptionalColumn(query, WEBSITE_URL, user.getWebsiteUrl());

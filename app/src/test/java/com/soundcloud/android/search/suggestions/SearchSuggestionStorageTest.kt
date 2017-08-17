@@ -8,7 +8,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest
 import org.assertj.core.util.Lists
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.Date
 
 class SearchSuggestionStorageTest : StorageIntegrationTest() {
 
@@ -35,7 +35,7 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         suggestionStorage = SearchSuggestionStorage(propellerRx())
 
         followingUser = testFixtures().insertUser("Random account")
-        loggedInUser = testFixtures().insertUser("Myself")
+        loggedInUser = testFixtures().insertProUser("Myself")
         creator = testFixtures().insertUser("Prolific artist")
 
         likedTrack = testFixtures().insertTrackWithTitle("A tune I enjoy", creator)
@@ -48,7 +48,7 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         ownedTrackSearchSuggestion = buildSearchSuggestionFromApiTrack(ownedTrack, DatabaseSearchSuggestion.Kind.Post)
 
         likedPlaylist = testFixtures().insertPlaylistWithTitle("Liked playlist", creator)
-        testFixtures().insertLikedPlaylist(Date (0L), likedPlaylist)
+        testFixtures().insertLikedPlaylist(Date(0L), likedPlaylist)
         likedPlaylistSearchSuggestion = buildSearchSuggestionFromApiPlaylist(likedPlaylist, DatabaseSearchSuggestion.Kind.Like)
         likedPlaylistArtistUsernameSearchSuggestion = buildSearchSuggestionFromApiPlaylistArtistUsername(likedPlaylist)
 
@@ -152,7 +152,7 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions(creator.username.substring(0, 3), loggedInUser.urn, 2)
 
         suggestions.test().assertValue(Lists.newArrayList(likedTrackArtistUsernameSearchSuggestion,
-                likedPlaylistArtistUsernameSearchSuggestion))
+                                                          likedPlaylistArtistUsernameSearchSuggestion))
     }
 
     @Test
@@ -162,7 +162,7 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions(username.substring(startIndex + 1, startIndex + 3), loggedInUser.urn, 2)
 
         suggestions.test().assertValue(Lists.newArrayList(likedTrackArtistUsernameSearchSuggestion,
-                likedPlaylistArtistUsernameSearchSuggestion))
+                                                          likedPlaylistArtistUsernameSearchSuggestion))
     }
 
     @Test
@@ -174,8 +174,8 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions(creator.username.substring(0, 3), loggedInUser.urn, 6)
 
         suggestions.test().assertValue(Lists.newArrayList(likedTrackWithArtistNameSearchSuggestion,
-                likedTrackArtistUsernameSearchSuggestion,
-                likedPlaylistArtistUsernameSearchSuggestion))
+                                                          likedTrackArtistUsernameSearchSuggestion,
+                                                          likedPlaylistArtistUsernameSearchSuggestion))
     }
 
     @Test
@@ -184,8 +184,8 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions(creator.username.substring(0, 3), loggedInUser.urn, 4)
 
         suggestions.test().assertValue(Lists.newArrayList(buildSearchSuggestionFromApiUser(creator),
-                likedTrackArtistUsernameSearchSuggestion,
-                likedPlaylistArtistUsernameSearchSuggestion))
+                                                          likedTrackArtistUsernameSearchSuggestion,
+                                                          likedPlaylistArtistUsernameSearchSuggestion))
     }
 
     @Test
@@ -213,7 +213,7 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions(followingUser.username.substring(0, 3), loggedInUser.urn, 2)
 
         suggestions.test().assertValue(Lists.newArrayList(secondFollowingUserSearchSuggestion,
-                followingUserSearchSuggestion))
+                                                          followingUserSearchSuggestion))
     }
 
     @Test
@@ -221,11 +221,11 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
         val suggestions = suggestionStorage.getSuggestions("", loggedInUser.urn, 20)
 
         suggestions.test().assertValue(Lists.newArrayList(likedTrackSearchSuggestion,
-                likedPlaylistSearchSuggestion,
-                followingUserSearchSuggestion,
-                loggedInUserSearchSuggestion,
-                ownedTrackSearchSuggestion,
-                ownedPlaylistSearchSuggestion))
+                                                          likedPlaylistSearchSuggestion,
+                                                          followingUserSearchSuggestion,
+                                                          loggedInUserSearchSuggestion,
+                                                          ownedTrackSearchSuggestion,
+                                                          ownedPlaylistSearchSuggestion))
     }
 
     @Test
@@ -250,27 +250,42 @@ class SearchSuggestionStorageTest : StorageIntegrationTest() {
     }
 
     @NonNull
-    private fun buildSearchSuggestionFromApiTrack(apiTrack: ApiTrack, kind: DatabaseSearchSuggestion.Kind = DatabaseSearchSuggestion.Kind.Like): SearchSuggestion {
-        return DatabaseSearchSuggestion.create(apiTrack.urn, apiTrack.title, apiTrack.imageUrlTemplate, kind)
-    }
+    private fun buildSearchSuggestionFromApiTrack(apiTrack: ApiTrack, kind: DatabaseSearchSuggestion.Kind = DatabaseSearchSuggestion.Kind.Like): SearchSuggestion =
+            DatabaseSearchSuggestion.create(apiTrack.urn,
+                                            apiTrack.title,
+                                            apiTrack.imageUrlTemplate,
+                                            false,
+                                            kind)
 
     @NonNull
-    private fun buildSearchSuggestionFromApiTrackArtistUsername(apiTrack: ApiTrack): SearchSuggestion {
-        return DatabaseSearchSuggestion.create(apiTrack.urn, "${apiTrack.userName} - ${apiTrack.title}", apiTrack.imageUrlTemplate, DatabaseSearchSuggestion.Kind.LikeByUsername)
-    }
+    private fun buildSearchSuggestionFromApiTrackArtistUsername(apiTrack: ApiTrack): SearchSuggestion =
+            DatabaseSearchSuggestion.create(apiTrack.urn,
+                                            "${apiTrack.userName} - ${apiTrack.title}",
+                                            apiTrack.imageUrlTemplate,
+                                            false,
+                                            DatabaseSearchSuggestion.Kind.LikeByUsername)
 
     @NonNull
-    private fun buildSearchSuggestionFromApiPlaylist(apiPlaylist: ApiPlaylist, kind: DatabaseSearchSuggestion.Kind): SearchSuggestion {
-        return DatabaseSearchSuggestion.create(apiPlaylist.urn, apiPlaylist.title, apiPlaylist.imageUrlTemplate, kind)
-    }
+    private fun buildSearchSuggestionFromApiPlaylist(apiPlaylist: ApiPlaylist, kind: DatabaseSearchSuggestion.Kind): SearchSuggestion =
+            DatabaseSearchSuggestion.create(apiPlaylist.urn,
+                                            apiPlaylist.title,
+                                            apiPlaylist.imageUrlTemplate,
+                                            false,
+                                            kind)
 
     @NonNull
-    private fun buildSearchSuggestionFromApiPlaylistArtistUsername(apiPlaylist: ApiPlaylist): SearchSuggestion {
-        return DatabaseSearchSuggestion.create(apiPlaylist.urn, "${apiPlaylist.username} - ${apiPlaylist.title}", apiPlaylist.imageUrlTemplate, DatabaseSearchSuggestion.Kind.LikeByUsername)
-    }
+    private fun buildSearchSuggestionFromApiPlaylistArtistUsername(apiPlaylist: ApiPlaylist): SearchSuggestion =
+            DatabaseSearchSuggestion.create(apiPlaylist.urn,
+                                            "${apiPlaylist.username} - ${apiPlaylist.title}",
+                                            apiPlaylist.imageUrlTemplate,
+                                            false,
+                                            DatabaseSearchSuggestion.Kind.LikeByUsername)
 
     @NonNull
-    private fun buildSearchSuggestionFromApiUser(apiUser: ApiUser): SearchSuggestion {
-        return DatabaseSearchSuggestion.create(apiUser.urn, apiUser.username, apiUser.imageUrlTemplate, DatabaseSearchSuggestion.Kind.Following)
-    }
+    private fun buildSearchSuggestionFromApiUser(apiUser: ApiUser): SearchSuggestion =
+            DatabaseSearchSuggestion.create(apiUser.urn,
+                                            apiUser.username,
+                                            apiUser.imageUrlTemplate,
+                                            apiUser.isPro,
+                                            DatabaseSearchSuggestion.Kind.Following)
 }

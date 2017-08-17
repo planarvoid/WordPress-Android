@@ -17,6 +17,10 @@ class More implements ImageResource {
         return source.username();
     }
 
+    boolean isPro() {
+        return source.isPro();
+    }
+
     @Override
     public Urn getUrn() {
         return source.urn();

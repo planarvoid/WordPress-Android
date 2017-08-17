@@ -114,4 +114,9 @@ public class TestUserRecord implements UserRecord {
     public Optional<String> getVisualUrlTemplate() {
         return apiUser.getVisualUrlTemplate();
     }
+
+    @Override
+    public boolean isPro() {
+        return apiUser.isPro();
+    }
 }

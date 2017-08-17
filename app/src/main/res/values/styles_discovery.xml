@@ -56,6 +56,13 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
+    <style name="Search.Suggestion.Icon.ProBadge">
+        <item name="android:layout_height">@dimen/search_suggestion_icon_pro_badge_dimension</item>
+        <item name="android:layout_width">@dimen/search_suggestion_icon_pro_badge_dimension</item>
+        <item name="android:src">@drawable/pro_badge_small</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="Search.Suggestion.Icon.Type">
         <item name="android:layout_height">@dimen/search_suggestion_type_dimension</item>
         <item name="android:layout_width">@dimen/search_suggestion_type_dimension</item>

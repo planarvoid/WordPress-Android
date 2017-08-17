@@ -207,7 +207,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @NonNull
     private List<SearchSuggestion> getLocalSuggestions() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        return newArrayList(DatabaseSearchSuggestion.create(apiTrack.getUrn(), SEARCH_QUERY, apiTrack.getImageUrlTemplate(), DatabaseSearchSuggestion.Kind.Like));
+        return newArrayList(DatabaseSearchSuggestion.create(apiTrack.getUrn(), SEARCH_QUERY, apiTrack.getImageUrlTemplate(), false, DatabaseSearchSuggestion.Kind.Like));
     }
 
     @NonNull

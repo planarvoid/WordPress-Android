@@ -51,6 +51,8 @@ public abstract class User {
 
     public abstract boolean isFollowing();
 
+    public abstract boolean isPro();
+
     public abstract User.Builder toBuilder();
 
     public static User fromCursorReader(CursorReader cursorReader) {
@@ -73,6 +75,7 @@ public abstract class User {
                 .discogsName(Optional.fromNullable(cursorReader.getString(UsersView.DISCOGS_NAME.name())))
                 .artistStation(Optional.fromNullable(cursorReader.getString(UsersView.ARTIST_STATION.name())).transform(STRING_TO_URN))
                 .isFollowing(cursorReader.getBoolean(UsersView.IS_FOLLOWING.name()))
+                .isPro(cursorReader.getBoolean(UsersView.IS_PRO.name()))
                 .build();
     }
 
@@ -96,6 +99,7 @@ public abstract class User {
                 .discogsName(apiUser.getDiscogsName())
                 .artistStation(apiUser.getArtistStationUrn())
                 .isFollowing(false)
+                .isPro(apiUser.isPro())
                 .build();
     }
 
@@ -156,6 +160,8 @@ public abstract class User {
         public abstract Builder artistStation(Optional<Urn> artistStation);
 
         public abstract Builder isFollowing(boolean isFollowing);
+
+        public abstract Builder isPro(boolean isPro);
 
         public abstract User build();
     }

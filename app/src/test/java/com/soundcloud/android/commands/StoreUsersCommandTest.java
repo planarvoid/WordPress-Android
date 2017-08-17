@@ -40,6 +40,7 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
         user.setFirstName("new");
         user.setLastName("cloud");
         user.setCreatedAt(new Date(1476350197));
+        user.setIsPro(true);
 
         command.call(singletonList(user));
 

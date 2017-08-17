@@ -18,6 +18,10 @@ public abstract class UserItem implements ListItem, FollowableItem, UpdatableUse
 
     public abstract boolean isFollowedByMe();
 
+    public boolean isPro() {
+        return user().isPro();
+    }
+
     public Urn getUrn(){
         return user().urn();
     }

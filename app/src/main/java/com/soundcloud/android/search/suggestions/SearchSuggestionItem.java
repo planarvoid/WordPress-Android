@@ -11,16 +11,17 @@ public abstract class SearchSuggestionItem extends SuggestionItem implements Ima
 
     abstract Optional<SuggestionHighlight> suggestionHighlight();
     abstract String displayedText();
+    abstract boolean isPro();
 
-    public static SearchSuggestionItem forUser(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
-        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.UserItem, query, suggestionHighlight, displayedText);
+    public static SearchSuggestionItem forUser(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText, boolean isPro) {
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.UserItem, query, suggestionHighlight, displayedText, isPro);
     }
 
     public static SearchSuggestionItem forTrack(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
-        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.TrackItem, query, suggestionHighlight, displayedText);
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.TrackItem, query, suggestionHighlight, displayedText, false);
     }
 
     public static SearchSuggestionItem forPlaylist(Urn urn, Optional<String> imageUrlTemplate, String query, Optional<SuggestionHighlight> suggestionHighlight, String displayedText) {
-        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.PlaylistItem, query, suggestionHighlight, displayedText);
+        return new AutoValue_SearchSuggestionItem(urn, imageUrlTemplate, Kind.PlaylistItem, query, suggestionHighlight, displayedText, false);
     }
 }

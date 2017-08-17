@@ -102,7 +102,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersUserClickEventOnUserItemClicked() {
-        final SuggestionItem suggestionItem = SearchSuggestionItem.forUser(Urn.forUser(456), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forUser(Urn.forUser(456), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY, false);
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(view, CLICK_POSITION);

@@ -39,4 +39,6 @@ public interface UserRecord extends ImageResource {
     Optional<Urn> getArtistStationUrn();
 
     Optional<String> getVisualUrlTemplate();
+
+    boolean isPro();
 }

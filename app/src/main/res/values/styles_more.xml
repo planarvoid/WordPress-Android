@@ -22,6 +22,15 @@
         <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
     </style>
 
+    <style name="More.HeaderImage.ProBadge">
+        <item name="android:layout_width">@dimen/profile_image_pro_badge_dimen</item>
+        <item name="android:layout_height">@dimen/profile_image_pro_badge_dimen</item>
+        <item name="android:layout_marginBottom">@dimen/profile_image_pro_badge_padding</item>
+        <item name="android:layout_marginRight">@dimen/profile_image_pro_badge_padding</item>
+        <item name="android:src">@drawable/pro_badge_large</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="More.HeaderText">
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>

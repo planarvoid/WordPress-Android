@@ -44,6 +44,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         setOptionalCountry(itemView, user);
         setupFollowersCount(itemView, user);
         loadImage(itemView, user);
+        setProBadge(itemView, user);
     }
 
     private void setOptionalCountry(View itemView, UserItem user) {
@@ -72,5 +73,11 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         imageOperations.displayCircularInAdapterView(
                 user, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (ImageView) itemView.findViewById(R.id.image));
+    }
+
+    private void setProBadge(View itemView, UserItem user) {
+        if (user.isPro()) {
+            itemView.findViewById(R.id.pro_badge).setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -36,6 +36,7 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @BindView(R.id.more_restore_subscription_block) View restoreBlock;
     @BindView(R.id.more_restore_subscription) TextView restore;
     @BindView(R.id.scroll_view) NestedScrollView scrollView;
+    @BindView(R.id.pro_badge) ImageView proBadge;
 
     MoreView(View view, final Listener listener) {
         this.listener = listener;
@@ -68,6 +69,10 @@ class MoreView implements MainPagerAdapter.ScrollContent {
 
     void showReportBug() {
         reportBug.setVisibility(View.VISIBLE);
+    }
+
+    void showProBadge() {
+        proBadge.setVisibility(View.VISIBLE);
     }
 
     void setUsername(String username) {

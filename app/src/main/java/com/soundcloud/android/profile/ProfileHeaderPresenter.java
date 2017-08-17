@@ -55,6 +55,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
     @BindView(R.id.followers_count) TextView followerCount;
     @BindView(R.id.toggle_btn_follow) ToggleButton followButton;
     @BindView(R.id.btn_station) ToggleButton stationButton;
+    @BindView(R.id.pro_badge) ImageView proBadge;
 
     private Urn lastUser;
 
@@ -125,6 +126,13 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         setFollowerCount(user);
         setFollowingButton(user);
         setArtistStation(user);
+        setProBadge(user);
+    }
+
+    private void setProBadge(User user) {
+        if (user.isPro()) {
+            proBadge.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setUserImage(User user) {

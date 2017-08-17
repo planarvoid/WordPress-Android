@@ -22,7 +22,7 @@ public abstract class SuggestionItem {
         if (urn.isTrack()) {
             return SearchSuggestionItem.forTrack(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
         } else if (urn.isUser()) {
-            return SearchSuggestionItem.forUser(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
+            return SearchSuggestionItem.forUser(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText, searchSuggestion.isPro());
         } else if (urn.isPlaylist()) {
             return SearchSuggestionItem.forPlaylist(urn, imageUrlTemplate, query, suggestionHighlightOptional, displayText);
         } else {

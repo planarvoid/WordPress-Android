@@ -128,6 +128,17 @@ class UserStorageTest : StorageIntegrationTest() {
     }
 
     @Test
+    fun loadsProUser() {
+        val apiUser = testFixtures().insertProUser("name")
+
+        val expectedUser = getApiUserBuilder(apiUser).build()
+
+        storage.loadUser(apiUser.urn)
+                .test()
+                .assertValue(expectedUser)
+    }
+
+    @Test
     fun loadsMultipleUsers() {
         val firstUser = ModelFixtures.create(ApiUser::class.java)
         firstUser.urn = Urn.forUser(1)
@@ -184,6 +195,7 @@ class UserStorageTest : StorageIntegrationTest() {
                 .followingsCount(apiUser.followingsCount)
                 .avatarUrl(apiUser.imageUrlTemplate)
                 .visualUrl(apiUser.visualUrlTemplate)
+                .isPro(apiUser.isPro)
     }
 
 }

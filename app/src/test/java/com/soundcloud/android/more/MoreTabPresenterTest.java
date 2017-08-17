@@ -124,6 +124,16 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
 
         verifyUserBound();
+        verify(moreView, never()).showProBadge();
+    }
+
+    @Test
+    public void onViewCreatedShowsProBadgeWhenUserIsPro() {
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(ModelFixtures.proUser()));
+
+        initFragment();
+
+        verify(moreView).showProBadge();
     }
 
     @Test
@@ -134,6 +144,20 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         subject.onNext(USER);
 
         verifyUserBound();
+        verify(moreView, never()).showProBadge();
+    }
+
+    @Test
+    public void onViewCreatedShowsProBadgeWhenUserIsProWhenLoadedAfterViewCreated() {
+        final User user = ModelFixtures.proUser();
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(user));
+        final PublishSubject<User> subject = PublishSubject.create();
+        initFragment();
+
+        subject.onNext(user);
+
+        verifyUserBound();
+        verify(moreView).showProBadge();
     }
 
     @Test

@@ -475,6 +475,14 @@ public class DatabaseFixtures {
         return user;
     }
 
+    public ApiUser insertProUser(String username) {
+        final ApiUser user = ModelFixtures.create(ApiUser.class);
+        user.setUsername(username);
+        user.setIsPro(true);
+        insertUser(user);
+        return user;
+    }
+
     public ApiUser insertUser(String username, long createdAt) {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
         user.setUsername(username);
@@ -502,6 +510,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Users.AVATAR_URL, user.getImageUrlTemplate().orNull());
         cv.put(Tables.Users.VISUAL_URL, user.getVisualUrlTemplate().orNull());
         cv.put(Tables.Users.PERMALINK, user.getPermalink());
+        cv.put(Tables.Users.IS_PRO, user.isPro());
         return cv;
     }
 

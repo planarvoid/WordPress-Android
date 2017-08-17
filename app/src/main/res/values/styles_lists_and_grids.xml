@@ -94,6 +94,13 @@
         <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
     </style>
 
+    <style name="ListItemImage.User.ProBadge">
+        <item name="android:layout_width">@dimen/list_item_image_pro_badge_dimension</item>
+        <item name="android:layout_height">@dimen/list_item_image_pro_badge_dimension</item>
+        <item name="android:layout_marginBottom">@dimen/list_item_image_pro_badge_padding</item>
+        <item name="android:layout_marginRight">@dimen/list_item_image_pro_badge_padding</item>
+    </style>
+
     <style name="ListItemOverflowButton">
         <item name="android:background">@drawable/btn_list_overflow</item>
         <item name="android:layout_marginBottom">6dp</item>

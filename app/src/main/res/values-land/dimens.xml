@@ -13,6 +13,8 @@
     <dimen name="rec_record_button_dimension">60dp</dimen>
 
     <dimen name="profile_image_dimen">@dimen/list_item_image_dimension</dimen>
+    <dimen name="profile_image_pro_badge_dimen">@dimen/list_item_image_pro_badge_dimension</dimen>
+    <dimen name="profile_image_pro_badge_padding">@dimen/list_item_image_pro_badge_padding</dimen>
 
     <!-- stream -->
     <dimen name="cards_header_min_height">72dp</dimen>

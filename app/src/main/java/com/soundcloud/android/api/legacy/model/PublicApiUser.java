@@ -255,6 +255,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
         return Optional.absent();
     }
 
+    @Override
+    public boolean isPro() {
+        return false;
+    }
+
     public final void setCountry(@Nullable String country) {
         this.country = country;
     }

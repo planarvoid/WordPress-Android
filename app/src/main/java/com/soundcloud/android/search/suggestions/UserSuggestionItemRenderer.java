@@ -30,6 +30,13 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
     public void bindItemView(int position, View itemView, List<SuggestionItem> items) {
         final SearchSuggestionItem userSuggestionItem = (SearchSuggestionItem) items.get(position);
         bindView(itemView, userSuggestionItem, R.drawable.ic_search_user);
+        showProBadge(itemView.findViewById(R.id.pro_badge), userSuggestionItem);
+    }
+
+    private void showProBadge(View proBadge, SearchSuggestionItem userSuggestionItem) {
+        if (userSuggestionItem.isPro()) {
+            proBadge.setVisibility(View.VISIBLE);
+        }
     }
 
     protected void loadIcon(ImageView icon, ImageResource imageResource, Resources resources) {

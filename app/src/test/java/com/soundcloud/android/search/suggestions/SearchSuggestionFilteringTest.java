@@ -18,7 +18,7 @@ import java.util.List;
 public class SearchSuggestionFilteringTest {
     private static final String QUERY = "query";
     private static final SuggestionItem P = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
-    private static final SuggestionItem U = SearchSuggestionItem.forUser(Urn.forUser(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
+    private static final SuggestionItem U = SearchSuggestionItem.forUser(Urn.forUser(123L), Optional.absent(), QUERY, Optional.absent(), QUERY, false);
     private static final SuggestionItem T = SearchSuggestionItem.forTrack(Urn.forTrack(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
 
     @Mock private FeatureFlags featureFlags;
