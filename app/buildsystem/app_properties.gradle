@@ -35,6 +35,8 @@ android {
       resValue "bool", "enforce_concurrent_streaming_limitation", "false"
       resValue "bool", "register_for_gcm", "false"
 
+      // If you want to test against local api-mobile deployments with Genymotion:
+      //resValue "string", "mobile_api_base_url", "http://10.0.3.2:9090"
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "http://eventgateway-staging.k2.lb.s-cloud.net/v1/events"
       resValue "bool",   "log_queries", "false"

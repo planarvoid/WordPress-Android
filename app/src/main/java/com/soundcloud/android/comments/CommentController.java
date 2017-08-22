@@ -1,8 +1,6 @@
 package com.soundcloud.android.comments;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -10,6 +8,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -71,7 +70,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(EntityMetadata.from(arguments.creatorName(), arguments.creatorUrn(), arguments.trackTitle(), arguments.trackUrn())));
     }
 
-    private class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment> {
+    private class CommentAddedSubscriber extends DefaultSubscriber<Comment> {
 
         private final Urn trackUrn;
 
@@ -80,7 +79,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
         }
 
         @Override
-        public void onNext(PublicApiComment comment) {
+        public void onNext(Comment unused) {
             final Feedback feedback = Feedback.create(R.string.comment_posted,
                                                       R.string.btn_view, v -> {
                                                           subscribeToCollapsedEvent(activity);

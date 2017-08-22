@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
+import com.soundcloud.android.model.Urn;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +54,7 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     public static final Parcelable.Creator<PublicApiComment> CREATOR = new Parcelable.Creator<PublicApiComment>() {
         public PublicApiComment createFromParcel(Parcel in) {
             PublicApiComment t = new PublicApiComment();
+            t.setId(in.readLong());
             t.createdAt = new Date(in.readLong());
             t.user_id = in.readLong();
             t.track_id = in.readLong();
@@ -143,32 +145,20 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
         this.body = body;
     }
 
-    public static PublicApiComment build(PublicApiTrack track,
-                                         PublicApiUser user,
-                                         long timestamp,
-                                         String body,
-                                         long replyToId,
-                                         String replyToUsername) {
-        PublicApiComment comment = new PublicApiComment();
-        comment.track_id = track.getId();
-        comment.track = track;
-        comment.user = user;
-        comment.user_id = user.getId();
-        comment.timestamp = timestamp;
-        comment.createdAt = new Date(); // not actually used?
-        comment.body = body;
-        comment.reply_to_id = replyToId;
-        comment.reply_to_username = replyToUsername;
-        return comment;
-    }
-
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
+    public void setId(long id) {
+        super.setId(id);
+        urn = Urn.forComment(id);
+    }
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(getId());
         out.writeLong(createdAt.getTime());
         out.writeLong(user_id);
         out.writeLong(track_id);

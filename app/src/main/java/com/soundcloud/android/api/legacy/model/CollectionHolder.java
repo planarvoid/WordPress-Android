@@ -1,9 +1,11 @@
 package com.soundcloud.android.api.legacy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.android.api.model.ModelCollection;
 
 import android.text.TextUtils;
 
@@ -17,8 +19,10 @@ import java.util.List;
  * Holder for data returned in the API's "linked_partitioning" format (/tracks?linked_partitioning=1)
  *
  * @param <T>
+ * @deprecated use {@link ModelCollection} and api-mobile instead of public-api
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated
 public class CollectionHolder<T> implements Iterable<T> {
 
     @JsonProperty
@@ -79,6 +83,11 @@ public class CollectionHolder<T> implements Iterable<T> {
 
     public int size() {
         return collection != null ? collection.size() : 0;
+    }
+
+    @JsonIgnore
+    public ModelCollection<T> toModelCollection() {
+        return new ModelCollection<>(collection, next_href);
     }
 
 }

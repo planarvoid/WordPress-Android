@@ -1,16 +1,16 @@
 package com.soundcloud.android.comments;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -43,6 +43,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private TrackItem track;
+    private Comment comment;
 
     private CommentController controller;
 
@@ -50,6 +51,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         track = PlayableFixtures.fromApiTrack();
+        comment = new Comment(ModelFixtures.apiComment(new Urn("soundcloud:comments:123")));
 
         controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigationExecutor);
         controller.onCreate(activity, null);
@@ -57,8 +59,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void showsSuccessFeedbackAfterPost() {
-        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
-                .thenReturn(Observable.just(mock(PublicApiComment.class)));
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION)).thenReturn(Observable.just(comment));
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
@@ -79,7 +80,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesInOnDestroy() {
-        final PublishSubject<PublicApiComment> subject = PublishSubject.create();
+        final PublishSubject<Comment> subject = PublishSubject.create();
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(subject);
 

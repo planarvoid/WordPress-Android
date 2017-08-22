@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
@@ -69,7 +70,7 @@ import java.util.List;
 
 public class ModelFixtures {
 
-    public static long runningUserId = 1L;
+    private static long runningUserId = 1L;
 
     private static final ModelFactory modelFactory = new ModelFactory();
 
@@ -100,6 +101,10 @@ public class ModelFixtures {
         }
     }
 
+    /**
+     * @deprecated Use specific method for the class you want
+     */
+    @Deprecated
     public static <T> T create(Class<T> target) {
         try {
             return modelFactory.createModel(target);
@@ -108,6 +113,10 @@ public class ModelFixtures {
         }
     }
 
+    /**
+     * @deprecated Use specific method for the class you want
+     */
+    @Deprecated
     public static <T> List<T> create(Class<T> target, int count) {
         List<T> models = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -125,7 +134,23 @@ public class ModelFixtures {
     }
 
     public static ApiUser apiUser() {
-        return create(ApiUser.class);
+        return apiUser(Urn.forUser(ModelFixtures.runningUserId++));
+    }
+
+    public static ApiUser apiUser(Urn urn) {
+        final ApiUser apiUser = new ApiUser(urn);
+        apiUser.setFollowersCount(100);
+        apiUser.setFollowingsCount(200);
+        apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + ModelFixtures.runningUserId + "-{size}.jpg");
+        apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + ModelFixtures.runningUserId + "-{size}.jpg");
+        apiUser.setFirstName("sound");
+        apiUser.setLastName("cloud");
+        apiUser.setCreatedAt(new Date(1476342997));
+        apiUser.setPermalink("user-permalink" + apiUser.getId());
+        apiUser.setUsername("user" + apiUser.getId());
+        apiUser.setCountry("Country");
+        apiUser.setCity("City");
+        return apiUser;
     }
 
     public static Configuration configuration() {
@@ -548,6 +573,10 @@ public class ModelFixtures {
         return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(follower, new Date())).build();
     }
 
+    public static PublicApiComment publicApiComment() {
+        return ModelFixtures.create(PublicApiComment.class);
+    }
+
     public static ApiComment apiComment(Urn urn) {
         return apiComment(urn, create(ApiTrack.class).getUrn(), create(ApiUser.class));
     }
@@ -558,7 +587,7 @@ public class ModelFixtures {
                          .trackUrn(trackUrn)
                          .body("Great stuff!")
                          .createdAt(new Date())
-                         .trackTime(1234)
+                         .trackTime(Optional.of(1234L))
                          .user(byUser)
                          .build();
     }

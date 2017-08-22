@@ -16,18 +16,16 @@ public class ApiUserTest {
 
     @Test
     public void shouldDefineEqualityBasedOnUrn() {
-        ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
-        ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
-        apiUser2.setUrn(apiUser1.getUrn());
+        ApiUser apiUser1 = ModelFixtures.apiUser();
+        ApiUser apiUser2 = ModelFixtures.apiUser(apiUser1.getUrn());
 
         assertThat(apiUser1).isEqualTo(apiUser2);
     }
 
     @Test
     public void shouldDefineHashCodeBasedOnUrn() {
-        ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
-        ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
-        apiUser2.setUrn(apiUser1.getUrn());
+        ApiUser apiUser1 = ModelFixtures.apiUser();
+        ApiUser apiUser2 = ModelFixtures.apiUser(apiUser1.getUrn());
 
         assertThat(apiUser1.hashCode()).isEqualTo(apiUser2.hashCode());
     }

@@ -1144,7 +1144,7 @@ public class DatabaseFixtures {
         ContentValuesBuilder builder = ContentValuesBuilder.values();
         builder.put(TableColumns.Comments.CREATED_AT, comment.getCreatedAt().getTime());
         builder.put(TableColumns.Comments.BODY, comment.getBody());
-        builder.put(TableColumns.Comments.TIMESTAMP, comment.getTrackTime());
+        comment.getTrackTime().ifPresent(trackTime -> builder.put(TableColumns.Comments.TIMESTAMP, trackTime));
         builder.put(TableColumns.Comments.TRACK_ID, comment.getTrackUrn().getNumericId());
         builder.put(TableColumns.Comments.USER_ID, comment.getUser().getUrn().getNumericId());
     }

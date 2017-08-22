@@ -96,7 +96,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
-import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
@@ -859,7 +858,7 @@ public class DatabaseAssertions {
                                   .whereEq(URN, comment.getUrn().toString())
                                   .whereEq(Comments.TRACK_ID, comment.getTrackUrn().getNumericId())
                                   .whereEq(Comments.USER_ID, comment.getUser().getUrn().getNumericId())
-                                  .whereEq(TIMESTAMP, comment.getTrackTime())
+                                  .whereEq(TIMESTAMP, comment.getTrackTime().orNull())
                                   .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
                                   .whereEq(BODY, comment.getBody()))).counts(1);
     }

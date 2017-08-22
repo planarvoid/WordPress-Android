@@ -1,10 +1,10 @@
 package com.soundcloud.android.comments;
 
-import static com.soundcloud.android.comments.CommentsOperations.TO_COMMENT_VIEW_MODEL;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
@@ -58,7 +58,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter, operations.pager(), TO_COMMENT_VIEW_MODEL);
+        listViewController.setAdapter(adapter, operations.pager());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     public Observable<List<Comment>> buildObservable() {
         final Urn trackUrn = Urns.urnFromBundle(getArguments(), EXTRA_TRACK_URN);
         comments = operations.pager().page(operations.comments(trackUrn))
-                             .map(TO_COMMENT_VIEW_MODEL)
+                             .map(ModelCollection::getCollection)
                              .observeOn(mainThread())
                              .replay(1);
         comments.subscribe(adapter);

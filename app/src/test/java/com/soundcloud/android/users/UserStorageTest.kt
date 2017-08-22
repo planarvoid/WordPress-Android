@@ -141,14 +141,12 @@ class UserStorageTest : StorageIntegrationTest() {
     @Test
     fun loadsMultipleUsers() {
         val firstUser = ModelFixtures.create(ApiUser::class.java)
-        firstUser.urn = Urn.forUser(1)
         testFixtures().insertUser(firstUser)
 
         val secondUser = ModelFixtures.create(ApiUser::class.java)
-        secondUser.urn = Urn.forUser(2)
         testFixtures().insertUser(secondUser)
 
-        val urns = listOf(Urn.forUser(1), Urn.forUser(2))
+        val urns = listOf(firstUser.urn, secondUser.urn)
 
         val firstApiUser = getApiUserBuilder(firstUser).build()
         val secondApiUser = getApiUserBuilder(secondUser).build()

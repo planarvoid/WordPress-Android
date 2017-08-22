@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -14,7 +15,7 @@ public abstract class ApiComment implements CommentRecord {
     @JsonCreator
     public static ApiComment create(@JsonProperty("urn") String urn,
                                     @JsonProperty("track_urn") String trackUrn,
-                                    @JsonProperty("track_time") long trackTime,
+                                    @JsonProperty("track_time") Optional<Long> trackTime,
                                     @JsonProperty("body") String body,
                                     @JsonProperty("created_at") Date createdAt,
                                     @JsonProperty("commenter") ApiUser commenter) {
@@ -42,7 +43,7 @@ public abstract class ApiComment implements CommentRecord {
     public abstract String getBody();
 
     @Override
-    public abstract long getTrackTime();
+    public abstract Optional<Long> getTrackTime();
 
     @Override
     public abstract Date getCreatedAt();
@@ -59,7 +60,7 @@ public abstract class ApiComment implements CommentRecord {
 
         public abstract Builder body(String body);
 
-        public abstract Builder trackTime(long trackTime);
+        public abstract Builder trackTime(Optional<Long> trackTime);
 
         public abstract Builder createdAt(Date createdAt);
 

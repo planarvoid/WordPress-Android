@@ -45,7 +45,7 @@ public class StoreCommentCommand extends DefaultWriteStorageCommand<CommentRecor
         contentValues.put(Comments.USER_ID, comment.getUser().getUrn().getNumericId());
         contentValues.put(Comments.BODY, comment.getBody());
         contentValues.put(Comments.CREATED_AT, comment.getCreatedAt().getTime());
-        contentValues.put(Comments.TIMESTAMP, comment.getTrackTime());
+        comment.getTrackTime().ifPresent(trackTime -> contentValues.put(Comments.TIMESTAMP, trackTime));
         return contentValues.get();
     }
 }
