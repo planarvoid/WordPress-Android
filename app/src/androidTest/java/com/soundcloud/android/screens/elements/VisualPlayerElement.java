@@ -3,6 +3,7 @@ package com.soundcloud.android.screens.elements;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -26,7 +27,7 @@ public class VisualPlayerElement extends Element {
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
     private final Condition IS_EXPANDED_CONDITION = () -> player().isOnScreen() && isExpanded();
-    private final Condition IS_COLLAPSED_CONDITION = () -> isCollapsed();
+    private final Condition IS_COLLAPSED_CONDITION = this::isCollapsed;
 
     public VisualPlayerElement(Han testDriver) {
         super(testDriver, With.id(R.id.player_layout));
@@ -45,8 +46,8 @@ public class VisualPlayerElement extends Element {
         return leaveBehind().isOnScreen();
     }
 
-    public boolean isInterstitialVisible() {
-        return interstitial().isOnScreen();
+    private boolean isInterstitialImageOnScreen() {
+        return testDriver.findOnScreenElement(With.id(R.id.interstitial_image)).isOnScreen();
     }
 
     public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack() {
@@ -56,18 +57,6 @@ public class VisualPlayerElement extends Element {
 
     public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack(int timeout) {
         waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()), timeout);
-        return this;
-    }
-
-    public VisualPlayerElement unlike() {
-        if (likeButton().isChecked()) {
-            likeButton().click();
-        }
-        return this;
-    }
-
-    public VisualPlayerElement startStationFromUnplayableTrack() {
-        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.stations_start_track_station))).click();
         return this;
     }
 
@@ -147,10 +136,6 @@ public class VisualPlayerElement extends Element {
         return testDriver.findOnScreenElement(With.id(R.id.track_page_context));
     }
 
-    private ViewElement footerUser() {
-        return testDriver.findOnScreenElement(With.id(R.id.footer_user));
-    }
-
     private ViewElement footerPlayToggle() {
         return testDriver.findOnScreenElement(With.id(R.id.footer_toggle));
     }
@@ -183,16 +168,8 @@ public class VisualPlayerElement extends Element {
         return testDriver.findOnScreenElement(With.id(R.id.leave_behind));
     }
 
-    private ViewElement interstitial() {
-        return testDriver.findOnScreenElement(With.id(R.id.interstitial));
-    }
-
     private ViewElement toggleLike() {
         return testDriver.findOnScreenElement(With.id(R.id.track_page_like));
-    }
-
-    private ViewElement interstitialNowPlaying() {
-        return testDriver.findOnScreenElement(With.id(R.id.interstitial_now_playing_title));
     }
 
     private ViewElement progress() {
@@ -214,11 +191,6 @@ public class VisualPlayerElement extends Element {
                 && progress().isOnScreen()
                 && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
-
-    public boolean isExpandedPlayerPaused() {
-        return waitForExpandedPlayer().isExpanded() && playButton().isOnScreen();
-    }
-
 
     public VisualPlayerElement tapFooter() {
         footerPlayer().click();
@@ -304,20 +276,12 @@ public class VisualPlayerElement extends Element {
         return trackTitle().getText();
     }
 
-    public String interstitalNowPlayingText() {
-        return new TextElement(interstitialNowPlaying()).getText();
-    }
-
     public String getTrackCreator() {
         return new TextElement(creator()).getText();
     }
 
     public String getTrackPageContext() {
         return new TextElement(trackPageContext()).getText();
-    }
-
-    public String getFooterTrackCreator() {
-        return new TextElement(footerUser()).getText();
     }
 
     public boolean isFooterAdTextVisible() {
@@ -330,7 +294,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForMoreContent() {
-        waiter.waitForNetworkCondition(() -> hasMoreTracks());
+        waiter.waitForNetworkCondition(this::hasMoreTracks);
     }
 
     public boolean hasMoreTracks() {
@@ -385,8 +349,8 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public boolean waitForInterstitialToLoad() {
-        return waiter.waitForNetworkCondition(() -> testDriver.findOnScreenElement(With.id(R.id.interstitial)).hasVisibility());
+    public boolean waitForInterstitialToBeDisplayed() {
+        return waiter.waitForElementCondition(this::isInterstitialImageOnScreen, Waiter.FIVE_SECONDS);
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {
@@ -449,7 +413,7 @@ public class VisualPlayerElement extends Element {
         return testDriver.findOnScreenElement(With.id(R.id.track_page_share));
     }
 
-    public boolean isCenteredAd() {
+    private boolean isCenteredAd() {
         return centeredAdArtwork().isOnScreen();
     }
 
@@ -457,19 +421,11 @@ public class VisualPlayerElement extends Element {
         return errorElement().getText();
     }
 
-    public boolean isErrorBlockedVisible() {
-        return testDriver.findOnScreenElement(With.id(R.id.playback_error_blocked)).hasVisibility();
-    }
-
     private TextElement errorElement() {
         return new TextElement(testDriver.findOnScreenElement(With.id(R.id.playback_error)));
     }
 
-    private TextElement errorReasonElement() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.playback_error_reason)));
-    }
-
-    public void clickCenteredAdArtwork() {
+    private void clickCenteredAdArtwork() {
         centeredAdArtwork().click();
     }
 
@@ -477,7 +433,7 @@ public class VisualPlayerElement extends Element {
         return fullBleedArtwork().isOnScreen();
     }
 
-    public void clickFullbleedAdArtwork() {
+    private void clickFullbleedAdArtwork() {
         fullBleedArtwork().click();
     }
 

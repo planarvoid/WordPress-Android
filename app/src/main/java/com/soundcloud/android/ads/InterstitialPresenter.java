@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
-public class InterstitialPresenter extends AdOverlayPresenter {
+class InterstitialPresenter extends AdOverlayPresenter {
 
     private final View previewContainer;
     private final View interstitialImageHolder;
@@ -26,10 +26,10 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     private final TextView nowPlayingTitleView;
     private final Resources resources;
 
-    public InterstitialPresenter(View trackView, Listener listener,
-                                 @Provided EventBus eventBus,
-                                 @Provided ImageOperations imageOperations,
-                                 @Provided Resources resources) {
+    InterstitialPresenter(View trackView, Listener listener,
+                          @Provided EventBus eventBus,
+                          @Provided ImageOperations imageOperations,
+                          @Provided Resources resources) {
         super(trackView,
               R.id.interstitial,
               R.id.interstitial_stub,
@@ -40,8 +40,8 @@ public class InterstitialPresenter extends AdOverlayPresenter {
               imageOperations,
               eventBus);
         this.previewContainer = trackView.findViewById(R.id.interstitial_preview_container);
-        this.previewImage = (ImageView) trackView.findViewById(R.id.interstitial_now_playing_artwork);
-        this.nowPlayingTitleView = (TextView) trackView.findViewById(R.id.interstitial_now_playing_title);
+        this.previewImage = trackView.findViewById(R.id.interstitial_now_playing_artwork);
+        this.nowPlayingTitleView = trackView.findViewById(R.id.interstitial_now_playing_title);
         this.resources = resources;
         this.interstitialImageHolder = trackView.findViewById(R.id.interstitial_image_holder);
     }

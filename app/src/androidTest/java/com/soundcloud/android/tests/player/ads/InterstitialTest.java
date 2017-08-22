@@ -35,7 +35,6 @@ public class InterstitialTest extends AdBaseTest {
         assertTrue(playerElement.waitForPlayState());
         Log.d(ADS_TAG, "InterstitialTest.setUp::<-waitForPlayState");
 
-        assertThat("Interstitial loaded", playerElement.waitForInterstitialToLoad());
-        assertThat("Display interstitial", playerElement.isInterstitialVisible());
+        assertThat("Display interstitial", playerElement.waitForInterstitialToBeDisplayed());
     }
 }

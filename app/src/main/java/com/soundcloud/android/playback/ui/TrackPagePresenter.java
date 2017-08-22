@@ -197,8 +197,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.loadArtwork(trackState, false, trackState.getViewVisibilityProvider());
         holder.timestamp.setInitialProgress(playableDuration, fullDuration);
         holder.menuController.setTrack(trackState);
-        holder.waveformController.setWaveform(RxJava.toV1Observable(waveformOperations.waveformDataFor(urn,
-                                                                                        trackState.getWaveformUrl())),
+        holder.waveformController.setWaveform(RxJava.toV1Observable(waveformOperations.waveformDataFor(urn, trackState.getWaveformUrl())),
                                               trackState.isForeground());
 
         holder.artworkController.setFullDuration(fullDuration);
@@ -678,14 +677,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void setupHolder(View trackView) {
         final TrackPageHolder holder = new TrackPageHolder();
-        holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
-        holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.trackContext = (JaggedTextView) trackView.findViewById(R.id.track_page_context);
+        holder.title = trackView.findViewById(R.id.track_page_title);
+        holder.user = trackView.findViewById(R.id.track_page_user);
+        holder.trackContext = trackView.findViewById(R.id.track_page_context);
 
-        holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artworkView = trackView.findViewById(R.id.track_page_artwork);
         holder.artworkOverlayDark = trackView.findViewById(R.id.artwork_overlay_dark);
-        holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
-        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
+        holder.timestamp = trackView.findViewById(R.id.timestamp);
+        holder.likeToggle = trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_expanded_top_bar);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
@@ -696,22 +695,22 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.shareButton = trackView.findViewById(R.id.track_page_share);
         holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
-        holder.topStrip = (PlayerStripView) trackView.findViewById(R.id.player_strip);
-        holder.upsellView = (PlayerUpsellView) trackView.findViewById(R.id.upsell_container);
+        holder.topStrip = trackView.findViewById(R.id.player_strip);
+        holder.upsellView = trackView.findViewById(R.id.upsell_container);
         holder.topGradient = trackView.findViewById(R.id.top_gradient);
 
         // set initial media route button state
-        holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
+        holder.mediaRouteButton = trackView.findViewById(R.id.media_route_button);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
-        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
-        holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
-        holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
+        holder.footerPlayToggle = trackView.findViewById(R.id.footer_toggle);
+        holder.footerTitle = trackView.findViewById(R.id.footer_title);
+        holder.footerUser = trackView.findViewById(R.id.footer_user);
         holder.footerQueueButton = trackView.findViewById(R.id.footer_play_queue_button);
 
         holder.adOverlayController = adOverlayControllerFactory.create(trackView, createAdOverlayListener(holder));
 
-        final WaveformView waveformView = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
+        final WaveformView waveformView = trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveformView);
         holder.playerOverlayControllers = new PlayerOverlayController[]{
                 playerOverlayControllerFactory.create(holder.artworkOverlayDark),
@@ -883,8 +882,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   playQueueButton);
 
 
-            fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder,
-                                            upsellView, topGradient);
+            fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder, upsellView, topGradient);
             fullScreenAdViews = singletonList(interstitialHolder);
             fullScreenErrorViews = Arrays.asList(title, user, trackContext, close, interstitialHolder);
             fullyHideOnCollapseViews = Collections.singletonList(profileLink);
