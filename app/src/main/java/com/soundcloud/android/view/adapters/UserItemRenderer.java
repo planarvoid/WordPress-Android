@@ -12,7 +12,6 @@ import com.soundcloud.java.optional.Optional;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -49,7 +48,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
 
     private void setOptionalCountry(View itemView, UserItem user) {
         final Optional<String> country = user.country();
-        final TextView countryText = (TextView) itemView.findViewById(R.id.list_item_subheader);
+        final TextView countryText = itemView.findViewById(R.id.list_item_subheader);
         if (country.isPresent()) {
             countryText.setText(country.get());
             countryText.setVisibility(View.VISIBLE);
@@ -59,7 +58,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
     }
 
     private void setupFollowersCount(View itemView, UserItem user) {
-        final TextView followersCountText = (TextView) itemView.findViewById(R.id.list_item_counter);
+        final TextView followersCountText = itemView.findViewById(R.id.list_item_counter);
         final int followersCount = user.followersCount();
         if (followersCount > Consts.NOT_SET) {
             followersCountText.setVisibility(View.VISIBLE);
@@ -72,12 +71,11 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
     private void loadImage(View itemView, UserItem user) {
         imageOperations.displayCircularInAdapterView(
                 user, ApiImageSize.getListItemImageSize(itemView.getResources()),
-                (ImageView) itemView.findViewById(R.id.image));
+                itemView.findViewById(R.id.image));
     }
 
     private void setProBadge(View itemView, UserItem user) {
-        if (user.isPro()) {
-            itemView.findViewById(R.id.pro_badge).setVisibility(View.VISIBLE);
-        }
+        final int visibility = user.isPro() ? View.VISIBLE : View.GONE;
+        itemView.findViewById(R.id.pro_badge).setVisibility(visibility);
     }
 }

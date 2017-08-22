@@ -34,9 +34,8 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
     }
 
     private void showProBadge(View proBadge, SearchSuggestionItem userSuggestionItem) {
-        if (userSuggestionItem.isPro()) {
-            proBadge.setVisibility(View.VISIBLE);
-        }
+        final int visibility = userSuggestionItem.isPro() ? View.VISIBLE : View.GONE;
+        proBadge.setVisibility(visibility);
     }
 
     protected void loadIcon(ImageView icon, ImageResource imageResource, Resources resources) {

@@ -223,8 +223,8 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     private void bindUserProBadge() {
-        if (moreViewOpt.isPresent() && moreOpt.isPresent() && moreOpt.get().isPro()) {
-            moreViewOpt.get().showProBadge();
+        if (moreViewOpt.isPresent() && moreOpt.isPresent()) {
+            moreViewOpt.get().showProBadge(moreOpt.get().isPro());
         }
     }
 

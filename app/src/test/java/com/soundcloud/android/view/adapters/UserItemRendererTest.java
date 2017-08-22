@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -63,6 +64,21 @@ public class UserItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldBindProBadgeIfUserIsPro() {
+        userItem = ModelFixtures.userItem(ModelFixtures.proUser());
+        renderer.bindItemView(0, itemView, singletonList(userItem));
+
+        assertThat(imageView(R.id.pro_badge).getVisibility()).isEqualTo(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldNotBindProBadgeIfUserIsNotPro() {
+        renderer.bindItemView(0, itemView, singletonList(userItem));
+
+        assertThat(imageView(R.id.pro_badge).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
     public void shouldBindFollowersCountToView() {
         renderer.bindItemView(0, itemView, singletonList(userItem));
 
@@ -90,10 +106,14 @@ public class UserItemRendererTest extends AndroidUnitTest {
         verify(imageOperations).displayCircularInAdapterView(
                 userItem,
                 ApiImageSize.getListItemImageSize(itemView.getResources()),
-                (android.widget.ImageView) itemView.findViewById(R.id.image));
+                itemView.findViewById(R.id.image));
     }
 
     private TextView textView(int id) {
         return ((TextView) itemView.findViewById(id));
+    }
+
+    private ImageView imageView(int id) {
+        return ((ImageView) itemView.findViewById(id));
     }
 }

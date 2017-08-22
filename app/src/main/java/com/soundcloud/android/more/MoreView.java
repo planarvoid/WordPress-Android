@@ -71,8 +71,9 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         reportBug.setVisibility(View.VISIBLE);
     }
 
-    void showProBadge() {
-        proBadge.setVisibility(View.VISIBLE);
+    void showProBadge(boolean show) {
+        final int visibility = show ? View.VISIBLE : View.GONE;
+        proBadge.setVisibility(visibility);
     }
 
     void setUsername(String username) {
@@ -157,7 +158,7 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     }
 
     @OnClick(R.id.more_restore_subscription)
-    void onRestoreSubscriptionClicked(View view){
+    void onRestoreSubscriptionClicked(View view) {
         if (listener != null) {
             listener.onRestoreSubscriptionClicked(view);
         }

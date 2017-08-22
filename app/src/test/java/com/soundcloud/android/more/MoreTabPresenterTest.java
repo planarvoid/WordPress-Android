@@ -124,7 +124,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
 
         verifyUserBound();
-        verify(moreView, never()).showProBadge();
+        verify(moreView).showProBadge(false);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         initFragment();
 
-        verify(moreView).showProBadge();
+        verify(moreView).showProBadge(true);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         subject.onNext(USER);
 
         verifyUserBound();
-        verify(moreView, never()).showProBadge();
+        verify(moreView).showProBadge(false);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         subject.onNext(user);
 
         verifyUserBound();
-        verify(moreView).showProBadge();
+        verify(moreView).showProBadge(true);
     }
 
     @Test

@@ -130,9 +130,8 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
     }
 
     private void setProBadge(User user) {
-        if (user.isPro()) {
-            proBadge.setVisibility(View.VISIBLE);
-        }
+        final int visibility = user.isPro() ? View.VISIBLE : View.GONE;
+        proBadge.setVisibility(visibility);
     }
 
     private void setUserImage(User user) {
