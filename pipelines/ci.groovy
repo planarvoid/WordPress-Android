@@ -139,6 +139,7 @@ def compileStage() {
       gradle 'buildDebugPR'
     }
     updateGitHub(Builds.BUILD, Status.SUCCESS)
+    generateStatsFile()
   } catch (e) {
     updateGitHub(Builds.BUILD, Status.ERROR)
     updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
@@ -244,6 +245,16 @@ def reportingStage(def isSuccess, def error) {
       throw error
     }
   }
+}
+
+// ----------------------------------------------------------------------------------------------------
+// BUILD STATS
+// ----------------------------------------------------------------------------------------------------
+
+def generateStatsFile() {
+  sh "./scripts/generate_build_stats.sh"
+  archiveArtifacts artifacts: "build-stats.txt", onlyIfSuccessful: true
+  archiveArtifacts artifacts: "dependency-tree.txt", onlyIfSuccessful: true
 }
 
 // ----------------------------------------------------------------------------------------------------
