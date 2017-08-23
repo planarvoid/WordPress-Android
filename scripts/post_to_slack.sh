@@ -16,4 +16,4 @@ function payload {
     echo "{\"channel\":\"$1\", \"username\": \"$2\", \"text\": \"$3\", \"icon_emoji\": \"$4\"}"
 }
 
-curl -X POST --data-urlencode payload="$(payload $1 $2 $3 $4)" ${URL}
+curl -X POST --data-urlencode payload="$(payload "$1" "$2" "$3" "$4")" ${URL}

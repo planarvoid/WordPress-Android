@@ -2,8 +2,6 @@
 
 set -e
 
-URL=$( cat /home/mobile/installs/webhook.properties | grep -e "url=.*" | cut -d = -f 2)
-
 TRIGGER_AUTHOR=$ghprbTriggerAuthorLogin
 BUILD_STATUS=$1
 
