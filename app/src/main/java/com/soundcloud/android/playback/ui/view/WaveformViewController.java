@@ -98,10 +98,8 @@ public class WaveformViewController
     public void displayScrubPosition(float actualPosition, float boundedPosition) {
         leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), actualPosition);
         rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), actualPosition);
-        if (currentState == IDLE) {
-            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), actualPosition);
-            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), actualPosition);
-        }
+        leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), actualPosition);
+        rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), actualPosition);
     }
 
     public void setProgress(PlaybackProgress progress) {
