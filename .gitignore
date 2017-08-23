@@ -9,7 +9,8 @@ soundcloud-android.iws
 app/gen-external-apklibs/
 tests-integration/gen-external-apklibs/
 classes/
-.idea
+.idea/*
+!.idea/icon.png
 *.iml
 out
 tmp
