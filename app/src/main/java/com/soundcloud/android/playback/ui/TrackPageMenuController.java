@@ -174,8 +174,8 @@ public class TrackPageMenuController
     private void handleComment() {
         if (track.getSource().isPresent()) {
             final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource().get(),
-                                                                                      commentPosition,
-                                                                                      playQueueManager.getScreenTag());
+                                                                                                commentPosition,
+                                                                                                playQueueManager.getScreenTag());
             fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
         }
     }

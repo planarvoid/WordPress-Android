@@ -2,7 +2,7 @@ package com.soundcloud.android.peripherals
 
 import com.soundcloud.android.events.EventQueue
 import com.soundcloud.android.rx.observers.LambdaObserver
-import com.soundcloud.android.utils.plusAssign
+import com.soundcloud.android.utils.extensions.plusAssign
 import com.soundcloud.rx.eventbus.EventBusV2
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject

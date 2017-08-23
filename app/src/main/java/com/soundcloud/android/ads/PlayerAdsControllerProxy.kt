@@ -1,9 +1,13 @@
 package com.soundcloud.android.ads
 
-import com.soundcloud.android.events.*
+import com.soundcloud.android.events.ActivityLifeCycleEvent
+import com.soundcloud.android.events.AdOverlayEvent
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent
+import com.soundcloud.android.events.EventQueue
+import com.soundcloud.android.events.PlayerUIEvent
 import com.soundcloud.android.playback.PlayQueueFunctions
 import com.soundcloud.android.rx.observers.LambdaObserver
-import com.soundcloud.android.utils.plusAssign
+import com.soundcloud.android.utils.extensions.plusAssign
 import com.soundcloud.rx.eventbus.EventBusV2
 import dagger.Lazy
 import io.reactivex.Observable

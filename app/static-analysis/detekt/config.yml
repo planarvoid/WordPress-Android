@@ -162,6 +162,7 @@ style:
     ignoreAnnotation: false
   WildcardImport:
     active: true
+    excludeImports: kotlinx.android.synthetic
   SafeCast:
     active: true
   MaxLineLength:
