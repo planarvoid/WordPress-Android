@@ -81,8 +81,8 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
             final ActivityKind kind = ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE));
             final String userName = reader.getString(ActivityView.USER_USERNAME);
             final Urn userUrn = Urn.forUser(reader.getLong(ActivityView.USER_ID));
-            final String avatarUrl = reader.getString(ActivityView.USER_AVATAR_URL);
-            final Optional<String> imageUrlTemplate = Optional.fromNullable(avatarUrl);
+            final Optional<String> imageUrlTemplate = Optional.fromNullable(reader.getString(ActivityView.USER_AVATAR_URL));
+            final boolean userIsPro = reader.getBoolean(ActivityView.USER_IS_PRO);
             final String title = ActivityKind.PLAYABLE_RELATED.contains(kind) ?
                                  reader.getString(SoundView.TITLE) :
                                  Strings.EMPTY;
@@ -92,8 +92,7 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
                                            Optional.of(Urn.forTrack(reader.getLong(ActivityView.SOUND_ID))) :
                                            Optional.absent();
 
-            return ActivityItem.create(createdAt, kind, userName, title, trackUrn, userUrn,
-                                       imageUrlTemplate);
+            return ActivityItem.create(createdAt, kind, userName, title, trackUrn, userUrn, imageUrlTemplate, userIsPro);
         }
     }
 }

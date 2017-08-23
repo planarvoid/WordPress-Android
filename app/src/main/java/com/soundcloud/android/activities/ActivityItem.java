@@ -9,6 +9,9 @@ import java.util.Date;
 
 @AutoValue
 public abstract class ActivityItem implements Timestamped {
+
+    abstract boolean getUserIsPro();
+
     abstract ActivityKind getKind();
 
     abstract String getUserName();
@@ -27,7 +30,8 @@ public abstract class ActivityItem implements Timestamped {
                                       String playableTitle,
                                       Optional<Urn> commentedTrackUrn,
                                       Urn urn,
-                                      Optional<String> imageUrlTemplate) {
+                                      Optional<String> imageUrlTemplate,
+                                      boolean userIsPro) {
         return new AutoValue_ActivityItem.Builder()
                 .createdAt(createdAt)
                 .kind(kind)
@@ -36,6 +40,7 @@ public abstract class ActivityItem implements Timestamped {
                 .commentedTrackUrn(commentedTrackUrn)
                 .urn(urn)
                 .imageUrlTemplate(imageUrlTemplate)
+                .userIsPro(userIsPro)
                 .build();
     }
 
@@ -58,6 +63,8 @@ public abstract class ActivityItem implements Timestamped {
         public abstract Builder urn(Urn urn);
 
         public abstract Builder imageUrlTemplate(Optional<String> imageUrlTemplate);
+
+        public abstract Builder userIsPro(boolean userIsPro);
 
         public abstract ActivityItem build();
     }

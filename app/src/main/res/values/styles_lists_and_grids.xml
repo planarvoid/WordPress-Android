@@ -99,6 +99,14 @@
         <item name="android:layout_height">@dimen/list_item_image_pro_badge_dimension</item>
         <item name="android:layout_marginBottom">@dimen/list_item_image_pro_badge_padding</item>
         <item name="android:layout_marginRight">@dimen/list_item_image_pro_badge_padding</item>
+        <item name="android:src">@drawable/pro_badge_small</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="ListItemImage.User.SmallProBadge" parent="ListItemImage.User.ProBadge">
+        <item name="android:layout_marginBottom">@dimen/list_item_image_small_pro_badge_padding</item>
+        <item name="android:layout_marginRight">@dimen/list_item_image_small_pro_badge_padding</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="ListItemOverflowButton">

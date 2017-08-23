@@ -1,9 +1,15 @@
 package com.soundcloud.android.storage;
 
+import static com.soundcloud.android.storage.schemas.ActivityView.DATABASE_CREATE_ACTIVITY_VIEW_VERSION_0_TO_115;
+import static com.soundcloud.android.storage.schemas.ActivityView.DATABASE_CREATE_ACTIVITY_VIEW_VERSION_116_AND_ABOVE;
+
 import android.provider.BaseColumns;
 
+/**
+ * @deprecated Use the new `Tables` structure instead
+ */
 @SuppressWarnings("sc.EnumUsage")
-@Deprecated // use the new `Tables` structure
+@Deprecated
 public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
     PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
@@ -19,7 +25,8 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
     SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),
-    ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
+    ActivityViewVersion0To115(true, DATABASE_CREATE_ACTIVITY_VIEW_VERSION_0_TO_115),
+    ActivityView(true, DATABASE_CREATE_ACTIVITY_VIEW_VERSION_116_AND_ABOVE),
     PlaylistTracksView(true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 

@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -50,7 +51,8 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 Strings.EMPTY,
                 Optional.absent(),
                 Urn.forUser(123L),
-                Optional.of("image-url")
+                Optional.of("image-url"),
+                true
         );
 
         renderer.bindItemView(0, itemView, singletonList(activityItem));
@@ -58,6 +60,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
         assertText(R.id.username, "follower");
         assertText(R.id.body, "started following you");
         assertText(R.id.date, "1 hour ago");
+        assertImageVisibility(R.id.pro_badge, View.VISIBLE);
     }
 
     @Test
@@ -73,13 +76,15 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "Sound title",
                 Optional.absent(),
                 Urn.forUser(123L),
-                Optional.of("image-url")
+                Optional.of("image-url"),
+                false
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");
         assertText(R.id.body, "liked Sound title");
         assertText(R.id.date, "52 minutes ago");
+        assertImageVisibility(R.id.pro_badge, View.GONE);
     }
 
     @Test
@@ -92,13 +97,15 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "Sound title",
                 Optional.absent(),
                 Urn.forUser(123L),
-                Optional.of("image-url")
+                Optional.of("image-url"),
+                true
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");
         assertText(R.id.body, "reposted Sound title");
         assertText(R.id.date, "52 minutes ago");
+        assertImageVisibility(R.id.pro_badge, View.VISIBLE);
     }
 
     @Test
@@ -111,16 +118,22 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
                 "Sound title",
                 Optional.absent(),
                 Urn.forUser(123L),
-                Optional.of("image-url")
+                Optional.of("image-url"),
+                false
         );
         renderer.bindItemView(0, itemView, singletonList(activityItem));
 
         assertText(R.id.username, "User name");
         assertText(R.id.body, "commented on Sound title");
         assertText(R.id.date, "52 minutes ago");
+        assertImageVisibility(R.id.pro_badge, View.GONE);
     }
 
     private void assertText(int id, String expected) {
         assertThat((TextView) itemView.findViewById(id)).hasText(expected);
+    }
+
+    private void assertImageVisibility(int id, int visibility) {
+        assertThat((ImageView) itemView.findViewById(id)).hasVisibility(visibility);
     }
 }

@@ -14,7 +14,6 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -51,6 +50,12 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
         setTimeElapsed(itemView, activityItem);
         setMainText(itemView, activityItem);
         setUserAvatar(itemView, activityItem);
+        showProBadge(itemView, activityItem);
+    }
+
+    private void showProBadge(View itemView, ActivityItem activityItem) {
+        final int visibility = activityItem.getUserIsPro() ? View.VISIBLE : View.GONE;
+        itemView.findViewById(R.id.pro_badge).setVisibility(visibility);
     }
 
     private void setUserAvatar(View itemView, ActivityItem activityItem) {
@@ -58,7 +63,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
                 Optional.of(activityItem.getUrn()),
                 activityItem.getImageUrlTemplate(),
                 ApiImageSize.getListItemImageSize(resources),
-                (ImageView) itemView.findViewById(R.id.image));
+                itemView.findViewById(R.id.image));
     }
 
     private void setMainText(View itemView, ActivityItem activityItem) {
@@ -94,7 +99,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
             default:
                 throw new IllegalArgumentException("Unexpected activity type");
         }
-        final TextView titleTextView = (TextView) itemView.findViewById(R.id.body);
+        final TextView titleTextView = itemView.findViewById(R.id.body);
         titleTextView.setText(titleText);
         titleTextView.setCompoundDrawablesWithIntrinsicBounds(iconId, 0, 0, 0);
     }

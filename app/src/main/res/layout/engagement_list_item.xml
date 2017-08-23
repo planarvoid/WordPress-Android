@@ -8,6 +8,12 @@
         android:layout_width="40dp"
         android:layout_height="40dp" />
 
+    <ImageView
+        android:id="@+id/pro_badge"
+        style="@style/ListItemImage.User.SmallProBadge"
+        android:layout_alignBottom="@id/image"
+        android:layout_alignEnd="@id/image" />
+
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/username"
         style="@style/ListItemText.SecondaryText"

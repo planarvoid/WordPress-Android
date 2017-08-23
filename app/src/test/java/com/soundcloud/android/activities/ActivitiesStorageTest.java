@@ -184,7 +184,8 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
                 Strings.EMPTY,
                 Optional.absent(),
                 activity.getUserUrn(),
-                activity.getUser().getImageUrlTemplate()
+                activity.getUser().getImageUrlTemplate(),
+                activity.getUser().isPro()
         );
     }
 
@@ -196,7 +197,8 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
                 activity.getTrack().getTitle(),
                 Optional.absent(),
                 activity.getUserUrn(),
-                activity.getUser().getImageUrlTemplate()
+                activity.getUser().getImageUrlTemplate(),
+                activity.getUser().isPro()
         );
     }
 
@@ -208,7 +210,8 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
                 activity.getTrack().getTitle(),
                 Optional.of(activity.getTrack().getUrn()),
                 activity.getUserUrn(),
-                activity.getUser().getImageUrlTemplate()
+                activity.getUser().getImageUrlTemplate(),
+                activity.getUser().isPro()
         );
     }
 }
