@@ -8,6 +8,12 @@ timestamps {
         env.PIPELINE_VERSION = BUILD_NUMBER + '-' + gitCommit
         currentBuild.displayName = env.PIPELINE_VERSION
         stash name: 'repository'
+
+        sh "git checkout master"
+        def masterCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
+        if (gitCommit != masterCommit) {
+          sh "./scripts/post_to_slack.sh \"#android-build-status\" \"Android Alpha Build\" \"There are newer commits on `master` that are not on `green_master`. The new Alpha is based off of SHA: ${masterCommit}.\" \":watchout:\""
+        }
       }
     }
     stage('Build') {

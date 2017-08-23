@@ -7,10 +7,6 @@ URL=$( cat /home/mobile/installs/webhook.properties | grep -e "url=.*" | cut -d 
 TRIGGER_AUTHOR=$ghprbTriggerAuthorLogin
 BUILD_STATUS=$1
 
-function payload {
-    echo "{\"channel\":\"$1\", \"username\": \"$2\", \"text\": \"$3\", \"icon_emoji\": \"$4\"}"
-}
-
 IFS=$'\n' users=($(<${WORKSPACE}/scripts/.slack))
 for i in "${users[@]}"
 do
@@ -28,6 +24,6 @@ do
 
       JENKINS_BLUE_OCEAN_URL="${JENKINS_URL}blue/organizations/jenkins/${JOB_NAME}/detail/${JOB_NAME}/${BUILD_NUMBER}/pipeline"
 
-      curl -X POST --data-urlencode payload="$(payload "@${map[1]}" "${USERNAME}" "*PR$ghprbPullId: $ghprbPullTitle*\n$MESSAGE\n Jenkins: ${JOB_URL}${BUILD_NUMBER} \n Blue Ocean: ${JENKINS_BLUE_OCEAN_URL} \n GitHub: ${ghprbPullLink}" "${ICON}")" $URL
+      ./scripts/post_to_slack.sh "@${map[1]}" "${USERNAME}" "*PR$ghprbPullId: $ghprbPullTitle*\n$MESSAGE\n Jenkins: ${JOB_URL}${BUILD_NUMBER} \n Blue Ocean: ${JENKINS_BLUE_OCEAN_URL} \n GitHub: ${ghprbPullLink}" "${ICON}"
    fi
 done

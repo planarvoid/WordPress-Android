@@ -9,6 +9,12 @@ task slogBeta {
   }
 }
 
+task slogAlpha {
+  doLast {
+    sendMessage("slog: Deploying Alpha: ${project.('ext').currentVersionName}")
+  }
+}
+
 task slogFollowUpBeta {
   doLast {
     sendMessage(basicText("(follow-up) beta", project.('ext').followUpBetaVersionCode, beta_annotation))
