@@ -134,6 +134,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueTrackChangedHandlerCallsPlayCurrentAnMovesToNextIfTrackMissing() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playbackStrategy.playCurrent()).thenReturn(Completable.error(new MissingTrackException(trackUrn)));
+
+        controller.onPlayQueueItemEvent(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verify(playQueueManager).moveToNextPlayableItem();
+    }
+
+    @Test
     public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentForTrackIfPlaySessionIsNotActive() {
         controller.onPlayQueueItemEvent(CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 

@@ -229,6 +229,20 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playCurrentReturnsErrorOnMissingTrack() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        final Track.Builder builder = onlineTrackBuilder();
+        builder.blocked(true);
+        when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.empty());
+
+        TestObserver<Void> testObserver = defaultPlaybackStrategy.playCurrent().test();
+
+        verify(serviceInitiator, never()).play(any(PlaybackItem.class));
+        testObserver.assertError(MissingTrackException.class);
+    }
+
+    @Test
     public void playCurrentPlaysVideoAdSuccessfully() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK1);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));

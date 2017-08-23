@@ -24,6 +24,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -242,6 +243,9 @@ public class PlaySessionController {
                 if (e instanceof BlockedTrackException) {
                     pause();
                     Log.e(TAG, "Not playing blocked track", e);
+                } else if (e instanceof MissingTrackException) {
+                    ErrorUtils.handleSilentException(e);
+                    nextTrack();
                 } else {
                     super.onError(e);
                 }

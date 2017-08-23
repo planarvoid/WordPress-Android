@@ -18,6 +18,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.functions.Action;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -79,23 +80,25 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public Completable playCurrent() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
-            return trackItemRepository.track(currentPlayQueueItem.getUrn()).flatMapCompletable(trackItem -> {
-                                                                                                   final Urn trackUrn = trackItem.getUrn();
-                                                                                                   Track track = trackItem.track();
-                                                                                                   if (track.blocked()) {
-                                                                                                       return Completable.error(new BlockedTrackException(trackUrn));
-                                                                                                   } else {
-                                                                                                       if (offlinePlaybackOperations.shouldPlayOffline(trackItem)) {
-                                                                                                           handleOfflineTrackPlayback(track, trackUrn);
-                                                                                                       } else if (track.snipped()) {
-                                                                                                           serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
-                                                                                                       } else {
-                                                                                                           serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
-                                                                                                       }
-                                                                                                       return Completable.complete();
-                                                                                                   }
-                                                                                               }
-            );
+            return trackItemRepository.track(currentPlayQueueItem.getUrn())
+                                      .switchIfEmpty(Maybe.error(new MissingTrackException(currentPlayQueueItem.getUrn())))
+                                      .flatMapCompletable(trackItem -> {
+                                                              final Urn trackUrn = trackItem.getUrn();
+                                                              Track track = trackItem.track();
+                                                              if (track.blocked()) {
+                                                                  return Completable.error(new BlockedTrackException(trackUrn));
+                                                              } else {
+                                                                  if (offlinePlaybackOperations.shouldPlayOffline(trackItem)) {
+                                                                      handleOfflineTrackPlayback(track, trackUrn);
+                                                                  } else if (track.snipped()) {
+                                                                      serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
+                                                                  } else {
+                                                                      serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
+                                                                  }
+                                                                  return Completable.complete();
+                                                              }
+                                                          }
+                                      );
         } else if (currentPlayQueueItem.isAd()) {
             return playCurrentAd(currentPlayQueueItem);
         } else {
