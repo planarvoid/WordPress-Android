@@ -76,6 +76,10 @@ public class PlayerTrackState extends PlayerItem implements ImageResource {
         return source.transform(TrackItem::creatorName).or(Strings.EMPTY);
     }
 
+    public boolean isCreatorPro() {
+        return source.transform(TrackItem::creatorIsPro).or(false);
+    }
+
     public Urn getUserUrn() {
         return source.transform(TrackItem::creatorUrn).or(Urn.NOT_SET);
     }

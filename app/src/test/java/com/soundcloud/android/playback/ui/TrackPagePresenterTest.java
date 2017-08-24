@@ -65,6 +65,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
@@ -102,6 +103,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private CastPlayerStripController castPlayerStripController;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
+    @Mock private TrackPageView trackPageView;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -134,7 +136,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            changeLikeToSaveExperiment,
-                                           playerInteractionsTracker);
+                                           playerInteractionsTracker,
+                                           trackPageView);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -160,6 +163,28 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bindItemViewSetsUrnOnErrorViewController() {
         populateTrackPage();
         verify(errorViewController).setUrn(TRACK_URN);
+    }
+
+    @Test
+    public void bindItemViewBindsUserWithProBadgeViewWhenUserIsPro() {
+        final TrackItem trackItem = populateTrackPageForProUser();
+        final TextView userView = getHolder(trackView).user;
+
+        verify(trackPageView).showProBadge(eq(userView), eq(true), any(Integer.class));
+        assertThat(userView).isVisible();
+        assertThat(userView).isEnabled();
+        assertThat(userView.getText()).isEqualTo(trackItem.creatorName());
+    }
+
+    @Test
+    public void bindItemViewBindsUserWithoutProBadgeViewWhenUserIsNotPro() {
+        final TrackItem trackItem = populateTrackPage();
+        final TextView userView = getHolder(trackView).user;
+
+        verify(trackPageView).showProBadge(eq(userView), eq(false), any(Integer.class));
+        assertThat(userView).isVisible();
+        assertThat(userView).isEnabled();
+        assertThat(userView.getText()).isEqualTo(trackItem.creatorName());
     }
 
     @Test
@@ -815,9 +840,18 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         return (TrackPageHolder) trackView.getTag();
     }
 
-    private void populateTrackPage() {
-        final TrackItem source = ModelFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).build());
+    private TrackItem populateTrackPage() {
+        return populateTrackPage(false);
+    }
+
+    private TrackItem populateTrackPageForProUser() {
+        return populateTrackPage(true);
+    }
+
+    private TrackItem populateTrackPage(boolean creatorIsPro) {
+        final TrackItem source = ModelFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).creatorIsPro(creatorIsPro).build());
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
+        return source;
     }
 
     private void bindSnippedTrack() {

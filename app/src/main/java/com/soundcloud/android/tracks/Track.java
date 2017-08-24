@@ -62,6 +62,8 @@ public abstract class Track {
 
     public abstract Urn creatorUrn();
 
+    public abstract boolean creatorIsPro();
+
     public abstract OfflineState offlineState();
 
     public abstract Optional<String> description();
@@ -106,6 +108,7 @@ public abstract class Track {
                 .repostsCount(apiTrack.getStats().getRepostsCount())
                 .creatorName(apiTrack.getUser() != null ? apiTrack.getUser().getUsername() : Strings.EMPTY)
                 .creatorUrn(apiTrack.getUser() != null ? apiTrack.getUser().getUrn() : Urn.NOT_SET)
+                .creatorIsPro(apiTrack.getUser() != null && apiTrack.getUser().isPro())
                 .imageUrlTemplate(apiTrack.getImageUrlTemplate())
                 .genre(Optional.fromNullable(apiTrack.getGenre()))
                 .monetizationModel(apiTrack.getMonetizationModel().or(Strings.EMPTY))
@@ -171,6 +174,8 @@ public abstract class Track {
         public abstract Builder creatorName(String creatorName);
 
         public abstract Builder creatorUrn(Urn creatorUrn);
+
+        public abstract Builder creatorIsPro(boolean creatorIsPro);
 
         public abstract Builder offlineState(OfflineState offlineState);
 

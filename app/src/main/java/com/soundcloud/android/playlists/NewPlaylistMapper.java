@@ -29,6 +29,7 @@ public class NewPlaylistMapper extends RxResultMapper<Playlist> {
                                                  .imageUrlTemplate(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.ARTWORK_URL.name())))
                                                  .creatorUrn(Urn.forUser(cursorReader.getLong(Tables.PlaylistView.USER_ID.name())))
                                                  .creatorName(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.USERNAME.name())).or(Strings.EMPTY))
+                                                 .creatorIsPro(cursorReader.getBoolean(Tables.PlaylistView.CREATOR_IS_PRO.name()))
                                                  .trackCount(readTrackCount(cursorReader))
                                                  .likesCount(cursorReader.getInt(Tables.PlaylistView.LIKES_COUNT.name()))
                                                  .genre(cursorReader.getString(Tables.PlaylistView.GENRE.name()))

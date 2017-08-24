@@ -18,6 +18,7 @@ public abstract class Playlist {
                 .title(playlist.getTitle())
                 .creatorUrn(playlist.getUser().getUrn())
                 .creatorName(playlist.getUser().getUsername())
+                .creatorIsPro(playlist.getUser().isPro())
                 .genre(playlist.getGenre())
                 .duration(playlist.getDuration())
                 .trackCount(playlist.getTrackCount())
@@ -41,6 +42,8 @@ public abstract class Playlist {
     public abstract Urn creatorUrn();
 
     public abstract String creatorName();
+
+    public abstract boolean creatorIsPro();
 
     public abstract long duration();
 
@@ -98,6 +101,8 @@ public abstract class Playlist {
         public abstract Builder creatorUrn(Urn value);
 
         public abstract Builder creatorName(String value);
+
+        public abstract Builder creatorIsPro(boolean value);
 
         public abstract Builder duration(long value);
 

@@ -30,45 +30,47 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
         return urn();
     }
 
-    abstract public Urn urn();
+    public abstract Urn urn();
 
-    abstract public Urn creatorUrn();
+    public abstract Urn creatorUrn();
 
-    abstract public String creatorName();
+    public abstract String creatorName();
+
+    public abstract boolean creatorIsPro();
 
     abstract boolean canBePlayed();
 
-    abstract public boolean canShuffle();
+    public abstract boolean canShuffle();
 
-    abstract public int trackCount();
+    public abstract int trackCount();
 
-    abstract public int likesCount();
+    public abstract int likesCount();
 
-    abstract public boolean isLikedByUser();
+    public abstract boolean isLikedByUser();
 
-    abstract public boolean isPrivate();
+    public abstract boolean isPrivate();
 
-    abstract public boolean isRepostedByUser();
+    public abstract boolean isRepostedByUser();
 
-    abstract public boolean isMarkedForOffline();
+    public abstract boolean isMarkedForOffline();
 
-    abstract public boolean isOwner();
+    public abstract boolean isOwner();
 
-    abstract public OfflineState offlineState();
+    public abstract OfflineState offlineState();
 
-    abstract public OfflineOptions offlineOptions();
+    public abstract OfflineOptions offlineOptions();
 
-    abstract public Optional<String> permalinkUrl();
+    public abstract Optional<String> permalinkUrl();
 
-    abstract public String title();
+    public abstract String title();
 
-    abstract public String label();
+    public abstract String label();
 
-    abstract public String headerText();
+    public abstract String headerText();
 
-    abstract public Optional<String> imageUrlTemplate();
+    public abstract Optional<String> imageUrlTemplate();
 
-    abstract public boolean isInEditMode();
+    public abstract boolean isInEditMode();
 
     public abstract Builder toBuilder();
 
@@ -95,6 +97,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .permalinkUrl(playlist.permalinkUrl())
                 .creatorUrn(playlist.creatorUrn())
                 .creatorName(playlist.creatorName())
+                .creatorIsPro(playlist.creatorIsPro())
                 .isPrivate(playlist.isPrivate())
                 .isRepostedByUser(playlist.isRepostedByCurrentUser().or(false))
                 .likesCount(playlist.likesCount())
@@ -126,6 +129,8 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
         protected abstract Builder creatorUrn(Urn value);
 
         protected abstract Builder creatorName(String value);
+
+        protected abstract Builder creatorIsPro(boolean userIsPro);
 
         protected abstract Builder canShuffle(boolean value);
 
@@ -189,6 +194,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                     .permalinkUrl(playlist.permalinkUrl())
                     .creatorUrn(playlist.creatorUrn())
                     .creatorName(playlist.creatorName())
+                    .creatorIsPro(playlist.creatorIsPro())
                     .isPrivate(playlist.isPrivate())
                     .likesCount(playlist.likesCount())
                     .imageUrlTemplate(playlist.imageUrlTemplate())

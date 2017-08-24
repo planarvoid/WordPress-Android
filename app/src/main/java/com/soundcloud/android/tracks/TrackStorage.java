@@ -9,6 +9,7 @@ import static com.soundcloud.android.storage.Tables.TrackView.BLOCKED;
 import static com.soundcloud.android.storage.Tables.TrackView.COMMENTS_COUNT;
 import static com.soundcloud.android.storage.Tables.TrackView.CREATED_AT;
 import static com.soundcloud.android.storage.Tables.TrackView.CREATOR_ID;
+import static com.soundcloud.android.storage.Tables.TrackView.CREATOR_IS_PRO;
 import static com.soundcloud.android.storage.Tables.TrackView.CREATOR_NAME;
 import static com.soundcloud.android.storage.Tables.TrackView.FULL_DURATION;
 import static com.soundcloud.android.storage.Tables.TrackView.ID;
@@ -197,6 +198,7 @@ public class TrackStorage {
         builder.isPrivate(SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(SHARING.name())));
         builder.createdAt(cursorReader.getDateFromTimestamp(CREATED_AT.name()));
         builder.imageUrlTemplate(Optional.fromNullable(cursorReader.getString(ARTWORK_URL.name())));
+        builder.creatorIsPro(cursorReader.getBoolean(CREATOR_IS_PRO.name()));
 
         builder.genre(Optional.fromNullable(cursorReader.getString(Tables.TrackView.GENRE.name())));
 

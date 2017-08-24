@@ -91,6 +91,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final PlayerInteractionsTracker playerInteractionsTracker;
+    private final TrackPageView trackPageView;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -113,7 +114,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        Resources resources,
                        PlayerUpsellImpressionController upsellImpressionController,
                        ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
-                       PlayerInteractionsTracker playerInteractionsTracker) {
+                       PlayerInteractionsTracker playerInteractionsTracker,
+                       TrackPageView trackPageView) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -133,6 +135,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.upsellImpressionController = upsellImpressionController;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.playerInteractionsTracker = playerInteractionsTracker;
+        this.trackPageView = trackPageView;
     }
 
     @Override
@@ -188,7 +191,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.title.setText(title);
-        holder.user.setText(userName);
+        bindUser(trackState, holder);
         holder.profileLink.setTag(userUrn);
         bindStationsContext(trackState, holder);
 
@@ -218,6 +221,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         setClickListener(this, holder.onClickViews);
         updateCastData(trackView, false);
+    }
+
+    private void bindUser(PlayerTrackState trackState, TrackPageHolder trackPageHolder) {
+        final JaggedTextView userView = trackPageHolder.user;
+        userView.setText(trackState.getUserName());
+        trackPageView.showProBadge(userView, trackState.isCreatorPro(), R.drawable.pro_badge_inset);
+        userView.setVisibility(View.VISIBLE);
+        userView.setEnabled(true);
     }
 
     private void updateLikeCount(ToggleButton likeToggle, int likeCount) {
@@ -387,6 +398,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public View clearItemView(View view) {
         final TrackPageHolder holder = getViewHolder(view);
         holder.user.setText(Strings.EMPTY);
+        holder.user.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+
         holder.title.setText(Strings.EMPTY);
 
         holder.trackContext.setVisibility(View.GONE);

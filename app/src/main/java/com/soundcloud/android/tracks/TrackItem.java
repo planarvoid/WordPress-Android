@@ -85,6 +85,10 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().title();
     }
 
+    public boolean creatorIsPro() {
+        return track().creatorIsPro();
+    }
+
     public Urn creatorUrn() {
         return track().creatorUrn();
     }

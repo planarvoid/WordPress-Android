@@ -23,20 +23,34 @@ class PlaylistCoverRenderer {
     }
 
     public void bind(View view, PlaylistDetailsMetadata item, Action0 onHeaderPlay, Action0 onGoToCreator) {
-        TextView titleView = getTitleView(view, item);
+        bindTitle(view, item);
+        bindUsername(view, item, onGoToCreator);
+        bindArtwork(view, item);
+        bindPlayButton(view, item, onHeaderPlay);
+    }
+
+    private void bindTitle(View view, PlaylistDetailsMetadata item) {
+        final TextView titleView = getTitleView(view, item);
         titleView.setText(item.title());
         titleView.setVisibility(View.VISIBLE);
+    }
 
-        TextView usernameView = ButterKnife.findById(view, R.id.username);
-        usernameView.setVisibility(View.VISIBLE);
+    private void bindUsername(View view, PlaylistDetailsMetadata item, Action0 onGoToCreator) {
+        final TextView usernameView = ButterKnife.findById(view, R.id.username);
+        final int proBadge = item.creatorIsPro() ? R.drawable.pro_badge_inset : 0;
         usernameView.setText(item.creatorName());
+        usernameView.setCompoundDrawablesWithIntrinsicBounds(0, 0, proBadge, 0);
         usernameView.setEnabled(true);
         usernameView.setOnClickListener(v -> onGoToCreator.call());
+    }
 
-        ImageView artworkView = ButterKnife.findById(view, R.id.artwork);
+    private void bindArtwork(View view, PlaylistDetailsMetadata item) {
+        final ImageView artworkView = ButterKnife.findById(view, R.id.artwork);
         imageOperations.displayWithPlaceholder(item, ApiImageSize.getFullImageSize(view.getResources()), artworkView);
+    }
 
-        View playButton = ButterKnife.findById(view, R.id.btn_play);
+    private void bindPlayButton(View view, PlaylistDetailsMetadata item, Action0 onHeaderPlay) {
+        final View playButton = ButterKnife.findById(view, R.id.btn_play);
         playButton.setOnClickListener(v -> onHeaderPlay.call());
 
         if (item.canBePlayed() && !item.isInEditMode()) {
@@ -47,9 +61,6 @@ class PlaylistCoverRenderer {
     }
 
     private TextView getTitleView(View view, PlaylistDetailsMetadata item) {
-        if (item != null && item.isPrivate()) {
-            return ButterKnife.findById(view, R.id.title_private);
-        }
-        return ButterKnife.findById(view, R.id.title);
+        return (item != null && item.isPrivate()) ? ButterKnife.findById(view, R.id.title_private) : ButterKnife.findById(view, R.id.title);
     }
 }
