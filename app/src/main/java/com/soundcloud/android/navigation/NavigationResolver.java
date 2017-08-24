@@ -503,7 +503,8 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> showPlaylist(NavigationTarget navigationTarget, Urn urn) {
-        return Single.just(NavigationResult.create(navigationTarget, createPlaylistIntent(urn,
+        return Single.just(NavigationResult.create(navigationTarget, createPlaylistIntent(context,
+                                                                                          urn,
                                                                                           navigationTarget.screen(),
                                                                                           navigationTarget.searchQuerySourceInfo(),
                                                                                           navigationTarget.promotedSourceInfo())))

@@ -276,18 +276,7 @@
             </intent-filter>
         </activity>
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
-        <activity android:name=".playlists.PlaylistDetailActivity" android:label="">
-            <intent-filter>
-                <action android:name="${applicationId}.action.PLAYLIST"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
-            </intent-filter>
-        </activity>
+        <activity android:name=".playlists.PlaylistDetailActivity" />
 
         <!-- settings -->
         <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>

@@ -6,7 +6,6 @@ import static java.util.Collections.emptyList;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
@@ -28,7 +27,6 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
@@ -39,7 +37,6 @@ import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -176,7 +173,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
         navigationExecutor.openPlaylistWithAutoPlay(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Actions.PLAYLIST)
+                                   .opensActivity(PlaylistDetailActivity.class)
                                    .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getContent())
                                    .containsExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, true)
                                    .containsScreen(Screen.SEARCH_PLAYLISTS);

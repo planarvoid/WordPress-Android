@@ -270,7 +270,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
+        assertTarget(navigationTarget, createPlaylistIntent(context, Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
     }
@@ -280,7 +280,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://playlists:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
+        assertTarget(navigationTarget, createPlaylistIntent(context, Urn.forPlaylist(123), DEEPLINK_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
     }
@@ -1155,7 +1155,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
+        assertTarget(navigationTarget, createPlaylistIntent(context, Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
     }
@@ -1165,7 +1165,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://playlists:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, createPlaylistIntent(Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
+        assertTarget(navigationTarget, createPlaylistIntent(context, Urn.forPlaylist(123), NAVIGATION_SCREEN, false));
 
         verify(resolveOperations, never()).resolve(anyString());
     }
@@ -1672,7 +1672,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         Urn playlistUrn = Urn.forPlaylist(123L);
         NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS);
 
-        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, false));
+        assertTarget(navigationTarget, createPlaylistIntent(context, playlistUrn, Screen.SEARCH_PLAYLISTS, false));
     }
 
     @Test
@@ -1683,7 +1683,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         NavigationTarget navigationTarget = NavigationTarget.forLegacyPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo));
-        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
+        assertTarget(navigationTarget, createPlaylistIntent(context, playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
     }
 
     @Test
@@ -1695,7 +1695,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         NavigationTarget navigationTarget = NavigationTarget.forPlaylist(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo), Optional.of(event));
-        assertTarget(navigationTarget, createPlaylistIntent(playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
+        assertTarget(navigationTarget, createPlaylistIntent(context, playlistUrn, Screen.SEARCH_PLAYLISTS, Optional.of(queryInfo), Optional.of(promotedInfo)));
 
         verify(eventTracker).trackNavigation(event);
     }

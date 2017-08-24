@@ -104,7 +104,7 @@ public class NavigationExecutor {
     }
 
     public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {
-        context.startActivity(createPlaylistIntent(playlist, screen, true));
+        context.startActivity(createPlaylistIntent(context, playlist, screen, true));
     }
 
     public void openSearch(Activity activity) {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -20,6 +19,7 @@ import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,12 +43,13 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
     // Chasing https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/594beedebe077a4dcc7a2de0?time=last-thirty-days
     @LightCycle ActivityLightCycle<Activity> logger = LightCycleLogger.forActivity("PlaylistDetailActivity");
 
-    public static Intent getIntent(@NotNull Urn playlistUrn,
+    public static Intent getIntent(Context context,
+                                   @NotNull Urn playlistUrn,
                                    Screen screen,
                                    boolean autoPlay,
                                    Optional<SearchQuerySourceInfo> queryInfo,
                                    Optional<PromotedSourceInfo> promotedInfo) {
-        Intent intent = new Intent(Actions.PLAYLIST);
+        Intent intent = new Intent(context, PlaylistDetailActivity.class);
         screen.addToIntent(intent);
         Urns.writeToIntent(intent, EXTRA_URN, playlistUrn);
         return intent

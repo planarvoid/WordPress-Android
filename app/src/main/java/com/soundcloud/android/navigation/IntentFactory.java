@@ -286,12 +286,12 @@ public final class IntentFactory {
         return new Intent(context, WebCheckoutActivity.class).putExtra(EXTRA_CHECKOUT_PLAN, plan);
     }
 
-    static Intent createPlaylistIntent(Urn playlist, Screen screen, boolean autoPlay) {
-        return PlaylistDetailActivity.getIntent(playlist, screen, autoPlay, Optional.absent(), Optional.absent());
+    static Intent createPlaylistIntent(Context context, Urn playlist, Screen screen, boolean autoPlay) {
+        return PlaylistDetailActivity.getIntent(context, playlist, screen, autoPlay, Optional.absent(), Optional.absent());
     }
 
-    static Intent createPlaylistIntent(Urn playlist, Screen screen, Optional<SearchQuerySourceInfo> queryInfo, Optional<PromotedSourceInfo> promotedInfo) {
-        return PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo);
+    static Intent createPlaylistIntent(Context context, Urn playlist, Screen screen, Optional<SearchQuerySourceInfo> queryInfo, Optional<PromotedSourceInfo> promotedInfo) {
+        return PlaylistDetailActivity.getIntent(context, playlist, screen, false, queryInfo, promotedInfo);
     }
 
     static Intent createSearchIntent(Context context) {
