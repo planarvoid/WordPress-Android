@@ -13,6 +13,7 @@ import com.soundcloud.android.sync.Syncable
 import com.soundcloud.android.users.User
 import com.soundcloud.android.users.UserRepository
 import com.soundcloud.android.utils.ErrorUtils
+import com.soundcloud.android.utils.OpenForTesting
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -24,7 +25,9 @@ import javax.inject.Named
 typealias RecentlyPlayedPlayableItemsLoader = (List<Urn>, Map<Urn, Long>) -> Single<RecentlyPlayedPlayableItems>
 typealias RecentlyPlayedPlayableItems = List<RecentlyPlayedPlayableItem>
 
-open class RecentlyPlayedOperations
+@Suppress("TooManyFunctions")
+@OpenForTesting
+class RecentlyPlayedOperations
 @Inject
 constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
             @param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
@@ -40,7 +43,7 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
     }
 
     @JvmOverloads
-    open fun recentlyPlayed(limit: Int = MAX_RECENTLY_PLAYED): Single<List<RecentlyPlayedPlayableItem>> {
+    fun recentlyPlayed(limit: Int = MAX_RECENTLY_PLAYED): Single<List<RecentlyPlayedPlayableItem>> {
         return syncOperations.lazySyncIfStale(Syncable.RECENTLY_PLAYED)
                 .observeOn(scheduler)
                 .onErrorResumeNext(Single.just(SyncResult.noOp()))
@@ -48,13 +51,13 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
     }
 
     @JvmOverloads
-    open fun refreshRecentlyPlayed(limit: Int = MAX_RECENTLY_PLAYED): Single<List<RecentlyPlayedPlayableItem>> {
+    fun refreshRecentlyPlayed(limit: Int = MAX_RECENTLY_PLAYED): Single<List<RecentlyPlayedPlayableItem>> {
         return syncOperations.failSafeSync(Syncable.RECENTLY_PLAYED)
                 .observeOn(scheduler)
                 .flatMap { recentlyPlayedItems(limit) }
     }
 
-    open fun clearHistory(): Completable {
+    fun clearHistory(): Completable {
         return Completable.fromCallable { clearRecentlyPlayedCommand.call(null) }
                 .subscribeOn(scheduler)
     }

@@ -3,12 +3,14 @@ package com.soundcloud.android.collection
 import com.soundcloud.android.commands.Command
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.storage.Tables
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.propeller.CursorReader
 import com.soundcloud.propeller.PropellerDatabase
 import com.soundcloud.propeller.query.Query
 import javax.inject.Inject
 
-open class LoadLikedStatuses
+@OpenForTesting
+class LoadLikedStatuses
 @Inject
 constructor(private val propeller: PropellerDatabase) : Command<Iterable<Urn>, Map<Urn, Boolean>>() {
 

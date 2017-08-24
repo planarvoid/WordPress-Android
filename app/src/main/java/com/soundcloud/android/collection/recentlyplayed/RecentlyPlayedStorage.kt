@@ -5,11 +5,14 @@ import com.soundcloud.android.collection.CollectionDatabase
 import com.soundcloud.android.collection.DbModel.RecentlyPlayed
 import com.soundcloud.android.collection.DbModel.RecentlyPlayed.FACTORY
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord
+import com.soundcloud.android.utils.OpenForTesting
 import com.squareup.sqldelight.RowMapper
 import io.reactivex.Single
 import javax.inject.Inject
 
-open class RecentlyPlayedStorage
+@Suppress("TooManyFunctions")
+@OpenForTesting
+class RecentlyPlayedStorage
 @Inject
 constructor(private val collectionDatabase: CollectionDatabase) {
 
@@ -21,31 +24,31 @@ constructor(private val collectionDatabase: CollectionDatabase) {
         PlayHistoryRecord.forRecentlyPlayed(timestamp, contextUrn)
     }
 
-    internal open fun loadAll() = collectionDatabase.executeQuery(FACTORY.selectAll(), FACTORY.selectAllMapper())
+    internal fun loadAll() = collectionDatabase.executeQuery(FACTORY.selectAll(), FACTORY.selectAllMapper())
 
-    open fun loadRecentlyPlayed(limit: Int): Single<List<PlayHistoryRecord>> {
+    fun loadRecentlyPlayed(limit: Int): Single<List<PlayHistoryRecord>> {
         return collectionDatabase.executeAsyncQuery(FACTORY.selectRecentlyPlayed(), RowMapper(playHistoryRecordMapper))
     }
 
-    open fun loadContextIdsByType(contextType: Int): Set<Long> {
+    fun loadContextIdsByType(contextType: Int): Set<Long> {
         return collectionDatabase.executeQuery(FACTORY.selectIdsByContextType(contextType.toLong()), { cursor -> cursor.getLong(0) }).toSet()
     }
 
-    open fun loadUnSyncedRecentlyPlayed() = loadBySyncStatus(false)
+    fun loadUnSyncedRecentlyPlayed() = loadBySyncStatus(false)
 
-    open fun loadSyncedRecentlyPlayed() = loadBySyncStatus(true)
+    fun loadSyncedRecentlyPlayed() = loadBySyncStatus(true)
 
-    open fun markAsSynced(records: List<PlayHistoryRecord>) = bulkInsert(records)
+    fun markAsSynced(records: List<PlayHistoryRecord>) = bulkInsert(records)
 
-    open fun insertRecentlyPlayed(records: List<PlayHistoryRecord>) = bulkInsert(records)
+    fun insertRecentlyPlayed(records: List<PlayHistoryRecord>) = bulkInsert(records)
 
-    open fun upsertRow(record: PlayHistoryRecord) {
+    fun upsertRow(record: PlayHistoryRecord) {
         val statement = RecentlyPlayedModel.UpsertRow(collectionDatabase.writableDatabase())
         statement.bind(record.contextUrn().numericId, record.contextType.toLong(), record.timestamp())
         collectionDatabase.insert(RecentlyPlayed.TABLE_NAME, statement.program)
     }
 
-    open fun removeRecentlyPlayed(records: List<PlayHistoryRecord>) {
+    fun removeRecentlyPlayed(records: List<PlayHistoryRecord>) {
         collectionDatabase.runInTransaction {
             val statement = RecentlyPlayedModel.DeleteRecentlyPlayed(collectionDatabase.writableDatabase())
             for (record in records) {
@@ -55,17 +58,17 @@ constructor(private val collectionDatabase: CollectionDatabase) {
         }
     }
 
-    open fun hasPendingContextsToSync(): Boolean {
+    fun hasPendingContextsToSync(): Boolean {
         val resultList = collectionDatabase.executeQuery(FACTORY.unsyncedRecentlyPlayedCount(), FACTORY.unsyncedRecentlyPlayedCountMapper())
         val unsyncedRecentlyPlayedCount = resultList[0]
         return unsyncedRecentlyPlayedCount > 0
     }
 
-    open fun clear() {
+    fun clear() {
         collectionDatabase.clear(RecentlyPlayed.TABLE_NAME)
     }
 
-    open fun trim(limit : Int) {
+    fun trim(limit : Int) {
         val statement = RecentlyPlayedModel.Trim(collectionDatabase.writableDatabase())
         statement.bind(limit.toLong())
         collectionDatabase.updateOrDelete(RecentlyPlayedModel.TABLE_NAME, statement.program)

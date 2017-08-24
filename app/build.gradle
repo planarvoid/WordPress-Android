@@ -55,6 +55,7 @@ buildscript {
     classpath gradlePlugins.sqlDelight
     classpath gradlePlugins.firebase
     classpath gradlePlugins.detekt
+    classpath gradlePlugins.kotlinAllOpen
   }
 }
 
@@ -81,6 +82,7 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.squareup.sqldelight'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-allopen'
 
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
@@ -155,6 +157,10 @@ task testSupportJar(type: Jar, dependsOn: ':app:compileDevDebugUnitTestSources')
 
 artifacts {
   testSupport testSupportJar
+}
+
+allOpen {
+  annotation("com.soundcloud.android.utils.OpenForTesting")
 }
 
 dependencies {

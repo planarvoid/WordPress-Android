@@ -2,30 +2,32 @@ package com.soundcloud.android.users
 
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.storage.Tables
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.propeller.query.Query
 import com.soundcloud.propeller.rx.PropellerRxV2
 import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 
-open class UserStorage
+@OpenForTesting
+class UserStorage
 @Inject
 constructor(private val propeller: PropellerRxV2) {
 
-    open fun loadUser(urn: Urn): Maybe<User> {
+    fun loadUser(urn: Urn): Maybe<User> {
         return propeller.queryResult(buildUserQuery(urn))
                 .filter { queryResult -> !queryResult.isEmpty }
                 .map { queryResult -> queryResult.first(User::fromCursorReader) }
                 .firstElement()
     }
 
-    open fun loadUsers(urns: List<Urn>): Single<List<User>> {
+    fun loadUsers(urns: List<Urn>): Single<List<User>> {
         return propeller.queryResult(buildUsersQuery(urns))
                 .map { queryResult -> queryResult.toList(User::fromCursorReader) }
                 .firstOrError()
     }
 
-    open fun urnForPermalink(permalink: String): Maybe<Urn> {
+    fun urnForPermalink(permalink: String): Maybe<Urn> {
         require(!permalink.startsWith("/")) { "Permalink must not start with a '/' and must not be a url. Found $permalink" }
         return propeller.queryResult(buildPermalinkQuery(permalink))
                 .filter { queryResult -> !queryResult.isEmpty }

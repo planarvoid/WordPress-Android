@@ -11,13 +11,15 @@ import com.soundcloud.android.tracks.TrackItem
 import com.soundcloud.android.tracks.TrackItemRepository
 import com.soundcloud.android.tracks.TrackRepository
 import com.soundcloud.android.users.UserRepository
+import com.soundcloud.android.utils.OpenForTesting
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.functions.Function4
 import javax.inject.Inject
 import javax.inject.Named
 
-open class PlayQueueOperations
+@OpenForTesting
+class PlayQueueOperations
 @Inject
 constructor(@param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
             private val playQueueManager: PlayQueueManager,
@@ -28,10 +30,10 @@ constructor(@param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
             private val playlistRepository: PlaylistRepository,
             private val trackRepository: TrackRepository) {
 
-    open val tracks: Single<List<TrackAndPlayQueueItem>>
+    val tracks: Single<List<TrackAndPlayQueueItem>>
         get() = Single.defer { this.loadTracks() }
 
-    open val contextTitles: Single<Map<Urn, String>>
+    val contextTitles: Single<Map<Urn, String>>
         get() {
             val contextUrns = playQueueStorage.contextUrns
 

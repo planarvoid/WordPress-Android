@@ -3,6 +3,7 @@ package com.soundcloud.android.profile
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.storage.Tables
 import com.soundcloud.android.storage.Tables.Posts
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.propeller.query.Query
 import com.soundcloud.propeller.query.Query.Order.DESC
 import com.soundcloud.propeller.rx.PropellerRxV2
@@ -10,11 +11,12 @@ import io.reactivex.Single
 import java.util.Date
 import javax.inject.Inject
 
-open class PostsStorage
+@OpenForTesting
+class PostsStorage
 @Inject
 constructor(private val propellerRx: PropellerRxV2) {
 
-    open fun loadPostedTracksSortedByDateDesc(): Single<List<Pair<Urn, Date>>> {
+    fun loadPostedTracksSortedByDateDesc(): Single<List<Pair<Urn, Date>>> {
         return propellerRx.queryResult(buildQuery()).map { it.toList { Urn.forTrack(it.getLong(Posts.TARGET_ID)) to it.getDateFromTimestamp(Posts.CREATED_AT) } }.singleOrError()
     }
 

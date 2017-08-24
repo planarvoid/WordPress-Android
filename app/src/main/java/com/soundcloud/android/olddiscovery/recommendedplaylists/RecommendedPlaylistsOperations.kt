@@ -7,24 +7,26 @@ import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.presentation.EntityItemCreator
 import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.Syncable
+import com.soundcloud.android.utils.OpenForTesting
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 import javax.inject.Inject
 
-open class RecommendedPlaylistsOperations
+@OpenForTesting
+class RecommendedPlaylistsOperations
 @Inject
 internal constructor(private val syncOperations: NewSyncOperations,
                      private val storage: RecommendedPlaylistsStorage,
                      private val playlistRepository: PlaylistRepository,
                      private val entityItemCreator: EntityItemCreator) {
 
-    open fun recommendedPlaylists(): Observable<OldDiscoveryItem> {
+    fun recommendedPlaylists(): Observable<OldDiscoveryItem> {
         return syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)
                 .flatMapObservable { _ -> readRecommendedPlaylistsFromStorage() }
 
     }
 
-    open fun refreshRecommendedPlaylists(): Observable<OldDiscoveryItem> {
+    fun refreshRecommendedPlaylists(): Observable<OldDiscoveryItem> {
         return syncOperations.failSafeSync(Syncable.RECOMMENDED_PLAYLISTS)
                 .flatMapObservable { _ -> readRecommendedPlaylistsFromStorage() }
     }

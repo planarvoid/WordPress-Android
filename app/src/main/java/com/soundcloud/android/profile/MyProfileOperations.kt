@@ -10,6 +10,7 @@ import com.soundcloud.android.sync.SyncInitiatorBridge
 import com.soundcloud.android.tracks.TrackRepository
 import com.soundcloud.android.users.UserAssociation
 import com.soundcloud.android.users.UserAssociationStorage
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.java.collections.Iterables.getLast
 import com.soundcloud.rx.Pager
 import io.reactivex.Scheduler
@@ -18,7 +19,8 @@ import io.reactivex.functions.Function
 import javax.inject.Inject
 import javax.inject.Named
 
-open class MyProfileOperations
+@OpenForTesting
+class MyProfileOperations
 @Inject
 constructor(
         private val postsStorage: PostsStorage,
@@ -49,7 +51,7 @@ constructor(
                 .flatMap { pagedFollowingsFromPosition(Consts.NOT_SET.toLong()).subscribeOn(scheduler) }
     }
 
-    open fun followingsUserAssociations(): Single<List<UserAssociation>> {
+    fun followingsUserAssociations(): Single<List<UserAssociation>> {
         return loadFollowingUserAssociationsFromStorage()
                 .filter { list -> !list.isEmpty() }
                 .switchIfEmpty(Single.defer {
@@ -81,7 +83,7 @@ constructor(
         }
     }
 
-    open fun lastPublicPostedTrack(): Single<LastPostedTrack> {
+    fun lastPublicPostedTrack(): Single<LastPostedTrack> {
         return postsStorage.loadPostedTracksSortedByDateDesc().flatMap { post ->
             trackRepository.fromUrns(post.map { it.first })
                     .map { tracks ->

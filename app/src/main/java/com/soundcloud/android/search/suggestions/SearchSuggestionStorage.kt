@@ -3,6 +3,7 @@ package com.soundcloud.android.search.suggestions
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.rx.RxJava
 import com.soundcloud.android.storage.Tables
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.java.optional.Optional
 import com.soundcloud.propeller.CursorReader
 import com.soundcloud.propeller.rx.PropellerRx
@@ -10,7 +11,8 @@ import com.soundcloud.propeller.rx.RxResultMapper
 import io.reactivex.Single
 import javax.inject.Inject
 
-open class SearchSuggestionStorage
+@OpenForTesting
+class SearchSuggestionStorage
 @Inject
 constructor(private val propeller: PropellerRx) {
 
@@ -104,7 +106,7 @@ constructor(private val propeller: PropellerRx) {
             | UNION $SQL_LIKED_SOUNDS_BY_USERNAME
             | ORDER BY result_set ASC, $CREATION_DATE DESC""".trimMargin()
 
-    open fun getSuggestions(searchQuery: String, loggedInUserUrn: Urn, limit: Int): Single<List<SearchSuggestion>> {
+    fun getSuggestions(searchQuery: String, loggedInUserUrn: Urn, limit: Int): Single<List<SearchSuggestion>> {
         return RxJava.toV2Single(propeller.query(SQL, *getWhere(searchQuery, loggedInUserUrn))
                                          .limit(limit)
                                          .map(DatabaseSearchSuggestionMapper())
