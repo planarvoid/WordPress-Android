@@ -75,7 +75,7 @@ class RecentlyPlayedOperationsTest {
             .isPrivate(true)
             .build()
 
-    private val userPlayableItem = RecentlyPlayedPlayableItem.forUser(userUrn, "username", Optional.absent(), 100)
+    private val userPlayableItem = RecentlyPlayedPlayableItem.forUser(userUrn, "username", Optional.absent(), 100, false)
     private val artistStationPlayableItem = RecentlyPlayedPlayableItem.forStation(artistStationUrn, "artist-station-title", Optional.absent(), 200)
     private val trackStationPlayableItem = RecentlyPlayedPlayableItem.forStation(trackStationUrn, "track-station-title", Optional.absent(), 300)
     private val playlistPlayableItem = RecentlyPlayedPlayableItem.forPlaylist(playlistUrn,

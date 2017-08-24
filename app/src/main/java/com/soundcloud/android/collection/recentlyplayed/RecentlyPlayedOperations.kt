@@ -127,7 +127,7 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
             )
 
     private fun User.toRecentlyPlayedPlayableItem(timestamp: Long) =
-            RecentlyPlayedPlayableItem.forUser(urn(), username(), avatarUrl(), timestamp)
+            RecentlyPlayedPlayableItem.forUser(urn(), username(), avatarUrl(), timestamp, isPro)
 
     private fun StationMetadata.toRecentlyPlayedPlayableItem(timestamp: Long) =
             RecentlyPlayedPlayableItem.forStation(urn(), title(), imageUrlTemplate(), timestamp)

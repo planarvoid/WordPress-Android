@@ -17,6 +17,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     private final long timestamp;
     private final boolean isPrivate;
     private final boolean isLiked;
+    private final boolean userIsPro;
 
     public static RecentlyPlayedPlayableItem forPlaylist(Urn urn,
                                                          Optional<String> imageUrl,
@@ -27,21 +28,22 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                                          boolean isLiked,
                                                          boolean isPrivate,
                                                          long timestamp) {
-        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, trackCount, isAlbum, offlineState, isLiked, isPrivate, timestamp);
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, trackCount, isAlbum, offlineState, isLiked, isPrivate, timestamp, false);
     }
 
     public static RecentlyPlayedPlayableItem forUser(Urn urn,
                                                      String title,
                                                      Optional<String> imageUrl,
-                                                     long timestamp) {
-        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp);
+                                                     long timestamp,
+                                                     boolean userIsPro) {
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp, userIsPro);
     }
 
     public static RecentlyPlayedPlayableItem forStation(Urn urn,
                                                      String title,
                                                      Optional<String> imageUrl,
                                                      long timestamp) {
-        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp);
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp, false);
     }
 
     public RecentlyPlayedPlayableItem(Urn urn,
@@ -52,7 +54,8 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                       Optional<OfflineState> offlineState,
                                       boolean isLiked,
                                       boolean isPrivate,
-                                      long timestamp) {
+                                      long timestamp,
+                                      boolean userIsPro) {
 
         this.urn = urn;
         this.imageUrl = imageUrl;
@@ -63,6 +66,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
         this.timestamp = timestamp;
         this.isLiked = isLiked;
         this.isPrivate = isPrivate;
+        this.userIsPro = userIsPro;
     }
 
     public String getTitle() {
@@ -105,6 +109,10 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
 
     public boolean isLiked() {
         return isLiked;
+    }
+
+    boolean userIsPro() {
+        return userIsPro;
     }
 
     private static Kind kindFor(Urn urn) {

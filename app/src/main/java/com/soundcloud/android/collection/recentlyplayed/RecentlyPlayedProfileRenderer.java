@@ -70,12 +70,18 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
 
     @Override
     public void bindItemView(int position, View view, List<RecentlyPlayedPlayableItem> list) {
-        final RecentlyPlayedPlayableItem user = list.get(position);
+        final RecentlyPlayedPlayableItem profileItem = list.get(position);
 
-        setTitle(view, user.getTitle());
-        setImage(view, user);
-        view.setOnClickListener(goToUserProfile(user));
-        setupOverflow(findById(view, R.id.overflow_button), user, position);
+        setTitle(view, profileItem.getTitle());
+        setImage(view, profileItem);
+        setProBadge(view, profileItem);
+        view.setOnClickListener(goToUserProfile(profileItem));
+        setupOverflow(findById(view, R.id.overflow_button), profileItem, position);
+    }
+
+    private void setProBadge(View view, RecentlyPlayedPlayableItem user) {
+        final int visibility = user.userIsPro() ? View.VISIBLE : View.GONE;
+        view.findViewById(R.id.pro_badge).setVisibility(visibility);
     }
 
     private void setupOverflow(final OverflowAnchorImageView button, final RecentlyPlayedPlayableItem user, final int position) {

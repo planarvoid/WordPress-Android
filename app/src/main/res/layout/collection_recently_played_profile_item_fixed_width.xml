@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    style="@style/Collections.BucketCarouselCard"
+<FrameLayout style="@style/Collections.BucketCarouselCard"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/collection_recently_played_item_size"
     android:layout_height="wrap_content">
 
-    <include
-        layout="@layout/collection_recently_played_profile_item"
+    <RelativeLayout
+        android:id="@+id/carousel_playlist_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="@dimen/recommendation_item_right_margin"
-        android:layout_marginRight="@dimen/recommendation_item_right_margin" />
+        android:layout_marginRight="@dimen/recommendation_item_right_margin"
+        android:clipToPadding="false"
+        android:foreground="?attr/selectableItemBackground">
+
+        <com.soundcloud.android.image.StyledImageView
+            android:id="@+id/artwork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/pro_badge"
+            style="@style/Carousel.ProBadge"
+            android:layout_alignBottom="@id/artwork"
+            android:layout_alignEnd="@id/artwork" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Carousel.ItemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_marginTop="8dp" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/secondary_text"
+            style="@style/Carousel.ItemArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:text="@string/collections_recently_played_profile" />
+
+    </RelativeLayout>
 
     <com.soundcloud.android.view.OverflowAnchorImageView
         android:id="@+id/overflow_button"

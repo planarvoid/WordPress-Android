@@ -149,6 +149,9 @@
     <dimen name="profile_image_dimen">104dp</dimen>
     <dimen name="profile_image_pro_badge_dimen">18dp</dimen>
     <dimen name="profile_image_pro_badge_padding">4dp</dimen>
+    <dimen name="profile_image_pro_badge_large_dimen">18dp</dimen>
+    <dimen name="profile_image_pro_badge_large_padding">8dp</dimen>
+    <dimen name="profile_image_pro_badge_extra_large_padding">16dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>

@@ -77,7 +77,8 @@ public class CollectionOperationsTest {
                                            Optional.absent(),
                                            false,
                                            false,
-                                           1000),
+                                           1000,
+                                           false),
             new RecentlyPlayedPlayableItem(Urn.forTrackStation(234L),
                                            Optional.absent(),
                                            "title 2",
@@ -86,7 +87,8 @@ public class CollectionOperationsTest {
                                            Optional.absent(),
                                            false,
                                            false,
-                                           1000)
+                                           1000,
+                                           false)
     );
 
 
@@ -191,8 +193,8 @@ public class CollectionOperationsTest {
                 Single.error(exception));
 
         MyCollection collection = operations.collections().test()
-                                              .assertValueCount(1)
-                                              .values().get(0);
+                                            .assertValueCount(1)
+                                            .values().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(Collections.emptyList());
         assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
@@ -209,8 +211,8 @@ public class CollectionOperationsTest {
                 .thenReturn(Single.error(exception));
 
         MyCollection collection = operations.collections().test()
-                                              .assertValueCount(1)
-                                              .values().get(0);
+                                            .assertValueCount(1)
+                                            .values().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(trackPreviews);
         assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
@@ -227,8 +229,8 @@ public class CollectionOperationsTest {
                 .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 
         MyCollection collection = operations.collections().test()
-                                              .assertValueCount(1)
-                                              .values().get(0);
+                                            .assertValueCount(1)
+                                            .values().get(0);
 
         assertThat(collection.getPlaylistAndAlbums().isPresent()).isFalse();
         assertThat(collection.getPlaylists().isPresent()).isTrue();
@@ -248,8 +250,8 @@ public class CollectionOperationsTest {
                 .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 
         MyCollection collection = operations.collections().test()
-                                              .assertValueCount(1)
-                                              .values().get(0);
+                                            .assertValueCount(1)
+                                            .values().get(0);
         assertThat(collection.getPlaylistAndAlbums().isPresent()).isTrue();
         assertThat(collection.getPlaylists().isPresent()).isFalse();
         assertThat(collection.getAlbums().isPresent()).isFalse();
@@ -270,9 +272,9 @@ public class CollectionOperationsTest {
         subject.onComplete();
 
         List<LikedTrackPreview> previews = testObserver.assertValueCount(1)
-                                                                 .values().get(0)
-                                                                 .getLikes()
-                                                                 .trackPreviews();
+                                                       .values().get(0)
+                                                       .getLikes()
+                                                       .trackPreviews();
         assertThat(previews).isEqualTo(trackPreviews);
     }
 

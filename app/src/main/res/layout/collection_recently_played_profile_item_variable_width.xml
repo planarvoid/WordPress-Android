@@ -5,11 +5,42 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <include
-        layout="@layout/collection_recently_played_profile_item"
+    <RelativeLayout
+        android:id="@+id/carousel_playlist_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/collection_recently_played_item_padding" />
+        android:layout_margin="@dimen/collection_recently_played_item_padding"
+        android:clipToPadding="false"
+        android:foreground="?attr/selectableItemBackground">
+
+        <com.soundcloud.android.image.StyledImageView
+            android:id="@+id/artwork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/pro_badge"
+            style="@style/Carousel.ProBadge.ExtraLarge"
+            android:layout_alignBottom="@id/artwork"
+            android:layout_alignEnd="@id/artwork" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Carousel.ItemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_marginTop="8dp" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/secondary_text"
+            style="@style/Carousel.ItemArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:text="@string/collections_recently_played_profile" />
+
+    </RelativeLayout>
 
     <com.soundcloud.android.view.OverflowAnchorImageView
         android:id="@+id/overflow_button"

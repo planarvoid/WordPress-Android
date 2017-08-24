@@ -58,4 +58,10 @@
     <dimen name="new_for_you_discovery_preview_height">300dp</dimen>
     <dimen name="new_for_you_discovery_preview_width_large">300dp</dimen>
     <dimen name="new_for_you_discovery_preview_height_large">300dp</dimen>
+
+    <!-- Profile -->
+    <dimen name="profile_image_pro_badge_large_dimen">18dp</dimen>
+    <dimen name="profile_image_pro_badge_large_padding">12dp</dimen>
+    <dimen name="profile_image_pro_badge_extra_large_padding">22dp</dimen>
+
 </resources>
