@@ -141,8 +141,12 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withStatus(statusCode).withBody(body))));
     }
 
+    protected void addMockedStringResponse(String url, int statusCode, String response) {
+        wireMockServer.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withStatus(statusCode).withBody(response))));
+    }
+
     protected boolean wiremockLoggingEnabled() {
-        return false;
+        return true;
     }
 
     protected void addActivityMonitors(Instrumentation instrumentation) {

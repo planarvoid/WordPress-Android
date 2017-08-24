@@ -1,18 +1,29 @@
 package com.soundcloud.android.tests.ageGating;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.soundcloud.android.framework.TestUser.over21user;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.tests.TestConsts;
+import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;
 
-public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
+import android.net.Uri;
 
-    public FollowingAgeGatedUser() {
-        super(LauncherActivity.class);
+public class FollowingAgeGatedUser extends ResolveBaseTest {
+
+    public static final String emptyFollowings = "{\"collection\":[],\"_links\":{}}";
+    public static final String oneFollowings = "{\"collection\":[{\"created\":\"2017/08/21 07:32:19 +0000\",\"target\":\"soundcloud:users:32326572\",\"user\":\"soundcloud:users:149060192\"}],\"_links\":{}}";
+
+    @Override
+    protected Uri getUri() {
+        return TestConsts.USER_ANNOYMOUSE;
     }
 
     @Override
@@ -20,19 +31,24 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
         return over21user;
     }
 
-    // *** Disable until we come up with a way to prevent syncing of certain events ***
-    // This test is failing periodically because the unfollow action at the end of the test does not always get
-    // synced, thus the next time this test is run, the user is still listed as being followed.
-    public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
-        ProfileScreen annoyMouseUserScreen = mainNavHelper
-                .goToOldDiscovery()
-                .clickSearch()
-                .doSearch("annoymouse")
-                .findAndClickFirstUserItem()
-                .clickFollowToggle();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        // This is probably too late :/
+        addMockedStringResponse(ApiEndpoints.MY_FOLLOWINGS.path(), 200, emptyFollowings);
+    }
+
+    @Override
+    protected void addInitialStubMappings() {
+        stubFor(post(urlPathMatching(".*follows/users/.*"))
+                        .willReturn(aResponse().withStatus(201)));
+    }
+
+    public void testAbove21UsersAreAbleToFollowAgeGatedUsers() {
+        ProfileScreen annoyMouseUserScreen = new ProfileScreen(solo);
+        addMockedStringResponse(ApiEndpoints.MY_FOLLOWINGS.path(), 200, oneFollowings);
+        annoyMouseUserScreen.clickFollowToggle();
 
         assertThat(annoyMouseUserScreen.areCurrentlyFollowing(), is(true));
-
-        annoyMouseUserScreen.clickFollowToggle();
     }
 }

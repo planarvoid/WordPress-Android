@@ -1,0 +1,17 @@
+{
+  "description": "unfollowing a user succeeds",
+  "request": {
+    "method": "DELETE",
+    "path": "/follows/users/soundcloud:users:203410014",
+    "query": "client_id=dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf",
+    "headers": {
+      "Authorization": "OAuth 1-21686-149060192-ce66fbe75d9fd3"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    }
+  }
+}

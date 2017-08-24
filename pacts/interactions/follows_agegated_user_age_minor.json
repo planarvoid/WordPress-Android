@@ -1,0 +1,20 @@
+{
+  "description": "following age-gated user fails for users who are too young",
+  "request": {
+    "method": "POST",
+    "path": "/follows/users/soundcloud:users:32326572",
+    "query": "client_id=dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf",
+    "headers": {
+      "Authorization": "OAuth 1-276024-150380114-9bc3e9ea8e2eb"
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "error_key": "age_unknown"
+    }
+  }
+}
