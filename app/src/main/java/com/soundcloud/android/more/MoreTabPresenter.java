@@ -129,7 +129,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         setupFeedback(moreView);
         setupCreatorsCell(fragment.getContext(), moreView);
         bindUserIfPresent();
-        bindUserProBadge();
     }
 
     private boolean shouldShowGoItems() {
@@ -220,12 +219,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         imageOperations.displayCircularWithPlaceholder(more,
                                                        ApiImageSize.getFullImageSize(resources),
                                                        headerView.getProfileImageView());
-    }
-
-    private void bindUserProBadge() {
-        if (moreViewOpt.isPresent() && moreOpt.isPresent()) {
-            moreViewOpt.get().showProBadge(moreOpt.get().isPro());
-        }
+        headerView.showProBadge(more.isPro());
     }
 
     private class MoreObserver extends DefaultMaybeObserver<User> {
