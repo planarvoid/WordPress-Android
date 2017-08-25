@@ -6,11 +6,12 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.util.List;
 public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTrackItem> {
 
     private final TrackItemRenderer trackItemRenderer;
+    private final PublishSubject<PlaylistDetailTrackItem> playlistDetailTrackItemPublishSubject = PublishSubject.create();
 
     @Inject
     PlaylistTrackItemRenderer(TrackItemRenderer trackItemRenderer) {
@@ -29,10 +31,6 @@ public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTra
         this.trackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
     }
 
-
-    void setListener(TrackItemRenderer.Listener listener) {
-        trackItemRenderer.setListener(listener);
-    }
 
     @Override
     public View createItemView(ViewGroup parent) {
@@ -53,6 +51,11 @@ public class PlaylistTrackItemRenderer implements CellRenderer<PlaylistDetailTra
                                                 Optional.of(playlistDetailTrackItem.playlistUrn()),
                                                 createTrackSourceInfo(playlistDetailTrackItem, position));
         bindEditMode(itemView, playlistDetailTrackItem);
+        itemView.setOnClickListener(view -> playlistDetailTrackItemPublishSubject.onNext(playlistDetailTrackItem));
+    }
+
+    public Observable<PlaylistDetailTrackItem> trackItemClick() {
+        return playlistDetailTrackItemPublishSubject;
     }
 
     private Optional<TrackSourceInfo> createTrackSourceInfo(PlaylistDetailTrackItem playlistDetailTrackItem, int position) {

@@ -9,7 +9,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-class PlaylistDetailUpsellItem extends PlaylistDetailItem implements ListItem, Timestamped {
+public class PlaylistDetailUpsellItem extends PlaylistDetailItem implements ListItem, Timestamped {
 
     private final Date createdAt;
     private final TrackItem track;

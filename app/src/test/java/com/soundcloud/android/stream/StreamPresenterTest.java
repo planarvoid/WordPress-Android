@@ -386,7 +386,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemDismissedUpsellsGetDisabled() {
-        presenter.onUpsellItemDismissed(0);
+        presenter.onUpsellItemDismissed(0, StreamItem.forUpsell());
 
         verify(streamOperations).disableUpsell();
     }
@@ -394,7 +394,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onUpsellItemClickedOpensUpgradeScreen() {
         presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onUpsellItemClicked(context(), 0);
+        presenter.onUpsellItemClicked(context(), 0, StreamItem.forUpsell());
 
         verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
@@ -404,7 +404,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forStreamClick();
 
         presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onUpsellItemClicked(context(), 0);
+        presenter.onUpsellItemClicked(context(), 0, StreamItem.forUpsell());
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());

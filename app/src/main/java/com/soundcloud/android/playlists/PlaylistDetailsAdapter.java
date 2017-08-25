@@ -6,9 +6,9 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellItemRenderer;
+import io.reactivex.Observable;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -20,10 +20,9 @@ import android.widget.ImageView;
 class PlaylistDetailsAdapter extends PagingRecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
 
     private final PlaylistDetailView playlistDetailView;
+    private final Observable<PlaylistDetailTrackItem> trackItemClick;
 
     interface PlaylistDetailView {
-
-        void onItemClicked(PlaylistDetailTrackItem trackItem);
 
         void onHandleTouched(RecyclerView.ViewHolder holder);
 
@@ -46,20 +45,24 @@ class PlaylistDetailsAdapter extends PagingRecyclerItemAdapter<PlaylistDetailIte
               new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.EmptyItem.ordinal(), emptyItemRenderer));
         this.playlistDetailView = playlistDetailView;
-        playlistDetailTrackViewRenderer.setListener(trackClickListener());
+        this.trackItemClick = playlistDetailTrackViewRenderer.trackItemClick();
         upsellItemRenderer.setListener(upsellClickListener(playlistDetailView));
     }
 
-    private UpsellItemRenderer.Listener upsellClickListener(final PlaylistDetailView playlistDetailView) {
-        return new UpsellItemRenderer.Listener() {
+    Observable<PlaylistDetailTrackItem> trackItemClick() {
+        return trackItemClick.filter(item -> !item.inEditMode());
+    }
+
+    private UpsellItemRenderer.Listener<PlaylistDetailUpsellItem> upsellClickListener(final PlaylistDetailView playlistDetailView) {
+        return new UpsellItemRenderer.Listener<PlaylistDetailUpsellItem>() {
             @Override
-            public void onUpsellItemDismissed(int position) {
-                playlistDetailView.onUpsellItemDismissed(upsellItem(position));
+            public void onUpsellItemDismissed(int position, PlaylistDetailUpsellItem item) {
+                playlistDetailView.onUpsellItemDismissed(item);
             }
 
             @Override
-            public void onUpsellItemClicked(Context context, int position) {
-                playlistDetailView.onUpsellItemClicked(upsellItem(position));
+            public void onUpsellItemClicked(Context context, int position, PlaylistDetailUpsellItem item) {
+                playlistDetailView.onUpsellItemClicked(item);
             }
 
             @Override
@@ -67,23 +70,6 @@ class PlaylistDetailsAdapter extends PagingRecyclerItemAdapter<PlaylistDetailIte
                 playlistDetailView.onUpsellItemPresented();
             }
         };
-    }
-
-    private TrackItemRenderer.Listener trackClickListener() {
-        return (urn, position) -> {
-            final PlaylistDetailTrackItem item = trackItem(position);
-            if (!item.inEditMode()) {
-                playlistDetailView.onItemClicked(item);
-            }
-        };
-    }
-
-    private PlaylistDetailTrackItem trackItem(int position) {
-        return (PlaylistDetailTrackItem) getItem(position);
-    }
-
-    private PlaylistDetailUpsellItem upsellItem(int position) {
-        return (PlaylistDetailUpsellItem) getItem(position);
     }
 
     @Override

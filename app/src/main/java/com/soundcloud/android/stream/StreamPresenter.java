@@ -58,12 +58,12 @@ import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.TextureView;
@@ -75,7 +75,7 @@ import java.util.List;
 class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
-        UpsellItemRenderer.Listener,
+        UpsellItemRenderer.Listener<StreamItem>,
         AdItemRenderer.Listener,
         NewItemsIndicator.Listener {
 
@@ -351,13 +351,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onUpsellItemDismissed(int position) {
+    public void onUpsellItemDismissed(int position, StreamItem item) {
         streamOperations.disableUpsell();
         removeItem(position);
     }
 
     @Override
-    public void onUpsellItemClicked(Context context, int position) {
+    public void onUpsellItemClicked(Context context, int position, StreamItem item) {
         navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick());
     }

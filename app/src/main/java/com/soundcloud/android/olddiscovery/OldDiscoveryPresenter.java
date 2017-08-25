@@ -2,12 +2,12 @@ package com.soundcloud.android.olddiscovery;
 
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurements;
 import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurementsFactory;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendationBucketRendererFactory;
@@ -26,13 +26,13 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -41,7 +41,7 @@ import java.util.List;
 
 class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>, OldDiscoveryItem>
         implements OldDiscoveryAdapter.DiscoveryItemListenerBucket,
-        TrackRecommendationListener, DiscoveryUpsellItemRenderer.Listener {
+        TrackRecommendationListener, DiscoveryUpsellItemRenderer.Listener<OldDiscoveryItem> {
 
     private final OldDiscoveryModulesProvider oldDiscoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
@@ -89,13 +89,13 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
     }
 
     @Override
-    public void onUpsellItemDismissed(int position) {
+    public void onUpsellItemDismissed(int position, OldDiscoveryItem item) {
         oldDiscoveryOperations.disableUpsell();
         removeItem(position);
     }
 
     @Override
-    public void onUpsellItemClicked(Context context, int position) {
+    public void onUpsellItemClicked(Context context, int position, OldDiscoveryItem item) {
         navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryClick());
     }

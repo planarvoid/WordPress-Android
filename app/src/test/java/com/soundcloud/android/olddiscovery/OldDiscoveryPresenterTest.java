@@ -47,6 +47,7 @@ import rx.Observable;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -187,7 +188,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void dismissesUpsellItem() {
-        presenter.onUpsellItemDismissed(0);
+        presenter.onUpsellItemDismissed(0, upsellItem());
 
         verify(oldDiscoveryOperations).disableUpsell();
         verify(adapter).removeItem(0);
@@ -196,7 +197,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void handlesUpsellItemClicked() {
-        presenter.onUpsellItemClicked(context(), 0);
+        presenter.onUpsellItemClicked(context(), 0, upsellItem());
 
         verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
@@ -232,6 +233,11 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
         InOrder inOrder = inOrder(discoveryMeasurements);
         inOrder.verify(discoveryMeasurements).startRefreshing();
         inOrder.verify(discoveryMeasurements).endRefreshing();
+    }
+
+    @NonNull
+    private OldDiscoveryItem upsellItem() {
+        return OldDiscoveryItem.Default.create(OldDiscoveryItem.Kind.UpsellItem);
     }
 
     private static class SwipeRefreshAttacherStub extends SwipeRefreshAttacher {

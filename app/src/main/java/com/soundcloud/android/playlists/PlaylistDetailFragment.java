@@ -245,7 +245,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 collectionRenderer.onRefresh()
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(signal -> inputs.refresh())
+                                  .subscribe(signal -> inputs.refresh()),
+                adapter.trackItemClick().subscribe(this::onItemClicked)
 
         );
 
@@ -348,7 +349,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         leakCanaryWrapper.watch(this);
     }
 
-    @Override
     public void onItemClicked(PlaylistDetailTrackItem trackItem) {
         inputs.onItemTriggered(trackItem);
     }

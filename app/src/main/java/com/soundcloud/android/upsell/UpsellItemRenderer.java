@@ -17,13 +17,13 @@ public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private final FeatureOperations featureOperations;
 
-    public interface Listener {
-        void onUpsellItemDismissed(int position);
-        void onUpsellItemClicked(Context context, int position);
+    public interface Listener<T> {
+        void onUpsellItemDismissed(int position, T item);
+        void onUpsellItemClicked(Context context, int position, T item);
         void onUpsellItemCreated();
     }
 
-    private Listener listener;
+    private Listener<T> listener;
 
     UpsellItemRenderer(FeatureOperations featureOperations) {
         this.featureOperations = featureOperations;
@@ -39,24 +39,24 @@ public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     @Override
     public void bindItemView(int position, View view, List<T> items) {
-        bindItemView(position, view);
+        bindItemView(position, view, items.get(position));
     }
 
-    public void bindItemView(final int position, View view) {
+    private void bindItemView(final int position, View view, T item) {
         ButterKnife.<TextView>findById(view, R.id.title).setText(getTitle(view.getContext()));
         ButterKnife.<TextView>findById(view, R.id.description).setText(getDescription(view.getContext()));
 
         view.setEnabled(false);
         if (listener != null) {
-            ButterKnife.findById(view, R.id.close_button).setOnClickListener(v -> listener.onUpsellItemDismissed(position));
-            bindActionButton(view, position);
+            ButterKnife.findById(view, R.id.close_button).setOnClickListener(v -> listener.onUpsellItemDismissed(position, item));
+            bindActionButton(view, position, item);
         }
     }
 
-    private void bindActionButton(final View view, int position) {
+    private void bindActionButton(final View view, int position, T item) {
         final Button action = ButterKnife.findById(view, R.id.action_button);
         setButtonText(view, action);
-        action.setOnClickListener(v -> listener.onUpsellItemClicked(view.getContext(), position));
+        action.setOnClickListener(v -> listener.onUpsellItemClicked(view.getContext(), position, item));
     }
 
     private void setButtonText(View view, Button action) {
@@ -67,7 +67,7 @@ public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
         }
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(Listener<T> listener) {
         this.listener = listener;
     }
 
