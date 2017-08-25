@@ -1,5 +1,6 @@
 package com.soundcloud.android.presentation;
 
+import com.crashlytics.android.Crashlytics;
 import com.soundcloud.rx.Pager;
 
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,10 +33,14 @@ class PagingRecyclerScrollListener extends RecyclerView.OnScrollListener {
         boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
         final PagedCollectionBinding<?, ?, ?> pagedBinding = (PagedCollectionBinding<?, ?, ?>) presenter.getBinding();
-        final Pager<?> pager = pagedBinding.pager();
-        if (lastItemReached && adapter.isIdle() && pager.hasNext()) {
-            adapter.setLoading();
-            pager.next();
+        if (pagedBinding != null) {
+            final Pager<?> pager = pagedBinding.pager();
+            if (lastItemReached && adapter.isIdle() && pager.hasNext()) {
+                adapter.setLoading();
+                pager.next();
+            }
+        } else {
+            Crashlytics.log("PagingRecyclerScrollListener: Trying to scroll when paged binding is null.");
         }
     }
 
@@ -47,7 +52,7 @@ class PagingRecyclerScrollListener extends RecyclerView.OnScrollListener {
             return ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
         } else {
             throw new IllegalArgumentException("Unknown LayoutManager type: " +
-                    layoutManager.getClass().getSimpleName());
+                                                       layoutManager.getClass().getSimpleName());
         }
     }
 }
