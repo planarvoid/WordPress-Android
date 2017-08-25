@@ -36,8 +36,12 @@ potential-bugs:
   active: true
   DuplicateCaseInWhenExpression:
     active: true
+  EqualsAlwaysReturnsTrueOrFalse:
+    active: false
   EqualsWithHashCodeExist:
     active: true
+  WrongEqualsTypeParameter:
+    active: false
   ExplicitGarbageCollectionCall:
     active: true
   UnreachableCode:
@@ -80,6 +84,12 @@ complexity:
     threshold: 3
   LabeledExpression:
     active: false
+  StringLiteralDuplication:
+    active: false
+    threshold: 2
+    ignoreAnnotation: true
+    excludeStringsWithLessThan5Characters: true
+    ignoreStringsRegex: '$^'
 
 code-smell:
   active: true
@@ -146,6 +156,8 @@ style:
     active: true
   OptionalAbstractKeyword:
     active: true
+  EqualsNullCall:
+    active: false
   ForbiddenComment:
     active: false
     values: 'TODO:,FIXME:,STOPSHIP:'
@@ -176,6 +188,7 @@ style:
     constantPattern: '^([A-Z][A-Z0-9]*(_[A-Z0-9]+)*|FLAG|serialVersionUID_.*)$'
     methodPattern: '^[a-z][a-zA-Z0-9]*(_[a-zA-Z0-9]+)*$'
     classPattern: '^[A-Z][a-zA-Z0-9]*$'
+    packagePattern: '^[\w\d.]*$'
     enumEntryPattern: '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'
 
 comments:
