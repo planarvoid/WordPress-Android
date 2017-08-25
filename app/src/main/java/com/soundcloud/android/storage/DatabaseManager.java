@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.events.DatabaseMigrationEvent.forSuccessfulMigration;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
-import static com.soundcloud.android.storage.SchemaMigrationHelper.create;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
@@ -13,8 +12,6 @@ import static java.util.Arrays.asList;
 
 import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.storage.schemas.PlaylistView;
-import com.soundcloud.android.storage.schemas.TrackView;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 
@@ -160,9 +157,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 41:
                             success = upgradeTo41(db, oldVersion);
                             break;
-                        case 42:
-                            success = upgradeTo42(db, oldVersion);
-                            break;
                         case 43:
                             success = upgradeTo43(db, oldVersion);
                             break;
@@ -208,10 +202,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 57:
                             success = upgradeTo57(db, oldVersion);
                             break;
-                        case 58:
-                            // Previously added the Shortcuts table, which is no longer used
-                            success = true;
-                            break;
                         case 59:
                             success = upgradeTo59(db, oldVersion);
                             break;
@@ -229,9 +219,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 64:
                             success = upgradeTo64(db, oldVersion);
-                            break;
-                        case 65:
-                            success = upgradeTo65(db, oldVersion);
                             break;
                         case 66:
                             success = upgradeTo66(db, oldVersion);
@@ -260,9 +247,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 74:
                             success = upgradeTo74(db, oldVersion);
                             break;
-                        case 75:
-                            success = upgradeTo75(db, oldVersion);
-                            break;
                         case 76:
                             success = upgradeTo76(db, oldVersion);
                             break;
@@ -274,11 +258,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 79:
                             success = upgradeTo79(db, oldVersion);
-                            break;
-                        case 80:
-                            // We missed migration 80. Create an artificial migration 81
-                            // to unlock people stuck on faulty 80
-                            success = true;
                             break;
                         case 81:
                             success = upgradeTo81(db, oldVersion);
@@ -304,15 +283,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 88:
                             success = upgradeTo88(db, oldVersion);
                             break;
-                        case 89:
-                            success = upgradeTo89(db, oldVersion);
-                            break;
-                        case 90:
-                            success = upgradeTo90(db, oldVersion);
-                            break;
-                        case 91:
-                            success = upgradeTo91(db, oldVersion);
-                            break;
                         case 92:
                             success = upgradeTo92(db, oldVersion);
                             break;
@@ -322,23 +292,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 94:
                             success = upgradeTo94(db, oldVersion);
                             break;
-                        case 95:
-                            success = upgradeTo95(db, oldVersion);
-                            break;
-                        case 96:
-                            success = upgradeTo96(db, oldVersion);
-                            break;
-                        case 97:
-                            success = upgradeTo97(db, oldVersion);
-                            break;
                         case 98:
                             success = upgradeTo98(db, oldVersion);
-                            break;
-                        case 99:
-                            success = upgradeTo99(db, oldVersion);
-                            break;
-                        case 100:
-                            success = upgradeTo100(db, oldVersion);
                             break;
                         case 101:
                             success = upgradeTo101(db, oldVersion);
@@ -352,30 +307,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 104:
                             success = upgradeTo104(db, oldVersion);
                             break;
-                        case 105:
-                            // nothing
-                            success = true;
-                            break;
-                        case 106:
-                            // Add mid-tier to TrackView
-                            // Re-trigger views creation
-                            success = true;
-                        case 107:
-                            // Add permalink URL to SoundStreamView
-                            // Re-trigger views creation
-                            success = true;
-                            break;
                         case 108:
                             success = upgradeTo108(db, oldVersion);
                             break;
-                        case 109:
-                            success = upgradeTo109(db, oldVersion);
-                            break;
                         case 110:
                             success = upgradeTo110(db, oldVersion);
-                            break;
-                        case 111:
-                            success = upgradeTo111(db, oldVersion);
                             break;
                         case 112:
                             success = upgradeTo112(db, oldVersion);
@@ -388,12 +324,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 115:
                             success = upgradeTo115(db, oldVersion);
-                            break;
-                        case 116:
-                            success = upgradeTo116(db, oldVersion);
-                            break;
-                        case 117:
-                            success = upgradeTo117(db, oldVersion);
                             break;
                         default:
                             break;
@@ -489,8 +419,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             migratePolicies(db);
 
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
-
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 39);
@@ -517,23 +445,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo41(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.recreate(Table.PromotedTracks, db);
-            SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 41);
-        }
-        return false;
-    }
-
-    /**
-     * Update stream deduplication logic
-     */
-    private boolean upgradeTo42(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 42);
         }
         return false;
     }
@@ -557,8 +471,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo44(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.SQL, db);
-            SchemaMigrationHelper.recreate(Table.SoundView, db);
-            SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 44);
@@ -760,7 +672,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 60);
@@ -804,7 +715,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 63);
@@ -819,22 +729,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo64(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 64);
-        }
-        return false;
-    }
-
-    /* Drop activities as some may be missing associated playlist entity (delete playlist bug) */
-    private boolean upgradeTo65(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.delete(Table.Activities.name(), null, null);
-            SchemaMigrationHelper.recreate(Table.ActivityViewVersion0To115, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 65);
         }
         return false;
     }
@@ -854,14 +751,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /*
-     * Recreates SoundView to exclude tracks that don't have a policy entry
+     * Drop SoundAssociationView view
      */
     private boolean upgradeTo67(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
             SchemaMigrationHelper.dropView("SoundAssociationView", db);
-
-            SchemaMigrationHelper.recreate(Table.SoundView, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 67);
@@ -871,13 +766,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     /*
      * Fix SoundAssociationView dropping
-     * Creates view OfflinePlaylistTracks
      */
     private boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
             dropView("SoundAssociationView", db);
-            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 68);
@@ -904,7 +797,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo70(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 70);
@@ -931,7 +823,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo72(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 72);
@@ -961,21 +852,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 74);
-        }
-        return false;
-    }
-
-    /**
-     * Added avatar_url to offline playlist tracks view for new image requirements
-     * Create view for querying local search suggestions
-     */
-    private boolean upgradeTo75(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
-            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 75);
         }
         return false;
     }
@@ -1014,7 +890,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo78(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Sounds.TABLE.name(), Tables.Sounds.SQL, db);
-            recreateSoundDependentViewsVersion0To115(db);
+            // view recreation is done at the end of the migration
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 78);
@@ -1070,7 +946,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropTable("Suggestions", db);
             dropTable("TrackMetadata", db);
             alterColumns(Tables.Comments.TABLE.name(), Tables.Comments.SQL, db);
-            SchemaMigrationHelper.recreate(Table.ActivityViewVersion0To115, db);
+            // view recreation is done at the end of the migration
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 82);
@@ -1165,44 +1041,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Create PlaylistView
-     */
-    private boolean upgradeTo89(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(PlaylistView.SQL_VERSION_0_TO_116);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 89);
-        }
-        return false;
-    }
-
-    /**
-     * Create UsersView
-     */
-    @SuppressWarnings("unused")
-    private boolean upgradeTo90(SQLiteDatabase db, int oldVersion) {
-        return true;
-    }
-
-    /**
-     * Create TrackView
-     * Create TrackView, recreate PlaylistView after changing column names
-     */
-    private boolean upgradeTo91(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(TrackView.SQL_VERSION_0_TO_116);
-
-            SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
-            db.execSQL(PlaylistView.SQL_VERSION_0_TO_116);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 91);
-        }
-        return false;
-    }
-
-    /**
      * Create Suggested Creators Table
      */
     private boolean upgradeTo92(SQLiteDatabase db, int oldVersion) {
@@ -1221,8 +1059,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo93(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
-            dropView(Tables.UsersView.TABLE.name(), db);
-            db.execSQL(Tables.UsersView.SQL);
+            // view recreation is done at the end of the migration
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 93);
@@ -1244,48 +1081,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * New snipped column in OfflinePlaylistTracks view
-     */
-    private boolean upgradeTo95(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
-            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 95);
-        }
-        return false;
-    }
-
-    /**
-     * Recreate PlaylistView after fixing local count column for efficiency
-     */
-    private boolean upgradeTo96(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
-            db.execSQL(PlaylistView.SQL_VERSION_0_TO_116);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 96);
-        }
-        return false;
-    }
-
-    /**
-     * Recreate TrackView to try to fix column not found (that does exists) in some clients
-     */
-    private boolean upgradeTo97(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.dropView(Tables.TrackView.TABLE.name(), db);
-            db.execSQL(TrackView.SQL_VERSION_0_TO_116);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 97);
-        }
-        return false;
-    }
-
-    /**
      * Add followed_at column to suggested creators
      */
     private boolean upgradeTo98(SQLiteDatabase db, int oldVersion) {
@@ -1299,44 +1094,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Add Genre + TagList to TrackView + PlaylistView
-     */
-    private boolean upgradeTo99(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Tables.TrackView.TABLE.name(), db);
-            db.execSQL(TrackView.SQL_VERSION_0_TO_116);
-            dropView(Tables.PlaylistView.TABLE.name(), db);
-            db.execSQL(PlaylistView.SQL_VERSION_0_TO_116);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 99);
-        }
-        return false;
-    }
-
-
-    /**
-     * Recreate Trackview after query optimisation
-     */
-    private boolean upgradeTo100(SQLiteDatabase db, int oldVersion) {
-        try {
-            // do nothing, view will get recreated automatically
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 100);
-        }
-        return false;
-    }
-
-    /**
-     * Add tables for recommended playlists and recreate PlaylistView
+     * Add tables for recommended playlists
      */
     private boolean upgradeTo101(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.RecommendedPlaylistBucket.SQL);
             db.execSQL(Tables.RecommendedPlaylist.SQL);
-            dropView(Tables.PlaylistView.TABLE.name(), db);
-            db.execSQL(PlaylistView.SQL_VERSION_0_TO_116);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 101);
@@ -1398,20 +1161,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Add followings_count to UsersView table
-     */
-    private boolean upgradeTo109(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Tables.UsersView.TABLE.name(), db);
-            db.execSQL(Tables.UsersView.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 109);
-        }
-        return false;
-    }
-
-    /**
      * Remove SearchSuggestions view.
      */
     private boolean upgradeTo110(SQLiteDatabase db, int oldVersion) {
@@ -1420,20 +1169,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 110);
-        }
-        return false;
-    }
-
-    /**
-     * Add permalink to UsersView
-     */
-    private boolean upgradeTo111(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Tables.UsersView.TABLE.name(), db);
-            db.execSQL(Tables.UsersView.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 111);
         }
         return false;
     }
@@ -1477,41 +1212,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo115(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
-            dropView(Tables.UsersView.TABLE.name(), db);
-            db.execSQL(Tables.UsersView.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 115);
-        }
-        return false;
-    }
-
-    /**
-     * Add userIsPro field to ActivityView
-     */
-    private boolean upgradeTo116(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Table.ActivityViewVersion0To115.name(), db);
-            create(Table.ActivityView, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 116);
-        }
-        return false;
-    }
-
-    /**
-     * Add creatorIsPro column to PlaylistView and TrackView
-     */
-    private boolean upgradeTo117(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropView(Tables.PlaylistView.TABLE.name(), db);
-            dropView(Tables.TrackView.TABLE.name(), db);
-            db.execSQL(TrackView.SQL_VERSION_117);
-            db.execSQL(PlaylistView.SQL_VERSION_117);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 117);
         }
         return false;
     }
@@ -1557,36 +1260,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private long getMigrationDuration() {
         return System.currentTimeMillis() - migrationStart;
-    }
-
-    /**
-     * @deprecated WARNING: Do not use this method directly! Some views depend on a specific database version, so use/create a specific method that states which database versions it is valid for
-     */
-    @Deprecated
-    private void recreateSoundDependentViewsHelper(SQLiteDatabase db, Table activityViewTable, String createPlaylistView, String createTrackView) {
-        SchemaMigrationHelper.recreate(Table.SoundView, db);
-        SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
-        SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
-        recreateActivityView(db, activityViewTable);
-
-        SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
-        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-
-        SchemaMigrationHelper.dropView(Tables.PlaylistView.TABLE.name(), db);
-        db.execSQL(createPlaylistView);
-
-        SchemaMigrationHelper.dropView(Tables.TrackView.TABLE.name(), db);
-        db.execSQL(createTrackView);
-    }
-
-    private void recreateActivityView(SQLiteDatabase db, Table activityViewTable) {
-        SchemaMigrationHelper.dropView(Table.ActivityViewVersion0To115.name(), db);
-        SchemaMigrationHelper.dropView(Table.ActivityView.name(), db);
-        SchemaMigrationHelper.create(activityViewTable, db);
-    }
-
-    private void recreateSoundDependentViewsVersion0To115(SQLiteDatabase db) {
-        recreateSoundDependentViewsHelper(db, Table.ActivityViewVersion0To115, PlaylistView.SQL_VERSION_0_TO_116, TrackView.SQL_VERSION_0_TO_116);
     }
 
     private void clearTable(String tableName, SQLiteDatabase db) {

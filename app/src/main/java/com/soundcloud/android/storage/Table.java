@@ -1,8 +1,5 @@
 package com.soundcloud.android.storage;
 
-import static com.soundcloud.android.storage.schemas.ActivityView.DATABASE_CREATE_ACTIVITY_VIEW_VERSION_0_TO_115;
-import static com.soundcloud.android.storage.schemas.ActivityView.DATABASE_CREATE_ACTIVITY_VIEW_VERSION_116_AND_ABOVE;
-
 import android.provider.BaseColumns;
 
 /**
@@ -25,8 +22,7 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
     SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),
-    ActivityViewVersion0To115(true, DATABASE_CREATE_ACTIVITY_VIEW_VERSION_0_TO_115),
-    ActivityView(true, DATABASE_CREATE_ACTIVITY_VIEW_VERSION_116_AND_ABOVE),
+    ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
     PlaylistTracksView(true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 

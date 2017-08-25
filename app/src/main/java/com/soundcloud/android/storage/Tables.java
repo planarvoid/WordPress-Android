@@ -1,11 +1,18 @@
 package com.soundcloud.android.storage;
 
 import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.SoundView;
+import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Field.field;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
+import com.soundcloud.android.playlists.PlaylistQueries;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.schema.Column;
 
 import android.provider.BaseColumns;
@@ -891,7 +898,71 @@ public interface Tables {
 
         @Override
         String getCreateSQL() {
-            return com.soundcloud.android.storage.schemas.PlaylistView.SQL_VERSION_117;
+            return SQL;
+        }
+
+        public static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
+                Query.from(SoundView.name())
+                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(USERNAME.name()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(USER_ID.name()),
+                             field("(" + creatorIsProQuery().build() + ")").as(CREATOR_IS_PRO.name()),
+                             field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TRACK_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.DURATION)).as(DURATION.name()),
+                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.REPOSTS_COUNT)).as(REPOSTS_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
+                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(PERMALINK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.GENRE)).as(GENRE.name()),
+                             field(SoundView.field(TableColumns.SoundView.TAG_LIST)).as(TAG_LIST.name()),
+                             field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(CREATED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.RELEASE_DATE)).as(RELEASE_DATE.name()),
+                             field(SoundView.field(TableColumns.SoundView.SET_TYPE)).as(SET_TYPE.name()),
+                             field(SoundView.field(TableColumns.SoundView.IS_ALBUM)).as(IS_ALBUM.name()),
+                             field("(" + PlaylistQueries.LOCAL_TRACK_COUNT.build() + ")").as(LOCAL_TRACK_COUNT.name()),
+                             exists(likeQuery()).as(IS_USER_LIKE.name()),
+                             exists(repostQuery()).as(IS_USER_REPOST.name()),
+                             exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.name()),
+                             exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.name()),
+                             exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.name()),
+                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.name()))
+                     .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_PLAYLIST);
+
+        private static Query creatorIsProQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView.USER_ID), Tables.Users._ID.qualifiedName());
+
+            return Query.from(Tables.Users.TABLE)
+                        .innerJoin(Tables.Sounds.TABLE, joinConditions)
+                        .select(Tables.Users.IS_PRO.qualifiedName());
+        }
+
+        private static Query likeQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView._ID), Tables.Likes._ID)
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView._TYPE), Tables.Likes._TYPE);
+
+            return Query.from(Tables.Likes.TABLE)
+                        // do not use SoundView here. The exists query will fail, in spite of passing tests
+                        .innerJoin(Tables.Sounds.TABLE, joinConditions)
+                        .whereNull(Tables.Likes.REMOVED_AT);
+        }
+
+        private static Query repostQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView._ID), Tables.Posts.TARGET_ID)
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView._TYPE), Tables.Posts.TARGET_TYPE);
+
+            return Query.from(Tables.Posts.TABLE)
+                        .innerJoin(Tables.Sounds.TABLE, joinConditions)
+                        .whereEq(Tables.Sounds._TYPE.qualifiedName(), Tables.Sounds.TYPE_PLAYLIST)
+                        .whereEq(Tables.Posts.TYPE.qualifiedName(), typeRepostDelimited());
+        }
+
+        private static String typeRepostDelimited() {
+            return "'" + Tables.Posts.TYPE_REPOST + "'";
         }
     }
 
@@ -1009,7 +1080,79 @@ public interface Tables {
 
         @Override
         String getCreateSQL() {
-            return com.soundcloud.android.storage.schemas.TrackView.SQL_VERSION_117;
+            return SQL;
+        }
+
+        public static final String SQL = "CREATE VIEW IF NOT EXISTS TrackView AS " +
+                Query.from(SoundView.name())
+                     .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
+                             field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(CREATED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.USERNAME)).as(CREATOR_NAME.name()),
+                             field(SoundView.field(TableColumns.SoundView.USER_ID)).as(CREATOR_ID.name()),
+                             field("(" + creatorIsProQuery().build() + ")").as(CREATOR_IS_PRO.name()),
+                             field(SoundView.field(TableColumns.SoundView.PERMALINK_URL)).as(PERMALINK_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.WAVEFORM_URL)).as(WAVEFORM_URL.name()),
+                             field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(SNIPPET_DURATION.name()),
+                             field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(FULL_DURATION.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.GENRE)).as(GENRE.name()),
+                             field(SoundView.field(TableColumns.SoundView.TAG_LIST)).as(TAG_LIST.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(PLAY_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(LIKES_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.REPOSTS_COUNT)).as(REPOSTS_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.COMMENT_COUNT)).as(COMMENTS_COUNT.name()),
+                             field(SoundView.field(TableColumns.SoundView.COMMENTABLE)).as(IS_COMMENTABLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY)).as(POLICY.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZABLE)).as(MONETIZABLE.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(MONETIZATION_MODEL.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(SUB_MID_TIER.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REQUESTED_AT)).as(OFFLINE_REQUESTED_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.OFFLINE_UNAVAILABLE_AT)).as(OFFLINE_UNAVAILABLE_AT.name()),
+
+                             field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
+
+                             field(Tables.Likes._ID.qualifiedName() + " IS NOT NULL").as(IS_USER_LIKE.name()),
+                             field(Tables.Posts.TYPE.qualifiedName() + " IS NOT NULL").as(IS_USER_REPOST.name()))
+
+                     .leftJoin(Tables.Likes.TABLE, getLikeJoinConditions())
+                     .leftJoin(Tables.Posts.TABLE, getRepostJoinConditions())
+                     .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_TRACK);
+
+        private static Query creatorIsProQuery() {
+            final Where joinConditions = filter()
+                    .whereEq(Table.SoundView.field(TableColumns.SoundView.USER_ID), Tables.Users._ID.qualifiedName());
+
+            return Query.from(Tables.Users.TABLE)
+                        .innerJoin(Tables.Sounds.TABLE, joinConditions)
+                        .select(Tables.Users.IS_PRO.qualifiedName());
+        }
+
+        private static Where getLikeJoinConditions() {
+            return Filter.filter()
+                         .whereEq(Table.SoundView.field(_ID), Tables.Likes._ID)
+                         .whereEq(Table.SoundView.field(_TYPE), Tables.Likes._TYPE)
+                         .whereNull(Tables.Likes.REMOVED_AT);
+        }
+
+        private static Where getRepostJoinConditions() {
+            return Filter.filter()
+                         .whereEq(Table.SoundView.field(_ID), Tables.Posts.TARGET_ID)
+                         .whereEq(Table.SoundView.field(_TYPE), Tables.Posts.TARGET_TYPE)
+                         .whereEq(Tables.Posts.TYPE.qualifiedName(), typeRepostDelimited());
+        }
+
+        private static String typeRepostDelimited() {
+            return "'" + Tables.Posts.TYPE_REPOST + "'";
         }
     }
 
