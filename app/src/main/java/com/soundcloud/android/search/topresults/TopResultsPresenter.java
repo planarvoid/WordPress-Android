@@ -16,17 +16,17 @@ import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.utils.collection.AsyncLoader;
 import com.soundcloud.android.utils.collection.AsyncLoaderState;
 import com.soundcloud.android.view.BasePresenter;
+import com.soundcloud.android.view.BaseView;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observables.ConnectableObservable;
 
 import javax.inject.Inject;
 
-public class TopResultsPresenter extends BasePresenter {
+public class TopResultsPresenter extends BasePresenter<TopResultsViewModel, ViewError, SearchParams, TopResultsPresenter.TopResultsView> {
 
     private static final Screen SCREEN = Screen.SEARCH_EVERYTHING;
 
@@ -34,15 +34,11 @@ public class TopResultsPresenter extends BasePresenter {
     private final SearchTracker searchTracker;
     private final TrackingStateProvider trackingStateProvider;
     private final TopResultsOperations operations;
-    private final CompositeDisposable viewSubscription = new CompositeDisposable();
+    private final CompositeDisposable viewDisposable = new CompositeDisposable();
     private final PlaybackInitiator playbackInitiator;
     private final TopResultsMapper topResultsMapper;
 
-    interface TopResultsView extends Consumer<AsyncLoaderState<TopResultsViewModel>> {
-
-        Observable<UiAction.Search> searchIntent();
-
-        Observable<UiAction.Refresh> refreshIntent();
+    interface TopResultsView extends BaseView<AsyncLoaderState<TopResultsViewModel, ViewError>, ViewError, SearchParams> {
 
         Observable<UiAction.Enter> enterScreen();
 
@@ -79,65 +75,66 @@ public class TopResultsPresenter extends BasePresenter {
         this.topResultsMapper = topResultsMapper;
     }
 
-    void attachView(TopResultsView topResultsView) {
-        ConnectableObservable<SearchParams> sharedSearchIntent = topResultsView.searchIntent().map(UiAction.Search::searchParams).publish();
-        viewSubscription.add(sharedSearchIntent.take(1).subscribe(this::trackFirstSearch));
-        ConnectableObservable<AsyncLoaderState<TopResultsViewModel>> stateWithViewModel = AsyncLoader.Companion.startWith(sharedSearchIntent.autoConnect(), this::search)
-                                                                                                    .withRefresh(refreshIntent(topResultsView), this::search)
-                                                                                                    .build()
-                                                                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                                                                    .publish();
+    @Override
+    public void attachView(TopResultsView topResultsView) {
+        super.attachView(topResultsView);
+        viewDisposable.add(topResultsView.initialLoadSignal().take(1).subscribe(this::trackFirstSearch));
+
+        final ConnectableObservable<AsyncLoaderState<TopResultsViewModel, ViewError>> stateWithViewModel = getLoader();
 
         //View model subscription
-        viewSubscription.add(stateWithViewModel.subscribe(topResultsView));
-        Observable<TopResultsViewModel> viewModel = stateWithViewModel.filter(item -> item.data().isPresent()).map(item -> item.data().get());
+        Observable<TopResultsViewModel> viewModel = stateWithViewModel.filter(item -> item.getData().isPresent()).map(item -> item.getData().get());
 
         //Handling enter screen event and tracking of page view, emits only when new enter screen event is emitted
-        viewSubscription.add(Observable.combineLatest(topResultsView.enterScreen(), viewModel, (action, model) -> Pair.of(action, model.queryUrn()))
-                                       .subscribe(this::trackPageView));
+        viewDisposable.add(Observable.combineLatest(topResultsView.enterScreen(), viewModel, (action, model) -> Pair.of(action, model.queryUrn()))
+                                     .subscribe(this::trackPageView));
 
-        viewSubscription.add(stateWithViewModel.connect());
+        viewDisposable.add(stateWithViewModel.connect());
 
         //Handling clicks
-        viewSubscription.addAll(topResultsView.trackClick()
-                                              .doOnNext(searchTrack -> trackClickOnItem(searchTrack.clickParams().get()))
-                                              .flatMap(this::playSearchTrack)
-                                              .subscribe(topResultsView::showPlaybackResult),
+        viewDisposable.addAll(topResultsView.trackClick()
+                                            .doOnNext(searchTrack -> trackClickOnItem(searchTrack.clickParams().get()))
+                                            .flatMap(this::playSearchTrack)
+                                            .subscribe(topResultsView::showPlaybackResult),
 
-                                topResultsView.playlistClick()
+                              topResultsView.playlistClick()
                                               .map(uiAction -> uiAction.clickParams().get())
                                               .doOnNext(this::trackClickOnItem)
                                               .map(this::playlistClickToNavigateAction)
                                               .subscribe(topResultsView::navigateTo),
 
-                                topResultsView.userClick()
+                              topResultsView.userClick()
                                               .map(uiAction -> uiAction.clickParams().get())
                                               .doOnNext(this::trackClickOnItem)
                                               .map(this::userClickToNavigateAction)
                                               .subscribe(topResultsView::navigateTo),
 
-                                topResultsView.viewAllClick()
+                              topResultsView.viewAllClick()
                                               .map(this::viewAllClickToNavigateAction)
                                               .subscribe(topResultsView::navigateTo),
 
-                                topResultsView.helpClick()
+                              topResultsView.helpClick()
                                               .doOnNext(click -> searchTracker.trackResultsUpsellClick(SCREEN))
                                               .subscribe(__ -> topResultsView.openUpgrade(UpsellContext.PREMIUM_CONTENT)));
     }
 
-    private Observable<SearchParams> refreshIntent(TopResultsView topResultsView) {
-        // do we not want to track refreshes?
-        return topResultsView.refreshIntent().map(UiAction.Refresh::searchParams);
+    public Observable<AsyncLoader.PageResult<TopResultsViewModel, ViewError>> firstPageFunc(SearchParams searchParams) {
+        return this.search(searchParams);
     }
 
-    private Observable<AsyncLoader.PageResult<TopResultsViewModel>> search(SearchParams params) {
+    public Observable<AsyncLoader.PageResult<TopResultsViewModel, ViewError>> refreshFunc(SearchParams searchParams) {
+        return this.search(searchParams);
+    }
+
+    private Observable<AsyncLoader.PageResult<TopResultsViewModel, ViewError>> search(SearchParams params) {
         return operations.apiSearch(params).toObservable()
                          .flatMap(result -> topResultsMapper.toViewModel(result, params.userQuery()))
                          .map(AsyncLoader.PageResult.Companion::from);
     }
 
-    void detachView() {
-        viewSubscription.clear();
+    @Override
+    public void detachView() {
+        viewDisposable.clear();
     }
 
     private void trackClickOnItem(ClickParams clickParams) {

@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.ViewError;
+import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
@@ -47,6 +48,7 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     private EmptyAdapter emptyAdapter;
     private final boolean animateLayoutChangesInItems;
     private final boolean showDividers;
+    private final boolean parallaxImageScrolling;
     private RecyclerViewPaginator paginator;
 
     public CollectionRenderer(PagingRecyclerItemAdapter<ItemT, VH> adapter,
@@ -54,13 +56,15 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
                               BiFunction<ItemT, ItemT, Boolean> areContentsTheSame,
                               EmptyStateProvider emptyStateProvider,
                               boolean animateLayoutChangesInItems,
-                              boolean showDividers) {
+                              boolean showDividers,
+                              boolean parallaxImageScrolling) {
         this.adapter = adapter;
         this.areItemsTheSame = areItemsTheSame;
         this.areContentsTheSame = areContentsTheSame;
         this.emptyStateProvider = emptyStateProvider;
         this.animateLayoutChangesInItems = animateLayoutChangesInItems;
         this.showDividers = showDividers;
+        this.parallaxImageScrolling = parallaxImageScrolling;
         adapter.setOnErrorRetryListener(v -> onNextPage.onNext(RxSignal.SIGNAL));
     }
 
@@ -115,12 +119,12 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     public void render(CollectionRendererState<ItemT> state) {
 
-        requestMoreOnScroll = state.collectionLoadingState().requestMoreOnScroll();
+        requestMoreOnScroll = state.getCollectionLoadingState().requestMoreOnScroll();
 
-        adapter.setNewAppendState(getAppendState(state.collectionLoadingState()));
+        adapter.setNewAppendState(getAppendState(state.getCollectionLoadingState()));
 
-        swipeRefreshLayout.setRefreshing(state.collectionLoadingState().isRefreshing());
-        if (state.items().isEmpty()) {
+        swipeRefreshLayout.setRefreshing(state.getCollectionLoadingState().isRefreshing());
+        if (state.getItems().isEmpty()) {
             if (recyclerView.getAdapter() != emptyAdapter) {
                 recyclerView.setAdapter(emptyAdapter);
                 setAnimateItemChanges(true);
@@ -131,10 +135,10 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
             if (recyclerView.getAdapter() != adapter) {
                 recyclerView.setAdapter(adapter);
                 setAnimateItemChanges(animateLayoutChangesInItems);
-                populateAdapter(state.items());
+                populateAdapter(state.getItems());
                 adapter.notifyDataSetChanged();
             } else {
-                onNewItems(state.items());
+                onNewItems(state.getItems());
             }
 
         }
@@ -159,6 +163,9 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         if (showDividers) {
             addListDividers(recyclerView);
         }
+        if (parallaxImageScrolling) {
+            recyclerView.addOnScrollListener(new RecyclerViewParallaxer());
+        }
     }
 
     private void addListDividers(RecyclerView recyclerView) {
@@ -168,8 +175,8 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     }
 
     private void updateEmptyView(CollectionRendererState<ItemT> state) {
-        Optional<ViewError> viewErrorOptional = state.collectionLoadingState().nextPageError();
-        emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.collectionLoadingState().isLoadingNextPage()));
+        Optional<ViewError> viewErrorOptional = state.getCollectionLoadingState().nextPageError();
+        emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.getCollectionLoadingState().isLoadingNextPage()));
         emptyAdapter.notifyDataSetChanged();
     }
 
@@ -179,7 +186,8 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     private void onNewItems(List<ItemT> newItems) {
         final List<ItemT> oldItems = adapter().getItems();
-        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AdapterDiffCallback(oldItems, newItems), true);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AdapterDiffCallback(oldItems, newItems), true);
+
         populateAdapter(newItems);
         diffResult.dispatchUpdatesTo(adapter());
     }

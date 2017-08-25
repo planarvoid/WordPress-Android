@@ -219,7 +219,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
         inputs = PlaylistDetailsInputs.create();
         adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(inputs));
-        collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true);
+        collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true, false);
         collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
         itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
 
@@ -435,7 +435,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
                     .requestMoreOnScroll(false)
                     .build();
             List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
-            return CollectionRendererState.create(loadingState, items);
+            return new CollectionRendererState<>(loadingState, items);
         }
 
         private static List<PlaylistDetailItem> toLegacyModelItems(PlaylistAsyncViewModel<PlaylistDetailsViewModel> playlistAsyncViewModel, boolean inlineHeader) {

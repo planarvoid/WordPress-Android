@@ -24,9 +24,9 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.utils.Supplier;
 import com.soundcloud.android.utils.collection.AsyncLoaderState;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,9 +74,9 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TopResultsPresenter presenter = createPresenter();
         final TestView testView = new TestView(presenter);
 
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
 
-        testView.assertState(contains(AsyncLoaderState.<TopResultsViewModel>loadingNextPage()));
+        testView.assertState(contains(AsyncLoaderState.Companion.<TopResultsViewModel, ViewError>loadingNextPage()));
     }
 
     @Test
@@ -86,10 +86,10 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TopResultsPresenter presenter = createPresenter();
         final TestView testView = new TestView(presenter);
 
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
 
-        testView.assertState(contains(AsyncLoaderState.<TopResultsViewModel>loadingNextPage(),
-                                      AsyncLoaderState.<TopResultsViewModel>firstPageError(ApiRequestException.networkError(null, new IOException()))));
+        testView.assertState(contains(AsyncLoaderState.Companion.<TopResultsViewModel, ViewError>loadingNextPage(),
+                                      AsyncLoaderState.Companion.<TopResultsViewModel, ViewError>firstPageError(ApiRequestException.networkError(null, new IOException()))));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TopResultsPresenter presenter = createPresenter();
         final TestView testView = new TestView(presenter);
 
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
 
         testView.assertLastState(this::hasData, equalTo(true));
         testView.assertLastState(this::topResultsBucketSize, equalTo(1));
@@ -119,7 +119,7 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         mrLocalLocal.startEventTracking();
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
         mrLocalLocal.verify(ENTER_SPEC_REF);
@@ -135,11 +135,11 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        SearchItem.Track trackSearchItem = (SearchItem.Track) lastState.data().get().buckets().get(1).items().get(1);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        SearchItem.Track trackSearchItem = (SearchItem.Track) lastState.getData().get().buckets().get(1).items().get(1);
         testView.trackClickPublishSubject.onNext(trackSearchItem.clickAction());
 
         mrLocalLocal.verify(TRACK_CLICK_SPEC_REF);
@@ -156,11 +156,11 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        SearchItem.User userSearchItem = (SearchItem.User) lastState.data().get().buckets().get(2).items().get(2);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        SearchItem.User userSearchItem = (SearchItem.User) lastState.getData().get().buckets().get(2).items().get(2);
         testView.userClickPublishSubject.onNext(userSearchItem.clickAction());
 
         mrLocalLocal.verify(USER_CLICK_SPEC_REF);
@@ -182,11 +182,11 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        SearchItem.Playlist playlistSearchItem = (SearchItem.Playlist) lastState.data().get().buckets().get(4).items().get(2);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        SearchItem.Playlist playlistSearchItem = (SearchItem.Playlist) lastState.getData().get().buckets().get(4).items().get(2);
         testView.playlistClickPublishSubject.onNext(playlistSearchItem.clickAction());
 
         Urn playlistUrn = playlistSearchItem.itemUrn().get();
@@ -210,11 +210,11 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        SearchItem.Playlist playlistSearchItem = (SearchItem.Playlist) lastState.data().get().buckets().get(3).items().get(1);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        SearchItem.Playlist playlistSearchItem = (SearchItem.Playlist) lastState.getData().get().buckets().get(3).items().get(1);
         testView.playlistClickPublishSubject.onNext(playlistSearchItem.clickAction());
 
         mrLocalLocal.verify(ALBUM_CLICK_SPEC_REF);
@@ -234,11 +234,11 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        TopResultsBucketViewModel bucketViewModel = lastState.data().get().buckets().get(3);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        TopResultsBucketViewModel bucketViewModel = lastState.getData().get().buckets().get(3);
         testView.viewAllClickPublishSubject.onNext(bucketViewModel.viewAllAction().get());
 
         testView.assertNavigationTarget(NavigationTarget.forSearchViewAll(Optional.of(QUERY_URN),
@@ -257,13 +257,13 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         final TestView testView = new TestView(presenter);
 
         testView.enterPublishSubject.onNext(UiAction.Enter.create(System.currentTimeMillis(), SEARCH_QUERY));
-        testView.searchPublishSubject.onNext(UiAction.Search.create(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent())));
+        testView.searchPublishSubject.onNext(SearchParams.create(SEARCH_QUERY, SEARCH_QUERY, Optional.absent(), Optional.absent()));
         testView.assertLastState(this::hasData, equalTo(true));
 
         testView.helpClickPublishSubject.onNext(UiAction.HelpClick.create());
 
-        AsyncLoaderState<TopResultsViewModel> lastState = testView.lastState();
-        TopResultsBucketViewModel bucketViewModel = lastState.data().get().buckets().get(3);
+        AsyncLoaderState<TopResultsViewModel, ViewError> lastState = testView.lastState();
+        TopResultsBucketViewModel bucketViewModel = lastState.getData().get().buckets().get(3);
         testView.viewAllClickPublishSubject.onNext(bucketViewModel.viewAllAction().get());
 
         mrLocalLocal.verify(HELP_CLICK_SPEC_REF);
@@ -271,32 +271,32 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         testView.assertOpenUpgradeUpsellContext(UpsellContext.PREMIUM_CONTENT);
     }
 
-    private boolean hasData(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
-        return topResultsViewModelAsyncLoaderState.data().isPresent();
+    private boolean hasData(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
+        return topResultsViewModelAsyncLoaderState.getData().isPresent();
     }
 
-    private int topResultsBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
+    private int topResultsBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
         return getBucketSize(topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind.TOP_RESULT);
     }
 
-    private int tracksBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
+    private int tracksBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
         return getBucketSize(topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind.TRACKS);
     }
 
-    private int usersBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
+    private int usersBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
         return getBucketSize(topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind.USERS);
     }
 
-    private int playlistsBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
+    private int playlistsBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
         return getBucketSize(topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind.PLAYLISTS);
     }
 
-    private int albumsBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState) {
+    private int albumsBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState) {
         return getBucketSize(topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind.ALBUMS);
     }
 
-    private int getBucketSize(AsyncLoaderState<TopResultsViewModel> topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind kind) {
-        return size(find(topResultsViewModelAsyncLoaderState.data().get().buckets(), input -> kind.equals(input.kind())).items());
+    private int getBucketSize(AsyncLoaderState<TopResultsViewModel, ViewError> topResultsViewModelAsyncLoaderState, TopResultsBucketViewModel.Kind kind) {
+        return size(find(topResultsViewModelAsyncLoaderState.getData().get().buckets(), input -> kind.equals(input.kind())).items());
     }
 
     private TopResultsPresenter createPresenter() {
@@ -307,12 +307,12 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         return UIEvent.fromNavigation(urn, EventContextMetadata.builder().pageName(screen).module(module).build());
     }
 
-    static class TestView extends TestAsyncState<AsyncLoaderState<TopResultsViewModel>> implements TopResultsPresenter.TopResultsView {
+    static class TestView extends TestAsyncState<AsyncLoaderState<TopResultsViewModel, ViewError>> implements TopResultsPresenter.TopResultsView {
 
-        final List<AsyncLoaderState<TopResultsViewModel>> models = new ArrayList<>();
+        final List<AsyncLoaderState<TopResultsViewModel, ViewError>> models = new ArrayList<>();
 
-        private PublishSubject<UiAction.Search> searchPublishSubject = PublishSubject.create();
-        private PublishSubject<UiAction.Refresh> refreshPublishSubject = PublishSubject.create();
+        private PublishSubject<SearchParams> searchPublishSubject = PublishSubject.create();
+        private PublishSubject<SearchParams> refreshPublishSubject = PublishSubject.create();
         private PublishSubject<UiAction.Enter> enterPublishSubject = PublishSubject.create();
         private PublishSubject<UiAction.TrackClick> trackClickPublishSubject = PublishSubject.create();
         private PublishSubject<UiAction.PlaylistClick> playlistClickPublishSubject = PublishSubject.create();
@@ -329,18 +329,8 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         }
 
         @Override
-        public Supplier<List<AsyncLoaderState<TopResultsViewModel>>> states() {
+        public Supplier<List<AsyncLoaderState<TopResultsViewModel, ViewError>>> states() {
             return () -> models;
-        }
-
-        @Override
-        public Observable<UiAction.Search> searchIntent() {
-            return searchPublishSubject;
-        }
-
-        @Override
-        public Observable<UiAction.Refresh> refreshIntent() {
-            return refreshPublishSubject;
         }
 
         @Override
@@ -388,6 +378,21 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
             lastOpenUpgradeUpsellContext = upsellContext;
         }
 
+        @Override
+        public Observable<SearchParams> initialLoadSignal() {
+            return searchPublishSubject;
+        }
+
+        @Override
+        public Observable<SearchParams> refreshSignal() {
+            return refreshPublishSubject;
+        }
+
+        @Override
+        public Observable<ViewError> actionPerformedSignal() {
+            return Observable.empty();
+        }
+
         private void assertPlaybackResult(PlaybackResult playbackResult) {
             assertThatEventually(() -> lastPlaybackResult, equalTo(playbackResult));
         }
@@ -401,7 +406,7 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         }
 
         @Override
-        public void accept(@NonNull AsyncLoaderState<TopResultsViewModel> newState) throws Exception {
+        public void accept(AsyncLoaderState<TopResultsViewModel, ViewError> newState) throws Exception {
             models.add(newState);
         }
     }

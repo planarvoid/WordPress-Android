@@ -17,12 +17,11 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
-import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.utils.collection.AsyncLoaderState;
 import com.soundcloud.android.view.BaseFragment;
-import com.soundcloud.android.view.BasePresenter;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Lists;
@@ -61,7 +60,7 @@ public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implem
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
 
-    private final BehaviorSubject<UiAction.Search> searchIntent = BehaviorSubject.create();
+    private final BehaviorSubject<SearchParams> searchIntent = BehaviorSubject.create();
 
     private final PublishSubject<UiAction.TrackClick> trackClick = PublishSubject.create();
     private final PublishSubject<UiAction.PlaylistClick> playlistClick = PublishSubject.create();
@@ -95,22 +94,23 @@ public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchIntent.onNext(UiAction.Search.create(SearchParams.create(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition())));
+        searchIntent.onNext(SearchParams.create(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition()));
         collectionRenderer = new CollectionRenderer<>(adapterFactory.create(trackClick, playlistClick, userClick, viewAllClick, helpClick),
                                                       this::isTheSameItem,
                                                       Object::equals,
                                                       new SearchEmptyStateProvider(),
                                                       true,
+                                                      false,
                                                       false);
         setHasOptionsMenu(true);
     }
 
     @Override
-    public void accept(@NonNull AsyncLoaderState<TopResultsViewModel> viewModel) throws Exception {
+    public void accept(@NonNull AsyncLoaderState<TopResultsViewModel, ViewError> viewModel) throws Exception {
         final CollectionRendererState<TopResultsBucketViewModel> newState = toLegacyModel(viewModel);
         collectionRenderer.render(newState);
 
-        if (!newState.collectionLoadingState().isLoadingNextPage()) {
+        if (!newState.getCollectionLoadingState().isLoadingNextPage()) {
             MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_EVERYTHING.toString());
             PerformanceMetric metric = PerformanceMetric.builder()
                                                         .metricType(MetricType.PERFORM_SEARCH)
@@ -120,8 +120,8 @@ public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implem
         }
     }
 
-    private CollectionRendererState<TopResultsBucketViewModel> toLegacyModel(AsyncLoaderState<TopResultsViewModel> viewModel) {
-        return CollectionRendererState.create(viewModel.asyncLoadingState(), viewModel.data().isPresent() ? viewModel.data().get().buckets() : Lists.newArrayList());
+    private CollectionRendererState<TopResultsBucketViewModel> toLegacyModel(AsyncLoaderState<TopResultsViewModel, ViewError> viewModel) {
+        return new CollectionRendererState<>(viewModel.getAsyncLoadingState(), viewModel.getData().isPresent() ? viewModel.getData().get().buckets() : Lists.newArrayList());
     }
 
     private boolean isTheSameItem(TopResultsBucketViewModel item1, TopResultsBucketViewModel item2) {
@@ -150,13 +150,18 @@ public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implem
     }
 
     @Override
-    public Observable<UiAction.Search> searchIntent() {
-        return searchIntent;
+    public Observable<SearchParams> initialLoadSignal() {
+        return searchIntent.share();
     }
 
     @Override
-    public Observable<Refresh> refreshIntent() {
-        return collectionRenderer.onRefresh().map(ignore -> Refresh.create(SearchParams.createRefreshing(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition())));
+    public Observable<SearchParams> refreshSignal() {
+        return collectionRenderer.onRefresh().map(ignore -> SearchParams.createRefreshing(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition())).share();
+    }
+
+    @Override
+    public Observable<ViewError> actionPerformedSignal() {
+        return Observable.empty();
     }
 
     @Override

@@ -8,19 +8,20 @@ import javax.inject.Singleton
 
 @OpenForTesting
 @Singleton
-class PresenterManager @Inject
+class PresenterManager
+@Inject
 constructor()
 {
 
-    private val presenters = LongSparseArray<BasePresenter>()
+    private val presenters = LongSparseArray<Destroyable>()
     private var runningId: Long = 0
 
-    fun save(presenter: BasePresenter): Long {
+    fun save(presenter: Destroyable): Long {
         presenters.put(runningId, presenter)
         return runningId++
     }
 
-    fun <T : BasePresenter> get(id: Long): T? {
+    fun <T : Destroyable> get(id: Long): T? {
         return presenters.get(id) as T?
     }
 

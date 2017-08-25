@@ -12,7 +12,7 @@ class BaseFragmentTest : AndroidUnitTest() {
 
     private lateinit var baseFragment: TestBaseFragment
 
-    internal val basePresenter: TestBasePresenter = TestBasePresenter()
+    internal val basePresenter = TestBasePresenter()
 
     val presenterManager: PresenterManager = mock()
 
@@ -88,4 +88,4 @@ class BaseFragmentTest : AndroidUnitTest() {
 
 }
 
-class TestBasePresenter : BasePresenter()
+class TestBasePresenter : Destroyable()

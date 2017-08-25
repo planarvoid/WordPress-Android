@@ -36,9 +36,9 @@ constructor(private val propeller: PropellerDatabase) : Command<Iterable<Urn>, M
     private fun query(urns: List<Urn>, type: Int): Iterable<CursorReader> {
         return if (urns.isNotEmpty()) {
             propeller.query(Query.from(Tables.Likes.TABLE)
-                    .whereNull(Tables.Likes.REMOVED_AT.qualifiedName())
-                    .whereEq(Tables.Likes._TYPE, type)
-                    .whereIn(Tables.Likes._ID, urns.map { it.numericId }))
+                                    .whereNull(Tables.Likes.REMOVED_AT.qualifiedName())
+                                    .whereEq(Tables.Likes._TYPE, type)
+                                    .whereIn(Tables.Likes._ID, urns.map { it.numericId }))
         } else emptyList()
     }
 }
