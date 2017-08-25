@@ -105,7 +105,6 @@ import com.soundcloud.android.playlists.PlaylistDetailsPresenterFactory;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.profile.FollowersActivity;
 import com.soundcloud.android.profile.FollowingsActivity;
-import com.soundcloud.android.profile.MyFollowingsFragment;
 import com.soundcloud.android.profile.OldUserDetailsFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
@@ -262,7 +261,6 @@ public interface ApplicationComponent {
 
     //ProfileModule
     void inject(ProfileActivity profileActivity);
-    void inject(MyFollowingsFragment myFollowingsFragment);
     void inject(UserPlaylistsActivity userPlaylistsActivity);
     void inject(UserPlaylistsFragment userPlaylistsFragment);
     void inject(UserLikesActivity userLikesActivity);

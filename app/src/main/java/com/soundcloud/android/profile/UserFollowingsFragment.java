@@ -2,8 +2,8 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class UserFollowingsFragment extends ScrollableProfileFragment {
+    public static final String IS_CURRENT_USER = "is_current_user";
 
     @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle UserFollowingsPresenter presenter;
@@ -26,6 +27,14 @@ public class UserFollowingsFragment extends ScrollableProfileFragment {
                                                 SearchQuerySourceInfo searchQuerySourceInfo) {
         UserFollowingsFragment fragment = new UserFollowingsFragment();
         fragment.setArguments(ProfileArguments.from(userUrn, screen, searchQuerySourceInfo));
+        return fragment;
+    }
+
+    public static UserFollowingsFragment createForCurrentUser(Urn userUrn, Screen trackingScreen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        UserFollowingsFragment fragment = new UserFollowingsFragment();
+        Bundle bundle = ProfileArguments.from(userUrn, trackingScreen, searchQuerySourceInfo);
+        bundle.putBoolean(IS_CURRENT_USER, true);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -54,5 +63,4 @@ public class UserFollowingsFragment extends ScrollableProfileFragment {
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
-
 }

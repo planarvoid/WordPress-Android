@@ -85,8 +85,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        getEmptyView().setMessageText(R.string.new_empty_user_followings_text);
-        getEmptyView().setImage(R.drawable.empty_following);
+        setEmptyViewMessage(fragment);
     }
 
     @Override
@@ -114,5 +113,16 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    private void setEmptyViewMessage(Fragment fragment) {
+        final boolean isCurrentUser = fragment.getArguments().getBoolean(UserFollowingsFragment.IS_CURRENT_USER, false);
+        final EmptyView emptyView = getEmptyView();
+        if (isCurrentUser) {
+            emptyView.setMessageText(R.string.list_empty_you_following_message);
+        } else {
+            emptyView.setMessageText(R.string.new_empty_user_followings_text);
+        }
+        emptyView.setImage(R.drawable.empty_following);
     }
 }

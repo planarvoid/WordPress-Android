@@ -25,31 +25,9 @@ class MyProfileOperations
 constructor(
         private val postsStorage: PostsStorage,
         private val syncInitiatorBridge: SyncInitiatorBridge,
-        private val syncInitiator: SyncInitiator,
         private val userAssociationStorage: UserAssociationStorage,
         @param:Named(ApplicationModule.RX_HIGH_PRIORITY) private val scheduler: Scheduler,
         private val trackRepository: TrackRepository) {
-
-    fun followings(): Single<List<Following>> {
-        return pagedFollowingsFromPosition(Consts.NOT_SET.toLong())
-                .subscribeOn(scheduler)
-                .flatMap { list -> if (list.isEmpty()) updatedFollowings() else Single.just(list) }
-    }
-
-    fun followingsPagingFunction(): Pager.PagingFunction<List<Following>> {
-        return Pager.PagingFunction { result ->
-            if (result.size < PAGE_SIZE) {
-                Pager.finish<List<Following>>()
-            } else {
-                RxJava.toV1Observable(pagedFollowingsFromPosition(getLast<Following>(result).userAssociation().position()).subscribeOn(scheduler))
-            }
-        }
-    }
-
-    fun updatedFollowings(): Single<List<Following>> {
-        return syncInitiatorBridge.refreshFollowings()
-                .flatMap { pagedFollowingsFromPosition(Consts.NOT_SET.toLong()).subscribeOn(scheduler) }
-    }
 
     fun followingsUserAssociations(): Single<List<UserAssociation>> {
         return loadFollowingUserAssociationsFromStorage()
@@ -59,29 +37,10 @@ constructor(
                             .flatMap { o -> loadFollowingUserAssociationsFromStorage() }
                 }
                                        .toMaybe())
-                .toSingle(emptyList<UserAssociation>())
+                .toSingle(emptyList())
     }
 
-    private fun loadFollowingUserAssociationsFromStorage(): Single<List<UserAssociation>> {
-        return userAssociationStorage.followedUserAssociations().subscribeOn(scheduler)
-    }
-
-    private fun pagedFollowingsFromPosition(fromPosition: Long): Single<List<Following>> {
-        return userAssociationStorage
-                .followedUserUrns(PAGE_SIZE, fromPosition)
-                .flatMap(syncAndReloadFollowings(PAGE_SIZE, fromPosition))
-    }
-
-    private fun syncAndReloadFollowings(pageSize: Int,
-                                        fromPosition: Long): Function<List<Urn>, Single<List<Following>>> {
-        return Function { urns ->
-            if (urns.isEmpty()) {
-                Single.just(emptyList<Following>())
-            } else {
-                syncInitiator.batchSyncUsers(urns).flatMap { userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler) }
-            }
-        }
-    }
+    private fun loadFollowingUserAssociationsFromStorage(): Single<List<UserAssociation>> = userAssociationStorage.followedUserAssociations().subscribeOn(scheduler)
 
     fun lastPublicPostedTrack(): Single<LastPostedTrack> {
         return postsStorage.loadPostedTracksSortedByDateDesc().flatMap { post ->

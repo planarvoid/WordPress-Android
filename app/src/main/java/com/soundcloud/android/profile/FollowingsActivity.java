@@ -60,7 +60,7 @@ public class FollowingsActivity extends PlayerActivity implements FollowingsPres
 
     @Override
     public void visitFollowingsScreenForCurrentUser(Screen trackingScreen) {
-        createFragment(MyFollowingsFragment.create(trackingScreen, getSearchQuerySourceInfo()));
+        createFragment(UserFollowingsFragment.createForCurrentUser(getUserUrn(), trackingScreen, getSearchQuerySourceInfo()));
     }
 
     @Override
