@@ -612,6 +612,25 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void trackChangeIgnoredAfterPlayingNewQueue() {
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Collections.singletonList(trackUrn), playSessionSource);
+        setupSetNewQueue(trackUrn, playSessionSource, playQueue, Single.just(PlaybackResult.success()));
+
+        TestObserver<PlaybackResult> testObserver = controller.playNewQueue(playQueue, trackUrn, 0, playSessionSource)
+                                                              .test();
+
+        testObserver.assertValueCount(1);
+        testObserver.assertValue(PlaybackResult::isSuccess);
+
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        controller.onPlayQueueItemEvent(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verify(playbackStrategy).playCurrent();
+    }
+
+    @Test
     public void playNewQueueWhenSkippablePlaysQueue() {
         Urn track = Urn.forTrack(123L);
 

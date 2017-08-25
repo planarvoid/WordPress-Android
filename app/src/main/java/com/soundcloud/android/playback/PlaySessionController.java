@@ -218,7 +218,10 @@ public class PlaySessionController {
             return playbackStrategyProvider.get()
                                            .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
                                            .doOnSubscribe(__ -> disposable.dispose())
-                                           .doOnSuccess(playbackResult -> playCurrent());
+                                           .doOnSuccess(playbackResult -> {
+                                               lastPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+                                               playCurrent();
+                                           });
         }
     }
 
