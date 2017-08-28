@@ -10,13 +10,14 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Lazy;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -30,13 +31,13 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     private final Lazy<CommentsOperations> commentsOperationsLazy;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
     private AppCompatActivity activity;
 
     @Inject
-    public CommentController(EventBus eventBus,
+    public CommentController(EventBusV2 eventBus,
                              Lazy<CommentsOperations> commentsOperationsLazy,
                              FeedbackController feedbackController,
                              NavigationExecutor navigationExecutor) {
@@ -54,7 +55,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        this.subscription.unsubscribe();
+        this.disposable.dispose();
         this.activity = null;
 
         super.onDestroy(activity);
@@ -63,28 +64,28 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     public void addComment(AddCommentArguments arguments) {
         final Urn trackUrn = arguments.trackUrn();
 
-        subscription = commentsOperationsLazy.get().addComment(trackUrn, arguments.getCommentText(), arguments.getPosition())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CommentAddedSubscriber(trackUrn));
+        disposable = commentsOperationsLazy.get().addComment(trackUrn, arguments.getCommentText(), arguments.getPosition())
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribeWith(new CommentAddedObserver(trackUrn));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(EntityMetadata.from(arguments.creatorName(), arguments.creatorUrn(), arguments.trackTitle(), arguments.trackUrn())));
     }
 
-    private class CommentAddedSubscriber extends DefaultSubscriber<Comment> {
+    private class CommentAddedObserver extends DefaultSingleObserver<Comment> {
 
         private final Urn trackUrn;
 
-        CommentAddedSubscriber(Urn trackUrn) {
+        CommentAddedObserver(Urn trackUrn) {
             this.trackUrn = trackUrn;
         }
 
         @Override
-        public void onNext(Comment unused) {
-            final Feedback feedback = Feedback.create(R.string.comment_posted,
-                                                      R.string.btn_view, v -> {
-                                                          subscribeToCollapsedEvent(activity);
-                                                          eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
-                                                      });
+        public void onSuccess(Comment unused) {
+            super.onSuccess(unused);
+            final Feedback feedback = Feedback.create(R.string.comment_posted, R.string.btn_view, v -> {
+                subscribeToCollapsedEvent(activity);
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
+            });
             feedbackController.showFeedback(feedback);
 
         }
@@ -98,17 +99,9 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
 
         private void subscribeToCollapsedEvent(Context context) {
             eventBus.queue(EventQueue.PLAYER_UI)
-                    .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                    .subscribe(goToCommentsPage(context));
-        }
-
-        private DefaultSubscriber<PlayerUIEvent> goToCommentsPage(final Context context) {
-            return new DefaultSubscriber<PlayerUIEvent>() {
-                @Override
-                public void onNext(PlayerUIEvent args) {
-                    navigationExecutor.openTrackComments(context, trackUrn);
-                }
-            };
+                    .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED_V2)
+                    .firstElement()
+                    .subscribeWith(LambdaMaybeObserver.onNext(playerUIEvent -> navigationExecutor.openTrackComments(context, trackUrn)));
         }
     }
 }

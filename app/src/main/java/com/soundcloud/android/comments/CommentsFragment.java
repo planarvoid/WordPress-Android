@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Urns;
@@ -69,7 +70,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     @Override
     public Observable<List<Comment>> buildObservable() {
         final Urn trackUrn = Urns.urnFromBundle(getArguments(), EXTRA_TRACK_URN);
-        comments = operations.pager().page(operations.comments(trackUrn))
+        comments = operations.pager().page(RxJava.toV1Observable(operations.comments(trackUrn)))
                              .map(ModelCollection::getCollection)
                              .observeOn(mainThread())
                              .replay(1);

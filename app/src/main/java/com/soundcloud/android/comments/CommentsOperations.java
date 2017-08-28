@@ -2,7 +2,7 @@ package com.soundcloud.android.comments;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
@@ -11,10 +11,12 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.reflect.TypeToken;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import rx.Observable;
-import rx.Scheduler;
 import rx.android.LegacyPager;
 
 import android.support.annotation.VisibleForTesting;
@@ -32,14 +34,14 @@ class CommentsOperations {
     @VisibleForTesting
     static final int COMMENTS_PAGE_SIZE = 50;
 
-    private final ApiClientRx apiClientRx;
+    private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
     private final CommentsPager pager = new CommentsPager();
 
     @Inject
-    public CommentsOperations(ApiClientRx apiClientRx,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+    public CommentsOperations(ApiClientRxV2 apiClientRx,
+                              @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                               FeatureFlags featureFlags) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
@@ -50,25 +52,25 @@ class CommentsOperations {
         return pager;
     }
 
-    Observable<Comment> addComment(Urn trackUrn, String commentText, long timestamp) {
+    Single<Comment> addComment(Urn trackUrn, String commentText, long timestamp) {
         return featureFlags.isEnabled(Flag.COMMENTS_ON_API_MOBILE) ?
                addApiMobileComment(trackUrn, commentText, timestamp).map(Comment::new) :
                addPublicApiComment(trackUrn, commentText, timestamp).map(Comment::new);
     }
 
-    Observable<ModelCollection<Comment>> comments(Urn trackUrn) {
+    Single<ModelCollection<Comment>> comments(Urn trackUrn) {
         return featureFlags.isEnabled(Flag.COMMENTS_ON_API_MOBILE) ?
                apiMobileComments(trackUrn).map(comments -> comments.transform(Comment::new)) :
                publicApiComments(trackUrn).map(comments -> comments.toModelCollection().transform(Comment::new));
     }
 
-    private Observable<ModelCollection<Comment>> comments(String nextPageUrl) {
+    private Single<ModelCollection<Comment>> comments(String nextPageUrl) {
         return featureFlags.isEnabled(Flag.COMMENTS_ON_API_MOBILE) ?
                apiMobileNextPage(nextPageUrl).map(comments -> comments.transform(Comment::new)) :
                publicApiNextPage(nextPageUrl).map(comments -> comments.toModelCollection().transform(Comment::new));
     }
 
-    private Observable<ApiComment> addApiMobileComment(Urn trackUrn, String body, long trackTime) {
+    private Single<ApiComment> addApiMobileComment(Urn trackUrn, String body, long trackTime) {
         final Map<String, Object> comment = new HashMap<>(2);
         comment.put("body", body);
         comment.put("track_time", trackTime);
@@ -81,7 +83,7 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request, ApiComment.class).subscribeOn(scheduler);
     }
 
-    private Observable<ModelCollection<ApiComment>> apiMobileComments(Urn trackUrn) {
+    private Single<ModelCollection<ApiComment>> apiMobileComments(Urn trackUrn) {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn))
                                              .forPrivateApi()
                                              .addQueryParam("threaded", 0)
@@ -91,12 +93,12 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request, TYPE_TOKEN).subscribeOn(scheduler);
     }
 
-    private Observable<ModelCollection<ApiComment>> apiMobileNextPage(String nextPageUrl) {
+    private Single<ModelCollection<ApiComment>> apiMobileNextPage(String nextPageUrl) {
         final ApiRequest request = ApiRequest.get(nextPageUrl).forPrivateApi().build();
         return apiClientRx.mappedResponse(request, TYPE_TOKEN).subscribeOn(scheduler);
     }
 
-    private Observable<PublicApiComment> addPublicApiComment(Urn trackUrn, String commentText, long timestamp) {
+    private Single<PublicApiComment> addPublicApiComment(Urn trackUrn, String commentText, long timestamp) {
 
         final ApiRequest request = ApiRequest.post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                                              .forPublicApi()
@@ -106,7 +108,7 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request, PublicApiComment.class).subscribeOn(scheduler);
     }
 
-    private Observable<CommentsCollection> publicApiComments(Urn trackUrn) {
+    private Single<CommentsCollection> publicApiComments(Urn trackUrn) {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                                              .forPublicApi()
                                              .addQueryParam("linked_partitioning", "1")
@@ -115,7 +117,7 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }
 
-    private Observable<CommentsCollection> publicApiNextPage(String nextPageUrl) {
+    private Single<CommentsCollection> publicApiNextPage(String nextPageUrl) {
         final ApiRequest request = ApiRequest.get(nextPageUrl).forPublicApi().build();
         return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }
@@ -137,7 +139,7 @@ class CommentsOperations {
 
         @Override
         public Observable<ModelCollection<Comment>> call(ModelCollection<Comment> apiComments) {
-            return apiComments.getNextLink().transform(next -> comments(next.getHref())).or(LegacyPager.finish());
+            return apiComments.getNextLink().transform(next -> RxJava.toV1Observable(comments(next.getHref()))).or(LegacyPager.finish());
         }
     }
 

@@ -14,14 +14,14 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -41,7 +41,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Mock private NavigationExecutor navigationExecutor;
     @Captor private ArgumentCaptor<Feedback> feedbackArgumentCaptor;
 
-    private final TestEventBus eventBus = new TestEventBus();
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
     private TrackItem track;
     private Comment comment;
 
@@ -59,7 +59,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void showsSuccessFeedbackAfterPost() {
-        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION)).thenReturn(Observable.just(comment));
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION)).thenReturn(Single.just(comment));
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
@@ -70,7 +70,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Test
     public void showsFailureFeedbackAfterPost() {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
-                .thenReturn(Observable.error(new IOException()));
+                .thenReturn(Single.error(new IOException()));
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
@@ -80,9 +80,8 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesInOnDestroy() {
-        final PublishSubject<Comment> subject = PublishSubject.create();
-        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
-                .thenReturn(subject);
+        final SingleSubject<Comment> subject = SingleSubject.create();
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION)).thenReturn(subject);
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
