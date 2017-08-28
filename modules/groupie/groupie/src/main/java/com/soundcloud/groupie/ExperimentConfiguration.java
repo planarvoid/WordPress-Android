@@ -10,6 +10,11 @@ import java.util.List;
 @AutoValue
 public abstract class ExperimentConfiguration {
 
+    /**
+     * @deprecated Using only names for experiments / variants is error-prone since is possible to have 2 experiments configured with the same names / variant names.
+     * Use {@link #fromNamesAndIds(String, String, int, List)} and include the ids provided by the Roadie user interface.
+     */
+    @Deprecated
     public static ExperimentConfiguration fromName(String layerName, String experimentName, List<String> variantNames) {
         return builder()
                 .layerName(layerName)
