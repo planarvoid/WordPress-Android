@@ -42,10 +42,7 @@ import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.flippernative.api.ErrorReason;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.StreamingProtocol;
-import com.soundcloud.flippernative.api.audio_performance;
-import com.soundcloud.flippernative.api.error_message;
-import com.soundcloud.flippernative.api.state_change;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -64,7 +61,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     private static final long POSITION = 500L;
     private static final long DURATION = 1000L;
     private FlipperAdapter flipperAdapter;
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private CurrentDateProvider dateProvider = new TestDateProvider();
 
     @Mock FlipperWrapperFactory flipperWrapperFactory;
@@ -206,9 +203,10 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         whenPlaying(audioPlaybackItem);
         long position = 23456L;
         long duration = 12345678L;
-        state_change stateChange = stateChange(audioPlaybackItem.getUrn(), position, duration);
+        ProgressChange progressChange = new ProgressChange(fakeMediaUri(audioPlaybackItem.getUrn()),
+                                                           position, duration);
 
-        flipperAdapter.onProgressChanged(stateChange);
+        flipperAdapter.onProgressChanged(progressChange);
 
         verify(progressChangeHandler).report(position, duration);
     }
@@ -219,9 +217,10 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         AudioPlaybackItem otherAudioPlaybackItem = TestPlaybackItem.audio(Urn.forTrack(7643223456L));
 
         whenPlaying(audioPlaybackItem);
-        state_change stateChange = stateChange(otherAudioPlaybackItem.getUrn(), 123L, 765432L);
+        ProgressChange progressChange = new ProgressChange(fakeMediaUri(otherAudioPlaybackItem.getUrn()),
+                                                           123L, 765432L);
 
-        flipperAdapter.onProgressChanged(stateChange);
+        flipperAdapter.onProgressChanged(progressChange);
 
         verify(progressChangeHandler, never()).report(anyLong(), anyLong());
     }
@@ -230,7 +229,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     public void performanceEventIsForwardedToReporter() {
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        audio_performance audioPerformance = mock(audio_performance.class);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent("type", 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
 
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
@@ -244,7 +243,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Preparing, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Preparing, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onBufferingChanged(stateChange);
 
@@ -258,7 +257,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Prepared, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Prepared, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onBufferingChanged(stateChange);
 
@@ -272,8 +271,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Playing, ErrorReason.Nothing, POSITION, DURATION);
-        when(stateChange.getBuffering()).thenReturn(true);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Playing, ErrorReason.Nothing, true, POSITION, DURATION);
 
         flipperAdapter.onBufferingChanged(stateChange);
 
@@ -287,7 +285,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Idle, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Idle, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -301,7 +299,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Playing, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Playing, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -315,7 +313,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Paused, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Paused, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -329,7 +327,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Completed, ErrorReason.Nothing, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Completed, ErrorReason.Nothing, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -343,7 +341,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.Forbidden, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.Forbidden, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -357,7 +355,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.NotFound, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.NotFound, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -371,7 +369,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        state_change stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.Failed, POSITION, DURATION);
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.Failed, POSITION, DURATION);
 
         flipperAdapter.onStateChanged(stateChange);
 
@@ -383,8 +381,8 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         ConnectionType connectionType = ConnectionType.FOUR_G;
         when(connectionHelper.getCurrentConnectionType()).thenReturn(connectionType);
         final String category = "CODEC_DECODER";
-        error_message errorMessage = errorMessage(category, "sourceFile", 1, "message", "uri",
-                                                  CDN_HOST, OPUS, BITRATE, StreamingProtocol.Hls);
+        FlipperError errorMessage = new FlipperError(category, "sourceFile", 1, "message",
+                                                     StreamingProtocol.Hls, CDN_HOST, OPUS, BITRATE);
 
         flipperAdapter.onError(errorMessage);
 
@@ -431,41 +429,11 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         return "fakeUrl " + urn.getContent();
     }
 
-    private error_message errorMessage(String category, String sourceFile, Integer line,
-                                       String messageBody, String uri, String cdn,
-                                       String format, Integer bitrate, StreamingProtocol streamingProtocol) {
-        error_message errorMessage = mock(error_message.class);
-        when(errorMessage.getCategory()).thenReturn(category);
-        when(errorMessage.getSourceFile()).thenReturn(sourceFile);
-        when(errorMessage.getLine()).thenReturn(line);
-        when(errorMessage.getErrorMessage()).thenReturn(messageBody);
-        when(errorMessage.getUri()).thenReturn(uri);
-        when(errorMessage.getCdn()).thenReturn(cdn);
-        when(errorMessage.getFormat()).thenReturn(format);
-        when(errorMessage.getBitRate()).thenReturn(bitrate);
-        when(errorMessage.getStreamingProtocol()).thenReturn(streamingProtocol);
-        return errorMessage;
+    private StateChange stateChange(Urn urn, PlayerState state, ErrorReason errorReason, long position, long duration) {
+        return new StateChange(fakeMediaUri(urn), state, errorReason, false, position, duration, StreamingProtocol.Hls);
     }
 
-    private state_change stateChange(Urn urn, long position, long duration) {
-        state_change stateChange = mock(state_change.class);
-        when(stateChange.getUri()).thenReturn(fakeMediaUri(urn));
-        when(stateChange.getStreamingProtocol()).thenReturn(StreamingProtocol.Hls);
-        when(stateChange.getPosition()).thenReturn(position);
-        when(stateChange.getDuration()).thenReturn(duration);
-        when(stateChange.getBuffering()).thenReturn(false);
-        return stateChange;
-    }
-
-    private state_change stateChange(Urn urn, PlayerState state, long position, long duration) {
-        state_change stateChange = stateChange(urn, position, duration);
-        when(stateChange.getState()).thenReturn(state);
-        return stateChange;
-    }
-
-    private state_change stateChange(Urn urn, PlayerState state, ErrorReason reason, long position, long duration) {
-        state_change stateChange = stateChange(urn, state, position, duration);
-        when(stateChange.getReason()).thenReturn(reason);
-        return stateChange;
+    private StateChange stateChange(Urn urn, PlayerState state, ErrorReason errorReason, boolean buffering, long position, long duration) {
+        return new StateChange(fakeMediaUri(urn), state, errorReason, buffering, position, duration, StreamingProtocol.Hls);
     }
 }

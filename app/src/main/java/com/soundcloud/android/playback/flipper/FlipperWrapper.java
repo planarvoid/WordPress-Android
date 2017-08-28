@@ -54,22 +54,30 @@ public class FlipperWrapper extends PlayerListener {
 
     @Override
     public void onProgressChanged(state_change event) {
-        flipperAdapter.onProgressChanged(event);
+        flipperAdapter.onProgressChanged(new ProgressChange(event.getUri(), event.getPosition(), event.getDuration()));
     }
 
     @Override
     public void onPerformanceEvent(audio_performance event) {
-        flipperAdapter.onPerformanceEvent(event);
+        flipperAdapter.onPerformanceEvent(new AudioPerformanceEvent(event.getType().const_get_value(), event.getLatency().const_get_value(), event.getProtocol().const_get_value(),
+                                                                    event.getHost().const_get_value(), event.getFormat().const_get_value(), (int) event.getBitrate().const_get_value(),
+                                                                    event.getDetails().get_value().toJson()));
     }
 
     @Override
     public void onStateChanged(state_change event) {
-        flipperAdapter.onStateChanged(event);
+        flipperAdapter.onStateChanged(mapToStateChange(event));
     }
 
     @Override
     public void onBufferingChanged(state_change event) {
-        flipperAdapter.onBufferingChanged(event);
+        flipperAdapter.onBufferingChanged(mapToStateChange(event));
+    }
+
+    private StateChange mapToStateChange(state_change event) {
+        return new StateChange(event.getUri(), event.getState(),
+                               event.getReason(), event.getBuffering(),
+                               event.getPosition(), event.getDuration(), event.getStreamingProtocol());
     }
 
     @Override
@@ -80,11 +88,13 @@ public class FlipperWrapper extends PlayerListener {
 
     @Override
     public void onSeekingStatusChanged(state_change stateChangeEvent) {
-        flipperAdapter.onSeekingStatusChanged(stateChangeEvent);
+        flipperAdapter.onSeekingStatusChanged(new SeekingStatusChange(stateChangeEvent.getUri(), stateChangeEvent.getSeekingInProgress()));
     }
 
     @Override
-    public void onError(error_message message) {
-        flipperAdapter.onError(message);
+    public void onError(error_message error) {
+        flipperAdapter.onError(new FlipperError(error.getCategory(), error.getSourceFile(), error.getLine(),
+                                                error.getErrorMessage(), error.getStreamingProtocol(),
+                                                error.getCdn(), error.getFormat(), error.getBitRate()));
     }
 }

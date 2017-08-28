@@ -22,13 +22,8 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.flippernative.api.ErrorReason;
-import com.soundcloud.flippernative.api.PlayerState;
-import com.soundcloud.flippernative.api.audio_performance;
-import com.soundcloud.flippernative.api.error_message;
-import com.soundcloud.flippernative.api.state_change;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -40,7 +35,7 @@ public class FlipperAdapter implements Player {
     private static final String TRUE_STRING = String.valueOf(true);
 
     private final FlipperWrapper flipperWrapper;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final AccountOperations accountOperations;
     private final HlsStreamUrlBuilder hlsStreamUrlBuilder;
     private final StateChangeHandler stateHandler;
@@ -68,7 +63,7 @@ public class FlipperAdapter implements Player {
                    StateChangeHandler stateChangeHandler,
                    ProgressChangeHandler progressChangeHandler,
                    CurrentDateProvider dateProvider,
-                   EventBus eventBus,
+                   EventBusV2 eventBus,
                    CryptoOperations cryptoOperations,
                    PerformanceReporter performanceReporter) {
         this.flipperWrapper = flipperWrapperFactory.create(this);
@@ -185,7 +180,7 @@ public class FlipperAdapter implements Player {
         return PlayerType.FLIPPER;
     }
 
-    void onProgressChanged(state_change event) {
+    void onProgressChanged(ProgressChange event) {
         try {
             if (isCurrentStreamUrl(event.getUri()) && !isSeekPending) {
                 reportProgress(event.getPosition(), event.getDuration());
@@ -200,7 +195,7 @@ public class FlipperAdapter implements Player {
         progressChangeHandler.report(position, duration);
     }
 
-    void onPerformanceEvent(audio_performance event) {
+    void onPerformanceEvent(AudioPerformanceEvent event) {
         try {
             performanceReporter.report(currentPlaybackItem, event, getPlayerType());
         } catch (Throwable t) {
@@ -212,53 +207,53 @@ public class FlipperAdapter implements Player {
         return uri.equals(currentStreamUrl);
     }
 
-    void onStateChanged(state_change event) {
+    void onStateChanged(StateChange event) {
         ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
         handleStateChanged(event);
     }
 
-    void onBufferingChanged(state_change event) {
+    void onBufferingChanged(StateChange event) {
         Log.i(TAG, "onBufferingChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
         handleStateChanged(event);
     }
 
-    private void handleStateChanged(state_change event) {
+    private void handleStateChanged(StateChange event) {
         try {
             if (currentPlaybackItem == null) {
                 ErrorUtils.handleSilentException(new IllegalStateException("State reported with no playback item "));
             } else if (isCurrentStreamUrl(event.getUri())) {
                 setProgress(event.getPosition());
-                reportStateTransition(event, playbackState(event), playStateReason(event), currentPlaybackItem.getUrn());
+                reportStateTransition(event, FlipperExtensionsKt.playbackState(event), FlipperExtensionsKt.playStateReason(event), currentPlaybackItem.getUrn());
             }
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
-    void onSeekingStatusChanged(state_change event) {
+    void onSeekingStatusChanged(SeekingStatusChange seekingStatusChange) {
         try {
-            if (isCurrentStreamUrl(event.getUri())) {
-                isSeekPending = event.getSeekingInProgress();
+            if (isCurrentStreamUrl(seekingStatusChange.getUri())) {
+                isSeekPending = seekingStatusChange.getSeekInProgress();
             }
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
-    public void onError(error_message message) {
+    public void onError(FlipperError error) {
         try {
             ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
             // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
             if (!ConnectionType.OFFLINE.equals(currentConnectionType)) {
                 // Use Log as Skippy dumps can be rather large
-                ErrorUtils.handleSilentExceptionWithLog(new FlipperException(message.getCategory(), message.getLine(), message.getSourceFile()), message.getErrorMessage());
+                ErrorUtils.handleSilentExceptionWithLog(new FlipperException(error.getCategory(), error.getLine(), error.getSourceFile()), error.getMessage());
             }
 
-            final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(),
-                                                                    FlipperPlaybackProtocolMapper.map(message.getStreamingProtocol()),
-                                                                    message.getCdn(),
-                                                                    message.getFormat(),
-                                                                    message.getBitRate(),
+            final PlaybackErrorEvent event = new PlaybackErrorEvent(error.getCategory(),
+                                                                    FlipperExtensionsKt.playbackProtocol(error.getStreamingProtocol()),
+                                                                    error.getCdn(),
+                                                                    error.getFormat(),
+                                                                    error.getBitrate(),
                                                                     currentConnectionType,
                                                                     getPlayerType());
             eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
@@ -273,7 +268,7 @@ public class FlipperAdapter implements Player {
         }
     }
 
-    private void reportStateTransition(state_change event,
+    private void reportStateTransition(StateChange event,
                                        PlaybackState translatedState,
                                        PlayStateReason translatedReason,
                                        Urn urn) {
@@ -285,7 +280,7 @@ public class FlipperAdapter implements Player {
                                                                                dateProvider);
         final String connectionType = connectionHelper.getCurrentConnectionType().getValue();
 
-        transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, FlipperPlaybackProtocolMapper.map(event.getStreamingProtocol()).getValue())
+        transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, FlipperExtensionsKt.playbackProtocol(event.getStreamingProtocol()).getValue())
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().getValue())
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionType)
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, TRUE_STRING)
@@ -298,50 +293,6 @@ public class FlipperAdapter implements Player {
             currentPlaybackItem = null;
             currentStreamUrl = null;
         }
-    }
-
-    private PlaybackState playbackState(state_change stateChange) {
-        // TODO : waiting for a Flipper update.
-        // Use a switch once PlayerState is converted to an enum.
-        PlayerState flipperState = stateChange.getState();
-        if (PlayerState.Idle.equals(flipperState)) {
-            return PlaybackState.IDLE;
-        } else if (PlayerState.Preparing.equals(flipperState)) {
-            return PlaybackState.BUFFERING;
-        } else if (PlayerState.Prepared.equals(flipperState)) {
-            return PlaybackState.BUFFERING;
-        } else if (PlayerState.Playing.equals(flipperState)) {
-            return translatePlayingState(stateChange);
-        } else if (PlayerState.Completed.equals(flipperState)) {
-            return PlaybackState.IDLE;
-        } else if (PlayerState.Error.equals(flipperState)) {
-            return PlaybackState.IDLE;
-        } else {
-            return PlaybackState.IDLE;
-        }
-    }
-
-    private PlayStateReason playStateReason(state_change flipperState) {
-        if (flipperState.getState().equals(PlayerState.Error)) {
-            if (flipperState.getReason().equals(ErrorReason.NotFound)) {
-                return PlayStateReason.ERROR_NOT_FOUND;
-            } else if (flipperState.getReason().equals(ErrorReason.Forbidden)) {
-                return PlayStateReason.ERROR_FORBIDDEN;
-            } else {
-                return PlayStateReason.ERROR_FAILED;
-            }
-        } else if (flipperState.getState().equals(PlayerState.Completed)) {
-            return PlayStateReason.PLAYBACK_COMPLETE;
-        } else {
-            return PlayStateReason.NONE;
-        }
-    }
-
-    private PlaybackState translatePlayingState(state_change stateChange) {
-        if (!stateChange.getBuffering()) {
-            return PlaybackState.PLAYING;
-        }
-        return PlaybackState.BUFFERING;
     }
 
     private void configureLockBasedOnNewState(PlaybackStateTransition transition) {

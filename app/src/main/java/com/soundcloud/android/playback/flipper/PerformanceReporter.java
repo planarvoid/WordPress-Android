@@ -8,20 +8,19 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import javax.inject.Inject;
 
 class PerformanceReporter {
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final AccountOperations accountOperations;
     private final ConnectionHelper connectionHelper;
 
     @Inject
-    public PerformanceReporter(EventBus eventBus,
+    public PerformanceReporter(EventBusV2 eventBus,
                                AccountOperations accountOperations,
                                ConnectionHelper connectionHelper) {
         this.eventBus = eventBus;
@@ -29,7 +28,7 @@ class PerformanceReporter {
         this.connectionHelper = connectionHelper;
     }
 
-    public void report(PlaybackItem playbackItem, audio_performance audioPerformanceEvent, PlayerType playerType) {
+    public void report(PlaybackItem playbackItem, AudioPerformanceEvent audioPerformanceEvent, PlayerType playerType) {
         if (allowPerformanceMeasureEvent(playbackItem)) {
             reportPerformanceEvent(createPlaybackPerformanceEvent(playbackItem, audioPerformanceEvent, playerType));
         }
@@ -43,8 +42,8 @@ class PerformanceReporter {
         return playbackItem != null && playbackItem.getPlaybackType() == PlaybackType.AUDIO_AD;
     }
 
-    private PlaybackPerformanceEvent createPlaybackPerformanceEvent(PlaybackItem playbackItem, audio_performance event, PlayerType playerType) {
-        String eventType = event.getType().const_get_value();
+    private PlaybackPerformanceEvent createPlaybackPerformanceEvent(PlaybackItem playbackItem, AudioPerformanceEvent event, PlayerType playerType) {
+        String eventType = event.getType();
         PlaybackPerformanceEvent.Builder builder;
 
         switch (eventType) {
@@ -65,15 +64,15 @@ class PerformanceReporter {
         }
 
         return builder
-                .metricValue(event.getLatency().const_get_value())
-                .protocol(PlaybackProtocol.fromValue(event.getProtocol().const_get_value()))
+                .metricValue(event.getLatency())
+                .protocol(PlaybackProtocol.fromValue(event.getProtocol()))
                 .playerType(playerType)
                 .connectionType(connectionHelper.getCurrentConnectionType())
-                .cdnHost(event.getHost().const_get_value())
-                .format(event.getFormat().const_get_value())
-                .bitrate((int) event.getBitrate().const_get_value())
+                .cdnHost(event.getCdnHost())
+                .format(event.getFormat())
+                .bitrate(event.getBitRate())
                 .userUrn(accountOperations.getLoggedInUserUrn())
-                .details(Optional.fromNullable(event.getDetails().get_value().toJson()))
+                .details(Optional.fromNullable(event.getDetailsJson()))
                 .build();
     }
 
