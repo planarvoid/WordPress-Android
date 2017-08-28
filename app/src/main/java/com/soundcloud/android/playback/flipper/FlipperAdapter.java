@@ -31,8 +31,6 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AvoidCatchingThrowable")
@@ -42,7 +40,6 @@ public class FlipperAdapter implements Player {
     private static final String TRUE_STRING = String.valueOf(true);
 
     private final FlipperWrapper flipperWrapper;
-    private final Context context;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
     private final HlsStreamUrlBuilder hlsStreamUrlBuilder;
@@ -73,7 +70,6 @@ public class FlipperAdapter implements Player {
                    CurrentDateProvider dateProvider,
                    EventBus eventBus,
                    CryptoOperations cryptoOperations,
-                   Context context,
                    PerformanceReporter performanceReporter) {
         this.flipperWrapper = flipperWrapperFactory.create(this);
         this.accountOperations = accountOperations;
@@ -84,7 +80,6 @@ public class FlipperAdapter implements Player {
         this.connectionHelper = connectionHelper;
         this.lockUtil = lockUtil;
         this.eventBus = eventBus;
-        this.context = context;
         this.performanceReporter = performanceReporter;
         this.isSeekPending = false;
         this.cryptoOperations = cryptoOperations;
@@ -196,7 +191,7 @@ public class FlipperAdapter implements Player {
                 reportProgress(event.getPosition(), event.getDuration());
             }
         } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+            ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
@@ -209,7 +204,7 @@ public class FlipperAdapter implements Player {
         try {
             performanceReporter.report(currentPlaybackItem, event, getPlayerType());
         } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+            ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
@@ -236,7 +231,7 @@ public class FlipperAdapter implements Player {
                 reportStateTransition(event, playbackState(event), playStateReason(event), currentPlaybackItem.getUrn());
             }
         } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+            ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
@@ -246,7 +241,7 @@ public class FlipperAdapter implements Player {
                 isSeekPending = event.getSeekingInProgress();
             }
         } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+            ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 
@@ -268,7 +263,7 @@ public class FlipperAdapter implements Player {
                                                                     getPlayerType());
             eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
         } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
+            ErrorUtils.handleThrowableOnMainThread(t, getClass());
         }
     }
 

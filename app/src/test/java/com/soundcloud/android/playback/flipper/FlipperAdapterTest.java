@@ -54,7 +54,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 public class FlipperAdapterTest extends AndroidUnitTest {
@@ -77,7 +76,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     @Mock StateChangeHandler stateChangeHandler;
     @Mock ProgressChangeHandler progressChangeHandler;
     @Mock CryptoOperations cryptoOperations;
-    @Mock Context context;
     @Mock PerformanceReporter performanceReporter;
 
     @Captor ArgumentCaptor<PlaybackStateTransition> transitionCaptor;
@@ -97,7 +95,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
                                             dateProvider,
                                             eventBus,
                                             cryptoOperations,
-                                            context,
                                             performanceReporter);
     }
 

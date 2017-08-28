@@ -1,4 +1,4 @@
-    package com.soundcloud.android.utils;
+package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
 
@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorThrowable;
 
-import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.VisibleForTesting;
 
 import java.io.BufferedReader;
@@ -50,8 +50,8 @@ public final class ErrorUtils {
      * the app when it's the right time to do so (Fail Fast), and ensures we capture bug
      * reports in Fabric as opposed to the app silently dying without alerting us.
      */
-    public static void handleThrowableOnMainThread(Throwable t, Class<?> errorContext, Context context) {
-        final Handler handler = new Handler(context.getMainLooper());
+    public static void handleThrowableOnMainThread(Throwable t, Class<?> errorContext) {
+        final Handler handler = new Handler(Looper.getMainLooper());
         handler.post(() -> ErrorUtils.handleThrowable(t, errorContext.getCanonicalName()));
     }
 
