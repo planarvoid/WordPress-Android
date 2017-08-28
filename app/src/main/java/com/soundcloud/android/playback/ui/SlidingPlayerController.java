@@ -65,8 +65,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Nullable
     public View getSnackbarHolder() {
-        final View view = playerFragment.getView();
-        return view != null ? view.findViewById(R.id.player_root) : null;
+        View playerFragmentView = playerFragment.getView();
+        return playerFragmentView != null ? playerFragmentView.getRootView().findViewById(android.R.id.content) : null;
     }
 
     @Override
