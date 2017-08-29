@@ -6,15 +6,19 @@ import static io.reactivex.Single.just;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.RepositoryMissedSyncEvent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -36,11 +40,12 @@ public class PlaylistRepositoryTest {
     @Mock private SyncInitiator syncinitiator;
     @Mock private PlaylistStorage playlistStorage;
 
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
 
     @Before
     public void setUp() throws Exception {
-        playlistRepository = new PlaylistRepository(playlistStorage, syncinitiator, Schedulers.trampoline());
+        playlistRepository = new PlaylistRepository(playlistStorage, syncinitiator, Schedulers.trampoline(), eventBus);
         when(playlistStorage.loadPlaylists(anyList())).thenReturn(Single.just(emptyList()));
         when(playlistStorage.availablePlaylists(anyList())).thenReturn(Single.just(emptyList()));
     }
@@ -57,6 +62,7 @@ public class PlaylistRepositoryTest {
         playlistRepository.withUrn(playlist.urn())
                           .test()
                           .assertValue(playlist);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -75,6 +81,7 @@ public class PlaylistRepositoryTest {
         syncSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         test.assertValue(playlist);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -109,6 +116,7 @@ public class PlaylistRepositoryTest {
 
         subscriber.assertNoValues();
         subscriber.assertComplete();
+        assertMissingPlaylistEventSent();
     }
 
     @Test
@@ -123,6 +131,7 @@ public class PlaylistRepositoryTest {
         playlistRepository.withUrns(urns)
                           .test()
                           .assertValue(asMap(playlists, Playlist::urn));
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -143,6 +152,7 @@ public class PlaylistRepositoryTest {
         syncSubject.onSuccess(TestSyncJobResults.successWithChange());
 
         subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -163,5 +173,11 @@ public class PlaylistRepositoryTest {
         syncSubject.onError(ApiRequestException.notFound(null, status(404)));
 
         subscriber.assertValue(asMap(expectedPlaylists, Playlist::urn));
+        assertMissingPlaylistEventSent();
+    }
+
+    private void assertMissingPlaylistEventSent() {
+        final RepositoryMissedSyncEvent trackingEvent = ((RepositoryMissedSyncEvent) eventBus.lastEventOn(EventQueue.TRACKING));
+        assertThat(trackingEvent.getPlaylistsMissing()).isEqualTo(1);
     }
 }

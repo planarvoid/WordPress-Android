@@ -1,14 +1,16 @@
 package com.soundcloud.android.users
 
 import com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY
+import com.soundcloud.android.events.EventQueue
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.storage.RepositoryMissedSyncEvent
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.utils.OpenForTesting
+import com.soundcloud.rx.eventbus.EventBusV2
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
-
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -17,7 +19,8 @@ class UserRepository
 @Inject
 constructor(private val userStorage: UserStorage,
             private val syncInitiator: SyncInitiator,
-            @param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler) {
+            @param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
+            private val eventBus: EventBusV2) {
 
     /***
      * Returns a user from local storage if it exists, and backfills from the api if the user is not found locally
@@ -25,6 +28,7 @@ constructor(private val userStorage: UserStorage,
     fun userInfo(userUrn: Urn): Maybe<User> {
         return userStorage.loadUser(userUrn)
                 .switchIfEmpty(syncedUserInfo(userUrn))
+                .switchIfEmpty(logEmpty())
                 .subscribeOn(scheduler)
     }
 
@@ -35,6 +39,7 @@ constructor(private val userStorage: UserStorage,
     fun usersInfo(userUrns: List<Urn>): Single<List<User>> {
         return userStorage.loadUsers(userUrns)
                 .flatMap { foundUsers -> syncMissingUsers(userUrns, foundUsers) }
+                .doOnSuccess { reportMissingAfterSync(it.size, userUrns.size) }
                 .subscribeOn(scheduler)
     }
 
@@ -58,6 +63,7 @@ constructor(private val userStorage: UserStorage,
     fun syncedUserInfo(userUrn: Urn): Maybe<User> {
         return syncInitiator.syncUser(userUrn)
                 .flatMapMaybe { localUserInfo(userUrn) }
+                .switchIfEmpty(logEmpty())
     }
 
     /***
@@ -68,6 +74,7 @@ constructor(private val userStorage: UserStorage,
                 localUserInfo(userUrn),
                 syncedUserInfo(userUrn)
         ).toObservable()
+                .switchIfEmpty { Observable.empty<User>().doOnComplete { logMissing(1) } }
     }
 
     /***
@@ -78,4 +85,15 @@ constructor(private val userStorage: UserStorage,
                 .subscribeOn(scheduler)
     }
 
+    private fun <T> logEmpty() = Maybe.empty<T>().doOnComplete { logMissing(1) }
+
+    private fun reportMissingAfterSync(loadedCount: Int, requestedCount: Int) {
+        if (requestedCount != loadedCount) {
+            logMissing(requestedCount - loadedCount)
+        }
+    }
+
+    private fun logMissing(missingCount: Int) {
+        eventBus.publish(EventQueue.TRACKING, RepositoryMissedSyncEvent.fromUsersMissing(missingCount))
+    }
 }

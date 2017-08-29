@@ -5,8 +5,10 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.storage.RepositoryMissedSyncEvent;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -15,7 +17,9 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -36,6 +40,7 @@ public class TrackRepository {
     private final Scheduler scheduler;
     private final EntitySyncStateStorage entitySyncStateStorage;
     private final CurrentDateProvider currentDateProvider;
+    private final EventBusV2 eventBus;
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
@@ -43,13 +48,15 @@ public class TrackRepository {
                            SyncInitiator syncInitiator,
                            @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                            EntitySyncStateStorage entitySyncStateStorage,
-                           CurrentDateProvider currentDateProvider) {
+                           CurrentDateProvider currentDateProvider,
+                           EventBusV2 eventBus) {
         this.trackStorage = trackStorage;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
         this.entitySyncStateStorage = entitySyncStateStorage;
         this.currentDateProvider = currentDateProvider;
+        this.eventBus = eventBus;
     }
 
     public Maybe<Track> track(final Urn trackUrn) {
@@ -64,6 +71,7 @@ public class TrackRepository {
                 .availableTracks(requestedTracks)
                 .flatMap(syncMissingTracks(requestedTracks))
                 .flatMap(success -> trackStorage.loadTracks(requestedTracks))
+                .doOnSuccess(loadedTracks -> reportMissingAfterSync(loadedTracks.size(), requestedTracks.size()))
                 .subscribeOn(scheduler);
     }
 
@@ -100,10 +108,10 @@ public class TrackRepository {
 
     private Single<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
         return syncInitiator.syncPlaylist(playlistUrn)
-                     .compose(convertApiRequestExceptionToSyncFailure())
-                     .map(SyncJobResult::wasSuccess)
-                     .observeOn(scheduler)
-                     .flatMap(__ -> loadPlaylistTracksCommand.toSingle(playlistUrn));
+                            .compose(convertApiRequestExceptionToSyncFailure())
+                            .map(SyncJobResult::wasSuccess)
+                            .observeOn(scheduler)
+                            .flatMap(__ -> loadPlaylistTracksCommand.toSingle(playlistUrn));
     }
 
     private static SingleTransformer<SyncJobResult, SyncJobResult> convertApiRequestExceptionToSyncFailure() {
@@ -158,7 +166,20 @@ public class TrackRepository {
 
     private Maybe<Track> syncThenLoadTrack(final Urn trackUrn,
                                            final Maybe<Track> loadObservable) {
-        return syncInitiator.syncTrack(trackUrn).flatMapMaybe(o -> loadObservable);
+        return syncInitiator.syncTrack(trackUrn).flatMapMaybe(o -> loadObservable).switchIfEmpty(logEmpty());
     }
 
+    private <T> MaybeSource<? extends T> logEmpty() {
+        return Maybe.<T>empty().doOnComplete(() -> logMissing(1));
+    }
+
+    private void reportMissingAfterSync(int loadedCount, int requestedCount) {
+        if (requestedCount != loadedCount) {
+            logMissing(requestedCount - loadedCount);
+        }
+    }
+
+    private void logMissing(int missingCount) {
+        eventBus.publish(EventQueue.TRACKING, RepositoryMissedSyncEvent.Companion.fromTracksMissing(missingCount));
+    }
 }

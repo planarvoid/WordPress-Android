@@ -15,8 +15,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.storage.RepositoryMissedSyncEvent;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -25,6 +27,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -64,6 +67,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private EntitySyncStateStorage entitySyncStateStorage;
 
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private TestObserver<Track> trackItemSubscriber = new TestObserver<>();
     private TestObserver<Map<Urn,Track>> mapSubscriber = new TestObserver<>();
     private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
@@ -71,7 +75,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.trampoline(), entitySyncStateStorage, currentTimeProvider);
+        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.trampoline(), entitySyncStateStorage, currentTimeProvider, eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
@@ -91,6 +95,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
         trackItemSubscriber.assertValue(track);
         verifyNoMoreInteractions(syncInitiator);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -107,6 +112,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
         trackItemSubscriber.assertValue(syncedTrack);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
@@ -122,6 +128,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
 
         trackItemSubscriber.assertNoValues();
+        final RepositoryMissedSyncEvent trackingEvent = ((RepositoryMissedSyncEvent) eventBus.lastEventOn(EventQueue.TRACKING));
+        assertThat(trackingEvent.getTracksMissing()).isEqualTo(1);
     }
 
     @Test

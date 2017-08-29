@@ -1,15 +1,19 @@
 package com.soundcloud.android.users
 
 import com.nhaarman.mockito_kotlin.whenever
+import com.soundcloud.android.events.EventQueue
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.storage.RepositoryMissedSyncEvent
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.sync.SyncJobResult
 import com.soundcloud.android.sync.Syncable
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.rx.eventbus.TestEventBusV2
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.SingleSubject
+import org.assertj.core.api.Java6Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,10 +44,11 @@ class UserRepositoryTest {
     @Mock private lateinit var syncInitiator: SyncInitiator
 
     private lateinit var userRepository: UserRepository
+    private val eventBus = TestEventBusV2()
 
     @Before
     fun setup() {
-        userRepository = UserRepository(userStorage, syncInitiator, Schedulers.trampoline())
+        userRepository = UserRepository(userStorage, syncInitiator, Schedulers.trampoline(), eventBus)
     }
 
     @Test
@@ -65,6 +70,7 @@ class UserRepositoryTest {
         userRepository.userInfo(userUrn)
                 .test()
                 .assertValue(user)
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING)
     }
 
     @Test
@@ -83,6 +89,21 @@ class UserRepositoryTest {
     }
 
     @Test
+    fun userInfoEmptySendsTrackingEvent() {
+        val subject = SingleSubject.create<SyncJobResult>()
+        whenever(userStorage.loadUser(userUrn)).thenReturn(Maybe.empty())
+        whenever(syncInitiator.syncUser(userUrn)).thenReturn(subject)
+        subject.onSuccess(SyncJobResult.success(Syncable.USERS.name, true))
+
+        userRepository.userInfo(userUrn)
+                .test()
+                .assertNoValues()
+
+        val trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING)
+        assertThat((trackingEvent as RepositoryMissedSyncEvent).usersMissing).isEqualTo(1)
+    }
+
+    @Test
     fun syncedUserInfoReturnsUserInfoFromStorageAfterSync() {
         val subject = SingleSubject.create<SyncJobResult>()
         whenever(userStorage.loadUser(userUrn)).thenReturn(Maybe.just(updatedUser))
@@ -94,6 +115,7 @@ class UserRepositoryTest {
         subject.onSuccess(SyncJobResult.success(Syncable.USERS.name, true))
 
         testObserver.assertValue(updatedUser)
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING)
     }
 
     @Test
