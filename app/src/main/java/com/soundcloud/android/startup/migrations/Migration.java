@@ -9,5 +9,8 @@ interface Migration {
 
     void applyMigration();
 
+    /**
+     * This should be 1 greater than the version code in the manifest when you build a release
+     */
     int getApplicableAppVersionCode();
 }

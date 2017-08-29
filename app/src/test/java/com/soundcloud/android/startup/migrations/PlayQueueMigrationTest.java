@@ -61,7 +61,7 @@ public class PlayQueueMigrationTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void migratesOldItemsToNewStorage() throws Exception {
+    public void migratesOldItemsToNewStorageUsingReleaseVersion() throws Exception {
         ArrayList<PlayQueueItem> playQueueItems = new ArrayList<>();
         playQueueItems.add(EXPECTED_ITEM_1);
         playQueueItems.add(EXPECTED_ITEM_2);
@@ -71,7 +71,25 @@ public class PlayQueueMigrationTest extends StorageIntegrationTest {
 
         when(sharedPreferences.getInt(VERSION_KEY, -1)).thenReturn(749);
 
-        MigrationEngine migrationEngine = new MigrationEngine(750, sharedPreferences, new PlayQueueMigration(oldStorage, newStorage, Schedulers.trampoline()));
+        MigrationEngine migrationEngine = new MigrationEngine(751, sharedPreferences, new PlayQueueMigration(oldStorage, newStorage, Schedulers.trampoline()));
+        migrationEngine.migrate();
+
+        verify(newStorage).store(PlayQueue.fromPlayQueueItems(playQueueItems));
+    }
+
+
+    @Test
+    public void migratesOldItemsToNewStorageUsingBetaVersion() throws Exception {
+        ArrayList<PlayQueueItem> playQueueItems = new ArrayList<>();
+        playQueueItems.add(EXPECTED_ITEM_1);
+        playQueueItems.add(EXPECTED_ITEM_2);
+
+        OldPlayQueueStorage oldStorage = new OldPlayQueueStorage(propellerRxV2());
+        oldStorage.store(PlayQueue.fromPlayQueueItems(playQueueItems)).test();
+
+        when(sharedPreferences.getInt(VERSION_KEY, -1)).thenReturn(750);
+
+        MigrationEngine migrationEngine = new MigrationEngine(752, sharedPreferences, new PlayQueueMigration(oldStorage, newStorage, Schedulers.trampoline()));
         migrationEngine.migrate();
 
         verify(newStorage).store(PlayQueue.fromPlayQueueItems(playQueueItems));
