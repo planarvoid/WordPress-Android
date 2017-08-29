@@ -5,7 +5,6 @@ import com.soundcloud.android.events.AdOverlayEvent
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent
 import com.soundcloud.android.events.EventQueue
 import com.soundcloud.android.events.PlayerUIEvent
-import com.soundcloud.android.playback.PlayQueueFunctions
 import com.soundcloud.android.rx.observers.LambdaObserver
 import com.soundcloud.android.utils.extensions.plusAssign
 import com.soundcloud.rx.eventbus.EventBusV2
@@ -21,9 +20,7 @@ import javax.inject.Singleton
 class PlayerAdsControllerProxy
 @Inject
 constructor(internal val eventBus: EventBusV2,
-            internal val controller: Lazy<PlayerAdsController>,
-            internal val visualAdImpressionOperations: Lazy<VisualAdImpressionOperations>,
-            internal val adOverlayImpressionOperations: Lazy<AdOverlayImpressionOperations>) {
+            internal val controller: Lazy<PlayerAdsController>) {
 
     private val disposables = CompositeDisposable()
 
@@ -32,11 +29,12 @@ constructor(internal val eventBus: EventBusV2,
         disposables += eventBus.subscribe(EventQueue.PLAYER_UI, LambdaObserver.onNext { controller.get().onPlayerState(it) })
         disposables += eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, LambdaObserver.onNext { controller.get().onCurrentPlayQueueItem(it) })
         disposables += eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, LambdaObserver.onNext { controller.get().onPlaybackStateChanged(it) })
+        disposables += eventBus.subscribe(EventQueue.AD_OVERLAY, LambdaObserver.onNext { controller.get().onAdOverlayEvent(it) })
 
         disposables += Observable.merge(
                 eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
-                eventBus.queue(EventQueue.PLAY_QUEUE).filter { it.isQueueUpdate })
-                .subscribe { controller.get().onQueueChangeForAd() }
+                eventBus.queue(EventQueue.PLAY_QUEUE).filter { it.isQueueUpdate }
+        ).subscribe { controller.get().onQueueChangeForAd() }
 
 
         disposables += listenToVisualAdImpressions()
@@ -47,14 +45,25 @@ constructor(internal val eventBus: EventBusV2,
         return Observable.combineLatest(
                 eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE),
                 eventBus.queue(EventQueue.PLAYER_UI),
-                eventBus.queue(EventQueue.AD_OVERLAY).doOnNext { adOverlayImpressionOperations.get().onUnlockCurrentImpression(it) },
+                eventBus.queue(EventQueue.AD_OVERLAY),
                 adOverlayCombineFunction()
-        ).subscribeWith(LambdaObserver.onNext<AdOverlayImpressionOperations.VisualImpressionState> { adOverlayImpressionOperations.get().onVisualImpressionState(it) })
+        ).subscribeWith(LambdaObserver.onNext<AdOverlayImpressionState> { controller.get().onAdOverlayImpressionState(it) })
     }
 
-    private fun adOverlayCombineFunction(): Function3<ActivityLifeCycleEvent, PlayerUIEvent, AdOverlayEvent, AdOverlayImpressionOperations.VisualImpressionState> {
+    private fun listenToVisualAdImpressions(): Disposable {
+        return Observable.combineLatest(
+                eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE),
+                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                        .filter { it.currentPlayQueueItem.isAudioAd }
+                        .doOnNext { controller.get().unlockVisualAdImpression() },
+                eventBus.queue(EventQueue.PLAYER_UI),
+                visualAdCombineFunction()
+        ).subscribeWith(LambdaObserver.onNext { controller.get().onVisualAdImpressionState(it) })
+    }
+
+    private fun adOverlayCombineFunction(): Function3<ActivityLifeCycleEvent, PlayerUIEvent, AdOverlayEvent, AdOverlayImpressionState> {
         return Function3 { event, playerUiEvent, adOverlayEvent ->
-            AdOverlayImpressionOperations.VisualImpressionState(
+            AdOverlayImpressionState(
                     adOverlayEvent.kind == AdOverlayEvent.SHOWN,
                     event.kind == ActivityLifeCycleEvent.ON_RESUME_EVENT,
                     playerUiEvent.kind == PlayerUIEvent.PLAYER_EXPANDED,
@@ -64,20 +73,10 @@ constructor(internal val eventBus: EventBusV2,
         }
     }
 
-    private fun listenToVisualAdImpressions(): Disposable {
-        return Observable.combineLatest(
-                eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE),
-                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                        .filter(PlayQueueFunctions.IS_AUDIO_AD_QUEUE_ITEM)
-                        .doOnNext { visualAdImpressionOperations.get().onUnlockCurrentImpression() },
-                eventBus.queue(EventQueue.PLAYER_UI),
-                visualAdCombineFunction()
-        ).subscribeWith(LambdaObserver.onNext { visualAdImpressionOperations.get().onState(it) })
-    }
-
-    private fun visualAdCombineFunction(): Function3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, VisualAdImpressionOperations.State> {
+    private fun visualAdCombineFunction(): Function3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, VisualAdImpressionState> {
         return Function3 { event, currentItemEvent, playerUIEvent ->
-            VisualAdImpressionOperations.State(currentItemEvent.currentPlayQueueItem.adData.get(),
+            VisualAdImpressionState(
+                    currentItemEvent.currentPlayQueueItem.adData.get(),
                     event.kind == ActivityLifeCycleEvent.ON_RESUME_EVENT,
                     playerUIEvent.kind == PlayerUIEvent.PLAYER_EXPANDED)
         }

@@ -2,7 +2,6 @@ package com.soundcloud.android.ads
 
 import android.app.Activity
 import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.soundcloud.android.events.*
@@ -14,22 +13,18 @@ import com.soundcloud.rx.eventbus.TestEventBusV2
 import dagger.Lazy
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
 
 class PlayerAdsControllerProxyTest : AndroidUnitTest() {
     private val eventBus = TestEventBusV2()
     @Mock private lateinit var controller: PlayerAdsController
-    @Mock private lateinit var visualAdImpressionOperations: VisualAdImpressionOperations
-    @Mock private lateinit var adOverlayImpressionOperations: AdOverlayImpressionOperations
 
     private lateinit var subject: PlayerAdsControllerProxy
 
     @Before
     fun setUp() {
-        subject = PlayerAdsControllerProxy(eventBus, Lazy { controller }, Lazy { visualAdImpressionOperations }, Lazy { adOverlayImpressionOperations })
+        subject = PlayerAdsControllerProxy(eventBus, Lazy { controller })
         subject.subscribe()
     }
 
@@ -62,6 +57,13 @@ class PlayerAdsControllerProxyTest : AndroidUnitTest() {
     }
 
     @Test
+    fun onPLayerUiChanged() {
+        val playerUiEvent = PlayerUIEvent.fromPlayerExpanded()
+        eventBus.publish(EventQueue.PLAYER_UI, playerUiEvent)
+        verify(controller).onPlayerState(playerUiEvent)
+    }
+
+    @Test
     fun onQueueChangeForAd() {
         val currentPlayQueueEvent = CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET,0)
         val playQueueEvent = PlayQueueEvent.fromAdsRemoved(Urn.forTrack(123L))
@@ -85,8 +87,7 @@ class PlayerAdsControllerProxyTest : AndroidUnitTest() {
         eventBus.publish(EventQueue.PLAYER_UI, playerUiEvent)
         eventBus.publish(EventQueue.AD_OVERLAY, adOverlayEvent)
 
-        verify(adOverlayImpressionOperations).onUnlockCurrentImpression(adOverlayEvent)
-        verify(adOverlayImpressionOperations).onVisualImpressionState(any())
+        verify(controller).onAdOverlayEvent(any())
     }
 
     @Test
@@ -101,9 +102,7 @@ class PlayerAdsControllerProxyTest : AndroidUnitTest() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, lifecycleEvent)
         eventBus.publish(EventQueue.PLAYER_UI, playerUiEvent)
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, currentPlayQueueEvent)
-        eventBus.publish(EventQueue.AD_OVERLAY, adOverlayEvent)
 
-        verify(visualAdImpressionOperations).onUnlockCurrentImpression()
-        verify(visualAdImpressionOperations).onState(any())
+        verify(controller).onVisualAdImpressionState(any())
     }
 }

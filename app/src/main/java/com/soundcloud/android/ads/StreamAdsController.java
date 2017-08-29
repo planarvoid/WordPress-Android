@@ -207,7 +207,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         return adsOperations.kruxSegments()
                             .flatMap(
                                     kruxSegments -> {
-                                        final AdRequestData adRequestData = AdRequestData.forPageAds(kruxSegments);
+                                        final AdRequestData adRequestData = AdRequestData.Companion.forPageAds(kruxSegments);
                                         lastRequestId = adRequestData.getRequestId();
                                         return adsOperations.inlayAds(adRequestData);
                                     })
