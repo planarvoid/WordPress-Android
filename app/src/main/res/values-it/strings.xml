@@ -13,6 +13,7 @@
   <string name="btn_done">Fatto</string>
   <string name="btn_upload">Carica</string>
   <string name="btn_shuffle">Casuale</string>
+  <string name="btn_repeat">Ripeti</string>
   <string name="btn_follow">Segui</string>
   <string name="btn_following">Segui già</string>
   <string name="btn_unfollow">Smetti di seguire</string>

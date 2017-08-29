@@ -13,6 +13,7 @@
   <string name="btn_done">Klaar</string>
   <string name="btn_upload">Uploaden</string>
   <string name="btn_shuffle">Shuffle</string>
+  <string name="btn_repeat">Herhalen</string>
   <string name="btn_follow">Volgen</string>
   <string name="btn_following">Volgend</string>
   <string name="btn_unfollow">Niet meer volgen</string>
