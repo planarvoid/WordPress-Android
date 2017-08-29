@@ -21,4 +21,7 @@
     <!-- Recommendation Ids-->
     <item name="recommendation_bucket_tag" type="id" />
     <item name="recommendation_track_item_tag" type="id" />
+
+    <item name="track_urn" type="id" />
+    <item name="should_display_likes_count" type="id" />
 </resources>

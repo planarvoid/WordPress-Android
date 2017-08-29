@@ -23,7 +23,7 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
     public static final String PLAYABLE_TYPE = "track";
 
     public static TrackItem from(ApiTrack apiTrack) {
-        return  from(Track.from(apiTrack));
+        return from(Track.from(apiTrack));
     }
 
     public static TrackItem from(Track track) {
@@ -179,6 +179,10 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().playCount() > 0;
     }
 
+    public boolean displayStatsEnabled() {
+        return track().displayStatsEnabled();
+    }
+
     public TrackItem updateNowPlaying(Urn nowPlaying) {
         final boolean isCurrent = getUrn().equals(nowPlaying);
         if (isPlaying() || isCurrent) {
@@ -213,7 +217,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         }
         return builder.build();
     }
-
 
 
     public TrackItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {

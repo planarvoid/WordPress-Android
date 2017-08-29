@@ -37,6 +37,7 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.DefaultAnimationListener;
 import com.soundcloud.android.view.JaggedTextView;
@@ -91,6 +92,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final PlayerInteractionsTracker playerInteractionsTracker;
+    private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
     private final TrackPageView trackPageView;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
@@ -115,7 +117,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        PlayerUpsellImpressionController upsellImpressionController,
                        ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                        PlayerInteractionsTracker playerInteractionsTracker,
-                       TrackPageView trackPageView) {
+                       TrackPageView trackPageView,
+                       TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -136,6 +139,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.playerInteractionsTracker = playerInteractionsTracker;
         this.trackPageView = trackPageView;
+        this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
     @Override
@@ -206,11 +210,15 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.setFullDuration(fullDuration);
         holder.waveformController.setDurations(playableDuration, fullDuration);
 
+        Boolean shouldDisplayLikeCount = trackState.getSource().transform(trackStatsDisplayPolicy::displayLikesCount).or(true);
+        holder.likeToggle.setTag(R.id.should_display_likes_count, shouldDisplayLikeCount);
+
         updateLikeCount(holder.likeToggle, trackState.getLikeCount());
 
         holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setChecked(trackState.isUserLike());
-        holder.likeToggle.setTag(urn);
+        holder.likeToggle.setTag(R.id.track_urn, urn);
+
         holder.shareButton.setTag(urn);
 
         holder.footerUser.setText(userName);
@@ -239,7 +247,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final int drawableUnliked = enabled
                                     ? R.drawable.ic_player_add_to_collection
                                     : R.drawable.ic_player_like;
-        likeButtonPresenter.setLikeCount(likeToggle, likeCount, drawableLiked, drawableUnliked);
+
+        Boolean shouldDisplayLikesCount = (Boolean) likeToggle.getTag(R.id.should_display_likes_count);
+        int countToDisplay = shouldDisplayLikesCount ? likeCount : 0;
+        likeButtonPresenter.setLikeCount(likeToggle, countToDisplay, drawableLiked, drawableUnliked);
     }
 
     private void configurePlayerStates(PlayerTrackState trackState, Urn urn, TrackPageHolder holder) {
@@ -516,7 +527,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void updateLikeStatus(View likeToggle) {
-        final Urn trackUrn = (Urn) likeToggle.getTag();
+        final Urn trackUrn = (Urn) likeToggle.getTag(R.id.track_urn);
 
         if (trackUrn != null) {
             listener.onToggleLike(isLiked(likeToggle), trackUrn);

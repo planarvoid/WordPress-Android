@@ -201,6 +201,7 @@ public class TrackStorage {
         builder.creatorIsPro(cursorReader.getBoolean(CREATOR_IS_PRO.name()));
 
         builder.genre(Optional.fromNullable(cursorReader.getString(Tables.TrackView.GENRE.name())));
+        builder.displayStatsEnabled(cursorReader.getBoolean(Tables.TrackView.DISPLAY_STATS_ENABLED.name()));
 
         putOptionalFields(cursorReader, builder);
         putOptionalOfflineSyncDates(cursorReader, builder);

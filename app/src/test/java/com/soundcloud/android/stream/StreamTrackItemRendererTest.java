@@ -5,6 +5,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -16,6 +17,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 import com.soundcloud.java.optional.Optional;
@@ -36,6 +38,8 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     @Mock private CardEngagementsPresenter engagementsPresenter;
     @Mock private StreamCardViewPresenter headerViewPresenter;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock TrackStatsDisplayPolicy trackStatsDisplayPolicy;
+
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final TrackItem postedTrack = ModelFixtures.trackItem();
@@ -50,7 +54,9 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         itemView = layoutInflater.inflate(R.layout.stream_track_card, new FrameLayout(context()), false);
         itemView.setTag(viewHolder);
 
-        renderer = new StreamTrackItemRenderer(numberFormatter, null, engagementsPresenter, headerViewPresenter, changeLikeToSaveExperiment);
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+
+        renderer = new StreamTrackItemRenderer(numberFormatter, null, engagementsPresenter, headerViewPresenter, changeLikeToSaveExperiment, trackStatsDisplayPolicy);
     }
 
     @Test

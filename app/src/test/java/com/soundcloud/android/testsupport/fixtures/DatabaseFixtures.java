@@ -104,6 +104,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Sounds.CREATED_AT, track.getCreatedAt().getTime());
         cv.put(Tables.Sounds.DESCRIPTION, track.getDescription().orNull());
         cv.put(Tables.Sounds.GENRE, track.getGenre());
+        cv.put(Tables.Sounds.DISPLAY_STATS_ENABLED, track.isDisplayStatsEnabled());
 
         insertInto(Tables.Sounds.TABLE, cv.get());
         insertPolicy(track);

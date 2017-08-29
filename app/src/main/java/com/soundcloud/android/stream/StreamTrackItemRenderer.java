@@ -11,6 +11,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 
@@ -29,18 +30,21 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
     private final StreamCardViewPresenter streamCardViewPresenter;
     private final CardEngagementsPresenter engagementsPresenter;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     @Inject
     public StreamTrackItemRenderer(CondensedNumberFormatter numberFormatter,
                                    TrackItemMenuPresenter menuPresenter,
                                    CardEngagementsPresenter engagementsPresenter,
                                    StreamCardViewPresenter streamCardViewPresenter,
-                                   ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
+                                   ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                                   TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.streamCardViewPresenter = streamCardViewPresenter;
         this.engagementsPresenter = engagementsPresenter;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
     @Override
@@ -83,7 +87,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
     }
 
     private void showPlayCount(StreamItemViewHolder itemView, TrackItem trackItem) {
-        if (trackItem.hasPlayCount()) {
+        if (trackStatsDisplayPolicy.displayPlaysCount(trackItem)) {
             itemView.showPlayCount(numberFormatter.format(trackItem.playCount()));
         }
     }

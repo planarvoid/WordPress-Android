@@ -79,6 +79,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
+    @Mock private TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private TrackItem trackItem;
 
@@ -98,7 +99,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          offlineSettingsOperations,
                                          connectionHelper,
                                          goOnboardingTooltipExperiment,
-                                         lazyOf(introductoryOverlayPresenter));
+                                         lazyOf(introductoryOverlayPresenter),
+                                         trackStatsDisplayPolicy);
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
                                     .urn(Urn.forTrack(123))
@@ -113,7 +115,9 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                     .likesCount(0)
                                     .permalinkUrl(Strings.EMPTY)
                                     .isPrivate(false)
+                                    .displayStatsEnabled(true)
                                     .playCount(870);
+
         trackItem = ModelFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
@@ -124,6 +128,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(imageView.getContext()).thenReturn(context());
         when(itemView.getResources()).thenReturn(resources());
         when(itemView.getTag()).thenReturn(trackItemView);
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
     }
 
     @Test
@@ -189,7 +194,18 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBindPlayCountToView() {
+    public void shouldNotBindPlayCountToViewWhenPolicyReturnsFalse() {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(false);
+
+        renderer.bindItemView(0, itemView, singletonList(trackItem));
+
+        verify(trackItemView, never()).showPlaycount(anyString());
+    }
+
+    @Test
+    public void shouldBindPlayCountToViewWhenPolicyReturnsTrue() {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showPlaycount(numberFormatter.format(870));

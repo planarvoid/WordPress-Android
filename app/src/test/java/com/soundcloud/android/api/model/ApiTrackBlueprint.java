@@ -64,6 +64,7 @@ public class ApiTrackBlueprint {
             model.setMonetizationModel("MONETIZABLE");
             model.setSubMidTier(false);
             model.setSubHighTier(false);
+            model.setDisplayStatsEnabled(true);
             model.setPermalinkUrl("https://soundcloud.com/bismakarisma/kuatkitabersinar" + runningId);
             return model;
         }

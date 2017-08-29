@@ -131,6 +131,8 @@ public final class TableColumns {
         public static final String OFFLINE_REMOVED_AT = "sound_offline_removed_at";
         public static final String OFFLINE_REQUESTED_AT = "sound_offline_requested_at";
         public static final String OFFLINE_UNAVAILABLE_AT = "sound_offline_unavailable_at";
+
+        public static final String DISPLAY_STATS_ENABLED = "display_stats_enabled";
     }
 
     public static final class SoundStreamView extends SoundStream {

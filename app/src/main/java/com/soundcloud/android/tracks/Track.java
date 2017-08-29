@@ -28,6 +28,8 @@ public abstract class Track {
 
     public abstract int repostsCount();
 
+    public abstract boolean displayStatsEnabled();
+
     public abstract boolean commentable();
 
     public abstract boolean monetizable();
@@ -106,6 +108,7 @@ public abstract class Track {
                 .commentsCount(apiTrack.getStats().getCommentsCount())
                 .likesCount(apiTrack.getStats().getLikesCount())
                 .repostsCount(apiTrack.getStats().getRepostsCount())
+                .displayStatsEnabled(apiTrack.isDisplayStatsEnabled())
                 .creatorName(apiTrack.getUser() != null ? apiTrack.getUser().getUsername() : Strings.EMPTY)
                 .creatorUrn(apiTrack.getUser() != null ? apiTrack.getUser().getUrn() : Urn.NOT_SET)
                 .creatorIsPro(apiTrack.getUser() != null && apiTrack.getUser().isPro())
@@ -140,6 +143,8 @@ public abstract class Track {
         public abstract Builder likesCount(int likesCount);
 
         public abstract Builder repostsCount(int repostsCount);
+
+        public abstract Builder displayStatsEnabled(boolean displayStats);
 
         public abstract Builder commentable(boolean commentable);
 

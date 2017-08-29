@@ -36,6 +36,10 @@ public class TrackItemElement {
         return wrapped.findElement(With.id(R.id.reposter)).hasVisibility();
     }
 
+    public ViewElement playCount(){
+        return wrapped.findElement(With.id(R.id.list_item_counter));
+    }
+
     public boolean isSnipped() {
         return wrapped.findElement(With.id(R.id.preview_indicator)).hasVisibility();
     }

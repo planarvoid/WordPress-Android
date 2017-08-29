@@ -24,16 +24,21 @@ public class TrackInfoPresenter {
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     interface CommentClickListener {
         void onCommentsClicked();
     }
 
     @Inject
-    TrackInfoPresenter(Resources resources, CondensedNumberFormatter numberFormatter, ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
+    TrackInfoPresenter(Resources resources,
+                       CondensedNumberFormatter numberFormatter,
+                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                       TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.resources = resources;
         this.numberFormatter = numberFormatter;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
     public View create(LayoutInflater inflater, ViewGroup container) {
@@ -85,10 +90,9 @@ public class TrackInfoPresenter {
     }
 
     private void bindComments(View view, final TrackItem trackItem, final CommentClickListener commentClickListener) {
-        final boolean isCommentable = trackItem.isCommentable();
-        final int commentsCount = trackItem.commentsCount();
-        if (isCommentable && commentsCount > 0) {
-            String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
+        if (trackStatsDisplayPolicy.displayCommentsCount(trackItem)) {
+            final int commentsCount = trackItem.commentsCount();
+            final String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
             setTextAndShow(view, R.id.comments, comments);
             showView(view, R.id.comments_divider);
         } else {
@@ -108,12 +112,36 @@ public class TrackInfoPresenter {
     }
 
     private void configureStats(View view, TrackItem trackItem) {
-        setStat(view, R.id.plays, trackItem.playCount());
-        setStat(view, R.id.likes, trackItem.likesCount());
-        setStat(view, R.id.reposts, trackItem.repostsCount());
+        displayPlaysCount(view, trackItem);
+        displayLikesCount(view, trackItem);
+        displayRepostsCount(view, trackItem);
 
         toggleDividers(view);
         setLikesDrawable(view);
+    }
+
+    private void displayRepostsCount(View view, TrackItem trackItem) {
+        if (trackStatsDisplayPolicy.displayRepostsCount(trackItem)) {
+            setTextAndShow(view, R.id.reposts, numberFormatter.format(trackItem.repostsCount()));
+        } else {
+            view.findViewById(R.id.reposts).setVisibility(View.GONE);
+        }
+    }
+
+    private void displayLikesCount(View view, TrackItem trackItem) {
+        if (trackStatsDisplayPolicy.displayLikesCount(trackItem)) {
+            setTextAndShow(view, R.id.likes, numberFormatter.format(trackItem.likesCount()));
+        } else {
+            view.findViewById(R.id.likes).setVisibility(View.GONE);
+        }
+    }
+
+    private void displayPlaysCount(View view, TrackItem trackItem) {
+        if (trackStatsDisplayPolicy.displayPlaysCount(trackItem)) {
+            setTextAndShow(view, R.id.plays, numberFormatter.format(trackItem.playCount()));
+        } else {
+            view.findViewById(R.id.plays).setVisibility(View.GONE);
+        }
     }
 
     private void setLikesDrawable(View view) {

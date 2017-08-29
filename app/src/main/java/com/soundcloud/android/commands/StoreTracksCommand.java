@@ -70,7 +70,8 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 Tables.Sounds.LIKES_COUNT,
                 Tables.Sounds.REPOSTS_COUNT,
                 Tables.Sounds.USER_ID,
-                Tables.Sounds.DESCRIPTION
+                Tables.Sounds.DESCRIPTION,
+                Tables.Sounds.DISPLAY_STATS_ENABLED
         );
     }
 
@@ -109,7 +110,8 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 trackRecord.getLikesCount(),
                 trackRecord.getRepostsCount(),
                 trackRecord.getUser().getUrn().getNumericId(),
-                trackRecord.getDescription().orNull()
+                trackRecord.getDescription().orNull(),
+                trackRecord.isDisplayStatsEnabled()
         );
     }
 

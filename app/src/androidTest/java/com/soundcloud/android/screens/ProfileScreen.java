@@ -85,12 +85,16 @@ public class ProfileScreen extends Screen {
         return visualPlayerElement;
     }
 
-    public VisualPlayerElement playTrackWithTitle(final String title) {
+    public TrackItemElement trackWithTitle(final String title){
         ViewElement viewElement = scrollToItemInProfile(
                 With.and(
                         With.id(R.id.track_list_item),
                         TrackItemElement.WithTitle(testDriver, title)));
-        new TrackItemElement(testDriver, viewElement).click();
+        return new TrackItemElement(testDriver, viewElement);
+    }
+
+    public VisualPlayerElement playTrackWithTitle(final String title) {
+        trackWithTitle(title).click();
         return new VisualPlayerElement(testDriver);
     }
 

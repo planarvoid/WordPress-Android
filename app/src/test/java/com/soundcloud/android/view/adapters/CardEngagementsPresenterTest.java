@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,9 +20,11 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.strings.Strings;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +48,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock FeedbackController feedbackController;
     @Mock NavigationExecutor navigationExecutor;
+    @Mock TrackStatsDisplayPolicy trackStatsDisplayPolicy;
+
     @Captor ArgumentCaptor<CardEngagementClickListener> listenerCaptor;
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -58,8 +63,15 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        presenter = new CardEngagementsPresenter(
-                numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker, changeLikeToSaveExperiment, feedbackController, navigationExecutor);
+        presenter = new CardEngagementsPresenter(numberFormatter,
+                                                 likeOperations,
+                                                 repostOperations,
+                                                 accountOperations,
+                                                 eventTracker,
+                                                 changeLikeToSaveExperiment,
+                                                 feedbackController,
+                                                 navigationExecutor,
+                                                 trackStatsDisplayPolicy);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isUserLike())).thenReturn(testSubject);
@@ -69,10 +81,25 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setsLikeAndRepostsStats() {
+    public void setsLikeAndRepostsStatsWhenDisplayIsEnabled() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
+
         presenter.bind(viewHolder, playableItem, contextMetadata);
+
         verify(viewHolder).showLikeStats(formattedStats(playableItem.likesCount()), playableItem.isUserLike());
         verify(viewHolder).showRepostStats(formattedStats(playableItem.repostsCount()), playableItem.isUserRepost());
+    }
+
+    @Test
+    public void setsBlackLikeAndRepostsStatsWhenDisplayIsDisabled() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
+
+        presenter.bind(viewHolder, playableItem, contextMetadata);
+
+        verify(viewHolder).showLikeStats(Strings.EMPTY, playableItem.isUserLike());
+        verify(viewHolder).showRepostStats(Strings.EMPTY, playableItem.isUserRepost());
     }
 
     @Test

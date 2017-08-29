@@ -57,5 +57,7 @@ public interface TrackRecord extends ImageResource {
 
     int getRepostsCount();
 
+    boolean isDisplayStatsEnabled();
+
     Optional<String> getDescription();
 }

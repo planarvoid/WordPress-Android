@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +51,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import io.reactivex.Single;
@@ -104,6 +106,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
     @Mock private TrackPageView trackPageView;
+    @Mock private TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -137,7 +140,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            upsellImpressionController,
                                            changeLikeToSaveExperiment,
                                            playerInteractionsTracker,
-                                           trackPageView);
+                                           trackPageView,
+                                           trackStatsDisplayPolicy);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -188,10 +192,22 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewSetsInitialLikeStatesFromTrackData() {
+    public void bindItemViewSetsInitialLikeStatesFromTrackDataIfDisplayLikesCountIsEnabled() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1,
+                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
+    }
+
+    @Test
+    public void bindItemViewSetsLikesCountToZeroIfDisplayLikesCountIsDisabled() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+
+        populateTrackPage();
+        assertThat(getHolder(trackView).likeToggle).isChecked();
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 0,
                                                  R.drawable.ic_player_liked, R.drawable.ic_player_like);
     }
 
@@ -400,6 +416,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
         populateTrackPage();
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
         final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 1);
@@ -407,10 +424,28 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.onPlayableLiked(trackView, likeStatus);
 
         assertThat(getHolder(trackView).likeToggle).isChecked();
+        verify(likeButtonPresenter, times(2)).setLikeCount(getHolder(trackView).likeToggle, 1,
+                                                           R.drawable.ic_player_liked, R.drawable.ic_player_like); // one time during the setup and another after the change
+    }
+
+    @Test
+    public void updateAssociationsWithLikedPropertyUpdatesLikeToggleWithoutDisplayCounter() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        populateTrackPage();
+        getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 1);
+
+        presenter.onPlayableLiked(trackView, likeStatus);
+
+        assertThat(getHolder(trackView).likeToggle).isChecked();
+        verify(likeButtonPresenter, times(2)).setLikeCount(getHolder(trackView).likeToggle, 0,
+                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like); // one time during the setup and another after the change
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+
         populateTrackPage();
         final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 9999);
 
@@ -422,6 +457,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotDisplayUnknownLikeCounts() {
+        populateTrackPage();
         final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, -1);
 
         presenter.onPlayableLiked(trackView, likeStatus);

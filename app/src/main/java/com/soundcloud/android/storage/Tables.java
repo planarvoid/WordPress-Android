@@ -66,6 +66,7 @@ public interface Tables {
         public static final Column IS_ALBUM = Column.create(TABLE, "is_album", Boolean.class);
         public static final Column SET_TYPE = Column.create(TABLE, "set_type", String.class);
         public static final Column RELEASE_DATE = Column.create(TABLE, "release_date", String.class);
+        public static final Column DISPLAY_STATS_ENABLED = Column.create(TABLE, "display_stats_enabled", Boolean.class);
 
         public static final int TYPE_TRACK = 0;
         public static final int TYPE_PLAYLIST = 1;
@@ -114,6 +115,7 @@ public interface Tables {
                 "is_album BOOLEAN DEFAULT 0," +
                 "set_type VARCHAR(255)," +
                 "release_date VARCHAR(255)," +
+                "display_stats_enabled BOOLEAN DEFAULT 1," +
                 "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
                 ");";
 
@@ -1077,6 +1079,7 @@ public interface Tables {
         public static final Column OFFLINE_DOWNLOADED_AT = Column.create(TABLE, "tv_offline_downloaded_at", Long.class);
         public static final Column OFFLINE_REQUESTED_AT = Column.create(TABLE, "tv_offline_requested_at", Long.class);
         public static final Column OFFLINE_UNAVAILABLE_AT = Column.create(TABLE, "tv_offline_unavailable_at", Long.class);
+        public static final Column DISPLAY_STATS_ENABLED = Column.create(TABLE, "tv_display_stats_enabled", Boolean.class);
 
         @Override
         String getCreateSQL() {
@@ -1118,6 +1121,7 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_REQUESTED_AT)).as(OFFLINE_REQUESTED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.OFFLINE_UNAVAILABLE_AT)).as(OFFLINE_UNAVAILABLE_AT.name()),
+                             field(SoundView.field(TableColumns.SoundView.DISPLAY_STATS_ENABLED)).as(DISPLAY_STATS_ENABLED.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
 

@@ -38,6 +38,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     private boolean syncable;
     private boolean blocked;
     private boolean snipped;
+    private boolean displayStatsEnabled = true;
 
     private Optional<String> monetizationModel = Optional.absent();
     private Optional<Boolean> subMidTier = Optional.absent();
@@ -292,6 +293,16 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     public void setRelatedResources(RelatedResources relatedResources) {
         this.user = relatedResources.user;
         this.stats = relatedResources.stats;
+    }
+
+    @Override
+    public boolean isDisplayStatsEnabled() {
+        return displayStatsEnabled;
+    }
+
+    @JsonProperty("display_stats")
+    public void setDisplayStatsEnabled(boolean displayStats) {
+        this.displayStatsEnabled = displayStats;
     }
 
     @Override

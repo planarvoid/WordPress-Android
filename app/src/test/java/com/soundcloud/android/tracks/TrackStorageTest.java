@@ -53,6 +53,28 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsTrackWithHiddenStats() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setDisplayStatsEnabled(false);
+        testFixtures().insertTrack(apiTrack);
+
+        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
+
+        assertThat(track.displayStatsEnabled()).isFalse();
+    }
+
+    @Test
+    public void loadsTrackWithVisibleStats() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setDisplayStatsEnabled(true);
+        testFixtures().insertTrack(apiTrack);
+
+        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
+
+        assertThat(track.displayStatsEnabled()).isTrue();
+    }
+
+    @Test
     public void loadsPendingRemovalTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);

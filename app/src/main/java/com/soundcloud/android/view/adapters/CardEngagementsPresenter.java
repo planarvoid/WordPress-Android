@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -38,6 +39,7 @@ public class CardEngagementsPresenter {
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
+    private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     public interface CardEngagementClickListener {
         void onLikeClick(View likeButton);
@@ -53,7 +55,8 @@ public class CardEngagementsPresenter {
                              EventTracker eventTracker,
                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                              FeedbackController feedbackController,
-                             NavigationExecutor navigationExecutor) {
+                             NavigationExecutor navigationExecutor,
+                             TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
@@ -62,6 +65,7 @@ public class CardEngagementsPresenter {
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
         this.navigationExecutor = navigationExecutor;
+        this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
     public void bind(final CardViewHolder viewHolder,
@@ -73,12 +77,12 @@ public class CardEngagementsPresenter {
             viewHolder.showGenre(playable.genre().get());
         }
 
-        viewHolder.showLikeStats(getCountString(playable.likesCount()), playable.isUserLike());
+        viewHolder.showLikeStats(getLikesCount(playable), playable.isUserLike());
 
         if (accountOperations.isLoggedInUser(playable.creatorUrn())) {
             viewHolder.hideRepostStats();
         } else {
-            viewHolder.showRepostStats(getCountString(playable.repostsCount()), playable.isUserRepost());
+            viewHolder.showRepostStats(getRepostsCount(playable), playable.isUserRepost());
         }
 
         viewHolder.setEngagementClickListener(new CardEngagementClickListener() {
@@ -130,7 +134,19 @@ public class CardEngagementsPresenter {
         }
     }
 
-    private String getCountString(int count) {
-        return (count > 0) ? numberFormatter.format(count) : EMPTY;
+    private String getRepostsCount(PlayableItem playableItem) {
+        if (trackStatsDisplayPolicy.displayRepostsCount(playableItem)) {
+            return numberFormatter.format(playableItem.repostsCount());
+        } else {
+            return EMPTY;
+        }
+    }
+
+    private String getLikesCount(PlayableItem playableItem) {
+        if (trackStatsDisplayPolicy.displayLikesCount(playableItem)) {
+            return numberFormatter.format(playableItem.likesCount());
+        } else {
+            return EMPTY;
+        }
     }
 }

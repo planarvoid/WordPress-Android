@@ -3,6 +3,8 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -27,18 +29,23 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
+    @Mock TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
+    private TrackItem trackItem;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackInfoPresenter(resources(), numberFormatter, changeLikeToSaveExperiment);
+        trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
+        presenter = new TrackInfoPresenter(resources(), numberFormatter, changeLikeToSaveExperiment, trackStatsDisplayPolicy);
         view = presenter.create(LayoutInflater.from(context()), new FrameLayout(context()));
     }
 
     @Test
-    public void bindViewsShowsAllStatsWhenAllStatsAreGreaterZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
+    public void bindViewsShowsAllStatsWhenAllStatsAreVisible() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -50,8 +57,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsHideAllStatsWhenStatsAreZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(0).build());
+    public void bindViewsHideAllViewsWhenAllStatsAreHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -63,8 +72,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsHidePlaysIfPlaysCountIsZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(0).build());
+    public void bindViewsHidePlaysViewIfPlaysCountIsHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -76,8 +87,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsHideLikesIfLikesCountIsZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(10).build());
+    public void bindViewsHideLikesViewIfLikesCountIsHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -89,8 +102,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsHideRepostsIfRepostsCountIsZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(10).build());
+    public void bindViewsHideRepostsViewIfRepostsCountIsHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -102,8 +117,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsOnlyShowsPlaysWhenLikesAndRepostsAreZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(10).build());
+    public void bindViewsOnlyShowsPlaysViewWhenLikesAndRepostsAreHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -115,8 +132,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsOnlyShowsLikesWhenPlaysAndRepostsAreZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(0).build());
+    public void bindViewsOnlyShowsLikesViewWhenPlaysAndRepostsAreHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -128,8 +147,10 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(0).build());
+    public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
+        when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
 
         presenter.bind(view, trackItem, commentClickListener);
 
@@ -141,12 +162,21 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindViewsShouldHideCommentsWhenCommentsAreZero() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().commentsCount(0).build());
+    public void bindViewsShouldHideCommentsViewWhenCommentsAreHidden() throws Exception {
+        when(trackStatsDisplayPolicy.displayCommentsCount(any())).thenReturn(false);
 
         presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.comments).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void bindViewsShouldShowCommentsViewWhenCommentsAreShown() throws Exception {
+        when(trackStatsDisplayPolicy.displayCommentsCount(any())).thenReturn(true);
+
+        presenter.bind(view, trackItem, commentClickListener);
+
+        assertThat(view.findViewById(R.id.comments).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test

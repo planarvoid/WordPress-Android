@@ -105,6 +105,7 @@ final class DatabaseSchema {
             "," + Tables.Sounds.IS_ALBUM.qualifiedName() + " as " + TableColumns.SoundView.IS_ALBUM +
             "," + Tables.Sounds.SET_TYPE.qualifiedName() + " as " + TableColumns.SoundView.SET_TYPE +
             "," + Tables.Sounds.RELEASE_DATE.qualifiedName() + " as " + TableColumns.SoundView.RELEASE_DATE +
+            "," + Tables.Sounds.DISPLAY_STATS_ENABLED.qualifiedName() + " as " + TableColumns.SoundView.DISPLAY_STATS_ENABLED +
             "," + Tables.TrackPolicies.MONETIZABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             "," + Tables.TrackPolicies.BLOCKED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
             "," + Tables.TrackPolicies.SNIPPED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SNIPPED +

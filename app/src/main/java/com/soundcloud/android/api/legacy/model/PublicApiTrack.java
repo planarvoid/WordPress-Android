@@ -176,6 +176,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
+    public boolean isDisplayStatsEnabled() {
+        return true;
+    }
+
+    @Override
     public Optional<String> getDescription() {
         return Optional.fromNullable(description);
     }

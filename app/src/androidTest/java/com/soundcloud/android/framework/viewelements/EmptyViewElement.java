@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
+import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -204,6 +205,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public OfflineStateButton toOfflineStateButton() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public ToggleButton toToggleButton() {
         throw new ViewNotFoundException(selector);
     }
 

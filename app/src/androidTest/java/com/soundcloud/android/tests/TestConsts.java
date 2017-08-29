@@ -35,6 +35,8 @@ public final class TestConsts {
     public static final Uri STEVE_ANGELLO_DEEP_LINK = Uri.parse("soundcloud://users:118312");
     public static final Uri USER_ANNOYMOUSE = Uri.parse("soundcloud://users:32326572");
 
+    public static final Uri QUIET_MODE_CREATOR_PERMALINK = Uri.parse("https://soundcloud.com/quiet-mode-creator/");
+
     public static final Uri UNRESOLVABLE_TRACK_DEEPLINK = Uri.parse("soundcloud://sounds:99999999999");
     public static final Uri UNRESOLVABLE_USER_DEEPLINK = Uri.parse("soundcloud://users:99999999999");
 

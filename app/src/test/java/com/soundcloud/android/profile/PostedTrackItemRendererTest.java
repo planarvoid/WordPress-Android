@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemView;
+import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -48,6 +50,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Mock NetworkConnectionHelper networkConnectionHelper;
     @Mock GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock IntroductoryOverlayPresenter introductoryOverlayPresenter;
+    @Mock TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private TrackItem trackItem;
     private PostedTrackItemRenderer renderer;
@@ -72,6 +75,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
         when(imageView.getContext()).thenReturn(context());
         when(itemView.getContext()).thenReturn(context());
         when(itemView.getTag()).thenReturn(trackItemView);
+        when(trackStatsDisplayPolicy.displayPlaysCount(any())).thenReturn(true);
 
         renderer = new PostedTrackItemRenderer(mock(ImageOperations.class),
                                                numberFormatter,
@@ -84,7 +88,8 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                offlineSettingsOperations,
                                                networkConnectionHelper,
                                                goOnboardingTooltipExperiment,
-                                               lazyOf(introductoryOverlayPresenter));
+                                               lazyOf(introductoryOverlayPresenter),
+                                               trackStatsDisplayPolicy);
     }
 
     @Test

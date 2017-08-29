@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
+import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -93,6 +94,8 @@ public abstract class ViewElement {
     public abstract DownloadImageView toDownloadImageView();
 
     public abstract OfflineStateButton toOfflineStateButton();
+
+    public abstract ToggleButton toToggleButton();
 
     /* package */
     abstract View getView();

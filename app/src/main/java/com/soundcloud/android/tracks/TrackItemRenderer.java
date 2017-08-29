@@ -58,6 +58,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final NetworkConnectionHelper connectionHelper;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
+    private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private Listener listener;
 
@@ -83,7 +84,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              OfflineSettingsOperations offlineSettingsOperations,
                              NetworkConnectionHelper connectionHelper,
                              GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
-                             Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter) {
+                             Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter,
+                             TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -96,6 +98,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.connectionHelper = connectionHelper;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
+        this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
     public TrackItemView.Factory trackItemViewFactory() {
@@ -356,9 +359,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         } else if (ActiveFooter.POSTED == activeFooter.orNull()) {
             itemView.showPostedTime(track.createdAt());
         } else if (ActiveFooter.PLAYS_AND_POSTED == activeFooter.orNull()) {
-            showPlaysAndPostedTime(itemView, track.createdAt(), track.playCount());
+            showPlaysAndPostedTime(itemView, track);
         } else {
-            showPlayCount(itemView, track.playCount());
+            showPlayCount(itemView, track);
         }
     }
 
@@ -408,22 +411,23 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void showPlayCount(TrackItemView itemView, int playCount) {
-        if (hasPlayCount(playCount)) {
-            itemView.showPlaycount(numberFormatter.format(playCount));
+    private void showPlayCount(TrackItemView itemView, TrackItem trackItem) {
+        if (shouldDisplayPlayCount(trackItem)) {
+            itemView.showPlaycount(numberFormatter.format(trackItem.playCount()));
         }
     }
 
-    private void showPlaysAndPostedTime(TrackItemView itemView, Date createdAt, int playCount) {
-        if (hasPlayCount(playCount)) {
-            itemView.showPlaysAndPostedTime(numberFormatter.format(playCount), createdAt);
+    private void showPlaysAndPostedTime(TrackItemView itemView, TrackItem trackItem) {
+        Date createdAt = trackItem.createdAt();
+        if (shouldDisplayPlayCount(trackItem)) {
+            itemView.showPlaysAndPostedTime(numberFormatter.format(trackItem.playCount()), createdAt);
         } else {
             itemView.showPostedTime(createdAt);
         }
     }
 
-    private boolean hasPlayCount(int playCount) {
-        return playCount > 0;
+    private boolean shouldDisplayPlayCount(TrackItem trackItem) {
+        return trackStatsDisplayPolicy.displayPlaysCount(trackItem);
     }
 
     public void setListener(Listener listener) {

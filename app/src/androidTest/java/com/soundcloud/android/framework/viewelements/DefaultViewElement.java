@@ -346,6 +346,11 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public ToggleButton toToggleButton() {
+        return (ToggleButton) view;
+    }
+
+    @Override
     public int getHeight() {
         return view.getHeight();
     }
