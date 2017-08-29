@@ -41,6 +41,6 @@ class PlayQueueMigration implements Migration {
 
     @Override
     public int getApplicableAppVersionCode() {
-        return 748;
+        return 750;
     }
 }

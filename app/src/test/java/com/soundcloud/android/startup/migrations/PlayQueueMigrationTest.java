@@ -4,10 +4,10 @@ import static com.soundcloud.android.model.Urn.forPlaylist;
 import static com.soundcloud.android.model.Urn.forTrack;
 import static com.soundcloud.android.model.Urn.forUser;
 import static com.soundcloud.android.playback.PlaybackContext.Bucket.LISTENING_HISTORY;
+import static com.soundcloud.android.startup.migrations.MigrationEngine.VERSION_KEY;
+import static com.soundcloud.java.optional.Optional.of;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static com.soundcloud.java.optional.Optional.of;
-
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.OldPlayQueueStorage;
@@ -69,7 +69,9 @@ public class PlayQueueMigrationTest extends StorageIntegrationTest {
         OldPlayQueueStorage oldStorage = new OldPlayQueueStorage(propellerRxV2());
         oldStorage.store(PlayQueue.fromPlayQueueItems(playQueueItems)).test();
 
-        MigrationEngine migrationEngine = new MigrationEngine(748, sharedPreferences, new PlayQueueMigration(oldStorage, newStorage, Schedulers.trampoline()));
+        when(sharedPreferences.getInt(VERSION_KEY, -1)).thenReturn(749);
+
+        MigrationEngine migrationEngine = new MigrationEngine(750, sharedPreferences, new PlayQueueMigration(oldStorage, newStorage, Schedulers.trampoline()));
         migrationEngine.migrate();
 
         verify(newStorage).store(PlayQueue.fromPlayQueueItems(playQueueItems));
