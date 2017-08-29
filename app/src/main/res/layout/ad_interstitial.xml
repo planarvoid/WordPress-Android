@@ -34,36 +34,54 @@
             android:layout_marginBottom="@dimen/ad_overlay_padding"
             android:layout_marginTop="@dimen/interstitial_padding_large"
             android:layout_gravity="bottom|right" />
+
     </FrameLayout>
 
-    <include layout="@layout/interstitial_image"/>
+    <FrameLayout
+        android:id="@+id/interstitial_image_holder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/interstitial_preview_container"
+        android:layout_below="@id/interstitial_header"
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:foreground="@drawable/ad_overlay_selector"
+        tools:showIn="@layout/ad_interstitial">
+
+        <com.soundcloud.android.view.InterstitialAdImageView
+            android:id="@+id/interstitial_image"
+            style="@style/InterstitialImage"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <LinearLayout
             android:id="@+id/interstitial_preview_container"
-            android:layout_marginTop="@dimen/interstitial_padding_large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/interstitial_padding_large"
             android:layout_marginLeft="@dimen/interstitial_padding_large"
             android:layout_marginRight="@dimen/interstitial_padding_large"
-            android:layout_width="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal">
+            android:layout_marginTop="@dimen/interstitial_padding_large"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
         <ImageView
                 android:id="@+id/interstitial_now_playing_artwork"
-                android:background="@color/wave_above"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginRight="@dimen/ad_overlay_padding"/>
+                android:layout_marginRight="@dimen/ad_overlay_padding"
+                android:background="@color/wave_above" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/interstitial_now_playing_title"
                 style="@style/AdText.NextUp.Title"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
     </LinearLayout>
 
 </RelativeLayout>
