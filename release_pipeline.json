@@ -93,19 +93,7 @@
       ],
       "next-stages": [
         "deploy_beta",
-        "release_checklist",
         "manual_tests"
-      ]
-    },
-    {
-      "name": "release_checklist",
-      "jobs": [
-        {
-          "create_release_checklist": {
-            "cmd": "./gradlew openReleaseChecklist",
-            "manual": true
-          }
-        }
       ]
     },
     {
