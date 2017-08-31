@@ -96,7 +96,7 @@ public class PlaybackStateTransition {
         return bitrate;
     }
 
-    boolean isPlaying() {
+    public boolean isPlaying() {
         return newState.isPlaying();
     }
 
@@ -143,6 +143,10 @@ public class PlaybackStateTransition {
     public PlaybackStateTransition addExtraAttribute(int key, String value) {
         this.extraAttributes.put(key, value);
         return this;
+    }
+
+    public PlaybackStateTransition addExtraAttribute(int key, boolean value) {
+        return addExtraAttribute(key, String.valueOf(value));
     }
 
     @Override

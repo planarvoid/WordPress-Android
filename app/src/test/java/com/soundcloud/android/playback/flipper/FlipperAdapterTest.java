@@ -237,6 +237,25 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void performanceEventNotBackedByPlaybackItemIsNotReported() {
+        // Setting up things: connected to the internet + playing a track
+        ConnectionType connectionType = ConnectionType.WIFI;
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(connectionType);
+        AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
+        whenPlaying(playbackItem);
+
+        // Completing the playback will clear the underlying playback item set as currently playing
+        StateChange stateChange = stateChange(playbackItem.getUrn(), PlayerState.Completed, ErrorReason.Nothing, POSITION, DURATION);
+        flipperAdapter.onStateChanged(stateChange);
+
+        // Suppose a second thread posts a performance event after the playback item is disposed
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent("type", 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        flipperAdapter.onPerformanceEvent(audioPerformance);
+
+        verify(performanceReporter, never()).report(any(PlaybackItem.class), any(AudioPerformanceEvent.class), any(PlayerType.class));
+    }
+
+    @Test
     public void bufferingStateIsReportedWhilePreparingStateIsSet() {
         ConnectionType connectionType = ConnectionType.FOUR_G;
         when(connectionHelper.getCurrentConnectionType()).thenReturn(connectionType);

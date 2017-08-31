@@ -1,14 +1,15 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.events.PlayerType;
+import org.jetbrains.annotations.NotNull;
 
 public interface Player {
 
-    void preload(PreloadItem preloadItem);
+    void preload(@NotNull PreloadItem preloadItem);
 
-    void play(PlaybackItem playbackItem);
+    void play(@NotNull PlaybackItem playbackItem);
 
-    void resume(PlaybackItem playbackItem);
+    void resume(@NotNull PlaybackItem playbackItem);
 
     void pause();
 
@@ -26,7 +27,7 @@ public interface Player {
 
     void destroy();
 
-    void setListener(PlayerListener playerListener);
+    void setListener(@NotNull PlayerListener playerListener);
 
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
