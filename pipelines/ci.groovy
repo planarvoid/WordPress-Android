@@ -140,6 +140,9 @@ def compileStage() {
     }
     updateGitHub(Builds.BUILD, Status.SUCCESS)
     generateStatsFile()
+    if (isPr()) {
+      analyzeAndCommentStats()
+    }
   } catch (e) {
     updateGitHub(Builds.BUILD, Status.ERROR)
     updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
@@ -255,6 +258,10 @@ def generateStatsFile() {
   sh "./scripts/generate_build_stats.sh"
   archiveArtifacts artifacts: "build-stats.txt", onlyIfSuccessful: true
   archiveArtifacts artifacts: "dependency-tree.txt", onlyIfSuccessful: true
+}
+
+def analyzeAndCommentStats() {
+  sh "./scripts/analyze_build_stats.sh"
 }
 
 // ----------------------------------------------------------------------------------------------------
