@@ -54,9 +54,10 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
         connectionHelper.setNetworkConnected(false);
 
-        String nextOfflineTrack = likesScreen.getTrackTitle(2);
+        final int trackToPlayIndex = 0;
+        String nextOfflineTrack = likesScreen.getTrackTitle(trackToPlayIndex + 1);
 
-        final VisualPlayerElement visualPlayerElement = likesScreen.clickTrack(0);
+        final VisualPlayerElement visualPlayerElement = likesScreen.clickTrack(trackToPlayIndex);
         visualPlayerElement.waitForExpandedPlayerToStartPlaying();
         visualPlayerElement.waitForTheExpandedPlayerToPlayNextTrack();
         assertThat(visualPlayerElement.getTrackTitle(), is(equalTo(nextOfflineTrack)));
