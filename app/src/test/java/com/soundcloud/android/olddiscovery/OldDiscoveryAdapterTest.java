@@ -39,7 +39,7 @@ public class OldDiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
-    @Mock private SearchItemRenderer searchItemRenderer;
+    @Mock private SearchItemRenderer<OldDiscoveryItem> searchItemRenderer;
     @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
     @Mock private RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer;
     @Mock private ChartsBucketItemRenderer chartsBucketItemRenderer;

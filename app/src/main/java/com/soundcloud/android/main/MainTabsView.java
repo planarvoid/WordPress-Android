@@ -164,6 +164,10 @@ public class MainTabsView extends ActivityLightCycleDispatcher<RootActivity> imp
         return currentTargetItem().getPageViewScreen();
     }
 
+    Screen getScreen() {
+        return currentTargetItem().getScreen();
+    }
+
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
                                                                                 final MainPagerAdapter pagerAdapter) {
         return new TabLayout.ViewPagerOnTabSelectedListener(pager) {

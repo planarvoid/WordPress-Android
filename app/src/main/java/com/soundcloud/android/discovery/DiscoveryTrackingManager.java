@@ -1,40 +1,31 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 
-import javax.inject.Inject;
 import java.util.List;
 
-class DiscoveryTrackingManager {
+final class DiscoveryTrackingManager {
     static final Screen SCREEN = Screen.DISCOVER;
 
-    private final EventTracker eventTracker;
-
-    @Inject
-    public DiscoveryTrackingManager(EventTracker eventTracker) {
-        this.eventTracker = eventTracker;
+    private DiscoveryTrackingManager() {
     }
 
-    void trackSelectionItemClick(SelectionItem selectionItem, List<DiscoveryCard> discoveryCards) {
-        final Optional<DiscoveryCard> discoveryCardOptional = Iterables.tryFind(discoveryCards, card -> card != null && card.hasSelectionUrn(selectionItem.selectionUrn()));
-        discoveryCardOptional.ifPresent(discoveryCard -> {
-            final int selectionPosition = discoveryCards.indexOf(discoveryCard);
-            if (discoveryCard.kind() == DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD) {
-                trackSelectionItemInSingleContentSelectionCard(selectionPosition, (DiscoveryCard.SingleContentSelectionCard) discoveryCard);
-            } else if (discoveryCard.kind() == DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD) {
-                trackSelectionItemInMultipleContentSelectionCard(selectionItem, selectionPosition, (DiscoveryCard.MultipleContentSelectionCard) discoveryCard);
-            }
-        });
+    static Optional<SelectionItemViewModel.TrackingInfo> calculateUIEvent(SelectionItem selectionItem, DiscoveryCard parentCard, int cardPosition) {
+        Optional<SelectionItemViewModel.TrackingInfo> eventOptional = Optional.absent();
+        if (parentCard.kind() == DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD) {
+            eventOptional = trackSelectionItemInSingleContentSelectionCard(cardPosition, (DiscoveryCard.SingleContentSelectionCard) parentCard);
+        } else if (parentCard.kind() == DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD) {
+            eventOptional = trackSelectionItemInMultipleContentSelectionCard(selectionItem, cardPosition, (DiscoveryCard.MultipleContentSelectionCard) parentCard);
+        }
+        return eventOptional;
     }
 
-    private void trackSelectionItemInSingleContentSelectionCard(int selectionPosition, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
+    private static Optional<SelectionItemViewModel.TrackingInfo> trackSelectionItemInSingleContentSelectionCard(int selectionPosition, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
         final Urn selectionUrn = singleContentSelectionCard.selectionUrn();
         builder.pageName(SCREEN.get());
@@ -44,12 +35,15 @@ class DiscoveryTrackingManager {
         builder.sourceQueryPosition(0);
         builder.queryPosition(selectionPosition);
         builder.queryUrn(singleContentSelectionCard.parentQueryUrn());
-        eventTracker.trackClick(UIEvent.fromDiscoveryCard(singleContentSelectionCard.selectionItem().urn(), builder.build()));
+        return Optional.of(new SelectionItemViewModel.TrackingInfo(singleContentSelectionCard.selectionItem().getUrn(), builder.build()));
     }
 
-    private void trackSelectionItemInMultipleContentSelectionCard(SelectionItem selectionItem, int selectionPosition, DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard) {
-        final Optional<Urn> selectionItemUrn = selectionItem.urn();
-        selectionItemUrn.ifPresent(itemUrn -> {
+    private static Optional<SelectionItemViewModel.TrackingInfo> trackSelectionItemInMultipleContentSelectionCard(SelectionItem selectionItem,
+                                                                               int selectionPosition,
+                                                                               DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard) {
+        final Optional<Urn> selectionItemUrn = selectionItem.getUrn();
+        if (selectionItemUrn.isPresent()) {
+            final Urn itemUrn = selectionItemUrn.get();
             final EventContextMetadata.Builder builder = EventContextMetadata.builder();
             builder.pageName(SCREEN.get());
             builder.source(multipleContentSelectionCard.trackingFeatureName());
@@ -60,13 +54,14 @@ class DiscoveryTrackingManager {
             builder.queryUrn(multipleContentSelectionCard.parentQueryUrn());
 
             final List<SelectionItem> selectionItems = multipleContentSelectionCard.selectionItems();
-            final Optional<SelectionItem> selectionItemOptional = Iterables.tryFind(selectionItems, item -> item != null && item.urn().isPresent() && itemUrn.equals(item.urn().get()));
+            final Optional<SelectionItem> selectionItemOptional = Iterables.tryFind(selectionItems, item -> item != null && item.getUrn().isPresent() && itemUrn.equals(item.getUrn().get()));
             selectionItemOptional.ifPresent(item -> {
                 final int itemPosition = selectionItems.indexOf(item);
                 builder.sourceQueryPosition(itemPosition);
                 builder.module(Module.create(multipleContentSelectionCard.selectionUrn().toString(), itemPosition));
             });
-            eventTracker.trackClick(UIEvent.fromDiscoveryCard(selectionItemUrn, builder.build()));
-        });
+            return Optional.of(new SelectionItemViewModel.TrackingInfo(selectionItemUrn, builder.build()));
+        }
+        return Optional.absent();
     }
 }

@@ -20,13 +20,13 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory
-class SelectionItemRenderer implements CellRenderer<SelectionItem> {
+class SelectionItemRenderer implements CellRenderer<SelectionItemViewModel> {
 
     private final ImageOperations imageOperations;
-    private final PublishSubject<SelectionItem> selectionItemClickListener;
+    private final PublishSubject<SelectionItemViewModel> selectionItemClickListener;
 
     SelectionItemRenderer(@Provided ImageOperations imageOperations,
-                          PublishSubject<SelectionItem> selectionItemClickListener) {
+                          PublishSubject<SelectionItemViewModel> selectionItemClickListener) {
         this.imageOperations = imageOperations;
         this.selectionItemClickListener = selectionItemClickListener;
     }
@@ -38,13 +38,13 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<SelectionItem> list) {
-        final SelectionItem selectionItem = list.get(position);
+    public void bindItemView(int position, View view, List<SelectionItemViewModel> list) {
+        final SelectionItemViewModel selectionItem = list.get(position);
 
         bindImage(view, selectionItem);
-        bindTitle(view, selectionItem.shortTitle());
-        bindSubtitle(view, selectionItem.shortSubtitle());
-        bindCount(view, selectionItem.count());
+        bindTitle(view, selectionItem.getShortTitle());
+        bindSubtitle(view, selectionItem.getShortSubtitle());
+        bindCount(view, selectionItem.getCount());
         bindOverflowMenu(view);
         bindClickHandling(view, selectionItem);
     }
@@ -62,9 +62,9 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
         bindIntegerText(view, R.id.track_count, count);
     }
 
-    private void bindImage(View view, SelectionItem selectionItem) {
+    private void bindImage(View view, SelectionItemViewModel selectionItem) {
         final StyledImageView styledImageView = findById(view, R.id.artwork);
-        styledImageView.showWithPlaceholder(selectionItem.artworkUrlTemplate(), selectionItem.artworkStyle(), selectionItem.urn(), imageOperations);
+        styledImageView.showWithPlaceholder(selectionItem.getArtworkUrlTemplate(), selectionItem.getArtworkStyle(), selectionItem.getUrn(), imageOperations);
     }
 
     private void bindTitle(View view, Optional<String> title) {
@@ -91,7 +91,7 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
         }
     }
 
-    private void bindClickHandling(View view, final SelectionItem selectionItem) {
+    private void bindClickHandling(View view, final SelectionItemViewModel selectionItem) {
         view.setOnClickListener(clicked -> selectionItemClickListener.onNext(selectionItem));
     }
 }

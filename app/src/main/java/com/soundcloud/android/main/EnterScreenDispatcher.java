@@ -5,6 +5,7 @@ import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.v4.view.ViewPager;
 
@@ -13,7 +14,8 @@ import javax.inject.Inject;
 public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActivity> implements ViewPager.OnPageChangeListener {
 
     @LightCycle final ScreenStateProvider screenStateProvider;
-    private final BehaviorSubject<Long> enterScreen = BehaviorSubject.create();
+    private final BehaviorSubject<Optional<Long>> enterScreen = BehaviorSubject.create();
+    private final PublishSubject<Long> pageSelected = PublishSubject.create();
 
     private RootActivity activity;
     private Optional<Listener> listener = Optional.absent();
@@ -24,7 +26,14 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
     }
 
     public Observable<Long> enterScreenTimestamp() {
-        return enterScreen;
+        return enterScreen
+                .doOnNext(option -> option.ifPresent(value -> enterScreen.onNext(Optional.absent())))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    public Observable<Long> pageSelectedTimestamp() {
+        return pageSelected;
     }
 
     @Inject
@@ -45,7 +54,7 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
         if (listener.isPresent() && screenStateProvider.isEnteringScreen()) {
             listener.get().onEnterScreen(activity);
         }
-        enterScreen.onNext(System.currentTimeMillis());
+        enterScreen.onNext(Optional.of(System.currentTimeMillis()));
     }
 
     @Override
@@ -65,7 +74,9 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
         if (activity != null && listener.isPresent()) {
             listener.get().onEnterScreen(activity);
         }
-        enterScreen.onNext(System.currentTimeMillis());
+        final long timestamp = System.currentTimeMillis();
+        enterScreen.onNext(Optional.of(timestamp));
+        pageSelected.onNext(timestamp);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.lightcycle.LightCycle;
 import io.reactivex.Observable;
 
@@ -113,5 +114,9 @@ public class MainActivity extends PlayerActivity {
     @Override
     public Observable<Long> enterScreenTimestamp() {
         return mainPresenter.enterScreenTimestamp();
+    }
+
+    public Observable<Pair<Long, Screen>> pageSelectedTimestampWithScreen() {
+        return mainPresenter.pageSelectedTimestamp();
     }
 }

@@ -80,14 +80,14 @@ final class DbModelMapper {
     }
 
     private static SelectionItem mapSelectionItem(Urn selectionUrn, DbModel.SelectionItem selectionItem) {
-        return SelectionItem.create(Optional.fromNullable(selectionItem.urn()),
-                                    selectionUrn,
-                                    Optional.fromNullable(selectionItem.artwork_url_template()),
-                                    Optional.fromNullable(selectionItem.artwork_style()).transform(ImageStyle::fromIdentifier),
-                                    Optional.fromNullable(selectionItem.count()).transform(Long::intValue),
-                                    Optional.fromNullable(selectionItem.short_title()),
-                                    Optional.fromNullable(selectionItem.short_subtitle()),
-                                    Optional.fromNullable(selectionItem.web_link()),
-                                    Optional.fromNullable(selectionItem.app_link()));
+        return new SelectionItem(Optional.fromNullable(selectionItem.urn()),
+                                 selectionUrn,
+                                 Optional.fromNullable(selectionItem.artwork_url_template()),
+                                 Optional.fromNullable(selectionItem.artwork_style()).transform(ImageStyle::fromIdentifier),
+                                 Optional.fromNullable(selectionItem.count()).transform(Long::intValue),
+                                 Optional.fromNullable(selectionItem.short_title()),
+                                 Optional.fromNullable(selectionItem.short_subtitle()),
+                                 Optional.fromNullable(selectionItem.web_link()),
+                                 Optional.fromNullable(selectionItem.app_link()));
     }
 }

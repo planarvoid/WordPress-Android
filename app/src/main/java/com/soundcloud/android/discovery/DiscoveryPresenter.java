@@ -33,23 +33,21 @@ import io.reactivex.Single;
 import io.reactivex.SingleTransformer;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
-class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, DiscoveryCard> implements SearchListener {
+class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewModel>, DiscoveryCardViewModel> implements SearchListener {
 
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
     private final Navigator navigator;
-    private final DiscoveryTrackingManager discoveryTrackingManager;
     private final FeedbackController feedbackController;
     private final StreamSwipeRefreshAttacher swipeRefreshAttacher;
     private final EventTracker eventTracker;
@@ -60,10 +58,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     @Inject
     DiscoveryPresenter(StreamSwipeRefreshAttacher swipeRefreshAttacher,
-                       DiscoveryAdapterFactory adapterFactory,
+                       DiscoveryAdapter.Factory adapterFactory,
                        DiscoveryOperations discoveryOperations,
                        Navigator navigator,
-                       DiscoveryTrackingManager discoveryTrackingManager,
                        FeedbackController feedbackController,
                        EventTracker eventTracker,
                        ReferringEventProvider referringEventProvider,
@@ -72,7 +69,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         this.discoveryOperations = discoveryOperations;
         adapter = adapterFactory.create(this);
         this.navigator = navigator;
-        this.discoveryTrackingManager = discoveryTrackingManager;
         this.feedbackController = feedbackController;
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventTracker = eventTracker;
@@ -88,8 +84,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         // reset our backoff. This is a cheap way of doing it for now.
         syncStateStorage.resetSyncMisses(Syncable.DISCOVERY_CARDS);
 
-        final Observable<SelectionItem> selectionItemObservable = adapter.selectionItemClick().doOnNext(item -> discoveryTrackingManager.trackSelectionItemClick(item, adapter.getItems()));
-        disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(item -> selectionItemClick(item))));
+        final Observable<SelectionItemViewModel> selectionItemObservable = adapter.selectionItemClick()
+                                                                                  .doOnNext(item -> item.getTrackingInfo()
+                                                                                                        .ifPresent(trackingInfo -> eventTracker.trackClick(trackingInfo.toUIEvent())));
+        disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(this::selectionItemClick)));
         disposable.add(Observable.combineLatest(((RootActivity) fragment.getActivity()).enterScreenTimestamp(), queryUrn, Pair::of)
                                  .distinctUntilChanged(Pair::first)
                                  .subscribeWith(LambdaObserver.onNext(pair -> this.trackPageView(pair.second()))));
@@ -105,10 +103,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         super.onDestroy(fragment);
     }
 
-    private void selectionItemClick(SelectionItem selectionItem) {
+    private void selectionItemClick(SelectionItemViewModel selectionItem) {
         selectionItem.link()
                      .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(link,
-                                                                                            selectionItem.webLink(),
+                                                                                            selectionItem.getWebLink(),
                                                                                             SCREEN,
                                                                                             Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
     }
@@ -120,40 +118,32 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryCard>, DiscoveryCard> onBuildBinding(Bundle bundle) {
-        Single<List<DiscoveryCard>> dataSource = discoveryOperations.discoveryCards().compose(handleDiscoveryResult());
+    protected CollectionBinding<List<DiscoveryCardViewModel>, DiscoveryCardViewModel> onBuildBinding(Bundle bundle) {
+        Single<List<DiscoveryCardViewModel>> dataSource = discoveryOperations.discoveryCards().compose(handleDiscoveryResult());
         return CollectionBinding
                 .fromV2(dataSource.toObservable())
                 .withAdapter(adapter)
                 .build();
-    }
-
-    private List<DiscoveryCard> addSearchItem(List<DiscoveryCard> discoveryCards) {
-        final List<DiscoveryCard> result = new ArrayList<>(discoveryCards.size() + 1);
-        result.add(DiscoveryCard.forSearchItem());
-        result.addAll(discoveryCards);
-        return result;
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryCard>, DiscoveryCard> onRefreshBinding() {
-        Single<List<DiscoveryCard>> dataSource = discoveryOperations.refreshDiscoveryCards().compose(handleDiscoveryResult());
+    protected CollectionBinding<List<DiscoveryCardViewModel>, DiscoveryCardViewModel> onRefreshBinding() {
+        Single<List<DiscoveryCardViewModel>> dataSource = discoveryOperations.refreshDiscoveryCards().compose(handleDiscoveryResult());
         return CollectionBinding
                 .fromV2(dataSource.toObservable())
                 .withAdapter(adapter)
                 .build();
     }
 
-    private SingleTransformer<DiscoveryResult, List<DiscoveryCard>> handleDiscoveryResult() {
+    private SingleTransformer<DiscoveryResult, List<DiscoveryCardViewModel>> handleDiscoveryResult() {
         return discoveryResult -> discoveryResult.doOnSuccess(this::showErrorMessage)
-                                                 .map(DiscoveryResult::cards)
                                                  .doOnSuccess(this::emitQueryUrn)
-                                                 .map(this::addSearchItem);
+                                                 .map(HomePresenterKt::toViewModel);
     }
 
-    private void emitQueryUrn(List<DiscoveryCard> discoveryCards) {
-        if (!discoveryCards.isEmpty()) {
-            queryUrn.onNext(discoveryCards.get(0).parentQueryUrn());
+    private void emitQueryUrn(DiscoveryResult discoveryResult) {
+        if (!discoveryResult.getCards().isEmpty()) {
+            queryUrn.onNext(discoveryResult.getCards().get(0).parentQueryUrn());
         }
     }
 
@@ -168,7 +158,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     }
 
     private void showErrorMessage(DiscoveryResult discoveryResult) {
-        discoveryResult.syncError().ifPresent(syncError -> {
+        discoveryResult.getSyncError().ifPresent(syncError -> {
             if (syncError == ViewError.CONNECTION_ERROR) {
                 feedbackController.showFeedback(Feedback.create(R.string.discovery_error_offline, LENGTH_LONG));
             } else if (syncError == ViewError.SERVER_ERROR) {

@@ -20,7 +20,7 @@ public class DiscoveryConfiguration {
     }
 
     public BaseNavigationTarget navigationTarget() {
-        return shouldShowDiscoverBackendContent() ? new DiscoveryNavigationTarget() : new OldDiscoveryNavigationTarget();
+        return shouldShowDiscoverBackendContent() ? new DiscoveryNavigationTarget(featureFlags) : new OldDiscoveryNavigationTarget();
     }
 
     public boolean shouldShowDiscoverBackendContent() {

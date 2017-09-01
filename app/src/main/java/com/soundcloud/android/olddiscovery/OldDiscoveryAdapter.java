@@ -61,7 +61,7 @@ public class OldDiscoveryAdapter extends RecyclerItemAdapter<OldDiscoveryItem, R
     @SuppressWarnings("unchecked")
     OldDiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
                         @Provided PlaylistTagRenderer playlistTagRenderer,
-                        @Provided SearchItemRenderer searchItemRenderer,
+                        @Provided SearchItemRenderer<OldDiscoveryItem> searchItemRenderer,
                         @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
                         @Provided RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer,
                         @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,

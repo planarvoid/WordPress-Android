@@ -3,7 +3,6 @@ package com.soundcloud.android.discovery;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.search.SearchItemRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -13,16 +12,17 @@ import org.mockito.Mock;
 
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
-    @Mock SearchItemRenderer searchItemRenderer;
+    @Mock SearchItemRenderer<DiscoveryCardViewModel> searchItemRenderer;
     @Mock SingleSelectionContentCardRenderer singleSelectionContentCardRenderer;
     @Mock MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer;
     @Mock EmptyCardRenderer emptyCardRenderer;
-    @Mock DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard;
-    @Mock DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard;
     @Mock SearchItemRenderer.SearchListener searchListener;
 
+    final DiscoveryCardViewModel.MultipleContentSelectionCard multipleContentSelectionCard = DiscoveryFixtures.multiContentSelectionCardViewModel();
+    final DiscoveryCardViewModel.SingleContentSelectionCard singleContentSelectionCard = DiscoveryFixtures.singleContentSelectionCardViewModel();
+
     private DiscoveryAdapter adapter;
-    private DiscoveryCard searchItem = DiscoveryCard.forSearchItem();
+    private DiscoveryCardViewModel searchItem = DiscoveryCardViewModel.SearchCard.INSTANCE;
 
     @Before
     public void setUp() {
@@ -35,9 +35,6 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Test
     public void rendersCorrectViewTypes() {
-        when(singleContentSelectionCard.kind()).thenReturn(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
-        when(multipleContentSelectionCard.kind()).thenReturn(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD);
-
         adapter.onNext(asList(searchItem, singleContentSelectionCard, multipleContentSelectionCard));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(DiscoveryCard.Kind.SEARCH_ITEM.ordinal());

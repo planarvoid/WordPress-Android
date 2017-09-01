@@ -2,13 +2,13 @@ package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
@@ -27,12 +27,14 @@ import java.util.Collections;
 
 public class SelectionItemRendererTest extends AndroidUnitTest {
 
-    @Mock private SelectionItem selectionItem;
+    private static final Optional<String> SHORT_TITLE = Optional.of("title");
+    private static final Optional<String> SHORT_SUBTITLE = Optional.of("subtitle");
+    private static final Optional<Integer> COUNT = Optional.of(1);
     @Mock private ImageOperations imageOperations;
     @Mock private Navigator navigator;
     @Mock private ScreenProvider screenProvider;
 
-    private final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
+    private final PublishSubject<SelectionItemViewModel> selectionItemPublishSubject = PublishSubject.create();
 
     private SelectionItemRenderer renderer;
     private View itemView;
@@ -41,27 +43,23 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         renderer = new SelectionItemRenderer(imageOperations, selectionItemPublishSubject);
         itemView = renderer.createItemView(new LinearLayout(context()));
-
-        when(selectionItem.shortTitle()).thenReturn(Optional.of("title"));
-        when(selectionItem.shortSubtitle()).thenReturn(Optional.of("subtitle"));
-        when(selectionItem.artworkUrlTemplate()).thenReturn(Optional.of("artwork url"));
-        when(selectionItem.artworkStyle()).thenReturn(Optional.of(ImageStyle.CIRCULAR));
-        when(selectionItem.count()).thenReturn(Optional.of(1));
     }
 
     @Test
     public void bindsArtworkWhenPresent() {
-        ImageView circularImageView = (ImageView) itemView.findViewById(R.id.circular_artwork);
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
+        ImageView circularImageView = itemView.findViewById(R.id.circular_artwork);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
         verify(imageOperations).displayCircularWithPlaceholder(
-                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(context().getResources()), circularImageView);
+                selectionItem.getUrn(), selectionItem.getArtworkUrlTemplate(), ApiImageSize.getFullImageSize(context().getResources()), circularImageView);
     }
 
     @Test
     public void bindsTitleWhenPresent() {
-        TextView title = (TextView) itemView.findViewById(R.id.title);
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
+        TextView title = itemView.findViewById(R.id.title);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -70,8 +68,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindTitleWhenNotPresent() {
-        when(selectionItem.shortTitle()).thenReturn(Optional.absent());
-        TextView title = (TextView) itemView.findViewById(R.id.title);
+        final SelectionItemViewModel selectionItem = createSelectionItem(Optional.absent(), SHORT_SUBTITLE, COUNT);
+        TextView title = itemView.findViewById(R.id.title);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -80,7 +78,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsSubtitleWhenPresent() {
-        TextView subtitle = (TextView) itemView.findViewById(R.id.secondary_text);
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
+        TextView subtitle = itemView.findViewById(R.id.secondary_text);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -89,8 +88,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindSubtitleWhenNotPresent() {
-        when(selectionItem.shortSubtitle()).thenReturn(Optional.absent());
-        TextView subtitle = (TextView) itemView.findViewById(R.id.secondary_text);
+        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, Optional.absent(), COUNT);
+        TextView subtitle = itemView.findViewById(R.id.secondary_text);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -99,7 +98,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsCountWhenPresent() {
-        TextView count = (TextView) itemView.findViewById(R.id.track_count);
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
+        TextView count = itemView.findViewById(R.id.track_count);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -108,8 +108,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindCountWhenNotPresent() {
-        when(selectionItem.count()).thenReturn(Optional.absent());
-        TextView count = (TextView) itemView.findViewById(R.id.track_count);
+        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, Optional.absent());
+        TextView count = itemView.findViewById(R.id.track_count);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
@@ -118,6 +118,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindOverflowMenu() {
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
         View overflowMenu = itemView.findViewById(R.id.overflow_button);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
@@ -127,12 +128,29 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsClickHandlingFromSelectionItem() {
+        final SelectionItemViewModel selectionItem = defaultSelectionItem();
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
-        final TestObserver<SelectionItem> testObserver = selectionItemPublishSubject.test();
+        final TestObserver<SelectionItemViewModel> testObserver = selectionItemPublishSubject.test();
 
         itemView.performClick();
 
         testObserver.assertValue(selectionItem);
     }
 
+    private SelectionItemViewModel defaultSelectionItem() {
+        return createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, COUNT);
+    }
+
+    private SelectionItemViewModel createSelectionItem(Optional<String> shortTitle, Optional<String> shortSubtitle, Optional<Integer> count) {
+        return new SelectionItemViewModel(Optional.absent(),
+                                          Urn.forSystemPlaylist("sel_item"),
+                                          Optional.of("artwork url"),
+                                          Optional.of(ImageStyle.CIRCULAR),
+                                          count,
+                                          shortTitle,
+                                          shortSubtitle,
+                                          Optional.absent(),
+                                          Optional.absent(),
+                                          Optional.absent());
+    }
 }

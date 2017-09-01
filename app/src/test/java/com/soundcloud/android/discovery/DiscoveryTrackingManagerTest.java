@@ -3,42 +3,25 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_CONTENT_SELECTION_CARD;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_SELECTION_ITEM;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.QUERY_URN;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.SEARCH_ITEM;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD;
 import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_SELECTION_ITEM;
 import static com.soundcloud.android.discovery.DiscoveryTrackingManager.SCREEN;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.java.collections.Lists;
-import org.junit.Before;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DiscoveryTrackingManagerTest {
-    @Mock private EventTracker eventTracker;
-
-    private DiscoveryTrackingManager discoveryTrackingManager;
-
-    @Before
-    public void setUp() throws Exception {
-        discoveryTrackingManager = new DiscoveryTrackingManager(eventTracker);
-    }
 
     @Test
     public void navigatesAndTracksSingleSelectionItemClick() {
-        final ArrayList<DiscoveryCard> cards = Lists.newArrayList(SEARCH_ITEM, SINGLE_CONTENT_SELECTION_CARD, MULTI_CONTENT_SELECTION_CARD);
-
-        discoveryTrackingManager.trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
+        final Optional<SelectionItemViewModel.TrackingInfo> trackingInfo = DiscoveryTrackingManager.calculateUIEvent(SINGLE_SELECTION_ITEM, SINGLE_CONTENT_SELECTION_CARD, 1);
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
         builder.source(SINGLE_CONTENT_SELECTION_CARD.trackingFeatureName());
@@ -49,14 +32,12 @@ public class DiscoveryTrackingManagerTest {
         builder.queryPosition(1);
         builder.queryUrn(SINGLE_CONTENT_SELECTION_CARD.parentQueryUrn());
 
-        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(SINGLE_CONTENT_SELECTION_CARD.selectionItem().urn(), builder.build())));
+        assertThat(trackingInfo.get().toUIEvent()).isEqualTo(UIEvent.fromDiscoveryCard(SINGLE_CONTENT_SELECTION_CARD.selectionItem().getUrn(), builder.build()));
     }
 
     @Test
     public void navigatesAndTracksMultiSelectionItemClick() {
-        final ArrayList<DiscoveryCard> cards = Lists.newArrayList(SEARCH_ITEM, SINGLE_CONTENT_SELECTION_CARD, MULTI_CONTENT_SELECTION_CARD);
-
-        discoveryTrackingManager.trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
+        final Optional<SelectionItemViewModel.TrackingInfo> trackingInfo = DiscoveryTrackingManager.calculateUIEvent(MULTI_SELECTION_ITEM, MULTI_CONTENT_SELECTION_CARD, 2);
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder();
         builder.source(MULTI_CONTENT_SELECTION_CARD.trackingFeatureName());
@@ -68,6 +49,6 @@ public class DiscoveryTrackingManagerTest {
         builder.queryUrn(QUERY_URN);
         builder.module(Module.create(MULTI_CONTENT_SELECTION_CARD.selectionUrn().toString(), 0));
 
-        verify(eventTracker).trackClick(eq(UIEvent.fromDiscoveryCard(MULTI_SELECTION_ITEM.urn(), builder.build())));
+        assertThat(trackingInfo.get().toUIEvent()).isEqualTo(UIEvent.fromDiscoveryCard(MULTI_SELECTION_ITEM.getUrn(), builder.build()));
     }
 }

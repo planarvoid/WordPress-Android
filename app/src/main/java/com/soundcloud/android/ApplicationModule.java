@@ -4,7 +4,6 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.FacebookModule;
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -21,6 +20,7 @@ import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.discovery.DiscoveryCardViewModel;
 import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
@@ -34,6 +34,7 @@ import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.olddiscovery.OldDiscoveryModule;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
@@ -50,8 +51,8 @@ import com.soundcloud.android.presentation.EnrichedEntities;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.EntityItemEmitter;
 import com.soundcloud.android.profile.ProfileModule;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.search.SearchItemRenderer;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -398,5 +399,15 @@ public class ApplicationModule {
     @Provides
     public GooglePlayServicesWrapper provideGooglePlayServicesWrapper() {
         return new GooglePlayServicesWrapper();
+    }
+
+    @Provides
+    public SearchItemRenderer<OldDiscoveryItem> provideOldSearchItemRenderer() {
+        return new SearchItemRenderer<>();
+    }
+
+    @Provides
+    public SearchItemRenderer<DiscoveryCardViewModel> provideNewSearchItemRenderer() {
+        return new SearchItemRenderer<>();
     }
 }

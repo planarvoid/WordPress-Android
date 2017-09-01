@@ -42,6 +42,8 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.discovery.DiscoveryReadableStorage;
 import com.soundcloud.android.discovery.DiscoveryWritableStorage;
+import com.soundcloud.android.discovery.HomeFragment;
+import com.soundcloud.android.discovery.HomePresenter;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -360,6 +362,7 @@ public interface ApplicationComponent {
     void inject(ViewAllRecommendedTracksFragment viewAllRecommendedTracksFragment);
     void inject(SearchActivity searchActivity);
     void inject(TopResultsFragment topResultsFragment);
+    void inject(HomeFragment newHomeFragment);
     void inject(SearchPremiumResultsActivity searchPremiumResultsActivity);
     void inject(PlaylistDiscoveryActivity playlistDiscoveryActivity);
     void inject(TabbedSearchFragment tabbedSearchFragment);
@@ -398,4 +401,5 @@ public interface ApplicationComponent {
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
     TopResultsPresenter topResultsPresenter();
+    HomePresenter homePresenter();
 }

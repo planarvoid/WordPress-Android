@@ -44,7 +44,7 @@ class DiscoveryOperations {
     private Single<DiscoveryResult> cardsFromStorage(SyncResult syncResult) {
         return storage.discoveryCards()
                       .toSingle(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable())))
-                      .map(cards -> DiscoveryResult.create(cards, syncResult.throwable().transform(ViewError::from)));
+                      .map(cards -> new DiscoveryResult(cards, syncResult.throwable().transform(ViewError::from)));
     }
 
     /*
@@ -53,7 +53,7 @@ class DiscoveryOperations {
      * We can mitigate this by doing a full sync if the lazy sync was successful but there are no cards in the database.
      */
     private Single<DiscoveryResult> mitigateDatabaseUpgradeIssue(DiscoveryResult discoveryResult) {
-        if (!discoveryResult.syncError().isPresent() && hasEmptyCard(discoveryResult.cards())) {
+        if (!discoveryResult.getSyncError().isPresent() && hasEmptyCard(discoveryResult.getCards())) {
             return refreshDiscoveryCards();
         } else {
             return Single.just(discoveryResult);

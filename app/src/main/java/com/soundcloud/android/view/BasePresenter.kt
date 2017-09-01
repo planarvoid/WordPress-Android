@@ -15,10 +15,10 @@ import io.reactivex.subjects.Subject
 
 abstract class BasePresenter<ViewModel, ActionType, PageParams, in View : BaseView<AsyncLoaderState<ViewModel, ActionType>, ActionType, PageParams>> : Destroyable() {
 
-    private val initialLoadSignal = PublishSubject.create<PageParams>()
+    private val requestContentSignal = PublishSubject.create<PageParams>()
     private val refreshSignal = PublishSubject.create<PageParams>()
     private val actionPerformedSignal = PublishSubject.create<ActionType>()
-    val loader: ConnectableObservable<AsyncLoaderState<ViewModel, ActionType>> = AsyncLoader.Companion.startWith<ViewModel, ActionType, PageParams>(initialLoadSignal.distinctUntilChanged(),
+    val loader: ConnectableObservable<AsyncLoaderState<ViewModel, ActionType>> = AsyncLoader.Companion.startWith<ViewModel, ActionType, PageParams>(requestContentSignal.distinctUntilChanged(),
                                                                                                                                                     Function { firstPageFunc(it) })
             .withRefresh(refreshSignal, Function { refreshFunc(it) })
             .withAction(actionPerformedSignal)
@@ -35,7 +35,7 @@ abstract class BasePresenter<ViewModel, ActionType, PageParams, in View : BaseVi
 
     open fun attachView(view: View) {
         compositeDisposable.addAll(loader.subscribe(view),
-                                   view.initialLoadSignal().subscribeWithSubject(initialLoadSignal),
+                                   view.requestContent().subscribeWithSubject(requestContentSignal),
                                    view.refreshSignal().subscribeWithSubject(refreshSignal),
                                    view.actionPerformedSignal().subscribeWithSubject(actionPerformedSignal))
     }
@@ -49,7 +49,7 @@ abstract class BasePresenter<ViewModel, ActionType, PageParams, in View : BaseVi
 }
 
 interface BaseView<ViewModel, ActionType, PageParams> : Consumer<ViewModel> {
-    fun initialLoadSignal(): Observable<PageParams>
+    fun requestContent(): Observable<PageParams>
     fun refreshSignal(): Observable<PageParams> = Observable.empty<PageParams>()
     fun actionPerformedSignal(): Observable<ActionType> = Observable.empty()
 }

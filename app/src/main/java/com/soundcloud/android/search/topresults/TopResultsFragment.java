@@ -150,7 +150,7 @@ public class TopResultsFragment extends BaseFragment<TopResultsPresenter> implem
     }
 
     @Override
-    public Observable<SearchParams> initialLoadSignal() {
+    public Observable<SearchParams> requestContent() {
         return searchIntent.share();
     }
 

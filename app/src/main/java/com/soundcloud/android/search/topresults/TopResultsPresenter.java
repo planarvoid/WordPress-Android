@@ -78,7 +78,7 @@ public class TopResultsPresenter extends BasePresenter<TopResultsViewModel, View
     @Override
     public void attachView(TopResultsView topResultsView) {
         super.attachView(topResultsView);
-        viewDisposable.add(topResultsView.initialLoadSignal().take(1).subscribe(this::trackFirstSearch));
+        viewDisposable.add(topResultsView.requestContent().take(1).subscribe(this::trackFirstSearch));
 
         final ConnectableObservable<AsyncLoaderState<TopResultsViewModel, ViewError>> stateWithViewModel = getLoader();
 

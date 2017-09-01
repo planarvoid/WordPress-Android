@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class EmptyCardRenderer implements CellRenderer<DiscoveryCard.EmptyCard> {
+class EmptyCardRenderer implements CellRenderer<DiscoveryCardViewModel.EmptyCard> {
 
     @Inject
     EmptyCardRenderer() {
@@ -36,10 +36,10 @@ class EmptyCardRenderer implements CellRenderer<DiscoveryCard.EmptyCard> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<DiscoveryCard.EmptyCard> list) {
-        final DiscoveryCard.EmptyCard emptyCard = list.get(position);
+    public void bindItemView(int position, View view, List<DiscoveryCardViewModel.EmptyCard> list) {
+        final DiscoveryCardViewModel.EmptyCard emptyCard = list.get(position);
 
-        final EmptyView.Status status = emptyViewStatusFromError(emptyCard.throwable().or(new EmptyThrowable()));
+        final EmptyView.Status status = emptyViewStatusFromError(emptyCard.getThrowable().or(new EmptyThrowable()));
         ((EmptyView) view).setStatus(status);
     }
 }

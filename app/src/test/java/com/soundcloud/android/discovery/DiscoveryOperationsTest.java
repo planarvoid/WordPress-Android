@@ -35,15 +35,15 @@ public class DiscoveryOperationsTest {
     private final Scheduler scheduler = Schedulers.trampoline();
     private final Syncable discoveryCardsSyncable = Syncable.DISCOVERY_CARDS;
 
-    private SelectionItem selectionItem = SelectionItem.create(Optional.absent(),
-                                                               Urn.forSystemPlaylist("upload"),
-                                                               Optional.absent(),
-                                                               Optional.absent(),
-                                                               Optional.absent(),
-                                                               Optional.absent(),
-                                                               Optional.absent(),
-                                                               Optional.absent(),
-                                                               Optional.absent());
+    private SelectionItem selectionItem = new SelectionItem(Optional.absent(),
+                                                            Urn.forSystemPlaylist("upload"),
+                                                            Optional.absent(),
+                                                            Optional.absent(),
+                                                            Optional.absent(),
+                                                            Optional.absent(),
+                                                            Optional.absent(),
+                                                            Optional.absent(),
+                                                            Optional.absent());
 
     private final DiscoveryCard.MultipleContentSelectionCard multiCard =
             DiscoveryCard.MultipleContentSelectionCard.create(Urn.forSystemPlaylist("123"),
@@ -69,7 +69,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertComplete()
-                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
+                           .assertValue(new DiscoveryResult(discoveryCards, Optional.absent()));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(DiscoveryResult.create(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
+                           .assertValue(new DiscoveryResult(discoveryCards, Optional.absent()));
 
         verify(syncOperations).sync(Syncable.DISCOVERY_CARDS);
     }
@@ -115,7 +115,7 @@ public class DiscoveryOperationsTest {
 
         discoveryOperations.refreshDiscoveryCards()
                            .test()
-                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.absent()));
+                           .assertValue(new DiscoveryResult(discoveryCards, Optional.absent()));
     }
 
     @Test
@@ -126,7 +126,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.refreshDiscoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(DiscoveryResult.create(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.refreshDiscoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(DiscoveryResult.create(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     private void setUpDiscoveryCards(SyncResult syncResult, Maybe<List<DiscoveryCard>> storageResult) {

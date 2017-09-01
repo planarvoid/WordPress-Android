@@ -52,15 +52,15 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     private RecyclerViewPaginator paginator;
 
     public CollectionRenderer(PagingRecyclerItemAdapter<ItemT, VH> adapter,
-                              BiFunction<ItemT, ItemT, Boolean> areItemsTheSame,
-                              BiFunction<ItemT, ItemT, Boolean> areContentsTheSame,
+                              BiFunction<ItemT, ItemT, Boolean> sameIdentity,
+                              BiFunction<ItemT, ItemT, Boolean> sameContents,
                               EmptyStateProvider emptyStateProvider,
                               boolean animateLayoutChangesInItems,
                               boolean showDividers,
                               boolean parallaxImageScrolling) {
         this.adapter = adapter;
-        this.areItemsTheSame = areItemsTheSame;
-        this.areContentsTheSame = areContentsTheSame;
+        this.areItemsTheSame = sameIdentity;
+        this.areContentsTheSame = sameContents;
         this.emptyStateProvider = emptyStateProvider;
         this.animateLayoutChangesInItems = animateLayoutChangesInItems;
         this.showDividers = showDividers;

@@ -12,6 +12,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
@@ -105,6 +106,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     public Observable<Long> enterScreenTimestamp() {
         return mainTabsView.enterScreenDispatcher.enterScreenTimestamp();
+    }
+
+    Observable<Pair<Long, Screen>> pageSelectedTimestamp() {
+        return mainTabsView.enterScreenDispatcher.pageSelectedTimestamp().map(timestamp -> Pair.of(timestamp, mainTabsView.getScreen()));
     }
 
     void hideToolbar() {

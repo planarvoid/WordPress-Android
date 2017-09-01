@@ -42,14 +42,14 @@ final class DiscoveryCardMapper {
     }
 
     private static SelectionItem map(Urn selectionUrn, ApiSelectionItem apiSelectionItem) {
-        return SelectionItem.create(apiSelectionItem.urn(),
-                                    selectionUrn,
-                                    apiSelectionItem.artworkUrlTemplate(),
-                                    apiSelectionItem.artworkStyle(),
-                                    apiSelectionItem.count(),
-                                    apiSelectionItem.shortTitle(),
-                                    apiSelectionItem.shortSubtitle(),
-                                    apiSelectionItem.appLink(),
-                                    apiSelectionItem.webLink());
+        return new SelectionItem(apiSelectionItem.urn(),
+                                 selectionUrn,
+                                 apiSelectionItem.artworkUrlTemplate(),
+                                 apiSelectionItem.artworkStyle(),
+                                 apiSelectionItem.count(),
+                                 apiSelectionItem.shortTitle(),
+                                 apiSelectionItem.shortSubtitle(),
+                                 apiSelectionItem.appLink(),
+                                 apiSelectionItem.webLink());
     }
 }

@@ -8,6 +8,7 @@ import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.discovery.DiscoveryNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.olddiscovery.OldDiscoveryNavigationTarget;
+import com.soundcloud.android.properties.FeatureFlags;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ public class NavigationModelFactoryTest {
     @Mock DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
     @Mock DiscoveryConfiguration discoveryConfiguration;
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock FeatureFlags featureFlags;
 
     private NavigationModelFactory factory;
 
@@ -31,7 +33,7 @@ public class NavigationModelFactoryTest {
     @Test
     public void testWhenDiscoveryIsHomeScreenAndDiscoverBackendIsEnabled() throws Exception {
         when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(true);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget());
+        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget(featureFlags));
 
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.DISCOVER);
@@ -51,7 +53,7 @@ public class NavigationModelFactoryTest {
     @Test
     public void testWhenStreamIsHomeScreenAndDiscoveryBackendIsEnabled() throws Exception {
         when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget());
+        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget(featureFlags));
 
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);

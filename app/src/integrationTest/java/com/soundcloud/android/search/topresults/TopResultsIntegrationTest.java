@@ -379,7 +379,7 @@ public class TopResultsIntegrationTest extends BaseIntegrationTest {
         }
 
         @Override
-        public Observable<SearchParams> initialLoadSignal() {
+        public Observable<SearchParams> requestContent() {
             return searchPublishSubject;
         }
 

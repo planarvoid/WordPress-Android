@@ -2,7 +2,7 @@ package com.soundcloud.android.discovery;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.discovery.DiscoveryCard.MultipleContentSelectionCard;
+import com.soundcloud.android.discovery.DiscoveryCardViewModel.MultipleContentSelectionCard;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
@@ -28,7 +28,7 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
 
     private final Map<Urn, Parcelable> scrollingState = new HashMap<>();
     private final SelectionItemAdapterFactory selectionItemAdapterFactory;
-    private final PublishSubject<SelectionItem> selectionItemInCardClickListener;
+    private final PublishSubject<SelectionItemViewModel> selectionItemInCardClickListener;
 
     @Inject
     MultipleContentSelectionCardRenderer(SelectionItemAdapterFactory selectionItemAdapterFactory) {
@@ -36,14 +36,14 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
         this.selectionItemInCardClickListener = PublishSubject.create();
     }
 
-    Observable<SelectionItem> selectionItemClick() {
+    Observable<SelectionItemViewModel> selectionItemClick() {
         return selectionItemInCardClickListener;
     }
 
     @Override
     public View createItemView(ViewGroup viewGroup) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                                     .inflate(R.layout.discovery_multiple_content_selection_card, viewGroup, false);
+                                  .inflate(R.layout.discovery_multiple_content_selection_card, viewGroup, false);
         initCarousel(view, ButterKnife.findById(view, R.id.selection_playlists_carousel));
         return view;
     }
@@ -68,11 +68,11 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
     }
 
     private void bindTitle(View view, MultipleContentSelectionCard selectionCard) {
-        bindText(view, R.id.selection_title, selectionCard.title());
+        bindText(view, R.id.selection_title, selectionCard.getTitle());
     }
 
     private void bindDescription(View view, MultipleContentSelectionCard selectionCard) {
-        bindText(view, R.id.selection_description, selectionCard.description());
+        bindText(view, R.id.selection_description, selectionCard.getDescription());
     }
 
     private void bindText(View view, @IdRes int id, Optional<String> text) {

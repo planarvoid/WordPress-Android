@@ -18,10 +18,10 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {
+class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCardViewModel.SingleContentSelectionCard> {
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final PublishSubject<SelectionItem> selectionItemPublishSubject;
+    private final PublishSubject<SelectionItemViewModel> selectionItemPublishSubject;
 
     @Inject
     SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources) {
@@ -36,16 +36,16 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
     }
 
     @Override
-    public void bindItemView(int position, View view, List<DiscoveryCard.SingleContentSelectionCard> list) {
-        final DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard = list.get(position);
-        bindText(view, R.id.single_card_title, singleContentSelectionCard.title());
-        bindText(view, R.id.single_card_description, singleContentSelectionCard.description());
-        bindSelectionItem(view, R.id.single_card_artwork, singleContentSelectionCard.selectionItem());
+    public void bindItemView(int position, View view, List<DiscoveryCardViewModel.SingleContentSelectionCard> list) {
+        final DiscoveryCardViewModel.SingleContentSelectionCard singleContentSelectionCard = list.get(position);
+        bindText(view, R.id.single_card_title, singleContentSelectionCard.getTitle());
+        bindText(view, R.id.single_card_description, singleContentSelectionCard.getDescription());
+        bindSelectionItem(view, R.id.single_card_artwork, singleContentSelectionCard.getSelectionItem());
         bindSocialProof(view, singleContentSelectionCard);
         bindClickHandling(view, singleContentSelectionCard);
     }
 
-    Observable<SelectionItem> selectionItemClick() {
+    Observable<SelectionItemViewModel> selectionItemClick() {
         return selectionItemPublishSubject;
     }
 
@@ -59,25 +59,25 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         }
     }
 
-    private void bindSelectionItem(View parentView, int resource, SelectionItem selectionItem) {
-        final ImageView view = (ImageView) parentView.findViewById(resource);
+    private void bindSelectionItem(View parentView, int resource, SelectionItemViewModel selectionItem) {
+        final ImageView view = parentView.findViewById(resource);
         imageOperations.displayInAdapterView(
-                selectionItem.urn(), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view);
+                selectionItem.getUrn(), selectionItem.getArtworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view);
 
-        bindText(parentView, R.id.single_card_track_count, selectionItem.count().transform(String::valueOf));
+        bindText(parentView, R.id.single_card_track_count, selectionItem.getCount().transform(String::valueOf));
     }
 
-    private void bindSocialProof(View itemView, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
+    private void bindSocialProof(View itemView, DiscoveryCardViewModel.SingleContentSelectionCard singleContentSelectionCard) {
         bindSocialProofText(itemView, singleContentSelectionCard);
         bindSocialProofAvatars(itemView, singleContentSelectionCard);
     }
 
-    private void bindSocialProofText(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
-        bindText(container, R.id.single_card_social_proof, singleContentSelectionCard.socialProof());
+    private void bindSocialProofText(View container, DiscoveryCardViewModel.SingleContentSelectionCard singleContentSelectionCard) {
+        bindText(container, R.id.single_card_social_proof, singleContentSelectionCard.getSocialProof());
     }
 
-    private void bindSocialProofAvatars(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
-        List<String> imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates();
+    private void bindSocialProofAvatars(View container, DiscoveryCardViewModel.SingleContentSelectionCard singleContentSelectionCard) {
+        List<String> imageUrls = singleContentSelectionCard.getSocialProofAvatarUrlTemplates();
 
         if (imageUrls.size() == 1) {
             container.findViewById(R.id.single_card_user_artwork_1).setVisibility(View.GONE);
@@ -110,7 +110,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         }
     }
 
-    private void bindClickHandling(View view, final DiscoveryCard.SingleContentSelectionCard selectionCard) {
-        view.setOnClickListener(clicked -> selectionItemPublishSubject.onNext(selectionCard.selectionItem()));
+    private void bindClickHandling(View view, final DiscoveryCardViewModel.SingleContentSelectionCard selectionCard) {
+        view.setOnClickListener(clicked -> selectionItemPublishSubject.onNext(selectionCard.getSelectionItem()));
     }
 }

@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SelectionItemTest {
+public class SelectionItemViewModelTest {
 
     private static final Urn SELECTION_URN = Urn.forSystemPlaylist("upload");
     private static final String APP_LINK = "appLink";
@@ -19,7 +19,7 @@ public class SelectionItemTest {
 
     @Test
     public void linkReturnsAppLinkWhenPresent() {
-        final SelectionItem selectionItem = selectionItemWithLinks(of(APP_LINK), absent());
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(of(APP_LINK), absent());
 
         final Optional<String> link = selectionItem.link();
 
@@ -29,7 +29,7 @@ public class SelectionItemTest {
 
     @Test
     public void linkReturnsWebLinkWhenPresent() {
-        final SelectionItem selectionItem = selectionItemWithLinks(absent(), of(WEB_LINK));
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(absent(), of(WEB_LINK));
 
         final Optional<String> link = selectionItem.link();
 
@@ -39,7 +39,7 @@ public class SelectionItemTest {
 
     @Test
     public void linkReturnsAppLinkWhenBothAppAndWebLinkPresent() {
-        final SelectionItem selectionItem = selectionItemWithLinks(of(APP_LINK), of(WEB_LINK));
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(of(APP_LINK), of(WEB_LINK));
 
         final Optional<String> link = selectionItem.link();
 
@@ -50,14 +50,14 @@ public class SelectionItemTest {
 
     @Test
     public void linkAbsentWhenNeitherIsPresent() {
-        final SelectionItem selectionItem = selectionItemWithLinks(absent(), absent());
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(absent(), absent());
 
         final Optional<String> link = selectionItem.link();
 
         assertThat(link.isPresent()).isFalse();
     }
 
-    private SelectionItem selectionItemWithLinks(Optional<String> appLink, Optional<String> webLink) {
-        return SelectionItem.create(absent(), SELECTION_URN, absent(), absent(), absent(), absent(), absent(), appLink, webLink);
+    private SelectionItemViewModel selectionItemWithLinks(Optional<String> appLink, Optional<String> webLink) {
+        return new SelectionItemViewModel(absent(), SELECTION_URN, absent(), absent(), absent(), absent(), absent(), appLink, webLink, absent());
     }
 }
