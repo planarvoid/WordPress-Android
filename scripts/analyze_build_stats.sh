@@ -53,7 +53,7 @@ function methodCount {
 curl -s -o ${FILE_MASTER_BUILD_STATS} "${MASTER_URL}/${FILE_BUILD_STATS}"
 curl -s -o ${FILE_MASTER_DEPENDENCY_TREE} "${MASTER_URL}/${FILE_DEPENDENCY_TREE}"
 
-DIFF=$(git diff --no-index ${FILE_MASTER_DEPENDENCY_TREE} ${FILE_DEPENDENCY_TREE} | cat)
+DIFF=$(git diff --no-index ${FILE_MASTER_DEPENDENCY_TREE} ${FILE_DEPENDENCY_TREE} | cat || true)
 WORDCOUNT=$(echo ${DIFF} | wc -c)
 if [[ ${WORDCOUNT} -gt 1 ]]; then
     rm -f ${FILE_DIFF}
