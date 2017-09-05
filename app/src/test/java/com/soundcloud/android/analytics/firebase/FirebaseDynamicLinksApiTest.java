@@ -6,7 +6,6 @@ import com.google.firebase.FirebaseOptions;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.strings.Charsets;
 import okhttp3.Call;
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -72,6 +71,6 @@ public class FirebaseDynamicLinksApiTest extends AndroidUnitTest {
     }
 
     private RealResponseBody body(String json) {
-        return new RealResponseBody(Headers.of(), new Buffer().writeString(json, Charsets.UTF_8));
+        return new RealResponseBody("application/json", json.getBytes().length, new Buffer().writeString(json, Charsets.UTF_8));
     }
 }
