@@ -31,7 +31,7 @@ public class FlipperExperiment {
     }
 
     public boolean isEnabled() {
-        return !isControlVariant() && (isFlipperVariant() || featureFlags.isEnabled(Flag.FLIPPER));
+        return !isControlVariant() && (isFlipperVariant() || featureFlags.isEnabled(Flag.FLIPPER_V2));
     }
 
     private boolean isControlVariant() {

@@ -40,7 +40,7 @@ public class FlipperExperimentTest {
     @Test
     public void enablesFlipperWithFFWhenNotInExperiment() {
         whenVariant("unknown");
-        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FLIPPER_V2)).thenReturn(true);
 
         assertThat(config.isEnabled()).isTrue();
     }
