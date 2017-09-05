@@ -42,6 +42,7 @@ class PlaylistCoverRenderer {
         usernameView.setCompoundDrawablesWithIntrinsicBounds(0, 0, proBadge, 0);
         usernameView.setEnabled(true);
         usernameView.setOnClickListener(v -> onGoToCreator.call());
+        usernameView.setVisibility(View.VISIBLE);
     }
 
     private void bindArtwork(View view, PlaylistDetailsMetadata item) {
