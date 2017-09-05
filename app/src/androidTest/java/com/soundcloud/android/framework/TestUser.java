@@ -80,7 +80,7 @@ public class TestUser {
     public static final TestUser Facebook = new TestUser(
             "Mike Smiechowy",
             "ssmiechowy@gmail.com",
-            "passwordyeah3",
+            "passwordyeah4",
             "1-21686-50749473-34aed0136a61fda",
             50749473,
             true);
