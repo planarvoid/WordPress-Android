@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
@@ -48,7 +49,7 @@ class TrackPageRecycler {
         return findAndRemoveView(urn);
     }
 
-    @Nullable
+    @org.jetbrains.annotations.Nullable
     private View findAndRemoveView(Urn urn) {
         if (!recycledViews.isEmpty()) {
             for (Iterator<RecycledElement> iterator = recycledViews.iterator(); iterator.hasNext(); ) {
@@ -62,9 +63,13 @@ class TrackPageRecycler {
         return null;
     }
 
-    View getRecycledPage() {
+    View getRecycledPage(Provider<View> pageprovider) {
         if (scrapViews.isEmpty()) {
-            return recycledViews.remove(0).view;
+            if (recycledViews.isEmpty()) {
+                return pageprovider.get();
+            } else {
+                return recycledViews.remove(0).view;
+            }
         } else {
             return scrapViews.pop();
         }
