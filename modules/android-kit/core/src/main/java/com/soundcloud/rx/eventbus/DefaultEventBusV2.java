@@ -20,12 +20,12 @@ public class DefaultEventBusV2 implements EventBusV2 {
     }
 
     <E> Observer<E> subscribe(Queue<E> queue, Observer<E> observer) {
-        return queue(queue).subscribeOn(defaultScheduler).subscribeWith(observer);
+        return queue(queue).observeOn(defaultScheduler).subscribeWith(observer);
     }
 
     @Override
     public <E> Disposable subscribe(Queue<E> queue, ResourceObserver<E> observer) {
-        return queue(queue).subscribeOn(defaultScheduler).subscribeWith(observer);
+        return queue(queue).observeOn(defaultScheduler).subscribeWith(observer);
     }
 
     @Override
