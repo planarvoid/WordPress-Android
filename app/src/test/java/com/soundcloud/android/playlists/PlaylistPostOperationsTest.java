@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
@@ -38,6 +39,8 @@ public class PlaylistPostOperationsTest {
                 scheduler,
                 syncInitiator,
                 eventBus);
+
+        when(syncInitiator.requestSystemSync()).thenReturn(Completable.complete());
     }
 
     @Test

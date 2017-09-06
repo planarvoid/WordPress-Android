@@ -159,7 +159,6 @@ public class StationsRepository {
 
     void saveRecentlyPlayedStation(Urn stationUrn) {
         stationsStorage.saveUnsyncedRecentlyPlayedStation(stationUrn);
-        syncInitiator.requestSystemSync();
     }
 
 }

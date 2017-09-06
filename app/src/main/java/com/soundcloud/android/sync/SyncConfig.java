@@ -21,7 +21,8 @@ public class SyncConfig {
     private final CurrentDateProvider dateProvider;
 
     @Inject
-    public SyncConfig(SharedPreferences sharedPreferences, CurrentDateProvider dateProvider) {
+    public SyncConfig(SharedPreferences sharedPreferences,
+                      CurrentDateProvider dateProvider) {
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
     }

@@ -1,18 +1,19 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
+import static io.reactivex.Completable.complete;
 
-import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.SessionProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
-import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,13 +36,13 @@ public class SyncInitiator {
     public static final String ACTION_HARD_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;
 
     private final Context context;
-    private final AccountOperations accountOperations;
+    private final SessionProvider sessionProvider;
     private final Scheduler scheduler;
 
     @Inject
-    SyncInitiator(Context context, AccountOperations accountOperations, @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
+    SyncInitiator(Context context, SessionProvider sessionProvider, @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
-        this.accountOperations = accountOperations;
+        this.sessionProvider = sessionProvider;
         this.scheduler = scheduler;
     }
 
@@ -127,14 +128,11 @@ public class SyncInitiator {
         }).observeOn(scheduler);
     }
 
-    public boolean requestSystemSync() {
-        final Account soundCloudAccount = accountOperations.getSoundCloudAccount();
-        if (soundCloudAccount != null) {
-            ContentResolver.requestSync(soundCloudAccount, SyncConfig.AUTHORITY, new Bundle());
-            return true;
-        } else {
-            return false;
-        }
+    public Completable requestSystemSync() {
+        return sessionProvider.currentAccount().flatMapCompletable(account -> {
+            ContentResolver.requestSync(account, SyncConfig.AUTHORITY, new Bundle());
+            return complete();
+        });
     }
 
     private Intent createIntent(Syncable syncable) {
@@ -143,6 +141,4 @@ public class SyncInitiator {
         intent.putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
         return intent;
     }
-
-
 }

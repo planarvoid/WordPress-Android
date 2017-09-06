@@ -2,7 +2,7 @@ package com.soundcloud.android.sync;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.SessionProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import io.reactivex.Scheduler;
@@ -27,11 +27,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     private SyncInitiator syncInitiator;
     private TestObserver<SyncJobResult> syncObserver = new TestObserver<>();
 
-    @Mock private AccountOperations accountOperations;
+    @Mock private SessionProvider sessionProvider;
 
     @Before
     public void setUp() throws Exception {
-        syncInitiator = new SyncInitiator(context(), accountOperations, scheduler);
+        syncInitiator = new SyncInitiator(context(), sessionProvider, scheduler);
     }
 
     @Test
@@ -152,8 +152,6 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         syncSubscriber.assertValues(result, result2);
         syncSubscriber.assertComplete();
     }
-
-
 
     private SyncJobResult sendSyncChangedToReceiver(Intent intent) {
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);

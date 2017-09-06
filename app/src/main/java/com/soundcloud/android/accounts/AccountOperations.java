@@ -4,7 +4,6 @@ import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
@@ -16,24 +15,22 @@ import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Lazy;
+import io.reactivex.Completable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -43,20 +40,16 @@ import java.io.IOException;
 @Singleton
 public class AccountOperations {
 
-    public static final String CRAWLER_USER_PERMALINK = "SoundCloud";
-    public static final Urn ANONYMOUS_USER_URN = Urn.forUser(0);
-
-    // Why is this -2? I don't have a good reason. We decided it is safer than -1, which is NOT_SET all over the app
-    public static final int CRAWLER_USER_ID = -2;
-    public static final Urn CRAWLER_USER_URN = Urn.forUser(CRAWLER_USER_ID);
-
+    private static final String CRAWLER_USER_PERMALINK = "SoundCloud";
+    public static final Urn CRAWLER_USER_URN = Urn.forUser(-2);
     private static final String TOKEN_TYPE = "access_token";
 
     private final Context context;
-    private final AccountManager accountManager;
+    private final ScAccountManager accountManager;
     private final SoundCloudTokenOperations tokenOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
+    private final SessionProvider sessionProvider;
 
     private final GooglePlayServicesWrapper googlePlayServicesWrapper;
     private final PlaySessionStateStorage playSessionStateStorage;
@@ -65,37 +58,19 @@ public class AccountOperations {
     private final Lazy<ClearOfflineContentCommand> clearOfflineContentCommand;
     private final Lazy<LoginManager> facebookLoginManager;
 
-    private volatile Urn loggedInUserUrn;
-
-    public enum AccountInfoKeys {
-        USERNAME("currentUsername"),
-        USER_ID("currentUserId"),
-        USER_PERMALINK("currentUserPermalink"),
-        SIGNUP("signup");
-
-        private final String key;
-
-        AccountInfoKeys(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return key;
-        }
-    }
-
     @Inject
     AccountOperations(Context context,
-                      AccountManager accountManager,
+                      ScAccountManager accountManager,
                       SoundCloudTokenOperations tokenOperations,
-                      EventBus eventBus,
+                      EventBusV2 eventBus,
                       PlaySessionStateStorage playSessionStateStorage,
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearOfflineContentCommand> clearOfflineContentCommand,
                       Lazy<LoginManager> facebookLoginManager,
                       GooglePlayServicesWrapper googlePlayServicesWrapper,
-                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                      @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
+                      SessionProvider sessionProvider) {
         this.context = context;
         this.accountManager = accountManager;
         this.tokenOperations = tokenOperations;
@@ -107,30 +82,28 @@ public class AccountOperations {
         this.facebookLoginManager = facebookLoginManager;
         this.googlePlayServicesWrapper = googlePlayServicesWrapper;
         this.scheduler = scheduler;
+        this.sessionProvider = sessionProvider;
     }
 
-    public String getLoggedInUsername() {
-        return getAccountDataString(AccountInfoKeys.USERNAME.getKey());
-    }
-
+    /**
+     * @deprecated use {@link SessionProvider#currentUserUrn} instead.
+     */
+    @Deprecated
     public Urn getLoggedInUserUrn() {
-        if (loggedInUserUrn == null) {
-            final long loggedInUserId = getLoggedInUserId();
-            loggedInUserUrn = loggedInUserId == Consts.NOT_SET ? ANONYMOUS_USER_URN : Urn.forUser(loggedInUserId);
-        }
-        return loggedInUserUrn;
+        return sessionProvider.currentUserUrn().blockingGet();
     }
 
+    /**
+     * @deprecated use {@link SessionProvider#isUserLoggedIn()} instead.
+     */
+    @Deprecated
     public boolean isLoggedInUser(Urn user) {
         return user.equals(getLoggedInUserUrn());
     }
 
-    private long getLoggedInUserId() {
-        return getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-    }
-
-    public void clearLoggedInUser() {
-        loggedInUserUrn = ANONYMOUS_USER_URN;
+    @VisibleForTesting
+    void clearLoggedInUser() {
+        sessionProvider.updateSession(SessionProvider.UserSession.anonymous());
     }
 
     public String getGoogleAccountToken(String accountName,
@@ -143,15 +116,15 @@ public class AccountOperations {
         GoogleAuthUtil.invalidateToken(context, token);
     }
 
-    //TODO: now that this class is a singleton, we should probably cache the current account?
+    /**
+     * @deprecated use {@link SessionProvider#isUserLoggedIn} ()} instead.
+     */
     public boolean isUserLoggedIn() {
-        return !isAnonymousUser() || isCrawler();
+        return sessionProvider.isUserLoggedIn().blockingGet();
     }
 
     public void triggerLoginFlow(Activity currentActivityContext) {
-        accountManager.addAccount(
-                context.getString(R.string.account_type),
-                TOKEN_TYPE, null, null, currentActivityContext, null, null);
+        accountManager.addAccount(TOKEN_TYPE, currentActivityContext);
     }
 
     /**
@@ -162,55 +135,12 @@ public class AccountOperations {
      */
     @Nullable
     public Account addOrReplaceSoundCloudAccount(ApiUser user, Token token, SignupVia via) {
-        boolean accountExists = false;
-        Account account = getSoundCloudAccount();
-        if (account != null) {
-            if (account.name.equals(user.getPermalink())) {
-                accountExists = true; // same username, do not replace account
-            } else {
-                accountManager.removeAccount(account, null, null);
-            }
-        }
-
-        if (!accountExists) {
-            String accountType = context.getString(R.string.account_type);
-            String permalink = user.getPermalink();
-            account = new Account(permalink, accountType);
-
-            // workaround for https://code.google.com/p/android/issues/detail?id=210992
-            // This is a no-op even if the bug is fixed. Remove upon release of Android N
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                accountManager.removeAccountExplicitly(account);
-            }
-
-            accountExists = accountManager.addAccountExplicitly(account, null, null);
-
-            // workaround for Sony Xperia XZ devices that corrupted their AccountManager databases
-            // for Accounts that were added prior to the OS update to Android 7.1.1.
-            // Adding this different account should relieve users facing this issue.
-            // See: https://stackoverflow.com/questions/43664484/accountmanager-fails-to-add-account-on-sony-xz-7-1-1/44824516#44824516
-            if (!accountExists) {
-                ErrorUtils.log(Log.ERROR, "AccountOperations", "Failed to add account in first try.");
-                ErrorUtils.handleSilentException(new AddAccountFailure("Failed to add account in first try."));
-                account = new Account(permalink + "\n", accountType);
-                accountExists = accountManager.addAccountExplicitly(account, null, null);
-
-                if (!accountExists) {
-                    ErrorUtils.log(Log.ERROR, "AccountOperations", "Failed to add account in second try.");
-                    ErrorUtils.handleSilentException(new AddAccountFailure("Failed to add account in second try."));
-                }
-            }
-        }
-
-        if (accountExists) {
-            tokenOperations.storeSoundCloudTokenData(account, token);
-            accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
-            accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
-            accountManager.setUserData(account, AccountInfoKeys.USER_PERMALINK.getKey(), user.getPermalink());
-            accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
-            loggedInUserUrn = user.getUrn();
+        Optional<Account> accountOptional = accountManager.addOrReplaceSoundCloudAccount(user.getUrn(), user.getPermalink(), token, via);
+        if (accountOptional.isPresent()) {
+            tokenOperations.storeSoundCloudTokenData(accountOptional.get(), token);
+            sessionProvider.updateSession(SessionProvider.UserSession.forAuthenticatedUser(user.getUrn(), accountOptional.get()));
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user.getUrn()));
-            return account;
+            return accountOptional.get();
         } else {
             return null;
         }
@@ -218,34 +148,28 @@ public class AccountOperations {
 
     public void loginCrawlerUser() {
         Account account = new Account(CRAWLER_USER_PERMALINK, context.getString(R.string.account_type));
-        loggedInUserUrn = CRAWLER_USER_URN;
+        sessionProvider.updateSession(SessionProvider.UserSession.forCrawler());
         tokenOperations.storeSoundCloudTokenData(account, Token.EMPTY);
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(CRAWLER_USER_URN));
     }
 
-    @Nullable
-    public Account getSoundCloudAccount() {
-        final Account[] accounts = AndroidUtils.getAccounts(accountManager, context.getString(R.string.account_type));
-        return accounts != null && accounts.length == 1 ? accounts[0] : null;
+    public Optional<Account> getSoundCloudAccount() {
+        return accountManager.getSoundCloudAccount();
     }
 
-    public Observable<Void> logout() {
-        Account soundCloudAccount = getSoundCloudAccount();
-        if (soundCloudAccount == null) {
+    public Completable logout() {
+        Optional<Account> soundCloudAccount = getSoundCloudAccount();
+        if (!soundCloudAccount.isPresent()) {
             throw new IllegalStateException("Missing Account. One does not simply remove something that does not exist");
         }
-
-        return configurationOperations.get()
-                                      .deregisterDevice()
-                                      .flatMap(o -> Observable.create(new AccountRemovalFunction(
-                                              soundCloudAccount,
-                                              accountManager)))
-                                      .observeOn(AndroidSchedulers.mainThread())
-                                      .subscribeOn(scheduler);
+        return RxJava.toV2Observable(configurationOperations.get().deregisterDevice())
+                     .flatMapCompletable(o -> Completable.fromAction(() -> accountManager.remove(soundCloudAccount.get())))
+                     .observeOn(AndroidSchedulers.mainThread())
+                     .subscribeOn(scheduler);
     }
 
-    public Observable<Void> purgeUserData() {
-        return Observable.<Void>create(subscriber -> {
+    public Completable purgeUserData() {
+        return Completable.fromAction(() -> {
             clearOfflineContentCommand.get().call(null);
             accountCleanupAction.get().call();
             tokenOperations.resetToken();
@@ -253,7 +177,6 @@ public class AccountOperations {
             clearLoggedInUser();
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
             resetPlaybackService();
-            subscriber.onCompleted();
             playSessionStateStorage.clear();
         }).subscribeOn(scheduler);
     }
@@ -269,58 +192,12 @@ public class AccountOperations {
         context.startService(intent);
     }
 
-    @Nullable
-    private String getAccountDataString(String key) {
-        final Account soundCloudAccount = getSoundCloudAccount();
-        if (soundCloudAccount != null) {
-            return accountManager.getUserData(soundCloudAccount, key);
-        }
-        return null;
-    }
-
-    //TODO Should have a consistent anonymous user id Uri forUser(long id). ClientUri.forUser() is related with this issue
-    private long getAccountDataLong(String key) {
-        String data = getAccountDataString(key);
-        return data == null ? Consts.NOT_SET : Long.parseLong(data);
-    }
-
-    //TODO this seems wrong to me, should we not differentiate between no data existing and a false value existing?
-    //Also, shouldn't be public...
-    public boolean getAccountDataBoolean(String key) {
-        String data = getAccountDataString(key);
-        return data != null && Boolean.parseBoolean(data);
-    }
-
-    public boolean setAccountData(String key, String value) {
-        final Account soundCloudAccount = getSoundCloudAccount();
-        if (soundCloudAccount != null) {
-            /*
-            TODO: not sure : setUserData off the ui thread??
-                StrictMode policy violation; ~duration=161 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=279 violation=1
-
-                D/StrictMode(15333): 	at android.os.StrictMode.readAndHandleBinderCallViolations(StrictMode.java:1617)
-                D/StrictMode(15333): 	at android.os.Parcel.readExceptionCode(Parcel.java:1309)
-                D/StrictMode(15333): 	at android.os.Parcel.readException(Parcel.java:1278)
-                D/StrictMode(15333): 	at android.accounts.IAccountManager$Stub$Proxy.setUserData(IAccountManager.java:701)
-                D/StrictMode(15333): 	at android.accounts.AccountManager.setUserData(AccountManager.java:684)
-                D/StrictMode(15333): 	at com.soundcloud.android.SoundCloudApplication.setAccountData(SoundCloudApplication.java:314)
-             */
-            accountManager.setUserData(soundCloudAccount, key, value);
-            return true;
-        }
-        return false;
-    }
-
     public Token getSoundCloudToken() {
-        return tokenOperations.getTokenFromAccount(getSoundCloudAccount());
+        return tokenOperations.getTokenFromAccount(getSoundCloudAccount().orNull());
     }
 
     public void updateToken(Token token) {
         tokenOperations.setToken(token);
-    }
-
-    public void storeSoundCloudTokenData(Token token) {
-        tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 
     public boolean hasValidToken() {
@@ -337,13 +214,7 @@ public class AccountOperations {
         }
     }
 
-    private boolean isAnonymousUser() {
-        return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
-    }
-
-    static class AddAccountFailure extends Throwable {
-        public AddAccountFailure(String message) {
-            super(message);
-        }
+    public static boolean isAnonymousUser(Urn urn) {
+        return urn.equals(Urn.NOT_SET);
     }
 }

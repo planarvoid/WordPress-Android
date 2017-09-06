@@ -12,14 +12,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Completable;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.support.v4.SupportFragmentController;
-import rx.Observable;
 import rx.Observer;
-import rx.subjects.PublishSubject;
 
 import android.support.v4.app.FragmentActivity;
 
@@ -31,12 +31,12 @@ public class LogoutFragmentTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private Observer observer;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private LogoutFragment logoutFragment;
 
     @Before
     public void setup() {
-        when(accountOperations.logout()).thenReturn(Observable.empty());
+        when(accountOperations.logout()).thenReturn(Completable.complete());
         LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations, mock(LeakCanaryWrapper.class));
         fragmentController = SupportFragmentController.of(fragment);
         logoutFragment = fragmentController.get();
@@ -44,7 +44,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveCurrentUserAccountInOnCreate() {
-        final PublishSubject<Void> logOutOperation = PublishSubject.create();
+        final CompletableSubject logOutOperation = CompletableSubject.create();
         when(accountOperations.logout()).thenReturn(logOutOperation);
 
         fragmentController.create();
@@ -73,7 +73,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
 
     @Test
     public void shouldFinishCurrentActivityWhenAccountRemoveFails() {
-        when(accountOperations.logout()).thenReturn(Observable.error(new Exception()));
+        when(accountOperations.logout()).thenReturn(Completable.error(new Exception()));
 
         fragmentController.create();
 

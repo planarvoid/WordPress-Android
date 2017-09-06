@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.analytics.performance.MetricType.DEV_APP_ON_CREATE;
+import static com.soundcloud.android.rx.observers.LambdaMaybeObserver.onNext;
 
 import com.facebook.stetho.Stetho;
 import com.google.firebase.FirebaseApp;
@@ -9,6 +10,7 @@ import com.google.firebase.perf.FirebasePerformance;
 import com.moat.analytics.mobile.scl.MoatAnalytics;
 import com.moat.analytics.mobile.scl.MoatOptions;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.SessionProvider;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.PlayerAdsControllerProxy;
 import com.soundcloud.android.analytics.AnalyticsEngine;
@@ -46,6 +48,7 @@ import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -56,7 +59,6 @@ import com.soundcloud.android.storage.DatabaseCleanupScheduler;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
@@ -96,6 +98,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Inject MigrationEngine migrationEngine;
     @Inject NetworkConnectivityListener networkConnectivityListener;
+    @Inject SessionProvider sessionProvider;
     @Inject AccountOperations accountOperations;
     @Inject ForceUpdateHandler forceUpdateHandler;
     @Inject PlayerWidgetControllerProxy widgetControllerListener;
@@ -149,6 +152,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
         initializeFirebase();
 
         if (LeakCanary.isInAnalyzerProcess(this)) {
@@ -285,18 +289,10 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void setupCurrentUserAccount() {
-        final Account account = accountOperations.getSoundCloudAccount();
-
-        if (account != null) {
-            if (!syncConfig.isSyncingEnabled(account)) {
-                syncConfig.enableSyncing(account);
-            }
-
-            // remove device url so clients resubmit the registration request with
-            // device identifier
-            AndroidUtils.doOnce(this, "reset.c2dm.reg_id",
-                                () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
-        }
+        sessionProvider.currentAccount()
+                       .subscribeOn(ScSchedulers.RX_HIGH_PRIORITY_SCHEDULER)
+                       .filter(syncConfig::isSyncingEnabled)
+                       .subscribeWith(onNext(syncConfig::enableSyncing));
     }
 
     @NotNull

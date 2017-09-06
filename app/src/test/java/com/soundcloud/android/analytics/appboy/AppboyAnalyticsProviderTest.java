@@ -44,11 +44,11 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotChangeUserIdWhenUserLoggedOutOnConstructed() throws Exception {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(AccountOperations.ANONYMOUS_USER_URN);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.NOT_SET);
 
         appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, eventHandler, accountOperations);
 
-        verify(appboy, never()).changeUser(AccountOperations.ANONYMOUS_USER_URN.toString());
+        verify(appboy, never()).changeUser(Urn.NOT_SET.toString());
     }
 
     @Test

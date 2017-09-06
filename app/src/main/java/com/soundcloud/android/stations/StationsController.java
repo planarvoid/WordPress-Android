@@ -3,52 +3,32 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.events.UrnStateChangedEvent.fromStationsUpdated;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func2;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 public class StationsController {
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final StationsOperations operations;
+    private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
-    private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = (event, playStateEvent) -> new CollectionPlaybackState(
-            event.getCollectionUrn(),
-            event.getPosition(),
-            playStateEvent.getNewState()
-    );
-
-    private final Action1<CollectionPlaybackState> saveRecentStation = new Action1<CollectionPlaybackState>() {
-        @Override
-        public void call(CollectionPlaybackState collectionPlaybackState) {
-            operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn,
-                                                   collectionPlaybackState.position);
-            operations.saveRecentlyPlayedStation(collectionPlaybackState.collectionUrn);
-            eventBus.publish(EventQueue.URN_STATE_CHANGED,
-                             fromStationsUpdated(collectionPlaybackState.collectionUrn));
-        }
-    };
-
-    private static final Func1<CollectionPlaybackState, Boolean> IS_PLAYING_STATION = collectionPlaybackState -> collectionPlaybackState.collectionUrn.isStation() && collectionPlaybackState.playbackState.isPlayerPlaying();
-
     @Inject
-    public StationsController(EventBus eventBus,
-                              StationsOperations operations,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    StationsController(EventBusV2 eventBus,
+                       StationsOperations operations,
+                       SyncInitiator syncInitiator,
+                       @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.operations = operations;
+        this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
     }
 
@@ -57,12 +37,24 @@ public class StationsController {
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
-                        TO_COLLECTION_PLAY_STATE
+                        (event, playStateEvent) -> new CollectionPlaybackState(
+                                event.getCollectionUrn(),
+                                event.getPosition(),
+                                playStateEvent.getNewState()
+                        )
                 )
-                .filter(IS_PLAYING_STATION)
+                .filter(collectionPlaybackState -> collectionPlaybackState.collectionUrn.isStation() && collectionPlaybackState.playbackState.isPlayerPlaying())
                 .observeOn(scheduler)
-                .doOnNext(saveRecentStation)
-                .subscribe(new DefaultSubscriber<CollectionPlaybackState>());
+                .doOnNext(this::saveStation)
+                .flatMapCompletable(__ -> syncInitiator.requestSystemSync())
+                .subscribe(new DefaultCompletableObserver());
+    }
+
+    private void saveStation(CollectionPlaybackState collectionPlaybackState) {
+        // operations should not be imperative. These should be observables
+        operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn, collectionPlaybackState.position);
+        operations.saveRecentlyPlayedStation(collectionPlaybackState.collectionUrn);
+        eventBus.publish(EventQueue.URN_STATE_CHANGED, fromStationsUpdated(collectionPlaybackState.collectionUrn));
     }
 
     private static class CollectionPlaybackState {

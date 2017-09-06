@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -86,7 +87,7 @@ public class PlaylistOperations {
                                                     Observable.just(urn))
                                     .doOnNext(publishPlaylistCreatedEvent)
                                     .subscribeOn(scheduler)
-                                    .doOnCompleted(syncInitiator::requestSystemSync);
+                                    .doOnCompleted(this::requestSystemSync);
     }
 
     Observable<Playlist> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
@@ -113,7 +114,7 @@ public class PlaylistOperations {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
                                         .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlistUrn, trackCount)))
-                                        .doOnCompleted(syncInitiator::requestSystemSync)
+                                        .doOnCompleted(this::requestSystemSync)
                                         .subscribeOn(scheduler);
     }
 
@@ -122,7 +123,7 @@ public class PlaylistOperations {
         return removeTrackFromPlaylistCommand.toObservable(params)
                                              .doOnNext(trackCount -> eventBus.publish(EventQueue.PLAYLIST_CHANGED,
                                                                                       PlaylistTrackCountChangedEvent.fromTrackRemovedFromPlaylist(playlistUrn, trackCount)))
-                                             .doOnCompleted(syncInitiator::requestSystemSync)
+                                             .doOnCompleted(this::requestSystemSync)
                                              .subscribeOn(scheduler);
     }
 
@@ -145,7 +146,9 @@ public class PlaylistOperations {
                      .subscribeOn(scheduler);
     }
 
-    public static class PlaylistMissingException extends Exception {
-
+    private void requestSystemSync() {
+        syncInitiator.requestSystemSync().subscribe(new DefaultCompletableObserver());
     }
+
+    public static class PlaylistMissingException extends Exception { }
 }

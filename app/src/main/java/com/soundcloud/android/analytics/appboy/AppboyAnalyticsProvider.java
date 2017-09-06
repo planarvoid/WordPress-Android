@@ -72,7 +72,7 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void changeUser(Urn userUrn) {
-        if (userUrn.isUser() && !userUrn.equals(AccountOperations.ANONYMOUS_USER_URN)) {
+        if (userUrn.isUser() && !AccountOperations.isAnonymousUser(userUrn)) {
             appboy.changeUser(userUrn.toString());
         }
     }

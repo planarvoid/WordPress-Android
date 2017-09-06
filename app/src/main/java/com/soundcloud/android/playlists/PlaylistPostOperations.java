@@ -5,7 +5,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxSignal;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -38,9 +37,8 @@ class PlaylistPostOperations {
                                              ? playlistPostStorage.remove(urn)
                                              : playlistPostStorage.markPendingRemoval(urn);
         return remove
+                .flatMapSingle(__ -> syncInitiator.requestSystemSync().toSingle(() -> RxSignal.SIGNAL))
                 .doOnNext(eventBus.publishAction1(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityDeleted(urn)))
-                .doOnNext(changeResult -> syncInitiator.requestSystemSync())
-                .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 

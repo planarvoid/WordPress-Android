@@ -10,17 +10,16 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.rx.eventbus.TestEventBus;
-import io.reactivex.subjects.PublishSubject;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.schedulers.Schedulers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StationsControllerTest {
@@ -28,14 +27,13 @@ public class StationsControllerTest {
     private static final Urn STATION = Urn.forTrackStation(TRACK_URN.getNumericId());
 
     @Mock StationsOperations operations;
+    @Mock SyncInitiator syncInitiator;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() {
-        final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
-
-        new StationsController(eventBus, operations, Schedulers.immediate()).subscribe();
+        new StationsController(eventBus, operations, syncInitiator, Schedulers.trampoline()).subscribe();
     }
 
     @Test

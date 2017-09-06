@@ -28,6 +28,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import org.junit.Before;
@@ -78,6 +79,7 @@ public class PlaylistOperationsTest {
     public void setUp() {
         eventBus = new TestEventBus();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
+        when(syncInitiator.requestSystemSync()).thenReturn(Completable.complete());
         operations = new PlaylistOperations(Schedulers.immediate(),
                                             syncInitiator,
                                             playlistRepository,

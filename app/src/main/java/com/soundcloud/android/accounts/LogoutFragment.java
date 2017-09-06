@@ -6,10 +6,11 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.subscriptions.CompositeSubscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,12 +26,12 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class LogoutFragment extends Fragment {
 
-    @Inject EventBus eventBus;
+    @Inject EventBusV2 eventBus;
     @Inject AccountOperations accountOperations;
     @Inject FeatureOperations featureOperations;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
-    private final CompositeSubscription subscription = new CompositeSubscription();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     public LogoutFragment() {
         setRetainInstance(true);
@@ -38,7 +39,7 @@ public class LogoutFragment extends Fragment {
     }
 
     @VisibleForTesting
-    LogoutFragment(EventBus eventBus, AccountOperations accountOperations, FeatureOperations featureOperations, LeakCanaryWrapper leakCanaryWrapper) {
+    LogoutFragment(EventBusV2 eventBus, AccountOperations accountOperations, FeatureOperations featureOperations, LeakCanaryWrapper leakCanaryWrapper) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
@@ -51,8 +52,8 @@ public class LogoutFragment extends Fragment {
         if (featureOperations.isOfflineContentEnabled()) {
             OfflineContentService.stop(getActivity());
         }
-        subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new EventSubscriber()));
-        subscription.add(accountOperations.logout().subscribe(new LogoutSubscriber()));
+        disposable.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new EventObserver()));
+        disposable.add(accountOperations.logout().subscribeWith(new LogoutObserver()));
     }
 
     @Override
@@ -62,12 +63,12 @@ public class LogoutFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        subscription.unsubscribe();
+        disposable.clear();
         super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 
-    private final class LogoutSubscriber extends DefaultSubscriber<Void> {
+    private final class LogoutObserver extends DefaultCompletableObserver {
 
         @Override
         public void onError(Throwable e) {
@@ -79,7 +80,7 @@ public class LogoutFragment extends Fragment {
         }
     }
 
-    private final class EventSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
+    private final class EventObserver extends DefaultObserver<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent currentUserChangedEvent) {
             final Activity activity = getActivity();

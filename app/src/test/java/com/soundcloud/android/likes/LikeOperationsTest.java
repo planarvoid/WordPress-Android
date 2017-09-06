@@ -13,6 +13,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import edu.emory.mathcs.backport.java.util.Collections;
+import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
@@ -45,6 +46,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
                 eventBus,
                 scheduler);
         when(updateLikeCommand.toSingle(any(UpdateLikeParams.class))).thenReturn(Single.just(5));
+        when(syncInitiator.requestSystemSync()).thenReturn(Completable.complete());
     }
 
     @Test

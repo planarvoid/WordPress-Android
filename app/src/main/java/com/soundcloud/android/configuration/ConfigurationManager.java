@@ -2,10 +2,10 @@ package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import rx.Subscription;
-
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -57,7 +57,7 @@ public class ConfigurationManager {
             if (configuration.getDeviceManagement().isUnauthorized()) {
                 Log.d(TAG, "Unauthorized device, logging out");
                 deviceManagementStorage.setDeviceConflict();
-                fireAndForget(accountOperations.logout());
+                accountOperations.logout().subscribe(new DefaultCompletableObserver());
             } else {
                 configurationOperations.saveConfiguration(configuration);
             }

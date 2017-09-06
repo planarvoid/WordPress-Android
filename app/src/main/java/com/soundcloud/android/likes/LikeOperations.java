@@ -42,9 +42,8 @@ public class LikeOperations {
         final UpdateLikeParams params = new UpdateLikeParams(targetUrn, addLike);
         return storeLikeCommand
                 .toSingle(params)
-                .map(likesCount -> LikesStatusEvent.create(targetUrn, addLike, likesCount))
+                .flatMap(likesCount -> syncInitiator.requestSystemSync().toSingle(() -> LikesStatusEvent.create(targetUrn, addLike, likesCount)))
                 .doOnSuccess(likesStatusEvent -> eventBus.publish(EventQueue.LIKE_CHANGED, likesStatusEvent))
-                .doOnSuccess(likesStatusEvent -> syncInitiator.requestSystemSync())
                 .subscribeOn(scheduler)
                 .map(likesStatusEvent -> addLike ? LikeResult.LIKE_SUCCEEDED : LikeResult.UNLIKE_SUCCEEDED)
                 .onErrorReturn(throwable -> addLike ? LikeResult.LIKE_FAILED : LikeResult.UNLIKE_FAILED);

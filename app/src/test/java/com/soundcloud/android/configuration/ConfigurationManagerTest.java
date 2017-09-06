@@ -7,13 +7,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationManagerTest {
@@ -55,12 +55,12 @@ public class ConfigurationManagerTest {
     public void forceUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
         when(configurationOperations.fetch()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
-        final PublishSubject<Void> logoutSubject = PublishSubject.create();
+        final CompletableSubject logoutSubject = CompletableSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
 
         manager.forceConfigurationUpdate();
 
-        logoutSubject.onNext(null);
+        logoutSubject.onComplete();
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
     }
 
@@ -77,12 +77,12 @@ public class ConfigurationManagerTest {
     public void requestedUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
         when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
-        final PublishSubject<Void> logoutSubject = PublishSubject.create();
+        final CompletableSubject logoutSubject = CompletableSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
 
         manager.requestConfigurationUpdate();
 
-        logoutSubject.onNext(null);
+        logoutSubject.onComplete();
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
     }
 

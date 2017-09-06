@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
@@ -32,9 +33,9 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     @Override
     AuthTask createAuthTask() {
         final SoundCloudApplication application = (SoundCloudApplication) getActivity().getApplication();
-        final Account account = accountOperations.getSoundCloudAccount();
+        final Optional<Account> account = accountOperations.getSoundCloudAccount();
         final String username = getArguments().getString(USERNAME_EXTRA);
-        final String permalink = account != null ? account.name : username;
+        final String permalink = account.transform(acct -> acct.name).or(username);
         final String avatarFilename = getArguments().getString(AVATAR_EXTRA, null);
         final File avatarFile = avatarFilename != null ? new File(avatarFilename) : null;
 
