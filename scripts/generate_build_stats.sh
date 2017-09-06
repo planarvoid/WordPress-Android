@@ -13,10 +13,14 @@ curl -o ./scripts/lib/dex-method-counts.jar http://maven.int.s-cloud.net/service
 ## Calculate
 APK_SIZE=$(stat --printf=%s app/build/outputs/apk/soundcloud-android-*.apk)
 METHOD_COUNT=$(./scripts/lib/dex-method-counts app/build/outputs/apk/soundcloud-android-*.apk | grep "Overall method count: " | sed 's/Overall method count: //g')
+RX_JAVA_COUNT=`./scripts/occurrences_count.sh "import rx."`
+RX_JAVA_2_COUNT=`./scripts/occurrences_count.sh "import io.reactivex."`
 
 ## Write
 rm -f ${FILE_BUILD_STATS}
 printf "apksize:${APK_SIZE} \n" >> ${FILE_BUILD_STATS}
 printf "methodcount:${METHOD_COUNT} \n" >> ${FILE_BUILD_STATS}
+printf "rxjava:${RX_JAVA_COUNT} \n" >> ${FILE_BUILD_STATS}
+printf "rx2:${RX_JAVA_2_COUNT} \n" >> ${FILE_BUILD_STATS}
 
 ./gradlew -q :app:dependencies --configuration _devDebugCompile > ${FILE_DEPENDENCY_TREE}

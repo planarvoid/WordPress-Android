@@ -27,6 +27,22 @@ function formatFileSize {
     awk "BEGIN {printf \"%.3fMB\n\", $1 / 1000000}"
 }
 
+function formatPercentage {
+    perc=`awk "BEGIN {printf \"%.1f\n\", $1}"`
+    echo ${perc}%%
+}
+
+## $1 value
+## $2 total (denominator)
+function percentage {
+    if [ $2 -gt 0 ]
+    then
+      awk "BEGIN {printf \"%.2f\n\", ($1*100 / $2)}"
+    else
+      awk "BEGIN {printf \"0\n\"}"
+    fi
+}
+
 function apkSize {
     MASTER=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} apksize)
     LOCAL=$(getValueFromFile ${FILE_BUILD_STATS} apksize)
@@ -37,6 +53,26 @@ function apkSize {
     MESSAGE_DIFF=$(formatFileSize ${DIFF})
 
     OUT=$(printf "| **APK Size** | $MESSAGE_MASTER | $MESSAGE_BRANCH | $MESSAGE_DIFF | \n")
+    echo ${OUT}
+}
+
+function rxJavaMigration {
+    MASTER_RX=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} rxjava)
+    MASTER_RX2=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} rx2)
+    LOCAL_RX=$(getValueFromFile ${FILE_BUILD_STATS} rxjava)
+    LOCAL_RX2=$(getValueFromFile ${FILE_BUILD_STATS} rx2)
+    MASTER_PERCENTAGE=$(percentage ${MASTER_RX2} $(($MASTER_RX+$MASTER_RX2)))
+    LOCAL_PERCENTAGE=$(percentage ${LOCAL_RX2} $(($LOCAL_RX+$LOCAL_RX2)))
+    DIFF_IMPORTS=$((${LOCAL_RX2} - ${MASTER_RX2}))
+    DIFF_PERCENTAGE=`bc <<< ${LOCAL_PERCENTAGE}-${MASTER_PERCENTAGE}`
+
+    MASTER_PERCENTAGE_FORMATTED=$(formatPercentage ${MASTER_PERCENTAGE})
+    LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
+    DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
+
+    OUT=$(printf "| **RxJava2 imports** | $MASTER_RX2 | $LOCAL_RX2 | $DIFF_IMPORTS | \n")
+    echo ${OUT}
+    OUT=$(printf "| **RxJava2 %%** | $MASTER_PERCENTAGE_FORMATTED | $LOCAL_PERCENTAGE_FORMATTED | $DIFF_PERCENTAGE_FORMATTED | \n")
     echo ${OUT}
 }
 
@@ -68,5 +104,6 @@ printf "| Metric | master | $ghprbSourceBranch | diff | \n" >> ${FILE_STATS}
 printf "| ------ | ------ | ------------------ | ---- | \n" >> ${FILE_STATS}
 apkSize >> ${FILE_STATS}
 methodCount >> ${FILE_STATS}
+rxJavaMigration >> ${FILE_STATS}
 
 ./scripts/github/create_github_comment.sh ${ghprbPullId} "`cat $FILE_STATS`"
