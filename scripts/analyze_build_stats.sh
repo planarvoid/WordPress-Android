@@ -60,7 +60,7 @@ if [[ ${WORDCOUNT} -gt 1 ]]; then
     printf "\`\`\`diff \n" >> $FILE_DIFF
     printf "$DIFF \n" >> $FILE_DIFF
     printf "\`\`\`" >> $FILE_DIFF
-    ./scripts/create_github_comment.sh ${ghprbPullId} "`cat $FILE_DIFF`"
+    ./scripts/github/create_github_comment.sh ${ghprbPullId} "`cat $FILE_DIFF`"
 fi
 
 rm -f $FILE_STATS
@@ -69,4 +69,4 @@ printf "| ------ | ------ | ------------------ | ---- | \n" >> ${FILE_STATS}
 apkSize >> ${FILE_STATS}
 methodCount >> ${FILE_STATS}
 
-./scripts/create_github_comment.sh ${ghprbPullId} "`cat $FILE_STATS`"
+./scripts/github/create_github_comment.sh ${ghprbPullId} "`cat $FILE_STATS`"
