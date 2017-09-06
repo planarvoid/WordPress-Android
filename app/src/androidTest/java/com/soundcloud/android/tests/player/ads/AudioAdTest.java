@@ -11,13 +11,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-@Ignore // https://soundcloud.atlassian.net/browse/DROID-1754
 @AdsTest
 public class AudioAdTest extends AdBaseTest {
 

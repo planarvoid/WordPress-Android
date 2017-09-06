@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsUpsellScreen;
@@ -15,7 +14,6 @@ import com.soundcloud.android.tests.player.ads.AdBaseTest;
 
 import android.net.Uri;
 
-@Ignore // https://soundcloud.atlassian.net/browse/DROID-1754
 @AdsTest
 public class WhyAdsUpsellTest extends AdBaseTest {
 
