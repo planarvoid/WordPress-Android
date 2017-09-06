@@ -1,8 +1,9 @@
-package com.soundcloud.android.playback.common;
+package com.soundcloud.android.playback.skippy;
 
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.skippy.StateChangeHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

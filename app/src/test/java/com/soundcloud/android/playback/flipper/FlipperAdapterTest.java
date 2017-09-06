@@ -30,8 +30,6 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
-import com.soundcloud.android.playback.common.ProgressChangeHandler;
-import com.soundcloud.android.playback.common.StateChangeHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.testsupport.fixtures.TestPreloadItem;
@@ -51,6 +49,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 public class FlipperAdapterTest extends AndroidUnitTest {
@@ -63,15 +62,15 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     private FlipperAdapter flipperAdapter;
     private TestEventBusV2 eventBus = new TestEventBusV2();
     private CurrentDateProvider dateProvider = new TestDateProvider();
+    private FlipperCallbackHandler callbackHandler = new FlipperCallbackHandler(Looper.getMainLooper());
 
     @Mock FlipperWrapperFactory flipperWrapperFactory;
     @Mock FlipperWrapper flipperWrapper;
+    @Mock Player.PlayerListener playerListener;
     @Mock AccountOperations accountOperations;
     @Mock HlsStreamUrlBuilder hlsStreamUrlBuilder;
     @Mock ConnectionHelper connectionHelper;
     @Mock LockUtil lockUtil;
-    @Mock StateChangeHandler stateChangeHandler;
-    @Mock ProgressChangeHandler progressChangeHandler;
     @Mock CryptoOperations cryptoOperations;
     @Mock PerformanceReporter performanceReporter;
 
@@ -87,12 +86,13 @@ public class FlipperAdapterTest extends AndroidUnitTest {
                                             hlsStreamUrlBuilder,
                                             connectionHelper,
                                             lockUtil,
-                                            stateChangeHandler,
-                                            progressChangeHandler,
+                                            callbackHandler,
                                             dateProvider,
                                             eventBus,
                                             cryptoOperations,
                                             performanceReporter);
+
+        flipperAdapter.setListener(playerListener);
     }
 
     @Test
@@ -113,16 +113,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         flipperAdapter.play(TestPlaybackItem.audio());
 
         verifyZeroInteractions(flipperWrapper);
-    }
-
-    @Test
-    public void playerListenerIsSetInEveryHandler() {
-        Player.PlayerListener listener = mock(Player.PlayerListener.class);
-
-        flipperAdapter.setListener(listener);
-
-        verify(stateChangeHandler).setPlayerListener(listener);
-        verify(progressChangeHandler).setPlayerListener(listener);
     }
 
     @Test
@@ -208,7 +198,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         flipperAdapter.onProgressChanged(progressChange);
 
-        verify(progressChangeHandler).report(position, duration);
+        verify(playerListener).onProgressEvent(position, duration);
     }
 
     @Test
@@ -222,7 +212,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         flipperAdapter.onProgressChanged(progressChange);
 
-        verify(progressChangeHandler, never()).report(anyLong(), anyLong());
+        verify(playerListener, never()).onProgressEvent(anyLong(), anyLong());
     }
 
     @Test
@@ -424,7 +414,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
     private void verifyReportedState(PlaybackItem playbackItem, PlaybackState playbackState, PlayStateReason playStateReason,
                                      long position, long duration, ConnectionType connectionType) {
-        verify(stateChangeHandler).report(eq(playbackItem), transitionCaptor.capture());
+        verify(playerListener).onPlaystateChanged(transitionCaptor.capture());
 
         PlaybackStateTransition stateTransition = transitionCaptor.getValue();
         assertThat(stateTransition.getNewState()).isEqualTo(playbackState);

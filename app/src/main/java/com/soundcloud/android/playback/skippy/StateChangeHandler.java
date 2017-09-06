@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.common;
+package com.soundcloud.android.playback.skippy;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.playback.PlaybackItem;

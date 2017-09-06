@@ -43,8 +43,6 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
-import com.soundcloud.android.playback.common.ProgressChangeHandler;
-import com.soundcloud.android.playback.common.StateChangeHandler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;

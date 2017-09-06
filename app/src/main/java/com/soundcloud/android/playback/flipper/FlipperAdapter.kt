@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.flipper
 
+import android.support.annotation.UiThread
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.crypto.CryptoOperations
 import com.soundcloud.android.events.ConnectionType
@@ -13,8 +14,6 @@ import com.soundcloud.android.playback.PlaybackStateTransition
 import com.soundcloud.android.playback.PlaybackType
 import com.soundcloud.android.playback.Player
 import com.soundcloud.android.playback.PreloadItem
-import com.soundcloud.android.playback.common.ProgressChangeHandler
-import com.soundcloud.android.playback.common.StateChangeHandler
 import com.soundcloud.android.utils.ConnectionHelper
 import com.soundcloud.android.utils.CurrentDateProvider
 import com.soundcloud.android.utils.ErrorUtils
@@ -33,8 +32,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                      private val hlsStreamUrlBuilder: HlsStreamUrlBuilder,
                      private val connectionHelper: ConnectionHelper,
                      private val wakelockUtil: LockUtil,
-                     private val stateHandler: StateChangeHandler,
-                     private val progressChangeHandler: ProgressChangeHandler,
+                     private val callbackHandler: FlipperCallbackHandler,
                      private val dateProvider: CurrentDateProvider,
                      private val eventBus: EventBusV2,
                      private val cryptoOperations: CryptoOperations,
@@ -44,6 +42,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     @Volatile private var currentStreamUrl: String? = null
     private var currentPlaybackItem: PlaybackItem? = null
+    private var playerListener: Player.PlayerListener? = null
 
     // Flipper may send past progress events when seeking, leading to UI glitches.
     // This boolean helps us to workaround this.
@@ -55,11 +54,8 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun play(playbackItem: PlaybackItem) {
         if (!accountOperations.isUserLoggedIn) throw IllegalStateException("Cannot play a track if no soundcloud account exists")
 
+        ErrorUtils.log(android.util.Log.DEBUG, TAG, "play(): ${playbackItem.urn} in duration ${playbackItem.duration}]")
         currentPlaybackItem = playbackItem
-        currentPlaybackItem?.let {
-            ErrorUtils.log(android.util.Log.DEBUG, TAG, "play(): ${it.urn} in duration ${it.duration}]")
-        }
-        stateHandler.removeMessages(0)
         isSeekPending = false
         progress = 0
 
@@ -86,10 +82,8 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     }
 
     override fun resume(playbackItem: PlaybackItem) {
+        Log.d(TAG, "resume() called with: playbackItem = [$playbackItem, ${playbackItem.urn} in duration ${playbackItem.duration}]")
         currentPlaybackItem = playbackItem
-        currentPlaybackItem?.let {
-            Log.d(TAG, "resume() called with: playbackItem = [$it, ${it.urn} in duration ${it.duration}]")
-        }
         startPlayback()
     }
 
@@ -119,8 +113,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun destroy() = flipperWrapper.destroy()
 
     override fun setListener(playerListener: Player.PlayerListener) {
-        this.stateHandler.setPlayerListener(playerListener)
-        this.progressChangeHandler.setPlayerListener(playerListener)
+        this.playerListener = playerListener
     }
 
     override fun isSeekable() = true
@@ -128,36 +121,45 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun getPlayerType() = PlayerType.FLIPPER
 
     fun onProgressChanged(event: ProgressChange) {
-        try {
-            if (isCurrentStreamUrl(event.uri) && !isSeekPending) {
-                progress = event.position
-                progressChangeHandler.report(event.position, event.duration)
+        callbackThread {
+            try {
+                if (isCurrentStreamUrl(event.uri) && !isSeekPending) {
+                    progress = event.position
+                    playerListener?.onProgressEvent(event.position, event.duration)
+                }
+            } catch (t: Throwable) {
+                ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
-        } catch (t: Throwable) {
-            ErrorUtils.handleThrowableOnMainThread(t, javaClass)
         }
     }
 
     fun onPerformanceEvent(event: AudioPerformanceEvent) {
-        try {
-            currentPlaybackItem?.let { performanceReporter.report(it, event, playerType) }
-        } catch (t: Throwable) {
-            ErrorUtils.handleThrowableOnMainThread(t, javaClass)
+        callbackThread {
+            try {
+                currentPlaybackItem?.let { performanceReporter.report(it, event, playerType) }
+            } catch (t: Throwable) {
+                ErrorUtils.handleThrowableOnMainThread(t, javaClass)
+            }
         }
     }
 
     private fun isCurrentStreamUrl(uri: String) = uri == currentStreamUrl
 
     fun onStateChanged(event: StateChange) {
-        ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in ${event.state} with: event = [$event]")
-        handleStateChanged(event)
+        callbackThread {
+            ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in ${event.state} with: event = [$event]")
+            handleStateChanged(event)
+        }
     }
 
     fun onBufferingChanged(event: StateChange) {
-        Log.i(TAG, "onBufferingChanged() called in ${event.state} with: event = [$event]")
-        handleStateChanged(event)
+        callbackThread {
+            Log.i(TAG, "onBufferingChanged() called in ${event.state} with: event = [$event]")
+            handleStateChanged(event)
+        }
     }
 
+    @UiThread
     private fun handleStateChanged(event: StateChange) {
         try {
             val currentPlaybackItemUrn = currentPlaybackItem?.urn
@@ -172,32 +174,36 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     }
 
     fun onSeekingStatusChanged(seekingStatusChange: SeekingStatusChange) {
-        try {
-            if (isCurrentStreamUrl(seekingStatusChange.uri)) {
-                isSeekPending = seekingStatusChange.seekInProgress
+        callbackThread {
+            try {
+                if (isCurrentStreamUrl(seekingStatusChange.uri)) {
+                    isSeekPending = seekingStatusChange.seekInProgress
+                }
+            } catch (t: Throwable) {
+                ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
-        } catch (t: Throwable) {
-            ErrorUtils.handleThrowableOnMainThread(t, javaClass)
         }
     }
 
     fun onError(error: FlipperError) {
-        try {
-            val currentConnectionType = connectionHelper.currentConnectionType
-            // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
-            if (ConnectionType.OFFLINE != currentConnectionType) {
-                // Use Log as Skippy dumps can be rather large
-                ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
+        callbackThread {
+            try {
+                val currentConnectionType = connectionHelper.currentConnectionType
+                // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
+                if (ConnectionType.OFFLINE != currentConnectionType) {
+                    // Use Log as Skippy dumps can be rather large
+                    ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
+                }
+
+                val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, currentConnectionType, playerType)
+                eventBus.publish(EventQueue.PLAYBACK_ERROR, event)
+            } catch (t: Throwable) {
+                ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
-
-            val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, currentConnectionType, playerType)
-            eventBus.publish(EventQueue.PLAYBACK_ERROR, event)
-        } catch (t: Throwable) {
-            ErrorUtils.handleThrowableOnMainThread(t, javaClass)
         }
-
     }
 
+    @UiThread
     private fun reportStateTransition(event: StateChange, urn: Urn, progress: Long) {
         with(PlaybackStateTransition(event.playbackState(), event.playStateReason(), urn, progress, event.duration, dateProvider)) {
             addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, event.streamingProtocol.playbackProtocol().value)
@@ -206,7 +212,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
             addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, true)
             addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl)
 
-            stateHandler.report(currentPlaybackItem, this)
+            playerListener?.onPlaystateChanged(this)
 
             if (isPlaying) wakelockUtil.lock() else wakelockUtil.unlock()
             if (playbackHasStopped()) {
@@ -215,6 +221,8 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
             }
         }
     }
+
+    private fun callbackThread(function: () -> Unit) = callbackHandler.post(function)
 
     companion object {
         private val TAG = "FlipperAdapter"
