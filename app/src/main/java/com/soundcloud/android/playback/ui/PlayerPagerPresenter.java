@@ -42,6 +42,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -839,7 +840,10 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                     trackPagePresenter.onBackground(view);
                 }
             } else {
-                view = trackPageRecycler.getRecycledPage();
+                view = trackPageRecycler.getRecycledPage(() -> {
+                    ErrorUtils.handleSilentException(new IllegalStateException("No recycled or scrap views available in player"));
+                    return trackPagePresenter.createItemView(trackPager, skipListener);
+                });
                 pagePresenter(trackPageData).clearItemView(view);
             }
 

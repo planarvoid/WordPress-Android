@@ -38,7 +38,7 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.addScrapView(view);
         trackPageRecycler.recyclePage(TRACK_URN, view);
 
-        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
+        assertThat(trackPageRecycler.getRecycledPage(() -> view2)).isSameAs(view);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.recyclePage(TRACK_URN, view);
         trackPageRecycler.recyclePage(TRACK_URN, view2);
 
-        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
-        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view2);
+        assertThat(trackPageRecycler.getRecycledPage(() -> view2)).isSameAs(view);
+        assertThat(trackPageRecycler.getRecycledPage(() -> view2)).isSameAs(view2);
     }
 
     @Test
@@ -55,7 +55,12 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.recyclePage(TRACK_URN, view);
         trackPageRecycler.recyclePage(TRACK_URN2, view2);
 
-        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
+        assertThat(trackPageRecycler.getRecycledPage(() -> view2)).isSameAs(view);
+    }
+
+    @Test
+    public void getRecycledPageReturnsNewViewIfNoneInCacheOrRecycler() throws Exception {
+        assertThat(trackPageRecycler.getRecycledPage(() -> view2)).isSameAs(view2);
     }
 
     @Test
