@@ -216,7 +216,8 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     private void bindUser(MoreView headerView, More more) {
         headerView.setUsername(more.getUsername());
-        imageOperations.displayCircularWithPlaceholder(more,
+        imageOperations.displayCircularWithPlaceholder(more.getUrn(),
+                                                       more.getImageUrlTemplate(),
                                                        ApiImageSize.getFullImageSize(resources),
                                                        headerView.getProfileImageView());
         headerView.showProBadge(more.isPro());

@@ -68,7 +68,10 @@ public class WelcomeUserItemRenderer implements CellRenderer<WelcomeUserItem> {
 
     private void setAvatar(View itemView, WelcomeUserItem welcomeUserItem) {
         ImageView avatar = ButterKnife.findById(itemView, R.id.welcome_user_avatar);
-        imageOperations.displayCircularInAdapterView(welcomeUserItem, ApiImageSize.getFullImageSize(resources), avatar);
+        imageOperations.displayInAdapterView(welcomeUserItem.getUrn(),
+                                             welcomeUserItem.getImageUrlTemplate(),
+                                             ApiImageSize.getFullImageSize(resources),
+                                             avatar, ImageOperations.DisplayType.CIRCULAR);
     }
 
     private void setWelcomeMessage(View itemView,

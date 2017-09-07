@@ -50,7 +50,8 @@ public class SystemPlaylistArtworkView extends FrameLayout {
         inflater.inflate(artworkLayout, artworkAnimator);
         final ImageView imageView = (ImageView) artworkAnimator.getChildAt(0);
         if (item.image().isPresent()) {
-            imageOperations.displayWithPlaceholder(item.image().get(), ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
+            ImageResource imageResource = item.image().get();
+            imageOperations.displayWithPlaceholder(imageResource.getUrn(), imageResource.getImageUrlTemplate(), ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
         } else {
             imageOperations.displayDefaultPlaceholder(imageView);
         }

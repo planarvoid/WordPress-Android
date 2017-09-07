@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,10 +50,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() {
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources(),
-                                                  imageResource,
-                                                  immediateScheduler,
-                                                  immediateScheduler)).thenReturn(Observable.empty());
+        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler)).thenReturn(Observable.empty());
 
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
@@ -68,7 +66,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
     public void loadArtworkSetsBlurredArtworkOnImageOverlay() {
         final Bitmap blurredBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler))
+        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))
                 .thenReturn(Observable.just(blurredBitmap));
 
         playerArtworkLoader.loadArtwork(imageResource,
@@ -84,7 +82,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
     public void loadArtworkSetsBlurredArtworkOnImageOverlayWithTransitionDrawableWhenOnScreen() {
         final Bitmap blurredBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler))
+        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))
                 .thenReturn(Observable.just(blurredBitmap));
         when(viewVisibilityProvider.isCurrentlyVisible(imageOverlayView)).thenReturn(true);
 
@@ -105,7 +103,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         PublishSubject<Bitmap> secondBlurObservable = PublishSubject.create();
 
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler))
+        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))
                 .thenReturn(firstBlurObservable, secondBlurObservable);
 
         playerArtworkLoader.loadArtwork(imageResource,

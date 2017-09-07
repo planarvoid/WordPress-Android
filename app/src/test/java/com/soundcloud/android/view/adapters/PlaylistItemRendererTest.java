@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -215,10 +216,11 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldLoadIcon() {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
-        verify(imageOperations).displayInAdapterView(
-                playlistItem,
-                ApiImageSize.getListItemImageSize(itemView.getResources()),
-                (android.widget.ImageView) itemView.findViewById(R.id.image));
+        verify(imageOperations).displayInAdapterView(playlistItem.getUrn(),
+                                                     playlistItem.getImageUrlTemplate(),
+                                                     ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                                     (ImageView) itemView.findViewById(R.id.image),
+                                                     ImageOperations.DisplayType.DEFAULT);
     }
 
     private TextView textView(int id) {

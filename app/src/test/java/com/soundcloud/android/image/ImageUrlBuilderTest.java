@@ -1,5 +1,6 @@
 package com.soundcloud.android.image;
 
+import static com.soundcloud.android.image.ApiImageSize.T500;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +35,7 @@ public class ImageUrlBuilderTest {
     @Test
     public void shouldUseArtworkFromUrlTemplateIfAvailable() {
 
-        String imageUrl = builder.buildUrl(Optional.of(artworkTemplate), Optional.absent(), ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.of(artworkTemplate), Urn.NOT_SET, T500);
 
         assertThat(imageUrl).isEqualTo("https://sndcdn.com/path-t500x500.jpg");
     }
@@ -43,21 +44,21 @@ public class ImageUrlBuilderTest {
     public void shouldUseResolveEndpointIfArtworkNotAvailable() {
         when(apiUrlBuilder.from(ApiEndpoints.IMAGES, trackUrn, "t500x500")).thenReturn(apiUrlBuilder);
 
-        String imageUrl = builder.buildUrl(Optional.absent(), Optional.of(trackUrn), ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.absent(), trackUrn, T500);
 
         assertThat(imageUrl).isEqualTo(resolveEndpoint);
     }
 
     @Test
     public void shouldNotUseResolveEndpointForUsersSinceTheyDontHaveFallbacks() {
-        String imageUrl = builder.buildUrl(Optional.absent(), Optional.of(userUrn), ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.absent(), userUrn, ApiImageSize.T500);
 
         assertThat(imageUrl).isNull();
     }
 
     @Test
     public void shouldBeNullWhenNoUrlTemplateOrUrnProvided() {
-        String imageUrl = builder.buildUrl(Optional.absent(), Optional.absent(), ApiImageSize.T500);
+        String imageUrl = builder.buildUrl(Optional.absent(), Urn.NOT_SET, T500);
 
         assertThat(imageUrl).isNull();
     }

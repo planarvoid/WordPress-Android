@@ -9,6 +9,7 @@ import rx.Observable;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
@@ -35,7 +36,11 @@ public class PlayerArtworkLoader {
     }
 
     public Observable<Bitmap> loadAdBackgroundImage(Urn trackUrn) {
-        return imageOperations.bitmap(toImageResource(trackUrn), ApiImageSize.getFullImageSize(resources));
+        return imageOperations.bitmap(
+                Uri.parse(imageOperations.getImageUrl(Optional.absent(),
+                                                      trackUrn,
+                                                      ApiImageSize.getFullImageSize(resources)))
+        );
     }
 
     // Artwork loaded from a play queue item does not have an ImageResource

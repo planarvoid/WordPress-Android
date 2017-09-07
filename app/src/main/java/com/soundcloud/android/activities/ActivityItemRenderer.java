@@ -8,7 +8,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -59,11 +58,11 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     }
 
     private void setUserAvatar(View itemView, ActivityItem activityItem) {
-        imageOperations.displayCircularInAdapterView(
-                Optional.of(activityItem.getUrn()),
-                activityItem.getImageUrlTemplate(),
-                ApiImageSize.getListItemImageSize(resources),
-                itemView.findViewById(R.id.image));
+        imageOperations.displayInAdapterView(activityItem.getUrn(),
+                                             activityItem.getImageUrlTemplate(),
+                                             ApiImageSize.getListItemImageSize(resources),
+                                             itemView.findViewById(R.id.image),
+                                             ImageOperations.DisplayType.CIRCULAR);
     }
 
     private void setMainText(View itemView, ActivityItem activityItem) {

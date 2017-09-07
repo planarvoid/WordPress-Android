@@ -15,6 +15,7 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
@@ -92,6 +93,7 @@ public class TrackCommentsActivity extends PlayerActivity {
     private void setIcon(Track commentedTrack) {
         imageOperations.displayWithPlaceholder(
                 commentedTrack.urn(),
+                Optional.absent(),
                 ApiImageSize.getListItemImageSize(getResources()),
                 artwork);
     }

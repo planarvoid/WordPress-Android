@@ -124,7 +124,7 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         final ImageView artworkView = ButterKnife.findById(headerView, R.id.artwork);
         final ImageView blurredArtworkView = ButterKnife.findById(headerView, R.id.blurred_background);
 
-        imageOperations.displayWithPlaceholder(info, artworkSize, artworkView);
+        imageOperations.displayWithPlaceholder(info.getUrn(), info.getImageUrlTemplate(), artworkSize, artworkView);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             simpleBlurredImageLoader.displayBlurredArtwork(info, blurredArtworkView);
         }

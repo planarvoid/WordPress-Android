@@ -58,11 +58,11 @@ class StationRenderer implements CellRenderer<StationViewModel> {
             type.setVisibility(View.VISIBLE);
         }
 
-        imageOperations.displayInAdapterView(
-                station,
-                ApiImageSize.getFullImageSize(resources),
-                artwork
-        );
+        imageOperations.displayInAdapterView(station.getUrn(),
+                                             station.getImageUrlTemplate(),
+                                             ApiImageSize.getFullImageSize(resources),
+                                             artwork,
+                                             ImageOperations.DisplayType.DEFAULT);
     }
 
     private View.OnClickListener startStation(final StationRecord station) {

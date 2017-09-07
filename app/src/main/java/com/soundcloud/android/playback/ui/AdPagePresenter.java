@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.ColorStateList;
@@ -149,7 +150,11 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     void displayPreview(PlayerAd playerAd, AdHolder holder, ImageOperations imageOperations, Resources resources) {
         final ApiImageSize previewSize = ApiImageSize.getListItemImageSize(resources);
         holder.previewTitle.setText(playerAd.getPreviewTitle(resources));
-        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), previewSize, holder.previewArtwork);
+        imageOperations.displayWithPlaceholder(
+                playerAd.getMonetizableTrack(),
+                Optional.absent(),
+                previewSize,
+                holder.previewArtwork);
     }
 
     void setupSkipButton(AdHolder holder, T ad) {

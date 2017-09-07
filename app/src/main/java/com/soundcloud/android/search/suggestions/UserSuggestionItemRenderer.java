@@ -39,8 +39,11 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
     }
 
     protected void loadIcon(ImageView icon, ImageResource imageResource, Resources resources) {
-        imageOperations.displayCircularInAdapterView(imageResource,
-                                                     ApiImageSize.getListItemImageSize(resources),
-                                                     icon);
+        imageOperations.displayInAdapterView(
+                imageResource.getUrn(),
+                imageResource.getImageUrlTemplate(),
+                ApiImageSize.getListItemImageSize(resources),
+                icon,
+                ImageOperations.DisplayType.CIRCULAR);
     }
 }

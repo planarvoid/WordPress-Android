@@ -29,8 +29,8 @@ public class StyledImageView extends FrameLayout {
         stationIndicator = findById(this, R.id.station_indicator);
     }
 
-    public void showWithoutPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, Optional<Urn> urn, ImageOperations imageOperations) {
-        show(urn, imageUrlTemplate, imageStyle, imageOperations, false);
+    public void showWithoutPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, Urn urn, ImageOperations imageOperations) {
+        show(Optional.of(urn), imageUrlTemplate, imageStyle, imageOperations, false);
     }
 
     public void showWithPlaceholder(Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, Optional<Urn> urn, ImageOperations imageOperations) {
@@ -38,21 +38,23 @@ public class StyledImageView extends FrameLayout {
     }
 
     private void show(Optional<Urn> urn, Optional<String> imageUrlTemplate, Optional<ImageStyle> imageStyle, ImageOperations imageOperations, boolean usePlaceholder) {
+        Urn resolvedUrn = urn.isPresent() ? urn.get() : Urn.NOT_SET;
+
         switch (imageStyle.or(SQUARE)) {
             case SQUARE:
-                displaySquare(urn, imageUrlTemplate, imageOperations, usePlaceholder);
+                displaySquare(resolvedUrn, imageUrlTemplate, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
                 circularArtwork.setVisibility(GONE);
                 stationIndicator.setVisibility(GONE);
                 break;
             case CIRCULAR:
-                displayCircular(urn, imageUrlTemplate, imageOperations, usePlaceholder);
+                displayCircular(resolvedUrn, imageUrlTemplate, imageOperations, usePlaceholder);
                 circularArtwork.setVisibility(VISIBLE);
                 squareArtwork.setVisibility(GONE);
                 stationIndicator.setVisibility(GONE);
                 break;
             case STATION:
-                displaySquare(urn, imageUrlTemplate, imageOperations, usePlaceholder);
+                displaySquare(resolvedUrn, imageUrlTemplate, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
                 stationIndicator.setVisibility(VISIBLE);
                 circularArtwork.setVisibility(GONE);
@@ -62,19 +64,19 @@ public class StyledImageView extends FrameLayout {
         }
     }
 
-    private void displayCircular(Optional<Urn> urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
+    private void displayCircular(Urn urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
         if (usePlaceholder) {
             imageOperations.displayCircularWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
         } else {
-            imageOperations.displayCircularInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
+            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork, ImageOperations.DisplayType.CIRCULAR);
         }
     }
 
-    private void displaySquare(Optional<Urn> urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
+    private void displaySquare(Urn urn, Optional<String> imageUrlTemplate, ImageOperations imageOperations, boolean usePlaceholder) {
         if (usePlaceholder) {
             imageOperations.displayWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
         } else {
-            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
+            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork, ImageOperations.DisplayType.DEFAULT);
         }
     }
 }

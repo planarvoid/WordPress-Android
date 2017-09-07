@@ -141,9 +141,11 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
             if (banner != null) {
                 profileImageHelper.bindImages(new ProfileImageSource(user), banner, image);
             } else {
-                imageOperations.displayCircularWithPlaceholder(imageResource,
-                                                               ApiImageSize.getFullImageSize(image.getResources()),
-                                                               image);
+                imageOperations.displayCircularWithPlaceholder(
+                        imageResource.getUrn(),
+                        imageResource.getImageUrlTemplate(),
+                        ApiImageSize.getFullImageSize(image.getResources()),
+                        image);
             }
             image.setOnClickListener(view -> FullImageDialog.show(ViewUtils.getFragmentActivity(view).getSupportFragmentManager(), imageResource));
         }

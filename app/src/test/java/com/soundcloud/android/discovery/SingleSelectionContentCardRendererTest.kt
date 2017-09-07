@@ -10,6 +10,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.R
 import com.soundcloud.android.image.ApiImageSize
 import com.soundcloud.android.image.ImageOperations
+import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.DisplayMetricsStub
 import com.soundcloud.java.optional.Optional
@@ -87,7 +88,13 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
         renderer.bindItemView(0, itemView, listOf(cardWithCount))
 
         assertThat(count).isVisible
-        verify(imageOperations).displayInAdapterView(cardWithCount.selectionItem.urn, cardWithCount.selectionItem.artworkUrlTemplate, ApiImageSize.getFullImageSize(resources), imageView)
+        verify(imageOperations).displayInAdapterView(
+                cardWithCount.selectionItem.urn.get() ?: Urn.NOT_SET,
+                cardWithCount.selectionItem.artworkUrlTemplate,
+                ApiImageSize.getFullImageSize(resources),
+                imageView,
+                ImageOperations.DisplayType.DEFAULT
+        )
     }
 
     @Test
@@ -100,7 +107,12 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
         assertThat(count).isNotVisible
         verify<ImageOperations>(imageOperations).displayInAdapterView(
-                cardWithoutCount.selectionItem.urn, cardWithoutCount.selectionItem.artworkUrlTemplate, ApiImageSize.getFullImageSize(resources), imageView)
+                cardWithoutCount.selectionItem.urn.get() ?: Urn.NOT_SET,
+                cardWithoutCount.selectionItem.artworkUrlTemplate,
+                ApiImageSize.getFullImageSize(resources),
+                imageView,
+                ImageOperations.DisplayType.DEFAULT
+        )
     }
 
     @Test

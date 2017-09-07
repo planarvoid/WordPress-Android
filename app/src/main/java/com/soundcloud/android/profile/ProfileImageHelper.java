@@ -91,7 +91,8 @@ public class ProfileImageHelper {
                     ),
                     ApiImageSize.getFullBannerSize(resources),
                     imageView,
-                    generateFallbackDrawable(palette, creatorUrn)
+                    generateFallbackDrawable(palette, creatorUrn),
+                    ImageOperations.DisplayType.DEFAULT
             );
         }
     }

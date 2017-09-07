@@ -79,8 +79,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
-        verify(imageOperations)
-                .displayWithPlaceholder(eq(stationInfoHeader), any(ApiImageSize.class), eq(imageView(R.id.artwork)));
+        verify(imageOperations).displayWithPlaceholder(eq(stationInfoHeader.getUrn()), eq(stationInfoHeader.getImageUrlTemplate()), any(ApiImageSize.class), eq(imageView(R.id.artwork)));
         verify(simpleBlurredImageLoader).displayBlurredArtwork(stationInfoHeader, imageView(R.id.blurred_background));
     }
 

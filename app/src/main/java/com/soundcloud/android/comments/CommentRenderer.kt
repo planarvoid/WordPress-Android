@@ -11,10 +11,7 @@ import com.soundcloud.android.image.ImageOperations
 import com.soundcloud.android.presentation.CellRenderer
 import com.soundcloud.android.utils.ScTextUtils
 import com.soundcloud.java.optional.Optional
-import kotlinx.android.synthetic.main.engagement_list_item.view.body
-import kotlinx.android.synthetic.main.engagement_list_item.view.date
-import kotlinx.android.synthetic.main.engagement_list_item.view.image
-import kotlinx.android.synthetic.main.engagement_list_item.view.username
+import kotlinx.android.synthetic.main.engagement_list_item.view.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -29,7 +26,13 @@ constructor(private val resources: Resources, private val imageOperations: Image
             view.username.ellipsize = TextUtils.TruncateAt.MIDDLE
             view.username.text = timeStamp?.let { resources.getString(R.string.user_commented_at_timestamp, username, ScTextUtils.formatTimestamp(timeStamp, TimeUnit.MILLISECONDS)) } ?: username
             view.body.text = text
-            imageOperations.displayCircularInAdapterView(Optional.of(userUrn), imageUrlTemplate, ApiImageSize.getListItemImageSize(resources), view.image)
+            imageOperations.displayInAdapterView(
+                    userUrn,
+                    imageUrlTemplate,
+                    ApiImageSize.getListItemImageSize(resources),
+                    view.image,
+                    ImageOperations.DisplayType.CIRCULAR
+            )
             view.date.text = ScTextUtils.formatTimeElapsedSince(resources, date.time, true)
         }
     }

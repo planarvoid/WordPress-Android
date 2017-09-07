@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.playqueue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -54,9 +55,12 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
         title.setText(item.getTitle());
         creator.setText(item.getCreator());
-        imageOperations.displayInAdapterView(item.getImageResource(),
+        ImageResource imageResource = item.getImageResource();
+        imageOperations.displayInAdapterView(imageResource.getUrn(),
+                                             imageResource.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
-                                             imageView);
+                                             imageView,
+                                             ImageOperations.DisplayType.DEFAULT);
         setGoIndicator(goIndicator, item);
         statusPlaceHolder.removeAllViews();
         setListener(itemView, position);

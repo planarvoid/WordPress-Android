@@ -105,9 +105,10 @@ public class CollectionPreviewView extends FrameLayout {
         final View thumbnail = thumbnailContainer.getChildAt(index + numEmptyThumbnails);
         final ImageView artwork = (ImageView) thumbnail.findViewById(R.id.preview_artwork);
 
-        imageOperations.displayWithPlaceholder(imageResources.get(index),
-                                               getListItemImageSize(thumbnailContainer.getResources()),
-                                               artwork);
+        ImageResource imageResource = imageResources.get(index);
+        imageOperations.displayWithPlaceholder(imageResource.getUrn(),
+                                               imageResource.getImageUrlTemplate(),
+                                               getListItemImageSize(thumbnailContainer.getResources()), artwork);
 
         if (previewIconOverlay.isPresent()) {
             final ImageView overlay = (ImageView) thumbnail.findViewById(R.id.artwork_overlay);

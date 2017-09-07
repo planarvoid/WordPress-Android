@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.stations.StationTypes.getHumanReadableType;
 
-import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
@@ -84,17 +83,18 @@ class RecommendedStationsAdapter extends PagerAdapter {
         final StationViewModel stationVM = stations.get(position);
         final StationRecord station = stationVM.getStation();
 
-        final TextView typeView = ButterKnife.findById(view, R.id.type);
+        final TextView typeView = view.findViewById(R.id.type);
         typeView.setText(getHumanReadableType(resources, station.getType()));
         typeView.setVisibility(stationVM.isPlaying() ? View.GONE : View.VISIBLE);
 
-        ButterKnife.<TextView>findById(view, R.id.now_playing)
-                .setVisibility(stationVM.isPlaying() ? View.VISIBLE : View.GONE);
-        ButterKnife.<TextView>findById(view, R.id.title).setText(station.getTitle());
+        view.findViewById(R.id.now_playing).setVisibility(stationVM.isPlaying() ? View.VISIBLE : View.GONE);
+        ((TextView) view.findViewById(R.id.title)).setText(station.getTitle());
 
-        imageOperations.displayInAdapterView(station,
+        imageOperations.displayInAdapterView(station.getUrn(),
+                                             station.getImageUrlTemplate(),
                                              ApiImageSize.T500,
-                                             ButterKnife.findById(view, R.id.artwork));
+                                             view.findViewById(R.id.artwork),
+                                             ImageOperations.DisplayType.DEFAULT);
         view.setTag(station);
         view.setOnClickListener(onRecommendedStationClickListener);
     }

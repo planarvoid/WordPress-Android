@@ -336,9 +336,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void bindArtwork(TrackItemView itemView, TrackItem track) {
-        imageOperations.displayInAdapterView(
-                track, ApiImageSize.getListItemImageSize(itemView.getResources()),
-                itemView.getImage());
+        imageOperations.displayInAdapterView(track.getUrn(),
+                                             track.getImageUrlTemplate(),
+                                             ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                             itemView.getImage(),
+                                             ImageOperations.DisplayType.DEFAULT);
         if (isFullHighTierTrack(track) || isHighTierPreview(track)) {
             itemView.showGoLabel();
         }

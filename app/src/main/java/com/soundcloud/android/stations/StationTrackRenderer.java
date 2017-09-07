@@ -1,16 +1,13 @@
 package com.soundcloud.android.stations;
 
-import static butterknife.ButterKnife.findById;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -29,7 +26,6 @@ import java.util.List;
 @AutoFactory(allowSubclasses = true)
 class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
-    private final NavigationExecutor navigationExecutor;
     private final ImageOperations imageOperations;
     private final StationInfoClickListener clickListener;
     private final TrackItemMenuPresenter menuPresenter;
@@ -51,12 +47,10 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     };
 
     StationTrackRenderer(StationInfoClickListener clickListener,
-                         @Provided NavigationExecutor navigationExecutor,
                          @Provided ImageOperations imageOperations,
                          @Provided TrackItemMenuPresenter menuPresenter,
                          @Provided Navigator navigator) {
         this.clickListener = clickListener;
-        this.navigationExecutor = navigationExecutor;
         this.imageOperations = imageOperations;
         this.menuPresenter = menuPresenter;
         this.navigator = navigator;
@@ -83,11 +77,12 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     }
 
     private void bindTrackTitle(View view, String title) {
-        ButterKnife.<TextView>findById(view, R.id.recommendation_title).setText(title);
+        TextView recommendationTitle = view.findViewById(R.id.recommendation_title);
+        recommendationTitle.setText(title);
     }
 
     private void bindTrackArtist(View view, String creatorName, final Urn creatorUrn, boolean isPlaying) {
-        final TextView artist = findById(view, R.id.recommendation_artist);
+        final TextView artist = view.findViewById(R.id.recommendation_artist);
 
         if (isPlaying) {
             artist.setVisibility(View.GONE);
@@ -97,13 +92,15 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
             artist.setOnClickListener(v -> navigator.navigateTo(NavigationTarget.forProfile(creatorUrn)));
         }
 
-        findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
     }
 
     private void loadTrackArtwork(View view, TrackItem track) {
-        imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
-                                             ButterKnife.findById(view, R.id.recommendation_artwork)
-        );
+        imageOperations.displayInAdapterView(track.getUrn(),
+                                             track.getImageUrlTemplate(),
+                                             ApiImageSize.getFullImageSize(view.getResources()),
+                                             view.findViewById(R.id.recommendation_artwork),
+                                             ImageOperations.DisplayType.DEFAULT);
     }
 
 }

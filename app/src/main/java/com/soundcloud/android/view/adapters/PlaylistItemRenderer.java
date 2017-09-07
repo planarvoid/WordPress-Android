@@ -155,9 +155,11 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private void loadArtwork(View itemView, PlaylistItem playlist) {
-        imageOperations.displayInAdapterView(
-                playlist, ApiImageSize.getListItemImageSize(itemView.getResources()),
-                (ImageView) itemView.findViewById(R.id.image));
+        imageOperations.displayInAdapterView(playlist.getUrn(),
+                                             playlist.getImageUrlTemplate(),
+                                             ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                             (ImageView) itemView.findViewById(R.id.image),
+                                             ImageOperations.DisplayType.DEFAULT);
     }
 
     private void showAlbumTitle(View itemView, PlaylistItem playlist) {

@@ -22,6 +22,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryCardViewModel;
 import com.soundcloud.android.image.ImageConfigurationStorage;
+import com.soundcloud.android.image.ImageModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -112,7 +113,8 @@ import java.util.concurrent.Executors;
                 OldDiscoveryModule.class,
                 CastModule.class,
                 PlayQueueModule.class,
-                FirebaseModule.class
+                FirebaseModule.class,
+                ImageModule.class
         })
 public class ApplicationModule {
 

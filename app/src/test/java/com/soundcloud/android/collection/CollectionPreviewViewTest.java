@@ -3,18 +3,20 @@ package com.soundcloud.android.collection;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,71 +40,54 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
 
     private CollectionPreviewView view;
     private ViewGroup holder;
+    @Mock private ImageResource track1;
+    @Mock private ImageResource track2;
+    @Mock private ImageResource track3;
 
     @Before
     public void setUp() throws Exception {
         view = new CollectionPreviewView(context(), (Drawable) null);
         holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
+        when(track1.getUrn()).thenReturn(Urn.forTrack(1));
+        when(track2.getUrn()).thenReturn(Urn.forTrack(2));
+        when(track3.getUrn()).thenReturn(Urn.forTrack(3));
+        when(track1.getImageUrlTemplate()).thenReturn(Optional.of(("1")));
+        when(track2.getImageUrlTemplate()).thenReturn(Optional.of(("2")));
+        when(track3.getImageUrlTemplate()).thenReturn(Optional.of(("3")));
     }
 
     @Test
     public void bindViewAddsMaxThumbnailViewsIfOverMax() {
-        final ImageResource track1 = mock(ImageResource.class);
-        final ImageResource track2 = mock(ImageResource.class);
-        final ImageResource track3 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3, mock(ImageResource.class));
 
         view.refreshThumbnails(imageOperations, entities, numThumbnails);
-        verify(imageOperations).displayWithPlaceholder(same(track1),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(0)));
-        verify(imageOperations).displayWithPlaceholder(same(track2),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(1)));
-        verify(imageOperations).displayWithPlaceholder(same(track3),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(2)));
+        verify(imageOperations).displayWithPlaceholder(eq(track1.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(0)));
+        verify(imageOperations).displayWithPlaceholder(eq(track2.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(1)));
+        verify(imageOperations).displayWithPlaceholder(eq(track3.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(2)));
         verifyNoMoreInteractions(imageOperations);
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
     @Test
     public void bindViewAddsMaxImageViews() {
-        final ImageResource track1 = mock(ImageResource.class);
-        final ImageResource track2 = mock(ImageResource.class);
-        final ImageResource track3 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3);
 
         view.refreshThumbnails(imageOperations, entities, numThumbnails);
-        verify(imageOperations).displayWithPlaceholder(same(track1),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(0)));
-        verify(imageOperations).displayWithPlaceholder(same(track2),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(1)));
-        verify(imageOperations).displayWithPlaceholder(same(track3),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(2)));
+        verify(imageOperations).displayWithPlaceholder(eq(track1.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(0)));
+        verify(imageOperations).displayWithPlaceholder(eq(track2.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(1)));
+        verify(imageOperations).displayWithPlaceholder(eq(track3.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
     @Test
     public void bindViewAddsArtworkThumbnailsAtTheEnd() {
-        final ImageResource track1 = mock(ImageResource.class);
-        final ImageResource track2 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2);
 
         view.refreshThumbnails(imageOperations, entities, numThumbnails);
 
-        verify(imageOperations, never()).displayWithPlaceholder(any(ImageResource.class),
-                                                                any(ApiImageSize.class),
-                                                                eq(getImagePreview(0)));
-        verify(imageOperations).displayWithPlaceholder(same(track1),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(1)));
-        verify(imageOperations).displayWithPlaceholder(same(track2),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(2)));
+        verify(imageOperations, never()).displayWithPlaceholder(eq(track3.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(0)));
+        verify(imageOperations).displayWithPlaceholder(eq(track1.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(1)));
+        verify(imageOperations).displayWithPlaceholder(eq(track2.getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
@@ -118,23 +103,20 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     @Test
     public void updatingTheCollectionShowsCorrectNumberOfThumbnails() {
         final List<ImageResource> original = Arrays.asList(
-                mock(ImageResource.class), mock(ImageResource.class), mock(ImageResource.class)
+                track1, track2, track3
         );
-        final List<ImageResource> update = Collections.singletonList(mock(ImageResource.class));
+        final List<ImageResource> update = Collections.singletonList(track3);
 
         view.refreshThumbnails(imageOperations, original, numThumbnails);
         view.refreshThumbnails(imageOperations, update, numThumbnails);
 
-        verify(imageOperations).displayWithPlaceholder(same(update.get(0)),
-                                                       any(ApiImageSize.class),
-                                                       eq(getImagePreview(2)));
+        verify(imageOperations).displayWithPlaceholder(eq(update.get(0).getUrn()), any(), any(ApiImageSize.class), eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
     @Test
     public void showsPreviewOverlayOnEntitiesPreviewsOnly() {
-        final List<ImageResource> entities = Arrays.asList(
-                mock(ImageResource.class), mock(ImageResource.class));
+        final List<ImageResource> entities = Arrays.asList(track1, track2);
         view = new CollectionPreviewView(context(), previewDrawable);
         holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
 

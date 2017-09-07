@@ -91,7 +91,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle<Fragmen
         absListView.setEmptyView(emptyViewController.getEmptyView());
 
         if (scrollListener == null) {
-            scrollListener = imageOperations.createScrollPauseListener(false, true);
+            scrollListener = imageOperations.createScrollPauseListener(false, true, null);
         } else {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }

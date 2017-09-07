@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
@@ -61,8 +62,11 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCardVi
 
     private void bindSelectionItem(View parentView, int resource, SelectionItemViewModel selectionItem) {
         final ImageView view = parentView.findViewById(resource);
+
+        Urn urn = selectionItem.getUrn().isPresent() ? selectionItem.getUrn().get() : Urn.NOT_SET;
+
         imageOperations.displayInAdapterView(
-                selectionItem.getUrn(), selectionItem.getArtworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view);
+                urn, selectionItem.getArtworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), view, ImageOperations.DisplayType.DEFAULT);
 
         bindText(parentView, R.id.single_card_track_count, selectionItem.getCount().transform(String::valueOf));
     }
@@ -101,7 +105,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCardVi
 
         if (userArtworkUrls.size() > position) {
             imageView.setVisibility(View.VISIBLE);
-            imageOperations.displayCircularWithPlaceholder(Optional.absent(),
+            imageOperations.displayCircularWithPlaceholder(Urn.NOT_SET,
                                                            Optional.of(userArtworkUrls.get(position)),
                                                            ApiImageSize.getListItemImageSize(resources),
                                                            imageView);

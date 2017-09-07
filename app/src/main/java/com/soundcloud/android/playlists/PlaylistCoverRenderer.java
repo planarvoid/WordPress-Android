@@ -47,7 +47,7 @@ class PlaylistCoverRenderer {
 
     private void bindArtwork(View view, PlaylistDetailsMetadata item) {
         final ImageView artworkView = ButterKnife.findById(view, R.id.artwork);
-        imageOperations.displayWithPlaceholder(item, ApiImageSize.getFullImageSize(view.getResources()), artworkView);
+        imageOperations.displayWithPlaceholder(item.getUrn(), item.getImageUrlTemplate(), ApiImageSize.getFullImageSize(view.getResources()), artworkView);
     }
 
     private void bindPlayButton(View view, PlaylistDetailsMetadata item, Action0 onHeaderPlay) {

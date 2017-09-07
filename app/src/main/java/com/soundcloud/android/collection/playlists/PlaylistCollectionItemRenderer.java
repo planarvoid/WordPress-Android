@@ -70,11 +70,11 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         creator.setText(playlistItem.creatorName());
         trackCount.setText(String.valueOf(playlistItem.trackCount()));
         setupOverFlow(overflowButton, playlistItem);
-        imageOperations.displayInAdapterView(
-                playlistItem,
-                ApiImageSize.getFullImageSize(resources),
-                artwork
-        );
+        imageOperations.displayInAdapterView(playlistItem.getUrn(),
+                                             playlistItem.getImageUrlTemplate(),
+                                             ApiImageSize.getFullImageSize(resources),
+                                             artwork,
+                                             ImageOperations.DisplayType.DEFAULT);
         playlistItemIndicatorsView.setupView(view, playlistItem.isPrivate(), playlistItem.isUserLike(),
                                              featureOperations.isOfflineContentEnabled()
                                              ? Optional.of(playlistItem.offlineState())

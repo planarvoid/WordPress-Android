@@ -309,10 +309,11 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldLoadTrackArtwork() {
         renderer.bindItemView(0, itemView, singletonList(trackItem));
-        verify(imageOperations).displayInAdapterView(
-                trackItem,
-                ApiImageSize.getListItemImageSize(itemView.getResources()),
-                imageView);
+        verify(imageOperations).displayInAdapterView(trackItem.getUrn(),
+                                                     trackItem.getImageUrlTemplate(),
+                                                     ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                                     imageView,
+                                                     ImageOperations.DisplayType.DEFAULT);
     }
 
     @Test

@@ -28,7 +28,7 @@ constructor(private val imageOperations: ImageOperations) : CellRenderer<Playlis
         val playlist = list[position]
 
         with(view) {
-            artwork.showWithoutPlaceholder(playlist.imageUrlTemplate, Optional.of(ImageStyle.SQUARE), Optional.of(playlist.urn), imageOperations)
+            artwork.showWithoutPlaceholder(playlist.imageUrlTemplate, Optional.of(ImageStyle.SQUARE), playlist.urn, imageOperations)
 
             title.text = playlist.title()
             track_count.text = playlist.trackCount().toString()

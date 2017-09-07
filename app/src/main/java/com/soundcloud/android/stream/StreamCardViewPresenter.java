@@ -118,9 +118,11 @@ class StreamCardViewPresenter {
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {
-        imageOperations.displayInAdapterView(
-                playableItem, ApiImageSize.getFullImageSize(resources),
-                itemView.getImage());
+        imageOperations.displayInAdapterView(playableItem.getUrn(),
+                                             playableItem.getImageUrlTemplate(),
+                                             ApiImageSize.getFullImageSize(resources),
+                                             itemView.getImage(),
+                                             ImageOperations.DisplayType.DEFAULT);
     }
 
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
@@ -173,9 +175,10 @@ class StreamCardViewPresenter {
                             EventContextMetadata eventContextMetadata) {
         final ImageResource avatar = SimpleImageResource.create(userUrn, avatarUrl);
         itemView.setCreatorClickable(new ProfileClickViewListener(userUrn, itemUrn, eventContextMetadata));
-        imageOperations.displayCircularInAdapterView(
-                avatar, ApiImageSize.getListItemImageSize(resources),
-                itemView.getUserImage());
+        imageOperations.displayInAdapterView(avatar.getUrn(),
+                                             avatar.getImageUrlTemplate(),
+                                             ApiImageSize.getListItemImageSize(resources),
+                                             itemView.getUserImage(), ImageOperations.DisplayType.CIRCULAR);
     }
 
     private class ProfileClickViewListener implements View.OnClickListener {

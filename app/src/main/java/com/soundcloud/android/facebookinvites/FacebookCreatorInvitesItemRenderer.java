@@ -8,6 +8,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.LayoutInflater;
@@ -49,11 +50,15 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<StreamIt
 
     @Override
     public void bindItemView(int position, View itemView, List<StreamItem.FacebookCreatorInvites> items) {
-        ImageView artwork = (ImageView) itemView.findViewById(R.id.artwork);
+        ImageView artwork = itemView.findViewById(R.id.artwork);
         Urn trackUrn = items.get(position).trackUrn();
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
-        imageOperations.displayWithPlaceholder(trackUrn, ApiImageSize.T300, artwork);
+        imageOperations.displayWithPlaceholder(
+                trackUrn,
+                Optional.absent(),
+                ApiImageSize.T300,
+                artwork);
     }
 
     public void setOnFacebookInvitesClickListener(Listener listener) {

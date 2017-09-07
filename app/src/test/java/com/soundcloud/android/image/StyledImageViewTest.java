@@ -38,7 +38,7 @@ public class StyledImageViewTest extends AndroidUnitTest {
     public void rendersCircularWithPlaceholderForCircularImageTypes() {
         styledImageView.showWithPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.CIRCULAR), Optional.of(URN), imageOperations);
 
-        verify(imageOperations).displayCircularWithPlaceholder(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), circularArtwork);
+        verify(imageOperations).displayCircularWithPlaceholder(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), circularArtwork);
         assertThat(circularArtwork).isVisible();
         assertThat(squareArtwork).isNotVisible();
         assertThat(stationsIndicator).isNotVisible();
@@ -48,7 +48,7 @@ public class StyledImageViewTest extends AndroidUnitTest {
     public void rendersSquareWithPlaceholderForSquareImageTypes() {
         styledImageView.showWithPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.SQUARE), Optional.of(URN), imageOperations);
 
-        verify(imageOperations).displayWithPlaceholder(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayWithPlaceholder(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isNotVisible();
@@ -58,7 +58,7 @@ public class StyledImageViewTest extends AndroidUnitTest {
     public void rendersSquareWithPlaceholderAndStationsOverlayForStationImageTypes() {
         styledImageView.showWithPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.STATION), Optional.of(URN), imageOperations);
 
-        verify(imageOperations).displayWithPlaceholder(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayWithPlaceholder(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isVisible();
@@ -68,7 +68,7 @@ public class StyledImageViewTest extends AndroidUnitTest {
     public void rendersSquareWithPlaceholderByDefaultForAbsentImageType() {
         styledImageView.showWithPlaceholder(IMAGE_URL_TEMPLATE, Optional.absent(), Optional.of(URN), imageOperations);
 
-        verify(imageOperations).displayWithPlaceholder(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayWithPlaceholder(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isNotVisible();
@@ -76,9 +76,9 @@ public class StyledImageViewTest extends AndroidUnitTest {
 
     @Test
     public void rendersCircularWithoutPlaceholderForCircularImageTypes() {
-        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.CIRCULAR), Optional.of(URN), imageOperations);
+        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.CIRCULAR), URN, imageOperations);
 
-        verify(imageOperations).displayCircularInAdapterView(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), circularArtwork);
+        verify(imageOperations).displayInAdapterView(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), circularArtwork, ImageOperations.DisplayType.CIRCULAR);
         assertThat(circularArtwork).isVisible();
         assertThat(squareArtwork).isNotVisible();
         assertThat(stationsIndicator).isNotVisible();
@@ -86,9 +86,9 @@ public class StyledImageViewTest extends AndroidUnitTest {
 
     @Test
     public void rendersSquareWithoutPlaceholderForSquareImageTypes() {
-        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.SQUARE), Optional.of(URN), imageOperations);
+        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.SQUARE), URN, imageOperations);
 
-        verify(imageOperations).displayInAdapterView(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayInAdapterView(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork, ImageOperations.DisplayType.DEFAULT);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isNotVisible();
@@ -96,9 +96,9 @@ public class StyledImageViewTest extends AndroidUnitTest {
 
     @Test
     public void rendersSquareWithoutPlaceholderAndStationsOverlayForStationImageTypes() {
-        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.STATION), Optional.of(URN), imageOperations);
+        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.of(ImageStyle.STATION), URN, imageOperations);
 
-        verify(imageOperations).displayInAdapterView(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayInAdapterView(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork, ImageOperations.DisplayType.DEFAULT);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isVisible();
@@ -106,9 +106,9 @@ public class StyledImageViewTest extends AndroidUnitTest {
 
     @Test
     public void rendersSquareWithoutPlaceholderByDefaultForAbsentImageType() {
-        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.absent(), Optional.of(URN), imageOperations);
+        styledImageView.showWithoutPlaceholder(IMAGE_URL_TEMPLATE, Optional.absent(), URN, imageOperations);
 
-        verify(imageOperations).displayInAdapterView(Optional.of(URN), IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork);
+        verify(imageOperations).displayInAdapterView(URN, IMAGE_URL_TEMPLATE, ApiImageSize.getFullImageSize(context().getResources()), squareArtwork, ImageOperations.DisplayType.DEFAULT);
         assertThat(circularArtwork).isNotVisible();
         assertThat(squareArtwork).isVisible();
         assertThat(stationsIndicator).isNotVisible();

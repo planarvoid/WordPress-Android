@@ -95,10 +95,11 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void shouldBindArtworkToView() {
         renderer.bindItemView(trackPosition, itemView, recommendations);
 
-        verify(imageOperations).displayInAdapterView(
-                recommendedTrack,
-                ApiImageSize.getFullImageSize(itemView.getResources()),
-                (ImageView) itemView.findViewById(R.id.recommendation_artwork));
+        verify(imageOperations).displayInAdapterView(recommendedTrack.getUrn(),
+                                                     recommendedTrack.getImageUrlTemplate(),
+                                                     ApiImageSize.getFullImageSize(itemView.getResources()),
+                                                     (ImageView) itemView.findViewById(R.id.recommendation_artwork),
+                                                     ImageOperations.DisplayType.DEFAULT);
     }
 
     @Test

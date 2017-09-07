@@ -10,6 +10,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -78,7 +79,11 @@ class InterstitialPresenter extends AdOverlayPresenter {
     public void bind(VisualAdData data) {
         super.bind(data);
         final ApiImageSize listItemImageSize = ApiImageSize.getListItemImageSize(previewImage.getResources());
-        imageOperations.displayWithPlaceholder(data.getMonetizableTrackUrn(), listItemImageSize, previewImage);
+        imageOperations.displayWithPlaceholder(
+                data.getMonetizableTrackUrn(),
+                Optional.absent(),
+                listItemImageSize,
+                previewImage);
 
         if (data.hasMonetizableTitleAndCreator()) {
             final String nowPlayingTitle = data.getMonetizableTitle();

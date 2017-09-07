@@ -103,10 +103,10 @@ public class UserItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldLoadUserImage() {
         renderer.bindItemView(0, itemView, singletonList(userItem));
-        verify(imageOperations).displayCircularInAdapterView(
-                userItem,
-                ApiImageSize.getListItemImageSize(itemView.getResources()),
-                itemView.findViewById(R.id.image));
+        verify(imageOperations).displayInAdapterView(userItem.getUrn(),
+                                                     userItem.getImageUrlTemplate(),
+                                                     ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                                     itemView.findViewById(R.id.image), ImageOperations.DisplayType.CIRCULAR);
     }
 
     private TextView textView(int id) {

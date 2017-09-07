@@ -33,8 +33,10 @@ class PlaylistSuggestionItemRenderer extends SuggestionItemRenderer {
     }
 
     protected void loadIcon(ImageView icon, ImageResource imageResource, Resources resources) {
-        imageOperations.displayInAdapterView(imageResource,
+        imageOperations.displayInAdapterView(imageResource.getUrn(),
+                                             imageResource.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(resources),
-                                             icon);
+                                             icon,
+                                             ImageOperations.DisplayType.DEFAULT);
     }
 }

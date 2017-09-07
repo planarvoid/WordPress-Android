@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
@@ -18,10 +19,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 import java.util.Collections;
 
@@ -53,7 +56,10 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
         verify(imageOperations).displayCircularWithPlaceholder(
-                selectionItem.getUrn(), selectionItem.getArtworkUrlTemplate(), ApiImageSize.getFullImageSize(context().getResources()), circularImageView);
+                selectionItem.getUrn().isPresent() ? selectionItem.getUrn().get() : Urn.NOT_SET,
+                selectionItem.getArtworkUrlTemplate(),
+                ApiImageSize.getFullImageSize(context().getResources()),
+                circularImageView);
     }
 
     @Test

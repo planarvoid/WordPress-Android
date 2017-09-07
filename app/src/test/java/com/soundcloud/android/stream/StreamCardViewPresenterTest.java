@@ -1,13 +1,11 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
-import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -18,7 +16,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
@@ -186,11 +183,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = repostedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations)
-                .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.reposterUrn().get(), avatarUrlTemplate)),
-                        any(ApiImageSize.class),
-                        eq(imageView));
+        verify(imageOperations).displayInAdapterView(eq(playlistItem.reposterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
     }
 
     @Test
@@ -198,11 +191,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations)
-                .displayInAdapterView(
-                        eq(playlistItem),
-                        any(ApiImageSize.class),
-                        eq(imageView));
+        verify(imageOperations).displayInAdapterView(eq(playlistItem.getUrn()),
+                                                     eq(playlistItem.getImageUrlTemplate()),
+                                                     ArgumentMatchers.any(ApiImageSize.class),
+                                                     ArgumentMatchers.eq(imageView),
+                                                     ArgumentMatchers.eq(ImageOperations.DisplayType.DEFAULT));
 
         verify(itemView).setTitle(playlistItem.title());
         verify(itemView).setArtist(playlistItem.creatorName());
@@ -213,11 +206,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations)
-                .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.creatorUrn(), avatarUrlTemplate)),
-                        any(ApiImageSize.class),
-                        eq(imageView));
+        verify(imageOperations).displayInAdapterView(eq(playlistItem.creatorUrn()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
     }
 
     @Test
@@ -225,11 +214,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem promotedItem = promotedPlaylistItem();
         presenter.bind(itemView, promotedItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations)
-                .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(promotedItem.promoterUrn().get(), avatarUrlTemplate)),
-                        any(ApiImageSize.class),
-                        eq(imageView));
+        verify(imageOperations).displayInAdapterView(eq(promotedItem.promoterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
     }
 
     @Test
@@ -237,11 +222,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem promotedItem = promotedPlaylistWithoutPromoter();
         presenter.bind(itemView, promotedItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations, never())
-                .displayCircularInAdapterView(
-                        any(ImageResource.class),
-                        any(ApiImageSize.class),
-                        any(ImageView.class));
+        verify(imageOperations, never()).displayInAdapterView(any(Urn.class),
+                                                              any(Optional.class),
+                                                              any(ApiImageSize.class),
+                                                              any(ImageView.class),
+                                                              eq(ImageOperations.DisplayType.CIRCULAR));
     }
 
     @Test

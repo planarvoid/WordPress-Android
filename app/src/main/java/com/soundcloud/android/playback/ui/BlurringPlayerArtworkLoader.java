@@ -41,10 +41,11 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
 
     @Override
     public Observable<Bitmap> loadAdBackgroundImage(final Urn trackUrn) {
-        return imageOperations.blurredPlayerArtwork(resources,
-                                                    toImageResource(trackUrn),
-                                                    graphicsScheduler,
-                                                    observeOnScheduler);
+        return imageOperations.blurredArtwork(resources,
+                                              toImageResource(trackUrn),
+                                              Optional.absent(),
+                                              graphicsScheduler,
+                                              observeOnScheduler);
     }
 
     @Override
@@ -58,10 +59,11 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
                                       ImageView imageOverlay,
                                       Optional<ViewVisibilityProvider> viewVisibilityProvider) {
         blurSubscription.unsubscribe();
-        blurSubscription = imageOperations.blurredPlayerArtwork(resources,
-                                                                imageResource,
-                                                                graphicsScheduler,
-                                                                observeOnScheduler)
+        blurSubscription = imageOperations.blurredArtwork(resources,
+                                                          imageResource,
+                                                          Optional.absent(),
+                                                          graphicsScheduler,
+                                                          observeOnScheduler)
                                           .subscribe(new BlurredOverlaySubscriber(imageOverlay,
                                                                                   viewVisibilityProvider));
     }
