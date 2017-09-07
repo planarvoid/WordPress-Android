@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Durations;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -16,23 +17,27 @@ public class PlayerTrackState extends PlayerItem implements ImageResource {
     private final boolean isCurrentTrack;
     private final boolean isForeground;
     private final ViewVisibilityProvider viewVisibilityProvider;
+    private final PlaybackProgress initialProgress;
 
     private Optional<StationRecord> station = Optional.absent();
 
     PlayerTrackState(TrackItem source,
                      boolean isCurrentTrack,
                      boolean isForeground,
-                     ViewVisibilityProvider viewVisibilityProvider) {
+                     ViewVisibilityProvider viewVisibilityProvider,
+                     PlaybackProgress initialProgress) {
         super(source);
         this.isCurrentTrack = isCurrentTrack;
         this.isForeground = isForeground;
         this.viewVisibilityProvider = viewVisibilityProvider;
+        this.initialProgress = initialProgress;
     }
 
     public PlayerTrackState(boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
         this.isCurrentTrack = isCurrentTrack;
         this.isForeground = isForeground;
         this.viewVisibilityProvider = viewVisibilityProvider;
+        this.initialProgress = PlaybackProgress.empty();
     }
 
     public Optional<TrackItem> getSource() {
@@ -98,6 +103,10 @@ public class PlayerTrackState extends PlayerItem implements ImageResource {
 
     public boolean isSubHighTier() {
         return source.transform(TrackItem::isSubHighTier).or(false);
+    }
+
+    public PlaybackProgress getInitialProgress() {
+        return initialProgress;
     }
 
     long getPlayableDuration() {

@@ -55,6 +55,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         if (!accountOperations.isUserLoggedIn) throw IllegalStateException("Cannot play a track if no soundcloud account exists")
 
         ErrorUtils.log(android.util.Log.DEBUG, TAG, "play(): ${playbackItem.urn} in duration ${playbackItem.duration}]")
+        callbackHandler.removeCallbacksAndMessages(0)
         currentPlaybackItem = playbackItem
         isSeekPending = false
         progress = 0

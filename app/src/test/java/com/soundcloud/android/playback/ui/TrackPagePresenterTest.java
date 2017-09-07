@@ -74,6 +74,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private static final int PLAY_DURATION = 20000;
     private static final int FULL_DURATION = 30000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
+    public static final PlaybackProgress EMPTY_PROGRESS = PlaybackProgress.empty();
 
     @Mock private WaveformOperations waveformOperations;
     @Mock private FeatureOperations featureOperations;
@@ -197,8 +198,25 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
-        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1,
-                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like);
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1, R.drawable.ic_player_liked, R.drawable.ic_player_like);
+    }
+
+    @Test
+    public void bindItemViewSetsInitialProgress() {
+        PlaybackProgress progress = new PlaybackProgress(123, 456, TRACK_URN);
+
+        populateTrackPage(progress);
+
+        verify(waveformViewController).setProgress(progress);
+        verify(artworkController).setProgress(progress);
+    }
+
+    @Test
+    public void bindItemViewClearsInitialProgress() {
+        populateTrackPage();
+
+        verify(waveformViewController).clearProgress();
+        verify(artworkController).clearProgress();
     }
 
     @Test
@@ -229,7 +247,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         final PlayerTrackState trackState = new PlayerTrackState(PlayableFixtures.expectedTrackForPlayer(),
                                                                  true,
                                                                  true,
-                                                                 viewVisibilityProvider);
+                                                                 viewVisibilityProvider,
+                                                                 EMPTY_PROGRESS);
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         trackState.setStation(station);
 
@@ -300,7 +319,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateWithCurrentTrackDoesNotResetProgress() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
 
-        verify(waveformViewController, never()).setProgress(PlaybackProgress.empty());
+        verify(waveformViewController, never()).setProgress(EMPTY_PROGRESS);
     }
 
     @Test
@@ -398,19 +417,19 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setProgressWithEmptyProgressDoesNotSetProgressOnWaveformController() {
-        presenter.setProgress(trackView, PlaybackProgress.empty());
+        presenter.setProgress(trackView, EMPTY_PROGRESS);
         verify(waveformViewController, never()).setProgress(playbackProgress);
     }
 
     @Test
     public void setProgressWithEmptyProgressDoesNotSetProgressOnArtworkController() {
-        presenter.setProgress(trackView, PlaybackProgress.empty());
+        presenter.setProgress(trackView, EMPTY_PROGRESS);
         verify(artworkController, never()).setProgress(playbackProgress);
     }
 
     @Test
     public void setProgressWithEmptyProgressDoesNotSetProgressOnMenuController() {
-        presenter.setProgress(trackView, PlaybackProgress.empty());
+        presenter.setProgress(trackView, EMPTY_PROGRESS);
         verify(trackPageMenuController, never()).setProgress(playbackProgress);
     }
 
@@ -877,27 +896,31 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem populateTrackPage() {
-        return populateTrackPage(false);
+        return populateTrackPage(EMPTY_PROGRESS);
+    }
+
+    private TrackItem populateTrackPage(PlaybackProgress initialProgress) {
+        return populateTrackPage(false, initialProgress);
     }
 
     private TrackItem populateTrackPageForProUser() {
-        return populateTrackPage(true);
+        return populateTrackPage(true, EMPTY_PROGRESS);
     }
 
-    private TrackItem populateTrackPage(boolean creatorIsPro) {
+    private TrackItem populateTrackPage(boolean creatorIsPro, PlaybackProgress initialProgress) {
         final TrackItem source = ModelFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).creatorIsPro(creatorIsPro).build());
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, initialProgress));
         return source;
     }
 
     private void bindSnippedTrack() {
         final TrackItem snippedTrack = PlayableFixtures.upsellableTrack();
-        presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider, EMPTY_PROGRESS));
     }
 
     private TrackItem bindUpsellableHighTierTrack() {
         final TrackItem source = PlayableFixtures.upsellableTrackForPlayer();
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, EMPTY_PROGRESS));
         return source;
     }
 

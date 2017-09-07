@@ -26,6 +26,7 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -49,6 +50,7 @@ import android.widget.TextView;
 
 public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
+    private static final PlaybackProgress INITIAL_PROGRESS = PlaybackProgress.empty();
     private TrackPageMenuController controller;
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
@@ -75,8 +77,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         activityContext = activity();
         builder = PlayableFixtures.expectedTrackBuilderForPlayer();
         sourceTrack = trackItem(builder.build());
-        track = new PlayerTrackState(sourceTrack, false, false, null);
-        privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, null);
+        track = new PlayerTrackState(sourceTrack, false, false, null, INITIAL_PROGRESS);
+        privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, null, INITIAL_PROGRESS);
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(textView.getContext()).thenReturn(activityContext);
@@ -109,7 +111,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void clickingStartStationOnBlockedTrackStartsStationWithoutPrependingSeed() {
         final TrackItem blockedTrackItem = trackItem(builder.blocked(true).build());
-        final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, null);
+        final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, null, INITIAL_PROGRESS);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
         controller.setTrack(updatedPlayerTrackState);
@@ -259,7 +261,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
         final TrackItem notCommentable = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build());
-        track = new PlayerTrackState(notCommentable, false, false, null);
+        track = new PlayerTrackState(notCommentable, false, false, null, INITIAL_PROGRESS);
         controller.setTrack(track);
 
         verify(popupMenuWrapper).setItemVisible(R.id.comment, false);

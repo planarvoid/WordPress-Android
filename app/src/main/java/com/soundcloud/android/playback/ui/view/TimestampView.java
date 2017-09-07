@@ -117,7 +117,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         return bufferingAnimation;
     }
 
-    public void setInitialProgress(long playableDuration, long duration) {
+    public void resetTo(long playableDuration, long duration) {
         this.playableDuration = playableDuration;
         this.duration = duration;
         progressText.setText(format(0));

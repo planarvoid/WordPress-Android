@@ -202,7 +202,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         updatePlayQueueButton(trackView);
 
         holder.artworkController.loadArtwork(trackState, false, trackState.getViewVisibilityProvider());
-        holder.timestamp.setInitialProgress(playableDuration, fullDuration);
+
+        holder.timestamp.resetTo(playableDuration, fullDuration);
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(RxJava.toV1Observable(waveformOperations.waveformDataFor(urn, trackState.getWaveformUrl())),
                                               trackState.isForeground());
@@ -212,6 +213,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         Boolean shouldDisplayLikeCount = trackState.getSource().transform(trackStatsDisplayPolicy::displayLikesCount).or(true);
         holder.likeToggle.setTag(R.id.should_display_likes_count, shouldDisplayLikeCount);
+
+        PlaybackProgress initialProgress = trackState.getInitialProgress();
+        if (initialProgress.isEmpty()) {
+            clearAllProgresses(holder);
+        } else {
+            setAllProgresses(holder, initialProgress);
+        }
 
         updateLikeCount(holder.likeToggle, trackState.getLikeCount());
 
@@ -229,6 +237,18 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         setClickListener(this, holder.onClickViews);
         updateCastData(trackView, false);
+    }
+
+    private void clearAllProgresses(TrackPageHolder holder) {
+        holder.timestamp.clearProgress();
+        holder.waveformController.clearProgress();
+        holder.artworkController.clearProgress();
+    }
+
+    private void setAllProgresses(TrackPageHolder holder, PlaybackProgress initialProgress) {
+        holder.timestamp.setProgress(initialProgress);
+        holder.waveformController.setProgress(initialProgress);
+        holder.artworkController.setProgress(initialProgress);
     }
 
     private void bindUser(PlayerTrackState trackState, TrackPageHolder trackPageHolder) {
