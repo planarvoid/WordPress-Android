@@ -149,6 +149,10 @@ public final class ApiRequestException extends Exception {
         return errorReason == NETWORK_ERROR;
     }
 
+    public boolean isNotAllowedError() {
+        return errorReason == NOT_ALLOWED;
+    }
+
     public boolean loggable() {
         return errorReason == UNEXPECTED_RESPONSE
                 || errorReason == MALFORMED_INPUT

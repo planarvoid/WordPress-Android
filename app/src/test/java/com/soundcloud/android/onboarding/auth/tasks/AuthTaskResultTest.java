@@ -28,7 +28,7 @@ public class AuthTaskResultTest {
         Configuration configuration = ModelFixtures.create(Configuration.class);
         SignupVia signupVia = SignupVia.NONE;
 
-        AuthTaskResult result = AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), signupVia);
+        AuthTaskResult result = AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration, false)), signupVia);
 
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getAuthResponse().me.getUser()).isEqualTo(user);

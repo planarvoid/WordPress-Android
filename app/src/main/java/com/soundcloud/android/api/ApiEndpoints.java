@@ -136,6 +136,7 @@ public enum ApiEndpoints {
     DEVICE_REGISTRATION("/device/registration"),
     RESOLVE_ENTITY("/resolve"),
     ME("/me"),
+    RESEND_EMAIL_CONFIRMATION("/me/emails/confirmation"),
     NOTIFICATION_PREFERENCES("/notification_preferences"),
 
     // play history

@@ -141,7 +141,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         bundle.putSerializable(KEY_BIRTHDAY, BirthdayInfo.buildFrom(25));
 
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(setupApiRequest(), 200, ""));
-        when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.create(user, configuration)));
+        when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.create(user, configuration, false)));
     }
 
     private ApiResponse setupUnsuccessfulApiResponse() {

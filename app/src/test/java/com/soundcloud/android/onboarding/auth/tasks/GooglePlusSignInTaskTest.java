@@ -68,7 +68,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     public void shouldTryToLoginWithTheCorrectParameters() throws IOException, GoogleAuthException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         ArgumentCaptor<Bundle> bundleArgumentCaptor = ArgumentCaptor.forClass(Bundle.class);
-        when(signInOperations.signIn(bundleArgumentCaptor.capture())).thenReturn(AuthTaskResult.success(new AuthResponse(new Token("validtoken", null), Me.create(user, configuration)), SignupVia.GOOGLE_PLUS));
+        when(signInOperations.signIn(bundleArgumentCaptor.capture())).thenReturn(AuthTaskResult.success(new AuthResponse(new Token("validtoken", null), Me.create(user, configuration, false)), SignupVia.GOOGLE_PLUS));
 
         task.doInBackground(bundle);
 
@@ -93,10 +93,10 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException, ApiMapperException, ApiRequestException {
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class))).thenReturn(Me.create(user, configuration));
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class))).thenReturn(Me.create(user, configuration, false));
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
-        when(signInOperations.signIn(any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), SignupVia.GOOGLE_PLUS));
+        when(signInOperations.signIn(any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration, false)), SignupVia.GOOGLE_PLUS));
 
         assertThat(task.doInBackground(bundle).wasSuccess()).isTrue();
     }

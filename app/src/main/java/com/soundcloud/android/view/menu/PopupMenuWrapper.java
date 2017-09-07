@@ -51,7 +51,7 @@ public class PopupMenuWrapper {
         popupMenu.getMenu().findItem(itemId).setEnabled(enabled);
     }
 
-    public void setItemText(int itemId, String text) {
+    public void setItemText(int itemId, CharSequence text) {
         popupMenu.getMenu().findItem(itemId).setTitle(text);
     }
 

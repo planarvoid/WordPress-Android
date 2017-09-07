@@ -12,6 +12,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -27,6 +28,8 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 
 public class CommentController extends DefaultActivityLightCycle<AppCompatActivity> {
+
+    private static final String CONFIRM_PRIMARY_EMAIL_DIALOG_TAG = "confirm_primary_email_dialog";
 
     private final Lazy<CommentsOperations> commentsOperationsLazy;
     private final FeedbackController feedbackController;
@@ -93,8 +96,13 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            final Feedback feedback = Feedback.create(R.string.comment_error, Feedback.LENGTH_LONG);
-            feedbackController.showFeedback(feedback);
+            if (ErrorUtils.isForbiddenError(e)) {
+                final ConfirmPrimaryEmailDialogFragment fragment = ConfirmPrimaryEmailDialogFragment.create();
+                fragment.show(activity.getFragmentManager(), CONFIRM_PRIMARY_EMAIL_DIALOG_TAG);
+            } else {
+                final Feedback feedback = Feedback.create(R.string.comment_error, Feedback.LENGTH_LONG);
+                feedbackController.showFeedback(feedback);
+            }
         }
 
         private void subscribeToCollapsedEvent(Context context) {

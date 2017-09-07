@@ -274,7 +274,7 @@
     <string name="comment_at_time">Comment at %s</string>
     <string name="comment_on_tracktitle">Comment on %s</string>
     <string name="comment_posted">Your comment has been posted.</string>
-    <string name="comment_error">Comment could not be created at this time</string>
+    <string name="comment_error">Oops… failed to post comment. Try again later.</string>
     <string name="share_tracktitle_artist_link">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>
     <string name="share_tracktitle_link">Listen to %1$s #np on #SoundCloud\n%2$s</string>
     <string name="share_subject">%s - SoundCloud</string>
@@ -282,6 +282,13 @@
     <string name="uploaded_xtimeago">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
     <string name="up_next">Next up</string>
+
+    <!-- __PRIMARY EMAIL CONFIRMATION -->
+    <string name="btn_resend_email_confirmation">Resend e-mail</string>
+    <string name="confirm_primary_email_title">Verify your e-mail address</string>
+    <string name="confirm_primary_email_body">An account verification e-mail was sent to the address you signed up with. Please click the link in this e-mail to make comments.</string>
+    <string name="confirm_primary_email_sent">Verification e-mail sent.</string>
+    <string name="confirm_primary_email_error">Oops… failed to send e-mail. Try again later.</string>
 
     <!-- @Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this? -->
     <string name="playback_error">Not playable</string>

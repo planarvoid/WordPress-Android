@@ -1,45 +1,43 @@
 package com.soundcloud.android.sync.me;
 
 import com.soundcloud.android.accounts.Me;
+import com.soundcloud.android.accounts.MeStorage;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.users.User;
 import com.soundcloud.java.reflect.TypeToken;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.concurrent.Callable;
-
 
 public class MeSyncer implements Callable<Boolean> {
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final ApiClient apiClient;
-    private final StoreUsersCommand storeUsersCommand;
+    private final MeStorage meStorage;
 
     @Inject
     public MeSyncer(ApiClient apiClient,
-                    EventBus eventBus,
-                    StoreUsersCommand storeUsersCommand) {
+                    EventBusV2 eventBus,
+                    MeStorage meStorage) {
         this.apiClient = apiClient;
         this.eventBus = eventBus;
-        this.storeUsersCommand = storeUsersCommand;
+        this.meStorage = meStorage;
     }
 
     @Override
     public Boolean call() throws Exception {
         Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
-        storeMe(me);
+        meStorage.store(me);
         publishChangeEvent(me);
         return true;
     }
 
-    protected ApiRequest buildRequest() {
+    private ApiRequest buildRequest() {
         return ApiRequest.get(ApiEndpoints.ME.path())
                          .forPrivateApi()
                          .build();
@@ -49,7 +47,4 @@ public class MeSyncer implements Callable<Boolean> {
         eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(me.getUser())));
     }
 
-    private void storeMe(Me me) {
-        storeUsersCommand.call(Collections.singleton(me.getUser()));
-    }
 }

@@ -47,7 +47,7 @@ public class SignupTaskTest {
     @Test
     public void forwardToOperationsWhenFeatureFlagEnabled() throws Exception {
         Token token = Token.EMPTY;
-        Me me = Me.create(ModelFixtures.create(ApiUser.class), ModelFixtures.create(Configuration.class));
+        Me me = Me.create(ModelFixtures.create(ApiUser.class), ModelFixtures.create(Configuration.class), false);
         Bundle bundle = getParamsBundle();
 
         when(signUpOperations.signUp(bundle)).thenReturn(AuthTaskResult.success(new AuthResponse(token, me), SignupVia.API));

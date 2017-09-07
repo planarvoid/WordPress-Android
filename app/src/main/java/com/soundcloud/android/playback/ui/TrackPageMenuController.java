@@ -24,15 +24,15 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -53,7 +53,7 @@ public class TrackPageMenuController
     private final PlayQueueManager playQueueManager;
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final SharePresenter sharePresenter;
     private final String commentAtUnformatted;
     private final PerformanceMetricsEngine performanceMetricsEngine;
@@ -69,7 +69,7 @@ public class TrackPageMenuController
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     AccountOperations accountOperations,
-                                    EventBus eventBus,
+                                    EventBusV2 eventBus,
                                     SharePresenter sharePresenter,
                                     PerformanceMetricsEngine performanceMetricsEngine,
                                     Navigator navigator) {
@@ -111,8 +111,12 @@ public class TrackPageMenuController
         commentPosition = position;
         if (track.isCommentable()) {
             final String timestamp = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
-            popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
+            setCommentMenuItemText(String.format(commentAtUnformatted, timestamp));
         }
+    }
+
+    private void setCommentMenuItemText(CharSequence text) {
+        popupMenuWrapper.setItemText(R.id.comment, text);
     }
 
     private void setupMenu() {
@@ -123,6 +127,10 @@ public class TrackPageMenuController
     private void initStationsOption() {
         popupMenuWrapper.findItem(R.id.start_station).setTitle(activity.getText(R.string.stations_open_station));
         popupMenuWrapper.setItemEnabled(R.id.start_station, IOUtils.isConnected(activity));
+    }
+
+    private void initCommentOption() {
+        setCommentMenuItemText(popupMenuWrapper.findItem(R.id.comment).getTitle());
     }
 
     @Override
@@ -156,8 +164,9 @@ public class TrackPageMenuController
 
     private void handleStartStation() {
         eventBus.queue(EventQueue.PLAYER_UI)
-                .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                .subscribe(new StartStationPageSubscriber(track));
+                .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED_V2)
+                .firstElement()
+                .subscribe(new StartStationPageObserver(track));
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
     }
 
@@ -172,12 +181,10 @@ public class TrackPageMenuController
     }
 
     private void handleComment() {
-        if (track.getSource().isPresent()) {
-            final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource().get(),
-                                                                                                commentPosition,
-                                                                                                playQueueManager.getScreenTag());
+        track.getSource().ifPresent(source -> {
+            final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(source, commentPosition, playQueueManager.getScreenTag());
             fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
-        }
+        });
     }
 
     private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {
@@ -248,6 +255,7 @@ public class TrackPageMenuController
     public void show() {
         if (track != PlayerTrackState.EMPTY) {
             initStationsOption();
+            initCommentOption();
             popupMenuWrapper.show();
         }
     }
@@ -266,7 +274,7 @@ public class TrackPageMenuController
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final AccountOperations accountOperations;
-        private final EventBus eventBus;
+        private final EventBusV2 eventBus;
         private final SharePresenter sharePresenter;
         private final PerformanceMetricsEngine performanceMetricsEngine;
         private final Navigator navigator;
@@ -276,7 +284,7 @@ public class TrackPageMenuController
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 AccountOperations accountOperations,
-                EventBus eventBus,
+                EventBusV2 eventBus,
                 SharePresenter sharePresenter,
                 PerformanceMetricsEngine performanceMetricsEngine,
                 Navigator navigator) {
@@ -304,15 +312,16 @@ public class TrackPageMenuController
         }
     }
 
-    private class StartStationPageSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private class StartStationPageObserver extends DefaultMaybeObserver<PlayerUIEvent> {
         private final PlayerTrackState track;
 
-        StartStationPageSubscriber(PlayerTrackState track) {
+        StartStationPageObserver(PlayerTrackState track) {
             this.track = track;
         }
 
         @Override
-        public void onNext(PlayerUIEvent args) {
+        public void onSuccess(PlayerUIEvent unused) {
+            super.onSuccess(unused);
             final Urn stationUrn = Urn.forTrackStation(track.getUrn().getNumericId());
 
             performanceMetricsEngine.startMeasuring(MetricType.LOAD_STATION);

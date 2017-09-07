@@ -150,6 +150,10 @@ public final class ErrorUtils {
         }
     }
 
+    public static boolean isForbiddenError(Throwable e) {
+        return e instanceof ApiRequestException && ((ApiRequestException) e).isNotAllowedError();
+    }
+
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
         if (t instanceof BitmapLoadingAdapter.BitmapLoadingException && t.getCause() != null) {

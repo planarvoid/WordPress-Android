@@ -46,7 +46,7 @@ public class SignInOperationsTest extends AndroidUnitTest {
     private static final String PASSWORD = "pass";
     private final ApiUser user = ModelFixtures.create(ApiUser.class);
     private final Configuration configuration = ModelFixtures.create(Configuration.class);
-    private final Me me = Me.create(user, configuration);
+    private final Me me = Me.create(user, configuration, false);
     @Mock SoundCloudApplication application;
     @Mock Context context;
     @Mock ApiClient apiClient;

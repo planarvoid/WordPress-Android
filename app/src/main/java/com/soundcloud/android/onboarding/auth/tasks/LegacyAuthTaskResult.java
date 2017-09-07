@@ -177,7 +177,7 @@ public final class LegacyAuthTaskResult {
 
     public AuthTaskResult toAuthTaskResult() {
         if (wasSuccess()) {
-            return AuthTaskResult.success(new AuthResponse(null, Me.create(user, null)), signupVia);
+            return AuthTaskResult.success(new AuthResponse(null, Me.create(user, null, false)), signupVia);
         }
 
         if (exception instanceof ApiRequestException) {

@@ -25,6 +25,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.comments.CommentsFragment;
+import com.soundcloud.android.comments.ConfirmPrimaryEmailDialogFragment;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -291,6 +292,7 @@ public interface ApplicationComponent {
     //CommentsModule
     void inject(TrackCommentsActivity trackCommentsActivity);
     void inject(AddCommentDialogFragment addCommentDialogFragment);
+    void inject(ConfirmPrimaryEmailDialogFragment confirmPrimaryEmailDialogFragment);
     void inject(CommentsFragment commentsFragment);
 
     //PaymentsModule

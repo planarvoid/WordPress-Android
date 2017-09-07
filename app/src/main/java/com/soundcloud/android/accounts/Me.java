@@ -12,13 +12,15 @@ import android.support.annotation.Nullable;
 public abstract class Me {
 
     @JsonCreator
-    public static Me create(@JsonProperty("user") @Nullable ApiUser apiUser, @JsonProperty("configuration") @Nullable Configuration configuration) {
+    public static Me create(@JsonProperty("user") @Nullable ApiUser apiUser, @JsonProperty("configuration") @Nullable Configuration configuration, @JsonProperty("primary_email_confirmed") boolean primaryEmailConfirmed) {
         return new AutoValue_Me(
-                apiUser, configuration
+                apiUser, configuration, primaryEmailConfirmed
         );
     }
 
     public abstract ApiUser getUser();
     // @Nullable can be removed once the AddUserInfoTask is reworked to use api-mobile
     @Nullable public abstract Configuration getConfiguration();
+
+    public abstract boolean isPrimaryEmailConfirmed();
 }

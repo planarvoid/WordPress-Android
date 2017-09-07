@@ -51,7 +51,7 @@ public class LoginTaskTest {
 
     @Test
     public void callsOperationsWhenLoginCalled() throws Exception {
-        when(signInOperations.signIn(eq(bundle))).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), SignupVia.API));
+        when(signInOperations.signIn(eq(bundle))).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration, false)), SignupVia.API));
         loginTask.doInBackground(bundle);
         verify(signInOperations).signIn(eq(bundle));
     }

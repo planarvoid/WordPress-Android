@@ -1,10 +1,15 @@
 package com.soundcloud.android.comments;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
@@ -76,6 +81,17 @@ public class CommentControllerTest extends AndroidUnitTest {
 
         verify(feedbackController).showFeedback(feedbackArgumentCaptor.capture());
         assertThat(feedbackArgumentCaptor.getValue().getMessage()).isEqualTo(R.string.comment_error);
+    }
+
+    @Test
+    public void showsEmailNotConfirmedDialogWhenNotAllowedToAddComment() {
+        when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
+                .thenReturn(Single.error(ApiRequestException.notAllowed(null, null)));
+
+        controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
+
+        verifyZeroInteractions(feedbackController);
+        // not truly verifying the dialog is shown as we don't have access to its instance
     }
 
     @Test

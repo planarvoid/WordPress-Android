@@ -113,6 +113,13 @@ public class ErrorUtilsTest {
     }
 
     @Test
+    public void notAllowedNetworkErrorTranslatesInHelperMethod() {
+        final ApiRequestException apiRequestException = ApiRequestException.notAllowed(null, null);
+
+        assertThat(ErrorUtils.isForbiddenError(apiRequestException)).isTrue();
+    }
+
+    @Test
     public void shouldExcludeApiNetworkErrors() {
         final ApiRequestException apiRequestException = ApiRequestException.networkError(null, new IOException());
 

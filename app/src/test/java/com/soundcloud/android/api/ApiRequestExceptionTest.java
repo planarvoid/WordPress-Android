@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -29,6 +30,11 @@ public class ApiRequestExceptionTest extends AndroidUnitTest {
     public void errorKeyIsNoneIfNotSet() {
         assertThat(ApiRequestException.networkError(request, new IOException()).errorKey())
                 .isEqualTo(ApiRequestException.ERROR_KEY_NONE);
+    }
+
+    @Test
+    public void notAllowedTranslatesToHelperMethod() {
+        assertThat(ApiRequestException.notAllowed(request, response).isNotAllowedError()).isTrue();
     }
 
 }

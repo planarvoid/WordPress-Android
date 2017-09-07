@@ -55,7 +55,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     // internal fields
     @Nullable private String city;
     @Nullable private String country;
-    @Nullable private Boolean primary_email_confirmed;
 
     public PublicApiUser() {
     }
@@ -134,7 +133,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
                 ", myspace_name='" + myspace_name + '\'' +
                 ", country='" + country + '\'' +
                 ", plan='" + plan + '\'' +
-                ", primary_email_confirmed=" + primary_email_confirmed +
                 ']';
     }
 
@@ -181,12 +179,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
 
     public final void setPermalink(@Nullable String permalink) {
         this.permalink = permalink;
-    }
-
-    // setter for deserialization, we want it null if it doesn't exist and to keep it private
-    @JsonProperty("primary_email_confirmed")
-    public void setPrimaryEmailConfirmed(boolean val) {
-        primary_email_confirmed = val;
     }
 
     @NotNull
