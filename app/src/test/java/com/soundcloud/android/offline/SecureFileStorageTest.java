@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.Encryptor;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@Config(sdk = 18)
+@Config(sdk = BuildConfig.ROBOELETRIC_SDK_VERSION)
 public class SecureFileStorageTest extends AndroidUnitTest { // just because of logging
 
     @Mock private CryptoOperations operations;

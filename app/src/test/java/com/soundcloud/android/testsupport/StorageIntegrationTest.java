@@ -26,7 +26,7 @@ import android.database.sqlite.SQLiteDatabase;
 @Config(packageName = "com.soundcloud.android",
         constants = BuildConfig.class,
         application = ApplicationStub.class,
-        sdk = 21)
+        sdk = BuildConfig.ROBOELETRIC_SDK_VERSION)
 public abstract class StorageIntegrationTest extends IntegrationTest {
 
     @Rule public final HelperObjectsRule helpers = new HelperObjectsRule();

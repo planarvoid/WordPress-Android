@@ -93,6 +93,8 @@ android {
     applicationId project.ext.rootPackage
     testApplicationId project.ext.testApplicationId
     testInstrumentationRunner project.ext.testInstrumentationRunner
+
+    buildConfigField "int", "ROBOELETRIC_SDK_VERSION", "$rootProject.ext.robolectricConfigSdkVersion"
   }
 
   compileOptions {

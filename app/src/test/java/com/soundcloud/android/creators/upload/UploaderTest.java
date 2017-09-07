@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
@@ -33,7 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-@Config(sdk = 18)
+@Config(sdk = BuildConfig.ROBOELETRIC_SDK_VERSION)
 public class UploaderTest extends AndroidUnitTest {
     private Recording recording;
     private TestEventBus eventBus = new TestEventBus();

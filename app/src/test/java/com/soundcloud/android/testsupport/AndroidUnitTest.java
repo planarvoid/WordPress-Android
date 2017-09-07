@@ -32,7 +32,7 @@ import android.util.AttributeSet;
         constants = BuildConfig.class,
         application = ApplicationStub.class,
         shadows = {ShadowSupportMediaRouter.class},
-        sdk = 22)
+        sdk = BuildConfig.ROBOELETRIC_SDK_VERSION)
 public abstract class AndroidUnitTest {
 
     @Rule public TestRule injectMocksRule = (base, description) -> {

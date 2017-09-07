@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.Encryptor;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RunWith(MockitoJUnitRunner.class)
-@Config(sdk = 19)
+@Config(sdk = BuildConfig.ROBOELETRIC_SDK_VERSION)
 public class SecureFileStorageNoStorageDirTest { // just because of logging
 
     @Mock private CryptoOperations operations;
