@@ -91,7 +91,7 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
     }
 
     public void onPlayerSlide(float slideOffset) {
-        if (activity != null) {
+        if (activity != null && slideOffset >= 0) {
             StatusBarUtils.setStatusBarColor(activity, blendColors(statusBarColor, expandedStatusColor, slideOffset));
         }
     }

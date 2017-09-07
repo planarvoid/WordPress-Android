@@ -27,7 +27,6 @@ public final class StatusBarUtils {
     static void setStatusBarColor(Activity activity, int color) {
         if (shouldColorStatusBar()) {
             final Window window = activity.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(color);
         }
     }

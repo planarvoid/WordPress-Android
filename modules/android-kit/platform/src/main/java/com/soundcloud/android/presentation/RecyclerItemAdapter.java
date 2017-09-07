@@ -117,6 +117,10 @@ public abstract class RecyclerItemAdapter<ItemT, VH extends RecyclerView.ViewHol
         items.add(0, item);
     }
 
+    public void addItem(int index, ItemT item){
+        items.add(index, item);
+    }
+
     @Override
     public void removeItem(int position) {
         items.remove(position);

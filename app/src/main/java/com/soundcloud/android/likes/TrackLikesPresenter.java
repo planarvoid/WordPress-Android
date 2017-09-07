@@ -2,7 +2,6 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
-import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
@@ -18,6 +17,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
@@ -29,27 +29,24 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterObserver;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.LikeEntityListObserver;
 import com.soundcloud.android.view.adapters.OfflinePropertiesObserver;
-import com.soundcloud.android.view.adapters.PrependItemToListObserver;
-import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
 import com.soundcloud.android.view.adapters.RepostEntityListObserver;
-import com.soundcloud.android.view.adapters.UpdateCurrentDownloadObserver;
 import com.soundcloud.android.view.adapters.UpdateTrackListObserver;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -207,17 +204,16 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                 subscribeToOfflineContent(),
 
                 eventBus.subscribe(TRACK_CHANGED, new UpdateTrackListObserver(adapter)),
-                eventBus.subscribe(LIKE_CHANGED, new LikeEntityListObserver(adapter)),
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListObserver(adapter)),
 
                 likeOperations.onTrackLiked()
                               .map(TrackLikesTrackItem::create)
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribeWith(new PrependItemToListObserver<>(adapter)),
+                              .subscribeWith(new AddLikedTrackObserver(adapter)),
 
                 likeOperations.onTrackUnliked()
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribeWith(new RemoveEntityListObserver(adapter)),
+                              .subscribeWith(new RemoveLikedTrackObserver(adapter)),
 
                 offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges().subscribeWith(new RefreshRecyclerViewAdapterObserver(adapter))
         );
@@ -304,7 +300,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             return wrapLikedTracks(trackLikeOperations.updatedLikedTracks(), true);
         }
 
-
         Pager.PagingFunction<TrackLikesPage> pagingFunction() {
             return result -> {
                 if (result.getTrackLikes().isEmpty()) {
@@ -323,4 +318,51 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         }
     }
 
+    private static class AddLikedTrackObserver extends DefaultObserver<TrackLikesTrackItem> {
+        private final TrackLikesAdapter adapter;
+
+        public AddLikedTrackObserver(TrackLikesAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        public void onNext(@NonNull TrackLikesTrackItem trackLikesTrackItem) {
+            final TrackLikesItem firstItem = adapter.getItem(0);
+            int targetPosition = isHeader(firstItem) ? 1 : 0;
+            adapter.addItem(targetPosition, trackLikesTrackItem);
+            adapter.notifyItemInserted(targetPosition);
+        }
+
+        private boolean isHeader(TrackLikesItem firstItem) {
+            return firstItem != null && firstItem.getKind() == TrackLikesItem.Kind.HeaderItem;
+        }
+    }
+
+    private static final class RemoveLikedTrackObserver extends DefaultObserver<Urn> {
+        private final TrackLikesAdapter adapter;
+
+        public RemoveLikedTrackObserver(TrackLikesAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        public void onNext(final Urn urn) {
+            final List<TrackLikesItem> items = adapter.getItems();
+            for (int i = 0; i < items.size(); i++) {
+                if (shouldRemove(items.get(i), urn)) {
+                    removeItemFromAdapterAt(i);
+                    break; //likes list should not contain duplications
+                }
+            }
+        }
+
+        private boolean shouldRemove(Object item, Urn urn) {
+            return item != null && item instanceof Entity && ((Entity) item).getUrn().equals(urn);
+        }
+
+        private void removeItemFromAdapterAt(int position) {
+            adapter.removeItem(position);
+            adapter.notifyItemRemoved(position);
+        }
+    }
 }

@@ -22,8 +22,7 @@
                 android:id="@+id/appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
-                app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
+                android:fitsSystemWindows="true">
 
                 <include
                     layout="@layout/profile_header_no_banner"
