@@ -66,7 +66,12 @@ performance:
 
 exceptions:
   active: true
-  TooGenericExceptionCatched:
+  ExceptionRaisedInUnexpectedLocation:
+    active: true
+    methodNames: 'toString,hashCode,equals,finalize'
+  SwallowedException:
+    active: false
+  TooGenericExceptionCaught:
     active: true
     exceptions:
       - ArrayIndexOutOfBoundsException
@@ -74,6 +79,7 @@ exceptions:
       - Exception
       - IllegalMonitorStateException
       - IndexOutOfBoundsException
+      - InterruptedException
       - NullPointerException
       - RuntimeException
   TooGenericExceptionThrown:
@@ -85,6 +91,22 @@ exceptions:
       - ThrowNullPointerException
       - ThrowRuntimeException
       - ThrowThrowable
+  InstanceOfCheckForException:
+    active: false
+  IteratorNotThrowingNoSuchElementException:
+    active: false
+  PrintExceptionStackTrace:
+    active: false
+  RethrowCaughtException:
+    active: false
+  ReturnFromFinally:
+    active: false
+  ThrowingExceptionFromFinally:
+    active: false
+  ThrowingExceptionInMain:
+    active: false
+  ThrowingNewInstanceOfSameException:
+    active: false
 
 empty-blocks:
   active: true
@@ -213,6 +235,8 @@ style:
   ForbiddenImport:
     active: false
     imports: ''
+  PackageDeclarationStyle:
+    active: false
   ModifierOrder:
     active: true
   MagicNumber:
@@ -261,10 +285,19 @@ style:
   VariableMinLength:
     active: true
     minimumVariableNameLength: 2
+  ForbiddenClassName:
+    active: false
+    forbiddenName: ''
   ProtectedMemberInFinalClass:
     active: false
   UnnecessaryParentheses:
     active: true
+  DataClassContainsFunctions:
+    active: false
+  UseDataClass:
+    active: false
+  UnnecessaryAbstractClass:
+    active: false
 
 comments:
   active: true
@@ -276,6 +309,7 @@ comments:
     active: false
     searchInNestedClass: true
     searchInInnerClass: true
+    searchInInnerObject: true
     searchInInnerInterface: true
   UndocumentedPublicFunction:
     active: false
