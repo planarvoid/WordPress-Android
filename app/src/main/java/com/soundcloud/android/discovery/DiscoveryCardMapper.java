@@ -13,43 +13,43 @@ final class DiscoveryCardMapper {
         if (apiDiscoveryCard.multipleContentSelectionCard().isPresent()) {
             final ApiMultipleContentSelectionCard apiMultipleContentSelectionCard = apiDiscoveryCard.multipleContentSelectionCard().get();
             final Urn selectionUrn = apiMultipleContentSelectionCard.selectionUrn();
-            return DiscoveryCard.MultipleContentSelectionCard.create(selectionUrn,
-                                                                     apiMultipleContentSelectionCard.selectionItems().getQueryUrn(),
-                                                                     pageQueryUrn,
-                                                                     apiMultipleContentSelectionCard.style(),
-                                                                     apiMultipleContentSelectionCard.title(),
-                                                                     apiMultipleContentSelectionCard.description(),
-                                                                     apiMultipleContentSelectionCard.trackingFeatureName(),
-                                                                     apiMultipleContentSelectionCard.selectionItems()
-                                                                                                    .transform(item -> DiscoveryCardMapper.map(selectionUrn, item))
-                                                                                                    .getCollection());
+            return new DiscoveryCard.MultipleContentSelectionCard(apiMultipleContentSelectionCard.selectionItems().getQueryUrn().orNull(),
+                                                                  selectionUrn,
+                                                                  pageQueryUrn.orNull(),
+                                                                  apiMultipleContentSelectionCard.style().orNull(),
+                                                                  apiMultipleContentSelectionCard.title().orNull(),
+                                                                  apiMultipleContentSelectionCard.description().orNull(),
+                                                                  apiMultipleContentSelectionCard.trackingFeatureName().orNull(),
+                                                                  apiMultipleContentSelectionCard.selectionItems()
+                                                                                                 .transform(item -> DiscoveryCardMapper.map(selectionUrn, item))
+                                                                                                 .getCollection());
         } else if (apiDiscoveryCard.singleContentSelectionCard().isPresent()) {
             final ApiSingleContentSelectionCard apiSingleContentSelectionCard = apiDiscoveryCard.singleContentSelectionCard().get();
             final Urn selectionUrn = apiSingleContentSelectionCard.selectionUrn();
-            return DiscoveryCard.SingleContentSelectionCard.create(selectionUrn,
-                                                                   apiSingleContentSelectionCard.queryUrn(),
-                                                                   pageQueryUrn,
-                                                                   apiSingleContentSelectionCard.style(),
-                                                                   apiSingleContentSelectionCard.title(),
-                                                                   apiSingleContentSelectionCard.description(),
-                                                                   apiSingleContentSelectionCard.trackingFeatureName(),
-                                                                   map(selectionUrn, apiSingleContentSelectionCard.selectionItem()),
-                                                                   apiSingleContentSelectionCard.socialProof(),
-                                                                   apiSingleContentSelectionCard.socialProofAvatarUrlTemplates());
+            return new DiscoveryCard.SingleContentSelectionCard(apiSingleContentSelectionCard.queryUrn().orNull(),
+                                                                selectionUrn,
+                                                                apiSingleContentSelectionCard.style().orNull(),
+                                                                apiSingleContentSelectionCard.title().orNull(),
+                                                                apiSingleContentSelectionCard.description().orNull(),
+                                                                pageQueryUrn.orNull(),
+                                                                map(selectionUrn, apiSingleContentSelectionCard.selectionItem()),
+                                                                apiSingleContentSelectionCard.trackingFeatureName().orNull(),
+                                                                apiSingleContentSelectionCard.socialProof().orNull(),
+                                                                apiSingleContentSelectionCard.socialProofAvatarUrlTemplates());
         } else {
             throw new IllegalStateException("Unexpected card type");
         }
     }
 
     private static SelectionItem map(Urn selectionUrn, ApiSelectionItem apiSelectionItem) {
-        return new SelectionItem(apiSelectionItem.urn(),
+        return new SelectionItem(apiSelectionItem.urn().orNull(),
                                  selectionUrn,
-                                 apiSelectionItem.artworkUrlTemplate(),
-                                 apiSelectionItem.artworkStyle(),
-                                 apiSelectionItem.count(),
-                                 apiSelectionItem.shortTitle(),
-                                 apiSelectionItem.shortSubtitle(),
-                                 apiSelectionItem.appLink(),
-                                 apiSelectionItem.webLink());
+                                 apiSelectionItem.artworkUrlTemplate().orNull(),
+                                 apiSelectionItem.artworkStyle().orNull(),
+                                 apiSelectionItem.count().orNull(),
+                                 apiSelectionItem.shortTitle().orNull(),
+                                 apiSelectionItem.shortSubtitle().orNull(),
+                                 apiSelectionItem.appLink().orNull(),
+                                 apiSelectionItem.webLink().orNull());
     }
 }

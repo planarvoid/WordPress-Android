@@ -13,13 +13,13 @@ public class DiscoveryCardMapperTest {
     public void mapsSingletonSelectionCard() throws Exception {
         final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_SINGLE_CONTENT_SELECTION_CARD, Optional.of(ApiDiscoveryCardTest.PARENT_QUERY_URN));
 
-        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
+        assertThat(card).isInstanceOf(DiscoveryCard.SingleContentSelectionCard.class);
     }
 
     @Test
     public void mapsSelectionCard() throws Exception {
         final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD, Optional.of(ApiDiscoveryCardTest.PARENT_QUERY_URN));
 
-        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD);
+        assertThat(card).isInstanceOf(DiscoveryCard.MultipleContentSelectionCard.class);
     }
 }

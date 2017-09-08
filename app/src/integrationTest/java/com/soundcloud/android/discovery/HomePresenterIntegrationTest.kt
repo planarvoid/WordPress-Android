@@ -126,7 +126,7 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
     private fun AsyncLoaderState<List<DiscoveryCardViewModel>, *>.exception(position: Int): ApiRequestException? {
         val card = if (data.isPresent && data.get().size > position) data.get()[position] else null
         if (card is DiscoveryCardViewModel.EmptyCard) {
-            return card.throwable.transform { it as ApiRequestException }.orNull()
+            return card.throwable?.let { it as ApiRequestException }
         }
         return null
     }

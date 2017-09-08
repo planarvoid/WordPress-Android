@@ -1,17 +1,6 @@
 package com.soundcloud.android.discovery;
 
 
-import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_APP_LINK;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_CONTENT_SELECTION_CARD;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_WEB_LINK;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.SEARCH_ITEM_VIEW_MODEL;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_APP_LINK;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_WEB_LINK;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.multiContentSelectionCardViewModel;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.multiSelectionItemViewModel;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.singleContentSelectionCardViewModel;
-import static com.soundcloud.android.discovery.DiscoveryFixtures.singleSelectionItemViewModel;
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -92,8 +81,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                            eventTracker,
                                            referringEventProvider,
                                            syncStateStorage);
-        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(SINGLE_CONTENT_SELECTION_CARD), Optional.absent())));
-        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(MULTI_CONTENT_SELECTION_CARD), Optional.absent())));
+        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.INSTANCE.getSingleContentSelectionCard()), Optional.absent())));
+        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.INSTANCE.getMultipleContentSelectionCard()),
+                                                                                                     Optional.absent())));
         when(fragment.getActivity()).thenReturn(activity);
         when(referringEventProvider.getReferringEvent()).thenReturn(Optional.of(referringEvent));
     }
@@ -148,7 +138,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void navigatesAndTracksSingleSelectionItemClick() {
-        final ArrayList<DiscoveryCardViewModel> cards = Lists.newArrayList(SEARCH_ITEM_VIEW_MODEL, singleContentSelectionCardViewModel(), multiContentSelectionCardViewModel());
+        final ArrayList<DiscoveryCardViewModel> cards = Lists.newArrayList(DiscoveryCardViewModel.SearchCard.INSTANCE,
+                                                                           DiscoveryFixtures.INSTANCE.singleContentSelectionCardViewModel(),
+                                                                           DiscoveryFixtures.INSTANCE.multiContentSelectionCardViewModel());
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItemViewModel> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
@@ -156,20 +148,22 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragment, null);
 
-        final SelectionItemViewModel.TrackingInfo trackingInfo = mock(SelectionItemViewModel.TrackingInfo.class);
+        final SelectionItemTrackingInfo trackingInfo = mock(SelectionItemTrackingInfo.class);
         final UIEvent uiEvent = mock(UIEvent.class);
         when(trackingInfo.toUIEvent()).thenReturn(uiEvent);
-        selectionItemPublishSubject.onNext(singleSelectionItemViewModel(trackingInfo));
+        selectionItemPublishSubject.onNext(DiscoveryFixtures.INSTANCE.singleSelectionItemViewModel(trackingInfo));
 
         verify(eventTracker).trackClick(uiEvent);
-        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(SINGLE_APP_LINK.get(),
-                                                                                                    SINGLE_WEB_LINK, SCREEN,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(DiscoveryFixtures.INSTANCE.getSingleAppLink(),
+                                                                                                    Optional.fromNullable(DiscoveryFixtures.INSTANCE.getSingleWebLink()), SCREEN,
                                                                                                     Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
     @Test
     public void navigatesAndTracksMultiSelectionItemClick() {
-        final ArrayList<DiscoveryCardViewModel> cards = Lists.newArrayList(SEARCH_ITEM_VIEW_MODEL, singleContentSelectionCardViewModel(), multiContentSelectionCardViewModel());
+        final ArrayList<DiscoveryCardViewModel> cards = Lists.newArrayList(DiscoveryCardViewModel.SearchCard.INSTANCE,
+                                                                           DiscoveryFixtures.INSTANCE.singleContentSelectionCardViewModel(),
+                                                                           DiscoveryFixtures.INSTANCE.multiContentSelectionCardViewModel());
         when(adapter.getItems()).thenReturn(cards);
         final PublishSubject<SelectionItemViewModel> selectionItemPublishSubject = PublishSubject.create();
         when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
@@ -177,14 +171,14 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragment, null);
 
-        final SelectionItemViewModel.TrackingInfo trackingInfo = mock(SelectionItemViewModel.TrackingInfo.class);
+        final SelectionItemTrackingInfo trackingInfo = mock(SelectionItemTrackingInfo.class);
         final UIEvent uiEvent = mock(UIEvent.class);
         when(trackingInfo.toUIEvent()).thenReturn(uiEvent);
-        selectionItemPublishSubject.onNext(multiSelectionItemViewModel(trackingInfo));
+        selectionItemPublishSubject.onNext(DiscoveryFixtures.INSTANCE.multiSelectionItemViewModel(trackingInfo));
 
         verify(eventTracker).trackClick(uiEvent);
-        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(MULTI_APP_LINK.get(),
-                                                                                                    MULTI_WEB_LINK, SCREEN,
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forNavigation(DiscoveryFixtures.INSTANCE.getMultiAppLink(),
+                                                                                                    Optional.fromNullable(DiscoveryFixtures.INSTANCE.getMultiWebLink()), SCREEN,
                                                                                                     Optional.of(DiscoverySource.RECOMMENDATIONS)))));
     }
 
@@ -200,8 +194,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         verifyZeroInteractions(eventTracker);
 
-        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD,
-                                                                                                                 DiscoveryFixtures.MULTI_CONTENT_SELECTION_CARD), Optional.absent())));
+        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.INSTANCE.getSingleContentSelectionCard(),
+                                                                                                                 DiscoveryFixtures.INSTANCE.getMultipleContentSelectionCard()), Optional.absent())));
         CollectionBinding<List<DiscoveryCardViewModel>, DiscoveryCardViewModel> binding = presenter.onBuildBinding(bundle);
         binding.connect();
         binding.items().subscribe(itemObserver);
@@ -210,7 +204,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         final ScreenEvent screenEvent = screenEventArgumentCaptor.getValue();
         assertThat(screenEvent.screen()).isEqualTo(Screen.DISCOVER.get());
-        assertThat(screenEvent.queryUrn().get()).isEqualTo(DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD.parentQueryUrn().get());
+        assertThat(screenEvent.queryUrn().get()).isEqualTo(DiscoveryFixtures.INSTANCE.getSingleContentSelectionCard().getParentQueryUrn());
     }
 
     private RootActivity initRootActivity() {

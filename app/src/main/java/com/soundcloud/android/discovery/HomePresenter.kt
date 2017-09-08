@@ -10,7 +10,6 @@ import com.soundcloud.android.navigation.Navigator
 import com.soundcloud.android.playback.DiscoverySource
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.rx.observers.LambdaObserver
-import com.soundcloud.android.utils.Log
 import com.soundcloud.android.utils.collection.AsyncLoader
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.view.BasePresenter
@@ -35,10 +34,10 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                    view.selectionItemClick
                                            .subscribeWith(
                                                    LambdaObserver.onNext<SelectionItemViewModel> {
-                                                       it.trackingInfo.ifPresent { trackingInfo -> eventTracker.trackClick(trackingInfo.toUIEvent()) }
-                                                       it.link().ifPresent { link ->
+                                                       it.trackingInfo?.let { trackingInfo -> eventTracker.trackClick(trackingInfo.toUIEvent()) }
+                                                       it.link()?.let { link ->
                                                            navigator.navigateTo(NavigationTarget.forNavigation(link,
-                                                                                                               it.webLink,
+                                                                                                               Optional.fromNullable(it.webLink),
                                                                                                                Screen.DISCOVER,
                                                                                                                Optional.of(DiscoverySource.RECOMMENDATIONS)))
                                                        }
@@ -72,10 +71,7 @@ constructor(private val discoveryOperations: DiscoveryOperations,
         }.toObservable()
     }
 
-    private fun List<DiscoveryCardViewModel>.responseQueryUrn(): Urn? {
-        val cardWithQueryUrn = this.find { it.parentQueryUrn.isPresent }
-        return cardWithQueryUrn?.parentQueryUrn?.orNull()
-    }
+    private fun List<DiscoveryCardViewModel>.responseQueryUrn(): Urn? = find { it.parentQueryUrn != null }?.parentQueryUrn
 
     private fun trackPageView(queryUrn: Optional<Urn>) {
         eventTracker.trackScreen(ScreenEvent.create(Screen.DISCOVER.get(), queryUrn), referringEventProvider.referringEvent)
@@ -84,29 +80,28 @@ constructor(private val discoveryOperations: DiscoveryOperations,
 
 internal fun toViewModel(discoveryResult: DiscoveryResult): List<DiscoveryCardViewModel> {
     val cardsWithSearch = discoveryResult.cards.toMutableList()
-    cardsWithSearch.add(0, DiscoveryCard.forSearchItem())
-    return cardsWithSearch.mapIndexed { index, discoveryCard ->
+    val result = mutableListOf<DiscoveryCardViewModel>()
+    result.add(0, DiscoveryCardViewModel.SearchCard)
+    result.addAll(cardsWithSearch.mapIndexed { index, discoveryCard ->
+        val offsetForSearchCard = 1
         when (discoveryCard) {
             is DiscoveryCard.MultipleContentSelectionCard ->
                 DiscoveryCardViewModel.MultipleContentSelectionCard(discoveryCard,
-                                                                    discoveryCard.selectionItems().map {
-                                                                        SelectionItemViewModel(it,
-                                                                                               DiscoveryTrackingManager.calculateUIEvent(it, discoveryCard, index))
+                                                                    discoveryCard.selectionItems.map {
+                                                                        SelectionItemViewModel(it, SelectionItemTrackingInfo.create(it, discoveryCard, index + offsetForSearchCard))
                                                                     })
             is DiscoveryCard.SingleContentSelectionCard ->
                 DiscoveryCardViewModel.SingleContentSelectionCard(discoveryCard,
-                                                                  discoveryCard.selectionItem().let {
-                                                                      SelectionItemViewModel(it,
-                                                                                             DiscoveryTrackingManager.calculateUIEvent(it, discoveryCard, index))
+                                                                  discoveryCard.selectionItem.let {
+                                                                      SelectionItemViewModel(it, SelectionItemTrackingInfo.create(it, discoveryCard, index + offsetForSearchCard))
                                                                   })
-            is DiscoveryCard.EmptyCard -> DiscoveryCardViewModel.EmptyCard(throwable = discoveryCard.throwable())
-            else -> DiscoveryCardViewModel.SearchCard
-
+            is DiscoveryCard.EmptyCard -> DiscoveryCardViewModel.EmptyCard(throwable = discoveryCard.throwable)
         }
-    }
+    })
+    return result
 }
 
-interface HomeView : BaseView<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>, DiscoveryViewError, RxSignal> {
+internal interface HomeView : BaseView<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>, DiscoveryViewError, RxSignal> {
     val selectionItemClick: Observable<SelectionItemViewModel>
     val searchClick: Observable<RxSignal>
     val enterScreenTimestamp: Observable<Pair<Long, Screen>>

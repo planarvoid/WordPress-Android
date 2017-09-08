@@ -71,7 +71,7 @@ class HomePresenterTest : AndroidUnitTest() {
     @Test
     fun `emits view model on pull to refresh`() {
         whenever(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult()))
-        val card = DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD
+        val card = DiscoveryFixtures.singleContentSelectionCard
         val discoveryResult = DiscoveryResult(listOf(card))
         whenever(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(discoveryResult))
 
@@ -109,13 +109,13 @@ class HomePresenterTest : AndroidUnitTest() {
         newHomePresenter.attachView(view)
 
         val link = "link"
-        val webLink = Optional.of("webLink")
+        val webLink = "webLink"
         selectionItemClickSubject.onNext(SelectionItemViewModel(selectionUrn = Urn.forSystemPlaylist("123"),
-                                                                appLink = Optional.of(link),
+                                                                appLink = link,
                                                                 webLink = webLink))
 
         verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(link,
-                                                                       webLink,
+                                                                       Optional.fromNullable(webLink),
                                                                        Screen.DISCOVER,
                                                                        Optional.of(DiscoverySource.RECOMMENDATIONS))))
     }

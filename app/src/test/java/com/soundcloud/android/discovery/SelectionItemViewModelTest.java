@@ -1,14 +1,13 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.java.optional.Optional.absent;
-import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import android.support.annotation.Nullable;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SelectionItemViewModelTest {
@@ -19,45 +18,45 @@ public class SelectionItemViewModelTest {
 
     @Test
     public void linkReturnsAppLinkWhenPresent() {
-        final SelectionItemViewModel selectionItem = selectionItemWithLinks(of(APP_LINK), absent());
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(APP_LINK, null);
 
-        final Optional<String> link = selectionItem.link();
+        final String link = selectionItem.link();
 
-        assertThat(link.isPresent()).isTrue();
-        assertThat(link.get()).isEqualTo(APP_LINK);
+        assertThat(link).isNotNull();
+        assertThat(link).isEqualTo(APP_LINK);
     }
 
     @Test
     public void linkReturnsWebLinkWhenPresent() {
-        final SelectionItemViewModel selectionItem = selectionItemWithLinks(absent(), of(WEB_LINK));
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(null, WEB_LINK);
 
-        final Optional<String> link = selectionItem.link();
+        final String link = selectionItem.link();
 
-        assertThat(link.isPresent()).isTrue();
-        assertThat(link.get()).isEqualTo(WEB_LINK);
+        assertThat(link).isNotNull();
+        assertThat(link).isEqualTo(WEB_LINK);
     }
 
     @Test
     public void linkReturnsAppLinkWhenBothAppAndWebLinkPresent() {
-        final SelectionItemViewModel selectionItem = selectionItemWithLinks(of(APP_LINK), of(WEB_LINK));
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(APP_LINK, WEB_LINK);
 
-        final Optional<String> link = selectionItem.link();
+        final String link = selectionItem.link();
 
-        assertThat(link.isPresent()).isTrue();
-        assertThat(link.get()).isEqualTo(APP_LINK);
+        assertThat(link).isNotNull();
+        assertThat(link).isEqualTo(APP_LINK);
     }
 
 
     @Test
     public void linkAbsentWhenNeitherIsPresent() {
-        final SelectionItemViewModel selectionItem = selectionItemWithLinks(absent(), absent());
+        final SelectionItemViewModel selectionItem = selectionItemWithLinks(null, null);
 
-        final Optional<String> link = selectionItem.link();
+        final String link = selectionItem.link();
 
-        assertThat(link.isPresent()).isFalse();
+        assertThat(link).isNull();
     }
 
-    private SelectionItemViewModel selectionItemWithLinks(Optional<String> appLink, Optional<String> webLink) {
-        return new SelectionItemViewModel(absent(), SELECTION_URN, absent(), absent(), absent(), absent(), absent(), appLink, webLink, absent());
+    private SelectionItemViewModel selectionItemWithLinks(@Nullable String appLink, @Nullable String webLink) {
+        return new SelectionItemViewModel(null, SELECTION_URN, null, null, null, null, null, appLink, webLink, null);
     }
 }

@@ -1,8 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.java.optional.Optional.fromNullable;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -12,27 +12,25 @@ import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.optional.Optional;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import java.util.Collections;
 
 public class SelectionItemRendererTest extends AndroidUnitTest {
 
-    private static final Optional<String> SHORT_TITLE = Optional.of("title");
-    private static final Optional<String> SHORT_SUBTITLE = Optional.of("subtitle");
-    private static final Optional<Integer> COUNT = Optional.of(1);
+    private static final String SHORT_TITLE = "title";
+    private static final String SHORT_SUBTITLE = "subtitle";
+    private static final Integer COUNT = 1;
     @Mock private ImageOperations imageOperations;
     @Mock private Navigator navigator;
     @Mock private ScreenProvider screenProvider;
@@ -56,8 +54,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
 
         verify(imageOperations).displayCircularWithPlaceholder(
-                selectionItem.getUrn().isPresent() ? selectionItem.getUrn().get() : Urn.NOT_SET,
-                selectionItem.getArtworkUrlTemplate(),
+                selectionItem.getUrn() == null ? Urn.NOT_SET : selectionItem.getUrn(),
+                fromNullable(selectionItem.getArtworkUrlTemplate()),
                 ApiImageSize.getFullImageSize(context().getResources()),
                 circularImageView);
     }
@@ -74,7 +72,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindTitleWhenNotPresent() {
-        final SelectionItemViewModel selectionItem = createSelectionItem(Optional.absent(), SHORT_SUBTITLE, COUNT);
+        final SelectionItemViewModel selectionItem = createSelectionItem(null, SHORT_SUBTITLE, COUNT);
         TextView title = itemView.findViewById(R.id.title);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
@@ -94,7 +92,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindSubtitleWhenNotPresent() {
-        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, Optional.absent(), COUNT);
+        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, null, COUNT);
         TextView subtitle = itemView.findViewById(R.id.secondary_text);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
@@ -114,7 +112,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindCountWhenNotPresent() {
-        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, Optional.absent());
+        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, null);
         TextView count = itemView.findViewById(R.id.track_count);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
@@ -147,16 +145,16 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
         return createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, COUNT);
     }
 
-    private SelectionItemViewModel createSelectionItem(Optional<String> shortTitle, Optional<String> shortSubtitle, Optional<Integer> count) {
-        return new SelectionItemViewModel(Optional.absent(),
+    private SelectionItemViewModel createSelectionItem(@Nullable String shortTitle, @Nullable String shortSubtitle, @Nullable Integer count) {
+        return new SelectionItemViewModel(null,
                                           Urn.forSystemPlaylist("sel_item"),
-                                          Optional.of("artwork url"),
-                                          Optional.of(ImageStyle.CIRCULAR),
+                                          "artwork url",
+                                          ImageStyle.CIRCULAR,
                                           count,
                                           shortTitle,
                                           shortSubtitle,
-                                          Optional.absent(),
-                                          Optional.absent(),
-                                          Optional.absent());
+                                          null,
+                                          null,
+                                          null);
     }
 }

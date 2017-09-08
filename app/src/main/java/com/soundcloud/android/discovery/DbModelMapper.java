@@ -55,39 +55,41 @@ final class DbModelMapper {
     }
 
     private static DiscoveryCard.SingleContentSelectionCard mapSingleContentSelectionCard(DbModel.SingleContentSelectionCard singleContentSelectionCard, DbModel.SelectionItem selectionItem) {
-        return DiscoveryCard.SingleContentSelectionCard.create(singleContentSelectionCard.urn(),
-                                                               Optional.fromNullable(singleContentSelectionCard.query_urn()),
-                                                               Optional.fromNullable(singleContentSelectionCard.parent_query_urn()),
-                                                               Optional.fromNullable(singleContentSelectionCard.style()),
-                                                               Optional.fromNullable(singleContentSelectionCard.title()),
-                                                               Optional.fromNullable(singleContentSelectionCard.description()),
-                                                               Optional.fromNullable(singleContentSelectionCard.tracking_feature_name()),
-                                                               mapSelectionItem(singleContentSelectionCard.urn(), selectionItem),
-                                                               Optional.fromNullable(singleContentSelectionCard.social_proof()),
-                                                               singleContentSelectionCard.social_proof_avatar_urls());
+        return new DiscoveryCard.SingleContentSelectionCard(singleContentSelectionCard.parent_query_urn(),
+                                                            singleContentSelectionCard.urn(),
+                                                            singleContentSelectionCard.style(),
+                                                            singleContentSelectionCard.title(),
+                                                            singleContentSelectionCard.description(),
+                                                            singleContentSelectionCard.query_urn(),
+                                                            mapSelectionItem(singleContentSelectionCard.urn(), selectionItem),
+                                                            singleContentSelectionCard.tracking_feature_name(),
+                                                            singleContentSelectionCard.social_proof(),
+                                                            singleContentSelectionCard.social_proof_avatar_urls());
     }
 
     private static DiscoveryCard.MultipleContentSelectionCard mapMultipleContentSelectionCard(DbModel.MultipleContentSelectionCard multipleContentSelectionCard,
                                                                                               Collection<DbModel.SelectionItem> selectionItems) {
-        return DiscoveryCard.MultipleContentSelectionCard.create(multipleContentSelectionCard.urn(),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.query_urn()),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.parent_query_urn()),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.style()),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.title()),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.description()),
-                                                                 Optional.fromNullable(multipleContentSelectionCard.tracking_feature_name()),
-                                                                 Lists.transform(Lists.newArrayList(selectionItems), item -> DbModelMapper.mapSelectionItem(multipleContentSelectionCard.urn(), item)));
+        return new DiscoveryCard.MultipleContentSelectionCard(multipleContentSelectionCard.parent_query_urn(),
+                                                              multipleContentSelectionCard.urn(),
+                                                              multipleContentSelectionCard.query_urn(),
+                                                              multipleContentSelectionCard.style(),
+                                                              multipleContentSelectionCard.title(),
+                                                              multipleContentSelectionCard.description(),
+                                                              multipleContentSelectionCard.tracking_feature_name(),
+                                                              Lists.transform(Lists.newArrayList(selectionItems), item -> DbModelMapper.mapSelectionItem(multipleContentSelectionCard.urn(), item)));
     }
 
     private static SelectionItem mapSelectionItem(Urn selectionUrn, DbModel.SelectionItem selectionItem) {
-        return new SelectionItem(Optional.fromNullable(selectionItem.urn()),
+        final String artworkStyle = selectionItem.artwork_style();
+        final Long count = selectionItem.count();
+        return new SelectionItem(selectionItem.urn(),
                                  selectionUrn,
-                                 Optional.fromNullable(selectionItem.artwork_url_template()),
-                                 Optional.fromNullable(selectionItem.artwork_style()).transform(ImageStyle::fromIdentifier),
-                                 Optional.fromNullable(selectionItem.count()).transform(Long::intValue),
-                                 Optional.fromNullable(selectionItem.short_title()),
-                                 Optional.fromNullable(selectionItem.short_subtitle()),
-                                 Optional.fromNullable(selectionItem.web_link()),
-                                 Optional.fromNullable(selectionItem.app_link()));
+                                 selectionItem.artwork_url_template(),
+                                 (artworkStyle != null) ? ImageStyle.fromIdentifier(artworkStyle) : null,
+                                 (count != null) ? count.intValue() : null,
+                                 selectionItem.short_title(),
+                                 selectionItem.short_subtitle(),
+                                 selectionItem.web_link(),
+                                 selectionItem.app_link());
     }
 }

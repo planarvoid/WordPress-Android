@@ -62,8 +62,8 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
         assertThat(discoveryCards).hasSize(2);
 
-        assertThat(discoveryCards.get(0).kind()).isEqualTo(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
-        assertThat(discoveryCards.get(1).kind()).isEqualTo(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD);
+        assertThat(discoveryCards.get(0)).isInstanceOf(DiscoveryCard.SingleContentSelectionCard.class);
+        assertThat(discoveryCards.get(1)).isInstanceOf(DiscoveryCard.MultipleContentSelectionCard.class);
     }
 
     @Test

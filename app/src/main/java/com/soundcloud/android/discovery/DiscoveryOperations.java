@@ -43,7 +43,7 @@ class DiscoveryOperations {
 
     private Single<DiscoveryResult> cardsFromStorage(SyncResult syncResult) {
         return storage.discoveryCards()
-                      .toSingle(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable())))
+                      .toSingle(Lists.newArrayList(new DiscoveryCard.EmptyCard(syncResult.throwable())))
                       .map(cards -> new DiscoveryResult(cards, syncResult.throwable().transform(ViewError::from)));
     }
 
@@ -65,7 +65,7 @@ class DiscoveryOperations {
             return true;
         }
         for (DiscoveryCard discoveryCard : discoveryCards) {
-            if (discoveryCard.isEmpty()) {
+            if (discoveryCard instanceof DiscoveryCard.EmptyCard) {
                 return true;
             }
         }

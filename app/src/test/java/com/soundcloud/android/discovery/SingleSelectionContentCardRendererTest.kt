@@ -10,10 +10,9 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.R
 import com.soundcloud.android.image.ApiImageSize
 import com.soundcloud.android.image.ImageOperations
-import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.DisplayMetricsStub
-import com.soundcloud.java.optional.Optional
+import com.soundcloud.java.optional.Optional.fromNullable
 import org.assertj.android.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -34,14 +33,14 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
     @Throws(Exception::class)
     fun setUp() {
         renderer = SingleSelectionContentCardRenderer(imageOperations, resources)
-        itemView = renderer.createItemView(LinearLayout(AndroidUnitTest.context()))
+        itemView = renderer.createItemView(LinearLayout(AndroidUnitTest.context()))!!
 
         whenever(resources.displayMetrics).thenReturn(DisplayMetricsStub(50, 50))
     }
 
     @Test
     fun bindsTitleWhenPresent() {
-        val cardWithTitle = card.copy(title = Optional.of("title"))
+        val cardWithTitle = card.copy(title = "title")
         val title = itemView.findViewById<TextView>(R.id.single_card_title)
 
         renderer.bindItemView(0, itemView, listOf(cardWithTitle))
@@ -51,7 +50,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun doesNotBindTitleWhenNotPresent() {
-        val cardWithoutTitle = card.copy(title = Optional.absent())
+        val cardWithoutTitle = card.copy(title = null)
         val title = itemView.findViewById<TextView>(R.id.single_card_title)
 
         renderer.bindItemView(0, itemView, listOf(cardWithoutTitle))
@@ -61,7 +60,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun bindsDescriptionWhenPresent() {
-        val cardWithDescription = card.copy(description = Optional.of("description"))
+        val cardWithDescription = card.copy(description = "description")
         val description = itemView.findViewById<TextView>(R.id.single_card_description)
 
         renderer.bindItemView(0, itemView, listOf(cardWithDescription))
@@ -72,7 +71,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
     @Test
     fun doesNotBindDescriptionWhenNotPresent() {
         val description = itemView.findViewById<TextView>(R.id.single_card_description)
-        val cardWithoutDescription = card.copy(description = Optional.absent())
+        val cardWithoutDescription = card.copy(description = null)
 
         renderer.bindItemView(0, itemView, listOf(cardWithoutDescription))
 
@@ -81,7 +80,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun bindsSelectionItemCountWhenPresent() {
-        val cardWithCount = card.copy(selectionItem = card.selectionItem.copy(count = Optional.of(1)))
+        val cardWithCount = card.copy(selectionItem = card.selectionItem.copy(count = 1))
         val count = itemView.findViewById<TextView>(R.id.single_card_track_count)
         val imageView = itemView.findViewById<ImageView>(R.id.single_card_artwork)
 
@@ -89,8 +88,8 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
         assertThat(count).isVisible
         verify(imageOperations).displayInAdapterView(
-                cardWithCount.selectionItem.urn.get() ?: Urn.NOT_SET,
-                cardWithCount.selectionItem.artworkUrlTemplate,
+                cardWithCount.selectionItem.urn,
+                fromNullable(cardWithCount.selectionItem.artworkUrlTemplate),
                 ApiImageSize.getFullImageSize(resources),
                 imageView,
                 ImageOperations.DisplayType.DEFAULT
@@ -99,25 +98,24 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun doesNotBindSelectionItemCountWhenNotPresent() {
-        val cardWithoutCount = card.copy(selectionItem = card.selectionItem.copy(count = Optional.absent()))
+        val cardWithoutCount = card.copy(selectionItem = card.selectionItem.copy(count = null))
         val count = itemView.findViewById<TextView>(R.id.single_card_track_count)
         val imageView = itemView.findViewById<ImageView>(R.id.single_card_artwork)
 
         renderer.bindItemView(0, itemView, listOf(cardWithoutCount))
 
         assertThat(count).isNotVisible
-        verify<ImageOperations>(imageOperations).displayInAdapterView(
-                cardWithoutCount.selectionItem.urn.get() ?: Urn.NOT_SET,
-                cardWithoutCount.selectionItem.artworkUrlTemplate,
+        verify(imageOperations).displayInAdapterView(
+                cardWithoutCount.selectionItem.urn,
+                fromNullable(cardWithoutCount.selectionItem.artworkUrlTemplate),
                 ApiImageSize.getFullImageSize(resources),
                 imageView,
-                ImageOperations.DisplayType.DEFAULT
-        )
+                ImageOperations.DisplayType.DEFAULT)
     }
 
     @Test
     fun bindsSocialProofWhenPresent() {
-        val cardWithSocialProofAvatars = card.copy(socialProof = Optional.of("social_proof"), socialProofAvatarUrlTemplates = listOf("link1", "link2"))
+        val cardWithSocialProofAvatars = card.copy(socialProof = "social_proof", socialProofAvatarUrlTemplates = listOf("link1", "link2"))
         `when`(resources.configuration).thenReturn(Configuration())
         val socialProofText = itemView.findViewById<TextView>(R.id.single_card_social_proof)
 
@@ -147,7 +145,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
     @Test
     fun doesNotBindSocialProofWhenNotPresent() {
         val socialProofText = itemView.findViewById<TextView>(R.id.single_card_social_proof)
-        val cardWithoutSocialProof = card.copy(socialProof = Optional.absent())
+        val cardWithoutSocialProof = card.copy(socialProof = null)
 
         renderer.bindItemView(0, itemView, listOf(cardWithoutSocialProof))
 
@@ -161,7 +159,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun doesNotBindSocialProofAvatarsWhenNotPresent() {
-        val cardWithSocialProofWithoutAvatars = card.copy(socialProof = Optional.of("social_proof"), socialProofAvatarUrlTemplates = emptyList())
+        val cardWithSocialProofWithoutAvatars = card.copy(socialProof = "social_proof", socialProofAvatarUrlTemplates = emptyList())
         val socialProofText = itemView.findViewById<TextView>(R.id.single_card_social_proof)
 
         renderer.bindItemView(0, itemView, listOf(cardWithSocialProofWithoutAvatars))
@@ -176,7 +174,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
     @Test
     fun doesNotBindSocialProofTextWhenNotPresent() {
-        val cardWithSocialProofAvatarsWithoutSocialProof = card.copy(socialProofAvatarUrlTemplates = listOf("link1", "link2"), socialProof = Optional.absent())
+        val cardWithSocialProofAvatarsWithoutSocialProof = card.copy(socialProofAvatarUrlTemplates = listOf("link1", "link2"), socialProof = null)
         `when`(resources.configuration).thenReturn(Configuration())
         val socialProofText = itemView.findViewById<TextView>(R.id.single_card_social_proof)
 

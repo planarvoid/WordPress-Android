@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.DiscoveryTrackingManager.SCREEN;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
+import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
@@ -85,8 +85,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
         syncStateStorage.resetSyncMisses(Syncable.DISCOVERY_CARDS);
 
         final Observable<SelectionItemViewModel> selectionItemObservable = adapter.selectionItemClick()
-                                                                                  .doOnNext(item -> item.getTrackingInfo()
-                                                                                                        .ifPresent(trackingInfo -> eventTracker.trackClick(trackingInfo.toUIEvent())));
+                                                                                  .doOnNext(item -> fromNullable(item.getTrackingInfo())
+                                                                                          .ifPresent(trackingInfo -> eventTracker.trackClick(trackingInfo.toUIEvent())));
         disposable.add(selectionItemObservable.subscribeWith(LambdaObserver.onNext(this::selectionItemClick)));
         disposable.add(Observable.combineLatest(((RootActivity) fragment.getActivity()).enterScreenTimestamp(), queryUrn, Pair::of)
                                  .distinctUntilChanged(Pair::first)
@@ -104,11 +104,11 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
     }
 
     private void selectionItemClick(SelectionItemViewModel selectionItem) {
-        selectionItem.link()
-                     .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(link,
-                                                                                            selectionItem.getWebLink(),
-                                                                                            SCREEN,
-                                                                                            Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
+        fromNullable(selectionItem.link())
+                .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(link,
+                                                                                       fromNullable(selectionItem.getWebLink()),
+                                                                                       Screen.DISCOVER,
+                                                                                       Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
     }
 
     @Override
@@ -143,7 +143,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
 
     private void emitQueryUrn(DiscoveryResult discoveryResult) {
         if (!discoveryResult.getCards().isEmpty()) {
-            queryUrn.onNext(discoveryResult.getCards().get(0).parentQueryUrn());
+            queryUrn.onNext(fromNullable(discoveryResult.getCards().get(0).getParentQueryUrn()));
         }
     }
 

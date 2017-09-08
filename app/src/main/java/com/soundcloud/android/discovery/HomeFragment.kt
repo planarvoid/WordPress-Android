@@ -26,7 +26,6 @@ import com.soundcloud.android.view.snackbar.FeedbackController
 import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -62,13 +61,12 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
         super.onCreate(savedInstanceState)
         val adapter = adapterFactory.create(this)
         compositeDisposable += adapter.selectionItemClick().subscribe(selectionItemClick::onNext)
-        collectionRenderer = CollectionRenderer<DiscoveryCardViewModel, RecyclerView.ViewHolder>(adapter,
-                                                                                                 BiFunction { item1, item2 -> areItemsTheSame(item1, item2) },
-                                                                                                 BiFunction { item1, item2 -> item1 == item2 },
-                                                                                                 SearchEmptyStateProvider(),
-                                                                                                 true,
-                                                                                                 false,
-                                                                                                 true)
+        collectionRenderer = CollectionRenderer(adapter = adapter,
+                                                sameIdentity = { item1, item2 -> areItemsTheSame(item1, item2) },
+                                                sameContest = { item1, item2 -> item1 == item2 },
+                                                emptyStateProvider = SearchEmptyStateProvider(),
+                                                animateLayoutChangesInItems = true,
+                                                parallaxImageScrolling = true)
         setHasOptionsMenu(true)
     }
 

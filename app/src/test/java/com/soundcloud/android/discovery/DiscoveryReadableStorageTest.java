@@ -36,9 +36,9 @@ public class DiscoveryReadableStorageTest
         final List<DiscoveryCard> discoveryCards = discoveryReadableStorage.discoveryCards().test().assertValueCount(1).values().get(0);
 
         assertThat(discoveryCards).hasSize(1);
-        assertThat(discoveryCards.get(0).kind()).isEqualTo(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
+        assertThat(discoveryCards.get(0)).isInstanceOf(DiscoveryCard.SingleContentSelectionCard.class);
         final DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard = (DiscoveryCard.SingleContentSelectionCard) discoveryCards.get(0);
-        assertThat(singleContentSelectionCard.selectionUrn()).isEqualTo(cardUrn);
+        assertThat(singleContentSelectionCard.getSelectionUrn()).isEqualTo(cardUrn);
     }
 
     private void initSelectionItemTable(Urn cardUrn, Urn selectionItemUrn) {

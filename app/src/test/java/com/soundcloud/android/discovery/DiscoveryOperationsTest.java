@@ -35,25 +35,25 @@ public class DiscoveryOperationsTest {
     private final Scheduler scheduler = Schedulers.trampoline();
     private final Syncable discoveryCardsSyncable = Syncable.DISCOVERY_CARDS;
 
-    private SelectionItem selectionItem = new SelectionItem(Optional.absent(),
+    private SelectionItem selectionItem = new SelectionItem(null,
                                                             Urn.forSystemPlaylist("upload"),
-                                                            Optional.absent(),
-                                                            Optional.absent(),
-                                                            Optional.absent(),
-                                                            Optional.absent(),
-                                                            Optional.absent(),
-                                                            Optional.absent(),
-                                                            Optional.absent());
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null);
 
     private final DiscoveryCard.MultipleContentSelectionCard multiCard =
-            DiscoveryCard.MultipleContentSelectionCard.create(Urn.forSystemPlaylist("123"),
-                                                              Optional.absent(),
-                                                              Optional.absent(),
-                                                              Optional.absent(),
-                                                              Optional.absent(),
-                                                              Optional.absent(),
-                                                              Optional.absent(),
-                                                              Collections.singletonList(selectionItem));
+            new DiscoveryCard.MultipleContentSelectionCard(null,
+                                                           Urn.forSystemPlaylist("123"),
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           Collections.singletonList(selectionItem));
 
     private final List<DiscoveryCard> discoveryCards = Lists.newArrayList(multiCard);
 
@@ -91,13 +91,13 @@ public class DiscoveryOperationsTest {
         discoveryOperations.discoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(new DiscoveryResult(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(Lists.newArrayList(new DiscoveryCard.EmptyCard(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     @Test
     public void discoveryCardsPerformsRefreshIfSyncWasSuccessfulButResultContainsAnEmptyCard() throws Exception {
         final List<DiscoveryCard> emptyCardList = discoveryCards.subList(0, discoveryCards.size() - 1);
-        emptyCardList.add(DiscoveryCard.EmptyCard.create(Optional.absent()));
+        emptyCardList.add(new DiscoveryCard.EmptyCard());
         setUpDiscoveryCards(SyncResult.synced(), Maybe.just(emptyCardList));
         setUpRefreshDiscoveryCards(SyncResult.synced(), Maybe.just(discoveryCards));
 
@@ -138,7 +138,7 @@ public class DiscoveryOperationsTest {
         discoveryOperations.refreshDiscoveryCards()
                            .test()
                            .assertNoErrors()
-                           .assertValue(new DiscoveryResult(Lists.newArrayList(DiscoveryCard.EmptyCard.create(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertValue(new DiscoveryResult(Lists.newArrayList(new DiscoveryCard.EmptyCard(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
     }
 
     private void setUpDiscoveryCards(SyncResult syncResult, Maybe<List<DiscoveryCard>> storageResult) {
