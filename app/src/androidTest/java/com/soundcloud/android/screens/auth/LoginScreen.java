@@ -1,11 +1,5 @@
 package com.soundcloud.android.screens.auth;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.core.AllOf.allOf;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
@@ -15,8 +9,6 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-
-import android.support.test.espresso.action.ViewActions;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -90,9 +82,11 @@ public class LoginScreen extends Screen {
     }
 
     private void tryToLogin(String username, String password) {
-        onView(withId(R.id.txt_password)).perform(ViewActions.clearText()).perform(ViewActions.typeText(password));
-        onView(withId(R.id.auto_txt_email_address)).perform(ViewActions.clearText()).perform(ViewActions.typeText(username));
-        onView(allOf(withId(R.id.btn_login), withText(R.string.btn_done))).perform(click());
+        passwordInputField().clearText();
+        emailInputField().clearText();
+        passwordInputField().typeText(password);
+        emailInputField().typeText(username);
+        loginButton().click();
     }
 
     @Override
