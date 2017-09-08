@@ -159,10 +159,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             case R.id.player_bottom_close:
                 listener.onPlayerClose();
                 break;
-            case R.id.profile_link:
-                final Urn userUrn = (Urn) view.getTag();
-                listener.onGotoUser(userUrn);
-                break;
             case R.id.upsell_button:
                 listener.onUpsell(view.getContext(), (Urn) view.getTag());
                 break;
@@ -188,7 +184,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void bindItemView(View trackView, PlayerTrackState trackState) {
         final String title = trackState.getTitle();
         final String userName = trackState.getUserName();
-        final Urn userUrn = trackState.getUserUrn();
         final Urn urn = trackState.getUrn();
         final long fullDuration = trackState.getFullDuration();
         final long playableDuration = trackState.getPlayableDuration();
@@ -196,7 +191,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.title.setText(title);
         bindUser(trackState, holder);
-        holder.profileLink.setTag(userUrn);
         bindStationsContext(trackState, holder);
 
         updatePlayQueueButton(trackView);
@@ -793,8 +787,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         });
 
         View.OnClickListener shareClickListener = view -> holder.menuController.handleShare(view.getContext());
+        View.OnClickListener profileLinkClickListener = view -> holder.menuController.handleGoToArtist();
 
         holder.shareButton.setOnClickListener(shareClickListener);
+        holder.profileLink.setOnClickListener(profileLinkClickListener);
+
         holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setOnClickListener(this::updateLikeStatus);
 
@@ -914,7 +911,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   playButton,
                                                   footer,
                                                   footerPlayToggle,
-                                                  profileLink,
                                                   upsellView.getUpsellButton(),
                                                   playQueueButton);
             List<View> trackViews = Arrays.asList(close,

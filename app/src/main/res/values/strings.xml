@@ -282,6 +282,7 @@
     <string name="uploaded_xtimeago">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
     <string name="up_next">Next up</string>
+    <string name="go_to_artist">Go to artist profile</string>
 
     <!-- __PRIMARY EMAIL CONFIRMATION -->
     <string name="btn_resend_email_confirmation">Resend e-mail</string>

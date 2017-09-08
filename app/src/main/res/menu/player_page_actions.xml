@@ -3,6 +3,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/start_station"
         android:title="@string/stations_start_track_station"/>
+    <item android:id="@+id/go_to_artist"
+        android:title="@string/go_to_artist" />
     <item android:id="@+id/add_to_playlist"
           android:title="@string/add_to_playlist" />
     <item android:id="@+id/share"

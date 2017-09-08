@@ -15,10 +15,13 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -51,6 +54,7 @@ import android.widget.TextView;
 public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     private static final PlaybackProgress INITIAL_PROGRESS = PlaybackProgress.empty();
+    private final Urn trackCreatorUrn = Urn.forUser(456L);
     private TrackPageMenuController controller;
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
@@ -65,6 +69,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Mock private TextView textView;
     @Mock private SharePresenter sharePresenter;
     @Mock private FeatureFlags featureFlags;
+    @Mock private EventTracker eventTracker;
 
     private Activity activityContext;
     private TestEventBusV2 eventBus = new TestEventBusV2();
@@ -92,7 +97,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
                                                          eventBus,
                                                          sharePresenter,
                                                          performanceMetricsEngine,
-                                                         navigator).create(textView);
+                                                         navigator,
+                                                         eventTracker).create(textView);
     }
 
     @Test
@@ -265,6 +271,35 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
 
         verify(popupMenuWrapper).setItemVisible(R.id.comment, false);
+    }
+
+    @Test
+    public void handleGotoArtistShouldCloseThePlayer() {
+        controller.setTrack(track);
+
+        controller.handleGoToArtist();
+
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        assertThat(event.isAutomaticCollapse()).isTrue();
+    }
+
+    @Test
+    public void handleGotoArtistShouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
+        controller.setTrack(track);
+
+        controller.handleGoToArtist();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(navigator).navigateTo(argThat(matchesNavigationTarget(NavigationTarget.forProfile(trackCreatorUrn))));
+    }
+
+    @Test
+    public void onArtistNameClickSendsUIEvent() throws Exception {
+        controller.setTrack(track);
+
+        controller.handleGoToArtist();
+
+        verify(eventTracker).trackClick(UIEvent.fromItemNavigation(trackCreatorUrn, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
     }
 
     private MenuItem mockMenuItem(int menuteItemId) {

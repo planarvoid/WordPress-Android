@@ -533,13 +533,13 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickUsernameCallsListenerOnClickUsernameWithActivityContext() {
+    public void clickProfileLinkCallsTrackPageMenuController() {
         populateTrackPage();
 
         final View user = getHolder(trackView).profileLink;
         user.performClick();
 
-        verify(listener).onGotoUser(Urn.forUser(456L));
+        verify(trackPageMenuController).handleGoToArtist();
     }
 
     @Test

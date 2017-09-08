@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
@@ -26,6 +27,7 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.LambdaMaybeObserver;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.IOUtils;
@@ -58,6 +60,7 @@ public class TrackPageMenuController
     private final String commentAtUnformatted;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
+    private final EventTracker eventTracker;
 
     private PlayerTrackState track = PlayerTrackState.EMPTY;
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
@@ -72,7 +75,8 @@ public class TrackPageMenuController
                                     EventBusV2 eventBus,
                                     SharePresenter sharePresenter,
                                     PerformanceMetricsEngine performanceMetricsEngine,
-                                    Navigator navigator) {
+                                    Navigator navigator,
+                                    EventTracker eventTracker) {
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
         this.activity = context;
@@ -81,6 +85,7 @@ public class TrackPageMenuController
         this.eventBus = eventBus;
         this.sharePresenter = sharePresenter;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.eventTracker = eventTracker;
         this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
         this.navigator = navigator;
         setupMenu();
@@ -157,9 +162,24 @@ public class TrackPageMenuController
             case R.id.start_station:
                 handleStartStation();
                 return true;
+            case R.id.go_to_artist:
+                handleGoToArtist();
+                return true;
             default:
                 return false;
         }
+    }
+
+    void handleGoToArtist() {
+        final Urn userUrn = track.getUserUrn();
+        eventTracker.trackClick(UIEvent.fromItemNavigation(userUrn, EventContextMetadata.builder().pageName(Screen.PLAYER_MAIN.get()).build()));
+
+        eventBus.queue(EventQueue.PLAYER_UI)
+                .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED_V2)
+                .firstElement()
+                .subscribe(LambdaMaybeObserver.onNext(__ -> navigator.navigateTo(NavigationTarget.forProfile(userUrn))));
+
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
     }
 
     private void handleStartStation() {
@@ -278,6 +298,7 @@ public class TrackPageMenuController
         private final SharePresenter sharePresenter;
         private final PerformanceMetricsEngine performanceMetricsEngine;
         private final Navigator navigator;
+        private final EventTracker eventTracker;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
@@ -287,7 +308,8 @@ public class TrackPageMenuController
                 EventBusV2 eventBus,
                 SharePresenter sharePresenter,
                 PerformanceMetricsEngine performanceMetricsEngine,
-                Navigator navigator) {
+                Navigator navigator,
+                EventTracker eventTracker) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -296,6 +318,7 @@ public class TrackPageMenuController
             this.sharePresenter = sharePresenter;
             this.performanceMetricsEngine = performanceMetricsEngine;
             this.navigator = navigator;
+            this.eventTracker = eventTracker;
         }
 
         TrackPageMenuController create(View anchorView) {
@@ -308,7 +331,8 @@ public class TrackPageMenuController
                     eventBus,
                     sharePresenter,
                     performanceMetricsEngine,
-                    navigator);
+                    navigator,
+                    eventTracker);
         }
     }
 
