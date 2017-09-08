@@ -4,6 +4,7 @@ import com.soundcloud.android.ApplicationComponent;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
+import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.storage.StorageModule;
 import dagger.Component;
 
@@ -17,7 +18,8 @@ import javax.inject.Singleton;
         ApplicationModule.class,
         ApiModule.class,
         StorageModule.class,
-        AnalyticsModule.class
+        AnalyticsModule.class,
+        PlayerModule.class
 })
 public interface TestApplicationComponent extends ApplicationComponent {
     void inject(SoundCloudTestApplication application);

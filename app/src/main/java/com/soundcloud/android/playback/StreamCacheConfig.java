@@ -1,10 +1,13 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.playback.flipper.FlipperCache;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
 import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.NotNull;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
@@ -82,16 +85,50 @@ public class StreamCacheConfig {
         }
     }
 
-    public static class FlipperConfig extends StreamCacheConfig {
+    public static class FlipperConfig extends StreamCacheConfig implements FlipperCache {
 
-        @Inject
-        FlipperConfig(TelphonyBasedCountryProvider countryProvider,
-                     IOUtils ioUtils,
-                     @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY_FLIPPER) File streamCacheDirectory) {
+        private final Context context;
+        private final String cacheKey;
+
+        FlipperConfig(Context context,
+                      TelphonyBasedCountryProvider countryProvider,
+                      IOUtils ioUtils,
+                      String cacheKey,
+                      File streamCacheDirectory) {
             super(countryProvider, ioUtils, streamCacheDirectory);
+            this.context = context;
+            this.cacheKey = cacheKey;
         }
 
-        public String getLogFilePath() {
+        @NotNull
+        @Override
+        public String key() {
+            return cacheKey;
+        }
+
+        @org.jetbrains.annotations.Nullable
+        @Override
+        public File directory() {
+            File directory = getStreamCacheDirectory();
+            if (directory != null && !directory.exists()) {
+                IOUtils.createCacheDirs(context, directory);
+            }
+            return directory;
+        }
+
+        @Override
+        public long size() {
+            return getStreamCacheSize();
+        }
+
+        @Override
+        public byte minFreeSpaceAvailablePercentage() {
+            return getStreamCacheMinFreeSpaceAvailablePercentage();
+        }
+
+        @org.jetbrains.annotations.Nullable
+        @Override
+        public String logFilePath() {
             // TODO: Miloš to update this
             return "";
         }

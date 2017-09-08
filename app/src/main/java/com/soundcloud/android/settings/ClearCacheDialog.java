@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.StreamCacheConfig;
+import com.soundcloud.android.playback.flipper.FlipperConfiguration;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
@@ -34,7 +35,7 @@ public class ClearCacheDialog extends DialogFragment {
     @Inject ImageOperations imageOperations;
     @Inject WaveformOperations waveformOperations;
     @Inject StreamCacheConfig.SkippyConfig skippyConfig;
-    @Inject StreamCacheConfig.FlipperConfig flipperConfig;
+    @Inject FlipperConfiguration flipperConfig;
 
     private Disposable disposable = RxUtils.emptyDisposable();
 
@@ -70,7 +71,7 @@ public class ClearCacheDialog extends DialogFragment {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
                 clear(skippyConfig.getStreamCacheDirectory());
-                clear(flipperConfig.getStreamCacheDirectory());
+                clear(flipperConfig.getCache().directory());
                 emitter.onComplete();
             }
 

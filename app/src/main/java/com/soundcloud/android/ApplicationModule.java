@@ -42,7 +42,7 @@ import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStrategy;
-import com.soundcloud.android.playback.PlayerModule;
+import com.soundcloud.android.playback.PlayerUIModule;
 import com.soundcloud.android.playback.playqueue.PlayQueueModule;
 import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
@@ -105,7 +105,7 @@ import java.util.concurrent.Executors;
         includes = {
                 FacebookModule.class,
                 SyncModule.class,
-                PlayerModule.class,
+                PlayerUIModule.class,
                 PlaylistsModule.class,
                 ProfileModule.class,
                 CommentsModule.class,

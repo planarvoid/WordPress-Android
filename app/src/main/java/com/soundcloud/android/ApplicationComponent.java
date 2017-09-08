@@ -93,6 +93,7 @@ import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.playback.ui.PlayerFragment;
@@ -174,7 +175,8 @@ import javax.inject.Singleton;
         ApplicationModule.class,
         ApiModule.class,
         StorageModule.class,
-        AnalyticsModule.class
+        AnalyticsModule.class,
+        PlayerModule.class
 })
 public interface ApplicationComponent {
     void inject(SoundCloudApplication application);
@@ -246,7 +248,7 @@ public interface ApplicationComponent {
     void inject(CastOptionsProvider castOptionsProvider);
     void inject(CastMediaIntentReceiver castMediaIntentReceiver);
 
-    //PlayerModule
+    //PlayerUIModule
     void inject(PlayerFragment playerFragment);
     void inject(WidgetPlaybackActionReceiver widgetPlaybackActionReceiver);
     void inject(WaveformView waveformView);
