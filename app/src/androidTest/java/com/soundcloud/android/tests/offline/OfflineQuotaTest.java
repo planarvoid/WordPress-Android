@@ -1,7 +1,10 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.model.Urn.forTrack;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsRequested.requested;
 import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDefault.defaultState;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,6 +16,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -31,7 +35,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -44,8 +48,9 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         disableOfflineSettingsOnboarding(context);
     }
 
-    public void testOfflineStateRequestedWhenNotEnoughSpace() throws IOException {
-        offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
+    @Test
+    public void testOfflineStateRequestedWhenNotEnoughSpace() throws Exception {
+        offlineContentHelper.addFakeOfflineTrack(context, forTrack(123L), 530);
 
         mainNavHelper.goToOfflineSettings().tapOnSlider(0);
 
@@ -61,7 +66,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
 
         offlineContentHelper.clearOfflineContent(context);

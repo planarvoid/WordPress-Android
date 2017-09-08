@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUserMT;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
@@ -15,6 +17,7 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -30,7 +33,7 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUserMT;
+        return offlineUserMT;
     }
 
     @Override
@@ -46,7 +49,8 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
                 .clickPlaylistsPreview();
     }
 
-    public void testPreviewContentHasButtonToOpenUpgradeScreen() {
+    @Test
+    public void testPreviewContentHasButtonToOpenUpgradeScreen() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = downloadPlaylistAndSwitchWifiOff();
 
         VisualPlayerElement visualPlayerElement = playlistDetailsScreen.clickFirstTrack();
@@ -54,7 +58,8 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
         assertThat(upgradeScreen, is(visible()));
     }
 
-    public void testFreeContentIsPlayableAfterPlaylistIsMadeAvailableOffline() {
+    @Test
+    public void testFreeContentIsPlayableAfterPlaylistIsMadeAvailableOffline() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = downloadPlaylistAndSwitchWifiOff();
 
         final VisualPlayerElement lastTrack = playlistDetailsScreen.clickTrack(1);

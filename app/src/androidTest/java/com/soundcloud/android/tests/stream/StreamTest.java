@@ -14,6 +14,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.Is;
+import org.junit.Test;
 
 public class StreamTest extends ActivityTest<LauncherActivity> {
     private static final String TEST_SCENARIO_STREAM_PLAYLIST = "specs/audio-events-v1-stream-playlist.spec";
@@ -35,12 +36,14 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testStreamLoadsNextPage() {
+    @Test
+    public void testStreamLoadsNextPage() throws Exception {
         int itemsBeforePaging = streamScreen.getItemCount();
         streamScreen.scrollToBottomOfPage();
         assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
     }
 
+    @Test
     public void testPlayAndPausePlaylistTrackFromStream() throws Exception {
         mrLocalLocal.startEventTracking();
 

@@ -1,5 +1,12 @@
 package com.soundcloud.android.tests.search;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.autocompleteTestUser;
+import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
+import static com.soundcloud.android.properties.Flag.NEW_HOME;
+import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
+import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
@@ -12,6 +19,7 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import java.util.HashMap;
 
@@ -26,18 +34,19 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        FeatureFlagsHelper helper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
-        helper.disable(Flag.SEARCH_TOP_RESULTS);
-        helper.enable(Flag.DISCOVER_BACKEND);
-        helper.enable(Flag.NEW_HOME);
+    protected void beforeActivityLaunched() {
+        FeatureFlagsHelper helper = create(getInstrumentation().getTargetContext());
+        helper.disable(SEARCH_TOP_RESULTS);
+        helper.enable(DISCOVER_BACKEND);
+        helper.enable(NEW_HOME);
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.autocompleteTestUser;
+        return autocompleteTestUser;
     }
 
+    @Test
     public void testAutocompleteResults() throws Exception {
         final String firstSearchTerm = "beyo";
         final String secondSearchTerm = "a";
@@ -72,6 +81,7 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(SEARCH_AUTOCOMPLETE, stringSubstitutions);
     }
 
+    @Test
     public void testAutocompleteArrowAndExit() throws Exception {
         discoveryScreen = mainNavHelper.goToDiscovery();
         final String searchTerm = "beyo";

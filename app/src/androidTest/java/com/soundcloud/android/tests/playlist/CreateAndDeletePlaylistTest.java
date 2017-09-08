@@ -1,11 +1,16 @@
 package com.soundcloud.android.tests.playlist;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.soundcloud.android.framework.TestUser.createAndDeletePlaylistUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static java.lang.String.valueOf;
+import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -22,6 +27,7 @@ import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -38,14 +44,14 @@ public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.createAndDeletePlaylistUser;
+        return createAndDeletePlaylistUser;
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         context = getInstrumentation().getTargetContext();
-        playlist = String.valueOf(System.currentTimeMillis());
+        playlist = valueOf(currentTimeMillis());
     }
 
     @Override
@@ -57,6 +63,7 @@ public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
         stubFor(post(urlPathEqualTo("/playlists")).willReturn(aResponse().withStatus(500)));
     }
 
+    @Test
     public void testCreatePlaylistFromStreamAndDeleteFromPlaylistDetailsScreen() throws Exception {
         StreamScreen streamScreen = new StreamScreen(solo);
         StreamCardElement firstTrack = streamScreen.scrollToFirstTrack();
@@ -77,6 +84,7 @@ public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(playlistsScreen.getPlaylistWithTitle(playlist).isOnScreen(), Matchers.is(false));
     }
 
+    @Test
     public void testCreatePlaylistFromPlayerAndDeleteFromPlaylistsScreen() throws Exception {
         enableOfflineContent(context);
 
@@ -113,9 +121,9 @@ public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
-        ConfigurationHelper.disableOfflineContent(context);
+        disableOfflineContent(context);
         offlineContentHelper.clearOfflineContent(context);
     }
 

@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.removeStub;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
@@ -17,6 +18,7 @@ import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class ProfileErrorTest extends ActivityTest<LauncherActivity> {
 
@@ -34,22 +36,23 @@ public class ProfileErrorTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         followingsScreen = mainNavHelper.goToMyProfile()
-                .touchInfoTab()
-                .clickFollowingsLink();
+                                        .touchInfoTab()
+                                        .clickFollowingsLink();
 
         UserItemElement userItemElement = followingsScreen.getUsers().get(0);
 
         stubMapping = stubFor(get(urlPathMatching("/users(.*)/profile/v2"))
-                .willReturn(aResponse().withStatus(500)));
+                                      .willReturn(aResponse().withStatus(500)));
 
         profileScreen = userItemElement.click();
     }
 
-    public void testConnectionErrorAndRetryInPosts() {
+    @Test
+    public void testConnectionErrorAndRetryInPosts() throws Exception {
         assertTrue(profileScreen.errorView().isOnScreen());
 
         removeStub(stubMapping);

@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests.go;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.htCreator;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.forcePendingPlanDowngrade;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -10,6 +13,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class GoOffboardingTrackingTest extends ActivityTest<GoOffboardingActivity> {
 
@@ -21,21 +25,22 @@ public class GoOffboardingTrackingTest extends ActivityTest<GoOffboardingActivit
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         screen = new GoOffboardingScreen(solo);
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.forcePendingPlanDowngrade(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        forcePendingPlanDowngrade(getInstrumentation().getTargetContext());
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.htCreator;
+        return htCreator;
     }
 
+    @Test
     public void testTrackResubscribeButtonClickAndImpression() throws Exception {
         final UpgradeScreen upgradeScreen = screen.clickResubscribe();
         assertThat(upgradeScreen, is(visible()));

@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,6 +12,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -21,7 +24,7 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -39,7 +42,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         solo.goBack();
     }
 
-    public void testDisablingSyncEntireCollectionViaPlaylistItem() {
+    @Test
+    public void testDisablingSyncEntireCollectionViaPlaylistItem() throws Exception {
         enableSyncEntireCollection();
 
         final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
@@ -56,7 +60,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         assertThat(checkSyncEntireCollectionStatus(), is(false));
     }
 
-    public void testDisablingSyncEntireCollectionViaPlaylistDetails() {
+    @Test
+    public void testDisablingSyncEntireCollectionViaPlaylistDetails() throws Exception {
         enableSyncEntireCollection();
 
         final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
@@ -76,7 +81,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         assertThat(checkSyncEntireCollectionStatus(), is(false));
     }
 
-    public void testCancelDisablingSyncEntireCollection() {
+    @Test
+    public void testCancelDisablingSyncEntireCollection() throws Exception {
         enableSyncEntireCollection();
 
         final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
@@ -96,7 +102,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         assertThat(checkSyncEntireCollectionStatus(), is(true));
     }
 
-    public void testDisablingSyncEntireCollectionViaPlaylistLeavesOtherContentDownloaded() {
+    @Test
+    public void testDisablingSyncEntireCollectionViaPlaylistLeavesOtherContentDownloaded() throws Exception {
         enableSyncEntireCollection();
         final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 

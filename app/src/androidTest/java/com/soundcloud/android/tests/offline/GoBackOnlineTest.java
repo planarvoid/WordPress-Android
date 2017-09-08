@@ -1,9 +1,13 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyCheckTime;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.setPolicyCheckTime;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -14,6 +18,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -40,10 +45,11 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
-    public void testRemovesOfflinePlaylistAfter30DaysOffline() {
+    @Test
+    public void testRemovesOfflinePlaylistAfter30DaysOffline() throws Exception {
         enableOfflineContent(context);
 
         mainNavHelper.goToCollections()
@@ -57,7 +63,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
         connectionHelper.setNetworkConnected(false);
         resetPolicyCheckTime(context);
-        offlineContentHelper.updateOfflineTracksPolicyUpdateTime(context, getPreviousDate(30, TimeUnit.DAYS).getTime());
+        offlineContentHelper.updateOfflineTracksPolicyUpdateTime(context, getPreviousDate(30, DAYS).getTime());
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
         assertThat("Go back online dialog should be visible", goBackOnlineDialog, is(visible()));
@@ -72,13 +78,14 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         assertThat("Save offline menu element should be visible", !downloadElement.isVisible());
     }
 
-    public void testDisplaysGoBackOnline() {
+    @Test
+    public void testDisplaysGoBackOnline() throws Exception {
         enableOfflineContent(context);
         mainNavHelper.goToBasicSettings();
 
         connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(27, TimeUnit.DAYS).getTime());
+                context, getPreviousDate(27, DAYS).getTime());
         resetPolicyCheckTime(context);
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
@@ -88,38 +95,41 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         assertThat("Go back online dialog should be dismissed", goBackOnlineDialog, is(not(visible())));
     }
 
-    public void testDisplaysGoBackOnlineOnlyOnceADay() {
+    @Test
+    public void testDisplaysGoBackOnlineOnlyOnceADay() throws Exception {
         enableOfflineContent(context);
         mainNavHelper.goToBasicSettings();
 
         connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(27, TimeUnit.DAYS).getTime());
-        setPolicyCheckTime(context, System.currentTimeMillis());
+                context, getPreviousDate(27, DAYS).getTime());
+        setPolicyCheckTime(context, currentTimeMillis());
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
         assertThat("Go back online dialog should not be visible", goBackOnlineDialog, not(visible()));
     }
 
-    public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() {
+    @Test
+    public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() throws Exception {
         enableOfflineContent(context);
         mainNavHelper.goToBasicSettings();
 
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(27, TimeUnit.DAYS).getTime());
+                context, getPreviousDate(27, DAYS).getTime());
         resetPolicyCheckTime(context);
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
         assertThat("Go back online dialog should not be visible", goBackOnlineDialog, not(visible()));
     }
 
-    public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() {
+    @Test
+    public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() throws Exception {
         enableOfflineContent(context);
         mainNavHelper.goToBasicSettings();
 
         connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(26, TimeUnit.DAYS).getTime());
+                context, getPreviousDate(26, DAYS).getTime());
         resetPolicyCheckTime(context);
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
@@ -127,6 +137,6 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
     }
 
     private Date getPreviousDate(int time, TimeUnit timeUnit) {
-        return new Date(System.currentTimeMillis() - timeUnit.toMillis(time));
+        return new Date(currentTimeMillis() - timeUnit.toMillis(time));
     }
 }

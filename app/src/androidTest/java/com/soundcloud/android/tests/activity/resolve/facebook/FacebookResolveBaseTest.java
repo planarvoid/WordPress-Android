@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.activity.resolve.facebook;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.framework.TestUser;
@@ -21,7 +22,7 @@ public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity>
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         final Intent activityIntent = new Intent(getInstrumentation().getTargetContext(), MainActivity.class).setData(
                 getUri());
         setActivityIntent(activityIntent);

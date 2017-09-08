@@ -1,8 +1,11 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static com.soundcloud.android.model.Urn.forTrack;
 import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDefault.defaultState;
 import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloading.downloadingState;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -32,7 +36,7 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -44,6 +48,7 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
         resetOfflineSyncState(context);
     }
 
+    @Test
     public void testCancelDownloadTracking() throws Exception {
         enableOfflineContent(context);
 
@@ -62,10 +67,11 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
     }
 
+    @Test
     public void testStorageLimitErrorTracking() throws Exception {
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);
-        offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
+        offlineContentHelper.addFakeOfflineTrack(context, forTrack(123L), 530);
 
         // set minimum storage limit
         mainNavHelper.goToOfflineSettings().tapOnSlider(0);
@@ -85,7 +91,7 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         offlineContentHelper.clearOfflineContent(context);
     }

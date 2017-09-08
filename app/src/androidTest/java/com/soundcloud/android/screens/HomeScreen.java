@@ -1,5 +1,9 @@
 package com.soundcloud.android.screens;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -16,7 +20,7 @@ public class HomeScreen extends Screen {
     }
 
     public LoginScreen clickLogInButton() {
-        logInButton().click();
+        onView(withId(R.id.btn_login)).perform(click());
         return new LoginScreen(testDriver);
     }
 

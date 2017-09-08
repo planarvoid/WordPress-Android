@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.discovery;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -14,6 +16,7 @@ import com.soundcloud.android.screens.discovery.ViewAllTrackRecommendationsScree
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
     private OldDiscoveryScreen discoveryScreen;
@@ -24,7 +27,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
     @Override
@@ -35,24 +38,26 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
-    public void testClickOnViewAllTrackRecommendations() {
+    @Test
+    public void testClickOnViewAllTrackRecommendations() throws Exception {
         final ViewAllTrackRecommendationsScreen viewAllScreen = discoveryScreen.trackRecommendationsBucket()
                                                                                .clickViewAll();
 
         assertThat(viewAllScreen, is(visible()));
     }
 
-    public void testStartPlaybackFromReasonOnDiscoveryScreen() {
+    @Test
+    public void testStartPlaybackFromReasonOnDiscoveryScreen() throws Exception {
         final TrackRecommendationsBucketElement bucket = discoveryScreen.trackRecommendationsBucket();
         final String reason = bucket.getReason();
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
@@ -65,7 +70,8 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
-    public void testStartPlaybackFromRecommendationOnDiscoveryScreen() {
+    @Test
+    public void testStartPlaybackFromRecommendationOnDiscoveryScreen() throws Exception {
         final TrackRecommendationsBucketElement bucket = discoveryScreen.trackRecommendationsBucket();
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
@@ -74,7 +80,8 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
-    public void testStartPlaybackFromReasonOnViewAllScreen() {
+    @Test
+    public void testStartPlaybackFromReasonOnViewAllScreen() throws Exception {
         final ViewAllTrackRecommendationsScreen viewAllScreen = discoveryScreen.trackRecommendationsBucket()
                                                                                .clickViewAll();
 
@@ -90,7 +97,8 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
-    public void testStartPlaybackFromRecommendationOnViewAllScreen() {
+    @Test
+    public void testStartPlaybackFromRecommendationOnViewAllScreen() throws Exception {
         final ViewAllTrackRecommendationsScreen viewAllScreen = discoveryScreen.trackRecommendationsBucket()
                                                                                .clickViewAll();
 

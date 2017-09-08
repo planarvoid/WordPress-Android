@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.stream;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.streamUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.forceFacebookListenerInvitesNotification;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -12,6 +14,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class FacebookInvitesTest extends ActivityTest<LauncherActivity> {
 
@@ -22,8 +25,8 @@ public class FacebookInvitesTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        ConfigurationHelper.forceFacebookListenerInvitesNotification(getInstrumentation().getTargetContext());
+    public void setUp() throws Exception {
+        forceFacebookListenerInvitesNotification(getInstrumentation().getTargetContext());
         super.setUp();
     }
 
@@ -32,7 +35,8 @@ public class FacebookInvitesTest extends ActivityTest<LauncherActivity> {
         return streamUser;
     }
 
-    public void testShouldHideFacebookInvitesNotification() throws Throwable {
+    @Test
+    public void testShouldHideFacebookInvitesNotification() throws Exception {
         FacebookInvitesItemElement notification = new StreamScreen(solo)
                 .getFirstFacebookInvitesNotification();
 

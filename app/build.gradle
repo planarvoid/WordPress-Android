@@ -298,6 +298,12 @@ dependencies {
   androidTestCompile acceptanceTestLibraries.mrLocalLocal
   androidTestCompile unitTestLibraries.assertj
   androidTestAnnotationProcessor libraries.daggerCompiler
+  androidTestCompile (acceptanceTestLibraries.espressoCore) {
+    exclude module: 'support-annotations'
+  }
+  androidTestCompile (acceptanceTestLibraries.espressoContrib) {
+    exclude group: 'com.android.support'
+  }
 }
 
 //ADD THIS AT THE BOTTOM

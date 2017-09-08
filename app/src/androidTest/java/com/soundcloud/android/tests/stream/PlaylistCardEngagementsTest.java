@@ -1,7 +1,13 @@
 package com.soundcloud.android.tests.stream;
 
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.like_toast_overflow_action;
+import static com.soundcloud.android.R.string.reposted_to_followers;
+import static com.soundcloud.android.R.string.unlike_toast_overflow_action;
+import static com.soundcloud.android.R.string.unposted_to_followers;
 import static com.soundcloud.android.framework.TestUser.followingOneTrackOnePlaylistUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -12,6 +18,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
 
@@ -27,12 +34,13 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testLikeAndRepostPlaylist() {
+    @Test
+    public void testLikeAndRepostPlaylist() throws Exception {
         StreamCardElement card = streamScreen.scrollToFirstPlaylistTrackCard();
         assertToggleLike(card);
         assertToggleRepost(card);
@@ -68,10 +76,10 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
     }
 
     private String getLikeToastMessage(boolean liked) {
-        return solo.getString(liked ? R.string.unlike_toast_overflow_action : R.string.like_toast_overflow_action);
+        return solo.getString(liked ? unlike_toast_overflow_action : like_toast_overflow_action);
     }
 
     private String getRepostToastMessage(boolean reposted) {
-        return solo.getString(reposted ? R.string.unposted_to_followers : R.string.reposted_to_followers);
+        return solo.getString(reposted ? unposted_to_followers : reposted_to_followers);
     }
 }

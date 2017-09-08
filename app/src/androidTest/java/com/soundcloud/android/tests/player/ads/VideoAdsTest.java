@@ -4,6 +4,9 @@ import static com.soundcloud.android.framework.matcher.player.IsExpanded.expande
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.player.IsSkipAllowed.SkipAllowed;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.LETTERBOX_VIDEO_PLAYLIST_URI;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -12,6 +15,7 @@ import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 
 import android.net.Uri;
 
@@ -22,9 +26,10 @@ public class VideoAdsTest extends AdBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.LETTERBOX_VIDEO_PLAYLIST_URI;
+        return LETTERBOX_VIDEO_PLAYLIST_URI;
     }
 
+    @Test
     public void testQuartileEvents() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -34,7 +39,8 @@ public class VideoAdsTest extends AdBaseTest {
         mrLocalLocal.verify(SCENARIO_VIDEO_AD_QUARTILES);
     }
 
-    public void testSkipIsNotAllowedOnAd() {
+    @Test
+    public void testSkipIsNotAllowedOnAd() throws Exception {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
 
@@ -43,7 +49,8 @@ public class VideoAdsTest extends AdBaseTest {
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
-    public void testTappingVideoTwiceResumesPlayingAd() {
+    @Test
+    public void testTappingVideoTwiceResumesPlayingAd() throws Exception {
         swipeToAd();
         playerElement.waitForPlayState();
         playerElement.clickAdVideo();
@@ -53,7 +60,8 @@ public class VideoAdsTest extends AdBaseTest {
         assertThat(playerElement, is(playing()));
     }
 
-    public void testShowWhyAdsDialogWhenClickingWhyAds() {
+    @Test
+    public void testShowWhyAdsDialogWhenClickingWhyAds() throws Exception {
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAdsForUpsell();
         assertThat(dialog, is(visible()));
@@ -62,7 +70,8 @@ public class VideoAdsTest extends AdBaseTest {
         assertThat(dialog, is(not(visible())));
     }
 
-    public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
+    @Test
+    public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() throws Exception {
         playerElement
                 .pressBackToCollapse()
                 .waitForExpandedPlayer();
@@ -72,13 +81,15 @@ public class VideoAdsTest extends AdBaseTest {
         assertThat(playerElement, Matchers.is(expanded()));
     }
 
-    public void testSwipeDownDoesntCollapsePlayer() {
+    @Test
+    public void testSwipeDownDoesntCollapsePlayer() throws Exception {
         swipeToAd();
         solo.swipeDown();
         assertThat(playerElement.isCollapsed(), is(false));
     }
 
-    public void testSkipAdShouldStartTheMonetizableTrack() {
+    @Test
+    public void testSkipAdShouldStartTheMonetizableTrack() throws Exception {
         swipeToAd();
         playerElement
                 .waitForAdToBeSkippable()

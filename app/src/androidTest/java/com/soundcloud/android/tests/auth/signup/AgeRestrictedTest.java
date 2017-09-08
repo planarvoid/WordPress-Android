@@ -4,13 +4,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.soundcloud.android.api.ApiEndpoints.SIGN_UP;
 import static com.soundcloud.android.framework.TestUser.generateEmail;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.screens.auth.signup.SignupAgeRestrictedScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
+import org.junit.Test;
 
 public class AgeRestrictedTest extends SignUpTest {
 
@@ -24,10 +27,11 @@ public class AgeRestrictedTest extends SignUpTest {
 
     @Override
     protected void addInitialStubMappings() {
-        stubFor(post(urlPathEqualTo(ApiEndpoints.SIGN_UP.path()))
+        stubFor(post(urlPathEqualTo(SIGN_UP.path()))
                         .willReturn(aResponse().withStatus(400).withBody(AGE_RESTRICTED_RESPONSE)));
     }
 
+    @Test
     public void testUserAgeRestricted() throws Exception {
         signUpBasicsScreen = homeScreen
                 .clickSignUpButton()

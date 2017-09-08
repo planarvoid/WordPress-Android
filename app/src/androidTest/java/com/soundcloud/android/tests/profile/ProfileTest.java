@@ -1,8 +1,18 @@
 package com.soundcloud.android.tests.profile;
 
+import static android.content.Intent.ACTION_VIEW;
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket.ALBUMS;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket.LIKES;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket.PLAYLISTS;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket.REPOSTS;
+import static com.soundcloud.android.screens.ProfileScreen.Bucket.TRACKS;
+import static com.soundcloud.android.tests.TestConsts.OTHER_PROFILE_USER_URI;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -24,6 +34,7 @@ import com.soundcloud.android.tests.TestConsts;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
+import org.junit.Test;
 
 import android.content.Intent;
 
@@ -43,11 +54,11 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
 
     // Have to do this because Java can't do import aliasing ;_;
     private static Matcher<Screen> isScreenVisible() {
-        return Is.is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible());
+        return is(IsVisible.visible());
     }
 
     private static Matcher<Element> isElementVisible() {
-        return Is.is(com.soundcloud.android.framework.matcher.element.IsVisible.visible());
+        return is(visible());
     }
 
     private ProfileScreen profileScreen;
@@ -62,8 +73,8 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_USER_URI));
+    public void setUp() throws Exception {
+        setActivityIntent(new Intent(ACTION_VIEW).setData(OTHER_PROFILE_USER_URI));
         super.setUp();
 
         profileScreen = new ProfileScreen(solo);
@@ -74,11 +85,13 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         super.tearDown();
     }
 
-    public void testPostsTrackClickStartsPlayer() {
+    @Test
+    public void testPostsTrackClickStartsPlayer() throws Exception {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
-    public void testPostsPlaylistClickOpensPlaylistPage() {
+    @Test
+    public void testPostsPlaylistClickOpensPlaylistPage() throws Exception {
         final PlaylistElement expectedPlaylist = profileScreen
                 .scrollToPlaylists()
                 .get(0);
@@ -87,7 +100,8 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         assertEquals(expectedPlaylist.click().getTitle(), title);
     }
 
-    public void testClickFollowingsLoadsProfile() {
+    @Test
+    public void testClickFollowingsLoadsProfile() throws Exception {
         FollowingsScreen followingsScreen = profileScreen.touchInfoTab().clickFollowingsLink();
 
         final UserItemElement expectedUser = followingsScreen
@@ -98,63 +112,69 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         assertEquals(expectedUser.click().getUserName(), targetUsername);
     }
 
+    @Test
     public void testPlayAndPauseFromTracksBucket() throws Exception {
         mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement =
-                profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.TRACKS);
+                profileScreen.scrollToBucketAndClickFirstTrack(TRACKS);
 
         assertPlayAndPause(playerElement);
 
         mrLocalLocal.verify(TEST_SCENARIO_TRACKS_BUCKET);
     }
 
+    @Test
     public void testOpenPlaylistFromPlaylistsBucket() throws Exception {
         mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
-                .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.PLAYLISTS);
+                .scrollToBucketAndClickFirstPlaylist(PLAYLISTS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
         mrLocalLocal.verify(TEST_SCENARIO_PLAYLISTS_BUCKET);
     }
 
+    @Test
     public void testOpenPlaylistFromAlbumsBucket() throws Exception {
         assertTrue(profileScreen.albumsHeader().hasVisibility());
-        
+
         mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
-                .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.ALBUMS);
+                .scrollToBucketAndClickFirstPlaylist(ALBUMS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
         mrLocalLocal.verify(TEST_SCENARIO_ALBUMS_BUCKET);
     }
 
+    @Test
     public void testPlayAndPauseFromRepostsBucket() throws Exception {
         mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
-                .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.REPOSTS);
+                .scrollToBucketAndClickFirstTrack(REPOSTS);
 
         assertPlayAndPause(playerElement);
 
         mrLocalLocal.verify(TEST_SCENARIO_REPOSTS_BUCKET);
     }
 
+    @Test
     public void testPlayAndPauseFromLikesBucket() throws Exception {
         mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
-                .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.LIKES);
+                .scrollToBucketAndClickFirstTrack(LIKES);
 
         assertPlayAndPause(playerElement);
 
         mrLocalLocal.verify(TEST_SCENARIO_LIKES_BUCKET);
     }
 
+    @Test
     public void testPlayAndPauseFromTracksList() throws Exception {
         profileScreen.scrollToViewAllTracks();
         mrLocalLocal.startEventTracking();
@@ -165,6 +185,7 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_TRACKS_LIST);
     }
 
+    @Test
     public void testOpenPlaylistFromPlaylistsList() throws Exception {
         profileScreen.scrollToViewAllPlaylists();
         mrLocalLocal.startEventTracking();
@@ -178,6 +199,7 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_PLAYLISTS_LIST);
     }
 
+    @Test
     public void testPlayAndPauseFromRepostsList() throws Exception {
         profileScreen.scrollToViewAllReposts();
         mrLocalLocal.startEventTracking();
@@ -191,6 +213,7 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_REPOSTS_LIST);
     }
 
+    @Test
     public void testPlayAndPauseFromLikesList() throws Exception {
         profileScreen.scrollToViewAllLikes();
         mrLocalLocal.startEventTracking();
@@ -204,6 +227,7 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_LIKES_LIST);
     }
 
+    @Test
     public void testFollowUserTracking() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -221,6 +245,7 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         assertThat(playerElement, is(not(playing())));
     }
 
+    @Test
     public void testInfoTabEvents() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -235,17 +260,20 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
         mrLocalLocal.verify(PROFILE_PAGEVIEWS_SCENARIO);
     }
 
-    public void testShowsExpandedImage() {
+    @Test
+    public void testShowsExpandedImage() throws Exception {
         assertThat(profileScreen.touchProfileImage(), Matchers.is(IsVisible.visible()));
     }
 
-    public void testShowsBio() {
+    @Test
+    public void testShowsBio() throws Exception {
         profileScreen.touchInfoTab();
 
         assertThat(profileScreen.bio().getText(), Matchers.is(equalTo("I'm here to make friends")));
     }
 
-    public void testShowsSocialLinks() {
+    @Test
+    public void testShowsSocialLinks() throws Exception {
         profileScreen.touchInfoTab();
 
         assertThat(profileScreen.firstSocialLinkText(), Matchers.is(equalTo("SoundCloud")));

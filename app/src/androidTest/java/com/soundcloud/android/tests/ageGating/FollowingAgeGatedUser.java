@@ -13,6 +13,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;
+import org.junit.Test;
 
 import android.net.Uri;
 
@@ -32,7 +33,7 @@ public class FollowingAgeGatedUser extends ResolveBaseTest {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         // This is probably too late :/
         addMockedStringResponse(ApiEndpoints.MY_FOLLOWINGS.path(), 200, emptyFollowings);
@@ -44,6 +45,7 @@ public class FollowingAgeGatedUser extends ResolveBaseTest {
                         .willReturn(aResponse().withStatus(201)));
     }
 
+    @Test
     public void testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = new ProfileScreen(solo);
         addMockedStringResponse(ApiEndpoints.MY_FOLLOWINGS.path(), 200, oneFollowings);

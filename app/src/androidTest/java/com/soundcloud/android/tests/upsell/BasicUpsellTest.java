@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests.upsell;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +14,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class BasicUpsellTest extends ActivityTest<MainActivity> {
 
@@ -22,14 +26,15 @@ public class BasicUpsellTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
+    @Test
     public void testSettingsUpsellImpressionAndClick() throws Exception {
         MoreScreen moreScreen = mainNavHelper.goToMore();
         waiter.waitTwoSeconds();

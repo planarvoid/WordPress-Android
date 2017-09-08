@@ -10,6 +10,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
@@ -25,13 +26,14 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         screen = mainNavHelper.goToMyProfile();
     }
 
-    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+    @Test
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() throws Exception {
         // TODO: fix selector here.
         // It currently fails to select the overflow menu even though it's there
         screen.clickFirstTrackOverflowButton()

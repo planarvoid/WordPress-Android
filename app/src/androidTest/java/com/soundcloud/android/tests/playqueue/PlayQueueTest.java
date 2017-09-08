@@ -1,10 +1,13 @@
 package com.soundcloud.android.tests.playqueue;
 
+import static com.soundcloud.android.framework.TestUser.playerUser;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayQueueTest extends ActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_PLAY_QUEUE = "specs/play-queue.spec";
@@ -16,7 +19,7 @@ public class PlayQueueTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playerUser;
+        return playerUser;
     }
 
     @Override
@@ -27,6 +30,7 @@ public class PlayQueueTest extends ActivityTest<MainActivity> {
                              .waitForExpandedPlayer();
     }
 
+    @Test
     public void testPlayQueueExpandAndCollapse() throws Exception {
         mrLocalLocal.startEventTracking();
 

@@ -1,7 +1,10 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineEmptyUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.framework.IntegrationTestsFixtures;
 import com.soundcloud.android.framework.TestUser;
@@ -11,6 +14,7 @@ import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -22,7 +26,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineEmptyUser;
+        return offlineEmptyUser;
     }
 
     @Override
@@ -37,7 +41,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         enableOfflineContent(context);
     }
 
-    public void testDownloadsTrackWhenLiked() {
+    @Test
+    public void testDownloadsTrackWhenLiked() throws Exception {
         likeFirstTrack();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
@@ -53,7 +58,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         assertTrue(downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
 
-    public void testDownloadResumesWhenConnectionBack() {
+    @Test
+    public void testDownloadResumesWhenConnectionBack() throws Exception {
         likeFirstTrack();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();

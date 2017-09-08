@@ -1,6 +1,11 @@
 package com.soundcloud.android.tests.playlist;
 
+import static android.content.Intent.ACTION_VIEW;
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.PLAYLIST_UPSELL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
@@ -12,6 +17,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
+import org.junit.Test;
 
 import android.content.Intent;
 
@@ -22,22 +28,23 @@ public class PlaylistUpsellTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.PLAYLIST_UPSELL));
+    public void setUp() throws Exception {
+        setActivityIntent(new Intent(ACTION_VIEW).setData(PLAYLIST_UPSELL));
         super.setUp();
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
-    public void testUserCanNavigateToSubscribePageFromUpsell() {
+    @Test
+    public void testUserCanNavigateToSubscribePageFromUpsell() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
 
         assertThat(playlistDetailsScreen, is(visible()));

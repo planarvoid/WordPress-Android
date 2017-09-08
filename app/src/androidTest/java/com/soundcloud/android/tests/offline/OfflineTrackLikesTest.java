@@ -1,8 +1,12 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -11,6 +15,7 @@ import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -28,7 +33,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -39,7 +44,8 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         resetOfflineSyncState(context);
     }
 
-    public void testOfflineSyncMenuAvailableWhenUserSubscribed() {
+    @Test
+    public void testOfflineSyncMenuAvailableWhenUserSubscribed() throws Exception {
         enableOfflineContent(context);
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
@@ -47,6 +53,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(trackLikesScreen.offlineButton(), is(visible()));
     }
 
+    @Test
     public void testOfflineSyncOfOfflineLikes() throws Exception {
         enableOfflineContent(context);
 

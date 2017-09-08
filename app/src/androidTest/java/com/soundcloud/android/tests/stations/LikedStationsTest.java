@@ -1,5 +1,9 @@
 package com.soundcloud.android.tests.stations;
 
+import static com.soundcloud.android.framework.TestUser.stationsUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableStationsOnboarding;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
+import static java.lang.Math.min;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -13,6 +17,7 @@ import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.stations.LikedStationsScreen;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class LikedStationsTest extends ActivityTest<MainActivity> {
 
@@ -22,33 +27,34 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.stationsUser;
+        return stationsUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
-        ConfigurationHelper.disableStationsOnboarding(getActivity());
+        disableStationsOnboarding(activityTestRule.getActivity());
     }
 
-    public void testLikeAndUnlikeStation() {
+    @Test
+    public void testLikeAndUnlikeStation() throws Exception {
         final OldDiscoveryScreen discoveryScreen = mainNavHelper.goToOldDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
 
         final String title = stationsBucketElement.getFirstStation().getTitle();
         StationHomeScreen stationHome = stationsBucketElement.getFirstStation().open();
-        assertThat(stationHome.stationTitle(), containsString(title.substring(0, Math.min(20, title.length()))));
+        assertThat(stationHome.stationTitle(), containsString(title.substring(0, min(20, title.length()))));
 
         boolean liked = stationHome.isStationLiked();
         if (!liked) {

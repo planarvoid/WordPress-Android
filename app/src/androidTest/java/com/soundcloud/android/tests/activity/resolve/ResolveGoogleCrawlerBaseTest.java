@@ -14,7 +14,7 @@ public abstract class ResolveGoogleCrawlerBaseTest extends ActivityTest<ResolveA
     protected abstract Uri getUri();
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW).setData(getUri());
         intent.putExtra("android.intent.extra.REFERRER", Uri.parse("android-app://com.google.appcrawler"));
         setActivityIntent(intent);

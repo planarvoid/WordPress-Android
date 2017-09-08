@@ -11,6 +11,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.VisualPrestitialScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 @AdsTest
 public class VisualPrestitialAdTest extends ActivityTest<LauncherActivity> {
@@ -32,6 +33,7 @@ public class VisualPrestitialAdTest extends ActivityTest<LauncherActivity> {
         prestitialScreen = new VisualPrestitialScreen(solo);
     }
 
+    @Test
     public void testAdLoadsAndIsDismissed() throws Exception {
         mrLocalLocal.startEventTracking();
 

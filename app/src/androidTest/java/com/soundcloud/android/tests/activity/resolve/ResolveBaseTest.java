@@ -22,7 +22,7 @@ public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         super.setUp();
     }

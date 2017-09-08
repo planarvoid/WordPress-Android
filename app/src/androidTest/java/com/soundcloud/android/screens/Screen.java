@@ -19,6 +19,7 @@ import java.util.List;
 
 public abstract class Screen {
 
+    @Deprecated
     protected Han testDriver;
     protected Waiter waiter;
 
@@ -119,6 +120,8 @@ public abstract class Screen {
         return testDriver.scrollToItem(with);
     }
 
+    // @deprecated as it doesn't seem to work in the new ActivityTestRule setup anymore
+    @Deprecated
     protected ViewElement scrollToItemInRecyclerView(final With with) {
         return testDriver.scrollToItemInRecyclerView(with);
     }

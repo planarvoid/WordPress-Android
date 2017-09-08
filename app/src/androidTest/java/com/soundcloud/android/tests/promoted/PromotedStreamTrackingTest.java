@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests.promoted;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.playerUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableFacebookInvitesNotification;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,6 +14,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PromotedStreamTrackingTest extends ActivityTest<MainActivity> {
 
@@ -23,15 +27,16 @@ public class PromotedStreamTrackingTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playerUser;
+        return playerUser;
     }
 
     @Override
-    protected void setUp() throws Exception {
-        ConfigurationHelper.disableFacebookInvitesNotification(getInstrumentation().getTargetContext());
+    public void setUp() throws Exception {
+        disableFacebookInvitesNotification(getInstrumentation().getTargetContext());
         super.setUp();
     }
 
+    @Test
     public void testPlayPromotedTrackFromStream() throws Exception {
         StreamScreen streamScreen = mainNavHelper.goToStream();
 

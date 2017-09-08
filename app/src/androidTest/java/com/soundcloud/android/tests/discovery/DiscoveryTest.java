@@ -1,11 +1,16 @@
 package com.soundcloud.android.tests.discovery;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
+import static com.soundcloud.android.properties.Flag.NEW_HOME;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -16,6 +21,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SystemPlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.res.Resources;
 
@@ -29,13 +35,13 @@ public class DiscoveryTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().enable(Flag.NEW_HOME);
-        getFeatureFlags().enable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().enable(NEW_HOME);
+        getFeatureFlags().enable(DISCOVER_BACKEND);
     }
 
     @Override
@@ -53,6 +59,7 @@ public class DiscoveryTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.discoveryScreen();
     }
 
+    @Test
     public void testOpensCards() throws Exception {
         mrLocalLocal.startEventTracking();
         SystemPlaylistScreen systemPlaylistScreen = discoveryScreen.singleSelectionCard().clickCard();

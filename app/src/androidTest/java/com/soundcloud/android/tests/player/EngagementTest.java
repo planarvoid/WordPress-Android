@@ -1,7 +1,10 @@
 package com.soundcloud.android.tests.player;
 
+import static com.soundcloud.android.framework.TestUser.privateUser;
+import static com.soundcloud.android.framework.helpers.PlayerHelper.playPublicTrack;
 import static com.soundcloud.android.framework.matcher.view.IsEnabled.Enabled;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -13,6 +16,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class EngagementTest extends ActivityTest<MainActivity> {
 
@@ -21,22 +25,23 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.privateUser;
+        return privateUser;
     }
 
-    public void testPrivateTrackHasDisabledShareAndRepost() {
+    @Test
+    public void testPrivateTrackHasDisabledShareAndRepost() throws Exception {
         PlayerMenuElement menu = mainNavHelper.goToMyProfile()
                                               .playTrack(0)
                                               .clickMenu();
@@ -45,8 +50,9 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         assertThat(menu.shareItem(), is(not(Enabled())));
     }
 
-    public void testLikeTrackAlwaysShowsTheShareButton() {
-        VisualPlayerElement player = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testLikeTrackAlwaysShowsTheShareButton() throws Exception {
+        VisualPlayerElement player = playPublicTrack(this, mainNavHelper);
 
         player.likeButton().click();
         assertThat(player.shareButton(), is(visible()));

@@ -10,6 +10,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class ContentBottomPaddingTest extends ActivityTest<MainActivity> {
 
@@ -22,7 +23,9 @@ public class ContentBottomPaddingTest extends ActivityTest<MainActivity> {
         return defaultUser;
     }
 
+    @org.junit.Ignore
     @Ignore // FIXME https://soundcloud.atlassian.net/browse/DROID-1513
+    @Test
     public void testMainContainerIsPaddedProperlyOnPlayerVisible() throws Exception {
         MoreScreen moreScreen = mainNavHelper.goToMore();
         assertThat(moreScreen.appVersionText().isFullyOnScreen(), is(true));

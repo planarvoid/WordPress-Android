@@ -10,6 +10,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
     private TrackLikesScreen trackLikesScreen;
@@ -31,7 +32,8 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+    @Test
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() throws Exception {
         final AddToPlaylistScreen addToPlaylistScreen = trackLikesScreen
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();

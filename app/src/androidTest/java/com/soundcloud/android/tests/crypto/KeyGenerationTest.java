@@ -1,8 +1,12 @@
 package com.soundcloud.android.tests.crypto;
 
+import static com.soundcloud.android.framework.TestUser.streamUser;
+import static junit.framework.Assert.assertTrue;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class KeyGenerationTest extends ActivityTest<MainActivity> {
 
@@ -12,7 +16,7 @@ public class KeyGenerationTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.streamUser;
+        return streamUser;
     }
 
     @Override
@@ -20,8 +24,9 @@ public class KeyGenerationTest extends ActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void testApplicationKeyShouldBeGenerated() {
-        DeviceKey key = new DeviceKey(getActivity());
+    @Test
+    public void testApplicationKeyShouldBeGenerated() throws Exception {
+        DeviceKey key = new DeviceKey(activityTestRule.getActivity());
         assertTrue(key.isValid());
     }
 }

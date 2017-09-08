@@ -5,7 +5,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.ak_error_soundcloud_no_response;
+import static com.soundcloud.android.api.ApiEndpoints.STREAM;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -16,6 +20,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class StreamServerErrorTest extends ActivityTest<MainActivity> {
 
@@ -38,13 +43,14 @@ public class StreamServerErrorTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void addInitialStubMappings() {
-        stubFor(get(urlPathEqualTo(ApiEndpoints.STREAM.path()))
+        stubFor(get(urlPathEqualTo(STREAM.path()))
                         .willReturn(aResponse().withStatus(500)));
     }
 
-    public void testShowsStreamServerError() {
+    @Test
+    public void testShowsStreamServerError() throws Exception {
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertTrue(streamScreen.emptyView().isVisible());
-        assertThat(streamScreen.emptyView().message(), is(equalTo(getSolo().getString(R.string.ak_error_soundcloud_no_response))));
+        assertThat(streamScreen.emptyView().message(), is(equalTo(getSolo().getString(ak_error_soundcloud_no_response))));
     }
 }

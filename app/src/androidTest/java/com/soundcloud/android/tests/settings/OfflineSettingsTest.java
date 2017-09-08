@@ -1,8 +1,16 @@
 package com.soundcloud.android.tests.settings;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.offline_cannot_set_limit_below_usage;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineSettingsOnboarding;
+import static com.soundcloud.android.model.Urn.forTrack;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -16,6 +24,7 @@ import com.soundcloud.android.screens.OfflineSettingsOnboardingScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -35,7 +44,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -48,7 +57,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         moreScreen = mainNavHelper.goToMore();
     }
 
-    public void testDisableSyncCollectionIsCancellable() {
+    @Test
+    public void testDisableSyncCollectionIsCancellable() throws Exception {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
@@ -58,7 +68,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(screen.isOfflineCollectionChecked(), is(true));
     }
 
-    public void testEnableSyncCollectionTriggersSync() {
+    @Test
+    public void testEnableSyncCollectionTriggersSync() throws Exception {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
@@ -74,7 +85,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(downloadElement.isVisible(), is(true));
     }
 
-    public void testRemoveOfflineContentDisablesOfflineCollection() {
+    @Test
+    public void testRemoveOfflineContentDisablesOfflineCollection() throws Exception {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
@@ -85,7 +97,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(offlineSettingsScreen.isOfflineCollectionChecked(), is(false));
     }
 
-    public void testOfflineLimitSlider() {
+    @Test
+    public void testOfflineLimitSlider() throws Exception {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
@@ -107,19 +120,21 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertEquals(legendLastValue, offlineSettingsScreen.getLegendLimitText());
     }
 
-    public void testBlockOfflineLimitSliderBelowCurrentUsage() throws IOException {
-        offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 800);
+    @Test
+    public void testBlockOfflineLimitSliderBelowCurrentUsage() throws Exception {
+        offlineContentHelper.addFakeOfflineTrack(context, forTrack(123L), 800);
 
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         offlineSettingsScreen.tapOnSlider(0);
 
         assertTrue(waiter.expectToastWithText(toastObserver,
-                                              solo.getString(R.string.offline_cannot_set_limit_below_usage)));
+                                              solo.getString(offline_cannot_set_limit_below_usage)));
         assertEquals("0.8 GB", offlineSettingsScreen.getSliderLimitText());
         assertEquals("0.8 GB", offlineSettingsScreen.getLegendLimitText());
     }
 
-    public void testOfflineSettingsOnboarding() {
+    @Test
+    public void testOfflineSettingsOnboarding() throws Exception {
         enableOfflineSettingsOnboarding(context);
         moreScreen.clickOfflineSettingsLink();
 
@@ -131,7 +146,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         offlineContentHelper.clearOfflineContent(context);
     }

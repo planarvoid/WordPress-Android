@@ -1,7 +1,10 @@
 package com.soundcloud.android.tests.player;
 
+import static com.soundcloud.android.framework.TestUser.playerUser;
+import static com.soundcloud.android.framework.helpers.PlayerHelper.playPublicTrack;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +18,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
 
@@ -27,17 +31,17 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playerUser;
+        return playerUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
@@ -49,32 +53,37 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() {
+    @Test
+    public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() throws Exception {
         visualPlayerElement = new VisualPlayerElement(solo);
         assertThat(visualPlayerElement.isVisible(), is(false));
     }
 
-    public void testPlayerCollapsesWhenBackButtonIsPressed() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayerCollapsesWhenBackButtonIsPressed() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerCollapsesWhenCloseButtonIsPressed() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayerCollapsesWhenCloseButtonIsPressed() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressCloseButton();
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerExpandsOnFooterTap() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayerExpandsOnFooterTap() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         visualPlayerElement.tapFooter();
         assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
-    public void testPlayStateCanBeToggledFromPlayerFooter() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayStateCanBeToggledFromPlayerFooter() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         assertThat(visualPlayerElement, is(collapsed()));
         assertThat(visualPlayerElement, is(playing()));
@@ -83,19 +92,22 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement, is(not(playing())));
     }
 
-    public void testPlayStateCanBeToggledFromFullPlayer() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayStateCanBeToggledFromFullPlayer() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         assertThat(visualPlayerElement, is(playing()));
         visualPlayerElement.clickArtwork();
         assertThat(visualPlayerElement, is(not(playing())));
     }
 
-    public void testPlayerIsExpandedAfterClickingTrack() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayerIsExpandedAfterClickingTrack() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
-    public void testSkippingWithNextAndPreviousChangesTrack() {
+    @Test
+    public void testSkippingWithNextAndPreviousChangesTrack() throws Exception {
         visualPlayerElement = streamScreen.clickFirstTrackCard();
         String originalTrack = visualPlayerElement.getTrackTitle();
         visualPlayerElement.clickArtwork();
@@ -106,7 +118,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(originalTrack, is(equalTo(visualPlayerElement.getTrackTitle())));
     }
 
-    public void testSwipingNextAndPreviousChangesTrack() {
+    @Test
+    public void testSwipingNextAndPreviousChangesTrack() throws Exception {
         playTrackFromStream();
         String originalTrack = visualPlayerElement.getTrackTitle();
 
@@ -116,8 +129,9 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(originalTrack, is(equalTo(visualPlayerElement.getTrackTitle())));
     }
 
-    public void testPlayerRemainsPausedWhenSkipping() {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+    @Test
+    public void testPlayerRemainsPausedWhenSkipping() throws Exception {
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
 
         visualPlayerElement.clickArtwork();
         visualPlayerElement.tapNext();
@@ -125,8 +139,9 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement, is(not(playing())));
     }
 
+    @Test
     public void testUserButtonGoesToUserProfile() throws Exception {
-        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
+        visualPlayerElement = playPublicTrack(this, mainNavHelper);
         String originalUser = visualPlayerElement.getTrackCreator();
 
         ProfileScreen profileScreen = visualPlayerElement.clickCreator();

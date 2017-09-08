@@ -1,18 +1,21 @@
 package com.soundcloud.android.tests.activity.resolve;
 
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.FORSS_PLAYLIST_PERMALINK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.tests.TestConsts;
+import org.junit.Test;
 
 import android.net.Uri;
 
 public class ResolvePlaylistPermalinkTest extends ResolveBaseTest {
 
-    public void testShouldOpenPlaylistDetails() {
+    @Test
+    public void testShouldOpenPlaylistDetails() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
 
         assertThat(playlistDetailsScreen, is(visible()));
@@ -21,6 +24,6 @@ public class ResolvePlaylistPermalinkTest extends ResolveBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.FORSS_PLAYLIST_PERMALINK;
+        return FORSS_PLAYLIST_PERMALINK;
     }
 }

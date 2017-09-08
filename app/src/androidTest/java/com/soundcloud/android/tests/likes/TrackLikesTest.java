@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.soundcloud.android.framework.TestUser.likesUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,6 +19,7 @@ import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.Is;
+import org.junit.Test;
 
 public class TrackLikesTest extends ActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_LIKES = "specs/audio-events-v1-main-likes.spec";
@@ -31,7 +33,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.likesUser;
+        return likesUser;
     }
 
     @Override
@@ -40,6 +42,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         stubFor(post(urlPathEqualTo("/likes/tracks")).willReturn(aResponse().withStatus(500)));
     }
 
+    @Test
     public void testLikesScreen() throws Exception {
         likesScreen = mainNavHelper.goToTrackLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();

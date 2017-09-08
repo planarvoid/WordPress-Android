@@ -1,7 +1,11 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.likesUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyCheckTime;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -15,6 +19,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.IsNot;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -32,9 +37,10 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.likesUser;
+        return likesUser;
     }
 
+    @Test
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
@@ -43,6 +49,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineToggle, is(not(visible())));
     }
 
+    @Test
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
@@ -53,6 +60,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineItem, is(not(visible())));
     }
 
+    @Test
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
@@ -63,13 +71,14 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineItem, is(not(visible())));
     }
 
-    public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() {
+    @Test
+    public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() throws Exception {
         final Context context = getInstrumentation().getTargetContext();
         mainNavHelper.goToBasicSettings();
 
         connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(27, TimeUnit.DAYS).getTime());
+                context, getPreviousDate(27, DAYS).getTime());
         resetPolicyCheckTime(context);
 
         final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
@@ -77,6 +86,6 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     private Date getPreviousDate(int time, TimeUnit timeUnit) {
-        return new Date(System.currentTimeMillis() - timeUnit.toMillis(time));
+        return new Date(currentTimeMillis() - timeUnit.toMillis(time));
     }
 }

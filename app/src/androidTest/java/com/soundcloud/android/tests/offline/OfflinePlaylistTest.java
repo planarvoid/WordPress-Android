@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.offline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
@@ -21,6 +23,7 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -37,7 +40,7 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -49,7 +52,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
     }
 
-    public void testDownloadsPlaylistWhenMadeAvailableOfflineFromItem() {
+    @Test
+    public void testDownloadsPlaylistWhenMadeAvailableOfflineFromItem() throws Exception {
         PlaylistsScreen playlistsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview();
@@ -65,7 +69,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
     }
 
-    public void testDownloadsPlaylistWhenMadeAvailableOfflineFromDetails() {
+    @Test
+    public void testDownloadsPlaylistWhenMadeAvailableOfflineFromDetails() throws Exception {
         PlaylistsScreen playlistsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview();
@@ -83,7 +88,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
     }
 
-    public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
+    @Test
+    public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() throws Exception {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                                                                          .clickPlaylistsPreview()
                                                                          .scrollToAndClickPlaylistWithTitle(
@@ -102,12 +108,13 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(collectionsDownloadElement, is(downloaded()));
     }
 
-    public void testEmptyPlaylistsAreMarkedAsRequested() {
+    @Test
+    public void testEmptyPlaylistsAreMarkedAsRequested() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
-                                                                         .clickPlaylistsPreview()
-                                                                         .scrollToAndClickPlaylistWithTitle(
-                                                                                 EMPTY_PLAYLIST)
-                                                                         .clickDownloadButton();
+                                                                   .clickPlaylistsPreview()
+                                                                   .scrollToAndClickPlaylistWithTitle(
+                                                                           EMPTY_PLAYLIST)
+                                                                   .clickDownloadButton();
 
         OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
         assertThat(offlineButton, is(not(downloadingState())));
@@ -121,7 +128,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat("Playlist should be requested ", collectionsDownloadElement.isRequested());
     }
 
-    public void testUnavailablePlaylistsAreMarkedAsUnavailable() {
+    @Test
+    public void testUnavailablePlaylistsAreMarkedAsUnavailable() throws Exception {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                                                                          .clickPlaylistsPreview()
                                                                          .scrollToAndClickPlaylistWithTitle(
@@ -141,7 +149,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat("Playlist should be unavailable ", collectionsDownloadElement.isUnavailable());
     }
 
-    public void testPlaylistsWithAvailableTracksAreNotMarkedAsUnavailable() {
+    @Test
+    public void testPlaylistsWithAvailableTracksAreNotMarkedAsUnavailable() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview()
@@ -158,7 +167,8 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat("Playlist should not be unavailable ", !collectionsDownloadElement.isUnavailable());
     }
 
-    public void testPlaylistIsRequestedWhenNetworkIsOff() {
+    @Test
+    public void testPlaylistIsRequestedWhenNetworkIsOff() throws Exception {
         PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
         playlistsScreen.scrollToPlaylistWithTitle(OFFLINE_PLAYLIST);
         connectionHelper.setWifiConnected(false);

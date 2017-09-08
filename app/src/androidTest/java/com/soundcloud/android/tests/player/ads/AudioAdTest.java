@@ -6,6 +6,10 @@ import static com.soundcloud.android.framework.matcher.player.IsExpanded.expande
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.player.IsSkipAllowed.SkipAllowed;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -14,6 +18,7 @@ import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
+import org.junit.Test;
 
 import android.net.Uri;
 
@@ -25,9 +30,10 @@ public class AudioAdTest extends AdBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+        return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
+    @Test
     public void testQuartileEvents() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -37,7 +43,8 @@ public class AudioAdTest extends AdBaseTest {
         mrLocalLocal.verify(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
-    public void testSkipIsNotAllowedOnAd() {
+    @Test
+    public void testSkipIsNotAllowedOnAd() throws Exception {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
 
@@ -48,7 +55,8 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
-    public void testTappingFullBleedAdArtworkTwiceResumesPlayingAd() {
+    @Test
+    public void testTappingFullBleedAdArtworkTwiceResumesPlayingAd() throws Exception {
         swipeToAd();
         if (playerElement.isFullbleedAd()) {
             playerElement.waitForPlayState();
@@ -66,7 +74,8 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(SkipAllowed()));
     }
 
-    public void testSkipAdShouldStartTheMonetizableTrack() {
+    @Test
+    public void testSkipAdShouldStartTheMonetizableTrack() throws Exception {
         swipeToAd();
         playerElement
                 .waitForAdToBeSkippable()
@@ -76,7 +85,8 @@ public class AudioAdTest extends AdBaseTest {
         assertFalse(playerElement.isAdPageVisible());
     }
 
-    public void testDoesNotOpenTrackWhileAdIsPlaying() {
+    @Test
+    public void testDoesNotOpenTrackWhileAdIsPlaying() throws Exception {
         swipeToAd();
         playerElement.pressBackToCollapse();
         waiter.waitForPlaybackToBePlaying();
@@ -88,7 +98,8 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement.isFooterAdTextVisible(), is(true));
     }
 
-    public void testShowWhyAdsDialogWhenClickingWhyAds() {
+    @Test
+    public void testShowWhyAdsDialogWhenClickingWhyAds() throws Exception {
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAdsForUpsell();
         assertThat(dialog, is(visible()));
@@ -97,13 +108,15 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(dialog, is(not(visible())));
     }
 
-    public void testCustomCTAButtonText() {
+    @Test
+    public void testCustomCTAButtonText() throws Exception {
         swipeToAd();
 
         assertEquals(playerElement.getAdCTAButtonText(), "TRY FREE FOR 30 DAYS");
     }
 
-    public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
+    @Test
+    public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() throws Exception {
         playerElement
                 .pressBackToCollapse()
                 .waitForExpandedPlayer();

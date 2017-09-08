@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests.discovery;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
+import static com.soundcloud.android.properties.Flag.RECOMMENDED_PLAYLISTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +14,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.discovery.PlaylistResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
 
@@ -22,14 +26,15 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.RECOMMENDED_PLAYLISTS);
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -37,13 +42,14 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.RECOMMENDED_PLAYLISTS);
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(RECOMMENDED_PLAYLISTS);
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
-    public void testPlaylistDiscoveryTags() {
+    @Test
+    public void testPlaylistDiscoveryTags() throws Exception {
         String tagTitle = discoveryScreen.getTagTitle(5);
         PlaylistResultsScreen resultsScreen = discoveryScreen.clickOnTag(5);
 

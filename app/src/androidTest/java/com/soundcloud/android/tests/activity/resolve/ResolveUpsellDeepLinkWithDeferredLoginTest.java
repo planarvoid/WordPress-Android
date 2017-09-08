@@ -1,7 +1,12 @@
 package com.soundcloud.android.tests.activity.resolve;
 
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.error_toast_user_not_logged_in;
 import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.UPGRADE_URI;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -11,6 +16,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.TestConsts;
+import org.junit.Test;
 
 import android.net.Uri;
 
@@ -19,14 +25,14 @@ public class ResolveUpsellDeepLinkWithDeferredLoginTest extends ResolveBaseTest 
     private HomeScreen homeScreen;
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         homeScreen = new HomeScreen(solo);
     }
 
     @Override
     protected Uri getUri() {
-        return TestConsts.UPGRADE_URI;
+        return UPGRADE_URI;
     }
 
     @Override
@@ -36,8 +42,8 @@ public class ResolveUpsellDeepLinkWithDeferredLoginTest extends ResolveBaseTest 
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -45,8 +51,9 @@ public class ResolveUpsellDeepLinkWithDeferredLoginTest extends ResolveBaseTest 
         toastObserver.observe();
     }
 
-    public void testResolveUpsellTracksRefParam() {
-        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_toast_user_not_logged_in)));
+    @Test
+    public void testResolveUpsellTracksRefParam() throws Exception {
+        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(error_toast_user_not_logged_in)));
 
         UpgradeScreen upgradeScreen = homeScreen
                 .clickLogInButton()

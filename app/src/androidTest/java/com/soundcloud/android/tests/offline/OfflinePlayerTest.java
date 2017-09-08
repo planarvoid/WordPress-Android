@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.offline;
 
+import static com.soundcloud.android.R.string.playback_error;
+import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloading.downloadingState;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -7,7 +9,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -15,6 +16,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.Context;
 
@@ -30,7 +32,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.offlineUser;
+        return offlineUser;
     }
 
     @Override
@@ -44,6 +46,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         likesScreen = mainNavHelper.goToTrackLikes();
     }
 
+    @Test
     public void testPlayOfflineTracksOnlyWhenContentDownloaded() throws Exception {
         likesScreen
                 .toggleOfflineEnabled()
@@ -65,12 +68,14 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
     }
 
     // Can be enabled again once the player itself makes use of the {@link ConnectionHelper}, otherwise it will not recognize that it should be offline
+    @org.junit.Ignore
     @Ignore
+    @Test
     public void testShowErrorWhenContentNotDownloaded() throws Exception {
         connectionHelper.setNetworkConnected(false);
         final VisualPlayerElement visualPlayerElement = likesScreen.clickTrack(3);
 
-        final String expectedError = solo.getString(R.string.playback_error);
+        final String expectedError = solo.getString(playback_error);
         assertThat(visualPlayerElement.error(), is(equalTo(expectedError)));
     }
 

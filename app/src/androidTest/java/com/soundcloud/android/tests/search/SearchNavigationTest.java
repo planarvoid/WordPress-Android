@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.search;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.discovery.SearchResultsTest.QUERY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -14,6 +16,7 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.discovery.SearchResultsTest;
+import org.junit.Test;
 
 public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
@@ -27,7 +30,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
     @Override
@@ -37,6 +40,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
     }
 
     @Ignore
+    @Test
     public void testVerifySearchNavigation() throws Exception {
         assertGoBackFromSearchResultsReturnsToDiscoveryScreen();
         assertClickSearchSuggestionUser();
@@ -46,7 +50,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     private void assertGoBackFromSearchResultsReturnsToDiscoveryScreen() {
         final SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
-                                                                 .doSearch(SearchResultsTest.QUERY);
+                                                                 .doSearch(QUERY);
         final OldDiscoveryScreen discoveryScreen = resultsScreen.goBack(OldDiscoveryScreen::new);
 
         assertThat("Tags screen should be visible", discoveryScreen, is(visible()));

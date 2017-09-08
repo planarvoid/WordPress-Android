@@ -1,6 +1,11 @@
 package com.soundcloud.android.tests.search;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
+import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
+import static com.soundcloud.android.tests.discovery.SearchResultsTest.QUERY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -11,6 +16,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.discovery.SearchResultsTest;
+import org.junit.Test;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
 
@@ -19,20 +25,21 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
+    protected void beforeActivityLaunched() {
+        create(getInstrumentation().getTargetContext()).disable(SEARCH_TOP_RESULTS);
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
-    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+    @Test
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() throws Exception {
         mainNavHelper
                 .goToOldDiscovery()
                 .clickSearch()
-                .doSearch(SearchResultsTest.QUERY)
+                .doSearch(QUERY)
                 .goToTracksTab()
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();

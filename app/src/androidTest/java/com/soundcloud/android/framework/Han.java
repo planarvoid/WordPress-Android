@@ -20,6 +20,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.support.design.widget.AppBarLayout;
+import android.support.test.InstrumentationRegistry;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -36,6 +37,7 @@ import java.util.List;
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
+@Deprecated
 public class Han {
     private static final int MAX_SCROLL_ATTEMPTS = 10;
 
@@ -161,11 +163,11 @@ public class Han {
     }
 
     public String getString(int resId, Object... args) {
-        return solo.getCurrentActivity().getString(resId, args);
+        return InstrumentationRegistry.getTargetContext().getString(resId, args);
     }
 
     public String getQuantityString(int resId, int quantity, Object... args) {
-        return solo.getCurrentActivity().getResources().getQuantityString(resId, quantity, args);
+        return  InstrumentationRegistry.getTargetContext().getResources().getQuantityString(resId, quantity, args);
     }
 
     public void swipeLeft() {
@@ -178,7 +180,7 @@ public class Han {
 
     public void scrollDown() {
         Point deviceSize = new Point();
-        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+        visibleActivity.getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
         final int screenHeight = deviceSize.y;
         final int fromY = (int) (screenHeight * 0.50);
@@ -189,7 +191,7 @@ public class Han {
 
     public void scrollDownOneQuarter() {
         Point deviceSize = new Point();
-        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+        visibleActivity.getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
         final int screenHeight = deviceSize.y;
         final int fromY = (int) (screenHeight * 0.25);
@@ -200,7 +202,7 @@ public class Han {
 
     public void swipeDown() {
         Point deviceSize = new Point();
-        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+        visibleActivity.getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
         final int screenWidth = deviceSize.x;
         final int screenHeight = deviceSize.y;
@@ -219,7 +221,7 @@ public class Han {
 
     private void swipeHorizontal(int side, float horizontalPosition, float verticalPosition) {
         Point deviceSize = new Point();
-        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+        visibleActivity.getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
         final int screenWidth = deviceSize.x;
         final int screenHeight = deviceSize.y;
@@ -381,9 +383,9 @@ public class Han {
     }
 
     public boolean isKeyboardShown() {
-        InputMethodManager inputMethodManager = (InputMethodManager) solo.getCurrentActivity()
+        InputMethodManager inputMethodManager = (InputMethodManager) instrumentation.getTargetContext()
                                                                          .getSystemService(Activity.INPUT_METHOD_SERVICE);
-        View focusedView = solo.getCurrentActivity().getCurrentFocus();
+        View focusedView = visibleActivity.getCurrentFocus();
 
         if (focusedView == null) {
             return false;

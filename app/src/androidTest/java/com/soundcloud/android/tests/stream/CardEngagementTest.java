@@ -1,12 +1,19 @@
 package com.soundcloud.android.tests.stream;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.like_toast_overflow_action;
+import static com.soundcloud.android.R.string.reposted_to_followers;
+import static com.soundcloud.android.R.string.unlike_toast_overflow_action;
+import static com.soundcloud.android.R.string.unposted_to_followers;
 import static com.soundcloud.android.framework.TestUser.engagementsUser;
 import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -20,6 +27,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 import android.content.res.Resources;
 
@@ -53,6 +61,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
         return engagementsUser;
     }
 
+    @Test
     public void testStreamItemActions() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -68,7 +77,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
 
     private void assertAddToPlaylist(StreamCardElement track) {
         final AddToPlaylistScreen addToPlaylistScreen = track.clickOverflowButton()
-                .clickAddToPlaylist();
+                                                             .clickAddToPlaylist();
 
         assertThat(addToPlaylistScreen, is(visible()));
     }
@@ -128,11 +137,11 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     private String getRepostToastMessage(boolean reposted) {
-        return solo.getString(reposted ? R.string.unposted_to_followers : R.string.reposted_to_followers);
+        return solo.getString(reposted ? unposted_to_followers : reposted_to_followers);
     }
 
     private String getLikeToastMessage(boolean liked) {
-        return solo.getString(liked ? R.string.unlike_toast_overflow_action : R.string.like_toast_overflow_action);
+        return solo.getString(liked ? unlike_toast_overflow_action : like_toast_overflow_action);
     }
 
     @Override

@@ -10,4 +10,3 @@ task runUnitTests(dependsOn: [':app:runUnitTests',
                               ':modules:lint:memento:plugin:integrationTest']) {
 
 }
-

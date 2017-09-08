@@ -1,18 +1,22 @@
 package com.soundcloud.android.tests.player;
 
+import static android.content.Intent.ACTION_VIEW;
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.HT_CREATOR_PROFILE_URI;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.TestConsts;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import android.content.Intent;
 
@@ -27,21 +31,23 @@ public class UpgradeTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
     public void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.HT_CREATOR_PROFILE_URI));
+        setActivityIntent(new Intent(ACTION_VIEW).setData(HT_CREATOR_PROFILE_URI));
         super.setUp();
 
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+        enableUpsell(getInstrumentation().getTargetContext());
 
         profileScreen = new ProfileScreen(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
+    @Test
     @PaymentTest
+    @Ignore
     public void testUserCanNavigateToSubscribePageFromPlayer() throws Exception {
         mrLocalLocal.startEventTracking();
 

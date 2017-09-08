@@ -1,8 +1,12 @@
 package com.soundcloud.android.tests.search;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.playlistUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
+import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
+import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -13,6 +17,7 @@ import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
     private VisualPlayerElement player;
@@ -22,16 +27,17 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
+    protected void beforeActivityLaunched() {
+        create(getInstrumentation().getTargetContext()).disable(SEARCH_TOP_RESULTS);
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playlistUser;
+        return playlistUser;
     }
 
-    public void testVisualPlayerIsAccessibleFromSearch() {
+    @Test
+    public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
         final VisualPlayerElement player = mainNavHelper
                 .goToStream()
                 .clickFirstTrackCard();
@@ -45,13 +51,15 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player(), is(collapsed()));
     }
 
-    public void testPlayerIsNotVisibleIfNothingIsPlaying() {
+    @Test
+    public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         mainNavHelper.goToOldDiscovery();
 
         assertThat(player(), is(not(visible())));
     }
 
-    public void testTapingATrackFromSearchOpenVisualPlayer() {
+    @Test
+    public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
         final VisualPlayerElement player = mainNavHelper
                 .goToOldDiscovery()
                 .clickSearch()

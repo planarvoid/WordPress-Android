@@ -1,6 +1,16 @@
 package com.soundcloud.android.tests.creators.record;
 
+import static android.Manifest.permission;
+import static android.Manifest.permission.RECORD_AUDIO;
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.rec_title_idle_play;
+import static com.soundcloud.android.R.string.rec_title_idle_rec;
+import static com.soundcloud.android.R.string.rec_title_playing;
+import static com.soundcloud.android.R.string.rec_title_recording;
+import static com.soundcloud.android.framework.TestUser.recordUser;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.utils.PermissionsHelper.grantPermission;
+import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -14,6 +24,7 @@ import com.soundcloud.android.screens.record.RecordMetadataScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.utils.PermissionsHelper;
+import org.junit.Test;
 
 import android.Manifest;
 
@@ -26,11 +37,12 @@ public class RecordTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.recordUser;
+        return recordUser;
     }
 
-    public void testRecordFlow() {
-        PermissionsHelper.grantPermission(Manifest.permission.RECORD_AUDIO);
+    @Test
+    public void testRecordFlow() throws Exception {
+        grantPermission(RECORD_AUDIO);
 
         recordScreen = mainNavHelper.goToRecord();
         recordScreen.deleteRecordingIfPresent(); // start clean
@@ -46,13 +58,13 @@ public class RecordTest extends ActivityTest<MainActivity> {
     }
 
     private void create() {
-        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_rec)));
+        assertThat(recordScreen.getTitle(), is(solo.getString(rec_title_idle_rec)));
         recordScreen.startRecording();
-        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_recording)));
+        assertThat(recordScreen.getTitle(), is(solo.getString(rec_title_recording)));
         assertThat(recordScreen.hasNextButton(), is(false));
 
         recordScreen.stopRecording();
-        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_play)));
+        assertThat(recordScreen.getTitle(), is(solo.getString(rec_title_idle_play)));
         assertThat(recordScreen.hasNextButton(), is(true));
         assertThat(recordScreen.hasRecordedTrack(), is(true));
     }
@@ -99,14 +111,14 @@ public class RecordTest extends ActivityTest<MainActivity> {
     private void play() {
         recordScreen.clickPlayButton();
 
-        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_playing)));
+        assertThat(recordScreen.getTitle(), is(solo.getString(rec_title_playing)));
     }
 
     private void upload() {
         RecordMetadataScreen metadataScreen = recordScreen
                 .clickNext();
 
-        String title = "test-" + System.currentTimeMillis();
+        String title = "test-" + currentTimeMillis();
 
         recordScreen = metadataScreen
                 .setPrivate()

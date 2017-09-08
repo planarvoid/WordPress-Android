@@ -1,14 +1,19 @@
 package com.soundcloud.android.tests.auth.signup;
 
+import static com.soundcloud.android.R.string;
+import static com.soundcloud.android.R.string.authentication_error_age_not_valid;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.auth.SignUpTest;
+import org.junit.Test;
 
 public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
-    public void testDoneButtonEnabledWithValidInput() {
+    @Test
+    public void testDoneButtonEnabledWithValidInput() throws Exception {
         signUpBasicsScreen = homeScreen
                 .clickSignUpButton()
                 .clickByEmailButton();
@@ -33,7 +38,8 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
     }
 
-    public void testDoneButtonNotEnabledWithInvalidInput() {
+    @Test
+    public void testDoneButtonNotEnabledWithInvalidInput() throws Exception {
         startWithValidSignupInput();
 
         // missing email
@@ -51,7 +57,8 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
     }
 
-    public void testToastShownForInvalidBirthYears() {
+    @Test
+    public void testToastShownForInvalidBirthYears() throws Exception {
         startWithValidSignupInput();
 
         // birth year too low
@@ -63,7 +70,7 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
         signUpBasicsScreen.signup();
         assertTrue(waiter.expectToastWithText(toastObserver,
-                                              solo.getString(R.string.authentication_error_age_not_valid)));
+                                              solo.getString(authentication_error_age_not_valid)));
     }
 
     private void startWithValidSignupInput() {

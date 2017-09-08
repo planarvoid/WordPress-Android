@@ -1,10 +1,16 @@
 package com.soundcloud.android.tests.go;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeStub;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.http.Fault.RANDOM_DATA_THEN_CLOSE;
+import static com.soundcloud.android.api.ApiEndpoints.CONFIGURATION;
+import static com.soundcloud.android.framework.TestUser.htCreator;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.forcePendingPlanDowngrade;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -18,6 +24,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivity> {
 
@@ -29,27 +36,28 @@ public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivi
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         screen = new GoOffboardingScreen(solo);
     }
 
     @Override
     protected void addInitialStubMappings() {
-        stubMapping = stubFor(get(urlPathMatching(ApiEndpoints.CONFIGURATION.path()))
-                                      .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
+        stubMapping = stubFor(get(urlPathMatching(CONFIGURATION.path()))
+                                      .willReturn(aResponse().withFault(RANDOM_DATA_THEN_CLOSE)));
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.forcePendingPlanDowngrade(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        forcePendingPlanDowngrade(getInstrumentation().getTargetContext());
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.htCreator;
+        return htCreator;
     }
 
+    @Test
     public void testCanRetryContinueOnNetworkErrors() throws Exception {
         screen.clickContinue();
         // continue button should turn into retry button
@@ -62,6 +70,7 @@ public class GoOffboardingNoNetworkTest extends ActivityTest<GoOffboardingActivi
         assertTrue(streamScreen.isVisible());
     }
 
+    @Test
     public void testCanRetryResubscribeOnNetworkErrors() throws Exception {
         screen.clickResubscribe();
         // resubscribe button should turn into retry button

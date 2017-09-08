@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests.upsell;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -12,6 +15,7 @@ import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class MakeOfflineUpsellTest extends ActivityTest<MainActivity> {
 
@@ -25,15 +29,16 @@ public class MakeOfflineUpsellTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
+    @Test
     public void testLikesUpsellImpressionAndClick() throws Exception {
         TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
@@ -47,6 +52,7 @@ public class MakeOfflineUpsellTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(LIKES_UPSELL_TEST_SCENARIO);
     }
 
+    @Test
     public void testPlaylistPageImpressionAndClick() throws Exception {
         CollectionScreen collectionScreen = mainNavHelper.goToCollections();
 
@@ -62,6 +68,7 @@ public class MakeOfflineUpsellTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(PLAYLIST_PAGE_UPSELL_TEST_SCENARIO);
     }
 
+    @Test
     public void testPlaylistItemUpsellImpressionAndClick() throws Exception {
         PlaylistElement firstPlaylist = mainNavHelper.goToCollections()
                                                      .clickPlaylistsPreview()

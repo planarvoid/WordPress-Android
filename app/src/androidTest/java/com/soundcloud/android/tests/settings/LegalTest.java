@@ -1,10 +1,14 @@
 package com.soundcloud.android.tests.settings;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static junit.framework.Assert.assertTrue;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.settings.CopyrightScreen;
 import com.soundcloud.android.screens.settings.LegalScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class LegalTest extends ActivityTest<MainActivity> {
     private LegalScreen legalScreen;
@@ -15,7 +19,7 @@ public class LegalTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.defaultUser;
+        return defaultUser;
     }
 
     @Override
@@ -24,7 +28,8 @@ public class LegalTest extends ActivityTest<MainActivity> {
         legalScreen = mainNavHelper.goToLegal();
     }
 
-    public void testGoingToCopyright() {
+    @Test
+    public void testGoingToCopyright() throws Exception {
         CopyrightScreen copyrightScreen = legalScreen.clickCopyrightLink();
         assertTrue(copyrightScreen.isVisible());
     }

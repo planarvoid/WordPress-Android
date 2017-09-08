@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.activities;
 
+import static com.soundcloud.android.framework.TestUser.testUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -13,6 +14,7 @@ import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class ActivitiesTest extends ActivityTest<MainActivity> {
 
@@ -22,7 +24,7 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.testUser;
+        return testUser;
     }
 
     @Override
@@ -31,7 +33,8 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
         waiter = new Waiter(solo);
     }
 
-    public void testActivities() {
+    @Test
+    public void testActivities() throws Exception {
         ActivitiesScreen activitiesScreenFromMainNav = mainNavHelper.goToActivities();
         ActivitiesScreen activitiesScreenFromFollowersProfile = assertNewFollowerGoesToProfile(activitiesScreenFromMainNav);
         ActivitiesScreen activitiesScreenFromLikesProfile = assertLikeGoesToProfile(activitiesScreenFromFollowersProfile);

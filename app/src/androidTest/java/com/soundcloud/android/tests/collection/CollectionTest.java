@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.collection;
 
+import static com.soundcloud.android.framework.TestUser.collectionUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
@@ -13,6 +14,7 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 
 public class CollectionTest extends ActivityTest<MainActivity> {
 
@@ -22,10 +24,11 @@ public class CollectionTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.collectionUser;
+        return collectionUser;
     }
 
-    public void testCollection() {
+    @Test
+    public void testCollection() throws Exception {
         CollectionScreen collectionScreenFromMainNav = mainNavHelper.goToCollections();
         CollectionScreen collectionScreenFromLikesPage = assertGoingToTrackLikesScreen(collectionScreenFromMainNav);
         CollectionScreen collectionScreenFromPlaylistsPage = assertGoingToPlaylistsPage(collectionScreenFromLikesPage);

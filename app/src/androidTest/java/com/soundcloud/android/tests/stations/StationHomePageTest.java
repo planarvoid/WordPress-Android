@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.stations;
 
+import static com.soundcloud.android.framework.TestUser.stationsUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +13,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class StationHomePageTest extends ActivityTest<LauncherActivity> {
 
@@ -24,11 +27,11 @@ public class StationHomePageTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.stationsUser;
+        return stationsUser;
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         playlistDetailsScreen = mainNavHelper.goToCollections()
@@ -38,6 +41,7 @@ public class StationHomePageTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
+    @Test
     public void testOpenStationFromTrackItem() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -56,7 +60,8 @@ public class StationHomePageTest extends ActivityTest<LauncherActivity> {
         mrLocalLocal.verify(START_STATION_FROM_TRACK_ITEM);
     }
 
-    public void testOpenStationFromPlayer() {
+    @Test
+    public void testOpenStationFromPlayer() throws Exception {
         VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
         final String originalTitle = player.getTrackTitle();
 

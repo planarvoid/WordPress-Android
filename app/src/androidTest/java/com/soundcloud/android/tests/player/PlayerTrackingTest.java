@@ -1,10 +1,13 @@
 package com.soundcloud.android.tests.player;
 
+import static com.soundcloud.android.framework.TestUser.playerUser;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayerTrackingTest extends ActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_PAUSE_PLAY_FROM_MINIPLAYER = "specs/player-mini-play-pause.spec";
@@ -23,7 +26,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playerUser;
+        return playerUser;
     }
 
     @Override
@@ -42,6 +45,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         return playerElement;
     }
 
+    @Test
     public void testClickingATrackIsTrackedAsAutoExpansionOfThePlayerAndManualCollapseWhenClickingTheCloseButton() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -54,6 +58,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_EXPAND_COLLAPSE);
     }
 
+    @Test
     public void testTrackMiniPlayerPauseAndPlay() throws Exception {
         final VisualPlayerElement player = setUpMiniplayer();
 
@@ -65,6 +70,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_PAUSE_PLAY_FROM_MINIPLAYER);
     }
 
+    @Test
     public void testTrackPlayerPauseAndPlay() throws Exception {
         final VisualPlayerElement expandedPlayer = streamScreen.clickFirstRepostedTrack()
                                                                .waitForExpandedPlayer();
@@ -77,6 +83,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_PAUSE_PLAY_FROM_FULLPLAYER);
     }
 
+    @Test
     public void testClickingMiniplayerExpandsItAndTriggerIsTrackedAsManual() throws Exception {
         setUpMiniplayer();
         mrLocalLocal.startEventTracking();
@@ -86,6 +93,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_MANUAL_EXPAND);
     }
 
+    @Test
     public void testSwipingMiniplayerAndTriggerIsTrackedAsManual() throws Exception {
         setUpMiniplayer();
         mrLocalLocal.startEventTracking();
@@ -96,6 +104,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_MANUAL_SWIPE);
     }
 
+    @Test
     public void testTrackPlayerScrub() throws Exception {
         final VisualPlayerElement player = streamScreen.clickFirstNonPromotedLongTrack()
                                                        .waitForExpandedPlayer();
@@ -108,6 +117,7 @@ public class PlayerTrackingTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(TEST_SCENARIO_SCRUB_FORWARD_AND_BACKWARD);
     }
 
+    @Test
     public void testTrackClickingArtistName() throws Exception {
         final VisualPlayerElement player = streamScreen.clickFirstRepostedTrack()
                                                        .waitForExpandedPlayer();

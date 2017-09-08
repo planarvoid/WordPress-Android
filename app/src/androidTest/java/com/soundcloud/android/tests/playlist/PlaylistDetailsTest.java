@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.soundcloud.android.framework.TestUser.playlistUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,6 +14,7 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
     private static final String TEST_PLAYLIST_SHUFFLE = "specs/playlist-shuffle-events.spec";
@@ -25,7 +27,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playlistUser;
+        return playlistUser;
     }
 
     @Override
@@ -40,7 +42,8 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         playlistsScreen = collectionScreen.clickPlaylistsPreview();
     }
 
-    public void testHeaderPlayClickShouldOpenPlayer() {
+    @Test
+    public void testHeaderPlayClickShouldOpenPlayer() throws Exception {
         VisualPlayerElement player = new VisualPlayerElement(solo);
         assertThat(player, is(not(visible())));
         final VisualPlayerElement visualPlayer = playlistsScreen.clickOnFirstPlaylist()
@@ -49,6 +52,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         assertThat(visualPlayer, is(expanded()));
     }
 
+    @Test
     public void testShufflePlaylist() throws Exception {
         mrLocalLocal.startEventTracking();
 

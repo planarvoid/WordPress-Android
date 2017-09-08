@@ -1,6 +1,9 @@
 package com.soundcloud.android.tests.upsell;
 
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.tests.TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -12,6 +15,7 @@ import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsUpsellScreen;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.player.ads.AdBaseTest;
+import org.junit.Test;
 
 import android.net.Uri;
 
@@ -23,19 +27,20 @@ public class WhyAdsUpsellTest extends AdBaseTest {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
     @Override
     protected Uri getUri() {
-        return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+        return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
+    @Test
     public void testWhyAdsUpsellImpressionAndClick() throws Exception {
         swipeToAd();
         waiter.waitTwoSeconds();

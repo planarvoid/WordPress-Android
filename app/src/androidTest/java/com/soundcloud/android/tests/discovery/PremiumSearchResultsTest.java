@@ -1,7 +1,12 @@
 package com.soundcloud.android.tests.discovery;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
+import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -16,6 +21,7 @@ import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
@@ -29,13 +35,13 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.upsellUser;
+        return upsellUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
-        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+    protected void beforeActivityLaunched() {
+        create(getInstrumentation().getTargetContext()).disable(SEARCH_TOP_RESULTS);
+        enableUpsell(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -47,29 +53,35 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
                 .doSearch(PREMIUM_SEARCH_QUERY);
     }
 
-    public void testSearchHighTierBucketIsOnScreen() {
+    @Test
+    public void testSearchHighTierBucketIsOnScreen() throws Exception {
         assertThat("Search premium content should be on screen", searchResultsScreen.premiumContentIsOnScreen());
     }
 
-    public void testClickOnPremiumTrackPlaysIt() {
+    @Test
+    public void testClickOnPremiumTrackPlaysIt() throws Exception {
         final VisualPlayerElement playerElement = searchResultsScreen.clickOnPremiumContent();
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
+    @org.junit.Ignore
     @Ignore
     /** Test cannot find Premium Content, even though it is displayed on screen.
      *  JIRA Ticket: https://soundcloud.atlassian.net/browse/DROID-1304 */
+    @Test
     public void testClickOnPremiumBucketHelpOpensUpgradeScreen() {
         final UpgradeScreen upgradeScreen = searchResultsScreen.clickOnPremiumContentHelp();
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 
-    public void testClickOnPremiumContentBucketOpenSearchPremiumResults() {
+    @Test
+    public void testClickOnPremiumContentBucketOpenSearchPremiumResults() throws Exception {
         final SearchPremiumResultsScreen resultsScreen = searchResultsScreen.clickOnViewPremiumContent();
         assertThat("Search premium results screen should be visible", resultsScreen, is(visible()));
     }
 
-    public void testPlaysPremiumTrackFromSearchPremiumResultsScreen() {
+    @Test
+    public void testPlaysPremiumTrackFromSearchPremiumResultsScreen() throws Exception {
         final VisualPlayerElement playerElement =
                 searchResultsScreen
                         .clickOnViewPremiumContent()
@@ -78,7 +90,8 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
-    public void testClickOnUpsellOpensUpgradeScreen() {
+    @Test
+    public void testClickOnUpsellOpensUpgradeScreen() throws Exception {
         final UpgradeScreen upgradeScreen =
                 searchResultsScreen
                         .clickOnViewPremiumContent()

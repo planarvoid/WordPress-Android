@@ -17,6 +17,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayerEngagementTest extends ActivityTest<LauncherActivity> {
     private static final String REPOST_TRACK_PLAYING_FROM_STREAM = "specs/stream_engagements_repost_from_player.spec";
@@ -43,6 +44,7 @@ public class PlayerEngagementTest extends ActivityTest<LauncherActivity> {
     /** This test is flaky for many reasons. RecyclerView issues, the overflow menu in the Player cannot be clicked
      * correctly sometimes. Ignoring this as part of my build sheriff role.
      * JIRA: https://soundcloud.atlassian.net/browse/LISTEN-276 */
+    @Test
     public void testPlayAndPauseTrackFromStream() throws Exception {
         mrLocalLocal.startEventTracking();
 

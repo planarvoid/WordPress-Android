@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.player;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;

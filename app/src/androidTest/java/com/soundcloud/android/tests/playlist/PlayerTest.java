@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.soundcloud.android.framework.TestUser.playlistUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
@@ -13,6 +14,7 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
     private StreamScreen streamScreen;
@@ -23,7 +25,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.playlistUser;
+        return playlistUser;
     }
 
     @Override
@@ -32,6 +34,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
+    @Test
     public void testVisualPlayerIsAccessible() throws Exception {
         final VisualPlayerElement playerElement = streamScreen.clickFirstTrackCard();
         assertThat(playerElement, is(expanded()));
@@ -42,6 +45,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(playerElement, is(collapsed()));
     }
 
+    @Test
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         openPlaylist();
 

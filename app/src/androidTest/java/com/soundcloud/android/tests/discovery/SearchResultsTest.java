@@ -1,6 +1,9 @@
 package com.soundcloud.android.tests.discovery;
 
+import static com.soundcloud.android.framework.TestUser.searchUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
+import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -18,6 +21,7 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.junit.Test;
 
 public class SearchResultsTest extends ActivityTest<MainActivity> {
     private static final String ALBUMS_IN_SEARCH = "specs/albums_in_search2.spec";
@@ -31,19 +35,19 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.searchUser;
+        return searchUser;
     }
 
     @Override
-    protected void beforeStartActivity() {
-        getFeatureFlags().disable(Flag.SEARCH_TOP_RESULTS);
-        getFeatureFlags().disable(Flag.DISCOVER_BACKEND);
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(SEARCH_TOP_RESULTS);
+        getFeatureFlags().disable(DISCOVER_BACKEND);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        getFeatureFlags().reset(Flag.SEARCH_TOP_RESULTS);
-        getFeatureFlags().reset(Flag.DISCOVER_BACKEND);
+    public void tearDown() throws Exception {
+        getFeatureFlags().reset(SEARCH_TOP_RESULTS);
+        getFeatureFlags().reset(DISCOVER_BACKEND);
         super.tearDown();
     }
 
@@ -53,14 +57,16 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.goToOldDiscovery();
     }
 
-    public void testSubmittingSearchQueryOpensSearchResults() {
+    @Test
+    public void testSubmittingSearchQueryOpensSearchResults() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
 
         assertThat("Search results screen should be visible", resultsScreen, is(visible()));
         assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
     }
 
-    public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
+    @Test
+    public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("track");
         VisualPlayerElement playerElement = resultsScreen.findAndClickFirstTrackItem().pressBackToCollapse();
 
@@ -68,13 +74,15 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Search results screen should be visible", resultsScreen, is(visible()));
     }
 
-    public void testTappingTrackOnAllTabOpensPlayer() {
+    @Test
+    public void testTappingTrackOnAllTabOpensPlayer() throws Exception {
         VisualPlayerElement playerScreen = discoveryScreen.clickSearch().doSearch("track").findAndClickFirstTrackItem();
 
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
-    public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
+    @Test
+    public void testTappingPlaylistOnAllTabOpensPlaylistDetails() throws Exception {
         PlaylistDetailsScreen playlistScreen = discoveryScreen.clickSearch()
                                                               .doSearch("track playlist")
                                                               .findAndClickFirstPlaylistItem();
@@ -82,13 +90,15 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Playlist screen should be visible", playlistScreen, is(visible()));
     }
 
-    public void testTappingUserOnAllTabOpensProfile() {
+    @Test
+    public void testTappingUserOnAllTabOpensProfile() throws Exception {
         ProfileScreen profileScreen = discoveryScreen.clickSearch().doSearch("emptyuser").findAndClickFirstUserItem();
 
         assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
-    public void testTappingUserOnPeopleTabOpensProfile() {
+    @Test
+    public void testTappingUserOnPeopleTabOpensProfile() throws Exception {
         ProfileScreen profileScreen = discoveryScreen.clickSearch()
                                                      .doSearch("emptyuser")
                                                      .goToPeopleTab()
@@ -97,7 +107,8 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
-    public void testTappingTrackOnTracksTabOpensPlayer() {
+    @Test
+    public void testTappingTrackOnTracksTabOpensPlayer() throws Exception {
         VisualPlayerElement playerScreen = discoveryScreen.clickSearch()
                                                           .doSearch(QUERY)
                                                           .goToTracksTab()
@@ -106,7 +117,8 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
-    public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
+    @Test
+    public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() throws Exception {
         PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
                 .clickSearch()
                 .doSearch(QUERY)
@@ -119,6 +131,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
                    equalTo("Playlist"));
     }
 
+    @Test
     public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() throws Exception {
         mrLocalLocal.startEventTracking();
 
@@ -133,7 +146,8 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         mrLocalLocal.verify(ALBUMS_IN_SEARCH);
     }
 
-    public void testOrderOfDisplayedTabsWithAlbums() {
+    @Test
+    public void testOrderOfDisplayedTabsWithAlbums() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
         assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
 
@@ -150,7 +164,8 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Current tab should be PLAYLISTS", resultsScreen.currentTabTitle(), is("PLAYLISTS"));
     }
 
-    public void testAllResultsLoadsNextPage() {
+    @Test
+    public void testAllResultsLoadsNextPage() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
         int initialItemCount = resultsScreen.getResultItemCount();
         resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
@@ -158,12 +173,14 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat(initialItemCount, is(lessThan(resultsScreen.getResultItemCount())));
     }
 
-    public void testShowSearchSuggestions() {
+    @Test
+    public void testShowSearchSuggestions() throws Exception {
         final boolean hasSearchResults = discoveryScreen.clickSearch().setSearchQuery("hello").hasSearchResults();
         assertThat("Should has suggestions", hasSearchResults, is(true));
     }
 
-    public void testDismissingSearchClearsUpSearchResults() {
+    @Test
+    public void testDismissingSearchClearsUpSearchResults() throws Exception {
         SearchScreen searchScreen = discoveryScreen.clickSearch();
         searchScreen.setSearchQuery(QUERY).dismissSearch();
 
