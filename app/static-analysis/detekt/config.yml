@@ -52,7 +52,7 @@ potential-bugs:
     active: true
   UnsafeCast:
     active: true
-  UselessIncrement:
+  UselessPostfixExpression:
     active: true
 
 performance:
