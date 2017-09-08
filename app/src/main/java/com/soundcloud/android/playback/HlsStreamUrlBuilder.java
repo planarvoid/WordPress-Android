@@ -16,9 +16,6 @@ import javax.inject.Inject;
 public class HlsStreamUrlBuilder {
 
     private static final String PARAM_CAN_SNIP = "can_snip";
-    private static final String QUERY_PARAM_KEY_FORMAT = "format";
-    private static final String HLS_OPUS_64_FORMAT = "hls_opus_64_url";
-    private static final String HLS_MP3_128_FORMAT = "hls_mp3_128_url";
 
     private final AccountOperations accountOperations;
     private final SecureFileStorage secureFileStorage;
