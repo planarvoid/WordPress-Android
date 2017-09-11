@@ -27,6 +27,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -61,6 +62,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private KruxSegmentProvider kruxSegmentProvider;
     @Mock private ApiClientRx apiClientRx;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private FeatureFlags featureFlags;
 
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
     private TestDateProvider dateProvider = new TestDateProvider(CURRENT_DATE);
@@ -75,7 +77,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                           Schedulers.immediate(),
                                           eventBus,
                                           InjectionSupport.lazyOf(kruxSegmentProvider),
-                                          dateProvider);
+                                          dateProvider,
+                                          featureFlags);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         fullAdsForStream = AdFixtures.fullAdsForStream();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
@@ -107,7 +110,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPlayerAd(TRACK_URN, Optional.of("123,321"));
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.of("123,321"));
         adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -121,7 +124,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPlayerAd(TRACK_URN, Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.absent());
         adsOperations.ads(requestData, true, true).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -136,7 +139,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.of("123,321"));
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.of("123,321"));
         adsOperations.inlayAds(requestData).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -151,7 +154,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
         adsOperations.inlayAds(requestData).subscribe();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -165,7 +168,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
         final List<AdData> actual = adsOperations.inlayAds(requestData).toBlocking().first();
         final List<AdData> expected = fullAdsForStream.getAds(dateProvider);
 
@@ -177,7 +180,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.INLAY_ADS.path())), eq(ApiAdsForStream.class)))
                 .thenReturn(Observable.just(fullAdsForStream));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
         adsOperations.inlayAds(requestData).subscribe();
 
         final AdRequestEvent trackingEvent = (AdRequestEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -190,7 +193,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        final AdRequestData requestData = AdRequestData.Companion.forPlayerAd(TRACK_URN, Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPlayerAd(TRACK_URN, Optional.absent());
         assertThat(adsOperations.ads(requestData, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
@@ -510,7 +513,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final ApiPrestitialAd prestitial = apiVisualPrestitialAd();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                         .thenReturn(Observable.just(prestitial));
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
 
         final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
         adsOperations.prestitialAd(requestData).subscribe(subscriber);
@@ -526,7 +529,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final ApiPrestitialAd prestitial = AdFixtures.apiSponsoredSessionAd();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                 .thenReturn(Observable.just(prestitial));
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
 
         final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
         adsOperations.prestitialAd(requestData).subscribe(subscriber);
@@ -542,7 +545,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final ApiPrestitialAd prestitial = new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiAudioAd())));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                 .thenReturn(Observable.just(prestitial));
-        final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
 
         final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
         adsOperations.prestitialAd(requestData).subscribe(subscriber);

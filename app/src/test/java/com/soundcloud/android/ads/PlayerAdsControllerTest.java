@@ -12,13 +12,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
-import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -31,7 +29,6 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -44,8 +41,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Maybe;
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.TestScheduler;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
@@ -55,6 +50,8 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.Schedulers;
+import rx.schedulers.TestScheduler;
 import rx.subjects.PublishSubject;
 
 import android.support.v7.app.AppCompatActivity;
@@ -76,17 +73,18 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
     private final Track nextNonMonetizableTrack = ModelFixtures.trackWithUrnAndMonetizable(nextTrackUrn, false);
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private AccountOperations accountOperations;
     @Mock private AdsOperations adsOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private TrackRepository trackRepository;
     @Mock private VideoSourceProvider videoSourceProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
+    @Mock private VisualAdImpressionOperations visualAdImpressionOperations;
+    @Mock private AdOverlayImpressionOperations adOverlayImpressionOperations;
 
     @Captor private ArgumentCaptor<AdRequestData> requestDataCaptor;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
-    private TestScheduler scheduler = new TestScheduler();
+    private TestScheduler scheduler = Schedulers.test();
     private ApiAdsForTrack apiAdsForTrack;
     private PlayerAdsController adsController;
 
@@ -98,20 +96,21 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(nextPlayQueueItem);
         when(playQueueManager.isCurrentItem(currentPlayQueueItem)).thenReturn(true);
         when(playQueueManager.isNextItem(nextPlayQueueItem)).thenReturn(true);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.absent()));
         when(featureOperations.shouldRequestAds()).thenReturn(true);
 
         adsController = new PlayerAdsController(eventBus,
-                                                accountOperations,
                                                 adsOperations,
                                                 featureOperations,
                                                 videoSourceProvider,
                                                 playQueueManager,
                                                 trackRepository,
                                                 castConnectionHelper,
-                                                (Scheduler) scheduler);
-        PlayerAdsControllerProxy playerAdsControllerProxy = new PlayerAdsControllerProxy(eventBus, () -> adsController);
+                                                scheduler);
+        PlayerAdsControllerProxy playerAdsControllerProxy = new PlayerAdsControllerProxy(eventBus,
+                                                                                         () -> adsController,
+                                                                                         () -> visualAdImpressionOperations,
+                                                                                         () -> adOverlayImpressionOperations);
         playerAdsControllerProxy.subscribe();
         apiAdsForTrack = AdFixtures.fullAdsForTrack();
     }
@@ -135,8 +134,8 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
 
         verify(adsOperations).ads(requestDataCaptor.capture(), anyBoolean(), anyBoolean());
         final AdRequestData requestData = requestDataCaptor.getValue();
-        assertThat(requestData.getMonetizableTrackUrn()).isEqualTo(nextTrackUrn);
-        assertThat(requestData.getKruxSegments()).isEqualTo("123,321");
+        assertThat(requestData.getMonetizableTrackUrn()).isEqualTo(Optional.of(nextTrackUrn));
+        assertThat(requestData.getKruxSegments()).isEqualTo(Optional.of("123,321"));
     }
 
     @Test
@@ -553,14 +552,13 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
 
         // cheap override of stale time to avoid a horrible sequence of exposing internal implementation
         adsController = new PlayerAdsController(eventBus,
-                                                accountOperations,
                                                 adsOperations,
                                                 featureOperations,
                                                 videoSourceProvider,
                                                 playQueueManager,
                                                 trackRepository,
                                                 castConnectionHelper,
-                                                (Scheduler) scheduler,
+                                                scheduler,
                                                 -1L);
 
 
@@ -783,74 +781,6 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onlyTrackAdOverlayEventAfterReset() throws Exception {
-        VisualAdData adData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
-        AdOverlayImpressionState state = new AdOverlayImpressionState(true, true, true, Urn.forTrack(123L), adData, null);
-
-        // Initial event - should only be tracked once
-        adsController.onAdOverlayImpressionState(state);
-        adsController.onAdOverlayImpressionState(state);
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-
-        // Show event should not reset
-        adsController.onAdOverlayEvent(AdOverlayEvent.shown(Urn.forTrack(123L), null, null));
-        adsController.onAdOverlayImpressionState(state);
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-
-        // Hidden event resets = track again
-        adsController.onAdOverlayEvent(AdOverlayEvent.hidden());
-        adsController.onAdOverlayImpressionState(state);
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
-    }
-
-    @Test
-    public void invalidAdOverlayStateDoesntTriggerTrackingEvent() throws Exception {
-        AdOverlayImpressionState invalidState = new AdOverlayImpressionState(true, true, false, Urn.forTrack(123L), null, null);
-
-        adsController.onAdOverlayImpressionState(invalidState);
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(0);
-    }
-
-    @Test
-    public void invalidAdImpressionStateDoesntTriggerTrackingEvent() throws Exception {
-        VisualAdData adData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
-        VisualAdImpressionState state = new VisualAdImpressionState(adData, false, false);
-
-        adsController.onVisualAdImpressionState(state);
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(0);
-    }
-
-    @Test
-    public void onlyTrackAdImpressionEventAfterReset() throws Exception {
-        TrackSourceInfo trackSourceInfo = mock(TrackSourceInfo.class);
-        when(trackSourceInfo.getOriginScreen()).thenReturn("screen");
-        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
-        AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        VisualAdImpressionState state = new VisualAdImpressionState(adData, true, true);
-
-        // Initial event - should only be tracked once
-        adsController.onVisualAdImpressionState(state);
-        adsController.onVisualAdImpressionState(state);
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-
-        // Show event should not reset for non-audio ads
-        PlayQueueItem nonAdPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
-        CurrentPlayQueueItemEvent playQueueItemEvent = CurrentPlayQueueItemEvent.fromPositionChanged(nonAdPlayQueueItem, Urn.NOT_SET, 0);
-        adsController.onCurrentPlayQueueItem(playQueueItemEvent);
-        adsController.onVisualAdImpressionState(state);
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-
-        // Hidden event resets = track again
-        adsController.unlockVisualAdImpression();
-        adsController.onVisualAdImpressionState(state);
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
-    }
-
-    @Test
     public void clearingAdsInControllerShouldForwardCallToAdsOperation() {
         adsController.clearAds();
 
@@ -863,8 +793,9 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
     private void insertFullAdsForNextTrack() {
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Maybe.just(nextMonetizableTrack));
-        when(adsOperations.ads(argThat(new AdRequestDataMatcher(nextTrackUrn)), anyBoolean(), anyBoolean()))
-                .thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(argThat(new AdRequestDataMatcher(nextTrackUrn)),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
 
         final PlayQueueItem adItem = TestPlayQueueItem.createAudioAd(AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -882,7 +813,7 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
         @Override
         public boolean matches(Object argument) {
             return argument instanceof AdRequestData
-                    && ((AdRequestData) argument).getMonetizableTrackUrn().equals(trackUrn);
+                    && ((AdRequestData) argument).getMonetizableTrackUrn().equals(Optional.of(trackUrn));
         }
 
         @Override
