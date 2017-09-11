@@ -249,7 +249,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                     : R.drawable.ic_player_like;
 
         Boolean shouldDisplayLikesCount = (Boolean) likeToggle.getTag(R.id.should_display_likes_count);
-        int countToDisplay = shouldDisplayLikesCount ? likeCount : 0;
+        int countToDisplay = shouldDisplayLikesCount == null || shouldDisplayLikesCount ? likeCount : 0; //display by default
         likeButtonPresenter.setLikeCount(likeToggle, countToDisplay, drawableLiked, drawableUnliked);
     }
 
