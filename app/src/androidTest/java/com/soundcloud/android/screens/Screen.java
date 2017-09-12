@@ -47,7 +47,7 @@ public abstract class Screen {
     }
 
     public ViewElement errorView() {
-        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.ak_error_view));
+        return testDriver.scrollToItem(With.id(com.soundcloud.android.R.id.ak_error_view));
     }
 
     public ViewElement emptyConnectionErrorMessage() {
