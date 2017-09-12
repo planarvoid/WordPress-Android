@@ -1537,7 +1537,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                           "cdn-uri",
                                                           MEDIA_TYPE,
                                                           BIT_RATE,
-                                                          ConnectionType.FOUR_G,
                                                           PlayerType.FLIPPER);
 
         jsonDataBuilder.buildForPlaybackError(event);

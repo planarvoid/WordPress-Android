@@ -196,7 +196,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                     ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
                 }
 
-                val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, currentConnectionType, playerType)
+                val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, playerType)
                 eventBus.publish(EventQueue.PLAYBACK_ERROR, event)
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)

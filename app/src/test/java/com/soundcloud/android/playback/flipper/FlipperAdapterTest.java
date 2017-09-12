@@ -387,18 +387,16 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onErrorPublishesPlaybackErrorEvent() {
-        ConnectionType connectionType = ConnectionType.FOUR_G;
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(connectionType);
         final String category = "CODEC_DECODER";
         FlipperError errorMessage = new FlipperError(category, "sourceFile", 1, "message",
                                                      StreamingProtocol.Hls, CDN_HOST, OPUS, BITRATE);
 
         flipperAdapter.onError(errorMessage);
 
-        assertOnLastPlaybackErrorEvent(category, connectionType, PlaybackProtocol.HLS, OPUS, BITRATE, CDN_HOST);
+        assertOnLastPlaybackErrorEvent(category, PlaybackProtocol.HLS, OPUS, BITRATE, CDN_HOST);
     }
 
-    private void assertOnLastPlaybackErrorEvent(String category, ConnectionType connectionType,
+    private void assertOnLastPlaybackErrorEvent(String category,
                                                 PlaybackProtocol protocol, String format,
                                                 int bitrate, String cdnHost) {
         final PlaybackErrorEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR);
@@ -408,7 +406,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         assertThat(event.getProtocol()).isEqualTo(protocol);
         assertThat(event.getCategory()).isEqualTo(category);
         assertThat(event.getCdnHost()).isEqualTo(cdnHost);
-        assertThat(event.getConnectionType()).isEqualTo(connectionType);
         assertThat(event.getPlayerType()).isEqualTo(PlayerType.FLIPPER.getValue());
     }
 

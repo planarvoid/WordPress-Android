@@ -8,26 +8,25 @@ public class PlaybackErrorEvent {
 
     public static final String CATEGORY_OFFLINE_PLAY_UNAVAILABLE = "offline_play_unavailable";
 
-    public static final int BITRATE_128 = 128000;
+    private static final int BITRATE_128 = 128000;
 
     private final String category;
     private final PlaybackProtocol protocol;
     private final String cdnHost;
 
     private final String format;
-    private final ConnectionType connectionType;
     private final int bitrate;
     private final long timestamp;
     private final String playerType;
 
-    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, String format, int bitrate,
-                              ConnectionType connectionType, PlayerType playerType) {
+    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost,
+                              String format, int bitrate,
+                              PlayerType playerType) {
         this.category = category;
         this.protocol = protocol;
         this.cdnHost = cdnHost;
         this.bitrate = bitrate;
         this.format = format;
-        this.connectionType = connectionType;
         this.timestamp = System.currentTimeMillis();
         this.playerType = playerType.getValue();
     }
@@ -35,14 +34,12 @@ public class PlaybackErrorEvent {
     public PlaybackErrorEvent(String category,
                               PlaybackProtocol protocol,
                               String cdnHost,
-                              ConnectionType connectionType,
                               PlayerType playerType) {
         this(category,
              protocol,
              cdnHost,
              SkippyMediaType.MP3.name(),
              BITRATE_128,
-             connectionType,
              playerType);
     }
 
@@ -74,7 +71,4 @@ public class PlaybackErrorEvent {
         return playerType;
     }
 
-    public ConnectionType getConnectionType() {
-        return connectionType;
-    }
 }

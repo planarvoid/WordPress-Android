@@ -9,7 +9,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -484,10 +483,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                String cdn,
                                Skippy.SkippyMediaType format,
                                int bitRate) {
-        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(), cdn, format.name(),
-                                                                bitRate, currentConnectionType, getPlayerType());
-        eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
+        eventBus.publish(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEvent(category, getPlaybackProtocol(), cdn, format.name(), bitRate, getPlayerType()));
     }
 
     @Override
