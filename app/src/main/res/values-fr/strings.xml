@@ -1049,6 +1049,10 @@
   <string name="btn_remove_from_collection">Supprimer de la collection</string>
   <string name="accessibility_stats_user_added">Ajouté par vous</string>
   <string name="accessibility_add_action">Add</string>
+  <plurals name="accessibility_stats_adds">
+    <item quantity="one">%d ajouter</item>
+    <item quantity="other">%d ajouté(s)</item>
+  </plurals>
   <string name="shortcut_play_tracks">Écouter des titres</string>
   <string name="list_empty_you_tracks_message">Ajoutez vos titres favoris pour les écouter à nouveau.</string>
   <string name="add_snackbar_overflow_action">Ajouté à ma collection</string>
