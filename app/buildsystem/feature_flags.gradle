@@ -76,6 +76,7 @@ android {
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
     }
 
     alpha {

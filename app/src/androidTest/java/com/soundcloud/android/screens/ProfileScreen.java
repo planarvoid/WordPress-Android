@@ -99,7 +99,7 @@ public class ProfileScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        return new TrackItemElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.track_list_item)))
+        return new TrackItemElement(testDriver, testDriver.scrollToItem(With.id(R.id.track_list_item)))
                 .clickOverflowButton();
     }
 
@@ -234,7 +234,7 @@ public class ProfileScreen extends Screen {
     }
 
     public boolean showsEmptySoundsMessage() {
-        return testDriver.findOnScreenElement(With.text(R.string.empty_user_sounds_message)).hasVisibility();
+        return testDriver.scrollToItem(With.text(R.string.empty_user_sounds_message)).hasVisibility();
     }
 
     public boolean areCurrentlyFollowing() {
@@ -312,11 +312,11 @@ public class ProfileScreen extends Screen {
     }
 
     public String firstSocialLinkText() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.social_link))).getText();
+        return new TextElement(testDriver.scrollToItem(With.id(R.id.social_link))).getText();
     }
 
     private ViewElement scrollToItemInProfile(With with) {
-        ViewElement profileCoordinator = testDriver.findOnScreenElement(With.id(R.id.profile_coordinator));
+        ViewElement profileCoordinator = testDriver.findOnScreenElement(With.id(R.id.sliding_layout));
         profileCoordinator.findElement(With.className(AppBarLayout.class)).toAppBarLayout().collapse();
         return testDriver.scrollToItemInRecyclerView(with);
     }

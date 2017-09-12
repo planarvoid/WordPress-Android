@@ -53,7 +53,7 @@ public class ProfileErrorTest extends ActivityTest<LauncherActivity> {
 
     @Test
     public void testConnectionErrorAndRetryInPosts() throws Exception {
-        assertTrue(profileScreen.errorView().isOnScreen());
+        assertTrue(profileScreen.scrollToErrorView().isOnScreen());
 
         removeStub(stubMapping);
 

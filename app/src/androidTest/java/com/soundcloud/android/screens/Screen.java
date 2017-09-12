@@ -50,6 +50,10 @@ public abstract class Screen {
         return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.ak_error_view));
     }
 
+    public ViewElement scrollToErrorView() {
+        return testDriver.scrollToItem(With.id(com.soundcloud.android.R.id.ak_error_view));
+    }
+
     public ViewElement emptyConnectionErrorMessage() {
         return emptyView().emptyConnectionErrorMessage();
     }
