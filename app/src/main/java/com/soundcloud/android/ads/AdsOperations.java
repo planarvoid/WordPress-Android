@@ -46,15 +46,13 @@ public class AdsOperations {
     private final Scheduler scheduler;
     private final EventBus eventBus;
     private final CurrentDateProvider dateProvider;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    AdsOperations(PlayQueueManager playQueueManager,
-                  FeatureOperations featureOperations,
-                  ApiClientRx apiClientRx,
-                  @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  EventBus eventBus,
-                  Lazy<KruxSegmentProvider> kruxSegmentProvider,
-                  CurrentDateProvider dateProvider) {
+    AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations,
+                  ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider, CurrentDateProvider dateProvider,
+                  FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.featureOperations = featureOperations;
         this.apiClientRx = apiClientRx;
@@ -62,6 +60,7 @@ public class AdsOperations {
         this.eventBus = eventBus;
         this.kruxSegmentProvider = kruxSegmentProvider;
         this.dateProvider = dateProvider;
+        this.featureFlags = featureFlags;
     }
 
     Observable<Optional<String>> kruxSegments() {
@@ -70,7 +69,7 @@ public class AdsOperations {
     }
 
     public Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
-        final Urn sourceUrn = requestData.getMonetizableTrackUrn();
+        final Urn sourceUrn = requestData.getMonetizableTrackUrn().get();
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiAdsForTrack.class)
                           .subscribeOn(scheduler)
@@ -104,8 +103,8 @@ public class AdsOperations {
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi()
                                                      .addQueryParam(AdConstants.CORRELATOR_PARAM, requestData.getRequestId());
 
-        if (requestData.getKruxSegments() != null) {
-            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.getKruxSegments());
+        if (requestData.getKruxSegments().isPresent()) {
+            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, requestData.getKruxSegments().get());
         }
 
         return request.build();
@@ -128,7 +127,7 @@ public class AdsOperations {
                 logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
             } else {
                 eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.getRequestId(),
-                                                                                      Optional.fromNullable(requestData.getMonetizableTrackUrn()),
+                                                                                      requestData.getMonetizableTrackUrn(),
                                                                                       endpoint,
                                                                                       playerVisible,
                                                                                       inForeground));
@@ -139,7 +138,7 @@ public class AdsOperations {
     private void logRequestSuccess(final AdsCollection apiAds, final AdRequestData requestData,
                                    final String endpoint, final boolean playerVisible, final boolean inForeground) {
         eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestSuccess(requestData.getRequestId(),
-                                                                              Optional.fromNullable(requestData.getMonetizableTrackUrn()),
+                                                                              requestData.getMonetizableTrackUrn(),
                                                                               endpoint,
                                                                               apiAds.toAdsReceived(),
                                                                               playerVisible,

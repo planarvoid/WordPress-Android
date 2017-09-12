@@ -101,7 +101,7 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
         final boolean startedFromLauncher = intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false);
         if ((startedFromLauncher || adsStorage.shouldShowPrestitial()) && !playSessionStateProvider.isPlaying()) {
             intent.putExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false);
-            final AdRequestData requestData = AdRequestData.Companion.forPageAds(Optional.absent());
+            final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
             subscriber = adsOperations.prestitialAd(requestData)
                                       .subscribe(new PrestitialAdSubscriber(requestData.getRequestId()));
         }
