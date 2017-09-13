@@ -16,17 +16,17 @@ import javax.inject.Named;
 
 class PlaylistPostOperations {
 
-    private final PlaylistPostStorage playlistPostStorage;
+    private final PostsStorage postsStorage;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBusV2 eventBus;
 
     @Inject
-    PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
+    PlaylistPostOperations(PostsStorage postsStorage,
                            @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                            SyncInitiator syncInitiator,
                            EventBusV2 eventBus) {
-        this.playlistPostStorage = playlistPostStorage;
+        this.postsStorage = postsStorage;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.eventBus = eventBus;
@@ -34,8 +34,8 @@ class PlaylistPostOperations {
 
     Observable<RxSignal> remove(final Urn urn) {
         final Observable<TxnResult> remove = urn.isLocal()
-                                             ? playlistPostStorage.remove(urn)
-                                             : playlistPostStorage.markPendingRemoval(urn);
+                                             ? postsStorage.remove(urn)
+                                             : postsStorage.markPendingRemoval(urn);
         return remove
                 .flatMapSingle(__ -> syncInitiator.requestSystemSync().toSingle(() -> RxSignal.SIGNAL))
                 .doOnNext(eventBus.publishAction1(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityDeleted(urn)))

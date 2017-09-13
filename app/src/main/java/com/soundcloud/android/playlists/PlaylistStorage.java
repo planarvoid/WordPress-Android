@@ -3,6 +3,8 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.utils.Urns.toIds;
 import static com.soundcloud.android.utils.Urns.toIdsColl;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
@@ -14,6 +16,8 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
+import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -24,7 +28,10 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.BiConsumer;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -33,8 +40,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 public class PlaylistStorage {
+
+    private static final int DEFAULT_BATCH_SIZE = 500;
 
     private final PropellerDatabase propeller;
     private final PropellerRxV2 propellerRx;
@@ -42,8 +52,8 @@ public class PlaylistStorage {
 
     @Inject
     public PlaylistStorage(PropellerDatabase propeller,
-                             PropellerRxV2 propellerRx,
-                             NewPlaylistMapper playlistMapper) {
+                           PropellerRxV2 propellerRx,
+                           NewPlaylistMapper playlistMapper) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.playlistMapper = playlistMapper;
@@ -95,17 +105,38 @@ public class PlaylistStorage {
     Single<List<Urn>> availablePlaylists(final Collection<Urn> playlistUrns) {
         return propellerRx
                 .queryResult(Query.from(Tables.PlaylistView.TABLE)
-                            .select(Tables.PlaylistView.ID)
-                            .whereIn(Tables.PlaylistView.ID, toIdsColl(playlistUrns)))
+                                  .select(Tables.PlaylistView.ID)
+                                  .whereIn(Tables.PlaylistView.ID, toIdsColl(playlistUrns)))
                 .map(result -> result.toList(cursorReader -> Urn.forPlaylist(cursorReader.getLong(Tables.PlaylistView.ID))))
                 .firstOrError();
     }
 
-    Single<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
+    public Single<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
+        return Observable.fromIterable(Lists.partition(newArrayList(playlistUrns), DEFAULT_BATCH_SIZE))
+                         .flatMapSingle(this::loadPlaylistBatch)
+                         .collect(ArrayList::new, List::addAll);
+    }
+
+    private Single<List<Playlist>> loadPlaylistBatch(Collection<Urn> playlistUrns) {
         return propellerRx.queryResult(buildPlaylistQuery(Sets.newHashSet(playlistUrns)))
                           .map(this::toPlaylistItems)
                           .first(Collections.emptyList());
     }
+
+    public Single<Set<Urn>> loadPlaylistsWithTracks(final Collection<Urn> trackUrns) {
+        return Observable.fromIterable(Lists.partition(newArrayList(trackUrns), DEFAULT_BATCH_SIZE))
+                         .flatMapSingle(this::loadPlaylistWithTracksBatch)
+                         .collect(HashSet::new, Set::addAll);
+    }
+
+    private Single<List<Urn>> loadPlaylistWithTracksBatch(@NonNull List<Urn> urns) {
+        return propellerRx.queryResult(Query.from(Table.PlaylistTracks.name())
+                                            .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
+                                            .whereIn(TableColumns.PlaylistTracks.TRACK_ID, transform(urns, Urns.TO_ID)))
+                          .map(cursorReaders -> cursorReaders.toList(cursorReader -> Urn.forPlaylist(cursorReader.getLong(TableColumns.PlaylistTracks.PLAYLIST_ID))))
+                          .first(Collections.emptyList());
+    }
+
 
     private List<Playlist> toPlaylistItems(QueryResult cursorReaders) {
         final List<Playlist> playlists = new ArrayList<>(cursorReaders.getResultCount());

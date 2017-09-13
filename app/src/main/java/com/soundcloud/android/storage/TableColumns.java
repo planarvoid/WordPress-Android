@@ -113,7 +113,8 @@ public final class TableColumns {
         public static final String POLICIES_BLOCKED = "sound_policies_blocked";
         public static final String POLICIES_SNIPPED = "sound_policies_snipped";
         public static final String POLICIES_POLICY = "sound_policies_policy";
-        static final String POLICIES_SYNCABLE = "sound_policies_syncable";
+        public static final String POLICIES_POLICY_LAST_UPDATED_AT = "sound_policies_policy_last_updated_at";
+        public static final String POLICIES_SYNCABLE = "sound_policies_syncable";
         public static final String POLICIES_MONETIZATION_MODEL = "sound_policies_monetization_model";
         public static final String POLICIES_SUB_MID_TIER = "sound_policies_sub_mid_tier";
         public static final String POLICIES_SUB_HIGH_TIER = "sound_policies_sub_high_tier";
@@ -123,9 +124,6 @@ public final class TableColumns {
         static final String USER_PERMALINK = "sound_user_permalink";
 
         public static final String USER_AVATAR_URL = "sound_user_avatar_url";
-        public static final String USER_LIKE = "sound_user_like";
-        public static final String USER_REPOST = "sound_user_repost";
-        public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
         public static final String OFFLINE_DOWNLOADED_AT = "sound_offline_downloaded_at";
         public static final String OFFLINE_REMOVED_AT = "sound_offline_removed_at";

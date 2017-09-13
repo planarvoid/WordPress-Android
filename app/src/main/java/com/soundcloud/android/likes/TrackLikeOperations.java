@@ -7,6 +7,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
@@ -29,7 +30,7 @@ public class TrackLikeOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
     static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
-    private static final BiFunction<TrackItem, Like, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
+    private static final BiFunction<TrackItem, Association, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
             .create(like, trackItem);
 
     private final LikesStorage likesStorage;
@@ -78,7 +79,7 @@ public class TrackLikeOperations {
                                   }).subscribeOn(scheduler);
     }
 
-    Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
+    public Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
         return likesStorage.loadTrackLikes(beforeTime, PAGE_SIZE)
                            .flatMap(source -> enrichV2(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
                            .subscribeOn(scheduler);
@@ -91,7 +92,7 @@ public class TrackLikeOperations {
 
     Single<List<Urn>> likedTrackUrns() {
         return likesStorage.loadTrackLikes()
-                           .map(likes -> transform(likes, Like::urn))
+                           .map(likes -> transform(likes, Association::urn))
                            .subscribeOn(scheduler);
     }
 

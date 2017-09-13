@@ -8,17 +8,19 @@ import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItemWithOfflineState;
 import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.likes.Like;
-import com.soundcloud.android.likes.LikesOfflineStateStorage;
 import com.soundcloud.android.likes.LikesStorage;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import edu.emory.mathcs.backport.java.util.Collections;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
@@ -28,8 +30,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,23 +45,23 @@ public class OfflineStateOperationsTest {
     private OfflineStateOperations operations;
 
     @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedEnabledCommand;
-    @Mock private LoadOfflinePlaylistsContainingTracksCommand loadOfflinePlaylistsContainingTracksCommand;
+    @Mock private PlaylistStorage playlistStorage;
     @Mock private LikesStorage likesStorage;
-    @Mock private LikesOfflineStateStorage likesOfflineStateStorage;
     @Mock private TrackItemRepository trackRepository;
     @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
+    @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
 
     @Before
     public void setUp() throws Exception {
         operations = new OfflineStateOperations(isOfflineLikedEnabledCommand,
-                                                loadOfflinePlaylistsContainingTracksCommand,
                                                 likesStorage,
-                                                likesOfflineStateStorage,
                                                 trackRepository,
                                                 offlineContentStorage,
                                                 trackDownloadsStorage,
-                                                Schedulers.trampoline());
+                                                playlistStorage,
+                                                Schedulers.trampoline(),
+                                                loadOfflinePlaylistsCommand);
 
         when(isOfflineLikedEnabledCommand.toSingle(null)).thenReturn(Single.just(true));
     }
@@ -68,7 +70,9 @@ public class OfflineStateOperationsTest {
     public void returnsEmptyWhenTheTrackIsNotRelatedToAPlaylist() {
         when(isOfflineLikedEnabledCommand.toSingle(null)).thenReturn(Single.just(false));
         final List<Urn> input = singletonList(TRACK1);
-        when(loadOfflinePlaylistsContainingTracksCommand.toSingle(input)).thenReturn(Single.just(Collections.emptyList()));
+
+        when(playlistStorage.loadPlaylistsWithTracks(input)).thenReturn(Single.just(emptySet()));
+        when(loadOfflinePlaylistsCommand.toSingle()).thenReturn(Single.just(emptyList()));
         when(likesStorage.loadTrackLikes()).thenReturn(Single.just(emptyList()));
 
 
@@ -142,19 +146,32 @@ public class OfflineStateOperationsTest {
 
     @Test
     public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Single.just(true));
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Single.just(OfflineState.REQUESTED));
+        List<TrackItem> tracksList = Arrays.asList(
+                trackItemWithOfflineState(TRACK1, OfflineState.REQUESTED),
+                trackItemWithOfflineState(TRACK2, OfflineState.UNAVAILABLE));
 
-        operations.loadLikedTracksOfflineState().test()
-                  .assertValue(REQUESTED);
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Single.just(true));
+        when(likesStorage.loadTrackLikes()).thenReturn(Single.just(transform(tracksList, entity -> new Association(entity.getUrn(), new Date()))));
+        when(trackDownloadsStorage.getOfflineStates(transform(tracksList, TrackItem::getUrn))).thenReturn(toMap(tracksList));
+
+        operations.loadLikedTracksOfflineState().test().assertValue(REQUESTED);
     }
 
     private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
         final List<TrackItem> tracksList = Arrays.asList(tracks);
-        when(loadOfflinePlaylistsContainingTracksCommand.toSingle(singletonList(track))).thenReturn(Single.just(singletonList(playlist)));
+        when(playlistStorage.loadPlaylistsWithTracks(singletonList(track))).thenReturn(Single.just(Collections.singleton(playlist)));
+        when(loadOfflinePlaylistsCommand.toSingle()).thenReturn(Single.just(singletonList(playlist)));
         when(trackRepository.forPlaylist(playlist)).thenReturn(Single.just(tracksList));
-        when(likesStorage.loadTrackLikes()).thenReturn(Single.just(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date()))));
-        when(likesOfflineStateStorage.loadLikedTrackOfflineState()).thenReturn(Single.just(transform(tracksList, TrackItem::offlineState)));
+        when(likesStorage.loadTrackLikes()).thenReturn(Single.just(transform(tracksList, entity -> new Association(entity.getUrn(), new Date()))));
+        when(trackDownloadsStorage.getOfflineStates(transform(tracksList, TrackItem::getUrn))).thenReturn(toMap(tracksList));
+    }
+
+    private Single<Map<Urn, OfflineState>> toMap(List<TrackItem> tracksList) {
+        HashMap<Urn,OfflineState> map = new HashMap<>();
+        for (TrackItem trackItem : tracksList) {
+            map.put(trackItem.getUrn(), trackItem.offlineState());
+        }
+        return Single.just(map);
     }
 
 }

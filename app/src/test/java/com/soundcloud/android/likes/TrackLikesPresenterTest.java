@@ -23,6 +23,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.TrackLikesPresenter.DataSource;
 import com.soundcloud.android.likes.TrackLikesPresenter.TrackLikesPage;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
@@ -295,6 +296,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @NonNull
     LikeWithTrack getLikeWithTrack(TrackItem trackItem, Date likedAt) {
-        return LikeWithTrack.create(Like.create(trackItem.getUrn(), likedAt), trackItem);
+        return LikeWithTrack.create(new Association(trackItem.getUrn(), likedAt), trackItem);
     }
 }

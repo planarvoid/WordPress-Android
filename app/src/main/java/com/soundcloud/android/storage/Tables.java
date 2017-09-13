@@ -1064,9 +1064,11 @@ public interface Tables {
         public static final Column TAG_LIST = Column.create(TABLE, "tv_tag_list", String.class);
         public static final Column SHARING = Column.create(TABLE, "tv_sharing", String.class);
         public static final Column POLICY = Column.create(TABLE, "tv_policy", String.class);
+        public static final Column POLICY_LAST_UPDATED_AT = Column.create(TABLE, "tv_policy_last_updated_at", Long.class);
         public static final Column MONETIZABLE = Column.create(TABLE, "tv_monetizable", Boolean.class);
         public static final Column MONETIZATION_MODEL = Column.create(TABLE, "tv_monetization_model", String.class);
         public static final Column BLOCKED = Column.create(TABLE, "tv_blocked", Boolean.class);
+        public static final Column SYNCABLE = Column.create(TABLE, "tv_syncable", Boolean.class);
         public static final Column SNIPPED = Column.create(TABLE, "tv_snipped", Boolean.class);
         public static final Column SUB_HIGH_TIER = Column.create(TABLE, "tv_sub_high_tier", Boolean.class);
         public static final Column SUB_MID_TIER = Column.create(TABLE, "tv_sub_mid_tier", Boolean.class);
@@ -1110,9 +1112,11 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.SHARING)).as(SHARING.name()),
 
                              field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY)).as(POLICY.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_POLICY_LAST_UPDATED_AT)).as(POLICY_LAST_UPDATED_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZABLE)).as(MONETIZABLE.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_MONETIZATION_MODEL)).as(MONETIZATION_MODEL.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(BLOCKED.name()),
+                             field(SoundView.field(TableColumns.SoundView.POLICIES_SYNCABLE)).as(SYNCABLE.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(SNIPPED.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(SUB_MID_TIER.name()),

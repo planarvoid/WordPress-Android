@@ -16,7 +16,7 @@ public class LoadOfflinePlaylistsCommand extends Command<Void, List<Urn>> {
     private final PropellerDatabase propeller;
 
     @Inject
-    LoadOfflinePlaylistsCommand(PropellerDatabase propeller) {
+    public LoadOfflinePlaylistsCommand(PropellerDatabase propeller) {
         this.propeller = propeller;
     }
 

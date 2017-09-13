@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -54,12 +55,12 @@ public class TrackLikeOperationsTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private LikesStorage likesStorage;
-    @Captor private ArgumentCaptor<Func2<TrackItem, Like, LikeWithTrack>> functionCaptor;
+    @Captor private ArgumentCaptor<Func2<TrackItem, Association, LikeWithTrack>> functionCaptor;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
     private Scheduler scheduler = Schedulers.trampoline();
     private List<TrackItem> tracks;
-    private List<Like> likes;
+    private List<Association> likes;
 
     private SingleSubject<SyncJobResult> syncSubject = SingleSubject.create();
     private List<LikeWithTrack> likeWithTracks;
@@ -78,8 +79,8 @@ public class TrackLikeOperationsTest {
         tracks = ModelFixtures.trackItems(2);
 
         likes = asList(
-                Like.create(tracks.get(0).getUrn(), new Date(100)),
-                Like.create(tracks.get(1).getUrn(), new Date(100)));
+                new Association(tracks.get(0).getUrn(), new Date(100)),
+                new Association(tracks.get(1).getUrn(), new Date(100)));
 
         likeWithTracks = asList(
                 LikeWithTrack.create(likes.get(0), tracks.get(0)),

@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 class ExpectedOfflineContent {
     public static final ExpectedOfflineContent EMPTY = new ExpectedOfflineContent(
@@ -22,7 +23,7 @@ class ExpectedOfflineContent {
     public ExpectedOfflineContent(Collection<DownloadRequest> requests,
                                   Collection<Urn> emptyPlaylists,
                                   boolean isLikedTracksExpected,
-                                  Collection<Urn> likedTracks) {
+                                  List<Urn> likedTracks) {
         this.isLikedTracksExpected = isLikedTracksExpected;
         this.likedTracks = likedTracks;
         this.emptyPlaylists = unmodifiableCollection(emptyPlaylists);

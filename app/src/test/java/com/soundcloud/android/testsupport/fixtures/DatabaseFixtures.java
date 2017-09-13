@@ -11,7 +11,6 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
@@ -364,6 +363,7 @@ public class DatabaseFixtures {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(Tables.TrackPolicies.TRACK_ID, apiTrack.getUrn().getNumericId());
         cv.put(Tables.TrackPolicies.POLICY, "SNIP");
+        cv.put(Tables.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
         cv.put(Tables.TrackPolicies.MONETIZABLE, true);
         cv.put(Tables.TrackPolicies.MONETIZATION_MODEL, "SUB_HIGH_TIER");
         cv.put(Tables.TrackPolicies.SUB_MID_TIER, false);
@@ -379,6 +379,14 @@ public class DatabaseFixtures {
         apiTrack.setSyncable(false);
 
         return apiTrack;
+    }
+
+    public void clearTrackPolicy(ApiTrack apiTrack) {
+        database.delete(Tables.TrackPolicies.TABLE.name(), Tables.TrackPolicies.TRACK_ID + " = " + apiTrack.getId(), null);
+    }
+
+    public void updatePolicyTimestamp(ApiTrack track, Date date) {
+        database.execSQL("UPDATE TrackPolicies SET last_updated = " + date.getTime() + " where track_id = " + track.getId());
     }
 
     public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) {

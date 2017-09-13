@@ -22,7 +22,6 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new LoadPlaylistTracksCommand(propeller());
-
     }
 
     @Test
@@ -31,8 +30,6 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
         final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrackWithPolicyHighTierMonetizable(apiPlaylist, 2);
-
-
         final List<Track> tracks = command.call(apiPlaylist.getUrn());
 
         assertThat(tracks).containsExactly(

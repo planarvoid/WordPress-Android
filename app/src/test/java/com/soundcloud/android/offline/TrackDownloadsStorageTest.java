@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.collections.Sets;
 import com.soundcloud.propeller.PropellerWriteException;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
@@ -38,46 +39,6 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         storage = new TrackDownloadsStorage(propeller(), propellerRxV2(), dateProvider);
         listSubscriber = new TestObserver<>();
         offlineStateSubscriber = new TestObserver<>();
-    }
-
-    @Test
-    public void getLikesOfflineStateReturnsDownloadedWhenAllLikesAreDownloaded() {
-        insertOfflineLikeDownloadCompleted(100);
-        insertOfflineLikeDownloadCompleted(200);
-
-        storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
-
-        offlineStateSubscriber.assertValue(OfflineState.DOWNLOADED);
-    }
-
-    @Test
-    public void getLikedOfflineStateReturnsRequestedWhenSomeTracksWereNotYetDownloaded() {
-        insertOfflineLikeDownloadCompleted(100);
-        insertOfflineLikePendingDownload(200);
-
-        storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
-
-        offlineStateSubscriber.assertValue(OfflineState.REQUESTED);
-    }
-
-    @Test
-    public void getLikedOfflineStateReturnsUnavailableAllTracksWereCreatorOptOut() {
-        insertOfflineLikeCreatorOptOut();
-        insertOfflineLikeCreatorOptOut();
-
-        storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
-
-        offlineStateSubscriber.assertValue(OfflineState.UNAVAILABLE);
-    }
-
-    @Test
-    public void getLikedOfflineStateReturnsDownloadedEventWhenSomeTracksWereCreatorOptOut() {
-        insertOfflineLikeDownloadCompleted(100);
-        insertOfflineLikeCreatorOptOut();
-
-        storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
-
-        offlineStateSubscriber.assertValue(OfflineState.DOWNLOADED);
     }
 
     @Test
@@ -169,6 +130,21 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
         List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
         assertThat(offlineTracks).isEqualTo(tracks);
+    }
+
+    @Test
+    public void returnsOfflineStatesForTracks() throws Exception {
+        testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
+        testFixtures().insertUnavailableTrackDownload(TRACK_2, 100L);
+
+        TestObserver<Map<Urn,OfflineState>> test = storage.getOfflineStates(Sets.newHashSet(TRACK_1, TRACK_2)).test();
+
+        HashMap<Urn, OfflineState> expected = new HashMap<>();
+        expected.put(TRACK_1, OfflineState.REQUESTED);
+        expected.put(TRACK_2, OfflineState.UNAVAILABLE);
+
+        test.assertValue(expected).assertComplete();
+
     }
 
     private Urn insertOfflineLikeCreatorOptOut() {

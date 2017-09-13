@@ -108,8 +108,10 @@ final class DatabaseSchema {
             "," + Tables.Sounds.DISPLAY_STATS_ENABLED.qualifiedName() + " as " + TableColumns.SoundView.DISPLAY_STATS_ENABLED +
             "," + Tables.TrackPolicies.MONETIZABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             "," + Tables.TrackPolicies.BLOCKED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
+            "," + Tables.TrackPolicies.SYNCABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
             "," + Tables.TrackPolicies.SNIPPED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SNIPPED +
             "," + Tables.TrackPolicies.POLICY.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_POLICY +
+            "," + Tables.TrackPolicies.LAST_UPDATED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_POLICY_LAST_UPDATED_AT +
             "," + Tables.TrackPolicies.SYNCABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
             "," + Tables.TrackPolicies.SUB_MID_TIER.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +
             "," + Tables.TrackPolicies.SUB_HIGH_TIER.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +

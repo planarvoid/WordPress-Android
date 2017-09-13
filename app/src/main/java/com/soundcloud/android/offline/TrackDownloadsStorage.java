@@ -6,8 +6,6 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Urns;
@@ -15,16 +13,19 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.annotations.NonNull;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,23 +74,26 @@ class TrackDownloadsStorage {
         return result;
     }
 
-    Single<OfflineState> getLikesOfflineState() {
-        return propellerRx
-                .queryResult(Query.from(TrackDownloads.TABLE)
-                                  .innerJoin(Likes.TABLE, likedTrackFilter()))
-                .singleOrError()
-                .map(queryResult -> queryResult.toList(cursorReader -> OfflineStateMapper.fromDates(cursorReader, true)))
-                .map(offlineStates -> OfflineState.getOfflineState(
-                        offlineStates.contains(OfflineState.REQUESTED),
-                        offlineStates.contains(OfflineState.DOWNLOADED),
-                        offlineStates.contains(OfflineState.UNAVAILABLE)
-                ));
+    Single<Map<Urn, OfflineState>> getOfflineStates(Collection<Urn> tracks) {
+        return Observable.fromIterable(Lists.partition(new ArrayList<>(tracks), DEFAULT_BATCH_SIZE))
+                         .flatMap(this::batchQueryOfflineStates)
+                         .collect(HashMap::new, Map::putAll);
+
     }
 
-    private Where likedTrackFilter() {
-        return filter()
-                .whereEq(TrackDownloads._ID.qualifiedName(), Tables.Likes._ID)
-                .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK);
+    private Observable<Map<Urn, OfflineState>> batchQueryOfflineStates(@NonNull List<Urn> urns) {
+        return propellerRx.queryResult(Query.from(TrackDownloads.TABLE).whereIn(TrackDownloads._ID, Urns.toIds(urns)))
+                          .map(this::offlineStatesMapFromCursor);
+    }
+
+    @android.support.annotation.NonNull
+    private Map<Urn, OfflineState> offlineStatesMapFromCursor(QueryResult queryResult) {
+        HashMap<Urn, OfflineState> offlineStates = new HashMap<>();
+        while (queryResult.iterator().hasNext()) {
+            CursorReader reader = queryResult.iterator().next();
+            offlineStates.put(Urn.forTrack(reader.getLong(_ID)), OfflineStateMapper.fromDates(reader, true));
+        }
+        return offlineStates;
     }
 
     Single<List<Urn>> getTracksToRemove() {

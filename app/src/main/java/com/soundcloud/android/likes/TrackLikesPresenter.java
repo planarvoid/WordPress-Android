@@ -305,7 +305,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                 if (result.getTrackLikes().isEmpty()) {
                     return Pager.finish();
                 } else {
-                    final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
+                    final long oldestLike = getLast(result.getTrackLikes()).like().getCreatedAt().getTime();
                     return RxJava.toV1Observable(wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false));
                 }
             };

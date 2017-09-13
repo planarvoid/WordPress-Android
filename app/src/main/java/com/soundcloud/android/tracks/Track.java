@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -36,6 +37,8 @@ public abstract class Track {
 
     public abstract boolean blocked();
 
+    public abstract boolean isSyncable();
+
     public abstract boolean snipped();
 
     public abstract boolean isPrivate();
@@ -57,6 +60,9 @@ public abstract class Track {
     public abstract Optional<String> imageUrlTemplate();
 
     public abstract String policy();
+
+    @IgnoreHashEquals
+    public abstract Date policyLastUpdatedAt();
 
     public abstract String waveformUrl();
 
@@ -100,8 +106,10 @@ public abstract class Track {
                 .permalinkUrl(apiTrack.getPermalinkUrl())
                 .monetizable(apiTrack.isMonetizable())
                 .blocked(apiTrack.isBlocked())
+                .isSyncable(apiTrack.isSyncable())
                 .snipped(apiTrack.isSnipped())
                 .policy(apiTrack.getPolicy())
+                .policyLastUpdatedAt(new Date())
                 .subHighTier(subHighTier.isPresent() ? subHighTier.get() : false)
                 .subMidTier(subMidTier.isPresent() ? subMidTier.get() : false)
                 .playCount(apiTrack.getStats().getPlaybackCount())
@@ -152,6 +160,8 @@ public abstract class Track {
 
         public abstract Builder blocked(boolean blocked);
 
+        public abstract Builder isSyncable(boolean isSyncable);
+
         public abstract Builder snipped(boolean snipped);
 
         public abstract Builder isPrivate(boolean isPrivate);
@@ -173,6 +183,8 @@ public abstract class Track {
         public abstract Builder imageUrlTemplate(Optional<String> imageUrlTemplate);
 
         public abstract Builder policy(String policy);
+
+        public abstract Builder policyLastUpdatedAt(Date policyLastUpdatedAt);
 
         public abstract Builder waveformUrl(String waveformUrl);
 

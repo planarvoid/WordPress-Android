@@ -1,13 +1,14 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.propeller.query.Filter.filter;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.tracks.TrackPolicyStorage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,7 +21,11 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Before
     public void setup() {
-        command = new LoadTracksWithStalePoliciesCommand(propeller());
+        command = new LoadTracksWithStalePoliciesCommand(propeller(),
+                                                         new LikesStorage(propellerRxV2()),
+                                                         new TrackPolicyStorage(propellerRxV2()),
+                                                         new LoadOfflinePlaylistsCommand(propeller()),
+                                                         new LoadPlaylistTrackUrnsCommand(propeller()));
     }
 
     @Test
@@ -37,7 +42,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     public void loadsLikeWithMissingPolicyWhenFeatureEnabled() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        clearTrackPolicy(apiTrack);
+        testFixtures().clearTrackPolicy(apiTrack);
 
         Collection<Urn> trackLikes = command.call(null);
 
@@ -48,7 +53,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     public void ignoresLikeWithUpToDatePolicy() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        updatePolicyTimestamp(apiTrack, new Date());
+        testFixtures().updatePolicyTimestamp(apiTrack, new Date());
 
         Collection<Urn> trackLikes = command.call(null);
 
@@ -59,18 +64,6 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     public void ignoresLikeWithRemovedAt() {
         testFixtures().insertLikesMarkedForOfflineSync();
         testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(100));
-
-        Collection<Urn> trackLikes = command.call(null);
-
-        assertThat(trackLikes).isEmpty();
-    }
-
-    @Test
-    public void ignoresOrphanLikes() {
-        testFixtures().insertLikesMarkedForOfflineSync();
-        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        // insert a track like with the same ID as the playlist to test that we are joining on tracks only
-        testFixtures().insertLike(apiPlaylist.getId(), Tables.Sounds.TYPE_TRACK, new Date(100));
 
         Collection<Urn> trackLikes = command.call(null);
 
@@ -120,25 +113,16 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
         assertThat(tracksToStore).contains(like.getUrn(), track0.getUrn(), track1.getUrn());
     }
 
-    private void clearTrackPolicy(ApiTrack apiTrack) {
-        propeller().delete(Tables.TrackPolicies.TABLE, filter()
-                .whereEq(Tables.TrackPolicies.TRACK_ID, apiTrack.getId()));
-    }
-
     private ApiTrack insertTrackAndUpdatePolicies() {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        updatePolicyTimestamp(apiTrack, new Date(200));
+        testFixtures().updatePolicyTimestamp(apiTrack, new Date(200));
         return apiTrack;
     }
 
     private ApiTrack insertPlaylistTrackAndUpdatePolicies(ApiPlaylist playlist, int position) {
         final ApiTrack track0 = testFixtures().insertPlaylistTrack(playlist, position);
-        updatePolicyTimestamp(track0, new Date(200));
+        testFixtures().updatePolicyTimestamp(track0, new Date(200));
         return track0;
-    }
-
-    private void updatePolicyTimestamp(ApiTrack track, Date date) {
-        database().execSQL("UPDATE TrackPolicies SET last_updated = " + date.getTime() + " where track_id=" + track.getId());
     }
 
 }

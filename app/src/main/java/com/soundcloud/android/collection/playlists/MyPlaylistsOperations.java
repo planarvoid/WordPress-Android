@@ -2,19 +2,23 @@ package com.soundcloud.android.collection.playlists;
 
 import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
+import static com.soundcloud.android.utils.RepoUtils.enrichV2;
+import static com.soundcloud.java.collections.Lists.transform;
 
-import com.soundcloud.android.likes.PlaylistLikesStorage;
+import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PlaylistPostStorage;
+import com.soundcloud.android.playlists.PostsStorage;
+import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Sets;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
@@ -45,7 +49,7 @@ public class MyPlaylistsOperations {
     private static final Function<List<PlaylistAssociation>, List<PlaylistAssociation>> SORT_BY_CREATION = playlistAssociations -> {
         Collections.sort(playlistAssociations, (lhs, rhs) -> {
             // flipped as we want reverse chronological order
-            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+            return rhs.getAssociation().getCreatedAt().compareTo(lhs.getAssociation().getCreatedAt());
         });
         return playlistAssociations;
     };
@@ -66,18 +70,21 @@ public class MyPlaylistsOperations {
     private static final Function<List<PlaylistAssociation>, List<Playlist>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation::getPlaylist);
 
     private final SyncInitiatorBridge syncInitiatorBridge;
-    private final PlaylistLikesStorage playlistLikesStorage;
-    private final PlaylistPostStorage playlistPostStorage;
+    private final PostsStorage postsStorage;
+    private final LikesStorage likesStorage;
+    private final PlaylistRepository playlistRepository;
     private final Scheduler scheduler;
 
     @Inject
     public MyPlaylistsOperations(SyncInitiatorBridge syncInitiatorBridge,
-                                 PlaylistLikesStorage playlistLikesStorage,
-                                 PlaylistPostStorage playlistPostStorage,
+                                 PostsStorage postsStorage,
+                                 LikesStorage likesStorage,
+                                 PlaylistRepository playlistRepository,
                                  @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.syncInitiatorBridge = syncInitiatorBridge;
-        this.playlistLikesStorage = playlistLikesStorage;
-        this.playlistPostStorage = playlistPostStorage;
+        this.postsStorage = postsStorage;
+        this.likesStorage = likesStorage;
+        this.playlistRepository = playlistRepository;
         this.scheduler = scheduler;
     }
 
@@ -108,7 +115,7 @@ public class MyPlaylistsOperations {
                 .map(REMOVE_DUPLICATE_PLAYLISTS)
                 .map(EXTRACT_PLAYLIST_ITEMS)
                 .subscribeOn(scheduler)
-                .firstElement();
+                .toMaybe();
     }
 
     private Function<List<PlaylistAssociation>, List<PlaylistAssociation>> albumsOnly(final boolean albumsOnly) {
@@ -156,9 +163,20 @@ public class MyPlaylistsOperations {
         };
     }
 
-    private Observable<List<PlaylistAssociation>> unsortedPlaylists(PlaylistsOptions options) {
-        final Observable<List<PlaylistAssociation>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
-        final Observable<List<PlaylistAssociation>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
+    private Single<List<PlaylistAssociation>> unsortedPlaylists(PlaylistsOptions options) {
+        final Single<List<PlaylistAssociation>> loadLikedPlaylists = likesStorage.loadPlaylistLikes(Long.MAX_VALUE, PLAYLIST_LIMIT)
+                                                                                 .flatMap(source -> enrichV2(source,
+                                                                                                             playlistRepository.withUrns(transform(source, UrnHolder::urn)),
+                                                                                                             PlaylistAssociation::create));
+
+        final Single<List<PlaylistAssociation>> loadPostedPlaylists = postsStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)
+                                                                                  .flatMap(source -> {
+                                                                                             List<Urn> urns = transform(source, UrnHolder::urn);
+                                                                                             return enrichV2(source,
+                                                                                                             playlistRepository.withUrns(urns),
+                                                                                                             PlaylistAssociation::create);
+                                                                                         });
+
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;
         } else if (options.showPosts() && !options.showLikes()) {

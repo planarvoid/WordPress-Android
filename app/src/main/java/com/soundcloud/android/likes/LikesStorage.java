@@ -1,5 +1,6 @@
 package com.soundcloud.android.likes;
 
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.BaseRxResultMapperV2;
 import com.soundcloud.android.storage.Tables;
@@ -22,7 +23,7 @@ public class LikesStorage {
     };
 
     @Inject
-    LikesStorage(PropellerRxV2 propellerRx) {
+    public LikesStorage(PropellerRxV2 propellerRx) {
         this.propellerRx = propellerRx;
     }
 
@@ -33,26 +34,48 @@ public class LikesStorage {
                           .firstOrError();
     }
 
-    public Single<List<Like>> loadTrackLikes(long beforeTime, int limit) {
+    public Single<List<Association>> loadTrackLikes(long beforeTime, int limit) {
         return loadTrackLikes(trackLikeQuery().whereLt(Tables.Likes.CREATED_AT, beforeTime).limit(limit));
     }
 
-    public Single<List<Like>> loadTrackLikes() {
+    public Single<List<Association>> loadTrackLikes() {
         return loadTrackLikes(trackLikeQuery());
     }
 
-    private Single<List<Like>> loadTrackLikes(Query query) {
+    public Single<List<Association>> loadPlaylistLikes() {
+        return loadPlaylistLikes(playlistLikeQuery());
+    }
+
+    public Single<List<Association>> loadPlaylistLikes(long beforeTime, int limit) {
+        return loadPlaylistLikes(playlistLikeQuery().whereLt(Tables.Likes.CREATED_AT, beforeTime).limit(limit));
+    }
+
+    private Single<List<Association>> loadTrackLikes(Query query) {
         return propellerRx.queryResult(query)
-                          .map(queryResult -> queryResult.toList(cursorReader -> Like.create(Urn.forTrack(cursorReader.getLong(Tables.Likes._ID)),
-                                                                                             cursorReader.getDateFromTimestamp(Tables.Likes.CREATED_AT))))
+                          .map(queryResult -> queryResult.toList(cursorReader -> new Association(Urn.forTrack(cursorReader.getLong(Tables.Likes._ID)),
+                                                                                                              cursorReader.getDateFromTimestamp(Tables.Likes.CREATED_AT))))
+                          .singleOrError();
+    }
+
+    private Single<List<Association>> loadPlaylistLikes(Query query) {
+        return propellerRx.queryResult(query)
+                          .map(queryResult -> queryResult.toList(cursorReader -> new Association(Urn.forPlaylist(cursorReader.getLong(Tables.Likes._ID)),
+                                                                                                              cursorReader.getDateFromTimestamp(Tables.Likes.CREATED_AT))))
                           .singleOrError();
     }
 
     private static Query trackLikeQuery() {
+        return baseQuery().whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK);
+    }
+
+    private static Query playlistLikeQuery() {
+        return baseQuery().whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_PLAYLIST);
+    }
+
+    private static Query baseQuery() {
         return Query.from(Tables.Likes.TABLE)
                     .select(Tables.Likes._ID,
                             Tables.Likes.CREATED_AT)
-                    .whereEq(Tables.Likes._TYPE, Tables.Sounds.TYPE_TRACK)
                     .whereNull(Tables.Likes.REMOVED_AT)
                     .order(Tables.Likes.CREATED_AT, Query.Order.DESC);
     }

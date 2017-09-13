@@ -26,12 +26,14 @@ import static com.soundcloud.android.storage.Tables.TrackView.OFFLINE_UNAVAILABL
 import static com.soundcloud.android.storage.Tables.TrackView.PERMALINK_URL;
 import static com.soundcloud.android.storage.Tables.TrackView.PLAY_COUNT;
 import static com.soundcloud.android.storage.Tables.TrackView.POLICY;
+import static com.soundcloud.android.storage.Tables.TrackView.POLICY_LAST_UPDATED_AT;
 import static com.soundcloud.android.storage.Tables.TrackView.REPOSTS_COUNT;
 import static com.soundcloud.android.storage.Tables.TrackView.SHARING;
 import static com.soundcloud.android.storage.Tables.TrackView.SNIPPED;
 import static com.soundcloud.android.storage.Tables.TrackView.SNIPPET_DURATION;
 import static com.soundcloud.android.storage.Tables.TrackView.SUB_HIGH_TIER;
 import static com.soundcloud.android.storage.Tables.TrackView.SUB_MID_TIER;
+import static com.soundcloud.android.storage.Tables.TrackView.SYNCABLE;
 import static com.soundcloud.android.storage.Tables.TrackView.TITLE;
 import static com.soundcloud.android.storage.Tables.TrackView.WAVEFORM_URL;
 import static com.soundcloud.java.collections.Lists.partition;
@@ -77,6 +79,7 @@ public class TrackStorage {
             return propeller.queryResult(buildTracksQuery(urns));
         }
     };
+
     private final Function<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Function<List<Urn>, Observable<Urn>>() {
         @Override
         public Observable<Urn> apply(List<Urn> urns) {
@@ -101,14 +104,14 @@ public class TrackStorage {
                         .firstElement();
     }
 
-    Maybe<Track> loadTrack(Urn urn) {
+    public Maybe<Track> loadTrack(Urn urn) {
         return propeller.queryResult(buildTrackQuery(urn))
                         .map(result -> result.toList(TrackStorage::trackFromCursorReader))
                         .flatMap(Observable::fromIterable)
                         .firstElement();
     }
 
-    Single<Map<Urn, Track>> loadTracks(List<Urn> urns) {
+    public Single<Map<Urn, Track>> loadTracks(List<Urn> urns) {
         return batchedTracks(urns).toList().map(this::toMapOfUrnAndTrack);
     }
 
@@ -188,6 +191,7 @@ public class TrackStorage {
         builder.repostsCount(cursorReader.getInt(REPOSTS_COUNT.name()));
         builder.monetizable(cursorReader.getBoolean(MONETIZABLE.name()));
         builder.blocked(cursorReader.getBoolean(BLOCKED.name()));
+        builder.isSyncable(cursorReader.getBoolean(SYNCABLE.name()));
         builder.snipped(cursorReader.getBoolean(SNIPPED.name()));
         builder.subHighTier(cursorReader.getBoolean(SUB_HIGH_TIER.name()));
         builder.subMidTier(cursorReader.getBoolean(SUB_MID_TIER.name()));
@@ -212,6 +216,7 @@ public class TrackStorage {
 
     private static void putOptionalFields(CursorReader cursorReader, Track.Builder builder) {
         builder.policy(Optional.of(cursorReader.getString(POLICY.name())).or(Strings.EMPTY));
+        builder.policyLastUpdatedAt(getDateOr(cursorReader, POLICY_LAST_UPDATED_AT.name(), new Date(0)));
         builder.waveformUrl(Optional.fromNullable(cursorReader.getString(WAVEFORM_URL.name())).or(Strings.EMPTY));
 
         // synced tracks that might not have a user if they haven't been lazily updated yet

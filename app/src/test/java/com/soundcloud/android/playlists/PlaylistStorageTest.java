@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
@@ -16,7 +17,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Set;
 
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
@@ -99,6 +100,27 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         assertPlaylistsMatch(apiPlaylist, playlistEntities.get(0));
     }
 
+    @Test
+    public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() throws Exception {
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+
+        assertThat(apiPlaylist.getTrackCount()).isEqualTo(2);
+
+        final Urn playlistUrn = apiPlaylist.getUrn();
+        testFixtures().insertPlaylistTrack(playlistUrn, 0);
+        testFixtures().insertPlaylistTrack(playlistUrn, 1);
+        testFixtures().insertPlaylistTrack(playlistUrn, 2);
+
+        final TestObserver<List<Playlist>> testSubscriber = storage.loadPlaylists(Sets.newHashSet(apiPlaylist.getUrn())).test();
+
+        testSubscriber.awaitTerminalEvent();
+        testSubscriber.assertValueCount(1);
+        List<Playlist> playlistEntities = testSubscriber.values().get(0);
+        assertThat(playlistEntities.size()).isEqualTo(1);
+
+        assertThat(playlistEntities.get(0).trackCount()).isEqualTo(3);
+    }
+
     private void assertPlaylistsMatch(ApiPlaylist apiPlaylist, Playlist entity) {
         assertThat(entity.urn()).isEqualTo(apiPlaylist.getUrn());
         assertThat(entity.title()).isEqualTo(apiPlaylist.getTitle());
@@ -151,5 +173,20 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                .test()
                .assertNoValues()
                .assertComplete();
+    }
+
+    @Test
+    public void loadsPlaylistsWithTrack() throws Exception {
+        ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
+        ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
+        ApiPlaylist apiPlaylist3 = testFixtures().insertPlaylist();
+
+        ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist1, 0);
+        ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist3, 0);
+
+        TestObserver<Set<Urn>> playlists = storage.loadPlaylistsWithTracks(Sets.newHashSet(apiTrack1.getUrn(), apiTrack2.getUrn())).test();
+
+        playlists.assertValue(Sets.newHashSet(apiPlaylist1.getUrn(), apiPlaylist3.getUrn())).assertComplete();
+
     }
 }

@@ -5,15 +5,18 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.likes.PlaylistLikesStorage;
+import com.soundcloud.android.likes.LikesStorage;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PlaylistPostStorage;
+import com.soundcloud.android.playlists.PostsStorage;
+import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import io.reactivex.Observable;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.Maps;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -34,8 +37,9 @@ public class MyPlaylistsOperationsTest {
     private MyPlaylistsOperations operations;
 
     @Mock private SyncInitiatorBridge syncInitiator;
-    @Mock private PlaylistLikesStorage playlistLikesStorage;
-    @Mock private PlaylistPostStorage playlistPostStorage;
+    @Mock private PostsStorage postsStorage;
+    @Mock private LikesStorage likesStorage;
+    @Mock private PlaylistRepository playlistRepository;
 
     private Playlist postedPlaylist1;
     private Playlist postedPlaylist2;
@@ -54,8 +58,9 @@ public class MyPlaylistsOperationsTest {
     public void setUp() throws Exception {
         operations = new MyPlaylistsOperations(
                 syncInitiator,
-                playlistLikesStorage,
-                playlistPostStorage,
+                postsStorage,
+                likesStorage,
+                playlistRepository,
                 Schedulers.trampoline());
 
         when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Single.just(true));
@@ -74,21 +79,33 @@ public class MyPlaylistsOperationsTest {
         likedPlaylistAssociation3Offline = getAssociatedPlaylist(likedPlaylist3Offline, new Date(5));
         albumAssociation1 = getAssociatedPlaylist(album1, new Date(6));
 
-        when(playlistPostStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
-                .thenReturn(Observable.just(
-                        Arrays.asList(
-                                postedPlaylistAssociation1,
-                                postedPlaylistAssociation2,
-                                albumAssociation1
-                        )));
+        mockLikes(Arrays.asList(
+                likedPlaylistAssociation1,
+                likedPlaylistAssociation2,
+                likedPlaylistAssociation3Offline
+        ));
+        mockPosts(Arrays.asList(
+                postedPlaylistAssociation1,
+                postedPlaylistAssociation2,
+                albumAssociation1
+        ));
 
-        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
-                .thenReturn(Observable.just(
-                        Arrays.asList(
-                                likedPlaylistAssociation1,
-                                likedPlaylistAssociation2,
-                                likedPlaylistAssociation3Offline
-                        )));
+    }
+
+    private void mockLikes(List<PlaylistAssociation> likedPlaylists) {
+
+        when(likesStorage.loadPlaylistLikes(eq(Long.MAX_VALUE), any(Integer.class)))
+                .thenReturn(Single.just(Lists.transform(likedPlaylists, PlaylistAssociation::getAssociation)));
+        when(playlistRepository.withUrns(Lists.transform(likedPlaylists, PlaylistAssociation::getTargetUrn)))
+                               .thenReturn(Single.just(Maps.asMap(Lists.transform(likedPlaylists, PlaylistAssociation::getPlaylist), Playlist::urn)));
+    }
+
+    private void mockPosts(List<PlaylistAssociation> postedPlaylists) {
+        when(postsStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE)))
+                .thenReturn(Single.just(Lists.transform(postedPlaylists, PlaylistAssociation::getAssociation)));
+
+        when(playlistRepository.withUrns(Lists.transform(postedPlaylists, PlaylistAssociation::getTargetUrn)))
+                .thenReturn(Single.just(Maps.asMap(Lists.transform(postedPlaylists, PlaylistAssociation::getPlaylist), Playlist::urn)));
     }
 
     @Test
@@ -144,11 +161,10 @@ public class MyPlaylistsOperationsTest {
     public void myPlaylistsReturnsUniquePostedAndLikedPlaylists() throws Exception {
         final Playlist likedPlaylist3 = getPlaylistItem(postedPlaylist1.urn(), "pepper");
         PlaylistAssociation likedPlaylistAssociation3 = getAssociatedPlaylist(likedPlaylist3, new Date(6));
-        final Observable<List<PlaylistAssociation>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylistAssociation1,
-                                                                                                   likedPlaylistAssociation2,
-                                                                                                   likedPlaylistAssociation3,
-                                                                                                   likedPlaylistAssociation3Offline));
-        when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE))).thenReturn(likedPlaylists);
+        mockLikes(Arrays.asList(likedPlaylistAssociation1,
+                                likedPlaylistAssociation2,
+                                likedPlaylistAssociation3,
+                                likedPlaylistAssociation3Offline));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.myPlaylists(options).test()
@@ -268,7 +284,7 @@ public class MyPlaylistsOperationsTest {
     }
 
     private PlaylistAssociation getAssociatedPlaylist(Playlist playlistItem, Date postedAt) {
-        return PlaylistAssociation.create(playlistItem, postedAt);
+        return PlaylistAssociation.create(playlistItem, new Association(playlistItem.urn(), postedAt));
     }
 
     private Playlist getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
