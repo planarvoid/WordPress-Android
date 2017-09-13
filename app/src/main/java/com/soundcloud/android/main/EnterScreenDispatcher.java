@@ -5,7 +5,6 @@ import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 
 import android.support.v4.view.ViewPager;
 
@@ -15,7 +14,7 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
 
     @LightCycle final ScreenStateProvider screenStateProvider;
     private final BehaviorSubject<Optional<Long>> enterScreen = BehaviorSubject.create();
-    private final PublishSubject<Long> pageSelected = PublishSubject.create();
+    private final BehaviorSubject<Long> pageSelected = BehaviorSubject.create();
 
     private RootActivity activity;
     private Optional<Listener> listener = Optional.absent();
@@ -55,6 +54,7 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
             listener.get().onEnterScreen(activity);
         }
         enterScreen.onNext(Optional.of(System.currentTimeMillis()));
+        pageSelected.onNext(System.currentTimeMillis());
     }
 
     @Override

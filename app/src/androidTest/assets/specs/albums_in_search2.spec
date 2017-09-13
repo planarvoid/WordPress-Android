@@ -13,7 +13,7 @@ expected_events:
     user: soundcloud:users:[0-9]+
     connection_type: wifi
     click_name: search_formulation_init
-    page_name: search:main
+    page_name: discovery:main
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: pageview

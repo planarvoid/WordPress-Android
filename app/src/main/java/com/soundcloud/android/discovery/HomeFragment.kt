@@ -23,11 +23,12 @@ import com.soundcloud.android.view.ViewError
 import com.soundcloud.android.view.collection.CollectionRenderer
 import com.soundcloud.android.view.collection.CollectionRendererState
 import com.soundcloud.android.view.snackbar.FeedbackController
+import com.soundcloud.java.optional.Optional
 import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @SuppressWarnings("TooManyFunctions")
@@ -43,13 +44,16 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
     override val selectionItemClick: PublishSubject<SelectionItemViewModel> = PublishSubject.create<SelectionItemViewModel>()
     override val searchClick: PublishSubject<RxSignal> = PublishSubject.create<RxSignal>()
     override val enterScreenTimestamp: Observable<Pair<Long, Screen>> by lazy {
-        Observable.merge((activity as MainActivity).pageSelectedTimestampWithScreen().map { Pair(it.first(), it.second()) },
-                         resume.map { Pair(it, Screen.DISCOVER) })
-                .debounce(100, TimeUnit.MILLISECONDS)
+        val onResume = resume.filter { it.isPresent }.map { Pair(it.get(), Screen.DISCOVER) }
+        val act = activity
+        when (act) {
+            is MainActivity -> act.pageSelectedTimestampWithScreen().flatMap { onResume }
+            else -> onResume
+        }
     }
 
     private val errorShown = PublishSubject.create<DiscoveryViewError>()
-    private val resume = PublishSubject.create<Long>()
+    private val resume = BehaviorSubject.create<Optional<Long>>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -72,7 +76,12 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
 
     override fun onResume() {
         super.onResume()
-        resume.onNext(System.currentTimeMillis())
+        resume.onNext(Optional.of(System.currentTimeMillis()))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        resume.onNext(Optional.absent())
     }
 
     private fun areItemsTheSame(item1: DiscoveryCardViewModel, item2: DiscoveryCardViewModel): Boolean =
