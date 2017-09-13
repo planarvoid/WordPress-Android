@@ -41,14 +41,14 @@ private def connectToReleasesDb(File dbProperties) {
   configureDbDriver()
   Sql.newInstance("jdbc:mysql://" + props.getProperty('host'),
           props.getProperty('username'),
-          props.getProperty('password'))
+          props.getProperty('password'),
+          'com.mysql.jdbc.Driver')
 }
 
 private void configureDbDriver() {
   configurations.driver.files.each {
     Sql.classLoader.addURL(it.toURI().toURL())
   }
-  DriverManager.registerDriver(Sql.classLoader.loadClass('com.mysql.jdbc.Driver').newInstance())
 }
 
 private static def currentDate() {
