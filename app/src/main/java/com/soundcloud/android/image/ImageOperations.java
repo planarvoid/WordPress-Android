@@ -133,9 +133,11 @@ public class ImageOperations {
                                   placeholderDrawable.get() :
                                   getPlaceholderDrawable(imageUrl, imageAware.getWidth(), imageAware.getHeight(), displayType);
 
-        DisplayImageOptions options = ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper);
-        if (displayType.equals(DisplayType.CIRCULAR) && placeholderDrawable.isPresent()) {
-            options = ImageOptionsFactory.adapterViewCircular(placeholderDrawable.get(), apiImageSize, deviceHelper);
+        DisplayImageOptions options;
+        if (displayType.equals(DisplayType.CIRCULAR)) {
+            options = ImageOptionsFactory.adapterViewCircular(drawable, apiImageSize, deviceHelper);
+        } else {
+            options = ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper);
         }
         imageLoader.displayImage(imageUrl, imageAware, options, imageListener);
     }
