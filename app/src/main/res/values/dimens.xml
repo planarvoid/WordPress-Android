@@ -253,6 +253,8 @@
     <!-- SummaryRadioButton -->
     <dimen name="summary_radio_button_summary_size">14sp</dimen>
     
-    <dimen name="player_elevation">16dp</dimen>
-    <dimen name="player_dark_overlay_elevation">14dp</dimen>
+    <dimen name="player_elevation">8dp</dimen>
+    <dimen name="player_dark_overlay_elevation">6dp</dimen>
+    <dimen name="miniplayer_peak_height">124dp</dimen>
+
 </resources>

@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.FullscreenablePlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.LightCycleLogger;
@@ -42,6 +43,7 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
     @Inject @Named(PlaylistsModule.FULLSCREEN_PLAYLIST_DETAILS) boolean showFullscreenPlaylistDetails;
     // Chasing https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/594beedebe077a4dcc7a2de0?time=last-thirty-days
     @LightCycle ActivityLightCycle<Activity> logger = LightCycleLogger.forActivity("PlaylistDetailActivity");
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public static Intent getIntent(Context context,
                                    @NotNull Urn playlistUrn,

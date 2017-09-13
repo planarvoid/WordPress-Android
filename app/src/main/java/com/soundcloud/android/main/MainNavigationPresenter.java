@@ -27,7 +27,7 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
-public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity> {
+public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootActivity> {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
@@ -42,10 +42,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private Disposable disposable = Disposables.empty();
 
-    @LightCycle final MainTabsView mainTabsView;
+    @LightCycle final MainNavigationView mainNavigationView;
 
     @Inject
-    MainTabsPresenter(BaseLayoutHelper layoutHelper,
+    MainNavigationPresenter(BaseLayoutHelper layoutHelper,
                       MainPagerAdapter.Factory pagerAdapterFactory,
                       NavigationExecutor navigationExecutor,
                       ShortcutController shortcutController,
@@ -53,7 +53,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       OfflineContentOperations offlineContentOperations,
                       GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
                       DiscoveryConfiguration discoveryConfiguration,
-                      MainTabsView mainTabsView) {
+                      MainNavigationView mainNavigationView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigationExecutor = navigationExecutor;
@@ -62,11 +62,11 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.offlineContentOperations = offlineContentOperations;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
         this.discoveryConfiguration = discoveryConfiguration;
-        this.mainTabsView = mainTabsView;
+        this.mainNavigationView = mainNavigationView;
     }
 
     public void setBaseLayout(RootActivity activity) {
-        layoutHelper.setBaseTabsLayout(activity);
+        layoutHelper.setMainLayout(activity);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         super.onCreate(activity, bundle);
         this.activity = activity;
 
-        mainTabsView.setupViews(pagerAdapterFactory.create(activity));
+        mainNavigationView.setupViews(activity, pagerAdapterFactory.create(activity));
 
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
@@ -86,7 +86,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     public void onResume(RootActivity host) {
         super.onResume(host);
         if (offlineContentOperations.hasOfflineContent() && goOnboardingTooltipExperiment.isEnabled()) {
-            mainTabsView.showOfflineSettingsIntroductoryOverlay();
+            mainNavigationView.showOfflineSettingsIntroductoryOverlay();
         }
     }
 
@@ -105,19 +105,19 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     }
 
     public Observable<Long> enterScreenTimestamp() {
-        return mainTabsView.enterScreenDispatcher.enterScreenTimestamp();
+        return mainNavigationView.enterScreenDispatcher.enterScreenTimestamp();
     }
 
     Observable<Pair<Long, Screen>> pageSelectedTimestamp() {
-        return mainTabsView.enterScreenDispatcher.pageSelectedTimestamp().map(timestamp -> Pair.of(timestamp, mainTabsView.getScreen()));
+        return mainNavigationView.enterScreenDispatcher.pageSelectedTimestamp().map(timestamp -> Pair.of(timestamp, mainNavigationView.getScreen()));
     }
 
     void hideToolbar() {
-        mainTabsView.hideToolbar();
+        mainNavigationView.hideToolbar();
     }
 
     void showToolbar() {
-        mainTabsView.showToolbar();
+        mainNavigationView.showToolbar();
     }
 
     private void startDevelopmentMenuStream() {
@@ -138,7 +138,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private void resolveData(@NonNull Uri data) {
         if (NavigationIntentHelper.shouldGoToStream(data)) {
-            mainTabsView.selectItem(Screen.STREAM);
+            mainNavigationView.selectItem(Screen.STREAM);
         } else if (NavigationIntentHelper.shouldGoToSearch(data)) {
             selectDiscovery();
         }
@@ -147,10 +147,10 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private void resolveIntentFromAction(@NonNull final Intent intent) {
         switch (intent.getAction()) {
             case Actions.STREAM:
-                mainTabsView.selectItem(Screen.STREAM);
+                mainNavigationView.selectItem(Screen.STREAM);
                 break;
             case Actions.COLLECTION:
-                mainTabsView.selectItem(Screen.COLLECTIONS);
+                mainNavigationView.selectItem(Screen.COLLECTIONS);
                 break;
             case Actions.DISCOVERY:
                 selectDiscovery();
@@ -160,7 +160,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 navigationExecutor.openSearch(activity, intent);
                 break;
             case Actions.MORE:
-                mainTabsView.selectItem(Screen.MORE);
+                mainNavigationView.selectItem(Screen.MORE);
                 break;
             case Actions.SHORTCUT_SEARCH:
                 shortcutController.reportUsage(SEARCH);
@@ -169,7 +169,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 break;
             case Actions.SHORTCUT_PLAY_LIKES:
                 shortcutController.reportUsage(PLAY_LIKES);
-                mainTabsView.selectItem(Screen.COLLECTIONS);
+                mainNavigationView.selectItem(Screen.COLLECTIONS);
                 navigationExecutor.openTrackLikesFromShortcut(activity, intent);
                 break;
             default:
@@ -179,9 +179,9 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private void selectDiscovery() {
         if (discoveryConfiguration.shouldShowDiscoverBackendContent()) {
-            mainTabsView.selectItem(Screen.DISCOVER);
+            mainNavigationView.selectItem(Screen.DISCOVER);
         } else {
-            mainTabsView.selectItem(Screen.SEARCH_MAIN);
+            mainNavigationView.selectItem(Screen.SEARCH_MAIN);
         }
     }
 

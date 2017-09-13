@@ -33,22 +33,22 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
     @Mock private RootActivity rootActivity;
-    @Mock private MainTabsView mainTabsView;
     @Mock private DiscoveryConfiguration discoveryConfiguration;
+    @Mock private MainNavigationView mainNavigationView;
 
-    private MainTabsPresenter mainTabsPresenter;
+    private MainNavigationPresenter mainTabsPresenter;
 
     @Before
     public void setUp() {
-        mainTabsPresenter = new MainTabsPresenter(layoutHelper,
-                                                  pagerAdapterFactory,
-                                                  navigationExecutor,
-                                                  shortcutController,
-                                                  featureOperations,
-                                                  offlineContentOperations,
-                                                  goOnboardingTooltipExperiment,
-                                                  discoveryConfiguration,
-                                                  mainTabsView);
+        mainTabsPresenter = new MainNavigationPresenter(layoutHelper,
+                                                        pagerAdapterFactory,
+                                                        navigationExecutor,
+                                                        shortcutController,
+                                                        featureOperations,
+                                                        offlineContentOperations,
+                                                        goOnboardingTooltipExperiment,
+                                                        discoveryConfiguration,
+                                                        mainNavigationView);
 
         when(featureOperations.developmentMenuEnabled()).thenReturn(Observable.just(false));
         when(discoveryConfiguration.shouldShowDiscoverBackendContent()).thenReturn(false);
@@ -58,7 +58,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
     public void shouldSetupMainTabsView() {
         mainTabsPresenter.onCreate(rootActivity, new Bundle());
 
-        verify(mainTabsView).setupViews(pagerAdapterFactory.create(rootActivity));
+        verify(mainNavigationView).setupViews(rootActivity, pagerAdapterFactory.create(rootActivity));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.STREAM);
+        verify(mainNavigationView).selectItem(Screen.STREAM);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(mainNavigationView).selectItem(Screen.SEARCH_MAIN);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.DISCOVER);
+        verify(mainNavigationView).selectItem(Screen.DISCOVER);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.STREAM);
+        verify(mainNavigationView).selectItem(Screen.STREAM);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.COLLECTIONS);
+        verify(mainNavigationView).selectItem(Screen.COLLECTIONS);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(mainNavigationView).selectItem(Screen.SEARCH_MAIN);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.DISCOVER);
+        verify(mainNavigationView).selectItem(Screen.DISCOVER);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(mainNavigationView).selectItem(Screen.SEARCH_MAIN);
         verify(navigationExecutor).openSearch(rootActivity, intent);
     }
 
@@ -148,7 +148,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.DISCOVER);
+        verify(mainNavigationView).selectItem(Screen.DISCOVER);
         verify(navigationExecutor).openSearch(rootActivity, intent);
     }
 
@@ -158,7 +158,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onCreate(rootActivity, null);
 
-        verify(mainTabsView).selectItem(Screen.MORE);
+        verify(mainNavigationView).selectItem(Screen.MORE);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
         mainTabsPresenter.onCreate(rootActivity, null);
 
         verify(shortcutController).reportUsage(Shortcut.SEARCH);
-        verify(mainTabsView).selectItem(Screen.SEARCH_MAIN);
+        verify(mainNavigationView).selectItem(Screen.SEARCH_MAIN);
         verify(navigationExecutor).openSearchFromShortcut(rootActivity);
     }
 
@@ -180,7 +180,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
         mainTabsPresenter.onCreate(rootActivity, null);
 
         verify(shortcutController).reportUsage(Shortcut.SEARCH);
-        verify(mainTabsView).selectItem(Screen.DISCOVER);
+        verify(mainNavigationView).selectItem(Screen.DISCOVER);
         verify(navigationExecutor).openSearchFromShortcut(rootActivity);
     }
 
@@ -192,7 +192,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
         mainTabsPresenter.onCreate(rootActivity, null);
 
         verify(shortcutController).reportUsage(Shortcut.PLAY_LIKES);
-        verify(mainTabsView).selectItem(Screen.COLLECTIONS);
+        verify(mainNavigationView).selectItem(Screen.COLLECTIONS);
         verify(navigationExecutor).openTrackLikesFromShortcut(rootActivity, intent);
     }
 
@@ -203,7 +203,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onResume(rootActivity);
 
-        verify(mainTabsView, never()).showOfflineSettingsIntroductoryOverlay();
+        verify(mainNavigationView, never()).showOfflineSettingsIntroductoryOverlay();
     }
 
     @Test
@@ -213,7 +213,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onResume(rootActivity);
 
-        verify(mainTabsView, never()).showOfflineSettingsIntroductoryOverlay();
+        verify(mainNavigationView, never()).showOfflineSettingsIntroductoryOverlay();
     }
 
     @Test
@@ -223,7 +223,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onResume(rootActivity);
 
-        verify(mainTabsView, never()).showOfflineSettingsIntroductoryOverlay();
+        verify(mainNavigationView, never()).showOfflineSettingsIntroductoryOverlay();
     }
 
     @Test
@@ -233,7 +233,7 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
         mainTabsPresenter.onResume(rootActivity);
 
-        verify(mainTabsView).showOfflineSettingsIntroductoryOverlay();
+        verify(mainNavigationView).showOfflineSettingsIntroductoryOverlay();
     }
 
     private Intent createIntent(String action, Uri uri) {

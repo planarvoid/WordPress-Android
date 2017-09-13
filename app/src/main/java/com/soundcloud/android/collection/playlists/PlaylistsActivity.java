@@ -4,8 +4,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import javax.inject.Inject;
 
 public class PlaylistsActivity extends PlayerActivity {
 
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
 

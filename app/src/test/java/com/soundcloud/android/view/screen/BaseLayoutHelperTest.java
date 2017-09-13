@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.AppNavigationExperiment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +30,13 @@ public class BaseLayoutHelperTest {
     @Mock private View layout;
     @Mock private ViewGroup container;
     @Mock private View content;
+    @Mock private AppNavigationExperiment appNavigationExperiment;
 
     @Before
     public void setUp() throws Exception {
-        helper = new BaseLayoutHelper();
+        helper = new BaseLayoutHelper(appNavigationExperiment);
 
+        when(appNavigationExperiment.isBottomNavigationEnabled()).thenReturn(false);
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
     }
@@ -69,9 +72,9 @@ public class BaseLayoutHelperTest {
 
     @Test
     public void shouldNotSetToolbarAsActionBarForTabLayout() {
-        when(inflater.inflate(R.layout.base_with_tabs, null)).thenReturn(layout);
+        when(inflater.inflate(R.layout.main_with_tabs, null)).thenReturn(layout);
 
-        helper.setBaseTabsLayout(activity);
+        helper.setMainLayout(activity);
 
         verify(activity, never()).setSupportActionBar(any(Toolbar.class));
     }

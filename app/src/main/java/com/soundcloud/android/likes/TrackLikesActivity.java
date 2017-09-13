@@ -6,7 +6,9 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
@@ -17,6 +19,7 @@ public class TrackLikesActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject TrackLikesIntentResolver intentResolver;
     @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public TrackLikesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

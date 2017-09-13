@@ -4,6 +4,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.FacebookModule;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -18,6 +19,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.ForceUpdateHandler;
 import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.PlanChangeDetector;
+import com.soundcloud.android.configuration.experiments.AppNavigationExperiment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryCardViewModel;
@@ -26,10 +28,16 @@ import com.soundcloud.android.image.ImageModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.main.EnterScreenDispatcher;
+import com.soundcloud.android.main.MainNavigationView;
+import com.soundcloud.android.main.MainNavigationViewBottom;
+import com.soundcloud.android.main.MainNavigationViewTabs;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
@@ -276,6 +284,29 @@ public class ApplicationModule {
             return new ImageProcessorJB(context);
         } else {
             return new ImageProcessorCompat();
+        }
+    }
+
+    @Provides
+    public MainNavigationView provideNavigationView(AppNavigationExperiment appNavigationExperiment,
+                                                    EnterScreenDispatcher enterScreenDispatcher,
+                                                    NavigationModel navigationModel,
+                                                    EventTracker eventTracker,
+                                                    IntroductoryOverlayPresenter introductoryOverlayPresenter) {
+        if (appNavigationExperiment.isBottomNavigationEnabled()) {
+            return new MainNavigationViewBottom(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
+        } else {
+            return new MainNavigationViewTabs(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
+        }
+    }
+
+    @Provides
+    public BottomNavigationViewPresenter provideBottomNavigationViewPresenter(AppNavigationExperiment appNavigationExperiment,
+                                                                              NavigationModel navigationModel) {
+        if (appNavigationExperiment.isBottomNavigationEnabled()) {
+            return new BottomNavigationViewPresenter.Default(navigationModel);
+        } else {
+            return new BottomNavigationViewPresenter.Noop();
         }
     }
 

@@ -4,8 +4,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.search.PlaylistResultsFragment;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +18,7 @@ public class PlaylistDiscoveryActivity extends PlayerActivity {
     public static final String EXTRA_PLAYLIST_TAG = "playlistTag";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public PlaylistDiscoveryActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

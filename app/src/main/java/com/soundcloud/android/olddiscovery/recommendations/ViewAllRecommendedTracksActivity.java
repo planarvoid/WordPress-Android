@@ -4,14 +4,18 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
 import javax.inject.Inject;
 
 public class ViewAllRecommendedTracksActivity extends PlayerActivity {
+
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public ViewAllRecommendedTracksActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

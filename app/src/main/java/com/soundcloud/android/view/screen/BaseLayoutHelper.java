@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.AppNavigationExperiment;
 
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -13,9 +14,11 @@ import javax.inject.Inject;
 
 public class BaseLayoutHelper {
 
-    @Inject
-    BaseLayoutHelper() {
+    private final AppNavigationExperiment appNavigationExperiment;
 
+    @Inject
+    BaseLayoutHelper(AppNavigationExperiment appNavigationExperiment) {
+        this.appNavigationExperiment = appNavigationExperiment;
     }
 
     public View setContainerLayout(AppCompatActivity activity) {
@@ -27,15 +30,31 @@ public class BaseLayoutHelper {
     }
 
     public View setBaseLayout(AppCompatActivity activity) {
-        return createActionBarLayout(activity, R.layout.base);
+        final int targetLayout;
+
+        if (appNavigationExperiment.isBottomNavigationEnabled()) {
+            targetLayout = R.layout.base_with_bottom_view;
+        } else {
+            targetLayout = R.layout.base;
+        }
+
+        return createActionBarLayout(activity, targetLayout);
     }
 
     public View setBaseNoToolbar(AppCompatActivity activity) {
         return createActionBarLayout(activity, R.layout.base_no_toolbar);
     }
 
-    public View setBaseTabsLayout(AppCompatActivity activity) {
-        return createLayout(activity, R.layout.base_with_tabs);
+    public View setMainLayout(AppCompatActivity activity) {
+        final int targetLayout;
+
+        if (appNavigationExperiment.isBottomNavigationEnabled()) {
+            targetLayout = R.layout.main_with_bottom_view;
+        } else {
+            targetLayout = R.layout.main_with_tabs;
+        }
+
+        return createLayout(activity, targetLayout);
     }
 
     public View setBaseLayoutWithMargins(AppCompatActivity activity) {

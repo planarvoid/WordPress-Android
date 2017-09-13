@@ -6,7 +6,9 @@ import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
     public static final String EXTRA_PREMIUM_CONTENT_NEXT_HREF = "searchPremiumNextHref";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public SearchPremiumResultsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

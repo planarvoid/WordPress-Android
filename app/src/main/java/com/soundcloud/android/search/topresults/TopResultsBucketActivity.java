@@ -5,10 +5,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
@@ -24,6 +26,7 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject TopResultsBucketPresenter presenter;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public TopResultsBucketActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

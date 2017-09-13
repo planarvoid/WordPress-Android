@@ -6,8 +6,10 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
@@ -18,6 +20,7 @@ public class UserRepostsActivity extends PlayerActivity {
     public static final String EXTRA_USER_URN = "userUrn";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
 
     public UserRepostsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

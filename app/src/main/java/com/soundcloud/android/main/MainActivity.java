@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.PrestitialAdsController;
+import com.soundcloud.android.configuration.experiments.AppNavigationExperiment;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
@@ -25,8 +26,9 @@ public class MainActivity extends PlayerActivity {
     @Inject NavigationExecutor navigationExecutor;
     @Inject FeatureFlags featureFlags;
     @Inject ShortcutController shortcutController;
+    @Inject AppNavigationExperiment appNavigationExperiment;
 
-    @Inject @LightCycle MainTabsPresenter mainPresenter;
+    @Inject @LightCycle MainNavigationPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
     @Inject @LightCycle PrestitialAdsController prestitialAdsController;
@@ -102,12 +104,16 @@ public class MainActivity extends PlayerActivity {
     @Override
     public void onCastUnavailable() {
         super.onCastUnavailable();
-        mainPresenter.hideToolbar();
+        if (!appNavigationExperiment.isBottomNavigationEnabled()) {
+            mainPresenter.hideToolbar();
+        }
     }
 
     @Override
     public void onCastAvailable() {
-        mainPresenter.showToolbar();
+        if (!appNavigationExperiment.isBottomNavigationEnabled()) {
+            mainPresenter.showToolbar();
+        }
         super.onCastAvailable();
     }
 
