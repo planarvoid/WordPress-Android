@@ -253,17 +253,17 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             super(adView);
-            fullbleedAdArtworkView = (ImageView) adView.findViewById(R.id.fullbleed_ad_artwork);
-            centeredAdArtworkView = (ImageView) adView.findViewById(R.id.centered_ad_artwork);
+            fullbleedAdArtworkView = adView.findViewById(R.id.fullbleed_ad_artwork);
+            centeredAdArtworkView = adView.findViewById(R.id.centered_ad_artwork);
             centeredAdClickableOverlay = adView.findViewById(R.id.centered_ad_clickable_overlay);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
             companionlessText = adView.findViewById(R.id.companionless_ad_text);
 
-            footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
+            footerPlayToggle = adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_expanded_top_bar);
 
             footer = adView.findViewById(R.id.footer_controls);
-            footerAdvertisement = (TextView) adView.findViewById(R.id.footer_ad_text);
+            footerAdvertisement = adView.findViewById(R.id.footer_ad_text);
 
             playerOverlayController = playerOverlayControllerFactory.create(artworkIdleOverlay);
 

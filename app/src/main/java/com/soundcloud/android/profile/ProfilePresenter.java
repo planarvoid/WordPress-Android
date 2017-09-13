@@ -78,7 +78,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         activity.setTitle(accountOperations.isLoggedInUser(user) ? R.string.side_menu_you : R.string.side_menu_profile);
 
-        pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager = activity.findViewById(R.id.pager);
 
         adapter = new ProfilePagerAdapter(activity,
                                           user,
@@ -92,7 +92,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator_fixed);
+        TabLayout tabLayout = activity.findViewById(R.id.tab_indicator_fixed);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(pager);
 

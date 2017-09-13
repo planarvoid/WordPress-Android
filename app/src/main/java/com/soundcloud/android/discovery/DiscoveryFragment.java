@@ -45,7 +45,7 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
         // On this specific screen, it has to be positioned a bit down - under the search bar.
         final int endPtrSpinnerPx = getContext().getResources()
                                                 .getDimensionPixelSize(R.dimen.search_ptr_layout_end_position);
-        final SwipeRefreshLayout swipeToRefreshLayout = (SwipeRefreshLayout) fragmentView.findViewById(R.id.str_layout);
+        final SwipeRefreshLayout swipeToRefreshLayout = fragmentView.findViewById(R.id.str_layout);
         swipeToRefreshLayout.setProgressViewEndTarget(false, endPtrSpinnerPx);
     }
 

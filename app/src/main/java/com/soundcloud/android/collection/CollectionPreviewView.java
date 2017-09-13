@@ -33,7 +33,6 @@ public class CollectionPreviewView extends FrameLayout {
     private TextView title;
     private boolean titleEnabled;
 
-
     public CollectionPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -41,8 +40,8 @@ public class CollectionPreviewView extends FrameLayout {
         titleEnabled = styledAttributes.getBoolean(R.styleable.CollectionPreviewView_collectionTitleEnabled, true);
         if (titleEnabled) {
             init(context, R.layout.collection_preview);
-            title = (TextView) findViewById(R.id.title);
-            setTitle(styledAttributes.getString(R.styleable.CollectionPreviewView_collectionTitle));
+            title = findViewById(R.id.title);
+            title.setText(styledAttributes.getString(R.styleable.CollectionPreviewView_collectionTitle));
             title.setCompoundDrawablesWithIntrinsicBounds(
                     styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
         } else {
@@ -75,7 +74,7 @@ public class CollectionPreviewView extends FrameLayout {
     private void init(Context context, int layout) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(layout, this);
-        thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
+        thumbnailContainer = findViewById(R.id.thumbnail_container);
     }
 
     public void refreshThumbnails(ImageOperations imageOperations, List<? extends ImageResource> imageResources, int numThumbnails) {
@@ -103,7 +102,7 @@ public class CollectionPreviewView extends FrameLayout {
 
     private void setPreviewArtwork(ImageOperations imageOperations, List<? extends ImageResource> imageResources, int numEmptyThumbnails, int index) {
         final View thumbnail = thumbnailContainer.getChildAt(index + numEmptyThumbnails);
-        final ImageView artwork = (ImageView) thumbnail.findViewById(R.id.preview_artwork);
+        final ImageView artwork = thumbnail.findViewById(R.id.preview_artwork);
 
         ImageResource imageResource = imageResources.get(index);
         imageOperations.displayWithPlaceholder(imageResource.getUrn(),
@@ -111,7 +110,7 @@ public class CollectionPreviewView extends FrameLayout {
                                                getListItemImageSize(thumbnailContainer.getResources()), artwork);
 
         if (previewIconOverlay.isPresent()) {
-            final ImageView overlay = (ImageView) thumbnail.findViewById(R.id.artwork_overlay);
+            final ImageView overlay = thumbnail.findViewById(R.id.artwork_overlay);
             overlay.setImageDrawable(previewIconOverlay.get());
             overlay.setVisibility(View.VISIBLE);
         }

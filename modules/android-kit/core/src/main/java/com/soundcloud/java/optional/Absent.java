@@ -64,7 +64,7 @@ final class Absent<T> extends Optional<T> {
         if (secondChoice == null) {
             throw new NullPointerException();
         }
-        return (Optional<T>) (Optional<? extends Optional<? extends T>>) secondChoice;
+        return (Optional<T>) secondChoice;
     }
 
     @Override

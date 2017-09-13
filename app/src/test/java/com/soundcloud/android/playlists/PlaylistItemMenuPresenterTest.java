@@ -381,7 +381,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     private void assertOfflineStorageErrorDialog() {
         Dialog dialog = ShadowAlertDialog.getLatestDialog();
-        Button negativeButton = (Button) dialog.findViewById(android.R.id.button2);
+        Button negativeButton = dialog.findViewById(android.R.id.button2);
         negativeButton.performClick();
         Assertions.assertThat(activity())
                   .nextStartedIntent()

@@ -81,14 +81,14 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     }
 
     private void bindImages(View itemView, final SuggestedCreatorItem suggestedCreatorItem) {
-        final ImageView bannerView = (ImageView) itemView.findViewById(R.id.suggested_creator_visual_banner);
-        final ImageView avatarView = (ImageView) itemView.findViewById(R.id.suggested_creator_avatar);
+        final ImageView bannerView = itemView.findViewById(R.id.suggested_creator_visual_banner);
+        final ImageView avatarView = itemView.findViewById(R.id.suggested_creator_avatar);
 
         profileImageHelper.bindImages(suggestedCreatorItem, bannerView, avatarView);
     }
 
     private void bindFollowButton(View view, final SuggestedCreatorItem suggestedCreatorItem, final int position) {
-        final ToggleButton toggleButton = (ToggleButton) view.findViewById(R.id.toggle_btn_follow);
+        final ToggleButton toggleButton = view.findViewById(R.id.toggle_btn_follow);
         toggleButton.setOnCheckedChangeListener(null);
         toggleButton.setChecked(suggestedCreatorItem.following);
         toggleButton.setEnabled(true);
@@ -105,7 +105,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     }
 
     private void bindArtistName(View view, final User creator, final int position) {
-        final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
+        final TextView textView = view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
         textView.setOnClickListener(v -> goToProfile(creator, position));
     }
@@ -124,7 +124,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     }
 
     private void bindArtistLocation(View view, User creator) {
-        final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_location);
+        final TextView textView = view.findViewById(R.id.suggested_creator_location);
         if (!creator.city().isPresent() && !creator.country().isPresent()) {
             textView.setVisibility(View.GONE);
         } else if (creator.city().isPresent() && creator.country().isPresent()) {

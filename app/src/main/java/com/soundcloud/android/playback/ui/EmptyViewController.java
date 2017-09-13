@@ -21,7 +21,7 @@ public class EmptyViewController {
     EmptyViewController(View trackView) {
         this.trackView = trackView;
         this.holder = (TrackPagePresenter.TrackPageHolder) trackView.getTag();
-        this.emptyLayoutStub = (ViewStub) trackView.findViewById(R.id.track_page_empty_stub);
+        this.emptyLayoutStub = trackView.findViewById(R.id.track_page_empty_stub);
     }
 
     public void show() {

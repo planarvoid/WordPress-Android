@@ -113,7 +113,7 @@ abstract class CollectionViewPresenter<SourceT, ItemT>
     }
 
     private void setupEmptyView(View view) {
-        emptyView = (EmptyView) view.findViewById(android.R.id.empty);
+        emptyView = view.findViewById(android.R.id.empty);
         if (emptyView == null) {
             throw new NullPointerException("android.id.empty not found in layout " + view.getClass().getCanonicalName());
         }

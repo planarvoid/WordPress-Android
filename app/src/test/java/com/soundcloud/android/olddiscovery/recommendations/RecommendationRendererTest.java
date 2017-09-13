@@ -81,7 +81,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindOverflowMenuToView() {
         renderer.bindItemView(trackPosition, itemView, recommendations);
-        final ImageView overflowButton = (ImageView) itemView.findViewById(R.id.overflow_button);
+        final ImageView overflowButton = itemView.findViewById(R.id.overflow_button);
 
         overflowButton.performClick();
 
@@ -98,7 +98,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
         verify(imageOperations).displayInAdapterView(recommendedTrack.getUrn(),
                                                      recommendedTrack.getImageUrlTemplate(),
                                                      ApiImageSize.getFullImageSize(itemView.getResources()),
-                                                     (ImageView) itemView.findViewById(R.id.recommendation_artwork),
+                                                     itemView.findViewById(R.id.recommendation_artwork),
                                                      ImageOperations.DisplayType.DEFAULT);
     }
 

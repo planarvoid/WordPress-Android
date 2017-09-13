@@ -273,8 +273,8 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
 
     private void showCastIDInputDialog(Preference preference) {
         final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
-        final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
-        final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
+        final TextView title = dialogView.findViewById(R.id.custom_dialog_title);
+        final EditText input = dialogView.findViewById(R.id.comment_input);
 
         title.setText(R.string.dev_drawer_dialog_cast_id_title);
         input.setHint(castConfigStorage.getReceiverID());

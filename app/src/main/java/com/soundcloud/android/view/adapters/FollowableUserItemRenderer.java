@@ -51,7 +51,7 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
     }
 
     private void setupFollowToggle(View itemView, final UserItem user, final int position, Optional<String> clickSource) {
-        final ToggleButton toggleFollow = ((ToggleButton) itemView.findViewById(R.id.toggle_btn_follow));
+        final ToggleButton toggleFollow = itemView.findViewById(R.id.toggle_btn_follow);
         toggleFollow.setVisibility(View.VISIBLE);
         toggleFollow.setChecked(user.isFollowedByMe());
         toggleFollow.setOnClickListener(v -> {

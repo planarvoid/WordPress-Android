@@ -35,7 +35,7 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle<Fragme
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        emptyView = (EmptyView) view.findViewById(android.R.id.empty);
+        emptyView = view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
     }
 

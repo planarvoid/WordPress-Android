@@ -54,8 +54,8 @@ public class RecoverActivity extends RootActivity {
     }
 
     protected void build() {
-        final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
-        final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
+        final EditText emailField = findViewById(R.id.txt_email_address);
+        final Button recoverBtn = findViewById(R.id.btn_ok);
 
         emailField.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE ||
@@ -75,7 +75,7 @@ public class RecoverActivity extends RootActivity {
             }
         });
 
-        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+        ScTextUtils.clickify(findViewById(R.id.txt_msg),
                              getResources().getString(R.string.authentication_recover_password_visit_our_Help_Center),
                              () -> startActivity(
                                      new Intent(Intent.ACTION_VIEW,

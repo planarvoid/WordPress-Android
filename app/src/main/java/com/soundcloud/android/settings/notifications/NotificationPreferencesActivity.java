@@ -47,7 +47,7 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
     }
 
     private void showProgressBar() {
-        CircularProgressBar progressBar = (CircularProgressBar) findViewById(R.id.loading);
+        CircularProgressBar progressBar = findViewById(R.id.loading);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
     }

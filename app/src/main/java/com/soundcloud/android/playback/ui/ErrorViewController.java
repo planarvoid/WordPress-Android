@@ -38,7 +38,7 @@ class ErrorViewController {
         this.stationHandler = stationHandler;
         this.trackView = trackView;
         this.holder = (TrackPageHolder) trackView.getTag();
-        this.errorStub = (ViewStub) trackView.findViewById(R.id.track_page_error_stub);
+        this.errorStub = trackView.findViewById(R.id.track_page_error_stub);
     }
 
     boolean isShowingError() {
@@ -53,10 +53,10 @@ class ErrorViewController {
         setupErrorLayout();
         setupPlaybackErrorVisibility(error);
 
-        final TextView message = (TextView) errorLayout.findViewById(R.id.playback_error_reason);
+        final TextView message = errorLayout.findViewById(R.id.playback_error_reason);
         message.setText(getMessageFromError(error));
 
-        final ImageView errorImage = (ImageView) errorLayout.findViewById(R.id.playback_error_image);
+        final ImageView errorImage = errorLayout.findViewById(R.id.playback_error_image);
         errorImage.setImageResource(getImageFromError(error));
 
         setupStartStationButton(error);
@@ -74,7 +74,7 @@ class ErrorViewController {
     }
 
     private void setupStartStationButton(ErrorState error) {
-        final Button stationButton = (Button) errorLayout.findViewById(R.id.playback_error_station_button);
+        final Button stationButton = errorLayout.findViewById(R.id.playback_error_station_button);
         if (error == ErrorState.BLOCKED) {
             setupStartStationButton(stationButton);
         } else {

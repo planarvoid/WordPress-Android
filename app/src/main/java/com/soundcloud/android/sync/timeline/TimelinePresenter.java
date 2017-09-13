@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.Date;
 import java.util.List;
@@ -88,7 +87,7 @@ public abstract class TimelinePresenter<ItemT>
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onCreateCollectionView(fragment, view, savedInstanceState);
-        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
+        newItemsIndicator.setTextView(view.findViewById(R.id.new_items_indicator));
         getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
     }
 

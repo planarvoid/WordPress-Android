@@ -31,7 +31,7 @@ class HeaderRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         final UserSoundsItem item = items.get(position);
-        final TextView headerTextView = (TextView) itemView.findViewById(R.id.sounds_header_text);
+        final TextView headerTextView = itemView.findViewById(R.id.sounds_header_text);
 
         headerTextView.setText(getText(item));
     }

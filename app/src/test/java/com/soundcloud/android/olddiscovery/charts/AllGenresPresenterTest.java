@@ -42,7 +42,7 @@ public class AllGenresPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldTrackEventForSwitchingToAudioTab() {
         AppCompatActivity activity = createActivity();
-        final ViewPager pager = (ViewPager) activity.findViewById(R.id.pager);
+        final ViewPager pager = activity.findViewById(R.id.pager);
         presenter.onCreate(activity, bundle);
         reset(chartsTracker);
 
@@ -56,7 +56,7 @@ public class AllGenresPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldTrackEventForSwitchingToMusicTab() {
         AppCompatActivity activity = createActivity();
-        final ViewPager pager = (ViewPager) activity.findViewById(R.id.pager);
+        final ViewPager pager = activity.findViewById(R.id.pager);
         presenter.onCreate(activity, bundle);
         pager.setCurrentItem(1);
         reset(chartsTracker);

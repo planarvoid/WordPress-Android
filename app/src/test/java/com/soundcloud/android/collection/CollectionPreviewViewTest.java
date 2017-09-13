@@ -47,7 +47,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         view = new CollectionPreviewView(context(), (Drawable) null);
-        holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
+        holder = view.findViewById(R.id.thumbnail_container);
         when(track1.getUrn()).thenReturn(Urn.forTrack(1));
         when(track2.getUrn()).thenReturn(Urn.forTrack(2));
         when(track3.getUrn()).thenReturn(Urn.forTrack(3));
@@ -118,7 +118,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     public void showsPreviewOverlayOnEntitiesPreviewsOnly() {
         final List<ImageResource> entities = Arrays.asList(track1, track2);
         view = new CollectionPreviewView(context(), previewDrawable);
-        holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
+        holder = view.findViewById(R.id.thumbnail_container);
 
         view.refreshThumbnails(imageOperations, entities, numThumbnails);
 

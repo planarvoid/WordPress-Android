@@ -58,12 +58,12 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     public void bindItemView(int position, View view, List<PlaylistCollectionPlaylistItem> list) {
         final PlaylistCollectionPlaylistItem item = list.get(position);
         final PlaylistItem playlistItem = item.getPlaylistItem();
-        final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
-        final TextView title = (TextView) view.findViewById(R.id.title);
-        final TextView creator = (TextView) view.findViewById(R.id.creator);
-        final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
+        final ImageView artwork = view.findViewById(R.id.artwork);
+        final TextView title = view.findViewById(R.id.title);
+        final TextView creator = view.findViewById(R.id.creator);
+        final TextView trackCount = view.findViewById(R.id.track_count);
         final View container = view.findViewById(R.id.collections_playlist_item);
-        final OverflowAnchorImageView overflowButton = (OverflowAnchorImageView) view.findViewById(R.id.overflow_button);
+        final OverflowAnchorImageView overflowButton = view.findViewById(R.id.overflow_button);
 
         container.setOnClickListener(goToPlaylist(playlistItem));
         title.setText(playlistItem.title());

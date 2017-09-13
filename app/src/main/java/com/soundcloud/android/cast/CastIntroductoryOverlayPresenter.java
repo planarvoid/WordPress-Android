@@ -28,7 +28,7 @@ public class CastIntroductoryOverlayPresenter extends DefaultActivityLightCycle<
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        toolBar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+        toolBar = activity.findViewById(R.id.toolbar_id);
     }
 
     public void showIntroductoryOverlayForCastIfNeeded() {

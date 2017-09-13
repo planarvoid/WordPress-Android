@@ -23,7 +23,7 @@ public class PlayerStripView extends LinearLayout {
 
         LayoutInflater.from(context).inflate(R.layout.player_strip, this, true);
 
-        castDeviceName = (TextView) findViewById(R.id.cast_device);
+        castDeviceName = findViewById(R.id.cast_device);
         collapsedHeight = getResources().getDimensionPixelSize(R.dimen.collapsed_player_strip);
         expandedHeight = getResources().getDimensionPixelSize(R.dimen.expanded_player_strip);
     }

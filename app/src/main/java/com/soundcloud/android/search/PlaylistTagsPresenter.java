@@ -80,7 +80,7 @@ public class PlaylistTagsPresenter {
     @SuppressLint("SetTextI18n")
     private void displayTags(View layout, List<String> tags,
                              int layoutId, View.OnClickListener tagClickListener) {
-        ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);
+        ViewGroup tagFlowLayout = layout.findViewById(layoutId);
         tagFlowLayout.removeAllViews();
 
         int padding = ViewUtils.dpToPx(resources, 5);

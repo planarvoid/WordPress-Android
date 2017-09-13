@@ -219,7 +219,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         verify(imageOperations).displayInAdapterView(playlistItem.getUrn(),
                                                      playlistItem.getImageUrlTemplate(),
                                                      ApiImageSize.getListItemImageSize(itemView.getResources()),
-                                                     (ImageView) itemView.findViewById(R.id.image),
+                                                     itemView.findViewById(R.id.image),
                                                      ImageOperations.DisplayType.DEFAULT);
     }
 

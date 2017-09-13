@@ -33,7 +33,7 @@ public class RefreshableFragmentRule extends FragmentRule {
 
         @Override
         public MultiSwipeRefreshLayout getRefreshLayout() {
-            MultiSwipeRefreshLayout view = (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
+            MultiSwipeRefreshLayout view = getView().findViewById(R.id.str_layout);
             if (view == null) {
                 throw new IllegalStateException("no swipe to refresh layout found");
             }

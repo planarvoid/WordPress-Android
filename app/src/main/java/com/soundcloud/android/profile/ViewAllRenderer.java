@@ -30,7 +30,7 @@ class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
-        final TextView viewAllTextView = (TextView) itemView.findViewById(R.id.sounds_view_all_text);
+        final TextView viewAllTextView = itemView.findViewById(R.id.sounds_view_all_text);
 
         viewAllTextView.setText(getText(items.get(position)));
     }

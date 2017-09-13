@@ -93,7 +93,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
     }
 
     private void setFriendImage(View itemView, int resId, List<String> friendImageUrls, int position) {
-        ImageView imageView = (ImageView) itemView.findViewById(resId);
+        ImageView imageView = itemView.findViewById(resId);
 
         if (friendImageUrls.size() > position) {
             imageView.setVisibility(View.VISIBLE);

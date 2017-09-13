@@ -316,7 +316,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     }
 
     private void assertDialogMessage(String message) {
-        TextView messageTextView = (TextView) ShadowDialog.getLatestDialog().findViewById(R.id.custom_dialog_body);
+        TextView messageTextView = ShadowDialog.getLatestDialog().findViewById(R.id.custom_dialog_body);
         assertThat(messageTextView.getText()).isEqualTo(message);
     }
 

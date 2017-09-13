@@ -59,7 +59,7 @@ public class DevEventLoggerMonitorPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onItemClicked(new TrackingRecord(123L, "backend", "data"));
 
-        final TextView body = (TextView) ShadowDialog.getLatestDialog().findViewById(R.id.body);
+        final TextView body = ShadowDialog.getLatestDialog().findViewById(R.id.body);
         assertThat(body.getText()).isEqualTo("data");
     }
 }

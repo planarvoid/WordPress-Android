@@ -127,7 +127,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     }
 
     private void addItemView(View premiumItemView) {
-        final ViewGroup itemContainer = (ViewGroup) premiumItemView.findViewById(R.id.premium_item_container);
+        final ViewGroup itemContainer = premiumItemView.findViewById(R.id.premium_item_container);
         final int positionIndex = itemContainer.indexOfChild(premiumItemView.findViewById(R.id.results_count_section));
 
         trackItemView = trackItemRenderer.createItemView(itemContainer);

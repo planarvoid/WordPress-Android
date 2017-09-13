@@ -45,12 +45,12 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     public void bindItemView(final int position, View itemView, List<TrackPlayQueueUIItem> items) {
         final TrackPlayQueueUIItem item = items.get(position);
         itemView.setSelected(item.isPlayingOrPaused());
-        ViewGroup statusPlaceHolder = (ViewGroup) itemView.findViewById(R.id.status_place_holder);
+        ViewGroup statusPlaceHolder = itemView.findViewById(R.id.status_place_holder);
         View textHolder = itemView.findViewById(R.id.text_holder);
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.image);
-        TextView title = (TextView) itemView.findViewById(R.id.title);
-        TextView creator = (TextView) itemView.findViewById(R.id.creator);
-        ImageView overFlowButton = (ImageView) itemView.findViewById(R.id.overflow_button);
+        ImageView imageView = itemView.findViewById(R.id.image);
+        TextView title = itemView.findViewById(R.id.title);
+        TextView creator = itemView.findViewById(R.id.creator);
+        ImageView overFlowButton = itemView.findViewById(R.id.overflow_button);
         View goIndicator = itemView.findViewById(R.id.go_indicator);
 
         title.setText(item.getTitle());
@@ -86,7 +86,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
         if (playState == PlayState.PLAYING) {
             final View view = View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
-            final TextView label = (TextView) view.findViewById(R.id.now_playing);
+            final TextView label = view.findViewById(R.id.now_playing);
             final AnimationDrawable drawable = (AnimationDrawable) label.getCompoundDrawables()[0];
             drawable.start();
         } else if (playState == PlayState.PAUSED) {

@@ -209,20 +209,20 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void setupViewFlipper(Activity activity) {
-        searchViewFlipper = (ViewFlipper) activity.findViewById(R.id.search_view_flipper);
+        searchViewFlipper = activity.findViewById(R.id.search_view_flipper);
         searchViewFlipper.setInAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_enter));
         searchViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_exit));
     }
 
     private void setupToolbar(AppCompatActivity activity) {
-        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+        final Toolbar toolbar = activity.findViewById(R.id.toolbar_id);
         final ViewGroup searchView = (ViewGroup) ((LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.search_text_view, toolbar, false);
         final ActionBar actionBar = activity.getSupportActionBar();
         toolbarElevation = activity.findViewById(R.id.legacy_elevation);
-        searchTextView = (EditText) searchView.findViewById(R.id.search_edit_text);
-        searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
+        searchTextView = searchView.findViewById(R.id.search_edit_text);
+        searchCloseView = searchView.findViewById(R.id.search_close);
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }

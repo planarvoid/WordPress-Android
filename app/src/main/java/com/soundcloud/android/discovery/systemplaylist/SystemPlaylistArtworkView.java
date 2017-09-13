@@ -99,7 +99,7 @@ public class SystemPlaylistArtworkView extends FrameLayout {
 
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(containerLayout, this);
-        artworkAnimator = (ViewFlipper) findViewById(R.id.artwork_animator);
+        artworkAnimator = findViewById(R.id.artwork_animator);
     }
 
     @Override

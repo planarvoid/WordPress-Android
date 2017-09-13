@@ -74,10 +74,10 @@ class SystemPlaylistHeaderRenderer implements CellRenderer<SystemPlaylistItem.He
     }
 
     private void bindTextViews(SystemPlaylistItem.Header item, View itemView) {
-        final TextView title = (TextView) itemView.findViewById(R.id.system_playlist_title);
-        final TextView description = (TextView) itemView.findViewById(R.id.system_playlist_description);
-        final TextView duration = (TextView) itemView.findViewById(R.id.system_playlist_duration);
-        final TextView updatedAt = (TextView) itemView.findViewById(R.id.system_playlist_updated_at);
+        final TextView title = itemView.findViewById(R.id.system_playlist_title);
+        final TextView description = itemView.findViewById(R.id.system_playlist_description);
+        final TextView duration = itemView.findViewById(R.id.system_playlist_duration);
+        final TextView updatedAt = itemView.findViewById(R.id.system_playlist_updated_at);
 
         bindOptionalTextView(title, item.title());
         bindOptionalTextView(description, item.description());

@@ -57,7 +57,7 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
     }
 
     private void setupToggle(final View itemView, final boolean isRepeat) {
-        final SwitchCompat toggle = (SwitchCompat) itemView.findViewById(R.id.toggle_auto_play);
+        final SwitchCompat toggle = itemView.findViewById(R.id.toggle_auto_play);
         ViewUtils.extendTouchArea(toggle);
         toggle.setChecked(playQueueManager.isAutoPlay());
         toggle.setOnCheckedChangeListener((compoundButton, checked) -> {

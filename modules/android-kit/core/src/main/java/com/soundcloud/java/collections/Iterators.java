@@ -327,7 +327,7 @@ public final class Iterators {
                 if (current == null) {
                     throw new NullPointerException();
                 }
-                while (!(currentHasNext = ((Iterator<? extends Iterator<? extends T>>) current).hasNext())
+                while (!(currentHasNext = current.hasNext())
                         && inputs.hasNext()) {
                     current = inputs.next();
                 }

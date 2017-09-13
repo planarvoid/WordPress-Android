@@ -54,8 +54,8 @@ public class SignupDetailsLayout extends RelativeLayout {
                 Log.d(TAG, "setImage(" + file + ")");
             }
 
-            final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
-            final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
+            final TextView avatarText = findViewById(R.id.txt_artwork_bg);
+            final ImageView avatarView = findViewById(R.id.artwork);
 
             avatarFile = file;
             ImageUtils.setImage(
@@ -125,7 +125,7 @@ public class SignupDetailsLayout extends RelativeLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText username = (EditText) findViewById(R.id.txt_username);
+        EditText username = findViewById(R.id.txt_username);
 
         Bundle bundle = new Bundle();
         bundle.putCharSequence(BUNDLE_USERNAME, username.getText());
@@ -138,7 +138,7 @@ public class SignupDetailsLayout extends RelativeLayout {
             return;
         }
 
-        EditText username = (EditText) findViewById(R.id.txt_username);
+        EditText username = findViewById(R.id.txt_username);
 
         username.setText(bundle.getCharSequence(BUNDLE_USERNAME));
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
@@ -146,7 +146,7 @@ public class SignupDetailsLayout extends RelativeLayout {
 
     public void onSave() {
         if (getUserDetailsHandler() != null) {
-            final EditText username = (EditText) findViewById(R.id.txt_username);
+            final EditText username = findViewById(R.id.txt_username);
             getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
         }
     }
@@ -160,10 +160,10 @@ public class SignupDetailsLayout extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        final EditText username = (EditText) findViewById(R.id.txt_username);
-        final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
-        final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
-        final Button saveButton = (Button) findViewById(R.id.btn_save);
+        final EditText username = findViewById(R.id.txt_username);
+        final TextView avatarText = findViewById(R.id.txt_artwork_bg);
+        final ImageView avatarView = findViewById(R.id.artwork);
+        final Button saveButton = findViewById(R.id.btn_save);
 
         username.setHint(R.string.authentication_add_info_username_hint);
 

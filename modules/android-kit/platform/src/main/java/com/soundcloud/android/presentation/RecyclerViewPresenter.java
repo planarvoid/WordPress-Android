@@ -65,7 +65,7 @@ public abstract class RecyclerViewPresenter<SourceT, ItemT> extends CollectionVi
     }
 
     private void setupRecyclerView(Fragment fragment, View view) {
-        this.recyclerView = (RecyclerView) view.findViewById(R.id.ak_recycler_view);
+        this.recyclerView = view.findViewById(R.id.ak_recycler_view);
         if (this.recyclerView == null) {
             throw new IllegalStateException("Expected to find RecyclerView with ID R.id.recycler_view");
         }

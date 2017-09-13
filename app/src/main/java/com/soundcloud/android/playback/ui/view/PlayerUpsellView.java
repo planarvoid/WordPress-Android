@@ -31,8 +31,8 @@ public class PlayerUpsellView extends RelativeLayout {
 
         LayoutInflater.from(context).inflate(R.layout.player_upsell, this, true);
 
-        upsellText = (TextView) findViewById(R.id.upsell_text);
-        upsellButton = (Button) findViewById(R.id.upsell_button);
+        upsellText = findViewById(R.id.upsell_text);
+        upsellButton = findViewById(R.id.upsell_button);
         expandedHeight = getResources().getDimensionPixelSize(R.dimen.player_upsell_height);
         animTranslationY = getResources().getDimensionPixelOffset(R.dimen.player_upsell_anim_translation_y);
         collapsedHeight = 0;

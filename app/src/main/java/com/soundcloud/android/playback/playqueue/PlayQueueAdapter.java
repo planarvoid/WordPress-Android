@@ -42,7 +42,7 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        ImageView overflow = (ImageView) holder.itemView.findViewById(R.id.overflow_button);
+        ImageView overflow = holder.itemView.findViewById(R.id.overflow_button);
 
         if (overflow != null) {
             overflow.setOnTouchListener((view, motionEvent) -> {

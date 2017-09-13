@@ -74,7 +74,7 @@ public class BaseLayoutHelper {
     }
 
     public static void addDevelopmentDrawer(AppCompatActivity activity) {
-        final DrawerLayout drawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = activity.findViewById(R.id.drawer_layout);
         final View devDrawer = activity.findViewById(R.id.dev_drawer);
         if (drawerLayout != null && devDrawer == null) {
             View.inflate(activity, R.layout.dev_drawer, drawerLayout);
@@ -96,7 +96,7 @@ public class BaseLayoutHelper {
     }
 
     public void setupActionBar(final AppCompatActivity activity) {
-        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+        final Toolbar toolbar = activity.findViewById(R.id.toolbar_id);
         if (toolbar != null) {
             activity.setSupportActionBar(toolbar);
 
@@ -109,7 +109,7 @@ public class BaseLayoutHelper {
     }
 
     private void addContent(AppCompatActivity activity, int contentId, View layout) {
-        ViewGroup container = (ViewGroup) layout.findViewById(R.id.container);
+        ViewGroup container = layout.findViewById(R.id.container);
         View content = activity.getLayoutInflater().inflate(contentId, null);
         container.addView(content);
     }

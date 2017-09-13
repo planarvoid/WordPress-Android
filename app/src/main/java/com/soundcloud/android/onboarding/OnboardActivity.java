@@ -290,7 +290,7 @@ public class OnboardActivity extends FragmentActivity
         backgroundImageIdx = savedInstanceState == null
                              ? new Random().nextInt(BACKGROUND_IMAGES.length)
                              : savedInstanceState.getInt(BACKGROUND_IMAGE_IDX);
-        ImageView bgImageView = (ImageView) findViewById(R.id.landing_background_image);
+        ImageView bgImageView = findViewById(R.id.landing_background_image);
         final Drawable drawable = ResourcesCompat.getDrawable(getResources(),
                                                               BACKGROUND_IMAGES[backgroundImageIdx],
                                                               null);
@@ -744,7 +744,7 @@ public class OnboardActivity extends FragmentActivity
 
     private LoginLayout getLoginLayout() {
         if (loginLayout == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
+            ViewStub stub = findViewById(R.id.login_stub);
 
             loginLayout = (LoginLayout) stub.inflate();
             loginLayout.setLoginHandler(this);
@@ -758,7 +758,7 @@ public class OnboardActivity extends FragmentActivity
 
     private SignupMethodLayout getSignUpMethodLayout() {
         if (signUpMethodLayout == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
+            ViewStub stub = findViewById(R.id.sign_up_stub);
 
             signUpMethodLayout = (SignupMethodLayout) stub.inflate();
             signUpMethodLayout.setSignUpMethodHandler(this);
@@ -771,7 +771,7 @@ public class OnboardActivity extends FragmentActivity
 
     private SignupBasicsLayout getSignUpBasicsLayout() {
         if (signUpBasicsLayout == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_basic_stub);
+            ViewStub stub = findViewById(R.id.sign_up_basic_stub);
 
             signUpBasicsLayout = (SignupBasicsLayout) stub.inflate();
             signUpBasicsLayout.setSignUpHandler(this);
@@ -784,7 +784,7 @@ public class OnboardActivity extends FragmentActivity
 
     private SignupDetailsLayout getSignUpDetailsLayout() {
         if (signUpDetailsLayout == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
+            ViewStub stub = findViewById(R.id.user_details_stub);
 
             signUpDetailsLayout = (SignupDetailsLayout) stub.inflate();
             signUpDetailsLayout.setUserDetailsHandler(this);
@@ -797,7 +797,7 @@ public class OnboardActivity extends FragmentActivity
 
     private AcceptTermsLayout getAcceptTermsLayout() {
         if (acceptTermsLayout == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
+            ViewStub stub = findViewById(R.id.accept_terms_stub);
 
             acceptTermsLayout = (AcceptTermsLayout) stub.inflate();
             acceptTermsLayout.setAcceptTermsHandler(this);

@@ -43,7 +43,7 @@ public class GcmDebugDialogFragment extends DialogFragment implements GcmMessage
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        debugText = (TextView) view.findViewById(android.R.id.message);
+        debugText = view.findViewById(android.R.id.message);
         gcmMessageHandler.setListener(this);
 
     }

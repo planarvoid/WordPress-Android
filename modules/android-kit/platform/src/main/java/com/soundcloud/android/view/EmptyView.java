@@ -191,10 +191,10 @@ public class EmptyView extends RelativeLayout {
 
         addView(emptyLayout, params);
 
-        textMessage = (TextView) findViewById(R.id.ak_emptyview_message);
-        textLink = (TextView) findViewById(R.id.ak_emptyview_link);
-        buttonAction = (Button) findViewById(R.id.ak_emptyview_btn_action);
-        image = (ImageView) findViewById(R.id.ak_emptyview_image);
+        textMessage = findViewById(R.id.ak_emptyview_message);
+        textLink = findViewById(R.id.ak_emptyview_link);
+        buttonAction = findViewById(R.id.ak_emptyview_btn_action);
+        image = findViewById(R.id.ak_emptyview_image);
 
         if (image != null) {
             setImage(imageResource);

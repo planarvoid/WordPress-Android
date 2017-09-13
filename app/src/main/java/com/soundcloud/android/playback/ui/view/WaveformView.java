@@ -125,11 +125,11 @@ public class WaveformView extends FrameLayout {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.player_progress_layout, this);
 
-        leftWaveform = (WaveformCanvas) findViewById(R.id.waveform_left);
-        rightWaveform = (WaveformCanvas) findViewById(R.id.waveform_right);
+        leftWaveform = findViewById(R.id.waveform_left);
+        rightWaveform = findViewById(R.id.waveform_right);
 
-        dragView = (FixedWidthView) findViewById(R.id.drag_view);
-        dragViewHolder = (WaveformScrollView) findViewById(R.id.drag_view_holder);
+        dragView = findViewById(R.id.drag_view);
+        dragViewHolder = findViewById(R.id.drag_view_holder);
 
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
@@ -138,8 +138,8 @@ public class WaveformView extends FrameLayout {
         leftWaveform.setPivotY(baseline);
         rightWaveform.setPivotY(baseline);
 
-        leftLine = (ImageView) findViewById(R.id.line_left);
-        rightLine = (ImageView) findViewById(R.id.line_right);
+        leftLine = findViewById(R.id.line_left);
+        rightLine = findViewById(R.id.line_right);
 
         leftLine.setImageDrawable(createLoadingDrawable(progressAboveEnd, unplayableAbovePaint));
         rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove, unplayableBelowPaint));

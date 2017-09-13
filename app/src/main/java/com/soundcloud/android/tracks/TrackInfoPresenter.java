@@ -145,7 +145,7 @@ public class TrackInfoPresenter {
     }
 
     private void setLikesDrawable(View view) {
-        final TextView likes = (TextView) view.findViewById(R.id.likes);
+        final TextView likes = view.findViewById(R.id.likes);
         likes.setCompoundDrawablesWithIntrinsicBounds(changeLikeToSaveExperiment.isEnabled()
                                                       ? R.drawable.stats_added_grey
                                                       : R.drawable.stats_likes_grey, 0, 0, 0);
@@ -170,13 +170,13 @@ public class TrackInfoPresenter {
     }
 
     private void setTextAndShow(View view, int id, String text) {
-        final TextView textView = ((TextView) view.findViewById(id));
+        final TextView textView = view.findViewById(id);
         textView.setText(text);
         textView.setVisibility(View.VISIBLE);
     }
 
     private void setTextAndShow(View view, int id, Spanned text) {
-        final TextView textView = ((TextView) view.findViewById(id));
+        final TextView textView = view.findViewById(id);
         textView.setText(text);
         textView.setVisibility(View.VISIBLE);
     }

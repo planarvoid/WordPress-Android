@@ -87,7 +87,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle<Fragmen
         }
         emptyViewController.onViewCreated(fragment, view, savedInstanceState);
 
-        absListView = (AbsListView) view.findViewById(android.R.id.list);
+        absListView = view.findViewById(android.R.id.list);
         absListView.setEmptyView(emptyViewController.getEmptyView());
 
         if (scrollListener == null) {

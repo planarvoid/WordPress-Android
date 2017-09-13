@@ -60,14 +60,13 @@ class PlaylistHeaderScrollHelper extends DefaultSupportFragmentLightCycle<Fragme
         private final float toolbarElevationTarget;
         private final View emptyView;
 
-
         public PlaylistScrollScreen(Fragment fragment) {
             final FragmentActivity activity = fragment.getActivity();
             this.refreshLayout = ((RefreshableScreen) fragment).getRefreshLayout();
-            toolBar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+            toolBar = activity.findViewById(R.id.toolbar_id);
             contentView = activity.findViewById(R.id.ak_recycler_view);
             headerView = activity.findViewById(R.id.playlist_details);
-            appBarLayout = (AppBarLayout) activity.findViewById(R.id.appbar);
+            appBarLayout = activity.findViewById(R.id.appbar);
             toolbarElevationTarget = activity.getResources().getDimension(R.dimen.toolbar_elevation);
             emptyView = activity.findViewById(android.R.id.empty);
         }

@@ -22,8 +22,8 @@ public class PlayerTrackArtworkView extends FrameLayout {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.player_track_artwork_view, this);
 
-        wrappedImageView = (ImageView) findViewById(R.id.artwork_image_view);
-        imageOverlay = (ImageView) findViewById(R.id.artwork_overlay_image);
+        wrappedImageView = findViewById(R.id.artwork_image_view);
+        imageOverlay = findViewById(R.id.artwork_overlay_image);
         imageHolder = findViewById(R.id.artwork_holder);
 
         wrappedImageView.setScaleX(PLAYING_SCALE);

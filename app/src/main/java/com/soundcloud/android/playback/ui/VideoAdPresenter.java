@@ -288,7 +288,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             super(adView);
             videoContainer = adView.findViewById(R.id.video_container);
-            videoTextureView = (TextureView) adView.findViewById(R.id.video_view);
+            videoTextureView = adView.findViewById(R.id.video_view);
             videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
             videoOverlay = adView.findViewById(R.id.video_overlay);
             viewabilityLayer = adView.findViewById(R.id.viewability_layer);

@@ -97,7 +97,7 @@ public abstract class AdOverlayPresenter {
         this.listener = listener;
         this.eventBus = eventBus;
 
-        this.adImage = (ImageView) overlay.findViewById(adImageId);
+        this.adImage = overlay.findViewById(adImageId);
         final View adImageHolder = overlay.findViewById(adClickId);
         adImageHolder.setOnClickListener(v -> listener.onImageClick());
 

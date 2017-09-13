@@ -26,7 +26,7 @@ class HeaderPlayQueueItemRenderer implements CellRenderer<HeaderPlayQueueUIItem>
     @Override
     public void bindItemView(final int position, View itemView, List<HeaderPlayQueueUIItem> items) {
         final HeaderPlayQueueUIItem item = items.get(position);
-        final TextView textHolder = (TextView) itemView.findViewById(R.id.title);
+        final TextView textHolder = itemView.findViewById(R.id.title);
         textHolder.setText(item.getHeader());
         itemView.setAlpha(getAlpha(item.getRepeatMode(), item.getPlayState()));
     }

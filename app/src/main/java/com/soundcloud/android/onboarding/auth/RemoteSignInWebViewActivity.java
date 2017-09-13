@@ -15,7 +15,7 @@ public class RemoteSignInWebViewActivity extends WebViewActivity {
     }
 
     private void configureToolbar() {
-        CustomFontTitleToolbar customFontTitleToolbar = (CustomFontTitleToolbar) findViewById(R.id.toolbar_id);
+        CustomFontTitleToolbar customFontTitleToolbar = findViewById(R.id.toolbar_id);
         customFontTitleToolbar.setTitle(getString(R.string.remote_signin_activity_title));
         customFontTitleToolbar.setNavigationIcon(R.drawable.close_icon);
         customFontTitleToolbar.setNavigationOnClickListener(v -> finish());

@@ -23,10 +23,10 @@ public class ErrorView extends ScrollView {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        imageView = (ImageView) findViewById(R.id.ak_emptyview_error_image);
-        serverErrorText = (TextView) findViewById(R.id.ak_emptyview_error_message1);
-        connectionErrorTitle = (TextView) findViewById(R.id.ak_emptyview_error_message2);
-        connectionErrorSubtitle = (TextView) findViewById(R.id.ak_emptyview_error_message3);
+        imageView = findViewById(R.id.ak_emptyview_error_image);
+        serverErrorText = findViewById(R.id.ak_emptyview_error_message1);
+        connectionErrorTitle = findViewById(R.id.ak_emptyview_error_message2);
+        connectionErrorSubtitle = findViewById(R.id.ak_emptyview_error_message3);
     }
 
     public void setServerErrorState() {

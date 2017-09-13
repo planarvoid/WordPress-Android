@@ -143,7 +143,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.OPT_IN_CARD));
 
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(2);
     }
 
@@ -283,7 +283,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.complete();
         eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
 
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(2);
     }
 
@@ -295,7 +295,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.error(PlayStateReason.ERROR_FORBIDDEN);
         eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
 
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(2);
     }
 
@@ -353,7 +353,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         presenter.onSkipAd();
 
         verify(adPlayer).pause();
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(2);
     }
 
@@ -459,7 +459,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onOptionTwoClick(PrestitialPage.OPT_IN_CARD, sponsoredSessionAd);
 
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(1);
     }
 
@@ -484,7 +484,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     private void setSponsoredSessionPage(int position) {
-        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         pager.setCurrentItem(position);
     }
 }

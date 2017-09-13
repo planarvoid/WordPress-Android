@@ -8,7 +8,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 public class AcceptTermsLayout extends RelativeLayout {
 
@@ -62,11 +61,11 @@ public class AcceptTermsLayout extends RelativeLayout {
 
         findViewById(R.id.btn_accept_terms).setOnClickListener(v -> getAcceptTermsHandler().onAcceptTerms(signupVia, signupParams));
 
-        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
+        ScTextUtils.clickify(findViewById(android.R.id.message),
                              getResources().getString(R.string.terms_of_use),
                              () -> getAcceptTermsHandler().onShowTermsOfUse(), false, false);
 
-        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
+        ScTextUtils.clickify(findViewById(android.R.id.message),
                              getResources().getString(R.string.privacy_policy),
                              () -> getAcceptTermsHandler().onShowPrivacyPolicy(), false, false);
 

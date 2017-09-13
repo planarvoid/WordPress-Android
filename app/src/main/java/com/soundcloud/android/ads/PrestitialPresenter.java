@@ -111,7 +111,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void bindSponsoredSession(SponsoredSessionAd ad, AppCompatActivity activity) {
         final PrestitialAdapter adapter = prestitialAdapterFactory.create(ad, this, sponsoredSessionVideoView.get());
-        final ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        final ViewPager pager = activity.findViewById(R.id.prestitial_pager);
         final SponsoredSessionPageListener pageChangeListener = new SponsoredSessionPageListener(adapter, ad);
         pager.addOnPageChangeListener(pageChangeListener);
         pager.setAdapter(adapter);

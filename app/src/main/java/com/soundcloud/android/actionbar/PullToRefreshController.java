@@ -61,7 +61,7 @@ public class PullToRefreshController extends DefaultSupportFragmentLightCycle<Fr
             // this is only used for ScListFragment right now
             swipeRefreshLayout = (MultiSwipeRefreshLayout) view;
         } else {
-            swipeRefreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
+            swipeRefreshLayout = view.findViewById(R.id.str_layout);
         }
 
         wrapper.attach(refreshListener, swipeRefreshLayout,

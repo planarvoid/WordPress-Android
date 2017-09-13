@@ -30,7 +30,7 @@ class EmptyPlaylistsRenderer implements CellRenderer<PlaylistCollectionEmptyPlay
 
     @Override
     public void bindItemView(int position, View view, List<PlaylistCollectionEmptyPlaylistItem> list) {
-        TextView collectionsEmptyPlaylists = (TextView) view.findViewById(R.id.collections_empty_playlists);
+        TextView collectionsEmptyPlaylists = view.findViewById(R.id.collections_empty_playlists);
         collectionsEmptyPlaylists.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_EMPTY_PLAYLISTS));
     }
 }

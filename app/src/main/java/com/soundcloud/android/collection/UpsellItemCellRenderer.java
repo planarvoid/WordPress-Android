@@ -45,7 +45,7 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<CollectionItem> items) {
-        TextView description = (TextView) itemView.findViewById(R.id.description);
+        TextView description = itemView.findViewById(R.id.description);
         description.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_UPSELL_BODY));
 
         itemView.setEnabled(false);
@@ -63,7 +63,7 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
                 }
             };
             itemView.findViewById(R.id.close_button).setOnClickListener(clickListener);
-            Button upgrade = (Button) itemView.findViewById(R.id.upsell_button);
+            Button upgrade = itemView.findViewById(R.id.upsell_button);
             configureUpgradeButton(upgrade, clickListener);
         }
     }

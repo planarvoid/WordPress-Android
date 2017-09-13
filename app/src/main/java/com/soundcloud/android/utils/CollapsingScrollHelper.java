@@ -26,12 +26,12 @@ public class CollapsingScrollHelper extends DefaultSupportFragmentLightCycle<Fra
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.str_layout);
+        swipeRefreshLayout = view.findViewById(R.id.str_layout);
         if (this.swipeRefreshLayout == null) {
             throw new IllegalStateException("Expected to find SwipeRefreshLayout with ID R.id.str_layout");
         }
 
-        appBarLayout = (AppBarLayout) view.findViewById(R.id.appbar);
+        appBarLayout = view.findViewById(R.id.appbar);
         if (this.appBarLayout == null) {
             throw new IllegalStateException("Expected to find AppBarLayout with ID R.id.appbar");
         }

@@ -29,9 +29,9 @@ public class StyledImageViewTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         styledImageView = new StyledImageView(context(), attributeSet);
-        circularArtwork = (ImageView) styledImageView.findViewById(R.id.circular_artwork);
-        squareArtwork = (ImageView) styledImageView.findViewById(R.id.square_artwork);
-        stationsIndicator = (ImageView) styledImageView.findViewById(R.id.station_indicator);
+        circularArtwork = styledImageView.findViewById(R.id.circular_artwork);
+        squareArtwork = styledImageView.findViewById(R.id.square_artwork);
+        stationsIndicator = styledImageView.findViewById(R.id.station_indicator);
     }
 
     @Test

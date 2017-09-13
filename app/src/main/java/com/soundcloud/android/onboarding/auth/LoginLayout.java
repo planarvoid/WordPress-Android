@@ -54,8 +54,8 @@ public class LoginLayout extends AuthLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+        EditText emailField = findViewById(R.id.auto_txt_email_address);
+        EditText passwordField = findViewById(R.id.txt_password);
 
         Bundle bundle = new Bundle();
         bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
@@ -68,8 +68,8 @@ public class LoginLayout extends AuthLayout {
             return;
         }
 
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+        EditText emailField = findViewById(R.id.auto_txt_email_address);
+        EditText passwordField = findViewById(R.id.txt_password);
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
         passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
@@ -86,11 +86,11 @@ public class LoginLayout extends AuthLayout {
         emailField.setAdapter(adapter);
         emailField.setThreshold(0);
 
-        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
+        ScTextUtils.clickify(findViewById(R.id.txt_i_forgot_my_password),
                              getResources().getString(R.string.authentication_I_forgot_my_password),
                              () -> getLoginHandler().onRecoverPassword(emailField.getText().toString()), true, false);
 
-        ScTextUtils.clickify(((TextView) findViewById(R.id.tou_reminder)),
+        ScTextUtils.clickify(findViewById(R.id.tou_reminder),
                              getResources().getString(R.string.onboarding_tou_reminder_link_highlight),
                              () -> getLoginHandler().onShowTermsOfUse(), true, false);
     }

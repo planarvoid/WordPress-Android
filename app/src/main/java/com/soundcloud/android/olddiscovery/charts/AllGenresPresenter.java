@@ -34,7 +34,7 @@ public class AllGenresPresenter extends DefaultActivityLightCycle<AppCompatActiv
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
         adapter = new GenresPagerAdapter(activity.getSupportFragmentManager(), resources);
-        pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager = activity.findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
@@ -45,7 +45,7 @@ public class AllGenresPresenter extends DefaultActivityLightCycle<AppCompatActiv
             }
         });
 
-        TabLayout tabIndicator = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        TabLayout tabIndicator = activity.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
 
         Intent intent = activity.getIntent();

@@ -37,7 +37,7 @@ public class DelayedLoadingDialogPresenter {
     public DelayedLoadingDialogPresenter show(Context context) {
         final View content = View.inflate(context, R.layout.dialog_delayed_loading, null);
 
-        loadingAnimationView = (LoadingAnimationView) content.findViewById(R.id.loading_animation);
+        loadingAnimationView = content.findViewById(R.id.loading_animation);
         ((TextView) content.findViewById(R.id.loading_message)).setText(loadingMessage);
 
         dialog = new AlertDialog.Builder(context)

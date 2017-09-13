@@ -60,7 +60,7 @@ public class SnackBarWrapper {
     private Snackbar createSnackBar(View anchor, int resId, int length) {
         final Snackbar snackBar = Snackbar.make(anchor, resId, length);
         final View view = snackBar.getView();
-        TextView textView = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+        TextView textView = view.findViewById(android.support.design.R.id.snackbar_text);
         view.setBackgroundColor(bgColor);
         textView.setTextColor(textColor);
         textView.setSingleLine();

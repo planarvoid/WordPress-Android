@@ -58,7 +58,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     public View createItemView(ViewGroup parent) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bucket_list_item, parent, false);
 
-        initCarousel(view, ((RecyclerView) view.findViewById(R.id.bucket_items)));
+        initCarousel(view, view.findViewById(R.id.bucket_items));
         return view;
     }
 
@@ -99,7 +99,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private void bindResultList(View itemView, Resources resources, List<SearchItem> searchItems) {
         ((SearchItemAdapter) itemView.getTag()).setItems(searchItems);
-        addListDividers(((RecyclerView) itemView.findViewById(R.id.bucket_items)), resources);
+        addListDividers(itemView.findViewById(R.id.bucket_items), resources);
     }
 
     private void bindTitle(View itemView, String bucketText) {

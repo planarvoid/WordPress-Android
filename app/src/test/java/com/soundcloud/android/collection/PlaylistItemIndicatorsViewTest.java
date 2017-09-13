@@ -39,8 +39,8 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowNoNetworkIndicatorOnRequestedAndNoWifi() {
-        final DownloadImageView offlineIndicator = (DownloadImageView) view.findViewById(R.id.offline_state_indicator);
-        final ImageView noNetworkIndicator = (ImageView) view.findViewById(R.id.no_network_indicator);
+        final DownloadImageView offlineIndicator = view.findViewById(R.id.offline_state_indicator);
+        final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
@@ -54,8 +54,8 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowNoNetworkIndicatorOnRequestedAndNoNetwork() {
-        final DownloadImageView offlineIndicator = (DownloadImageView) view.findViewById(R.id.offline_state_indicator);
-        final ImageView noNetworkIndicator = (ImageView) view.findViewById(R.id.no_network_indicator);
+        final DownloadImageView offlineIndicator = view.findViewById(R.id.offline_state_indicator);
+        final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
@@ -69,8 +69,8 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowOfflineIndicatorAndHideLikeIndicator() {
-        final DownloadImageView offlineIndicator = (DownloadImageView) view.findViewById(R.id.offline_state_indicator);
-        final ImageView noNetworkIndicator = (ImageView) view.findViewById(R.id.no_network_indicator);
+        final DownloadImageView offlineIndicator = view.findViewById(R.id.offline_state_indicator);
+        final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
@@ -83,8 +83,8 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideOfflineIndicatorAndShowLikeIndicator() {
-        final DownloadImageView offlineIndicator = (DownloadImageView) view.findViewById(R.id.offline_state_indicator);
-        final ImageView noNetworkIndicator = (ImageView) view.findViewById(R.id.no_network_indicator);
+        final DownloadImageView offlineIndicator = view.findViewById(R.id.offline_state_indicator);
+        final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
 
         playlistItemIndicatorsView.setupView(view, false, true, Optional.absent());
@@ -96,8 +96,8 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideOfflineIndicatorAndHideLikeIndicatorIfExperimentIsEnabled() {
-        final DownloadImageView offlineIndicator = (DownloadImageView) view.findViewById(R.id.offline_state_indicator);
-        final ImageView noNetworkIndicator = (ImageView) view.findViewById(R.id.no_network_indicator);
+        final DownloadImageView offlineIndicator = view.findViewById(R.id.offline_state_indicator);
+        final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(changeLikeToSaveExperiment.isEnabled()).thenReturn(true);
 

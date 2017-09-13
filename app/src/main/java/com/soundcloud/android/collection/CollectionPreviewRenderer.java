@@ -134,7 +134,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private CollectionPreviewView setupPlaylistsView(View parent, @StringRes int titleRes, View.OnClickListener onClickListener) {
-        final CollectionPreviewView playlistsView = (CollectionPreviewView) parent.findViewById(R.id.collection_playlists_preview);
+        final CollectionPreviewView playlistsView = parent.findViewById(R.id.collection_playlists_preview);
         final View divider = parent.findViewById(R.id.collection_playlists_preview_divider);
         divider.setVisibility(View.VISIBLE);
         playlistsView.setVisibility(View.VISIBLE);
@@ -144,7 +144,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private CollectionPreviewView setupAlbumsView(View parent, View.OnClickListener onClickListener) {
-        final CollectionPreviewView albumsView = (CollectionPreviewView) parent.findViewById(R.id.collection_albums_preview);
+        final CollectionPreviewView albumsView = parent.findViewById(R.id.collection_albums_preview);
         final View divider = parent.findViewById(R.id.collection_albums_preview_divider);
         divider.setVisibility(View.VISIBLE);
         albumsView.setVisibility(View.VISIBLE);
@@ -153,7 +153,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private CollectionPreviewView setupStationsView(View parent) {
-        final CollectionPreviewView stationsView = (CollectionPreviewView) parent.findViewById(R.id.collection_stations_preview);
+        final CollectionPreviewView stationsView = parent.findViewById(R.id.collection_stations_preview);
         stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
         stationsView.setVisibility(View.VISIBLE);
         stationsView.setOnClickListener(view -> onGoToStationsClick());

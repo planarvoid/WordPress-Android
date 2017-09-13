@@ -95,12 +95,12 @@ public class TabbedSearchFragment extends Fragment {
                                        getSearchQueryPosition(),
                                        firstTime);
 
-        pager = (ViewPager) view.findViewById(R.id.pager);
+        pager = view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
+        TabLayout tabIndicator = view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
         pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, getApiQuery()));
     }

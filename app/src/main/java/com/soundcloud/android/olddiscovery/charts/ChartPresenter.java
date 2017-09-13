@@ -58,7 +58,7 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
         }
 
         adapter = new ChartPagerAdapter(activity.getSupportFragmentManager(), resources, chartGenreUrn);
-        pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager = activity.findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
@@ -75,7 +75,7 @@ class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implemen
             }
         });
 
-        final TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        final TabLayout tabLayout = activity.findViewById(R.id.tab_indicator);
         tabLayout.setupWithViewPager(pager);
     }
 

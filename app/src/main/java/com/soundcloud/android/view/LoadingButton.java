@@ -56,8 +56,8 @@ public class LoadingButton extends RelativeLayout {
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
         LayoutInflater.from(context).inflate(R.layout.loading_button, this);
-        label = (TextView) findViewById(R.id.label);
-        progress = (ProgressBar) findViewById(R.id.progress);
+        label = findViewById(R.id.label);
+        progress = findViewById(R.id.progress);
         setupAttributes(context, attrs, defStyle);
         setClickable(true);
     }

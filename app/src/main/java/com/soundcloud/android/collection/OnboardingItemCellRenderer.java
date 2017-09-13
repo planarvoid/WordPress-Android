@@ -41,7 +41,7 @@ class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<CollectionItem> items) {
-        TextView title = (TextView) itemView.findViewById(R.id.title);
+        TextView title = itemView.findViewById(R.id.title);
         title.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_ONBOARDING_TITLE));
 
         itemView.setEnabled(false);

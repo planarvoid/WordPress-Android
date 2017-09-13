@@ -76,7 +76,7 @@ class UserDetailsView {
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         for (SocialMediaLinkItem socialMediaLink : socialMediaLinks) {
             final View link = layoutInflater.inflate(R.layout.user_info_social_media_link, null);
-            final CustomFontTextView linkText = (CustomFontTextView) link.findViewById(R.id.social_link);
+            final CustomFontTextView linkText = link.findViewById(R.id.social_link);
             linkText.setMovementMethod(LinkMovementMethod.getInstance());
             linkText.setText(socialMediaLink.displayName());
             linkText.setCompoundDrawablesWithIntrinsicBounds(socialMediaLink.icon(context), null, null, null);

@@ -34,7 +34,7 @@ public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         view = new SystemPlaylistArtworkView(context());
-        artworkContainer = (ViewFlipper) view.findViewById(R.id.artwork_animator);
+        artworkContainer = view.findViewById(R.id.artwork_animator);
     }
 
     @Test

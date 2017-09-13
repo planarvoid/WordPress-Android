@@ -223,12 +223,12 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
             this.previousButton = adView.findViewById(R.id.player_previous);
             this.playControlsHolder = adView.findViewById(R.id.play_controls);
             this.skipAd = adView.findViewById(R.id.skip_ad);
-            this.timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
+            this.timeUntilSkip = adView.findViewById(R.id.time_until_skip);
             this.previewArtworkOverlay = adView.findViewById(R.id.preview_artwork_overlay);
             this.previewContainer = adView.findViewById(R.id.preview_container);
-            this.previewTitle = (TextView) adView.findViewById(R.id.preview_title);
-            this.previewArtwork = (ImageView) adView.findViewById(R.id.preview_artwork);
-            this.ctaButton = (RoundedColorButton) adView.findViewById(R.id.cta_button);
+            this.previewTitle = adView.findViewById(R.id.preview_title);
+            this.previewArtwork = adView.findViewById(R.id.preview_artwork);
+            this.ctaButton = adView.findViewById(R.id.cta_button);
             this.whyAds = adView.findViewById(R.id.why_ads);
             this.advertisement = adView.findViewById(R.id.advertisement);
 

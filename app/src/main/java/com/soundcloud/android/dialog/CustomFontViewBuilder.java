@@ -39,7 +39,7 @@ public class CustomFontViewBuilder {
     }
 
     public CustomFontViewBuilder setTitle(String title) {
-        final TextView titleView = (TextView) view.findViewById(R.id.custom_dialog_title);
+        final TextView titleView = view.findViewById(R.id.custom_dialog_title);
         titleView.setText(title);
         return this;
     }
@@ -50,7 +50,7 @@ public class CustomFontViewBuilder {
     }
 
     public CustomFontViewBuilder setMessage(String text) {
-        final TextView contentView = (TextView) view.findViewById(R.id.custom_dialog_body);
+        final TextView contentView = view.findViewById(R.id.custom_dialog_body);
         contentView.setText(text);
         contentView.setVisibility(View.VISIBLE);
         return this;

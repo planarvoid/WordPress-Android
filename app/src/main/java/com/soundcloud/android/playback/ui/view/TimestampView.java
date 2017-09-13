@@ -83,8 +83,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         setOrientation(VERTICAL);
         setClipChildren(false);
 
-        progressText = (TextView) findViewById(R.id.timestamp_progress);
-        durationText = (TextView) findViewById(R.id.timestamp_duration);
+        progressText = findViewById(R.id.timestamp_progress);
+        durationText = findViewById(R.id.timestamp_duration);
         background = findViewById(R.id.timestamp_background);
         timestampLayout = findViewById(R.id.timestamp_layout);
         timestampHolder = findViewById(R.id.timestamp_holder);

@@ -85,7 +85,7 @@ public class ChangeStorageLocationPresenterTest extends AndroidUnitTest {
         assertThat(presenter.sdCardRadioButton.isChecked()).isTrue();
 
         Dialog dialog = ShadowAlertDialog.getLatestDialog();
-        Button negativeButton = (Button) dialog.findViewById(android.R.id.button2);
+        Button negativeButton = dialog.findViewById(android.R.id.button2);
         negativeButton.performClick();
         assertThat(presenter.storageRadioButton.isChecked()).isTrue();
     }
@@ -98,7 +98,7 @@ public class ChangeStorageLocationPresenterTest extends AndroidUnitTest {
         presenter.sdCardRadioButton.setChecked(true);
 
         Dialog dialog = ShadowAlertDialog.getLatestDialog();
-        Button positiveButton = (Button) dialog.findViewById(android.R.id.button1);
+        Button positiveButton = dialog.findViewById(android.R.id.button1);
         positiveButton.performClick();
 
         verify(offlineContentOperations).resetOfflineContent(OfflineContentLocation.SD_CARD);
@@ -122,7 +122,7 @@ public class ChangeStorageLocationPresenterTest extends AndroidUnitTest {
         presenter.sdCardRadioButton.setChecked(true);
 
         Dialog dialog = ShadowAlertDialog.getLatestDialog();
-        Button positiveButton = (Button) dialog.findViewById(android.R.id.button1);
+        Button positiveButton = dialog.findViewById(android.R.id.button1);
         positiveButton.performClick();
 
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(OfflineInteractionEvent.class));

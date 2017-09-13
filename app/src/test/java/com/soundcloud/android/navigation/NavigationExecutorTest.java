@@ -337,7 +337,7 @@ public class NavigationExecutorTest extends AndroidUnitTest {
 
     @Test
     public void openActivities() {
-        activityContext.startActivity(createActivitiesIntent((Context) activityContext));
+        activityContext.startActivity(createActivitiesIntent(activityContext));
         assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);
     }
 

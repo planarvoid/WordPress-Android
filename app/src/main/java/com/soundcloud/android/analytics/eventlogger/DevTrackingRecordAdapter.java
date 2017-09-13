@@ -66,8 +66,8 @@ class DevTrackingRecordAdapter extends RecyclerView.Adapter<DevTrackingRecordAda
 
         TrackingRecordViewHolder(View itemView) {
             super(itemView);
-            this.timestamp = (TextView) itemView.findViewById(R.id.timestamp);
-            this.data = (TextView) itemView.findViewById(R.id.data);
+            this.timestamp = itemView.findViewById(R.id.timestamp);
+            this.data = itemView.findViewById(R.id.data);
         }
     }
 }

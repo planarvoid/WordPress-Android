@@ -97,7 +97,7 @@ class BannerProfileScrollHelper
     }
 
     private void setupCollapsingToolbar(AppCompatActivity activity) {
-        final CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.collapsing_toolbar);
+        final CollapsingToolbarLayout collapsingToolbarLayout = activity.findViewById(R.id.collapsing_toolbar);
         if (collapsingToolbarLayout != null) {
             toolbar.setDarkMode();
             listenForOffsetChanges();

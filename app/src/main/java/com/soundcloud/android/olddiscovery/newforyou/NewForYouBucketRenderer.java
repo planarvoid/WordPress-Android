@@ -40,7 +40,7 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
     public void bindItemView(int position, View bucketView, List<NewForYouDiscoveryItem> items) {
         List<ImageResource> imageResources = transform(items.get(position).newForYou().tracks(), entityItemCreator::trackItem);
 
-        bindCoverArtAnimation((SystemPlaylistArtworkView) bucketView.findViewById(R.id.artwork), imageResources);
+        bindCoverArtAnimation(bucketView.findViewById(R.id.artwork), imageResources);
         bindViewAllViews(bucketView.findViewById(R.id.view_all_container), bucketView.findViewById(R.id.new_for_you_bucket_header));
     }
 

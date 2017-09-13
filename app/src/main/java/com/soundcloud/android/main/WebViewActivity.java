@@ -16,7 +16,7 @@ public class WebViewActivity extends RootActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        webView = (WebView) findViewById(R.id.webview);
+        webView = findViewById(R.id.webview);
 
         final Uri uri = getIntent() != null ? getIntent().getData() : null;
         if (uri != null) {

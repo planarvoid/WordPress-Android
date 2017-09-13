@@ -44,8 +44,8 @@ public class OfflineStateButton extends LinearLayout implements OfflineStateHelp
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.offline_state_button, this);
-        icon = (ImageView) findViewById(R.id.icon);
-        label = (TextView) findViewById(R.id.label);
+        icon = findViewById(R.id.icon);
+        label = findViewById(R.id.label);
         setClickable(true);
         setState(OfflineState.NOT_OFFLINE);
     }

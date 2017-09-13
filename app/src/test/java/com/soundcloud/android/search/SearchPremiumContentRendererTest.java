@@ -107,7 +107,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         assertThat(playListItemView.hasOnClickListeners()).isTrue();
         assertThat(trackItemView.getVisibility()).isEqualTo(GONE);
         assertThat(userItemView.getVisibility()).isEqualTo(GONE);
-        TextView resultsCountTextView = (TextView) premiumItemView.findViewById(R.id.results_count);
+        TextView resultsCountTextView = premiumItemView.findViewById(R.id.results_count);
         assertThat(resultsCountTextView.getText()).contains(numberFormatter.format(1));
         verify(playlistRenderer).bindItemView(eq(0), eq(playListItemView), anyList());
     }
@@ -117,7 +117,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItemWithManyResults(10000));
 
-        TextView resultsCountTextView = (TextView) premiumItemView.findViewById(R.id.results_count);
+        TextView resultsCountTextView = premiumItemView.findViewById(R.id.results_count);
         assertThat(resultsCountTextView.getText()).contains(numberFormatter.format(10000));
     }
 
