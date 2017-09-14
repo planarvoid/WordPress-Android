@@ -94,6 +94,7 @@ class MetadataOperations {
         };
     }
 
+    @Nullable
     private Bitmap getCachedBitmap(SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
         return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);

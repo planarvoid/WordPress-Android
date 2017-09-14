@@ -9,6 +9,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -556,4 +557,22 @@ public class ImageOperationsTest extends AndroidUnitTest {
         assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
     }
 
+    @Test
+    public void getsCachedBitmap() throws Exception {
+        when(imageLoader.getMemoryCache().get(anyString())).thenReturn(mock(Bitmap.class));
+
+        Bitmap cachedBitmap = imageOperations.getCachedBitmap(imageResource, ApiImageSize.T500, 100, 100);
+        assertThat(cachedBitmap).isNotNull();
+    }
+
+    @Test
+    public void returnsNullBitmapWhenUrlNotFound() throws Exception {
+        ImageResource imageResource = mock(ImageResource.class);
+        when(imageResource.getUrn()).thenReturn(Urn.NOT_SET);
+        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.absent());
+        Bitmap cachedBitmap = imageOperations.getCachedBitmap(imageResource, ApiImageSize.T500, 100, 100);
+
+        verify(imageLoader, never()).getMemoryCache();
+        assertThat(cachedBitmap).isNull();
+    }
 }

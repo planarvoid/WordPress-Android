@@ -284,8 +284,12 @@ public class ImageOperations {
                                   int targetWidth,
                                   int targetHeight) {
         final String imageUrl = imageUrlBuilder.buildUrl(imageResource.getImageUrlTemplate(), imageResource.getUrn(), apiImageSize);
-        final String key = MemoryCacheUtils.generateKey(imageUrl, new ImageSize(targetWidth, targetHeight));
-        return imageLoader.getMemoryCache().get(key);
+        if (imageUrl != null) {
+            final String key = MemoryCacheUtils.generateKey(imageUrl, new ImageSize(targetWidth, targetHeight));
+            return imageLoader.getMemoryCache().get(key);
+        } else {
+            return null;
+        }
     }
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
