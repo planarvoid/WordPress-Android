@@ -170,7 +170,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         public void onNext(ListItem result) {
             navigationExecutor.openPlaylistWithAutoPlay(activityContext,
                                                         result.getUrn(),
-                                                        Screen.SEARCH_PLAYLIST_DISCO);
+                                                        Screen.SEARCH_PLAYLISTS);
         }
 
         @Override

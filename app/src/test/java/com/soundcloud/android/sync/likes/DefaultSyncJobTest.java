@@ -55,13 +55,13 @@ public class DefaultSyncJobTest {
 
     @Test
     public void syncJobsAreEqualWithSameSyncable() throws Exception {
-        assertThat(new DefaultSyncJob(syncer, Syncable.CHART_GENRES))
-                .isEqualTo(new DefaultSyncJob(syncer, Syncable.CHART_GENRES));
+        assertThat(new DefaultSyncJob(syncer, Syncable.DISCOVERY_CARDS))
+                .isEqualTo(new DefaultSyncJob(syncer, Syncable.DISCOVERY_CARDS));
     }
 
     @Test
     public void syncJobsAreNotEqualWithDifferentSyncable() throws Exception {
-        assertThat(new DefaultSyncJob(syncer, Syncable.CHART_GENRES))
-                .isNotEqualTo(new DefaultSyncJob(syncer, Syncable.CHARTS));
+        assertThat(new DefaultSyncJob(syncer, Syncable.DISCOVERY_CARDS))
+                .isNotEqualTo(new DefaultSyncJob(syncer, Syncable.ME));
     }
 }

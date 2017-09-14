@@ -10,8 +10,8 @@ android:layout_height="wrap_content">
     android:layout_height="match_parent"
     layout="@layout/collection_recently_played_playlist_item"
     android:layout_marginBottom="8dp"
-    android:layout_marginEnd="@dimen/recommendation_item_right_margin"
-    android:layout_marginRight="@dimen/recommendation_item_right_margin" />
+    android:layout_marginEnd="@dimen/carousel_item_right_margin"
+    android:layout_marginRight="@dimen/carousel_item_right_margin" />
 
 <com.soundcloud.android.view.OverflowAnchorImageView
     android:id="@+id/overflow_button"

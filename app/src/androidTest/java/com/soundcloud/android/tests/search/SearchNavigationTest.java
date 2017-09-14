@@ -11,7 +11,7 @@ import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -21,7 +21,7 @@ import org.junit.Test;
 public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     private static final String SEARCH_LOCAL_RESULTS = "specs/search_local_results.spec";
-    private OldDiscoveryScreen discoveryScreen;
+    private DiscoveryScreen discoveryScreen;
 
     public SearchNavigationTest() {
         super(MainActivity.class);
@@ -36,7 +36,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        discoveryScreen = mainNavHelper.goToOldDiscovery();
+        discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
     @Ignore
@@ -51,7 +51,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
     private void assertGoBackFromSearchResultsReturnsToDiscoveryScreen() {
         final SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
                                                                  .doSearch(QUERY);
-        final OldDiscoveryScreen discoveryScreen = resultsScreen.goBack(OldDiscoveryScreen::new);
+        final DiscoveryScreen discoveryScreen = resultsScreen.goBack(DiscoveryScreen::new);
 
         assertThat("Tags screen should be visible", discoveryScreen, is(visible()));
     }

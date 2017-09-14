@@ -23,6 +23,7 @@ import java.util.List;
 
 public class SyncInitiatorTest extends AndroidUnitTest {
 
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     private final Scheduler scheduler = Schedulers.trampoline();
     private SyncInitiator syncInitiator;
     private TestObserver<SyncJobResult> syncObserver = new TestObserver<>();
@@ -36,11 +37,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void syncCreatesObservableForSyncable() {
-        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(Syncable.CHARTS).test();
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(SYNCABLE).test();
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
+        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.DISCOVERY_CARDS);
         assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
 
         syncSubscriber.assertNoValues();
@@ -50,12 +51,12 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void syncCreatesObservableForSyncableWithAction() {
-        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(Syncable.CHARTS, "action").test();
+        final TestObserver<SyncJobResult> syncSubscriber = syncInitiator.sync(Syncable.DISCOVERY_CARDS, "action").test();
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo("action");
-        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
+        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.DISCOVERY_CARDS);
         assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
 
         syncSubscriber.assertNoValues();
@@ -65,11 +66,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void synchroniseCreatesObservableForSyncable() {
-        syncInitiator.sync(Syncable.CHARTS).subscribe(syncObserver);
+        syncInitiator.sync(Syncable.DISCOVERY_CARDS).subscribe(syncObserver);
 
         Intent intent = getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
+        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.DISCOVERY_CARDS);
         assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
 
         syncObserver.assertNoValues();

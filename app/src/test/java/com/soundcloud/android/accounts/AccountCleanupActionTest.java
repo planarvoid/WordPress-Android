@@ -19,9 +19,6 @@ import com.soundcloud.android.discovery.DiscoveryWritableStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.SecureFileStorage;
-import com.soundcloud.android.olddiscovery.OldDiscoveryOperations;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsStorage;
-import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.DatabaseManager;
@@ -51,7 +48,6 @@ public class AccountCleanupActionTest {
     private AccountCleanupAction action;
 
     @Mock private Context context;
-    @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
@@ -61,7 +57,6 @@ public class AccountCleanupActionTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
-    @Mock private OldDiscoveryOperations oldDiscoveryOperations;
     @Mock private ClearTableCommand clearTableCommand;
     @Mock private SyncCleanupAction syncCleanupAction;
     @Mock private PlanStorage planStorage;
@@ -72,7 +67,6 @@ public class AccountCleanupActionTest {
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
     @Mock private PlayHistoryStorage playHistoryStorage;
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
-    @Mock private RecommendedPlaylistsStorage recommendedPlaylistStorage;
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
     @Mock private CommentsStorage commentsStorage;
@@ -86,7 +80,6 @@ public class AccountCleanupActionTest {
     @Before
     public void setup() {
         action = new AccountCleanupAction(userAssociationStorage,
-                                          tagStorage,
                                           soundRecorder,
                                           featureStorage,
                                           unauthorisedRequestRegistry,
@@ -94,7 +87,6 @@ public class AccountCleanupActionTest {
                                           syncCleanupAction,
                                           planStorage,
                                           removeLocalPlaylistsCommand,
-                                          oldDiscoveryOperations,
                                           clearTableCommand,
                                           stationsOperations,
                                           collectionOperations,
@@ -103,7 +95,6 @@ public class AccountCleanupActionTest {
                                           notificationPreferencesStorage,
                                           playHistoryStorage,
                                           recentlyPlayedStorage,
-                                          recommendedPlaylistStorage,
                                           gcmStorage,
                                           featureFlagsStorage,
                                           commentsStorage,
@@ -137,12 +128,6 @@ public class AccountCleanupActionTest {
     public void shouldClearLastObservedTimestamp() {
         action.call();
         verify(unauthorisedRequestRegistry).clearObservedUnauthorisedRequestTimestamp();
-    }
-
-    @Test
-    public void shouldClearPlaylistTagStorage() {
-        action.call();
-        verify(tagStorage).clear();
     }
 
     @Test
@@ -231,12 +216,6 @@ public class AccountCleanupActionTest {
     public void shouldRemoveLocalPlaylists() throws PropellerWriteException {
         action.call();
         verify(removeLocalPlaylistsCommand).call(null);
-    }
-
-    @Test
-    public void shouldRemoveRecommendations() throws PropellerWriteException {
-        action.call();
-        verify(oldDiscoveryOperations).clearData();
     }
 
     @Test

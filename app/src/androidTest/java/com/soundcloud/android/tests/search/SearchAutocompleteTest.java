@@ -1,9 +1,7 @@
 package com.soundcloud.android.tests.search;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.autocompleteTestUser;
 import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
-import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
 import static com.soundcloud.android.properties.Flag.NEW_HOME;
 import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static junit.framework.Assert.assertEquals;
@@ -12,7 +10,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
@@ -37,7 +34,6 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
     protected void beforeActivityLaunched() {
         FeatureFlagsHelper helper = create(getInstrumentation().getTargetContext());
         helper.disable(SEARCH_TOP_RESULTS);
-        helper.enable(DISCOVER_BACKEND);
         helper.enable(NEW_HOME);
     }
 

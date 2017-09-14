@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SyncStateStorageTest extends StorageIntegrationTest {
 
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     private SyncStateStorage storage;
     private TestDateProvider dateProvider;
     private SharedPreferences sharedPreferences = sharedPreferences();
@@ -48,11 +49,11 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
     @Test
     public void clearsEntryForSpecifiedSyncable() throws Exception {
-        storage.synced(Syncable.DISCOVERY_CARDS);
+        storage.synced(SYNCABLE);
         dateProvider.advanceBy(1, TimeUnit.SECONDS);
-        storage.clear(Syncable.DISCOVERY_CARDS);
+        storage.clear(SYNCABLE);
 
-        assertThat(storage.hasSyncedWithin(Syncable.DISCOVERY_CARDS, TimeUnit.HOURS.toMillis(1))).isFalse();
+        assertThat(storage.hasSyncedWithin(SYNCABLE, TimeUnit.HOURS.toMillis(1))).isFalse();
     }
 
     @Test
@@ -68,27 +69,27 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
     @Test
     public void getSyncMissesReturnsZeroIfNeverSet() {
-        assertThat(storage.getSyncMisses(Syncable.CHARTS)).isEqualTo(0);
+        assertThat(storage.getSyncMisses(SYNCABLE)).isEqualTo(0);
     }
 
     @Test
     public void getSyncMissesReturnsSetValue() {
-        sharedPreferences.edit().putInt(Syncable.CHARTS.name() + "_misses", 5).apply();
+        sharedPreferences.edit().putInt(SYNCABLE.name() + "_misses", 5).apply();
 
-        assertThat(storage.getSyncMisses(Syncable.CHARTS)).isEqualTo(5);
+        assertThat(storage.getSyncMisses(SYNCABLE)).isEqualTo(5);
     }
 
     @Test
     public void resetSyncMissesStoresValue() {
-        storage.resetSyncMisses(Syncable.CHARTS);
+        storage.resetSyncMisses(SYNCABLE);
 
-        assertThat(sharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 4)).isEqualTo(0);
+        assertThat(sharedPreferences.getInt(SYNCABLE.name() + "_misses", 4)).isEqualTo(0);
     }
 
     @Test
     public void incrementSyncMissesStoresValue() {
-        storage.incrementSyncMisses(Syncable.CHARTS);
+        storage.incrementSyncMisses(SYNCABLE);
 
-        assertThat(sharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 0)).isEqualTo(1);
+        assertThat(sharedPreferences.getInt(SYNCABLE.name() + "_misses", 0)).isEqualTo(1);
     }
 }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
 
@@ -14,14 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscoveryCardSyncProvider extends SyncerRegistry.SyncProvider {
 
-    private final FeatureFlags featureFlags;
     private final Provider<DiscoveryCardSyncer> discoveryCardSyncerProvider;
 
     @Inject
-    DiscoveryCardSyncProvider(FeatureFlags featureFlags,
-                              Provider<DiscoveryCardSyncer> discoveryCardSyncerProvider) {
+    DiscoveryCardSyncProvider(Provider<DiscoveryCardSyncer> discoveryCardSyncerProvider) {
         super(Syncable.DISCOVERY_CARDS);
-        this.featureFlags = featureFlags;
         this.discoveryCardSyncerProvider = discoveryCardSyncerProvider;
     }
 
@@ -42,6 +37,6 @@ public class DiscoveryCardSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public boolean usePeriodicSync() {
-        return featureFlags.isEnabled(Flag.DISCOVER_BACKEND);
+        return true;
     }
 }

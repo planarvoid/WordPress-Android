@@ -10,7 +10,7 @@ import com.soundcloud.android.presentation.CellRenderer
 import com.soundcloud.java.optional.Optional
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.carousel_playlist_item.view.*
-import kotlinx.android.synthetic.main.discovery_carousel_playlist_item_fixed_width.view.*
+import kotlinx.android.synthetic.main.selection_carousel_playlist_item_fixed_width.view.*
 import javax.inject.Inject
 
 class SelectionItemRenderer(private val imageOperations: ImageOperations,
@@ -18,7 +18,7 @@ class SelectionItemRenderer(private val imageOperations: ImageOperations,
 
     override fun createItemView(parent: ViewGroup): View {
         return LayoutInflater.from(parent.context)
-                .inflate(R.layout.discovery_carousel_playlist_item_fixed_width, parent, false)
+                .inflate(R.layout.selection_carousel_playlist_item_fixed_width, parent, false)
     }
 
     override fun bindItemView(position: Int, view: View, list: List<SelectionItemViewModel>) {

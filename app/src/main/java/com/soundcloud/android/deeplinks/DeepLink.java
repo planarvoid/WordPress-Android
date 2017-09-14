@@ -30,7 +30,6 @@ public enum DeepLink {
     COLLECTION,
     OFFLINE_SETTINGS,
     CHARTS,
-    CHARTS_ALL_GENRES,
     TRACK_ENTITY,
     PLAYLIST_ENTITY,
     SYSTEM_PLAYLIST_ENTITY,
@@ -90,7 +89,6 @@ public enum DeepLink {
                        COLLECTION,
                        OFFLINE_SETTINGS,
                        CHARTS,
-                       CHARTS_ALL_GENRES,
                        PROFILE,
                        SYSTEM_PLAYLIST,
                        PLAYLISTS_AND_ALBUMS_COLLECTION,
@@ -270,10 +268,6 @@ public enum DeepLink {
             case "notification_preferences":
                 return NOTIFICATION_PREFERENCES;
             case "charts":
-                String authority = uri.getAuthority();
-                if (authority.equals("charts:audio") || authority.equals("charts:music")) {
-                    return CHARTS_ALL_GENRES;
-                }
                 return CHARTS;
             case "tracks":
             case "sounds":

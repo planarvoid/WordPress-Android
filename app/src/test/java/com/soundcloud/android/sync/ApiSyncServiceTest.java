@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class ApiSyncServiceTest extends AndroidUnitTest {
 
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     @Mock private SyncRequestFactory syncRequestFactory;
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
@@ -31,18 +32,18 @@ public class ApiSyncServiceTest extends AndroidUnitTest {
 
     @Test
     public void storeSyncableSyncedOnSuccess() {
-        final TestSyncJob syncJob = new TestSyncJob(Optional.of(Syncable.CHARTS), true);
+        final TestSyncJob syncJob = new TestSyncJob(Optional.of(SYNCABLE), true);
         apiSyncService.onSyncJobCompleted(syncJob);
 
-        verify(syncStateStorage).synced(Syncable.CHARTS);
+        verify(syncStateStorage).synced(SYNCABLE);
     }
 
     @Test
     public void doNotStoreSyncableSyncedOnFailure() {
-        final TestSyncJob syncJob = new TestSyncJob(Optional.of(Syncable.CHARTS), false);
+        final TestSyncJob syncJob = new TestSyncJob(Optional.of(SYNCABLE), false);
         apiSyncService.onSyncJobCompleted(syncJob);
 
-        verify(syncStateStorage, never()).synced(Syncable.CHARTS);
+        verify(syncStateStorage, never()).synced(SYNCABLE);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ApiSyncServiceTest extends AndroidUnitTest {
         final TestSyncJob syncJob = new TestSyncJob(Optional.absent(), true);
         apiSyncService.onSyncJobCompleted(syncJob);
 
-        verify(syncStateStorage, never()).synced(Syncable.CHARTS);
+        verify(syncStateStorage, never()).synced(SYNCABLE);
     }
 
     @Test

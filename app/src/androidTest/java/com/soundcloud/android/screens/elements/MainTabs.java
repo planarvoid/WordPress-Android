@@ -8,7 +8,6 @@ import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
-import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 
 public class MainTabs extends Tabs {
 
@@ -24,11 +23,6 @@ public class MainTabs extends Tabs {
     public DiscoveryScreen clickDiscovery() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
         return discovery();
-    }
-
-    public OldDiscoveryScreen clickOldDiscovery() {
-        getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
-        return new OldDiscoveryScreen(testDriver);
     }
 
     public CollectionScreen clickCollections() {

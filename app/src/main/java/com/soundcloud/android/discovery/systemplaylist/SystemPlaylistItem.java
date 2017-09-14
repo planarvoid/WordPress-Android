@@ -33,18 +33,12 @@ abstract class SystemPlaylistItem {
     abstract static class Track extends SystemPlaylistItem {
         abstract TrackItem track();
 
-        abstract boolean isNewForYou();
-
         static Track create(Urn urn, TrackItem track, Optional<Urn> queryUrn, Optional<String> trackingFeatureName) {
-            return new AutoValue_SystemPlaylistItem_Track(Kind.TRACK, urn, queryUrn, trackingFeatureName, track, false);
-        }
-
-        static Track createNewForYouTrack(Urn urn, TrackItem track, Optional<Urn> queryUrn, Optional<String> trackingFeatureName) {
-            return new AutoValue_SystemPlaylistItem_Track(Kind.TRACK, urn, queryUrn, trackingFeatureName, track, true);
+            return new AutoValue_SystemPlaylistItem_Track(Kind.TRACK, urn, queryUrn, trackingFeatureName, track);
         }
 
         Track withTrackItem(TrackItem trackItem) {
-            return new AutoValue_SystemPlaylistItem_Track(kind(), systemPlaylistUrn(), queryUrn(), trackingFeatureName(), trackItem, isNewForYou());
+            return new AutoValue_SystemPlaylistItem_Track(kind(), systemPlaylistUrn(), queryUrn(), trackingFeatureName(), trackItem);
         }
     }
 

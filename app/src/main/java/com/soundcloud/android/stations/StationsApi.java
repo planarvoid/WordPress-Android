@@ -45,15 +45,6 @@ class StationsApi {
         });
     }
 
-    ModelCollection<ApiStationMetadata> fetchStationRecommendations() throws ApiRequestException, IOException, ApiMapperException {
-        final ApiRequest request = ApiRequest.get(ApiEndpoints.STATION_RECOMMENDATIONS.path())
-                .forPrivateApi()
-                .build();
-
-        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {
-        });
-    }
-
     Single<ApiStation> fetchStation(Urn stationUrn) {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(stationUrn.toString()));
         final ApiRequest request = builder

@@ -8,21 +8,15 @@ def DEFAULT_HIDE = "\"DEFAULT_HIDE\""
 def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
-  DISCOVER_BACKEND,
   HOLISTIC_TRACKING,
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   NEW_HOME,
-  NEW_FOR_YOU_FIRST,
-  NEW_FOR_YOU_SECOND,
   PROFILE_BANNER,
   SEARCH_TOP_RESULTS,
   FLIPPER_V2,
   ENCRYPTED_HLS,
-  WELCOME_USER,
-  FORCE_SHOW_WELCOME_USER,
   SEARCH_PLAY_RELATED_TRACKS,
-  RECOMMENDED_PLAYLISTS,
   DYNAMIC_LINK_SHARING,
   FIREBASE_PERFORMANCE_MONITORING,
   CREATOR_APP_LINK,
@@ -35,21 +29,15 @@ enum Feature {
 
 android {
   defaultConfig {
-    buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_V2.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), UNDER_DEVELOPMENT
@@ -62,15 +50,9 @@ android {
 
   buildTypes {
     debug {
-      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
@@ -82,17 +64,11 @@ android {
     }
 
     alpha {
-      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
@@ -102,13 +78,9 @@ android {
     }
 
     beta {
-      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
@@ -119,11 +91,7 @@ android {
     }
 
     release {
-      buildConfigField FLAG, Feature.DISCOVER_BACKEND.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_HIDE

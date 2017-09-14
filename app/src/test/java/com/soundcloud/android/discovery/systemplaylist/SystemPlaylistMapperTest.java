@@ -9,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYou;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.optional.Optional;
@@ -56,25 +55,6 @@ public class SystemPlaylistMapperTest {
     }
 
     @Test
-    public void mapNewForYou() throws Exception {
-        final Resources resources = mock(Resources.class);
-        when(resources.getString(R.string.new_for_you_title)).thenReturn(NEW_FOR_YOU_TITLE.get());
-        when(resources.getString(R.string.new_for_you_intro)).thenReturn(NEW_FOR_YOU_DESCRIPTION.get());
-        final NewForYou input = NewForYou.create(LAST_UPDATED.get(), URN, TRACKS);
-
-        final SystemPlaylist result = SystemPlaylistMapper.map(resources, input);
-
-        assertThat(result.urn()).isEqualTo(Urn.NOT_SET);
-        assertThat(result.queryUrn()).isEqualTo(Optional.of(URN));
-        assertThat(result.lastUpdated()).isEqualTo(LAST_UPDATED);
-        assertThat(result.title()).isEqualTo(NEW_FOR_YOU_TITLE);
-        assertThat(result.description()).isEqualTo(NEW_FOR_YOU_DESCRIPTION);
-        assertThat(result.artworkUrlTemplate()).isEqualTo(Optional.absent());
-        assertThat(result.tracks()).hasSize(TRACK_COUNT.get());
-        assertThat(result.tracks()).containsExactlyElementsOf(TRACKS);
-    }
-
-    @Test
     public void mapNoTracks() throws Exception {
         final ApiSystemPlaylist input = ApiSystemPlaylist.create(URN, Optional.of(0), LAST_UPDATED, TITLE, DESCRIPTION, ARTWORK_URL_TEMPLATE, TRACKING_FEATURE_NAME, new ModelCollection<>());
 
@@ -86,24 +66,6 @@ public class SystemPlaylistMapperTest {
         assertThat(result.title()).isEqualTo(TITLE);
         assertThat(result.description()).isEqualTo(DESCRIPTION);
         assertThat(result.artworkUrlTemplate()).isEqualTo(ARTWORK_URL_TEMPLATE);
-        assertThat(result.tracks()).hasSize(0);
-    }
-
-    @Test
-    public void mapNewForYouNoTracks() throws Exception {
-        final Resources resources = mock(Resources.class);
-        when(resources.getString(R.string.new_for_you_title)).thenReturn(NEW_FOR_YOU_TITLE.get());
-        when(resources.getString(R.string.new_for_you_intro)).thenReturn(NEW_FOR_YOU_DESCRIPTION.get());
-        final NewForYou input = NewForYou.create(LAST_UPDATED.get(), URN, Lists.newArrayList());
-
-        final SystemPlaylist result = SystemPlaylistMapper.map(resources, input);
-
-        assertThat(result.urn()).isEqualTo(Urn.NOT_SET);
-        assertThat(result.queryUrn()).isEqualTo(Optional.of(URN));
-        assertThat(result.lastUpdated()).isEqualTo(LAST_UPDATED);
-        assertThat(result.title()).isEqualTo(NEW_FOR_YOU_TITLE);
-        assertThat(result.description()).isEqualTo(NEW_FOR_YOU_DESCRIPTION);
-        assertThat(result.artworkUrlTemplate().isPresent()).isFalse();
         assertThat(result.tracks()).hasSize(0);
     }
 

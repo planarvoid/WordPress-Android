@@ -33,11 +33,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
-import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.olddiscovery.SearchActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
-import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.RemoteSignInWebViewActivity;
 import com.soundcloud.android.payments.ConversionActivity;
@@ -206,8 +202,7 @@ public final class IntentFactory {
     }
 
     static Intent createSystemPlaylistIntent(Context context, Urn playlist, Screen screen) {
-        Intent intent = new Intent(context, SystemPlaylistActivity.class)
-                .putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false);
+        Intent intent = new Intent(context, SystemPlaylistActivity.class);
         Urns.writeToIntent(intent, SystemPlaylistActivity.EXTRA_PLAYLIST_URN, playlist);
         screen.addToIntent(intent);
         return intent;
@@ -239,11 +234,6 @@ public final class IntentFactory {
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
-    }
-
-    static Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {
-        return new Intent(context, PlaylistDiscoveryActivity.class)
-                .putExtra(PlaylistDiscoveryActivity.EXTRA_PLAYLIST_TAG, playListTag);
     }
 
     static Intent createWebViewIntent(Context context, Uri uri) {
@@ -409,20 +399,8 @@ public final class IntentFactory {
         return new Intent(context, RemoteSignInWebViewActivity.class).setData(uri);
     }
 
-    static Intent createViewAllRecommendationsIntent(Context context) {
-        return new Intent(context, ViewAllRecommendedTracksActivity.class);
-    }
-
     static Intent createChartsIntent(Context context, ChartDetails chartDetails) {
-        return ChartActivity.createIntent(context, chartDetails);
-    }
-
-    static Intent createAllGenresIntent(Context context, @Nullable ChartCategory category) {
-        if (category == null) {
-            return new Intent(context, AllGenresActivity.class);
-        } else {
-            return AllGenresActivity.createIntent(context, category);
-        }
+        return createSystemPlaylistIntent(context, Urn.forChartSystemPlaylist(chartDetails), Screen.DEEPLINK);
     }
 
     static Intent createLikedStationsIntent(Context context) {
@@ -449,8 +427,8 @@ public final class IntentFactory {
         return intent;
     }
 
-    static Intent createNewForYouIntent(Context context) {
-        return new Intent(context, SystemPlaylistActivity.class).putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
+    static Intent createTheUploadIntent(Context context, Urn loggedInUserUrn) {
+        return createSystemPlaylistIntent(context, Urn.forNewForYou(loggedInUserUrn.getStringId()), Screen.DEEPLINK);
     }
 
     static Intent createPlayHistoryIntent(Context context) {

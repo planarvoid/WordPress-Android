@@ -147,18 +147,10 @@ class PlayQueueUIItemMapper implements BiFunction<List<TrackAndPlayQueueItem>, M
                     return resources.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PLAY_QUEUE_HEADER_LIKES));
                 case LISTENING_HISTORY:
                     return resources.getString(R.string.play_queue_header_listening_history);
-                case SUGGESTED_TRACKS:
-                    return resources.getString(R.string.play_queue_header_suggested_tracks);
-                case CHARTS_TOP:
-                    return resources.getString(R.string.play_queue_header_charts_top, contentTitle);
-                case CHARTS_TRENDING:
-                    return resources.getString(R.string.play_queue_header_charts_trending, contentTitle);
                 case EXPLICIT:
                     return resources.getString(R.string.play_queue_header_explicit);
                 case CAST:
                     return resources.getString(R.string.play_queue_header_cast);
-                case NEW_FOR_YOU:
-                    return resources.getString(R.string.play_queue_header_new_for_you);
                 case OTHER:
                     return resources.getString(R.string.play_queue_header_other);
                 default:

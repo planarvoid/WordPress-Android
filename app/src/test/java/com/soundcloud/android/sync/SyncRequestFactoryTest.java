@@ -26,6 +26,7 @@ import java.util.Arrays;
 
 public class SyncRequestFactoryTest extends AndroidUnitTest {
 
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     private SyncRequestFactory syncRequestFactory;
 
     @Mock private SyncerRegistry syncerRegistry;
@@ -89,17 +90,17 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     @Test
     public void createsSingleRequestJobForSyncable() throws Exception {
-        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.CHARTS)
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, SYNCABLE)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter)
                                           .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true).setAction("action");
 
         final SingleJobRequest request = mock(SingleJobRequest.class);
-        final SyncerRegistry.SyncProvider syncProvider = TestSyncData.get(Syncable.CHARTS);
+        final SyncerRegistry.SyncProvider syncProvider = TestSyncData.get(SYNCABLE);
         final ArgumentCaptor<DefaultSyncJob> defaultSyncJobArgumentCaptor = ArgumentCaptor.forClass(DefaultSyncJob.class);
 
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncProvider);
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(syncProvider);
         when(singleJobRequestFactory.create(defaultSyncJobArgumentCaptor.capture(),
-                                            Matchers.eq(Syncable.CHARTS.name()), Matchers.eq(true), Matchers.same(resultReceiverAdapter))).thenReturn(request);
+                                            Matchers.eq(SYNCABLE.name()), Matchers.eq(true), Matchers.same(resultReceiverAdapter))).thenReturn(request);
 
         assertThat(syncRequestFactory.create(intent)).isSameAs(request);
 

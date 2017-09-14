@@ -14,12 +14,9 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.discovery.DiscoveryWritableStorage;
-import com.soundcloud.android.olddiscovery.OldDiscoveryOperations;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.SecureFileStorage;
-import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.DatabaseManager;
@@ -44,8 +41,6 @@ class AccountCleanupAction implements Action0 {
     private static final String TAG = "AccountCleanup";
 
     private final UserAssociationStorage userAssociationStorage;
-    //TODO: PlaylistTagStorage collaborator can be removed here once recommendations feature is enabled.
-    private final PlaylistTagStorage tagStorage;
     private final SoundRecorder soundRecorder;
     private final FeatureStorage featureStorage;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
@@ -53,7 +48,6 @@ class AccountCleanupAction implements Action0 {
     private final SyncCleanupAction syncCleanupAction;
     private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
-    private final OldDiscoveryOperations oldDiscoveryOperations;
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
     private final CollectionOperations collectionOperations;
@@ -62,7 +56,6 @@ class AccountCleanupAction implements Action0 {
     private final NotificationPreferencesStorage notificationPreferencesStorage;
     private final PlayHistoryStorage playHistoryStorage;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
-    private final RecommendedPlaylistsStorage recommendedPlaylistsStorage;
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
     private final CommentsStorage commentsStorage;
@@ -75,12 +68,11 @@ class AccountCleanupAction implements Action0 {
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
-                         PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
+                         SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage,
                          SyncCleanupAction syncCleanupAction,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
-                         OldDiscoveryOperations oldDiscoveryOperations,
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
@@ -89,7 +81,6 @@ class AccountCleanupAction implements Action0 {
                          NotificationPreferencesStorage notificationPreferencesStorage,
                          PlayHistoryStorage playHistoryStorage,
                          RecentlyPlayedStorage recentlyPlayedStorage,
-                         RecommendedPlaylistsStorage recommendedPlaylistsStorage,
                          GcmStorage gcmStorage,
                          @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
                          CommentsStorage commentsStorage,
@@ -99,7 +90,6 @@ class AccountCleanupAction implements Action0 {
                          SecureFileStorage secureFileStorage,
                          DiscoveryWritableStorage discoveryWritableStorage,
                          WaveformOperations waveformOperations) {
-        this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
         this.featureStorage = featureStorage;
@@ -108,7 +98,6 @@ class AccountCleanupAction implements Action0 {
         this.syncCleanupAction = syncCleanupAction;
         this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
-        this.oldDiscoveryOperations = oldDiscoveryOperations;
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
         this.collectionOperations = collectionOperations;
@@ -117,7 +106,6 @@ class AccountCleanupAction implements Action0 {
         this.notificationPreferencesStorage = notificationPreferencesStorage;
         this.playHistoryStorage = playHistoryStorage;
         this.recentlyPlayedStorage = recentlyPlayedStorage;
-        this.recommendedPlaylistsStorage = recommendedPlaylistsStorage;
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
         this.commentsStorage = commentsStorage;
@@ -136,7 +124,6 @@ class AccountCleanupAction implements Action0 {
         clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         userAssociationStorage.clear();
-        tagStorage.clear();
         offlineSettingsStorage.clear();
         secureFileStorage.reset();
         featureStorage.clear();
@@ -144,7 +131,6 @@ class AccountCleanupAction implements Action0 {
         planStorage.clear();
         soundRecorder.reset();
         stationsOperations.clearData();
-        oldDiscoveryOperations.clearData();
         collectionOperations.clearData();
         streamOperations.clearData();
         suggestedCreatorsStorage.clear();
@@ -152,7 +138,6 @@ class AccountCleanupAction implements Action0 {
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();
         recentlyPlayedStorage.clear();
-        recommendedPlaylistsStorage.clear();
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
         shortcutController.removeShortcuts();

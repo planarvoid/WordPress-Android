@@ -198,15 +198,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsPlaySessionSourceForNewForYou() {
-        final PlaySessionSource playSessionSource = PlaySessionSource.forNewForYou(Screen.NEW_FOR_YOU.get(), 1, Urn.NOT_SET);
-
-        assertThat(playSessionSource.getOriginScreen()).isEqualTo(Screen.NEW_FOR_YOU.get());
-        assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.NEW_FOR_YOU);
-        assertThat(playSessionSource.getQuerySourceInfo()).isEqualTo(QuerySourceInfo.create(1, Urn.NOT_SET));
-    }
-
-    @Test
     public void getInitialSourceFallsbackToDiscoverySourceIfPresent() {
         final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY);
 

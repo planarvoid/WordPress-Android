@@ -2,7 +2,6 @@ package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createChartsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createConversionIntent;
@@ -15,7 +14,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createTheUploadIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
@@ -44,10 +43,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.deeplinks.AllGenresUriResolver;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ChartsUriResolver;
 import com.soundcloud.android.deeplinks.DeepLink;
@@ -257,8 +254,6 @@ public class NavigationResolver {
                 return showDiscoveryScreen(navigationTarget);
             case CHARTS:
                 return showCharts(navigationTarget);
-            case CHARTS_ALL_GENRES:
-                return showAllGenresCharts(navigationTarget);
             case LIKED_STATIONS:
                 return showLikedStations(navigationTarget);
             case STATION:
@@ -529,7 +524,7 @@ public class NavigationResolver {
 
     @CheckResult
     private Single<NavigationResult> startTheUpload(NavigationTarget navigationTarget) {
-        return Single.just(NavigationResult.create(navigationTarget, createNewForYouIntent(context)))
+        return Single.just(NavigationResult.create(navigationTarget, createTheUploadIntent(context, accountOperations.getLoggedInUserUrn())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
@@ -603,20 +598,6 @@ public class NavigationResolver {
             }
             Intent chartsIntent = createChartsIntent(context, chartDetails);
             emitter.onSuccess(NavigationResult.create(navigationTarget, chartsIntent));
-        }).doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
-    }
-
-    @CheckResult
-    private Single<NavigationResult> showAllGenresCharts(NavigationTarget navigationTarget) {
-        return Single.<NavigationResult>create(emitter -> {
-            Optional<NavigationTarget.ChartsMetaData> chartsMetaData = navigationTarget.chartsMetaData();
-            final ChartCategory category;
-            if (chartsMetaData.isPresent()) {
-                category = chartsMetaData.get().category().orNull();
-            } else {
-                category = AllGenresUriResolver.resolveUri(navigationTarget.linkNavigationParameters().get().targetUri());
-            }
-            emitter.onSuccess(NavigationResult.create(navigationTarget, createAllGenresIntent(context, category)));
         }).doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 

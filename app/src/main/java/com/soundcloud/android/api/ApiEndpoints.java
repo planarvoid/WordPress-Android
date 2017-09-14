@@ -38,25 +38,8 @@ public enum ApiEndpoints {
     SEARCH_PREMIUM_PLAYLISTS("/search/playlists/premium_content"),
     SEARCH_PREMIUM_ALL("/search/universal/premium_content"),
 
-    // playlist dicovery
-    PLAYLIST_DISCOVERY("/suggestions/playlists"),
-    PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
-
-    // recommended playlists
-    RECOMMENDED_PLAYLISTS("/suggestions/playlists/fresh"),
-
-    // personalized recommendations
-    TRACK_RECOMMENDATIONS("/you/personalized-tracks"),
-    STATION_RECOMMENDATIONS("/you/personalized-stations"),
-
-    // charts
-    CHARTS_FEATURED("/charts/featured"),
-    CHARTS_GENRES("/charts/genres"),
-    CHARTS("/charts"),
-
     // suggested creators
     SUGGESTED_CREATORS("/you/suggested-creators"),
-    NEW_FOR_YOU("/you/new-for-you"),
 
     // Home card selection
     DISCOVERY_CARDS("/discovery/cards"),

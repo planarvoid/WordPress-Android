@@ -2,15 +2,6 @@
 
 <resources>
 
-    <style name="StationsPageIndicator">
-        <item name="fillColor">@color/ash</item>
-        <item name="pageColor">@color/platinum</item>
-        <item name="strokeWidth">0dp</item>
-        <item name="radius">4dp</item>
-        <item name="spacing">10dp</item>
-        <item name="centered">true</item>
-    </style>
-
     <style name="GoOnboardingPageIndicator">
         <item name="fillColor">@color/white</item>
         <item name="pageColor">@color/go_onboarding_page_indicator</item>

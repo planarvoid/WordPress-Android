@@ -4,15 +4,12 @@ import static com.soundcloud.android.framework.TestUser.privateUser;
 import static com.soundcloud.android.framework.helpers.PlayerHelper.playPublicTrack;
 import static com.soundcloud.android.framework.matcher.view.IsEnabled.Enabled;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
-import static com.soundcloud.android.properties.Flag.DISCOVER_BACKEND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -22,17 +19,6 @@ public class EngagementTest extends ActivityTest<MainActivity> {
 
     public EngagementTest() {
         super(MainActivity.class);
-    }
-
-    @Override
-    protected void beforeActivityLaunched() {
-        getFeatureFlags().disable(DISCOVER_BACKEND);
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        getFeatureFlags().reset(DISCOVER_BACKEND);
-        super.tearDown();
     }
 
     @Override

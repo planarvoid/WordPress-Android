@@ -5,13 +5,7 @@ import com.soundcloud.android.associations.MyFollowingsSyncProvider;
 import com.soundcloud.android.collection.playhistory.PlayHistorySyncProvider;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedSyncProvider;
 import com.soundcloud.android.discovery.DiscoveryCardSyncProvider;
-import com.soundcloud.android.olddiscovery.charts.ChartGenresSyncProvider;
-import com.soundcloud.android.olddiscovery.charts.ChartsSyncProvider;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouSyncProvider;
-import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksSyncProvider;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
-import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsSyncProvider;
 import com.soundcloud.android.sync.likes.PlaylistLikesSyncProvider;
@@ -35,42 +29,30 @@ public class SyncerRegistry {
     public SyncerRegistry(SoundStreamSyncProvider soundStreamSyncProvider,
                           ActivitiesSyncProvider activitiesSyncProvider,
                           LikedStationsSyncProvider likedStationsSyncProvider,
-                          RecommendedStationsSyncProvider recommendedStationsSyncProvider,
-                          RecommendedTracksSyncProvider recommendationsSyncProvider,
-                          ChartsSyncProvider chartsSyncProvider,
                           TrackPostsSyncProvider trackPostsSyncProvider,
                           TrackLikesSyncProvider trackLikesSyncProvider,
                           PlaylistLikesSyncProvider playlistLikesSyncProvider,
                           MyPlaylistsSyncProvider myPlaylistsSyncProvider,
                           MyFollowingsSyncProvider myFollowingsSyncProvider,
                           MeSyncerProvider meSyncerProvider,
-                          ChartGenresSyncProvider chartGenresSyncProvider,
                           PlayHistorySyncProvider playHistorySyncProvider,
                           RecentlyPlayedSyncProvider recentlyPlayedSyncProvider,
                           SuggestedCreatorsSyncProvider suggestedCreatorsSyncProvider,
-                          RecommendedPlaylistsSyncProvider recommendedPlaylistsSyncProvider,
-                          NewForYouSyncProvider newForYouSyncProvider,
                           DiscoveryCardSyncProvider discoveryCardSyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(soundStreamSyncProvider);
         registerSyncer(activitiesSyncProvider);
         registerSyncer(likedStationsSyncProvider);
-        registerSyncer(recommendedStationsSyncProvider);
-        registerSyncer(recommendationsSyncProvider);
-        registerSyncer(chartsSyncProvider);
         registerSyncer(trackPostsSyncProvider);
         registerSyncer(trackLikesSyncProvider);
         registerSyncer(playlistLikesSyncProvider);
         registerSyncer(myPlaylistsSyncProvider);
         registerSyncer(myFollowingsSyncProvider);
         registerSyncer(meSyncerProvider);
-        registerSyncer(chartGenresSyncProvider);
         registerSyncer(playHistorySyncProvider);
         registerSyncer(recentlyPlayedSyncProvider);
         registerSyncer(suggestedCreatorsSyncProvider);
-        registerSyncer(recommendedPlaylistsSyncProvider);
-        registerSyncer(newForYouSyncProvider);
         registerSyncer(discoveryCardSyncProvider);
     }
 

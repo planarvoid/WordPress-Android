@@ -7,10 +7,6 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedCleanupHel
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.likes.LikeCleanupHelper;
 import com.soundcloud.android.offline.OfflineContentCleanupHelper;
-import com.soundcloud.android.olddiscovery.charts.ChartsCleanupHelper;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouCleanupHelper;
-import com.soundcloud.android.olddiscovery.recommendations.RecommendationsCleanupHelper;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsCleanupHelper;
 import com.soundcloud.android.playback.PlayQueueCleanupHelper;
 import com.soundcloud.android.profile.PostsCleanupHelper;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -52,7 +48,6 @@ public class StorageModule {
     public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
     public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
     public static final String WAVEFORM_CACHE = "WaveformCache";
-    public static final String PLAYLIST_TAGS = "PlaylistTags";
     public static final String DEVICE_MANAGEMENT = "DeviceManagement";
     public static final String PAYMENTS = "Payments";
     public static final String DEVICE_KEYS = "DeviceKeys";
@@ -83,7 +78,6 @@ public class StorageModule {
     private static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
     private static final String CHARTS_SYNC = "ChartsSync";
     private static final String UNAUTHORIZED_ERRORS = "UnauthorizedErrors";
-    private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
     private static final String PREFS_PAYMENTS = "payments";
     private static final String PREFS_DEVICE_KEYS = "device_keys";
@@ -149,12 +143,6 @@ public class StorageModule {
     @Provides
     ContentResolver provideContentResolver(SoundCloudApplication application) {
         return application.getContentResolver();
-    }
-
-    @Provides
-    @Named(PLAYLIST_TAGS)
-    SharedPreferences providePlaylistTagPrefs(Context context) {
-        return context.getSharedPreferences(PREFS_PLAYLIST_TAGS, Context.MODE_PRIVATE);
     }
 
     @Provides
@@ -370,10 +358,6 @@ public class StorageModule {
     @Provides
     @Named(DB_CLEANUP_HELPERS)
     List<CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
-                                              NewForYouCleanupHelper newForYouCleanupHelper,
-                                              ChartsCleanupHelper chartsCleanupHelper,
-                                              RecommendationsCleanupHelper recommendationsCleanupHelper,
-                                              RecommendedPlaylistsCleanupHelper recommendedPlaylistsCleanupHelper,
                                               ActivitiesCleanupHelper activitiesCleanupHelper,
                                               PostsCleanupHelper postsCleanupHelper,
                                               UserAssociationCleanupHelper userAssociationCleanupHelper,
@@ -385,15 +369,10 @@ public class StorageModule {
                                               RecentlyPlayedCleanupHelper recentlyPlayedCleanupHelper,
                                               PlayHistoryCleanupHelper playHistoryCleanupHelper) {
         return Lists.newArrayList(likeCleanupHelper,
-                                  newForYouCleanupHelper,
-                                  chartsCleanupHelper,
-                                  recommendationsCleanupHelper,
-                                  recommendedPlaylistsCleanupHelper,
                                   activitiesCleanupHelper,
                                   postsCleanupHelper,
                                   userAssociationCleanupHelper,
                                   offlineContentCleanupHelper,
-                                  recommendedPlaylistsCleanupHelper,
                                   playQueueCleanupHelper,
                                   stationsCleanupHelper,
                                   streamCleanupHelper,

@@ -20,8 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/discovery_cell_text_padding"
-        android:paddingRight="@dimen/discovery_cell_text_padding"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:textColor="@color/ash"
         tools:text="More playlists by bla bla bla" />
 

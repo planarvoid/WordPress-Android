@@ -156,17 +156,6 @@
     <color name="play_related_tracks_bars_color">@color/ash</color>
     <color name="play_related_tracks_text_color">@color/raven</color>
 
-    <!-- Discovery -->
-    <color name="recommendation_reason_text">@color/ash</color>
-    <color name="seed_track_text">@color/raven</color>
-    <color name="recommended_for_you_text">@color/ash</color>
-    <color name="search_query_text">@color/raven</color>
-    <color name="search_hint_text">@color/platinum</color>
-    <color name="discovery_tags_title">@color/charcoal</color>
-    <color name="discovery_search_premium_view_all">@color/charcoal</color>
-    <color name="recommendation_card_track_title">@color/raven</color>
-    <color name="recommendation_card_artist_name">@color/ash</color>
-
     <!-- Suggested Creators -->
     <color name="suggested_creators_heading">@color/charcoal</color>
     <color name="suggested_creators_blurb">@color/ash</color>
@@ -192,6 +181,9 @@
     <color name="you_version_text">@color/ash</color>
 
     <!-- Search -->
+    <color name="search_query_text">@color/raven</color>
+    <color name="search_hint_text">@color/platinum</color>
+    <color name="search_premium_view_all">@color/charcoal</color>
     <color name="search_suggestion_text">@color/raven</color>
     <color name="search_suggestion_unhighlighted_text">@color/ash</color>
 
@@ -200,13 +192,6 @@
     <color name="conversion_restrictions_text_focused">@color/white_70</color>
     <color name="conversion_restrictions_text_pressed">@color/white</color>
     <color name="go_gradient_start">@color/purple</color>
-
-    <!-- Welcome card -->
-    <color name="seventy_percent_white">@color/white_70</color>
-    <color name="welcome_evening">#475a77</color>
-    <color name="welcome_night">#111626</color>
-    <color name="welcome_morning">#fffefd</color>
-    <color name="welcome_afternoon">#fffffd</color>
 
     <!-- Prestitials -->
     <color name="light_grey_border">#d3d3d3</color>

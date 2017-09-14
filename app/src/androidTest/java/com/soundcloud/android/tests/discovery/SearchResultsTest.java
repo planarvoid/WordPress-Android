@@ -14,7 +14,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -25,7 +25,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
     private static final String ALBUMS_IN_SEARCH = "specs/albums_in_search2.spec";
     public static final String QUERY = "forss";
 
-    private OldDiscoveryScreen discoveryScreen;
+    private DiscoveryScreen discoveryScreen;
 
     public SearchResultsTest() {
         super(MainActivity.class);
@@ -50,7 +50,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        discoveryScreen = mainNavHelper.goToOldDiscovery();
+        discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
     @Test

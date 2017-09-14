@@ -46,7 +46,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
     private static final Urn TRACK3 = Urn.forTrack(789L);
-    private static final Screen ORIGIN_SCREEN = Screen.MUSIC_TOP_50;
+    private static final Screen ORIGIN_SCREEN = Screen.DISCOVER;
 
     private PlaybackInitiator playbackInitiator;
 
@@ -199,9 +199,9 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playTrackShouldPlayNewQueueIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        when(playQueueManager.getScreenTag()).thenReturn(Screen.MUSIC_TOP_50.get());
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.DISCOVER.get());
 
-        PlaySessionSource newPlaySessionSource = new PlaySessionSource(Screen.AUDIO_TOP_50);
+        PlaySessionSource newPlaySessionSource = new PlaySessionSource(Screen.DISCOVER);
         playbackInitiator.playTracks(
                 Single.just(Collections.singletonList(TRACK1)), TRACK1, 0, newPlaySessionSource)
                          .test();
@@ -264,9 +264,9 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playPostsShouldPlayNewQueueIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        when(playQueueManager.getScreenTag()).thenReturn(Screen.MUSIC_TOP_50.get());
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.DISCOVER.get());
 
-        PlaySessionSource newPlaySessionSource = new PlaySessionSource(Screen.AUDIO_TOP_50);
+        PlaySessionSource newPlaySessionSource = new PlaySessionSource(Screen.DISCOVER);
         final PlayableWithReposter track = PlayableWithReposter.from(TRACK1);
         playbackInitiator.playPosts(Single.just(Collections.singletonList(track)), TRACK1, 0, newPlaySessionSource)
                          .test();
@@ -305,7 +305,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                     tracks.get(1).getId(),
                                                     tracks.get(2).getId());
 
-        when(playQueueManager.getScreenTag()).thenReturn(Screen.MUSIC_TOP_50.get()); // same screen origin
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.DISCOVER.get()); // same screen origin
         when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
         when(playSessionController.playNewQueue(any(PlayQueue.class),
                                                 any(Urn.class),
@@ -313,7 +313,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                 any(PlaySessionSource.class))).thenReturn(Single.just(PlaybackResult.success()));
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
-                Screen.MUSIC_TOP_50.get(), Urn.forPlaylist(1234), Urn.forUser(1), trackUrns.size());
+                Screen.DISCOVER.get(), Urn.forPlaylist(1234), Urn.forUser(1), trackUrns.size());
 
         TestObserver<PlaybackResult> testObserver = playbackInitiator
                 .playTracks(Single.just(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)

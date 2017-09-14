@@ -4,10 +4,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.discovery.DiscoveryNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
-import com.soundcloud.android.olddiscovery.OldDiscoveryNavigationTarget;
 import com.soundcloud.android.properties.FeatureFlags;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +17,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class NavigationModelFactoryTest {
 
     @Mock DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
-    @Mock DiscoveryConfiguration discoveryConfiguration;
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock FeatureFlags featureFlags;
 
@@ -27,13 +24,12 @@ public class NavigationModelFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        factory = new NavigationModelFactory(defaultHomeScreenConfiguration, discoveryConfiguration, changeLikeToSaveExperiment);
+        factory = new NavigationModelFactory(defaultHomeScreenConfiguration, featureFlags, changeLikeToSaveExperiment);
     }
 
     @Test
-    public void testWhenDiscoveryIsHomeScreenAndDiscoverBackendIsEnabled() throws Exception {
+    public void testWhenDiscoveryIsHomeScreen() throws Exception {
         when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(true);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget(featureFlags));
 
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.DISCOVER);
@@ -41,32 +37,12 @@ public class NavigationModelFactoryTest {
     }
 
     @Test
-    public void testWhenDiscoveryIsHomeScreenAndDiscoverBackendIsNotEnabled() throws Exception {
-        when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(true);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new OldDiscoveryNavigationTarget());
-
-        NavigationModel navigationModel = factory.build();
-        assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.SEARCH_MAIN);
-        assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.STREAM);
-    }
-
-    @Test
-    public void testWhenStreamIsHomeScreenAndDiscoveryBackendIsEnabled() throws Exception {
+    public void testWhenStreamIsHomeScreen() throws Exception {
         when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget(featureFlags));
 
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);
         assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.DISCOVER);
     }
 
-    @Test
-    public void testWhenStreamIsHomeScreenAndDiscoveryBackendIsDisabled() throws Exception {
-        when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
-        when(discoveryConfiguration.navigationTarget()).thenReturn(new OldDiscoveryNavigationTarget());
-
-        NavigationModel navigationModel = factory.build();
-        assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);
-        assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.SEARCH_MAIN);
-    }
 }

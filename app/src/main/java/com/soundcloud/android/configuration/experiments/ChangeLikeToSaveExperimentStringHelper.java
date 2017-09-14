@@ -22,7 +22,6 @@ public class ChangeLikeToSaveExperimentStringHelper {
         UNLIKE_TOAST_OVERFLOW_ACTION(R.string.unlike_toast_overflow_action, R.string.remove_snackbar_overflow_action),
         LIKE_ERROR_TOAST_OVERFLOW_ACTION(R.string.like_error_toast_overflow_action, R.string.add_error_snackbar_overflow_action),
         TAB_TITLE_USER_LIKES(R.string.tab_title_user_likes, R.string.tab_title_user_tracks),
-        RECOMMENDATION_REASON_BECAUSE_YOU_LIKED_TRACKTITLE(R.string.recommendation_reason_because_you_liked_tracktitle, R.string.recommendation_reason_because_you_added_tracktitle),
         PREF_SYNC_WIFI_ONLY_DESCRIPTION(R.string.pref_sync_wifi_only_description, R.string.pref_sync_wifi_only_description_tracks),
         LIKED_STATIONS_EMPTY_VIEW_MESSAGE(R.string.liked_stations_empty_view_message, R.string.added_stations_empty_view_message),
         COLLECTIONS_YOUR_LIKED_TRACKS(R.string.collections_your_liked_tracks, R.string.collections_tracks_header),

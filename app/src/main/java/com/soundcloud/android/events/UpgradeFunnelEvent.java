@@ -342,19 +342,6 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forDiscoveryImpression() {
-        return UpgradeFunnelEvent.fromUpsellImpression(TCode.DISCOVERY)
-                                 .adjustToken(Optional.of(AdjustToken.DISCOVERY_UPSELL))
-                                 .pageName(Optional.of(Screen.SEARCH_MAIN.get()))
-                                 .build();
-    }
-
-    public static UpgradeFunnelEvent forDiscoveryClick() {
-        return UpgradeFunnelEvent.fromUpsellClick(TCode.DISCOVERY)
-                                 .pageName(Optional.of(Screen.SEARCH_MAIN.get()))
-                                 .build();
-    }
-
     public static UpgradeFunnelEvent forCollectionImpression() {
         return UpgradeFunnelEvent.fromUpsellImpression(TCode.COLLECTION)
                                  .pageName(Optional.of(Screen.COLLECTIONS.get()))

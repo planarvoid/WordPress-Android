@@ -2,6 +2,8 @@ package com.soundcloud.android.model;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.deeplinks.ChartDetails;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -148,6 +150,12 @@ public class UrnTest {
     public void shouldBuildSystemPlaylistUrns() {
         final Urn urn = Urn.forSystemPlaylist("123");
         assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlists:123"));
+    }
+
+    @Test
+    public void shouldBuildChartSystemPlaylistUrns() {
+        final Urn urn = Urn.forChartSystemPlaylist(ChartDetails.create(ChartType.TOP, Urn.forGenre("ambient")));
+        assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlists:charts-top:ambient"));
     }
 
     @Test

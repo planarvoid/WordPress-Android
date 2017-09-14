@@ -8,10 +8,8 @@ import static com.soundcloud.android.navigation.IntentFactory.createDirectChecko
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createMoreIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createNewForYouIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPerformSearchIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlayHistoryIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createPlaylistDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createPlaylistIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createProductChoiceIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createRecentlyPlayedIntent;
@@ -22,7 +20,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createSearchPremiu
 import static com.soundcloud.android.navigation.IntentFactory.createTrackCommentsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesFromShortcutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createTrackLikesIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createViewAllRecommendationsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.rootScreen;
 
 import com.soundcloud.android.analytics.Referrer;
@@ -160,10 +157,6 @@ public class NavigationExecutor {
         context.startActivity(createResolveIntent(context, uri));
     }
 
-    public void openViewAllRecommendations(Context context) {
-        context.startActivity(createViewAllRecommendationsIntent(context));
-    }
-
     public void openTrackLikes(Context context) {
         context.startActivity(createTrackLikesIntent(context));
     }
@@ -172,17 +165,8 @@ public class NavigationExecutor {
         context.startActivity(createTrackLikesFromShortcutIntent(context, source));
     }
 
-    public void openNewForYou(Context context) {
-        // TODO (REC-1174): Is screen tracking required?
-        context.startActivity(createNewForYouIntent(context));
-    }
-
     public void openPlayHistory(Context context) {
         context.startActivity(createPlayHistoryIntent(context));
-    }
-
-    public void openPlaylistDiscoveryTag(Context context, String playlistTag) {
-        context.startActivity(createPlaylistDiscoveryIntent(context, playlistTag));
     }
 
     public void openTrackComments(Context context, Urn trackUrn) {

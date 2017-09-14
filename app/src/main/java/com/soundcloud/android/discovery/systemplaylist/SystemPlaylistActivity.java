@@ -17,7 +17,6 @@ import javax.inject.Inject;
 public class SystemPlaylistActivity extends PlayerActivity {
 
     public static final String EXTRA_PLAYLIST_URN = "extra_system_playlist_urn";
-    public static final String EXTRA_FOR_NEW_FOR_YOU = "extra_new_for_you";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject @LightCycle BottomNavigationViewPresenter bottomNavigationViewPresenter;
@@ -41,16 +40,10 @@ public class SystemPlaylistActivity extends PlayerActivity {
     }
 
     private void attachFragment() {
-        final boolean forNewForYou = getIntent().getBooleanExtra(EXTRA_FOR_NEW_FOR_YOU, false);
         final SystemPlaylistFragment fragment;
-        if (forNewForYou) {
-            fragment = SystemPlaylistFragment.newNewForYouInstance();
-            setTitle(R.string.new_for_you_title);
-        } else {
             final Urn urn = Urns.urnFromIntent(getIntent(), EXTRA_PLAYLIST_URN);
             fragment = SystemPlaylistFragment.newInstance(urn);
             setTitle(Strings.EMPTY);
-        }
         getSupportFragmentManager().beginTransaction()
                                    .replace(R.id.container, fragment, SystemPlaylistFragment.TAG)
                                    .commit();

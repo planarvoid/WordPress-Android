@@ -6,8 +6,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/sounds_view_all_text"
-        style="@style/ViewAllText"
-        android:text="@string/recommendation_view_all" />
+        style="@style/ViewAllText" />
 
 </RelativeLayout>
 

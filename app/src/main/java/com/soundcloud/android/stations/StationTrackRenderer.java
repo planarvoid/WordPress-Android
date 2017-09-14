@@ -58,7 +58,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recommendation_item, parent, false);
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.station_track_item, parent, false);
         view.setOnClickListener(onTrackClicked);
         view.findViewById(R.id.overflow_button).setOnClickListener(onOverflowMenuClicked);
         return view;

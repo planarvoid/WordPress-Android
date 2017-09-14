@@ -84,7 +84,6 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.COLLECTION.requiresResolve()).isFalse();
         assertThat(DeepLink.OFFLINE_SETTINGS.requiresResolve()).isFalse();
         assertThat(DeepLink.CHARTS.requiresResolve()).isFalse();
-        assertThat(DeepLink.CHARTS_ALL_GENRES.requiresResolve()).isFalse();
         assertThat(DeepLink.HOME.requiresResolve()).isFalse();
         assertThat(DeepLink.STREAM.requiresResolve()).isFalse();
         assertThat(DeepLink.WEB_VIEW.requiresResolve()).isFalse();
@@ -217,8 +216,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts/new?genre=hiphoprap");
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts/top?genre=hiphoprap");
 
-        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:music");
-        assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:music");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:audio");
     }
 
     @Test

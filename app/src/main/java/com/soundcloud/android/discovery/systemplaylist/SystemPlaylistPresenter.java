@@ -8,7 +8,6 @@ import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouOperations;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -55,7 +54,6 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
     static final int NUM_EXTRA_ITEMS = 1;
 
     private final SystemPlaylistOperations systemPlaylistOperations;
-    private final NewForYouOperations newForYouOperations;
     private final SystemPlaylistAdapter adapter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider;
@@ -68,14 +66,12 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
 
     private final PublishSubject<SystemPlaylist> onData = PublishSubject.create();
     private final CompositeDisposable disposables = new CompositeDisposable();
-    private boolean forNewForYou;
     private Urn urn;
     private WeakReference<Activity> activity;
 
     @Inject
     SystemPlaylistPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                             SystemPlaylistOperations systemPlaylistOperations,
-                            NewForYouOperations newForYouOperations,
                             SystemPlaylistAdapterFactory adapterFactory,
                             PlaybackInitiator playbackInitiator,
                             Provider<ExpandPlayerSingleObserver> expandPlayerObserverProvider,
@@ -88,7 +84,6 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
         super(swipeRefreshAttacher, Options.list().build());
 
         this.systemPlaylistOperations = systemPlaylistOperations;
-        this.newForYouOperations = newForYouOperations;
         this.adapter = adapterFactory.create(this, this);
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerObserverProvider = expandPlayerObserverProvider;
@@ -136,44 +131,19 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                         onData,
                         (timestamp, systemPlaylist) -> systemPlaylist)
                           .firstOrError()
-                          .map(systemPlaylist -> {
-                              if (forNewForYou) {
-                                  return ScreenEvent.create(Screen.NEW_FOR_YOU);
-                              } else {
-                                  return ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName(), systemPlaylist.queryUrn());
-                              }
-                          })
+                          .map(systemPlaylist -> ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName(), systemPlaylist.queryUrn()))
                           .subscribeWith(LambdaSingleObserver.onNext(screenEvent -> eventTracker.trackScreen(screenEvent, trackingStateProvider.getLastEvent())))
         );
     }
 
     @Override
     protected CollectionBinding<SystemPlaylist, SystemPlaylistItem> onBuildBinding(Bundle fragmentArgs) {
-        final Observable<SystemPlaylist> systemPlaylistObservable;
-        if (forNewForYou) {
-            systemPlaylistObservable = newForYouOperations.newForYou()
-                                                          .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
-                                                          .toObservable();
-        } else {
-            systemPlaylistObservable = systemPlaylistOperations.systemPlaylist(urn)
-                                                               .toObservable();
-        }
-
-        return buildCollectionBinding(systemPlaylistObservable);
+        return buildCollectionBinding(systemPlaylistOperations.systemPlaylist(urn).toObservable());
     }
 
     @Override
     protected CollectionBinding<SystemPlaylist, SystemPlaylistItem> onRefreshBinding() {
-        final Observable<SystemPlaylist> refreshObservable;
-        if (forNewForYou) {
-            refreshObservable = newForYouOperations.refreshNewForYou()
-                                                   .map(newForYou -> SystemPlaylistMapper.map(resources, newForYou))
-                                                   .toObservable();
-        } else {
-            refreshObservable = systemPlaylistOperations.refreshSystemPlaylist(urn)
-                                                        .toObservable();
-        }
-        return buildCollectionBinding(refreshObservable);
+        return buildCollectionBinding(systemPlaylistOperations.refreshSystemPlaylist(urn).toObservable());
     }
 
     private CollectionBinding<SystemPlaylist, SystemPlaylistItem> buildCollectionBinding(Observable<SystemPlaylist> systemPlaylistObservable) {
@@ -215,11 +185,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
 
                 final TrackItem trackItem = trackItemBuilder.build();
 
-                if (forNewForYou) {
-                    items.add(SystemPlaylistItem.Track.createNewForYouTrack(systemPlaylist.urn(), trackItem, systemPlaylist.queryUrn(), systemPlaylist.trackingFeatureName()));
-                } else {
-                    items.add(SystemPlaylistItem.Track.create(systemPlaylist.urn(), trackItem, systemPlaylist.queryUrn(), systemPlaylist.trackingFeatureName()));
-                }
+                items.add(SystemPlaylistItem.Track.create(systemPlaylist.urn(), trackItem, systemPlaylist.queryUrn(), systemPlaylist.trackingFeatureName()));
             }
 
             return items;
@@ -237,10 +203,9 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
 
     @SuppressWarnings("ConstantConditions")
     private void init(Bundle fragmentArgs) {
-        forNewForYou = fragmentArgs.getBoolean(SystemPlaylistFragment.EXTRA_FOR_NEW_FOR_YOU, false);
         urn = Urns.urnFromBundle(fragmentArgs, SystemPlaylistFragment.EXTRA_PLAYLIST_URN);
-        if (!forNewForYou && urn == null) {
-            throw new IllegalArgumentException("Urn must not be null if not displaying NewForYou");
+        if (urn == null) {
+            throw new IllegalArgumentException("Urn must not be null for System Playlist");
         }
     }
 
@@ -288,25 +253,19 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
 
     private PlaySessionSource getPlaySessionSource(int adapterPosition, int playbackPosition) {
         SystemPlaylistItem item = adapter.getItem(adapterPosition);
-        if (forNewForYou) {
-            return PlaySessionSource.forNewForYou(Screen.NEW_FOR_YOU.get(),
-                                                  playbackPosition,
-                                                  item.queryUrn().get());
-        } else {
-            // .kt: val count = adapter.items.filter { it.isTrack() }.count()
-            int count = 0;
-            for (SystemPlaylistItem systemPlaylistItem : adapter.getItems()) {
-                if (systemPlaylistItem.isTrack()) {
-                    count++;
-                }
+        // .kt: val count = adapter.items.filter { it.isTrack() }.count()
+        int count = 0;
+        for (SystemPlaylistItem systemPlaylistItem : adapter.getItems()) {
+            if (systemPlaylistItem.isTrack()) {
+                count++;
             }
-            return PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
-                                                       item.trackingFeatureName(),
-                                                       playbackPosition,
-                                                       item.queryUrn(),
-                                                       item.systemPlaylistUrn(),
-                                                       count);
         }
+        return PlaySessionSource.forSystemPlaylist(Screen.SYSTEM_PLAYLIST.get(),
+                                                   item.trackingFeatureName(),
+                                                   playbackPosition,
+                                                   item.queryUrn(),
+                                                   item.systemPlaylistUrn(),
+                                                   count);
     }
 
     interface SystemPlaylistView {

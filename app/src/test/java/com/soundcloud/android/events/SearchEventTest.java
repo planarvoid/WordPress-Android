@@ -98,7 +98,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapPlaylistOnPlaylistTagResults() throws Exception {
-        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_PLAYLIST_DISCO, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_PLAYLISTS, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);

@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
@@ -59,6 +60,10 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public static Urn forSystemPlaylist(String id) {
         return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.SYSTEM_PLAYLIST, id);
+    }
+
+    public static Urn forChartSystemPlaylist(ChartDetails chartDetails) {
+        return forSystemPlaylist(String.format("charts-%s:%s", chartDetails.type().value(), chartDetails.genre().getStringId()));
     }
 
     public static Urn newLocalPlaylist() {

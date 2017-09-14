@@ -169,7 +169,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigationExecutor).openPlaylistWithAutoPlay(activity, playlistItem.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigationExecutor).openPlaylistWithAutoPlay(activity, playlistItem.getUrn(), Screen.SEARCH_PLAYLISTS);
     }
 
     private Intent getPlayFromSearchIntent(String query) {

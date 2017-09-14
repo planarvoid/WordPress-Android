@@ -37,7 +37,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     @Test
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() throws Exception {
         mainNavHelper
-                .goToOldDiscovery()
+                .goToDiscovery()
                 .clickSearch()
                 .doSearch(QUERY)
                 .goToTracksTab()

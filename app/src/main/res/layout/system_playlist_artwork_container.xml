@@ -7,17 +7,17 @@
     android:clipToPadding="false">
 
     <View
-        style="@style/NewForYouModule.BackStack"
-        android:layout_width="@dimen/new_for_you_discovery_preview_width"
-        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+        style="@style/SystemPlaylistHeader.BackStack"
+        android:layout_width="@dimen/system_playlist_preview_width"
+        android:layout_height="@dimen/system_playlist_preview_height" />
 
     <View
-        style="@style/NewForYouModule.MidStack"
-        android:layout_width="@dimen/new_for_you_discovery_preview_width"
-        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+        style="@style/SystemPlaylistHeader.MidStack"
+        android:layout_width="@dimen/system_playlist_preview_width"
+        android:layout_height="@dimen/system_playlist_preview_height" />
 
     <ViewFlipper
         android:id="@+id/artwork_animator"
-        android:layout_width="@dimen/new_for_you_discovery_preview_width"
-        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+        android:layout_width="@dimen/system_playlist_preview_width"
+        android:layout_height="@dimen/system_playlist_preview_height" />
 </FrameLayout>

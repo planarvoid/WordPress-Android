@@ -34,7 +34,6 @@
   <string name="account_one_active">Je kan maar één actieve account hebben</string>
   <string name="comments">Reacties</string>
   <string name="display_name">Naam</string>
-  <string name="updated_time">%s bijgewerkt.</string>
   <string name="posted_time">%s gepost</string>
   <string name="plays_and_posted_time">%1$s · %2$s gepost</string>
   <string name="filter">Filteren</string>
@@ -386,9 +385,6 @@
   <string name="search_type_albums">ALBUMS</string>
   <string name="search_type_playlists">AFSPEELLIJSTEN</string>
   <string name="search_type_people">PERSONEN</string>
-  <string name="search_tags_title">Ontdek populaire afspeellijsten</string>
-  <string name="search_tags_popular_subtitle">Kies jouw favoriete label</string>
-  <string name="search_tags_recent_subtitle">Recente labels</string>
   <string name="search_empty">Geen resultaten gevonden</string>
   <string name="search_empty_subtext">Controleer de spelling of probeer een andere zoekopdracht</string>
   <string name="search_for_query">Zoek naar %s</string>
@@ -409,78 +405,7 @@
   <string name="search_found_playlists_results_header">%s afspeellijsten gevonden</string>
   <string name="search_found_people_results_header">%s personen gevonden</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
-  <string name="activity_title_view_all_recommendations">Ontdek meer tracks</string>
-  <string name="recommendation_view_all">Alle voorgestelde tracks weergeven</string>
-  <string name="recommendations_footer">Dat zijn alle aanbevelingen die we nu kunnen doen.\n\nSpeel en verzamel meer tracks om nieuwe aanbevelingen te krijgen.</string>
-  <string name="recommendation_reason_because_you_liked_tracktitle">Omdat je %1$s hebt geliket</string>
-  <string name="recommendation_reason_because_you_played_tracktitle">Omdat je %1$s hebt afgespeeld</string>
-  <string name="recommendation_seeds_header">Ontdek meer tracks</string>
-  <string name="discovery_search_hint">Zoeken op SoundCloud</string>
-  <string name="discovery_search_title">Zoeken</string>
   <string name="discovery_empty">Nog geen ontdekkingsitems</string>
-  <!--__DISCOVERY PLAYLISTS-->
-  <string name="recommended_playlists_reason">Afspeellijsten voor %s</string>
-  <string name="scenario_playlist_chilling">Afspeellijsten om te chillen</string>
-  <string name="scenario_playlist_sleeping">Afspeellijsten om bij in slaap te vallen</string>
-  <string name="scenario_playlist_studying">Afspeellijsten om te studeren</string>
-  <string name="scenario_playlist_coffeehouse">Afspeellijsten voor sfeer</string>
-  <string name="scenario_playlist_workingout">Afspeellijsten om te sporten</string>
-  <string name="scenario_playlist_partying">Afspeellijsten om te feesten</string>
-  <!--__DISCOVERY CHARTS-->
-  <string name="charts_music">Muziek</string>
-  <string name="charts_audio">Audio</string>
-  <string name="charts_header">SoundCloud-hitlijsten</string>
-  <string name="charts_trending">Nieuw en populair</string>
-  <string name="charts_top">Top 50</string>
-  <string name="charts_new_and_hot_list_header">Veelbelovende tracks van vandaag.</string>
-  <string name="charts_top_fifty_list_header">De meest afgespeelde tracks op SoundCloud van deze week.</string>
-  <string name="charts_genre_view_all">Alle genres doorzoeken</string>
-  <string name="charts_by_genre">Hitlijsten op genre</string>
-  <string name="all_genres">Alle genres</string>
-  <string name="charts_page_header">%s hitlijsten</string>
-  <string tools:ignore="UnusedResources" name="charts_soundcloud">SoundCloud</string>
-  <string tools:ignore="UnusedResources" name="charts_alternativerock">Alternatieve Rock</string>
-  <string tools:ignore="UnusedResources" name="charts_ambient">Ambient</string>
-  <string tools:ignore="UnusedResources" name="charts_classical">Klassiek</string>
-  <string tools:ignore="UnusedResources" name="charts_country">Country</string>
-  <string tools:ignore="UnusedResources" name="charts_danceedm">Dance en EDM</string>
-  <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
-  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
-  <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
-  <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
-  <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
-  <string tools:ignore="UnusedResources" name="charts_electronic">Electro</string>
-  <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk en Singer-Songwriter</string>
-  <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hiphop en Rap</string>
-  <string tools:ignore="UnusedResources" name="charts_house">House</string>
-  <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
-  <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz en Blues</string>
-  <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
-  <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
-  <string tools:ignore="UnusedResources" name="charts_piano">Piano</string>
-  <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
-  <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B en Soul</string>
-  <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
-  <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
-  <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
-  <string tools:ignore="UnusedResources" name="charts_soundtrack">Soundtrack</string>
-  <string tools:ignore="UnusedResources" name="charts_speech">Gesproken woord</string>
-  <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
-  <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
-  <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
-  <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
-  <string tools:ignore="UnusedResources" name="charts_world">Wereldmuziek</string>
-  <string tools:ignore="UnusedResources" name="charts_audiobooks">Audioboeken</string>
-  <string tools:ignore="UnusedResources" name="charts_business">Zakelijk</string>
-  <string tools:ignore="UnusedResources" name="charts_comedy">Comedy</string>
-  <string tools:ignore="UnusedResources" name="charts_entertainment">Entertainment</string>
-  <string tools:ignore="UnusedResources" name="charts_learning">Educatie</string>
-  <string tools:ignore="UnusedResources" name="charts_newspolitics">Nieuws en Politiek</string>
-  <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religie en Spiritualiteit</string>
-  <string tools:ignore="UnusedResources" name="charts_science">Wetenschap</string>
-  <string tools:ignore="UnusedResources" name="charts_sports">Sport</string>
-  <string tools:ignore="UnusedResources" name="charts_storytelling">Verhalen</string>
-  <string tools:ignore="UnusedResources" name="charts_technology">Technologie</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Toepassingscache wissen</string>
   <string name="pref_clear_cache_desc">Verwijder de cache om geheugen op je smartphone vrij te maken</string>
@@ -515,7 +440,6 @@
   <string name="stations_collection_title_station_page">Zender</string>
   <string name="stations_tracks_in_this_station">Tracks op deze zender</string>
   <string name="stations_see_all_tracks">Alle tracks weergeven</string>
-  <string name="suggested_stations">Voorgestelde zenders</string>
   <string name="stations_home_station_based_on_track">Trackzender op basis van</string>
   <string name="stations_home_station_based_on_genre">Genrezender op basis van</string>
   <string name="stations_home_station_based_on_curator">Curatorzender op basis van</string>
@@ -589,13 +513,6 @@
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Gepromoot</string>
   <string name="promoted_by_promotorname">Gepromoot door %s</string>
-  <!--__USER WELCOME-->
-  <string name="welcome_user_title_morning">Goedemorgen,  %s</string>
-  <string name="welcome_user_title_afternoon">Goedemiddag, %s</string>
-  <string name="welcome_user_title_evening">Goedenavond, %s</string>
-  <string name="welcome_user_title_night">Goedenacht, %s</string>
-  <string name="welcome_user_new_signup">Welkom bij SoundCloud, %s</string>
-  <string name="welcome_user_subtitle">Check deze nieuwe nummers!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Vrienden uitnodigen voor SoundCloud</string>
   <string name="facebook_invites_description">Delen is geven. Nodig je vrienden uit om SoundCloud met jou te ervaren.</string>
@@ -935,9 +852,6 @@
   <string name="upsell_upgrade_button">Abonneer je op SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_title">Ontgrendel previews met SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_description">Krijg volledige toegang tot \'s werelds grootste catalogus met muziek- en audiostreaming, met reclamevrij en offline luisteren.</string>
-  <string name="upsell_discovery_upgrade_title">Abonneer je op SoundCloud Go+</string>
-  <string name="upsell_discovery_upgrade_description">Krijg toegang tot de grootste catalogus met muziek- en audiostreaming ter wereld, luister offline en ontgrendel alle previews.</string>
-  <string name="upsell_discovery_button_trial">Probeer het %1$d dagen gratis</string>
   <string name="upsell_playlist_upgrade_title">Speel volledige tracks af met SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">Geen previews meer. Luister naar elke seconde van elke track.</string>
   <string name="upsell_track_preview">Voorbeeld</string>
@@ -951,10 +865,7 @@
   <string name="playback_upsell">Geen previews meer, alleen maar volledige tracks</string>
   <string name="playback_upsell_button">Abonneer je op SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
-  <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">The Upload</string>
-  <string name="new_for_you_intro">Recent geposte tracks. Speciaal voor jou.</string>
-  <string name="new_for_you_action">Afspeellijst weergeven</string>
+  <!--__SYSTEM PLAYLISTS-->
   <string name="system_playlist_duration">%1$d tracks, %2$s</string>
   <string name="system_playlist_updated_at">%s bijgewerkt</string>
   <!--__SEARCH-->
@@ -964,6 +875,7 @@
   </plurals>
   <string name="search_premium_content_view_all">Zie alle SoundCloud Go+-resultaten</string>
   <string name="search_premium_content_upsell">Upgrade om volledige tracks te horen</string>
+  <string name="search_hint">Zoeken op SoundCloud</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Pushmeldingen</string>
   <string name="push_notifications_all_summary">Schakel alle mobiele meldingen in\nof selecteer welke je wilt ontvangen.</string>
@@ -1016,9 +928,6 @@
   <string name="play_queue_header_artist_station">Vanuit artiestenzender op basis van %1$s</string>
   <string name="play_queue_header_likes">Vanuit je likes</string>
   <string name="play_queue_header_listening_history">Vanuit luistergeschiedenis</string>
-  <string name="play_queue_header_suggested_tracks">Vanuit voorgestelde tracks</string>
-  <string name="play_queue_header_charts_top">Vanuit %1$s top 50-hitlijst</string>
-  <string name="play_queue_header_charts_trending">Vanuit %1$s hitlijst Nieuw &amp; populair</string>
   <string name="play_queue_header_explicit">Toegevoegd door jou</string>
   <string name="play_queue_header_auto_play">Automatisch afspelen</string>
   <string name="play_queue_header_other">Uit een recente afspeelwachtrij</string>
@@ -1027,7 +936,6 @@
   <string name="play_queue_header_magic_box_subtitle">Nieuwe muziek op basis van wat er wordt afgespeeld</string>
   <string name="play_queue_header_auto_play_toggle">Zender automatisch afspelen</string>
   <string name="play_queue_header_cast">Casten</string>
-  <string name="play_queue_header_new_for_you">Van The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Voorgestelde artiesten</string>
   <string name="suggested_creators_blurb">Volg je favoriete artiesten zodat je hun laatste tracks nooit meer misloopt</string>
@@ -1054,7 +962,6 @@
   <string name="remove_snackbar_overflow_action">Verwijderd uit mijn verzameling</string>
   <string name="add_error_snackbar_overflow_action">Trackstatus is niet gewijzigd</string>
   <string name="tab_title_user_tracks">TRACKS</string>
-  <string name="recommendation_reason_because_you_added_tracktitle">Omdat je %1$s in je verzameling hebt</string>
   <string name="pref_sync_wifi_only_description_tracks">Nieuwe tracks enz. alleen updaten via wifi</string>
   <string name="added_stations_empty_view_message">Je hebt nog geen zenders toegevoegd</string>
   <string name="collections_tracks_header">Tracks</string>

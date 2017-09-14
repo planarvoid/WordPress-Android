@@ -3,11 +3,9 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.android.olddiscovery.charts.ChartSourceInfo;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -46,7 +44,6 @@ public class PlaySessionSource implements Parcelable {
     private PromotedSourceInfo promotedSourceInfo;
     private QuerySourceInfo querySourceInfo;
     private DiscoverySource discoverySource;
-    private ChartSourceInfo chartSourceInfo;
 
     public static PlaySessionSource forPlaylist(Screen screen, Urn playlist, Urn playlistOwner, int playlistSize) {
         return forPlaylist(screen.get(), playlist, playlistOwner, playlistSize);
@@ -85,33 +82,6 @@ public class PlaySessionSource implements Parcelable {
         final PlaySessionSource source = new PlaySessionSource(screen);
         source.collectionUrn = artist;
         return source;
-    }
-
-    public static PlaySessionSource forRecommendations(Screen screen, int queryPosition, Urn queryUrn) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
-        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
-        playSessionSource.discoverySource = DiscoverySource.RECOMMENDATIONS;
-        return playSessionSource;
-    }
-
-    public static PlaySessionSource forChart(String screenTag,
-                                             int queryPosition,
-                                             Urn queryUrn,
-                                             ChartType chartType,
-                                             Urn genre) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
-        playSessionSource.chartSourceInfo = ChartSourceInfo.create(chartType, genre);
-        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
-        return playSessionSource;
-    }
-
-    public static PlaySessionSource forNewForYou(String screenTag,
-                                             int queryPosition,
-                                             Urn queryUrn) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
-        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
-        playSessionSource.discoverySource = DiscoverySource.NEW_FOR_YOU;
-        return playSessionSource;
     }
 
     public static PlaySessionSource forSystemPlaylist(String screenTag, Optional<String> source, int queryPosition, Optional<Urn> queryUrn, Urn systemPlaylistUrn, int systemPlaylistSize) {
@@ -206,8 +176,6 @@ public class PlaySessionSource implements Parcelable {
             return DiscoverySource.STREAM.value();
         } else if (hasDiscoverySource()) {
             return discoverySource.value();
-        } else if (isFromNewForYou()) {
-            return DiscoverySource.NEW_FOR_YOU.value();
         } else if (source.isPresent()) {
             return source.get();
         }
@@ -234,24 +202,12 @@ public class PlaySessionSource implements Parcelable {
         return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
-    private boolean isFromNewForYou() {
-        return originScreen.equals(Screen.NEW_FOR_YOU.get());
-    }
-
     private boolean hasDiscoverySource() {
         return discoverySource != null;
     }
 
     public boolean hasQuerySourceInfo() {
         return querySourceInfo != null;
-    }
-
-    boolean isFromRecommendations() {
-        return discoverySource != null && discoverySource == DiscoverySource.RECOMMENDATIONS;
-    }
-
-    public boolean isFromChart() {
-        return chartSourceInfo != null;
     }
 
     public boolean isFromPlaylistHistory() {
@@ -305,7 +261,6 @@ public class PlaySessionSource implements Parcelable {
                 && MoreObjects.equal(originScreen, that.originScreen)
                 && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo)
                 && MoreObjects.equal(querySourceInfo, that.querySourceInfo)
-                && MoreObjects.equal(chartSourceInfo, that.chartSourceInfo)
                 && MoreObjects.equal(discoverySource, that.discoverySource);
     }
 
@@ -316,7 +271,6 @@ public class PlaySessionSource implements Parcelable {
                                     collectionSize,
                                     originScreen,
                                     querySourceInfo,
-                                    chartSourceInfo,
                                     discoverySource);
     }
 
@@ -336,10 +290,6 @@ public class PlaySessionSource implements Parcelable {
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         this.promotedSourceInfo = promotedSourceInfo;
-    }
-
-    public ChartSourceInfo getChartSourceInfo() {
-        return chartSourceInfo;
     }
 
     @Nullable

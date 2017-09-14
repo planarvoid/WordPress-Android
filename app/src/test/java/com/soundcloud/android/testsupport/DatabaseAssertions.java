@@ -9,7 +9,6 @@ import static com.soundcloud.android.activities.ActivityKind.TRACK_LIKE;
 import static com.soundcloud.android.activities.ActivityKind.TRACK_REPOST;
 import static com.soundcloud.android.activities.ActivityKind.USER_FOLLOW;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
-import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.android.storage.Table.Activities;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.PromotedTracks;
@@ -107,8 +106,6 @@ import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.ChartTracks;
-import com.soundcloud.android.storage.Tables.Charts;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.storage.Tables.OfflineContent;
@@ -122,9 +119,6 @@ import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.storage.Tables.TrackPolicies;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.storage.Tables.Users;
-import com.soundcloud.android.sync.charts.ApiChart;
-import com.soundcloud.android.sync.charts.ApiChartBucket;
-import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -393,12 +387,6 @@ public class DatabaseAssertions {
         assertThat(select(from(StationsCollections.TABLE)
                                   .whereEq(StationsCollections.STATION_URN, urn.toString())
                                   .whereNull(StationsCollections.ADDED_AT))).counts(1);
-    }
-
-    public void assertRecommendedStationsEquals(List<Urn> stations) {
-        assertThat(select(from(StationsCollections.TABLE)
-                                  .whereIn(StationsCollections.STATION_URN, stations)
-                                  .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {
@@ -861,34 +849,6 @@ public class DatabaseAssertions {
                                   .whereEq(TIMESTAMP, comment.getTrackTime().orNull())
                                   .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
                                   .whereEq(BODY, comment.getBody()))).counts(1);
-    }
-
-    public void assertChartInserted(ApiChartBucket apiChartBucket) {
-        final ApiChart<ApiImageResource> apiChart = apiChartBucket.getCharts().get(0);
-        assertThat(select(from(Charts.TABLE)
-                                  .whereEq(Charts.GENRE, apiChart.genre())
-                                  .whereEq(Charts.CATEGORY, apiChart.category())
-                                  .whereEq(Charts.BUCKET_TYPE, apiChartBucket.getBucketType())
-                                  .whereEq(Charts.DISPLAY_NAME, apiChart.displayName())
-                                  .whereEq(Charts.TYPE, apiChart.type())));
-        ApiImageResource track = apiChart.tracks().getCollection().get(0);
-        assertThat(select(from(ChartTracks.TABLE)
-                                  .whereEq(ChartTracks.TRACK_ID, track.getUrn().getNumericId())
-                                  .whereEq(ChartTracks.TRACK_ARTWORK, track.getImageUrlTemplate())));
-    }
-
-    public void assertChartRemoved(ApiChartBucket apiChartBucket) {
-        final ApiChart<ApiImageResource> apiChart = apiChartBucket.getCharts().get(0);
-        assertThat(select(from(Charts.TABLE)
-                                  .whereEq(Charts.GENRE, apiChart.genre())
-                                  .whereEq(Charts.CATEGORY, apiChart.category())
-                                  .whereEq(Charts.BUCKET_TYPE, apiChartBucket.getBucketType())
-                                  .whereEq(Charts.DISPLAY_NAME, apiChart.displayName())
-                                  .whereEq(Charts.TYPE, apiChart.type()))).counts(0);
-        ApiImageResource track = apiChart.tracks().getCollection().get(0);
-        assertThat(select(from(ChartTracks.TABLE)
-                                  .whereEq(ChartTracks.TRACK_ID, track.getUrn().getNumericId())
-                                  .whereEq(ChartTracks.TRACK_ARTWORK, track.getImageUrlTemplate()))).counts(0);
     }
 
     public void assertSuggestedCreatorInserted(ApiSuggestedCreator apiSuggestedCreator) {

@@ -14,21 +14,14 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.eventlogger.DevEventLoggerMonitorActivity;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.creators.CreatorUtilsKt;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
-import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.main.DevEventLoggerMonitorReceiver;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
-import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -109,32 +102,6 @@ public class IntentFactoryTest extends AndroidUnitTest {
     public void openVisualPrestitial() {
         assertIntent(IntentFactory.createPrestititalAdIntent(context))
                 .opensActivity(PrestitialActivity.class);
-    }
-
-    @Test
-    public void opensChartTracks() {
-        final Urn genreUrn = new Urn("soundcloud:genre:123");
-        final ChartType chartType = ChartType.TOP;
-        final String header = "header";
-        final ChartCategory chartCategory = ChartCategory.AUDIO;
-        assertThat(IntentFactory.createChartsIntent(context, ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header))))
-                .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn.getContent())
-                .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
-                .containsExtra(ChartTracksFragment.EXTRA_HEADER, header)
-                .opensActivity(ChartActivity.class);
-    }
-
-    @Test
-    public void opensAllGenres() {
-        assertThat(IntentFactory.createAllGenresIntent(context, null))
-                .opensActivity(AllGenresActivity.class);
-    }
-
-    @Test
-    public void opensAllGenresFromDeeplink() throws Exception {
-        assertThat(IntentFactory.createAllGenresIntent(context, ChartCategory.MUSIC))
-                .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
-                .opensActivity(AllGenresActivity.class);
     }
 
     @Test

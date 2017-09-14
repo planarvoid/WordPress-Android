@@ -34,7 +34,6 @@
   <string name="account_one_active">Du darfst nur ein aktives Konto besitzen.</string>
   <string name="comments">Kommentare</string>
   <string name="display_name">Name</string>
-  <string name="updated_time">Aktualisiert am %s.</string>
   <string name="posted_time">%s gepostet</string>
   <string name="plays_and_posted_time">%1$s · %2$s gepostet</string>
   <string name="filter">Filter</string>
@@ -117,8 +116,7 @@
   <string name="authentication_email_taken_message">Diese E-Mail-Adresse wird bereits für ein Konto verwendet. Melde dich mit diesem an oder gib eine andere E-Mail-Adresse ein.</string>
   <string name="authentication_email_invalid_message">Wir können keine E-Mails an die von dir eingegebene Domain senden. Bitte überprüfe ihre Schreibweise.</string>
   <string name="authentication_age_restriction">Du musst mindestens %1$s Jahre alt sein, um in dieser Region ein Konto erstellen zu dürfen.</string>
-  <string name="authentication_email_other_error_message">Leider ist eine Kontoerstellung mit den von dir angegebenen Daten nicht möglich.</string>
-  <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
+    <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Melde dich an oder registriere dich, um diesen Link zu öffnen.</string>
   <!--APP SHORTCUTS-->
@@ -386,9 +384,6 @@
   <string name="search_type_albums">ALBEN</string>
   <string name="search_type_playlists">PLAYLISTS</string>
   <string name="search_type_people">LEUTE</string>
-  <string name="search_tags_title">Beliebte Playlists entdecken</string>
-  <string name="search_tags_popular_subtitle">Bevorzugten Tag auswählen</string>
-  <string name="search_tags_recent_subtitle">Kürzlich verwendete Tags</string>
   <string name="search_empty">Keine Ergebnisse gefunden</string>
   <string name="search_empty_subtext">Überprüfe die Schreibweise oder versuch es mit einer anderen Suche.</string>
   <string name="search_for_query">Nach „%s“ suchen</string>
@@ -409,84 +404,11 @@
   <string name="search_found_playlists_results_header">%s Playlists gefunden</string>
   <string name="search_found_people_results_header">%s Leute gefunden</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
-  <string name="activity_title_view_all_recommendations">Weitere Tracks entdecken</string>
-  <string name="recommendation_view_all">Alle vorgeschlagenen Tracks anzeigen</string>
-  <string name="recommendations_footer">Das sind alle Vorschläge, die wir momentan zu bieten haben.\n\nSpiele und sammle mehr Tracks, um weitere Empfehlungen zu erhalten.</string>
-  <string name="recommendation_reason_because_you_liked_tracktitle">Weil dir %1$s gefällt</string>
-  <string name="recommendation_reason_because_you_played_tracktitle">Weil du %1$s abgespielt hast</string>
-  <string name="recommendation_seeds_header">Weitere Tracks entdecken</string>
-  <string name="discovery_search_hint">SoundCloud durchsuchen</string>
-  <string name="discovery_search_title">Suche</string>
   <string name="discovery_empty">Noch keine entdeckten Elemente</string>
   <!--__DISCOVERY PLAYLISTS-->
-  <string name="recommended_playlists_reason">Playlists zu „%s“</string>
-  <string name="scenario_playlist_chilling">Playlists zum Chillen</string>
-  <string name="scenario_playlist_sleeping">Playlists zum Schlafen</string>
-  <string name="scenario_playlist_studying">Playlists zum Lernen</string>
-  <string name="scenario_playlist_coffeehouse">stimmungsvolle Playlists</string>
-  <string name="scenario_playlist_workingout">Playlists zum Trainieren</string>
-  <string name="scenario_playlist_partying">Playlists zum Feiern</string>
-  <!--__DISCOVERY CHARTS-->
-  <string name="charts_music">Musik</string>
-  <string name="charts_audio">Audio</string>
-  <string name="charts_header">SoundCloud-Charts</string>
-  <string name="charts_trending">Neu und angesagt</string>
-  <string name="charts_top">Top 50</string>
-  <string name="charts_new_and_hot_list_header">Vielversprechende neue Tracks.</string>
-  <string name="charts_top_fifty_list_header">Diese Woche auf SoundCloud am häufigsten gespielte Tracks.</string>
-  <string name="charts_genre_view_all">Alle Genres durchsuchen</string>
-  <string name="charts_by_genre">Charts nach Genre</string>
-  <string name="all_genres">Alle Genres</string>
-  <string name="charts_page_header">%s Charts</string>
-  <string tools:ignore="UnusedResources" name="charts_soundcloud">SoundCloud</string>
-  <string tools:ignore="UnusedResources" name="charts_alternativerock">Alternative Rock</string>
-  <string tools:ignore="UnusedResources" name="charts_ambient">Ambient</string>
-  <string tools:ignore="UnusedResources" name="charts_classical">Klassik</string>
-  <string tools:ignore="UnusedResources" name="charts_country">Country</string>
-  <string tools:ignore="UnusedResources" name="charts_danceedm">Dance &amp; EDM</string>
-  <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
-  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
-  <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
-  <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
-  <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
-  <string tools:ignore="UnusedResources" name="charts_electronic">Elektro</string>
-  <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk &amp; Singer-Songwriter</string>
-  <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hip-Hop &amp; Rap</string>
-  <string tools:ignore="UnusedResources" name="charts_house">House</string>
-  <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
-  <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz &amp; Blues</string>
-  <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
-  <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
-  <string tools:ignore="UnusedResources" name="charts_piano">Klavier</string>
-  <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
-  <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B &amp; Soul</string>
-  <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
-  <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
-  <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
-  <string tools:ignore="UnusedResources" name="charts_soundtrack">Soundtrack</string>
-  <string tools:ignore="UnusedResources" name="charts_speech">Sprache</string>
-  <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
-  <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
-  <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
-  <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
-  <string tools:ignore="UnusedResources" name="charts_world">Weltmusik</string>
-  <string tools:ignore="UnusedResources" name="charts_audiobooks">Hörbücher</string>
-  <string tools:ignore="UnusedResources" name="charts_business">Business</string>
-  <string tools:ignore="UnusedResources" name="charts_comedy">Comedy</string>
-  <string tools:ignore="UnusedResources" name="charts_entertainment">Entertainment</string>
-  <string tools:ignore="UnusedResources" name="charts_learning">Bildung</string>
-  <string tools:ignore="UnusedResources" name="charts_newspolitics">News &amp; Politik</string>
-  <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religion &amp; Spiritualität</string>
-  <string tools:ignore="UnusedResources" name="charts_science">Wissenschaft</string>
-  <string tools:ignore="UnusedResources" name="charts_sports">Sport</string>
-  <string tools:ignore="UnusedResources" name="charts_storytelling">Erzählung</string>
-  <string tools:ignore="UnusedResources" name="charts_technology">Technik</string>
-  <!--__SETTINGS-->
   <string name="pref_clear_cache">App-Cache löschen</string>
   <string name="pref_clear_cache_desc">Lösche den Anwendungs-Cache für mehr Speicherplatz auf deinem Gerät.</string>
   <string name="pref_privacy">Datenschutz</string>
-  <string name="pref_autoplay_related">Ähnliche Tracks autom. abspielen</string>
-  <string name="pref_autoplay_related_desc">Nach dem Ende der Playlist werden anhand des letzten Tracks ausgewählte weitere Tracks gespielt.</string>
   <string name="pref_revoke_access">Abmelden</string>
   <string name="pref_sync_wifi_only">Daten nur über WLAN aktualisieren</string>
   <string name="pref_sync_wifi_only_description">Nur neue Likes etc. über WLAN aktualisieren</string>
@@ -515,7 +437,6 @@
   <string name="stations_collection_title_station_page">Sender</string>
   <string name="stations_tracks_in_this_station">Tracks dieses Senders</string>
   <string name="stations_see_all_tracks">Alle Tracks anzeigen</string>
-  <string name="suggested_stations">Vorgeschlagene Sender</string>
   <string name="stations_home_station_based_on_track">Track-Sender anhand folgender Kriterien:</string>
   <string name="stations_home_station_based_on_genre">Genre-Sender anhand folgender Kriterien:</string>
   <string name="stations_home_station_based_on_curator">Kuratoren-Sender anhand folgender Kriterien:</string>
@@ -589,13 +510,6 @@
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoteter Track</string>
   <string name="promoted_by_promotorname">Promoteter Track von %s</string>
-  <!--__USER WELCOME-->
-  <string name="welcome_user_title_morning">Guten Morgen, %s</string>
-  <string name="welcome_user_title_afternoon">Guten Tag, %s</string>
-  <string name="welcome_user_title_evening">Guten Abend, %s</string>
-  <string name="welcome_user_title_night">Gute Nacht, %s</string>
-  <string name="welcome_user_new_signup">Willkommen auf SoundCloud, %s</string>
-  <string name="welcome_user_subtitle">Hör dir einige dieser neuen Songs an!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Mach Freunde auf SoundCloud aufmerksam</string>
   <string name="facebook_invites_description">Zusammen noch schöner: Empfiehl SoundCloud deinen Freunden.</string>
@@ -935,9 +849,6 @@
   <string name="upsell_upgrade_button">Hol dir SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_title">Tracks ohne Vorschaumodus – mit SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_description">Erhalte vollen Zugriff auf den weltweit größten Streaming-Katalog und hör dir Musik- und Audiotracks ohne Werbung offline an.</string>
-  <string name="upsell_discovery_upgrade_title">Hol dir SoundCloud Go+</string>
-  <string name="upsell_discovery_upgrade_description">Erhalte Zugriff auf den weltweit größten Streaming-Katalog für Musik und Audio und hör dir Tracks offline und in voller Länge an.</string>
-  <string name="upsell_discovery_button_trial">%1$d  Tage kostenlos testen</string>
   <string name="upsell_playlist_upgrade_title">Tracks in voller Länge abspielen – mit SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">Schluss mit dem Vorschaumodus: So entgeht dir keine Sekunde deiner Tracks mehr.</string>
   <string name="upsell_track_preview">Vorschau</string>
@@ -951,10 +862,7 @@
   <string name="playback_upsell">Schluss mit Vorschau, Tracks jetzt in voller Länge</string>
   <string name="playback_upsell_button">Hol dir SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">SoundCloud Go+ testen</string>
-  <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">The Upload</string>
-  <string name="new_for_you_intro">Neu gepostete Tracks, nur für dich.</string>
-  <string name="new_for_you_action">Playlist anzeigen</string>
+  <!--__SYSTEM PLAYLISTS-->
   <string name="system_playlist_duration">%1$d Tracks, %2$s</string>
   <string name="system_playlist_updated_at">aktualisiert am %s</string>
   <!--__SEARCH-->
@@ -964,6 +872,7 @@
   </plurals>
   <string name="search_premium_content_view_all">Alle SoundCloud Go+-Ergebnisse anzeigen</string>
   <string name="search_premium_content_upsell">Mit Upgrade kannst du Tracks ganz anhören</string>
+  <string name="search_hint">SoundCloud durchsuchen</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Push-Benachrichtigungen</string>
   <string name="push_notifications_all_summary">Aktiviere alle mobilen Benachrichtigungen oder wähle aus, welche du empfangen möchtest.</string>
@@ -1016,9 +925,6 @@
   <string name="play_queue_header_artist_station">Aus Interpreten-Sendern, basierend auf „%1$s“</string>
   <string name="play_queue_header_likes">Aus deinen Likes</string>
   <string name="play_queue_header_listening_history">Aus dem Wiedergabeverlauf</string>
-  <string name="play_queue_header_suggested_tracks">Aus den vorgeschlagenen Tracks</string>
-  <string name="play_queue_header_charts_top">Aus den Top 50 der %1$s-Charts</string>
-  <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
   <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
   <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
   <string name="play_queue_header_other">Aus einer kürzlich abgespielten Wiedergabeliste</string>
@@ -1027,7 +933,6 @@
   <string name="play_queue_header_magic_box_subtitle">Neue Musik anhand dessen, was du gerade hörst</string>
   <string name="play_queue_header_auto_play_toggle">Sender automatisch abspielen</string>
   <string name="play_queue_header_cast">Übertragung</string>
-  <string name="play_queue_header_new_for_you">Vom The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Vorgeschlagene Künstler</string>
   <string name="suggested_creators_blurb">Folge deinen Lieblingskünstlern, um keine neuen Tracks zu verpassen.</string>
@@ -1054,7 +959,6 @@
   <string name="remove_snackbar_overflow_action">Aus meiner Sammlung entfernt</string>
   <string name="add_error_snackbar_overflow_action">Track-Status wurde nicht geändert</string>
   <string name="tab_title_user_tracks">TRACKS</string>
-  <string name="recommendation_reason_because_you_added_tracktitle">Da %1$s in deiner Sammlung ist</string>
   <string name="pref_sync_wifi_only_description_tracks">Neue Tracks usw. nur über WLAN aktualisieren</string>
   <string name="added_stations_empty_view_message">Du hast noch keine Sender hinzugefügt</string>
   <string name="collections_tracks_header">Tracks</string>

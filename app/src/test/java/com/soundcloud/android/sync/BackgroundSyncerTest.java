@@ -23,6 +23,7 @@ import android.content.Intent;
 public class BackgroundSyncerTest extends AndroidUnitTest {
 
     private static final int STALE_TIME = 100;
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     @Mock private AccountOperations accountOperations;
     @Mock private Context context;
     @Mock private SyncerRegistry syncerRegistry;
@@ -37,7 +38,7 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         syncer = new BackgroundSyncer(accountOperations, syncStateStorage, syncerRegistry, context, resultReceiver);
 
-        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, 0));
+        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(SYNCABLE, 0));
         when(syncStateStorage.hasSyncedWithin(any(Syncable.class), anyLong())).thenReturn(true);
     }
 
@@ -54,8 +55,8 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     public void syncsWithUiRequestSetToFalse() {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
 
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, STALE_TIME));
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME)).thenReturn(false);
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.forStaleTime(SYNCABLE, STALE_TIME));
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME)).thenReturn(false);
 
         assertThat(syncer.sync()).isEqualTo(Result.SYNCING);
 
@@ -66,12 +67,12 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     public void syncsWithStaleSyncables() {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
 
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, STALE_TIME));
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME)).thenReturn(false);
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.forStaleTime(SYNCABLE, STALE_TIME));
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME)).thenReturn(false);
 
         assertThat(syncer.sync()).isEqualTo(Result.SYNCING);
 
-        verifySyncInitiated(Syncable.CHARTS);
+        verifySyncInitiated(SYNCABLE);
     }
 
     @Test
@@ -79,15 +80,15 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
 
         final int misses = 2;
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, STALE_TIME));
-        when(syncStateStorage.getSyncMisses(Syncable.CHARTS)).thenReturn(misses);
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME)).thenReturn(false);
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME * BACKOFF_MULTIPLIERS[misses])).thenReturn(
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.forStaleTime(SYNCABLE, STALE_TIME));
+        when(syncStateStorage.getSyncMisses(SYNCABLE)).thenReturn(misses);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME)).thenReturn(false);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME * BACKOFF_MULTIPLIERS[misses])).thenReturn(
                 false);
 
         assertThat(syncer.sync()).isEqualTo(Result.SYNCING);
 
-        verifySyncInitiated(Syncable.CHARTS);
+        verifySyncInitiated(SYNCABLE);
     }
 
     @Test
@@ -95,10 +96,10 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
 
         final int misses = 2;
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, STALE_TIME));
-        when(syncStateStorage.getSyncMisses(Syncable.CHARTS)).thenReturn(misses);
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME)).thenReturn(false);
-        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME * BACKOFF_MULTIPLIERS[misses])).thenReturn(
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.forStaleTime(SYNCABLE, STALE_TIME));
+        when(syncStateStorage.getSyncMisses(SYNCABLE)).thenReturn(misses);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME)).thenReturn(false);
+        when(syncStateStorage.hasSyncedWithin(SYNCABLE, STALE_TIME * BACKOFF_MULTIPLIERS[misses])).thenReturn(
                 true);
 
         assertThat(syncer.sync()).isEqualTo(Result.NO_SYNC);
@@ -109,7 +110,7 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     @Test
     public void doesNotSyncWithoutStaleSyncables() {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, 0));
+        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(SYNCABLE, 0));
         when(syncStateStorage.hasSyncedWithin(any(Syncable.class), anyLong())).thenReturn(true);
 
         assertThat(syncer.sync()).isEqualTo(Result.NO_SYNC);
@@ -120,7 +121,7 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     @Test
     public void syncsStaleSyncablesWhenForced() {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, 0));
+        when(syncerRegistry.get(any(Syncable.class))).thenReturn(TestSyncData.forStaleTime(SYNCABLE, 0));
         when(syncStateStorage.hasSyncedWithin(any(Syncable.class), anyLong())).thenReturn(true);
 
         assertThat(syncer.sync(true)).isEqualTo(Result.SYNCING);

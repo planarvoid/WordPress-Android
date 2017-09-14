@@ -275,24 +275,6 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public static NavigationTarget forChart(ChartType type, Urn genre, ChartCategory category, @Nullable String header) {
-        return forNavigationDeeplink(DeepLink.CHARTS, Screen.UNKNOWN)
-                .toBuilder()
-                .chartsMetaData(Optional.of(ChartsMetaData.create(type, genre, category, Optional.fromNullable(header))))
-                .build();
-    }
-
-    public static NavigationTarget forAllGenres() {
-        return forAllGenres(null);
-    }
-
-    public static NavigationTarget forAllGenres(@Nullable ChartCategory category) {
-        return forNavigationDeeplink(DeepLink.CHARTS_ALL_GENRES, Screen.UNKNOWN)
-                .toBuilder()
-                .chartsMetaData(Optional.of(ChartsMetaData.create(Optional.fromNullable(category))))
-                .build();
-    }
-
     public static NavigationTarget forLikedStations() {
         return forNavigationDeeplink(DeepLink.LIKED_STATIONS, Screen.UNKNOWN);
     }
@@ -378,10 +360,6 @@ public abstract class NavigationTarget {
         Builder linkNavigationParameters(@Nullable LinkNavigationParameters parameters) {
             return linkNavigationParameters(Optional.fromNullable(parameters));
         }
-
-        Builder discoverySource(@Nullable DiscoverySource discoverySource) {
-            return discoverySource(Optional.fromNullable(discoverySource));
-        }
     }
 
     @AutoValue
@@ -426,8 +404,8 @@ public abstract class NavigationTarget {
             return new AutoValue_NavigationTarget_ChartsMetaData(category, Optional.absent());
         }
 
-        static ChartsMetaData create(ChartType type, Urn genre, ChartCategory category, Optional<String> title) {
-            return new AutoValue_NavigationTarget_ChartsMetaData(Optional.absent(), Optional.of(ChartDetails.create(type, genre, category, title)));
+        static ChartsMetaData create(ChartType type, Urn genre) {
+            return new AutoValue_NavigationTarget_ChartsMetaData(Optional.absent(), Optional.of(ChartDetails.create(type, genre)));
         }
     }
 

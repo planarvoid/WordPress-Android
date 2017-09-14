@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.Urns.optionalFromNotSetUrn;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.olddiscovery.charts.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
@@ -19,20 +18,15 @@ public abstract class PlaybackContext {
         EXPLICIT,
         AUTO_PLAY,
         PLAYLIST,
-        // TODO : ALBUM
         TRACK_STATION,
         ARTIST_STATION,
         PROFILE,
-        CHARTS_TRENDING,
-        CHARTS_TOP,
         LISTENING_HISTORY,
-        SUGGESTED_TRACKS,
         STREAM(Screen.STREAM),
         LINK(Screen.DEEPLINK),
         YOUR_LIKES(Screen.LIKES, Screen.YOUR_LIKES),
         SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS),
         CAST,
-        NEW_FOR_YOU,
         OTHER;
 
         private List<Screen> screens;
@@ -72,12 +66,7 @@ public abstract class PlaybackContext {
     }
 
     private static Optional<Urn> urnFromPlaySessionSource(PlaySessionSource playSessionSource) {
-        if (playSessionSource.isFromChart()) {
-            final ChartSourceInfo chartSourceInfo = playSessionSource.getChartSourceInfo();
-            return optionalFromNotSetUrn(chartSourceInfo.getGenre());
-        } else {
-            return optionalFromNotSetUrn(playSessionSource.getCollectionUrn());
-        }
+        return optionalFromNotSetUrn(playSessionSource.getCollectionUrn());
     }
 
     private static Optional<String> queryFromPlaySessionSource(PlaySessionSource playSessionSource) {
@@ -104,29 +93,12 @@ public abstract class PlaybackContext {
             return Bucket.ARTIST_STATION;
         } else if (collectionUrn.isTrackStation()) {
             return Bucket.TRACK_STATION;
-        } else if (playSessionSource.isFromChart()) {
-            return bucketFromChart(playSessionSource.getChartSourceInfo());
         } else if (playSessionSource.isFromPlaylistHistory()) {
             return Bucket.LISTENING_HISTORY;
-        } else if (playSessionSource.isFromRecommendations()) {
-            return Bucket.SUGGESTED_TRACKS;
         } else if (DiscoverySource.CAST.equals(discoverySource)) {
             return Bucket.CAST;
-        } else if (DiscoverySource.NEW_FOR_YOU.equals(discoverySource)) {
-            return Bucket.NEW_FOR_YOU;
         } else {
             return Bucket.fromScreen(Screen.fromTag(screenTag));
-        }
-    }
-
-    private static Bucket bucketFromChart(ChartSourceInfo chartSourceInfo) {
-        switch (chartSourceInfo.getChartType()) {
-            case TRENDING:
-                return Bucket.CHARTS_TRENDING;
-            case TOP:
-                return Bucket.CHARTS_TOP;
-            default:
-                throw new IllegalArgumentException("Unknown chart type: " + chartSourceInfo.getChartType().name());
         }
     }
 

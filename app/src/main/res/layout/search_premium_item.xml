@@ -12,21 +12,21 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingRight="@dimen/discovery_search_help_padding">
+        android:paddingRight="@dimen/search_help_padding">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/results_count"
             style="@style/Search.PremiumContent.Text"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/discovery_search_cell_text_height"
+            android:layout_height="@dimen/search_cell_text_height"
             android:gravity="center_vertical"
-            android:paddingLeft="@dimen/discovery_cell_text_padding"
+            android:paddingLeft="16dp"
             tools:text="Found 57 SoundCloud Go Results" />
 
         <ImageView
             android:id="@+id/help"
-            android:layout_width="@dimen/discovery_search_help_button"
-            android:layout_height="@dimen/discovery_search_help_button"
+            android:layout_width="@dimen/search_help_button"
+            android:layout_height="@dimen/search_help_button"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackground"

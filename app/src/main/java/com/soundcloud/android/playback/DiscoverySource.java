@@ -12,7 +12,6 @@ public enum DiscoverySource {
     PLAY_NEXT("play_next"),
     RECOMMENDATIONS("personal-recommended"),
     CAST("cast"),
-    NEW_FOR_YOU("new_for_you"),
     DEEPLINK("deeplink"); // TODO (REC-1302): Check whether that is correct
 
     private String value;

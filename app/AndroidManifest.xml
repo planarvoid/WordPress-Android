@@ -296,12 +296,8 @@
         <activity android:name=".payments.WebCheckoutActivity" android:label="@string/conversion_page_title" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->
-        <activity android:label="@string/activity_title_view_all_recommendations" android:name=".olddiscovery.recommendations.ViewAllRecommendedTracksActivity"/>
-        <activity android:name=".olddiscovery.charts.ChartActivity"/>
-        <activity android:label="@string/all_genres" android:name=".olddiscovery.charts.AllGenresActivity"/>
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".olddiscovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
-        <activity android:label="@string/discovery_search_title" android:name=".olddiscovery.PlaylistDiscoveryActivity"/>
         <activity android:name=".discovery.systemplaylist.SystemPlaylistActivity" android:theme="@style/Theme.SoundCloud" />
         <activity android:name=".search.topresults.TopResultsBucketActivity" />
 

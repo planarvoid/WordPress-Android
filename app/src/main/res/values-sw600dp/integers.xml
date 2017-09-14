@@ -5,7 +5,6 @@
     <integer name="timestamp_animate_percentage">50</integer>
 
     <!-- Stations -->
-    <integer name="stations_recommendation_card_count">4</integer>
     <integer name="stations_grid_span_count">3</integer>
 
     <!-- Collection -->

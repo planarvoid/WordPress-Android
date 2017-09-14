@@ -7,7 +7,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.deeplinks.ShortcutController;
-import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -36,7 +35,6 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
-    private final DiscoveryConfiguration discoveryConfiguration;
 
     private RootActivity activity;
 
@@ -52,7 +50,6 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
                       FeatureOperations featureOperations,
                       OfflineContentOperations offlineContentOperations,
                       GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
-                      DiscoveryConfiguration discoveryConfiguration,
                       MainNavigationView mainNavigationView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
@@ -61,7 +58,6 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
-        this.discoveryConfiguration = discoveryConfiguration;
         this.mainNavigationView = mainNavigationView;
     }
 
@@ -178,11 +174,7 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
     }
 
     private void selectDiscovery() {
-        if (discoveryConfiguration.shouldShowDiscoverBackendContent()) {
-            mainNavigationView.selectItem(Screen.DISCOVER);
-        } else {
-            mainNavigationView.selectItem(Screen.SEARCH_MAIN);
-        }
+        mainNavigationView.selectItem(Screen.DISCOVER);
     }
 
     private class UpdateDevelopmentMenuAction extends DefaultObserver<Boolean> {

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/track_artwork"
-    android:layout_width="@dimen/new_for_you_discovery_preview_width"
-    android:layout_height="@dimen/new_for_you_discovery_preview_height"
+    android:layout_width="@dimen/system_playlist_preview_width"
+    android:layout_height="@dimen/system_playlist_preview_height"
     app:foregroundDrawable="@drawable/artwork_border"
     app:square="true" />

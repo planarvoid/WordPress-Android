@@ -16,7 +16,10 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
-
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
+    private static final Syncable SECOND_SYNCABLE = Syncable.LIKED_STATIONS;
+    private static final Syncable THIRD_SYNCABLE = Syncable.ME;
+    private static final Syncable FOURTH_SYNCABLE = Syncable.TRACKS;
     private final SyncResult syncResult = new SyncResult();
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private Runnable syncCompleteRunnable;
@@ -34,7 +37,7 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
 
         receiver.onReceiveResult(0, resultData);
 
-        verify(syncStateStorage).resetSyncMisses(Syncable.CHARTS);
+        verify(syncStateStorage).resetSyncMisses(SYNCABLE);
     }
 
     @Test
@@ -43,7 +46,7 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
 
         receiver.onReceiveResult(0, resultData);
 
-        verify(syncStateStorage).incrementSyncMisses(Syncable.CHARTS);
+        verify(syncStateStorage).incrementSyncMisses(SYNCABLE);
     }
 
     @Test
@@ -85,21 +88,21 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
     @Test
     public void handlesMixedSyncResults() {
         final Bundle resultData = new Bundle();
-        resultData.putParcelable(Syncable.CHARTS.name(),
-                                 SyncJobResult.failure(Syncable.CHARTS.name(),
+        resultData.putParcelable(SYNCABLE.name(),
+                                 SyncJobResult.failure(SYNCABLE.name(),
                                                        ApiRequestException.serverError(null, null)));
-        resultData.putParcelable(Syncable.LIKED_STATIONS.name(),
-                                 SyncJobResult.failure(Syncable.LIKED_STATIONS.name(),
+        resultData.putParcelable(SECOND_SYNCABLE.name(),
+                                 SyncJobResult.failure(SECOND_SYNCABLE.name(),
                                                        ApiRequestException.networkError(null, null)));
-        resultData.putParcelable(Syncable.RECOMMENDED_STATIONS.name(),
-                                 SyncJobResult.failure(Syncable.RECOMMENDED_STATIONS.name(),
+        resultData.putParcelable(THIRD_SYNCABLE.name(),
+                                 SyncJobResult.failure(THIRD_SYNCABLE.name(),
                                                        ApiRequestException.authError(null, null)));
-        resultData.putParcelable(Syncable.RECOMMENDED_TRACKS.name(),
-                                 SyncJobResult.success(Syncable.RECOMMENDED_TRACKS.name(), true));
+        resultData.putParcelable(FOURTH_SYNCABLE.name(),
+                                 SyncJobResult.success(FOURTH_SYNCABLE.name(), true));
 
         receiver.onReceiveResult(0, resultData);
 
-        verify(syncStateStorage).resetSyncMisses(Syncable.RECOMMENDED_TRACKS);
+        verify(syncStateStorage).resetSyncMisses(FOURTH_SYNCABLE);
         assertThat(syncResult.stats.numIoExceptions).isEqualTo(1);
         assertThat(syncResult.stats.numAuthExceptions).isEqualTo(1);
         assertThat(syncResult.delayUntil).isGreaterThan(0);
@@ -108,13 +111,13 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
 
     private Bundle createBundleForSuccess(boolean wasChanged) {
         final Bundle resultData = new Bundle();
-        resultData.putParcelable(Syncable.CHARTS.name(), SyncJobResult.success(Syncable.CHARTS.name(), wasChanged));
+        resultData.putParcelable(SYNCABLE.name(), SyncJobResult.success(SYNCABLE.name(), wasChanged));
         return resultData;
     }
 
     private Bundle createBundleForFailure(ApiRequestException e) {
         final Bundle resultData = new Bundle();
-        resultData.putParcelable(Syncable.CHARTS.name(), SyncJobResult.failure(Syncable.CHARTS.name(), e));
+        resultData.putParcelable(SYNCABLE.name(), SyncJobResult.failure(SYNCABLE.name(), e));
         return resultData;
     }
 }

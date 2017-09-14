@@ -1,22 +1,14 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.android.olddiscovery.charts.ChartsFixtures.createChartWithImageResources;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.ChartCategory;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.olddiscovery.charts.Chart;
-import com.soundcloud.android.olddiscovery.charts.ChartBucketType;
-import com.soundcloud.android.olddiscovery.recommendations.ApiRecommendation;
-import com.soundcloud.android.olddiscovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
@@ -34,8 +26,6 @@ import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
-import com.soundcloud.android.sync.charts.ApiChart;
-import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
@@ -207,49 +197,6 @@ public class DatabaseFixtures {
         cv.put(Tables.SuggestedCreators.SEED_USER_ID.name(), apiSuggestedCreator.getSeedUser().getId());
         cv.put(Tables.SuggestedCreators.SUGGESTED_USER_ID.name(), apiSuggestedCreator.getSuggestedUser().getId());
         insertInto(Tables.SuggestedCreators.TABLE, cv);
-    }
-
-    public void insertRecommendedPlaylist(ApiRecommendedPlaylistBucket playlistBucket) {
-        insertPlaylists(playlistBucket.playlists());
-        final ContentValues contentValues = new ContentValues();
-        contentValues.put(Tables.RecommendedPlaylistBucket.KEY.name(), playlistBucket.key());
-        contentValues.put(Tables.RecommendedPlaylistBucket.DISPLAY_NAME.name(), playlistBucket.displayName());
-        contentValues.put(Tables.RecommendedPlaylistBucket.ARTWORK_URL.name(), playlistBucket.artworkUrl().orNull());
-        long bucketId = insertInto(Tables.RecommendedPlaylistBucket.TABLE, contentValues);
-
-        for (ApiPlaylist apiPlaylist : playlistBucket.playlists()) {
-            final ContentValues matcherValues = new ContentValues();
-            matcherValues.put(Tables.RecommendedPlaylist.BUCKET_ID.name(), bucketId);
-            matcherValues.put(Tables.RecommendedPlaylist.PLAYLIST_ID.name(), apiPlaylist.getId());
-            insertInto(Tables.RecommendedPlaylist.TABLE, matcherValues);
-        }
-    }
-
-    public void insertRecommendation(ApiRecommendation apiRecommendation, String queryUrn, int queryPosition) {
-        insertTrack(apiRecommendation.getSeedTrack());
-        for (ApiTrack apiTrack : apiRecommendation.getRecommendations()) {
-            insertTrack(apiTrack);
-        }
-        final ContentValues seedContentValues = new ContentValues();
-        seedContentValues.put(Tables.RecommendationSeeds.SEED_SOUND_ID.name(),
-                              apiRecommendation.getSeedTrack().getUrn().getNumericId());
-        seedContentValues.put(Tables.RecommendationSeeds.SEED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
-        seedContentValues.put(Tables.RecommendationSeeds.RECOMMENDATION_REASON.name(), apiRecommendation.getRecommendationReason() == ApiRecommendation.Reason.LIKED ? Tables.RecommendationSeeds.REASON_LIKED : Tables.RecommendationSeeds.REASON_PLAYED);
-        seedContentValues.put(Tables.RecommendationSeeds.QUERY_URN.name(), queryUrn);
-        seedContentValues.put(Tables.RecommendationSeeds.QUERY_POSITION.name(), queryPosition);
-
-        //Store seed track in recommendations
-        final long rowId = insertInto(Tables.RecommendationSeeds.TABLE, seedContentValues);
-
-        //Store recommended tracks
-        for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
-            insertTrack(trackRecommendation);
-            final ContentValues recommendationContentValues = new ContentValues();
-            recommendationContentValues.put(Tables.Recommendations.SEED_ID.name(), apiRecommendation.getSeedTrack().getUrn().getNumericId());
-            recommendationContentValues.put(Tables.Recommendations.RECOMMENDED_SOUND_ID.name(), trackRecommendation.getUrn().getNumericId());
-            recommendationContentValues.put(Tables.Recommendations.RECOMMENDED_SOUND_TYPE.name(), Tables.Sounds.TYPE_TRACK);
-            insertInto(Tables.Recommendations.TABLE, recommendationContentValues);
-        }
     }
 
     private void insertPolicy(ApiTrack track) {
@@ -629,56 +576,6 @@ public class DatabaseFixtures {
         }
 
         return builder.get();
-    }
-
-    public Chart insertChart(ChartType chartType, ChartCategory chartCategory) {
-        final ApiChart<ApiImageResource> chart = createChartWithImageResources(chartType, chartCategory);
-        return insertChart(chart, Tables.Charts.BUCKET_TYPE_GLOBAL);
-    }
-
-    public Chart insertChart(ApiChart<ApiImageResource> apiChart, int bucketType) {
-        final ContentValues cv = new ContentValues();
-        cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.displayName());
-        if (apiChart.genre() != null) {
-            cv.put(Tables.Charts.GENRE.name(), apiChart.genre().toString());
-        }
-        cv.put(Tables.Charts.TYPE.name(), apiChart.type().value());
-        cv.put(Tables.Charts.CATEGORY.name(), apiChart.category().value());
-        cv.put(Tables.Charts.BUCKET_TYPE.name(), bucketType);
-        long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
-
-        final List<ApiImageResource> apiChartTracks = apiChart.tracks().getCollection();
-        final List<TrackArtwork> trackArtworks = new ArrayList<>(apiChartTracks.size());
-        for (final ApiImageResource track : apiChartTracks) {
-            trackArtworks.add(insertChartTrack(track, chartLocalId));
-        }
-        return Chart.create(chartLocalId,
-                            apiChart.type(),
-                            apiChart.category(),
-                            apiChart.displayName(),
-                            apiChart.genre(),
-                            getChartBucketType(bucketType),
-                            trackArtworks);
-    }
-
-    private ChartBucketType getChartBucketType(int bucketType) {
-        switch (bucketType) {
-            case Tables.Charts.BUCKET_TYPE_FEATURED_GENRES:
-                return ChartBucketType.FEATURED_GENRES;
-            default:
-                return ChartBucketType.GLOBAL;
-        }
-    }
-
-    private TrackArtwork insertChartTrack(ApiImageResource imageResource, long chartLocalId) {
-        final ContentValues cv = new ContentValues();
-        cv.put(Tables.ChartTracks.CHART_ID.name(), chartLocalId);
-        cv.put(Tables.ChartTracks.TRACK_ID.name(), imageResource.getUrn().getNumericId());
-        if (imageResource.getImageUrlTemplate().isPresent()) {
-            cv.put(Tables.ChartTracks.TRACK_ARTWORK.name(), imageResource.getImageUrlTemplate().get());
-        }
-        insertInto(Tables.ChartTracks.TABLE, cv);
-        return TrackArtwork.create(imageResource.getUrn(), imageResource.getImageUrlTemplate());
     }
 
     private ContentValues getStationContentValues(StationRecord station, long createdAt, int lastPlayedPosition) {
@@ -1156,18 +1053,6 @@ public class DatabaseFixtures {
         comment.getTrackTime().ifPresent(trackTime -> builder.put(TableColumns.Comments.TIMESTAMP, trackTime));
         builder.put(TableColumns.Comments.TRACK_ID, comment.getTrackUrn().getNumericId());
         builder.put(TableColumns.Comments.USER_ID, comment.getUser().getUrn().getNumericId());
-    }
-
-    public void insertSyncState(Uri contentUri,
-                                long lastSyncAttempt,
-                                long lastSyncSuccess,
-                                String extra) {
-        ContentValuesBuilder builder = ContentValuesBuilder.values();
-        builder.put(TableColumns.Collections.URI, contentUri.toString());
-        builder.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, lastSyncAttempt);
-        builder.put(TableColumns.Collections.LAST_SYNC, lastSyncSuccess);
-        builder.put(TableColumns.Collections.EXTRA, extra);
-        insertInto(Table.Collections, builder.get());
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

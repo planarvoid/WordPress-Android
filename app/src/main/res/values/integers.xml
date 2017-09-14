@@ -8,7 +8,6 @@
 
     <!-- Stations -->
     <integer name="stations_grid_span_count">2</integer>
-    <integer name="stations_recommendation_card_count">2</integer>
 
     <!-- Collection -->
     <integer name="collection_grid_span_count">2</integer>

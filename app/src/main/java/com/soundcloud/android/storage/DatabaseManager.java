@@ -36,6 +36,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static long migrationStart = 0L;
 
     private static DatabaseManager instance;
+    private final Context context;
     private final ApplicationProperties applicationProperties;
 
     public static DatabaseManager getInstance(Context context, ApplicationProperties applicationProperties) {
@@ -51,6 +52,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     @Deprecated
     public DatabaseManager(Context context, ApplicationProperties applicationProperties) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
         this.applicationProperties = applicationProperties;
     }
 
@@ -166,9 +168,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 45:
                             success = upgradeTo45();
                             break;
-                        case 46:
-                            success = upgradeTo46(db, oldVersion);
-                            break;
                         case 47:
                             success = upgradeTo47(db, oldVersion);
                             break;
@@ -247,17 +246,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 74:
                             success = upgradeTo74(db, oldVersion);
                             break;
-                        case 76:
-                            success = upgradeTo76(db, oldVersion);
-                            break;
                         case 77:
                             success = upgradeTo77(db, oldVersion);
                             break;
                         case 78:
                             success = upgradeTo78(db, oldVersion);
-                            break;
-                        case 79:
-                            success = upgradeTo79(db, oldVersion);
                             break;
                         case 81:
                             success = upgradeTo81(db, oldVersion);
@@ -265,14 +258,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 82:
                             success = upgradeTo82(db, oldVersion);
                             break;
-                        case 83:
-                            success = upgradeTo83(db, oldVersion);
-                            break;
                         case 84:
                             success = upgradeTo84(db, oldVersion);
-                            break;
-                        case 85:
-                            success = upgradeTo85(db, oldVersion);
                             break;
                         case 86:
                             success = upgradeTo86(db, oldVersion);
@@ -294,12 +281,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 98:
                             success = upgradeTo98(db, oldVersion);
-                            break;
-                        case 101:
-                            success = upgradeTo101(db, oldVersion);
-                            break;
-                        case 102:
-                            success = upgradeTo102(db, oldVersion);
                             break;
                         case 103:
                             success = upgradeTo103(db, oldVersion);
@@ -330,6 +311,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 119:
                             success = upgradeTo119(oldVersion);
+                            break;
+                        case 120:
+                            success = upgradeTo120(db, oldVersion);
                             break;
                         default:
                             break;
@@ -490,21 +474,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo45() {
         // removed when we migrated waveforms out of db
         return true;
-    }
-
-    /**
-     * Created Recommendations table
-     */
-    private boolean upgradeTo46(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.Recommendations.SQL);
-            db.execSQL(Tables.RecommendationSeeds.SQL);
-            return true;
-
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 46);
-        }
-        return false;
     }
 
     /**
@@ -863,21 +832,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Created Charts table
-     */
-    private boolean upgradeTo76(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.Charts.SQL);
-            db.execSQL(Tables.ChartTracks.SQL);
-            return true;
-
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 76);
-        }
-        return false;
-    }
-
-    /**
      * Creates local play history table
      */
     private boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
@@ -905,22 +859,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Edit charts table to match API changes
-     */
-    private boolean upgradeTo79(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropTable(Tables.Charts.TABLE.name(), db);
-            dropTable(Tables.ChartTracks.TABLE.name(), db);
-            db.execSQL(Tables.Charts.SQL);
-            db.execSQL(Tables.ChartTracks.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 79);
-        }
-        return false;
-    }
-
-    /**
      * Artist stations in profiles, add artist_station to Users
      * Change Recommendations table structure for tracking.
      * Need query_urn and query_position for each recommended bucket.
@@ -928,8 +866,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private boolean upgradeTo81(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Users.TABLE.name(), Tables.Users.SQL, db);
-            dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
-            db.execSQL(Tables.RecommendationSeeds.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 81);
@@ -961,23 +897,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Add helper flag to ChartTracks
-     */
-    private boolean upgradeTo83(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropTable(Tables.Charts.TABLE.name(), db);
-            dropTable(Tables.ChartTracks.TABLE.name(), db);
-            db.execSQL(Tables.Charts.SQL);
-            db.execSQL(Tables.ChartTracks.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 83);
-        }
-        return false;
-    }
-
-
-    /**
      * Change track_urn column to track_id in StationPlayQueues
      */
     private boolean upgradeTo84(SQLiteDatabase db, int oldVersion) {
@@ -987,22 +906,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 84);
-        }
-        return false;
-    }
-
-    /**
-     * Change ChartTracks to store ImageResource instead of index to sounds
-     */
-    private boolean upgradeTo85(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropTable(Tables.Charts.TABLE.name(), db);
-            dropTable(Tables.ChartTracks.TABLE.name(), db);
-            db.execSQL(Tables.Charts.SQL);
-            db.execSQL(Tables.ChartTracks.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 85);
         }
         return false;
     }
@@ -1095,34 +998,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 98);
-        }
-        return false;
-    }
-
-    /**
-     * Add tables for recommended playlists
-     */
-    private boolean upgradeTo101(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.RecommendedPlaylistBucket.SQL);
-            db.execSQL(Tables.RecommendedPlaylist.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 101);
-        }
-        return false;
-    }
-
-    /**
-     * Fix migration of RecommendedPlaylistBucket Table
-     */
-    private boolean upgradeTo102(SQLiteDatabase db, int oldVersion) {
-        try {
-            dropTable(Tables.RecommendedPlaylistBucket.TABLE.name(), db);
-            db.execSQL(Tables.RecommendedPlaylistBucket.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 102);
         }
         return false;
     }
@@ -1243,6 +1118,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return true;
     }
 
+    private boolean upgradeTo120(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("Recommendations", db);
+            dropTable("RecommendationSeeds", db);
+            dropTable("RecommendedPlaylistBucket", db);
+            dropTable("RecommendedPlaylist", db);
+            dropTable("Charts", db);
+            dropTable("ChartTracks", db);
+            context.deleteFile("storage_newforyou");
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 119);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
@@ -1299,8 +1190,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 Tables.Likes.TABLE,
                 Tables.Posts.TABLE,
                 Tables.UserAssociations.TABLE,
-                Tables.Recommendations.TABLE,
-                Tables.RecommendationSeeds.TABLE,
                 Tables.PlayQueue.TABLE,
                 Tables.Stations.TABLE,
                 Tables.StationsPlayQueues.TABLE,
@@ -1308,11 +1197,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 Tables.TrackDownloads.TABLE,
                 Tables.OfflineContent.TABLE,
                 Tables.Comments.TABLE,
-                Tables.Charts.TABLE,
-                Tables.ChartTracks.TABLE,
-                Tables.SuggestedCreators.TABLE,
-                Tables.RecommendedPlaylist.TABLE,
-                Tables.RecommendedPlaylistBucket.TABLE
+                Tables.SuggestedCreators.TABLE
         );
     }
 

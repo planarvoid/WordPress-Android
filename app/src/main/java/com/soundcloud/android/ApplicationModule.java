@@ -43,8 +43,6 @@ import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
-import com.soundcloud.android.olddiscovery.OldDiscoveryModule;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -107,6 +105,7 @@ import android.telephony.TelephonyManager;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.Executors;
 
 @Module(
@@ -118,7 +117,6 @@ import java.util.concurrent.Executors;
                 ProfileModule.class,
                 CommentsModule.class,
                 OfflineModule.class,
-                OldDiscoveryModule.class,
                 CastModule.class,
                 PlayQueueModule.class,
                 FirebaseModule.class,
@@ -435,12 +433,12 @@ public class ApplicationModule {
     }
 
     @Provides
-    public SearchItemRenderer<OldDiscoveryItem> provideOldSearchItemRenderer() {
+    public SearchItemRenderer<DiscoveryCardViewModel> provideNewSearchItemRenderer() {
         return new SearchItemRenderer<>();
     }
 
     @Provides
-    public SearchItemRenderer<DiscoveryCardViewModel> provideNewSearchItemRenderer() {
-        return new SearchItemRenderer<>();
+    public Random provideRandom() {
+        return new Random();
     }
 }

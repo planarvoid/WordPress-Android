@@ -99,7 +99,7 @@
 
     <style name="Search.PremiumContent.Text.ViewAll">
         <item name="custom_font">@string/interstate_regular</item>
-        <item name="android:textColor">@color/discovery_search_premium_view_all</item>
+        <item name="android:textColor">@color/search_premium_view_all</item>
     </style>
 
     <style name="Search.PremiumContent.Text.Upsell">
@@ -121,15 +121,9 @@
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="Carousel.DiscoverNewTracks">
-        <item name="android:singleLine">true</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/recommended_for_you_text</item>
-    </style>
-
-    <style name="Carousel.RecommendationItem">
+    <style name="Carousel.StationItem">
         <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:layout_marginRight">@dimen/recommendation_item_right_margin</item>
+        <item name="android:layout_marginRight">@dimen/carousel_item_right_margin</item>
     </style>
 
     <style name="Carousel.Artwork">
@@ -157,7 +151,7 @@
         <item name="android:singleLine">true</item>
         <item name="android:textSize">12sp</item>
         <item name="android:lineSpacingMultiplier">1</item>
-        <item name="android:textColor">@color/recommendation_card_track_title</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="Carousel.ItemArtist">
@@ -166,7 +160,7 @@
         <item name="android:textSize">12sp</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">@color/recommendation_card_artist_name</item>
+        <item name="android:textColor">@color/ash</item>
     </style>
 
     <style name="Carousel.ItemNowPlaying">
@@ -193,7 +187,6 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <!-- TODO Replace Recommendations styles with these styles -->
     <!-- Modules -->
     <style name="Module" parent="TextAppearance.SoundCloudLightFont" />
 
@@ -201,82 +194,33 @@
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="Module.Header" parent="Carousel.DiscoverNewTracks">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/recommendations_cell_text_recommended_height</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingBottom">@dimen/recommendations_cell_text_recommended_padding_bottom</item>
-        <item name="android:paddingLeft">@dimen/discovery_cell_text_padding</item>
-        <item name="android:paddingRight">@dimen/discovery_cell_text_padding</item>
-        <item name="android:paddingTop">@dimen/recommendations_cell_text_recommended_padding_top</item>
-    </style>
-
-    <!-- Charts -->
-    <style name="Chart" parent="TextAppearance.SoundCloudLightFont" />
-
-    <style name="Chart.TextItem">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/discovery_cell_text_height</item>
-        <item name="android:textSize">@dimen/chart_header_text_size</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingLeft">@dimen/discovery_cell_text_padding</item>
-        <item name="android:paddingRight">@dimen/discovery_cell_text_padding</item>
-        <item name="android:background">@color/white</item>
-    </style>
-
-    <!-- User Welcome Card -->
-    <style name="WelcomeUser" parent="TextAppearance.SoundCloudLightFont" />
-
-    <style name="WelcomeUser.Title">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="WelcomeUser.Description">
+    <style name="Module.Header">
+        <item name="android:singleLine">true</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/seventy_percent_white</item>
-    </style>
-
-    <!-- New for you -->
-    <style name="NewForYouModule" parent="Module" />
-
-    <style name="NewForYouModule.Title" parent="NewForYouModule">
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/raven</item>
-        <item name="android:paddingBottom">6dp</item>
-    </style>
-
-    <style name="NewForYouModule.Intro" parent="NewForYouModule">
-        <item name="android:paddingRight">16dp</item>
-    </style>
-
-    <style name="NewForYouModule.IntroText" parent="NewForYouModule">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/charcoal</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
-    </style>
-
-    <style name="NewForYouModule.Action" parent="NewForYouModule">
-        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/ash</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:drawableRight">@drawable/inset_chevron</item>
-        <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
+        <item name="android:paddingTop">8dp</item>
     </style>
 
-    <style name="NewForYouModule.BackStack" parent="NewForYouModule">
-        <item name="android:background">@drawable/new_for_you_back_stack_bg</item>
+    <!-- System Playlists -->
+    <style name="SystemPlaylistHeader" parent="TextAppearance.SoundCloudLightFont" />
+
+    <style name="SystemPlaylistHeader.BackStack" parent="SystemPlaylistHeader">
+        <item name="android:background">@drawable/system_playlist_back_stack_bg</item>
         <item name="android:rotation">5</item>
         <item name="android:alpha">0.5</item>
     </style>
 
-    <style name="NewForYouModule.MidStack" parent="NewForYouModule">
-        <item name="android:background">@drawable/new_for_you_mid_stack_bg</item>
+    <style name="SystemPlaylistHeader.MidStack" parent="SystemPlaylistHeader">
+        <item name="android:background">@drawable/system_playlist_mid_stack_bg</item>
         <item name="android:rotation">-5</item>
         <item name="android:alpha">0.5</item>
     </style>
-
-    <style name="SystemPlaylistHeader" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="SystemPlaylistHeader.Container">
         <item name="android:layout_width">wrap_content</item>
@@ -344,7 +288,6 @@
     </style>
 
     <!--discovery backend cards-->
-
     <style name="Discovery" />
 
     <style name="Discovery.Selection" />

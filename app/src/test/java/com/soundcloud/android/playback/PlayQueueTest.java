@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlayQueue.fromPlayableList;
 import static com.soundcloud.android.playback.PlayQueue.fromRecommendations;
 import static com.soundcloud.android.playback.PlayQueue.fromTrackUrnList;
-import static com.soundcloud.android.playback.PlaySessionSource.forRecommendations;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.android.playback.PlaybackContext.create;
 import static java.util.Arrays.asList;
@@ -41,32 +40,6 @@ public class PlayQueueTest {
                                                           playSessionSource);
 
         assertThat(playbackContext(playQueue)).isEqualTo(create(playSessionSource));
-    }
-
-    @Test
-    public void fromRecommendationsShouldApplyPlaybackContext() {
-        final Urn queryUrn = new Urn("soundcloud:query:2");
-        final PlaySessionSource playSessionSource = forRecommendations(Screen.SEARCH_SUGGESTIONS, 0, queryUrn);
-        final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
-        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(recommendedTrack),
-                                                                                          "0");
-        final PlayQueue playQueue = fromRecommendations(Urn.forTrack(1L), false, relatedTracks, playSessionSource);
-
-        assertThat(playbackContext(playQueue)).isEqualTo(create(playSessionSource));
-    }
-
-    @Test
-    public void fromRecommendationsForContinuousPlayShouldApplyAutoPlayPlaybackContext() {
-        final Urn queryUrn = new Urn("soundcloud:query:2");
-        final PlaySessionSource playSessionSource = forRecommendations(Screen.SEARCH_SUGGESTIONS, 0, queryUrn);
-        final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
-        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(recommendedTrack),
-                                                                                          "0");
-        final Urn seedTrack = Urn.forTrack(1L);
-        final PlayQueue playQueue = fromRecommendations(seedTrack, true, relatedTracks, playSessionSource);
-
-        assertThat(playbackContext(playQueue)).isEqualTo(create(PlaybackContext.Bucket.AUTO_PLAY,
-                                                                Optional.of(seedTrack)));
     }
 
     @Test

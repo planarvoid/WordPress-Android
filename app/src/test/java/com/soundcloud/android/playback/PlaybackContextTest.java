@@ -1,13 +1,9 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.PlaySessionSource.forChart;
-import static com.soundcloud.android.playback.PlaySessionSource.forRecommendations;
 import static com.soundcloud.android.playback.PlaybackContext.create;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
@@ -146,69 +142,6 @@ public class PlaybackContextTest {
         assertThat(context.bucket()).isEqualTo(Bucket.SEARCH_RESULT);
         assertThat(context.query()).isEqualTo(Optional.of(queryString));
         assertThat(context.urn()).isEqualTo(Optional.absent());
-    }
-
-    @Test
-    public void fromSuggestedTracks() {
-        assertFromSuggestedTracks(Screen.SEARCH_SUGGESTIONS);
-        assertFromSuggestedTracks(Screen.SEARCH_MAIN);
-    }
-
-    private void assertFromSuggestedTracks(Screen searchSuggestions) {
-        final Urn queryUrn = new Urn("soundcloud:query:453asdf");
-        final PlaySessionSource playSessionSource = forRecommendations(searchSuggestions, 0, queryUrn);
-
-        final PlaybackContext context = create(playSessionSource);
-
-        assertThat(context.bucket()).isEqualTo(Bucket.SUGGESTED_TRACKS);
-        assertThat(context.query()).isEqualTo(Optional.absent());
-        assertThat(context.urn()).isEqualTo(Optional.absent());
-    }
-
-    @Test
-    public void fromNewAndHotCharts() {
-        final Urn queryUrn = new Urn("soundcloud:query:453asdf");
-        final Urn genre = Chart.GLOBAL_GENRE;
-
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, Bucket.CHARTS_TRENDING);
-    }
-
-    @Test
-    public void fromGenreNewAndHotCharts() {
-        final Urn queryUrn = new Urn("soundcloud:query:453asdf");
-        final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
-
-        assertFromCharts(queryUrn, genre, ChartType.TRENDING, Bucket.CHARTS_TRENDING);
-    }
-
-    @Test
-    public void fromTop50Charts() {
-        final Urn queryUrn = new Urn("soundcloud:query:453asdf");
-        final Urn genre = Chart.GLOBAL_GENRE;
-
-        assertFromCharts(queryUrn, genre, ChartType.TOP, Bucket.CHARTS_TOP);
-    }
-
-    @Test
-    public void fromGenreTop50Chart() {
-        final Urn queryUrn = new Urn("soundcloud:query:453asdf");
-        final Urn genre = new Urn("soundcloud:genres:all-music:some_genre");
-
-        assertFromCharts(queryUrn, genre, ChartType.TOP, Bucket.CHARTS_TOP);
-    }
-
-
-    private void assertFromCharts(Urn queryUrn,
-                                  Urn genre,
-                                  ChartType chartType,
-                                  Bucket charts) {
-        final PlaySessionSource playSessionSource = forChart(ANY_SCREEN.get(), 0, queryUrn, chartType, genre);
-
-        final PlaybackContext context = create(playSessionSource);
-
-        assertThat(context.bucket()).isEqualTo(charts);
-        assertThat(context.query()).isEqualTo(Optional.absent());
-        assertThat(context.urn()).isEqualTo(Optional.of(genre));
     }
 
 }

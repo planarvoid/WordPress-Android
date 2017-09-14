@@ -1,9 +1,10 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.discovery.DiscoveryConfiguration;
+import com.soundcloud.android.discovery.DiscoveryNavigationTarget;
 import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 
 import javax.inject.Inject;
@@ -11,22 +12,22 @@ import javax.inject.Inject;
 public class NavigationModelFactory {
 
     private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
-    private final DiscoveryConfiguration discoveryConfiguration;
+    private final FeatureFlags featureFlags;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     NavigationModelFactory(DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
-                           DiscoveryConfiguration discoveryConfiguration,
+                           FeatureFlags featureFlags,
                            ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
-        this.discoveryConfiguration = discoveryConfiguration;
+        this.featureFlags = featureFlags;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     public NavigationModel build() {
         if (defaultHomeScreenConfiguration.isDiscoveryHome()) {
             return new NavigationModel(
-                    discoveryConfiguration.navigationTarget(),
+                    new DiscoveryNavigationTarget(featureFlags),
                     new StreamNavigationTarget(false),
                     changeLikeToSaveExperiment.navigationTarget(),
                     new MoreNavigationTarget());
@@ -34,7 +35,7 @@ public class NavigationModelFactory {
 
         return new NavigationModel(
                 new StreamNavigationTarget(true),
-                discoveryConfiguration.navigationTarget(),
+                new DiscoveryNavigationTarget(featureFlags),
                 changeLikeToSaveExperiment.navigationTarget(),
                 new MoreNavigationTarget());
 

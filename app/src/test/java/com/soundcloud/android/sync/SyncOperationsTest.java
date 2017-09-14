@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(MockitoJUnitRunner.class)
 public class SyncOperationsTest {
 
-    private static final Syncable SYNCABLE = Syncable.CHARTS;
+    private static final Syncable SYNCABLE = Syncable.DISCOVERY_CARDS;
     private static final SyncJobResult JOB_SUCCESS = SyncJobResult.success(SYNCABLE.name(), true);
     private static final long SYNCABLE_STALE_TIME = TimeUnit.DAYS.toMillis(1);
 

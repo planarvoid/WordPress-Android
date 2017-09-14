@@ -1,7 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.api.model.ChartType.TOP;
-import static com.soundcloud.android.api.model.ChartType.TRENDING;
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
@@ -17,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
@@ -34,7 +31,6 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -57,10 +53,6 @@ import android.widget.ImageView;
 import java.util.Locale;
 
 public class TrackItemRendererTest extends AndroidUnitTest {
-
-    private final static ChartCategory CATEGORY = ChartCategory.MUSIC;
-    private final static Urn GENRE_URN = new Urn("soundcloud:genre:rock");
-    private final static Optional<Urn> QUERY_URN = Optional.of(new Urn("soundcloud:charts:1236"));
 
     private TrackItemRenderer renderer;
 
@@ -362,31 +354,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);
-    }
-
-    @Test
-    public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
-        final TrackItem trackItem = ModelFixtures.trackItem();
-        final int position = 0;
-        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, trackItem, CATEGORY,
-                                                                 GENRE_URN, QUERY_URN);
-        renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
-
-        verify(trackItemView).showPosition(position);
-        verify(trackItemView).showPostedTime(trackItem.getCreatedAt());
-    }
-
-    @Test
-    public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
-        final TrackItem trackItem = ModelFixtures.trackItem();
-        final int position = 0;
-        final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, trackItem, CATEGORY,
-                                                                 GENRE_URN, QUERY_URN);
-        renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
-
-        verify(trackItemView).showPosition(position);
-        verify(trackItemView, never()).showPostedTime(trackItem.getCreatedAt());
-        verify(trackItemView).showPlaycount(anyString());
     }
 
     @Test

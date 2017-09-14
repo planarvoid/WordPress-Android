@@ -11,7 +11,6 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
-import com.soundcloud.android.screens.discovery.OldDiscoveryScreen;
 import com.soundcloud.android.screens.elements.MainTabs;
 import com.soundcloud.android.screens.record.RecordScreen;
 
@@ -49,19 +48,6 @@ public class MainNavigationHelper {
 
     public ProfileScreen goToMyProfile() {
         return mainTabs().clickMore().clickMyProfileLink();
-    }
-
-    public OldDiscoveryScreen goToOldDiscovery() {
-        // TODO: Fix horrible hack after Support Library bump.
-        // Bug: When Robotium clicks on the Search Icon in the main nav, the app switches to the Discovery screen
-        // then performs a sudden scrollDown. This leads all tests that search for the `search_text` view to fail.
-        //
-        // As a quick fix, simply double-tap the discovery tab. This will force the search screen to scroll to the top.
-        final MainTabs mainTabs = mainTabs();
-
-        mainTabs.clickOldDiscovery();
-
-        return mainTabs.clickOldDiscovery();
     }
 
     public MoreScreen goToMore() {

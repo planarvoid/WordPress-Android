@@ -19,8 +19,6 @@ import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.UpsellContext;
@@ -218,38 +216,11 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensViewAllRecommendations() {
-        navigationExecutor.openViewAllRecommendations(activityContext);
-
-        assertThat(activityContext).nextStartedIntent().opensActivity(ViewAllRecommendedTracksActivity.class);
-    }
-
-    @Test
-    public void opensPlaylistDiscoveryTag() {
-        final String playListTag = "playListTag";
-
-        navigationExecutor.openPlaylistDiscoveryTag(activityContext, playListTag);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(PlaylistDiscoveryActivity.EXTRA_PLAYLIST_TAG, playListTag)
-                                   .opensActivity(PlaylistDiscoveryActivity.class);
-    }
-
-    @Test
     public void opensTrackLikes() {
         navigationExecutor.openTrackLikes(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackLikesActivity.class);
-    }
-
-    @Test
-    public void opensNewForYou() {
-        navigationExecutor.openNewForYou(activityContext);
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(SystemPlaylistActivity.class)
-                                   .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
     }
 
     @Test

@@ -12,17 +12,17 @@ public class ScreenTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetTrackingTag() {
-        assertThat(Screen.AUDIO_GENRES.get()).isEqualTo("charts:audio_genres");
+        assertThat(Screen.DISCOVER.get()).isEqualTo("discovery:main");
     }
 
     @Test
     public void shouldGetTrackingTagWithAppendedPath() {
-        assertThat(Screen.AUDIO_GENRES.get("path")).isEqualTo("charts:audio_genres:path");
+        assertThat(Screen.DISCOVER.get("path")).isEqualTo("discovery:main:path");
     }
 
     @Test
     public void gettingTagWithAppendedPathShouldNormalizePath() {
-        assertThat(Screen.AUDIO_GENRES.get("Hello & World")).isEqualTo("charts:audio_genres:hello_&_world");
+        assertThat(Screen.DISCOVER.get("Hello & World")).isEqualTo("discovery:main:hello_&_world");
     }
 
     @Test

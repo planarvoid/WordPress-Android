@@ -29,6 +29,7 @@ import static org.robolectric.Shadows.shadowOf;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.SessionProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -50,7 +51,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.customtabs.CustomTabsHelper;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
-import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
@@ -88,7 +88,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class NavigationResolverTest extends AndroidUnitTest {
-    private static final String TOP_FIFTY = "Top 50";
+    private static final Urn GENRE = new Urn("soundcloud:genres:ambient");
+    private static final Urn LOGGED_IN_USER_URN = new Urn("soundcloud:user:456");
     private static final ResolveResult RESULT_TRACK = ResolveResult.success(Urn.forTrack(123));
     private static final Screen NAVIGATION_SCREEN = Screen.DISCOVER;
     private static final Screen DEEPLINK_SCREEN = Screen.DEEPLINK;
@@ -135,11 +136,11 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           offlineSettingsStorage);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(playbackInitiator.startPlayback(any(Urn.class),
                                              any(Screen.class))).thenReturn(Single.never());
 
         when(homeScreenConfiguration.isStreamHome()).thenReturn(true);
-        when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
     }
 
     // For Deeplink
@@ -912,25 +913,19 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Test
     public void deeplink_shouldOpenChartsFromWebLink() throws Exception {
         String target = "https://soundcloud.com/charts/top?genre=all";
-        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, GENRE));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
-                                                                                                     Chart.GLOBAL_GENRE,
-                                                                                                     ChartCategory.MUSIC,
-                                                                                                     Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP, GENRE)));
     }
 
     @Test
     public void deeplink_shouldOpenChartsFromUri() throws Exception {
         String target = "soundcloud://charts:top:all";
-        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, GENRE));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
-                                                                                                     Chart.GLOBAL_GENRE,
-                                                                                                     ChartCategory.MUSIC,
-                                                                                                     Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP, GENRE)));
     }
 
     @Test
@@ -1010,7 +1005,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://the-upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
-        assertTarget(navigationTarget, IntentFactory.createNewForYouIntent(context));
+        assertTarget(navigationTarget, IntentFactory.createTheUploadIntent(context, LOGGED_IN_USER_URN));
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verifyZeroInteractions(resolveOperations);
@@ -1541,25 +1536,19 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Test
     public void navigation_shouldOpenChartsFromWebLink() throws Exception {
         String target = "https://soundcloud.com/charts/top?genre=all";
-        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, GENRE));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
-                                                                                                     Chart.GLOBAL_GENRE,
-                                                                                                     ChartCategory.MUSIC,
-                                                                                                     Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP, GENRE)));
     }
 
     @Test
     public void navigation_shouldOpenChartsFromUri() throws Exception {
         String target = "soundcloud://charts:top:all";
-        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
+        when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, GENRE));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP,
-                                                                                                     Chart.GLOBAL_GENRE,
-                                                                                                     ChartCategory.MUSIC,
-                                                                                                     Optional.of(TOP_FIFTY))));
+        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, ChartDetails.create(ChartType.TOP, GENRE)));
     }
 
     @Test
@@ -1651,7 +1640,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
         String target = "soundcloud://the-upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
-        assertTarget(navigationTarget, IntentFactory.createNewForYouIntent(context));
+        assertTarget(navigationTarget, IntentFactory.createTheUploadIntent(context, LOGGED_IN_USER_URN));
 
         verifyZeroInteractions(resolveOperations);
     }
@@ -1861,33 +1850,6 @@ public class NavigationResolverTest extends AndroidUnitTest {
         NavigationTarget navigationTarget = NavigationTarget.forAdClickthrough(target);
 
         assertTarget(navigationTarget, IntentFactory.createAdClickthroughIntent(Uri.parse(target)));
-    }
-
-    @Test
-    public void opensChartTracks() {
-        Urn genreUrn = new Urn("soundcloud:genre:123");
-        ChartType chartType = ChartType.TOP;
-        String header = "header";
-        ChartCategory chartCategory = ChartCategory.AUDIO;
-        ChartDetails chartDetails = ChartDetails.create(chartType, genreUrn, chartCategory, Optional.of(header));
-        NavigationTarget navigationTarget = NavigationTarget.forChart(chartType, genreUrn, chartCategory, header);
-
-        assertTarget(navigationTarget, IntentFactory.createChartsIntent(context, chartDetails));
-    }
-
-    @Test
-    public void opensAllGenres() {
-        NavigationTarget navigationTarget = NavigationTarget.forAllGenres();
-
-        assertTarget(navigationTarget, IntentFactory.createAllGenresIntent(context, null));
-    }
-
-    @Test
-    public void opensAllGenresFromDeeplink() throws Exception {
-        ChartCategory chartCategory = ChartCategory.MUSIC;
-        NavigationTarget navigationTarget = NavigationTarget.forAllGenres(chartCategory);
-
-        assertTarget(navigationTarget, IntentFactory.createAllGenresIntent(context, chartCategory));
     }
 
     @Test

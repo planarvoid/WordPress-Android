@@ -150,8 +150,6 @@ public class StationsRepository {
         switch (type) {
             case StationsCollectionsTypes.LIKED:
                 return Syncable.LIKED_STATIONS;
-            case StationsCollectionsTypes.RECOMMENDATIONS:
-                return Syncable.RECOMMENDED_STATIONS;
             default:
                 throw new IllegalArgumentException("Unknown station's type: " + type);
         }

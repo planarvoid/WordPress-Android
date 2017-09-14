@@ -103,7 +103,7 @@ public final class RxJava1Detector extends Detector implements Detector.JavaPsiS
 
         @Override
         public void visitLocalVariable(PsiLocalVariable variable) {
-            if (isRxJava1Class(variable.getType().getCanonicalText())) {
+            if (variable != null && variable.getType() != null && isRxJava1Class(variable.getType().getCanonicalText())) {
                 reportRxJava1Issue(context, variable.getTypeElement());
             }
         }

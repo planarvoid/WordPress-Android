@@ -45,7 +45,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
 
-        mainNavHelper.goToOldDiscovery();
+        mainNavHelper.goToDiscovery();
 
         assertThat(player(), is(visible()));
         assertThat(player(), is(collapsed()));
@@ -53,7 +53,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @Test
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
-        mainNavHelper.goToOldDiscovery();
+        mainNavHelper.goToDiscovery();
 
         assertThat(player(), is(not(visible())));
     }
@@ -61,7 +61,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     @Test
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
         final VisualPlayerElement player = mainNavHelper
-                .goToOldDiscovery()
+                .goToDiscovery()
                 .clickSearch()
                 .doSearch("nasa")
                 .goToTracksTab()

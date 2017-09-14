@@ -80,11 +80,11 @@
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
 
-    <!-- New for you -->
-    <dimen name="new_for_you_discovery_preview_width">128dp</dimen>
-    <dimen name="new_for_you_discovery_preview_height">128dp</dimen>
-    <dimen name="new_for_you_discovery_preview_width_large">216dp</dimen>
-    <dimen name="new_for_you_discovery_preview_height_large">216dp</dimen>
+    <!-- System Playlists -->
+    <dimen name="system_playlist_preview_width">128dp</dimen>
+    <dimen name="system_playlist_preview_height">128dp</dimen>
+    <dimen name="system_playlist_preview_width_large">216dp</dimen>
+    <dimen name="system_playlist_preview_height_large">216dp</dimen>
 
     <!-- List item -->
     <dimen name="list_item_image_dimension">64dp</dimen>
@@ -103,30 +103,8 @@
     <dimen name="card_padding_horizontal">16dp</dimen>
     <dimen name="card_padding_horizontal_negative">-16dp</dimen>
 
-    <!-- Discovery -->
-    <dimen name="discovery_tags_padding_left_right">12dp</dimen>
-    <dimen name="discovery_tags_separation">11dp</dimen>
-    <dimen name="discovery_cell_elevation">3dp</dimen>
-    <dimen name="discovery_cell_text_height">48dp</dimen>
-    <dimen name="discovery_cell_text_padding">16dp</dimen>
-    <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
-    <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
-    <dimen name="discovery_search_close_icon_margin_left">16dp</dimen>
-    <dimen name="discovery_search_close_icon_margin_right">16dp</dimen>
-    <dimen name="discovery_search_tabs_padding">48dp</dimen>
-    <dimen name="discovery_search_help_button">48dp</dimen>
-    <dimen name="discovery_search_help_padding">2dp</dimen>
-    <dimen name="discovery_search_cell_text_height">56dp</dimen>
-    <dimen name="discovery_cell_text_view_all_padding">1dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_height">48dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_padding_bottom">8dp</dimen>
-    <dimen name="recommendation_item_size">128dp</dimen>
-    <dimen name="recommended_stations_pager">216dp</dimen>
-    <dimen name="recommendation_item_right_margin">16dp</dimen>
-
-    <!-- Charts -->
-    <dimen name="chart_header_text_size">12dp</dimen>
+    <!-- Carousels -->
+    <dimen name="carousel_item_right_margin">16dp</dimen>
 
     <!-- Record -->
     <dimen name="rec_upload_button_dimension">60dp</dimen>
@@ -164,6 +142,17 @@
     <dimen name="liked_track_icon_dimension">48dp</dimen>
 
     <!-- Search -->
+    <dimen name="search_upsell_cell_text_height">48dp</dimen>
+    <dimen name="search_close_icon_margin_left">16dp</dimen>
+    <dimen name="search_close_icon_margin_right">16dp</dimen>
+    <dimen name="search_tabs_padding">48dp</dimen>
+    <dimen name="search_help_button">48dp</dimen>
+    <dimen name="search_help_padding">2dp</dimen>
+    <dimen name="search_cell_text_height">56dp</dimen>
+    <dimen name="search_cell_text_view_all_padding">1dp</dimen>
+    <dimen name="search_cell_margin_left_right">4dp</dimen>
+    <dimen name="search_cell_margin_top_bottom">8dp</dimen>
+    <dimen name="search_cell_elevation">3dp</dimen>
     <dimen name="search_link_height">48dp</dimen>
     <dimen name="search_link_padding_horizontal">16dp</dimen>
     <dimen name="search_link_padding_vertical">12dp</dimen>
@@ -224,13 +213,13 @@
     <dimen name="collection_padding">8dp</dimen>
 
     <!-- Stations -->
+    <dimen name="stations_track_item_size">128dp</dimen>
     <dimen name="stations_home_artwork_size">168dp</dimen>
 
     <!-- Suggested creators -->
     <dimen name="suggested_creators_module_left_padding">16dp</dimen>
 
     <!-- Ads -->
-    <dimen name="ad_inlay_cta_border_width">1dp</dimen>
     <dimen name="ad_inlay_cta_border_radius">3dp</dimen>
 
     <!-- Conversion -->
@@ -238,7 +227,6 @@
     <dimen name="conversion_content">380dp</dimen>
     <dimen name="conversion_headline_text">26sp</dimen>
     <dimen name="conversion_title_text">22dp</dimen>
-    <dimen name="conversion_headline_width">250dp</dimen>
     <dimen name="conversion_button_text">16sp</dimen>
     <dimen name="conversion_divider_width">60dp</dimen>
     <dimen name="conversion_divider_height">2dp</dimen>

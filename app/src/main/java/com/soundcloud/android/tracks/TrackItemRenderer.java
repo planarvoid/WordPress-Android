@@ -7,7 +7,6 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
@@ -24,7 +23,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -129,21 +127,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module) {
         bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
-    }
-
-    public void bindChartTrackView(final ChartTrackItem chartTrackItem,
-                                   View itemView,
-                                   final int position,
-                                   Optional<TrackSourceInfo> trackSourceInfo) {
-        bindTrackView(chartTrackItem.getTrackItem(),
-                      itemView,
-                      position,
-                      trackSourceInfo,
-                      Optional.absent(),
-                      Optional.absent(),
-                      chartTrackItem.chartType() == ChartType.TRENDING ? Optional.of(ActiveFooter.POSTED) : Optional.absent());
-
-        showChartPosition(itemView, position);
     }
 
     public void bindPlaylistTrackView(final TrackItem track,

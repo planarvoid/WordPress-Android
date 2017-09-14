@@ -6,9 +6,7 @@ import static com.soundcloud.android.tests.TestConsts.ALL_TRACK_RECOMMENDATIONS_
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.tests.TestConsts;
 import org.junit.Test;
 
 import android.net.Uri;

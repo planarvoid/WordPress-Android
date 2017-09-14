@@ -363,70 +363,6 @@ public interface Tables {
         }
     }
 
-    class Recommendations extends SCBaseTable {
-
-        // table instance
-        public static final Recommendations TABLE = new Recommendations();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column SEED_ID = Column.create(TABLE, "seed_id", Long.class);
-        public static final Column RECOMMENDED_SOUND_ID = Column.create(TABLE, "recommended_sound_id", Long.class);
-        public static final Column RECOMMENDED_SOUND_TYPE = Column.create(TABLE, "recommended_sound_type", Long.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS Recommendations (" +
-                "_id INTEGER PRIMARY KEY," +
-                "seed_id INTEGER, " +
-                "recommended_sound_id INTEGER," +
-                "recommended_sound_type INTEGER," +
-                "FOREIGN KEY(seed_id) REFERENCES RecommendationSeeds(_id) " +
-                "FOREIGN KEY(recommended_sound_id, recommended_sound_type) REFERENCES Sounds(_id, _type)" +
-                ");";
-
-        Recommendations() {
-            super("Recommendations", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    class RecommendationSeeds extends SCBaseTable {
-
-        // table instance
-        public static final RecommendationSeeds TABLE = new RecommendationSeeds();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column SEED_SOUND_ID = Column.create(TABLE, "seed_sound_id", Long.class);
-        public static final Column SEED_SOUND_TYPE = Column.create(TABLE, "seed_sound_type", Long.class);
-        public static final Column RECOMMENDATION_REASON = Column.create(TABLE, "recommendation_reason", Long.class);
-        public static final Column QUERY_POSITION = Column.create(TABLE, "query_position", Long.class);
-        public static final Column QUERY_URN = Column.create(TABLE, "query_urn", String.class);
-
-        public static final int REASON_LIKED = 0;
-        public static final int REASON_PLAYED = 1;
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendationSeeds (" +
-                "_id INTEGER PRIMARY KEY," +
-                "seed_sound_id INTEGER, " +
-                "seed_sound_type INTEGER, " +
-                "recommendation_reason INTEGER, " +
-                "query_position INTEGER, " +
-                "query_urn TEXT, " +
-                "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
-                ");";
-
-        RecommendationSeeds() {
-            super("RecommendationSeeds", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     /**
      * @deprecated Play queue moved to its own storage {@link com.soundcloud.android.playback.PlayQueueStorage}
      */
@@ -643,71 +579,6 @@ public interface Tables {
 
         Comments() {
             super("Comments", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    class Charts extends SCBaseTable {
-
-        // table instance
-        public static final Charts TABLE = new Charts();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name", String.class);
-        public static final Column GENRE = Column.create(TABLE, "genre", String.class);
-        public static final Column TYPE = Column.create(TABLE, "type", String.class);
-        public static final Column CATEGORY = Column.create(TABLE, "category", String.class);
-        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type", Long.class);
-
-        public static final int BUCKET_TYPE_GLOBAL = 0;
-        public static final int BUCKET_TYPE_FEATURED_GENRES = 1;
-        public static final int BUCKET_TYPE_ALL_GENRES = 2;
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
-                "_id INTEGER PRIMARY KEY," +
-                "display_name TEXT, " +
-                "genre TEXT, " +
-                "type TEXT, " +
-                "category TEXT," +
-                "bucket_type INTEGER" +
-                ");";
-
-        Charts() {
-            super("Charts", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    class ChartTracks extends SCBaseTable {
-
-        // table instance
-        public static final ChartTracks TABLE = new ChartTracks();
-        // columns
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column CHART_ID = Column.create(TABLE, "chart_id", Long.class);
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id", Long.class);
-        public static final Column TRACK_ARTWORK = Column.create(TABLE, "track_artwork", String.class);
-        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type", Long.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
-                "_id INTEGER PRIMARY KEY," +
-                "chart_id INTEGER, " +
-                "track_id INTEGER, " +
-                "track_artwork TEXT, " +
-                "bucket_type INTEGER," +
-                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
-                ");";
-
-        ChartTracks() {
-            super("ChartTracks", PrimaryKey.of(BaseColumns._ID));
         }
 
         @Override
@@ -1161,57 +1032,6 @@ public interface Tables {
 
         private static String typeRepostDelimited() {
             return "'" + Tables.Posts.TYPE_REPOST + "'";
-        }
-    }
-
-    class RecommendedPlaylistBucket extends SCBaseTable {
-        public static final RecommendedPlaylistBucket TABLE = new RecommendedPlaylistBucket();
-
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column KEY = Column.create(TABLE, "key", String.class);
-        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name", String.class);
-        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url", String.class);
-        public static final Column QUERY_URN = Column.create(TABLE, "query_urn", String.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendedPlaylistBucket (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "key TEXT, " +
-                "display_name TEXT, " +
-                "artwork_url TEXT, " +
-                "query_urn TEXT" +
-                ");";
-
-        RecommendedPlaylistBucket() {
-            super("RecommendedPlaylistBucket", PrimaryKey.of("_id"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    class RecommendedPlaylist extends SCBaseTable {
-        public static final RecommendedPlaylist TABLE = new RecommendedPlaylist();
-
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column BUCKET_ID = Column.create(TABLE, "bucket_id", Long.class);
-        public static final Column PLAYLIST_ID = Column.create(TABLE, "playlist_id", Long.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendedPlaylist (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "bucket_id INTEGER, " +
-                "playlist_id INTEGER, " +
-                "FOREIGN KEY(bucket_id) REFERENCES RecommendedPlaylistBucket(_id) " +
-                ");";
-
-        RecommendedPlaylist() {
-            super("RecommendedPlaylist", PrimaryKey.of("_id"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
         }
     }
 }

@@ -88,18 +88,6 @@ public enum Screen {
     SEARCH_USERS("search:people"),
     SEARCH_PREMIUM_CONTENT("search:high_tier"),
     SEARCH_SUGGESTIONS("search:suggestions"),
-    SEARCH_PLAYLIST_DISCO("search:tags"),
-
-    // recommendations
-    RECOMMENDATIONS_MAIN("personal-recommended:main"),
-
-    // charts
-    MUSIC_GENRES("charts:music_genres"),
-    AUDIO_GENRES("charts:audio_genres"),
-    MUSIC_TRENDING("charts:music_trending:%s"),
-    AUDIO_TRENDING("charts:audio_trending:%s"),
-    MUSIC_TOP_50("charts:music_top_50:%s"),
-    AUDIO_TOP_50("charts:audio_top_50:%s"),
 
     // creators
     RECORD_MAIN("record:main"),
@@ -107,9 +95,6 @@ public enum Screen {
     RECORD_UPLOAD("record:share"),
     RECORD_PROGRESS("record:progress"),
     DEEPLINK_UPLOAD("deeplink:share"),
-
-    // new for you
-    NEW_FOR_YOU("new_for_you:main"),
 
     // playlists
     PLAYLIST_DETAILS("playlists:main"),

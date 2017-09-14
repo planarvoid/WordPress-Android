@@ -22,22 +22,12 @@ public class SystemPlaylistFragment extends LightCycleSupportFragment<SystemPlay
 
     public static final String TAG = "SystemPlaylistFragment";
     static final String EXTRA_PLAYLIST_URN = "extra_urn";
-    static final String EXTRA_FOR_NEW_FOR_YOU = "extra_for_new_for_you";
 
     @Inject @LightCycle SystemPlaylistPresenter presenter;
-
-    public static SystemPlaylistFragment newNewForYouInstance() {
-        final SystemPlaylistFragment fragment = new SystemPlaylistFragment();
-        final Bundle args = new Bundle();
-        args.putBoolean(EXTRA_FOR_NEW_FOR_YOU, true);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public static SystemPlaylistFragment newInstance(Urn urn) {
         final SystemPlaylistFragment fragment = new SystemPlaylistFragment();
         final Bundle args = new Bundle();
-        args.putBoolean(EXTRA_FOR_NEW_FOR_YOU, false);
         Urns.writeToBundle(args, EXTRA_PLAYLIST_URN, urn);
         fragment.setArguments(args);
         return fragment;

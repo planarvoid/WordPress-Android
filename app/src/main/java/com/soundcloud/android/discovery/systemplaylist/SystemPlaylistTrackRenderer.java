@@ -38,16 +38,10 @@ class SystemPlaylistTrackRenderer implements CellRenderer<SystemPlaylistItem.Tra
 
         final int queryPosition = position - SystemPlaylistPresenter.NUM_EXTRA_ITEMS;
         final TrackSourceInfo info;
-        if (trackItem.isNewForYou()) {
-            info = new TrackSourceInfo(Screen.NEW_FOR_YOU.get(), true);
-            info.setSource(DiscoverySource.NEW_FOR_YOU.value(), Strings.EMPTY);
-            trackItem.queryUrn().ifPresent(urn -> info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, urn)));
-        } else {
-            info = new TrackSourceInfo(Screen.SYSTEM_PLAYLIST.get(), true);
-            info.setOriginSystemPlaylist(trackItem.systemPlaylistUrn(), queryPosition);
-            trackItem.trackingFeatureName().ifPresent(source -> info.setSource(source, Strings.EMPTY));
-            trackItem.queryUrn().ifPresent(urn -> info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, urn)));
-        }
+        info = new TrackSourceInfo(Screen.SYSTEM_PLAYLIST.get(), true);
+        info.setOriginSystemPlaylist(trackItem.systemPlaylistUrn(), queryPosition);
+        trackItem.trackingFeatureName().ifPresent(source -> info.setSource(source, Strings.EMPTY));
+        trackItem.queryUrn().ifPresent(urn -> info.setQuerySourceInfo(QuerySourceInfo.create(queryPosition, urn)));
 
         trackItemRenderer.bindSystemPlaylistTrackView(items.get(position).track(),
                                                       itemView,
