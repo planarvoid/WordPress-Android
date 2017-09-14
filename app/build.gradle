@@ -157,6 +157,11 @@ task testSupportJar(type: Jar, dependsOn: ':app:compileDevDebugUnitTestSources')
   archiveName "test-support.jar"
 }
 
+tasks.withType(Test) {
+  jvmArgs '-XX:CompileCommand=exclude,com/soundcloud/propeller/QueryResult*.*',
+          '-XX:CompileCommand=exclude,android/support/v7/app/AppCompatViewInflater*.*'
+}
+
 artifacts {
   testSupport testSupportJar
 }
