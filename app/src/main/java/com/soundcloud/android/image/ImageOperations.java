@@ -400,13 +400,13 @@ public class ImageOperations {
         }
     }
 
-    GradientDrawable generateDrawable(ImageResource imageResource) {
+    private GradientDrawable generateDrawable(ImageResource imageResource) {
         return placeholderGenerator.generateDrawable(imageResource.getUrn().toString());
     }
 
 
     @Nullable
-    TransitionDrawable getPlaceholderDrawable(@Nullable final String imageUrl, int width, int height, ImageOperations.DisplayType displayType) {
+    private TransitionDrawable getPlaceholderDrawable(@Nullable final String imageUrl, int width, int height, ImageOperations.DisplayType displayType) {
         PlaceholderGenerator placeholderGenerator = displayType.equals(CIRCULAR) ? this.circularPlaceholderGenerator : this.placeholderGenerator;
         return imageCache.getPlaceholderDrawable(imageUrl,
                                                  width,
