@@ -190,9 +190,8 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         callbackThread {
             try {
                 val currentConnectionType = connectionHelper.currentConnectionType
-                // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
-                if (ConnectionType.OFFLINE != currentConnectionType) {
-                    // Use Log as Skippy dumps can be rather large
+                if (!error.isNetworkError()) {
+                    // Don't log network errors to Fabric as they are very common and noisy
                     ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
                 }
 

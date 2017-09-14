@@ -31,4 +31,6 @@ data class FlipperError(val category: String,
                         val streamingProtocol: StreamingProtocol,
                         val cdn: String,
                         val format: String,
-                        val bitrate: Int)
+                        val bitrate: Int) {
+    fun isNetworkError() = category == "hls_stream-network"
+}
