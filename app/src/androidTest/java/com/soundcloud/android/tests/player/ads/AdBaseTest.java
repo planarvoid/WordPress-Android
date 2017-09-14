@@ -31,13 +31,14 @@ public abstract class AdBaseTest extends ResolveBaseTest {
      * in which you will not get an ad on a fresh install if you open play queue and the monetizable track is the second track
      * This will happen when we stop using the policies endpoint to get track policies on a play queue change
      */
-    protected void playAdPlaylist() {
+    private void playAdPlaylist() {
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
         playerElement = playlistDetailsScreen.clickFirstTrack();
         assertTrue("Player did not expand", playerElement.waitForExpandedPlayer().isExpanded());
+        playerElement.waitForAudioAdToBeDone(); // let 1st track play for 30ish sec
         assertSwipeToNextTrack(playerElement);
         assertTrue("Playback did not play", waiter.waitForPlaybackToBePlaying());
-        playerElement.waitForAdToBeFetched();
+        playerElement.waitForAdToBeFetched(); // let 2nd track play for 5 sec
     }
 
     protected void swipeToAd() {

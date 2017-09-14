@@ -4,13 +4,11 @@ import static com.soundcloud.android.tests.TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.tests.TestConsts;
 import org.junit.Test;
 
 import android.net.Uri;
 
-@Ignore // https://soundcloud.atlassian.net/browse/DROID-1754
 @AdsTest
 public class LeaveBehindTest extends AdBaseTest {
 

@@ -7,8 +7,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.tests.TestConsts;
-import com.soundcloud.android.utils.Log;
 import org.junit.Test;
 
 import android.net.Uri;
