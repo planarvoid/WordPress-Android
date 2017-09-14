@@ -145,6 +145,7 @@ class PlayerWidgetPresenter {
         appWidgetManager.updateAppWidget(PLAYER_WIDGET_PROVIDER, views);
     }
 
+    @Nullable
     private Bitmap getCachedBitmap(Context context, final ImageResource imageResource) {
         return imageOperations.getCachedBitmap(imageResource, getApiImageSize(context.getResources()),
                                                context.getResources()
