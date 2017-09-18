@@ -141,7 +141,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.insertAds();
 
         verify(adsOperations).inlayAds(captor.capture());
-        assertThat(captor.getValue().getKruxSegments()).isEqualTo(segments);
+        assertThat(captor.getValue().getKruxSegments()).isEqualTo(segments.get());
     }
 
     @Test

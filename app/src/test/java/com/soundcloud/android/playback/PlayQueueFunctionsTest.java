@@ -7,7 +7,9 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import io.reactivex.functions.Predicate;
 import org.junit.Test;
+import rx.functions.Func1;
 
 public class PlayQueueFunctionsTest extends AndroidUnitTest {
 
@@ -16,7 +18,7 @@ public class PlayQueueFunctionsTest extends AndroidUnitTest {
         final PlayQueueItem trackItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromNewQueue(trackItem, Urn.NOT_SET, 0);
 
-        assertThat(PlayQueueFunctions.IS_AUDIO_AD_QUEUE_ITEM.test(event)).isTrue();
+        assertThat(((Predicate<CurrentPlayQueueItemEvent>) currentItemEvent -> currentItemEvent.getCurrentPlayQueueItem().isAudioAd()).test(event)).isTrue();
     }
 
     @Test
@@ -24,6 +26,6 @@ public class PlayQueueFunctionsTest extends AndroidUnitTest {
         final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
         final CurrentPlayQueueItemEvent event = CurrentPlayQueueItemEvent.fromNewQueue(trackItem, Urn.NOT_SET, 0);
 
-        assertThat(PlayQueueFunctions.TO_TRACK_QUEUE_ITEM.call(event)).isEqualTo(trackItem);
+        assertThat(((Func1<CurrentPlayQueueItemEvent, TrackQueueItem>) currentItemEvent -> (TrackQueueItem) currentItemEvent.getCurrentPlayQueueItem()).call(event)).isEqualTo(trackItem);
     }
 }
