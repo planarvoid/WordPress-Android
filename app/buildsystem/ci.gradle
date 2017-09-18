@@ -128,9 +128,8 @@ slogFollowUpBeta.mustRunAfter('uploadFollowUpBeta')
 
 task assemblePreReleaseWrapper(dependsOn: 'assembleProdPreRelease')
 
-task buildPreRelease(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper',
-                                 'staticAnalysis']) {
-  description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
+task buildPreRelease(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper']) {
+  description = 'Assembles Pre-Release (without ProGuard!) build for CI.'
 }
 task buildPreReleasePR(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper', 'assembleAcceptanceTest']) {
   description = 'Assembles Release (without ProGuard!) build for PR build.'

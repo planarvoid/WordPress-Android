@@ -86,6 +86,10 @@ def excludeAnnotationsRelease = [
 ] as String[]
 excludeAnnotationsRelease = excludeAnnotationsRelease + excludeAnnotations as String []
 
+def onlyAdsTestsAnnotation = [
+        'com.soundcloud.android.framework.annotation.AdsTest'
+] as String[]
+
 task runMarshmallowTestsMaster(dependsOn: extractHtmlTemplates) {
   doLast {
     def masterSystemProperties = systemPropertiesForBuildType('Android Listeners Master')
@@ -107,6 +111,14 @@ task runMarshmallowTestsRelease(dependsOn: extractHtmlTemplates) {
     def releaseSystemProperties = systemPropertiesForBuildType('Android Listeners Release')
     
     testRunner().runTests(marshmallowLabel, null, excludeAnnotationsRelease, releaseSystemProperties, null, null, null)
+  }
+}
+
+task runMarshmallowAdsTestsRelease(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def releaseSystemProperties = systemPropertiesForBuildType('Android Listeners Release')
+
+    testRunner().runTests(marshmallowLabel, onlyAdsTestsAnnotation, excludeAnnotations, releaseSystemProperties, null, null, null)
   }
 }
 

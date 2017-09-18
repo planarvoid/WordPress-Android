@@ -48,14 +48,10 @@ public final class TestConsts {
 
     public static final Uri AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI = Uri.parse(
             "https://soundcloud.com/scandroidad1/sets/new-audio-ad-and-leave-behind");
-    public static final Uri OLD_AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI = Uri.parse(
-            "https://soundcloud.com/scandroidad1/sets/monetizable-playlist");
     public static final Uri AUDIO_AD_WITH_TRACK_DEEPLINK_PLAYLIST_URI = Uri.parse(
             "https://soundcloud.com/scandroidad1/sets/track-deeplink-audio-ad");
     public static final Uri INTERSTITIAL_PLAYLIST_URI = Uri.parse(
             "https://soundcloud.com/scandroidad1/sets/new-interstitial-playlist");
-    public static final Uri OLD_INTERSTITIAL_PLAYLIST_URI = Uri.parse(
-            "https://soundcloud.com/scandroidad1/sets/monetizable2");
     public static final Uri LETTERBOX_VIDEO_PLAYLIST_URI = Uri.parse(
             "https://soundcloud.com/scandroidad1/sets/letterbox-video-ad");
 

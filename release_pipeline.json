@@ -5,45 +5,28 @@
       "jobs": [
         [
           {
-            "build_release_apk_for_testing": {
+            "build_pre_release_apks_for_testing": {
               "artifacts": [
-                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-preRelease-*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-preRelease-*.apk",
+                "app/build/outputs/apk/*androidTest*.apk"
               ],
-              "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease",
-              "plugins": {
-                "androidLint": {
-                  "pattern": "app/build/reports/lint-results-prodDebug.xml"
-                },
-                "findbugs": {
-                  "pattern": "app/build/reports/findbugs/findbugs.xml"
-                },
-                "pmd": {
-                  "pattern": "app/build/reports/pmd/pmd.xml"
-                },
-                "taskPublisher": {
-                  "excludePattern": "app/target/**/*",
-                  "pattern": "app/**/*.*"
-                },
-                "violations": {
-                  "checkstyle": {
-                    "pattern": "app/build/reports/checkstyle/checkstyle.xml"
-                  }
-                }
-              }
+              "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest"
             }
           },
           {
-            "build_test_apk": {
-              "cmd": "BUILD_TYPE=preRelease ./gradlew clean assembleAcceptanceTest",
+            "build_debug_apks_for_ads_testing": {
               "artifacts": [
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk",
                 "app/build/outputs/apk/*androidTest*.apk"
-              ]
+              ],
+              "cmd": "BUILD_TYPE=debug ./gradlew assembleDebugApk assembleAcceptanceTest"
             }
           }
         ]
       ],
       "next-stages": [
-        "automated_tests"
+        "automated_tests",
+        "manual_tests"
       ]
     },
     {
@@ -88,12 +71,34 @@
                 }
               }
             }
+          },
+          {
+            "ads_tests_(debug_build)": {
+              "cmd": "BUILD_TYPE=debug ./gradlew runMarshmallowAdsTestsRelease",
+              "test-reports": "results/xml/*.xml",
+              "plugins": {
+                "htmlReports": [
+                  {
+                    "reportDir": "results/",
+                    "reportFiles": "index.html",
+                    "reportName": "Ads Test Results"
+                  },
+                  {
+                    "reportDir": "results/",
+                    "reportFiles": "collection_index.html",
+                    "reportName": "Ads Collection Results"
+                  }
+                ],
+                "extEmail": {
+                  "content": "&lt;p&gt;${SCRIPT, template=&quot;random-gif.template&quot;}&lt;/p&gt;${SCRIPT, template=&quot;ios.template&quot;}"
+                }
+              }
+            }
           }
         ]
       ],
       "next-stages": [
-        "deploy_beta",
-        "manual_tests"
+        "deploy_beta"
       ]
     },
     {
