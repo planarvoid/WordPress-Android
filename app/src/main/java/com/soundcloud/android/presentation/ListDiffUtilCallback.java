@@ -1,5 +1,6 @@
 package com.soundcloud.android.presentation;
 
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import java.util.List;
 
 /**
  * Implementation of {@link DiffUtil.Callback} intended to be used when the datasource is a {@link List} of items.
+ *
  * @param <T>
  */
 public abstract class ListDiffUtilCallback<T> extends DiffUtil.Callback {
@@ -67,7 +69,13 @@ public abstract class ListDiffUtilCallback<T> extends DiffUtil.Callback {
     @Nullable
     @Override
     public final Object getChangePayload(int oldItemPosition, int newItemPosition) {
-        return getChangePayload(oldList.get(oldItemPosition), newList.get(newItemPosition));
+        if (oldItemPosition < oldList.size() && newItemPosition < newList.size()) {
+            return getChangePayload(oldList.get(oldItemPosition), newList.get(newItemPosition));
+        } else {
+            final String message = String.format("OldList size: %d - OldItemPos: %d - NewList size: %d - NewItemPos: %d", oldList.size(), oldItemPosition, newList.size(), newItemPosition);
+            ErrorUtils.handleSilentException(new IllegalStateException(message));
+            return null;
+        }
     }
 
     /**
