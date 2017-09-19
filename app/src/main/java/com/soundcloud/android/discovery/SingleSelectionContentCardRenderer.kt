@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.soundcloud.android.R
 import com.soundcloud.android.image.ApiImageSize
@@ -58,14 +59,21 @@ constructor(private val imageOperations: ImageOperations, private val resources:
         bindText(countTextView, selectionItem.count?.toString())
     }
 
-    private fun bindSocialProof(itemView: View, singleContentSelectionCard: DiscoveryCardViewModel.SingleContentSelectionCard) {
-        bindText(itemView.single_card_social_proof, singleContentSelectionCard.socialProof)
-        bindSocialProofAvatars(itemView, singleContentSelectionCard)
+    private fun bindSocialProof(socialProofView: View, singleContentSelectionCard: DiscoveryCardViewModel.SingleContentSelectionCard) {
+        bindSocialProofContainer(socialProofView.single_card_social_proof_container, singleContentSelectionCard.socialProof, singleContentSelectionCard.socialProofAvatarUrlTemplates)
+        bindText(socialProofView.single_card_social_proof, singleContentSelectionCard.socialProof)
+        bindSocialProofAvatars(socialProofView, singleContentSelectionCard.socialProofAvatarUrlTemplates)
     }
 
-    private fun bindSocialProofAvatars(container: View, singleContentSelectionCard: DiscoveryCardViewModel.SingleContentSelectionCard) {
-        val imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates
+    private fun bindSocialProofContainer(container: LinearLayout, socialProofText: String?, socialProofUrls: List<String>) {
+        if (socialProofText != null || socialProofUrls.isNotEmpty()) {
+            container.visibility = View.VISIBLE
+        } else {
+            container.visibility = View.GONE
+        }
+    }
 
+    private fun bindSocialProofAvatars(container: View, imageUrls: List<String>) {
         val artworkViews = listOf<ImageView>(container.single_card_user_artwork_1,
                                              container.single_card_user_artwork_2,
                                              container.single_card_user_artwork_3,
