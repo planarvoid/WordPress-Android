@@ -165,12 +165,11 @@
 
     <style name="SignUp.SeparatorView.Vertical">
         <item name="android:layout_width">1px</item>
-        <item name="android:layout_height">@dimen/signup_label_height</item>
     </style>
 
     <style name="SignUp.Label">
-        <item name="android:layout_width">@dimen/signup_label_width</item>
-        <item name="android:layout_height">@dimen/signup_label_height</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">0</item>
 
         <item name="android:padding">@dimen/signup_label_padding</item>
