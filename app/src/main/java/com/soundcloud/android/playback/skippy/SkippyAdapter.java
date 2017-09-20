@@ -444,9 +444,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             case CACHE_USAGE_PERCENT:
                 builder = PlaybackPerformanceEvent.cacheUsagePercent();
                 break;
-            case UNINTERRUPTED_PLAYTIME:
-                builder = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(currentPlaybackItem.getPlaybackType());
-                break;
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }

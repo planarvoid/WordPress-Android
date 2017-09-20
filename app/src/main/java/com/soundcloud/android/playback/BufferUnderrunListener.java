@@ -84,7 +84,6 @@ public class BufferUnderrunListener {
                                                                        .protocol(playbackProtocol)
                                                                        .playerType(playerType)
                                                                        .connectionType(currentConnectionType)
-                                                                       .cdnHost(item.toString())
                                                                        .format(format)
                                                                        .bitrate(bitrate)
                                                                        .build();
