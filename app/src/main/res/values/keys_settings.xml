@@ -8,6 +8,7 @@
     <string name="key_report_crashes">acra.enable</string>
     <string name="key_clear_cache">clearCache</string>
     <string name="key_sync_wifi_only">syncWifiOnly</string>
+    <string name="key_clear_search_history">clearSearchHistory</string>
 
     <!-- New Notification settings -->
     <string name="key_push_notifications_all">all_mobile</string>

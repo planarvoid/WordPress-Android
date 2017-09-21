@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Blocking descendants because of https://code.google.com/p/android/issues/detail?id=222911-->
+<android.support.v7.widget.RecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/ak_recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
+    android:headerDividersEnabled="false"
+    android:scrollbars="vertical" />

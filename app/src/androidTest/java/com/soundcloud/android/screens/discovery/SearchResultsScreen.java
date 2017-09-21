@@ -1,12 +1,12 @@
 package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.olddiscovery.SearchActivity;
-import com.soundcloud.android.olddiscovery.SearchPresenter;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.olddiscovery.SearchActivity;
+import com.soundcloud.android.olddiscovery.SearchPresenter;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -18,8 +18,6 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-
-import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
 
@@ -136,7 +134,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private RecyclerViewElement resultsList() {
-        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElements(With.id(R.id.ak_recycler_view)).get(1).toRecyclerView();
     }
 
     private ViewElement premiumContent() {

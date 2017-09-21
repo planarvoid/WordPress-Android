@@ -123,6 +123,7 @@ import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
+import com.soundcloud.android.search.history.SearchHistoryFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
 import com.soundcloud.android.search.topresults.TopResultsFragment;
@@ -353,6 +354,7 @@ public interface ApplicationComponent {
     //DiscoveryModule
     void inject(DiscoveryFragment discoveryFragment);
     void inject(SearchActivity searchActivity);
+    void inject(SearchHistoryFragment searchHistoryFragment);
     void inject(TopResultsFragment topResultsFragment);
     void inject(HomeFragment newHomeFragment);
     void inject(SearchPremiumResultsActivity searchPremiumResultsActivity);

@@ -13,6 +13,7 @@ public class SettingKey {
     public static final String SYNC_WIFI_ONLY = "syncWifiOnly";
     public static final String VERSION = "version";
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
+    public static final String CLEAR_SEARCH_HISTORY = "clearSearchHistory";
 
     // DeveloperSettings
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";

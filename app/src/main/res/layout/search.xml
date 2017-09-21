@@ -18,6 +18,12 @@
 
         <include layout="@layout/toolbar" />
 
+        <FrameLayout
+            android:id="@+id/search_history_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar_id" />
+
         <ViewFlipper
             android:id="@+id/search_view_flipper"
             android:layout_width="match_parent"

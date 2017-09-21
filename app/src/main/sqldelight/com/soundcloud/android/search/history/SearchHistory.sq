@@ -1,0 +1,20 @@
+CREATE TABLE search_history (
+    search_term TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+    timestamp INTEGER NOT NULL
+);
+
+insertRow:
+INSERT INTO search_history (search_term, timestamp)
+VALUES (?, ?);
+
+selectAll:
+SELECT search_term, timestamp FROM search_history
+ORDER BY timestamp DESC;
+
+truncateTable:
+DELETE FROM search_history
+WHERE timestamp <
+    (SELECT MIN(timestamp) FROM
+        (SELECT timestamp
+        FROM search_history
+        ORDER BY timestamp DESC LIMIT ?));

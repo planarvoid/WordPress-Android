@@ -24,7 +24,8 @@ enum Feature {
   FETCH_FEATURE_FLAGS_ON_LOGIN,
   COMMENTS_ON_API_MOBILE,
   UNIFLOW_NEW_HOME,
-  BOTTOM_NAVIGATION;
+  BOTTOM_NAVIGATION,
+  LOCAL_SEARCH_HISTORY;
 }
 
 android {
@@ -46,6 +47,7 @@ android {
     buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.BOTTOM_NAVIGATION.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -61,6 +63,7 @@ android {
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -75,6 +78,7 @@ android {
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -88,6 +92,7 @@ android {
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
     }
 
     release {
@@ -100,6 +105,7 @@ android {
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
     }
   }
 }

@@ -37,7 +37,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
 
         void onSearchClicked(String apiQuery, String userQuery);
 
-        void onSuggestionClicked();
+        void onSuggestionClicked(String suggestion);
 
         void onAutocompleteClicked(String query, String userQuery, String output, Optional<Urn> queryUrn, int position);
 
@@ -143,8 +143,8 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<List<Sugge
     }
 
     private void onSuggestionClicked(int position, SuggestionItem item, Context context) {
-        suggestionListener.onSuggestionClicked();
         final SearchSuggestionItem suggestionItem = (SearchSuggestionItem) item;
+        suggestionListener.onSuggestionClicked(suggestionItem.displayedText());
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.NOT_SET, suggestionItem.userQuery());
         final Screen searchSuggestions = Screen.SEARCH_SUGGESTIONS;
         eventTracker.trackSearch(SearchEvent.tapLocalSuggestionOnScreen(searchSuggestions, suggestionItem.getUrn(), suggestionItem.userQuery(), position));

@@ -56,8 +56,8 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     }
 
     @Override
-    public void onSuggestionClicked() {
-        presenter.onSuggestionClicked();
+    public void onSuggestionClicked(String suggestion) {
+        presenter.onSuggestionClicked(suggestion);
     }
 
     @Override

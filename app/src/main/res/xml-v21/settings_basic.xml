@@ -12,6 +12,11 @@
         android:summary="@string/pref_clear_cache_desc"
         android:title="@string/pref_clear_cache" />
 
+    <Preference
+        android:key="@string/key_clear_search_history"
+        android:summary="@string/pref_clear_search_history_desc"
+        android:title="@string/pref_clear_search_history" />
+
     <PreferenceCategory android:title="@string/pref_privacy">
 
         <SwitchPreference

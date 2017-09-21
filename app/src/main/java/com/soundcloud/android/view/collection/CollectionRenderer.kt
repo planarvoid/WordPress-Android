@@ -24,7 +24,7 @@ import io.reactivex.subjects.PublishSubject
 class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapter: PagingRecyclerItemAdapter<ItemT, VH>,
                                                               private val sameIdentity: (ItemT, ItemT) -> Boolean,
                                                               private val sameContest: (ItemT, ItemT) -> Boolean,
-                                                              private val emptyStateProvider: EmptyStateProvider,
+                                                              private val emptyStateProvider: EmptyStateProvider?,
                                                               private val animateLayoutChangesInItems: Boolean = false,
                                                               private val showDividers: Boolean = false,
                                                               private val parallaxImageScrolling: Boolean = false) {
@@ -52,7 +52,9 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         swipeRefreshLayout = view.findViewById(R.id.str_layout)
 
         configureRecyclerView(layoutmanager)
-        this.emptyAdapter = EmptyAdapter(emptyStateProvider, renderEmptyAtTop)
+        emptyStateProvider?.apply {
+            emptyAdapter = EmptyAdapter(emptyStateProvider, renderEmptyAtTop)
+        }
 
         // handle swipe to refresh
         swipeRefreshLayout?.apply {

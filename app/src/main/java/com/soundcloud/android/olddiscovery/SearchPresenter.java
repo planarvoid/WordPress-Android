@@ -11,8 +11,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
+import com.soundcloud.android.search.history.SearchHistoryFragment;
+import com.soundcloud.android.search.history.SearchHistoryItem;
+import com.soundcloud.android.search.history.SearchHistoryStorage;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -23,6 +29,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -79,9 +86,13 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final ScreenProvider screenProvider;
     private final TopResultsConfig topResultsConfig;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final FeatureFlags featureFlags;
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
+
+    private final SearchHistoryStorage searchHistoryStorage;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
@@ -92,7 +103,9 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                     EventTracker eventTracker,
                     ScreenProvider screenProvider,
                     TopResultsConfig topResultsConfig,
-                    PerformanceMetricsEngine performanceMetricsEngine) {
+                    PerformanceMetricsEngine performanceMetricsEngine,
+                    SearchHistoryStorage searchHistoryStorage,
+                    FeatureFlags featureFlags) {
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
         this.resources = resources;
@@ -102,6 +115,8 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.screenProvider = screenProvider;
         this.topResultsConfig = topResultsConfig;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.searchHistoryStorage = searchHistoryStorage;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -109,6 +124,11 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.window = activity.getWindow();
         this.fragmentManager = activity.getSupportFragmentManager();
         setupBackground(activity);
+
+        if (featureFlags.isEnabled(Flag.LOCAL_SEARCH_HISTORY)) {
+            setupSearchHistoryFragment();
+        }
+
         setupTransitionAnimation(window);
         setupViews(activity);
         if (bundle == null) {
@@ -121,11 +141,32 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         }
     }
 
+    private void setupSearchHistoryFragment() {
+        SearchHistoryFragment fragment = new SearchHistoryFragment();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction
+                .add(R.id.search_history_container,
+                     fragment,
+                     SearchHistoryFragment.TAG)
+                .commit();
+
+        disposable.add(fragment.getPresenterLazy().get().getItemClickListener().subscribeWith(LambdaObserver.onNext(o -> {
+            String searchTerm = o.getSearchTerm();
+            searchTextView.setText(searchTerm);
+            performSearch(searchTerm, searchTerm);
+        })));
+        disposable.add(fragment.getPresenterLazy().get().getAutocompleteArrowClickListener().subscribeWith(LambdaObserver.onNext(o -> {
+            String searchTerm = o.getSearchTerm();
+            onAutocompleteArrowClicked(searchTerm, searchTerm, Optional.absent(), Optional.absent());
+        })));
+    }
+
     @Override
     public void onDestroy(AppCompatActivity activity) {
         this.window = null;
         this.fragmentManager = null;
         this.fragmentTransaction = null;
+        this.disposable.clear();
         super.onDestroy(activity);
     }
 
@@ -165,13 +206,26 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                        Optional<String> outputString,
                        Optional<Urn> queryUrn,
                        Optional<Integer> position) {
+
+        if (featureFlags.isEnabled(Flag.LOCAL_SEARCH_HISTORY)) {
+            addSearchHistoryItem(apiQuery);
+        }
+
         performanceMetricsEngine.startMeasuring(MetricType.PERFORM_SEARCH);
         deactivateSearchView();
         showResultsFor(apiQuery, userQuery, outputString, queryUrn, position);
     }
 
-    void onSuggestionClicked() {
+    void onSuggestionClicked(String suggestion) {
+        if (featureFlags.isEnabled(Flag.LOCAL_SEARCH_HISTORY)) {
+            addSearchHistoryItem(suggestion);
+        }
         deactivateSearchView();
+    }
+
+    private void addSearchHistoryItem(String suggestion) {
+        SearchHistoryItem searchHistoryItem = new SearchHistoryItem(suggestion, System.currentTimeMillis());
+        searchHistoryStorage.addSearchHistoryItem(searchHistoryItem);
     }
 
     private void setupTransitionAnimation(Window window) {

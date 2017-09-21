@@ -66,9 +66,9 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     }
 
     @Override
-    public void onSuggestionClicked() {
+    public void onSuggestionClicked(String suggestion) {
         if (getActivity() instanceof SuggestionListener) {
-            ((SuggestionListener) getActivity()).onSuggestionClicked();
+            ((SuggestionListener) getActivity()).onSuggestionClicked(suggestion);
         }
     }
 

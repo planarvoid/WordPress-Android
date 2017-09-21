@@ -467,9 +467,12 @@
     <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app, which helps us improve the app. For details, refer to our Privacy Policy.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy Policy.</string>
+    <string name="pref_clear_search_history">Clear search history</string>
+    <string name="pref_clear_search_history_desc">Remove all of your saved search terms</string>
     <string name="cache_clearing">Clearing cache</string>
     <string name="cache_clearing_message">Deleting cached files…</string>
     <string name="cache_cleared">Cache cleared</string>
+    <string name="search_history_cleared">Search history cleared</string>
 
     <!-- __SETTINGS SIGN OUT -->
     <string name="sign_out_title">Clear user data?</string>

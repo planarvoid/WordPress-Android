@@ -97,7 +97,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener).onSuggestionClicked();
+        verify(suggestionListener).onSuggestionClicked(API_QUERY);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener).onSuggestionClicked();
+        verify(suggestionListener).onSuggestionClicked(API_QUERY);
     }
 
 
@@ -118,7 +118,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(view, CLICK_POSITION);
 
-        verify(suggestionListener).onSuggestionClicked();
+        verify(suggestionListener).onSuggestionClicked(API_QUERY);
     }
 
     @Test
@@ -131,6 +131,16 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, CLICK_POSITION);
 
         verify(suggestionListener, never()).onSearchClicked(anyString(), anyString());
+    }
+
+    @Test
+    public void sendsTheUserQueryWhenClicked() throws Exception {
+        final SuggestionItem suggestionItem = SearchSuggestionItem.forPlaylist(Urn.forPlaylist(789), Optional.absent(), API_QUERY, Optional.absent(), API_QUERY);
+        when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
+
+        presenter.onItemClicked(view, CLICK_POSITION);
+
+        verify(suggestionListener).onSuggestionClicked(suggestionItem.userQuery());
     }
 
     @Test
