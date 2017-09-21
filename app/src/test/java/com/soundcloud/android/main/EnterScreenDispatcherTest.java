@@ -30,7 +30,7 @@ public class EnterScreenDispatcherTest {
         enterScreenDispatcher.setListener(listener);
         enterScreenDispatcher.onResume(rootActivity);
 
-        verify(listener).onEnterScreen(rootActivity);
+        verify(listener).onReenterScreen(rootActivity);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EnterScreenDispatcherTest {
         enterScreenDispatcher.onResume(rootActivity);
         enterScreenDispatcher.onPageSelected(0);
 
-        verify(listener).onEnterScreen(rootActivity);
+        verify(listener).onEnterScreen(rootActivity, 0);
     }
 
     @Test

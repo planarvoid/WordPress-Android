@@ -6,11 +6,9 @@ import com.soundcloud.lightcycle.LightCycle;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
-import android.support.v4.view.ViewPager;
-
 import javax.inject.Inject;
 
-public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActivity> implements ViewPager.OnPageChangeListener {
+public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActivity>  {
 
     @LightCycle final ScreenStateProvider screenStateProvider;
     private final BehaviorSubject<Optional<Long>> enterScreen = BehaviorSubject.create();
@@ -20,8 +18,8 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
     private Optional<Listener> listener = Optional.absent();
 
     public interface Listener {
-
-        void onEnterScreen(RootActivity activity);
+        void onReenterScreen(RootActivity activity);
+        void onEnterScreen(RootActivity activity, int position);
     }
 
     public Observable<Long> enterScreenTimestamp() {
@@ -51,7 +49,7 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
         this.activity = activity;
 
         if (listener.isPresent() && screenStateProvider.isEnteringScreen()) {
-            listener.get().onEnterScreen(activity);
+            listener.get().onReenterScreen(activity);
         }
         enterScreen.onNext(Optional.of(System.currentTimeMillis()));
         pageSelected.onNext(System.currentTimeMillis());
@@ -64,23 +62,13 @@ public class EnterScreenDispatcher extends ActivityLightCycleDispatcher<RootActi
         this.activity = null;
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
     public void onPageSelected(int position) {
         if (activity != null && listener.isPresent()) {
-            listener.get().onEnterScreen(activity);
+            listener.get().onEnterScreen(activity, position);
         }
         final long timestamp = System.currentTimeMillis();
         enterScreen.onNext(Optional.of(timestamp));
         pageSelected.onNext(timestamp);
     }
 
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
 }

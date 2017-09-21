@@ -35,8 +35,8 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/scrollingview_content_bottom_padding_behavior">
 
-            <com.soundcloud.android.view.SafeViewPager
-                android:id="@+id/pager"
+            <FrameLayout
+                android:id="@+id/main_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

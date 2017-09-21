@@ -10,20 +10,17 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 public abstract class MainNavigationView extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener {
 
-    @BindView(R.id.pager) ViewPager pager;
     @BindView(R.id.toolbar_id) Toolbar toolBar;
     @BindView(R.id.appbar) AppBarLayout appBarLayout;
     @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
@@ -47,15 +44,8 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
 
     void setupViews(RootActivity activity, MainPagerAdapter pagerAdapter) {
         ButterKnife.bind(this, activity);
-
-        pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
-        pager.setPageMarginDrawable(R.color.page_background);
-
         activity.setSupportActionBar(toolBar);
-
-        pager.setAdapter(pagerAdapter);
-
-        onSetupView(pagerAdapter);
+        onSetupView(activity, pagerAdapter);
     }
 
     void showOfflineSettingsIntroductoryOverlay() {
@@ -71,31 +61,26 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
     protected abstract Optional<View> getMoreTabCustomView();
 
     @Override
-    public void onResume(RootActivity activity) {
-        super.onResume(activity);
-
-        pager.addOnPageChangeListener(enterScreenDispatcher);
-        setTitle();
+    public void onReenterScreen(RootActivity activity) {
+        toolBar.setTitle(getTitle(activity, currentTargetItem()));
+        currentTargetItem().getPageViewScreen().ifPresent(screen -> eventTracker.trackScreen(ScreenEvent.create(screen), activity.getReferringEvent()));
     }
 
     @Override
-    public void onPause(RootActivity activity) {
-        pager.removeOnPageChangeListener(enterScreenDispatcher);
-        super.onPause(activity);
+    public void onEnterScreen(RootActivity activity, int position) {
+        NavigationModel.Target target = navigationModel.getItem(position);
+        toolBar.setTitle(getTitle(activity, target));
+        target.getPageViewScreen().ifPresent(screen -> eventTracker.trackScreen(ScreenEvent.create(screen), activity.getReferringEvent()));
     }
 
-    @Override
-    public void onEnterScreen(RootActivity activity) {
-        setTitle();
-        getPageViewScreen().ifPresent(screen -> eventTracker.trackScreen(ScreenEvent.create(screen), activity.getReferringEvent()));
-    }
-
-    protected abstract void onSetupView(MainPagerAdapter pagerAdapter);
+    protected abstract void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter);
 
     protected abstract void onSelectItem(int position);
 
-    private void setTitle() {
-        toolBar.setTitle(pager.getAdapter().getPageTitle(pager.getCurrentItem()));
+    protected abstract NavigationModel.Target currentTargetItem();
+
+    protected String getTitle(RootActivity activity, NavigationModel.Target target) {
+        return activity.getResources().getString(target.getName());
     }
 
     void hideToolbar() {
@@ -116,14 +101,6 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
         if (position != NavigationModel.NOT_FOUND) {
             onSelectItem(position);
         }
-    }
-
-    private NavigationModel.Target currentTargetItem() {
-        return navigationModel.getItem(pager.getCurrentItem());
-    }
-
-    private Optional<Screen> getPageViewScreen() {
-        return currentTargetItem().getPageViewScreen();
     }
 
     Screen getScreen() {

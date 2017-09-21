@@ -34,11 +34,16 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
     }
 
     @Override
-    public void onEnterScreen(RootActivity activity) {
+    public void onReenterScreen(RootActivity activity) {
         final Screen screen = activity.getScreen();
         if (screen != Screen.UNKNOWN) {
             eventTracker.trackScreen(ScreenEvent.create(screen), referringEventProvider.getReferringEvent());
         }
+    }
+
+    @Override
+    public void onEnterScreen(RootActivity activity, int position) {
+        onReenterScreen(activity);
     }
 
     @Override

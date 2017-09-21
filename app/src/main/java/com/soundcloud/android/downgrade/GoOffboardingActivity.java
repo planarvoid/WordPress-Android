@@ -23,7 +23,12 @@ public class GoOffboardingActivity extends RootActivity implements EnterScreenDi
     }
 
     @Override
-    public void onEnterScreen(RootActivity activity) {
+    public void onReenterScreen(RootActivity activity) {
+        fragment.enterScreen();
+    }
+
+    @Override
+    public void onEnterScreen(RootActivity activity, int position) {
         fragment.enterScreen();
     }
 

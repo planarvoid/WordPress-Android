@@ -55,7 +55,7 @@ public class ScreenTrackerTest extends AndroidUnitTest {
         final Screen screen = Screen.ACTIVITIES;
         when(activity.getScreen()).thenReturn(screen);
         when(referringEventProvider.getReferringEvent()).thenReturn(referringEvent);
-        screenTracker.onEnterScreen(activity);
+        screenTracker.onEnterScreen(activity, 0);
         verify(eventTracker).trackScreen(any(ScreenEvent.class), eq(referringEvent));
     }
 
@@ -64,7 +64,7 @@ public class ScreenTrackerTest extends AndroidUnitTest {
         final Screen screen = Screen.UNKNOWN;
         when(activity.getScreen()).thenReturn(screen);
         when(referringEventProvider.getReferringEvent()).thenReturn(referringEvent);
-        screenTracker.onEnterScreen(activity);
+        screenTracker.onEnterScreen(activity, 0);
         verifyZeroInteractions(eventTracker);
     }
 

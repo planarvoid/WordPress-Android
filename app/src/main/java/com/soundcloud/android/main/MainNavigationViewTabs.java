@@ -4,6 +4,7 @@ import butterknife.BindView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -16,7 +17,16 @@ import javax.inject.Inject;
 
 public class MainNavigationViewTabs extends MainNavigationView {
 
+    @BindView(R.id.pager) ViewPager pager;
     @BindView(R.id.tab_layout) TabLayout tabBar;
+    private final ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int i) {
+            enterScreenDispatcher.onPageSelected(i);
+        }
+
+    };
 
     @Inject
     public MainNavigationViewTabs(EnterScreenDispatcher enterScreenDispatcher,
@@ -27,7 +37,10 @@ public class MainNavigationViewTabs extends MainNavigationView {
     }
 
     @Override
-    protected void onSetupView(MainPagerAdapter pagerAdapter) {
+    protected void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter) {
+        pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
+        pager.setPageMarginDrawable(R.color.page_background);
+        pager.setAdapter(pagerAdapter);
         bindPagerToTabs(pagerAdapter);
     }
 
@@ -42,6 +55,23 @@ public class MainNavigationViewTabs extends MainNavigationView {
         return morePosition == NavigationModel.NOT_FOUND
                ? Optional.absent()
                : Optional.of(tabBar.getTabAt(morePosition).getCustomView());
+    }
+
+    @Override
+    public void onPause(RootActivity activity) {
+        pager.removeOnPageChangeListener(onPageChangeListener);
+        super.onPause(activity);
+    }
+
+    @Override
+    public void onResume(RootActivity activity) {
+        super.onResume(activity);
+        pager.addOnPageChangeListener(onPageChangeListener);
+    }
+
+    @Override
+    protected NavigationModel.Target currentTargetItem() {
+        return navigationModel.getItem(pager.getCurrentItem());
     }
 
     private void bindPagerToTabs(MainPagerAdapter pagerAdapter) {

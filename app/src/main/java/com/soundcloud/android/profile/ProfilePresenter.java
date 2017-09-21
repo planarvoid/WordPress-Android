@@ -88,7 +88,12 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         pager.setAdapter(adapter);
         pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
 
-        pager.addOnPageChangeListener(enterScreenDispatcher);
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int i) {
+                enterScreenDispatcher.onPageSelected(i);
+            }
+        });
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
@@ -107,13 +112,20 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     }
 
     @Override
-    public void onEnterScreen(RootActivity activity) {
-        int position = pager.getCurrentItem();
+    public void onReenterScreen(RootActivity activity) {
+        trackScreen(activity, pager.getCurrentItem());
+    }
 
+    @Override
+    public void onEnterScreen(RootActivity activity, int position) {
+        trackScreen(activity, position);
+    }
+
+    private void trackScreen(RootActivity activity, int currentItem) {
         if (accountOperations.isLoggedInUser(user)) {
-            eventTracker.trackScreen(ScreenEvent.create(adapter.getYourScreen(position)), activity.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(adapter.getYourScreen(currentItem)), activity.getReferringEvent());
         } else {
-            eventTracker.trackScreen(ScreenEvent.create(adapter.getOtherScreen(position), Urn.forUser(user.getNumericId())), activity.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(adapter.getOtherScreen(currentItem), Urn.forUser(user.getNumericId())), activity.getReferringEvent());
         }
     }
 

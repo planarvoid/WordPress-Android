@@ -9,6 +9,8 @@ import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +19,7 @@ public class MainNavigationViewBottom extends MainNavigationView {
 
     @BindView(R.id.bottom_navigation_view) BottomNavigationView bottomNavigationView;
 
+    private final EnterScreenDispatcher enterScreenDispatcher;
     private final NavigationStateController navigationStateController;
 
     public MainNavigationViewBottom(EnterScreenDispatcher enterScreenDispatcher,
@@ -25,22 +28,30 @@ public class MainNavigationViewBottom extends MainNavigationView {
                                     IntroductoryOverlayPresenter introductoryOverlayPresenter,
                                     NavigationStateController navigationStateController) {
         super(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
+        this.enterScreenDispatcher = enterScreenDispatcher;
         this.navigationStateController = navigationStateController;
     }
 
     @Override
-    protected void onSetupView(MainPagerAdapter pagerAdapter) {
+    protected void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter) {
         bottomNavigationView.setOnNavigationItemReselectedListener(item -> pagerAdapter.resetScroll(item.getItemId()));
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int itemPosition = item.getItemId();
             setNavigationState(itemPosition);
-            pager.setCurrentItem(itemPosition);
+            enterScreenDispatcher.onPageSelected(itemPosition);
+            showFragment(activity, navigationModel.getItem(itemPosition).createFragment());
             return true;
         });
 
         setupMenuItems(bottomNavigationView, pagerAdapter);
+        showFragment(activity, navigationModel.getItem(0).createFragment());
+    }
 
-        onSelectItem(pager.getCurrentItem());
+    private void showFragment(RootActivity activity, Fragment fragment) {
+        FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out);
+        transaction.replace(R.id.main_container, fragment);
+        transaction.commit();
     }
 
     private void setNavigationState(int position) {
@@ -65,6 +76,11 @@ public class MainNavigationViewBottom extends MainNavigationView {
     protected void onSelectItem(int position) {
         setNavigationState(position);
         bottomNavigationView.setSelectedItemId(position);
+    }
+
+    @Override
+    protected NavigationModel.Target currentTargetItem() {
+        return navigationModel.getItem(bottomNavigationView.getSelectedItemId());
     }
 
     @Override
