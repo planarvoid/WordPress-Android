@@ -2,7 +2,7 @@ package com.soundcloud.android.collection.playlists;
 
 import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
-import static com.soundcloud.android.utils.RepoUtils.enrichV2;
+import static com.soundcloud.android.utils.RepoUtilsKt.enrichItemsWithProperties;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.likes.LikesStorage;
@@ -11,8 +11,8 @@ import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PostsStorage;
 import com.soundcloud.android.playlists.PlaylistRepository;
+import com.soundcloud.android.playlists.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Sets;
@@ -165,17 +165,17 @@ public class MyPlaylistsOperations {
 
     private Single<List<PlaylistAssociation>> unsortedPlaylists(PlaylistsOptions options) {
         final Single<List<PlaylistAssociation>> loadLikedPlaylists = likesStorage.loadPlaylistLikes(Long.MAX_VALUE, PLAYLIST_LIMIT)
-                                                                                 .flatMap(source -> enrichV2(source,
-                                                                                                             playlistRepository.withUrns(transform(source, UrnHolder::urn)),
-                                                                                                             PlaylistAssociation::create));
+                                                                                 .flatMap(source -> enrichItemsWithProperties(source,
+                                                                                                                              playlistRepository.withUrns(transform(source, UrnHolder::urn)),
+                                                                                                                              PlaylistAssociation::create));
 
         final Single<List<PlaylistAssociation>> loadPostedPlaylists = postsStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)
                                                                                   .flatMap(source -> {
-                                                                                             List<Urn> urns = transform(source, UrnHolder::urn);
-                                                                                             return enrichV2(source,
-                                                                                                             playlistRepository.withUrns(urns),
-                                                                                                             PlaylistAssociation::create);
-                                                                                         });
+                                                                                      List<Urn> urns = transform(source, UrnHolder::urn);
+                                                                                      return enrichItemsWithProperties(source,
+                                                                                                                       playlistRepository.withUrns(urns),
+                                                                                                                       PlaylistAssociation::create);
+                                                                                  });
 
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;

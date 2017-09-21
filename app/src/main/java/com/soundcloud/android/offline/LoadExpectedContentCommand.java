@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.offline.IsOfflineLikedTracksEnabledCommand.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Tables.OfflineContent;
-import static com.soundcloud.android.utils.RepoUtils.enrichV2;
+import static com.soundcloud.android.utils.RepoUtilsKt.enrichItemsWithProperties;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
@@ -122,7 +122,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
 
     private List<OfflineRequestData> requestTracksFromLikes() {
         return likesStorage.loadTrackLikes()
-                           .flatMap(source -> enrichV2(source, trackStorage.loadTracks(Lists.transform(source, UrnHolder::urn)), (track, like) -> track))
+                           .flatMap(source -> enrichItemsWithProperties(source, trackStorage.loadTracks(Lists.transform(source, UrnHolder::urn)), (track, like) -> track))
                            .map(this::filterTracksForStalePolicies)
                            .map(tracks -> Lists.transform(Lists.newArrayList(tracks), input -> OfflineRequestData.fromLikes(
                               input.urn(),

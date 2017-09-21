@@ -152,6 +152,12 @@ public class UserAssociationStorage {
                         .firstOrDefault(Integer.class, 0) > 0;
     }
 
+    public Single<List<Following>> loadFollowings() {
+        return propellerRx.queryResult(buildFollowingsBaseQuery())
+                          .map(result -> result.toList(new UserAssociationMapper()))
+                          .singleOrError();
+    }
+
     public List<Following> loadStaleFollowings() {
         return propeller.query(buildFollowingsBaseQuery()
                                        .where(staleFollowingsFilter()))

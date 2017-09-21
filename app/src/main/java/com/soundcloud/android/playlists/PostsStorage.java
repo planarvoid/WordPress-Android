@@ -38,7 +38,11 @@ public class PostsStorage {
     public Single<List<Association>> loadPostedPlaylists(int limit, long fromTimestamp) {
         return propellerRx.queryResult(playlistPostQuery(limit, fromTimestamp))
                           .map(queryResult -> queryResult.toList(cursorReader -> new Association(Urn.forPlaylist(cursorReader.getLong(Tables.Posts.TARGET_ID)),
-                                                                                                              cursorReader.getDateFromTimestamp(Tables.Posts.CREATED_AT)))).singleOrError();
+                                                                                                 cursorReader.getDateFromTimestamp(Tables.Posts.CREATED_AT)))).singleOrError();
+    }
+
+    public Single<List<Association>> loadPostedPlaylists(int limit) {
+        return loadPostedPlaylists(limit, Long.MAX_VALUE);
     }
 
     private static Query playlistPostQuery(int limit, long fromTimestamp) {
@@ -51,7 +55,6 @@ public class PostsStorage {
                     .order(Tables.Posts.CREATED_AT, Query.Order.DESC)
                     .limit(limit);
     }
-
 
     Observable<TxnResult> markPendingRemoval(final Urn urn) {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
@@ -66,9 +69,9 @@ public class PostsStorage {
                                 .whereEq(Tables.Sounds._TYPE, Tables.Sounds.TYPE_PLAYLIST)
                 ));
 
-                step(propeller.delete(Tables.Posts.TABLE,filter()
-                             .whereEq(Tables.Posts.TARGET_TYPE, Tables.Sounds.TYPE_PLAYLIST)
-                             .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())));
+                step(propeller.delete(Tables.Posts.TABLE, filter()
+                        .whereEq(Tables.Posts.TARGET_TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                        .whereEq(Tables.Posts.TARGET_ID, urn.getNumericId())));
 
                 removePlaylistFromAssociatedViews(propeller);
             }

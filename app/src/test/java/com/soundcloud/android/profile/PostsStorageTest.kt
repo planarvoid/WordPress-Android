@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.api.model.ApiTrack
 import com.soundcloud.android.api.model.ApiUser
+import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import org.junit.Before
@@ -43,10 +44,10 @@ class PostsStorageTest : StorageIntegrationTest() {
         testFixtures().insertTrackPost(trackId, postedAt.time, false)
     }
 
-    private fun createTrackPostForLastPostedAt(postedAt: Date): Pair<Urn, Date> {
+    private fun createTrackPostForLastPostedAt(postedAt: Date): Association {
         val track = createTrackAt(postedAt)
         createTrackPostWithId(track.urn.numericId, postedAt)
-        return track.urn to postedAt
+        return Association(track.urn, postedAt)
     }
 
     companion object {

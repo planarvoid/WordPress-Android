@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile
 
+import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.storage.Tables
 import com.soundcloud.android.storage.Tables.Posts
@@ -16,8 +17,8 @@ class PostsStorage
 @Inject
 constructor(private val propellerRx: PropellerRxV2) {
 
-    fun loadPostedTracksSortedByDateDesc(): Single<List<Pair<Urn, Date>>> {
-        return propellerRx.queryResult(buildQuery()).map { it.toList { Urn.forTrack(it.getLong(Posts.TARGET_ID)) to it.getDateFromTimestamp(Posts.CREATED_AT) } }.singleOrError()
+    fun loadPostedTracksSortedByDateDesc(): Single<List<Association>> {
+        return propellerRx.queryResult(buildQuery()).map { it.toList { Association(Urn.forTrack(it.getLong(Posts.TARGET_ID)), it.getDateFromTimestamp(Posts.CREATED_AT)) } }.singleOrError()
     }
 
     private fun buildQuery(): Query {

@@ -48,7 +48,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private final TestScheduler testScheduler = new TestScheduler();
 
     @Mock private ApiClientRxV2 apiClientRx;
-    @Mock private SearchSuggestionStorage suggestionStorage;
+    @Mock private LocalSearchSuggestionOperations suggestionStorage;
     @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
     @Mock private AccountOperations accountOperations;
     @Mock private LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment;

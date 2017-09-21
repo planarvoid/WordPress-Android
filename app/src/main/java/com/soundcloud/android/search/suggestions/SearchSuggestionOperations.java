@@ -29,7 +29,7 @@ class SearchSuggestionOperations {
 
     private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
-    private final SearchSuggestionStorage suggestionStorage;
+    private final LocalSearchSuggestionOperations localSearchSuggestionOperations;
     private final AccountOperations accountOperations;
     private final SearchSuggestionFiltering searchSuggestionFiltering;
     private final LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment;
@@ -39,13 +39,13 @@ class SearchSuggestionOperations {
     @Inject
     SearchSuggestionOperations(ApiClientRxV2 apiClientRx,
                                @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                               SearchSuggestionStorage suggestionStorage,
+                               LocalSearchSuggestionOperations localSearchSuggestionOperations,
                                AccountOperations accountOperations,
                                SearchSuggestionFiltering searchSuggestionFiltering,
                                LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
-        this.suggestionStorage = suggestionStorage;
+        this.localSearchSuggestionOperations = localSearchSuggestionOperations;
         this.accountOperations = accountOperations;
         this.searchSuggestionFiltering = searchSuggestionFiltering;
         this.localizedAutocompletionsExperiment = localizedAutocompletionsExperiment;
@@ -58,11 +58,11 @@ class SearchSuggestionOperations {
     }
 
     private Single<List<SuggestionItem>> localCollectionSuggestions(final String query) {
-        return suggestionStorage.getSuggestions(query, accountOperations.getLoggedInUserUrn(), MAX_SUGGESTIONS_NUMBER)
-                                .map(suggestions -> Lists.transform(suggestions, item -> fromSearchSuggestion(item, query)))
-                                .map(searchSuggestionFiltering::filtered)
-                                .onErrorResumeNext(Single.just(Collections.emptyList()))
-                                .subscribeOn(scheduler);
+        return localSearchSuggestionOperations.getSuggestions(query, accountOperations.getLoggedInUserUrn(), MAX_SUGGESTIONS_NUMBER)
+                                              .map(suggestions -> Lists.transform(suggestions, item -> fromSearchSuggestion(item, query)))
+                                              .map(searchSuggestionFiltering::filtered)
+                                              .onErrorResumeNext(Single.just(Collections.emptyList()))
+                                              .subscribeOn(scheduler);
     }
 
     private Single<List<SuggestionItem>> getAutocompletions(String query) {

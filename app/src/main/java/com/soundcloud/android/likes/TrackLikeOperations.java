@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
-import static com.soundcloud.android.utils.RepoUtils.enrichV2;
+import static com.soundcloud.android.utils.RepoUtilsKt.enrichItemsWithProperties;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
@@ -81,7 +81,7 @@ public class TrackLikeOperations {
 
     public Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
         return likesStorage.loadTrackLikes(beforeTime, PAGE_SIZE)
-                           .flatMap(source -> enrichV2(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                           .flatMap(source -> enrichItemsWithProperties(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
                            .subscribeOn(scheduler);
     }
 
