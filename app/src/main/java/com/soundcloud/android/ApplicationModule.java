@@ -39,6 +39,7 @@ import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationStateController;
 import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -290,9 +291,10 @@ public class ApplicationModule {
                                                     EnterScreenDispatcher enterScreenDispatcher,
                                                     NavigationModel navigationModel,
                                                     EventTracker eventTracker,
-                                                    IntroductoryOverlayPresenter introductoryOverlayPresenter) {
+                                                    IntroductoryOverlayPresenter introductoryOverlayPresenter,
+                                                    NavigationStateController navigationStateController) {
         if (appNavigationExperiment.isBottomNavigationEnabled()) {
-            return new MainNavigationViewBottom(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
+            return new MainNavigationViewBottom(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter, navigationStateController);
         } else {
             return new MainNavigationViewTabs(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
         }
@@ -300,9 +302,10 @@ public class ApplicationModule {
 
     @Provides
     public BottomNavigationViewPresenter provideBottomNavigationViewPresenter(AppNavigationExperiment appNavigationExperiment,
-                                                                              NavigationModel navigationModel) {
+                                                                              NavigationModel navigationModel,
+                                                                              NavigationStateController navigationStateController) {
         if (appNavigationExperiment.isBottomNavigationEnabled()) {
-            return new BottomNavigationViewPresenter.Default(navigationModel);
+            return new BottomNavigationViewPresenter.Default(navigationModel, navigationStateController);
         } else {
             return new BottomNavigationViewPresenter.Noop();
         }

@@ -30,7 +30,7 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
 
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
 
-    private final NavigationModel navigationModel;
+    final NavigationModel navigationModel;
     private final EventTracker eventTracker;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 

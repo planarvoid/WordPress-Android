@@ -17,15 +17,13 @@ import javax.inject.Inject;
 public class MainNavigationViewTabs extends MainNavigationView {
 
     @BindView(R.id.tab_layout) TabLayout tabBar;
-    private final NavigationModel navigationModel;
 
     @Inject
     public MainNavigationViewTabs(EnterScreenDispatcher enterScreenDispatcher,
-                        NavigationModel navigationModel,
-                        EventTracker eventTracker,
-                        IntroductoryOverlayPresenter introductoryOverlayPresenter) {
+                                  NavigationModel navigationModel,
+                                  EventTracker eventTracker,
+                                  IntroductoryOverlayPresenter introductoryOverlayPresenter) {
         super(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
-        this.navigationModel = navigationModel;
     }
 
     @Override

@@ -4,6 +4,7 @@ import butterknife.BindView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
+import com.soundcloud.android.navigation.NavigationStateController;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -16,27 +17,34 @@ public class MainNavigationViewBottom extends MainNavigationView {
 
     @BindView(R.id.bottom_navigation_view) BottomNavigationView bottomNavigationView;
 
-    private final NavigationModel navigationModel;
+    private final NavigationStateController navigationStateController;
 
     public MainNavigationViewBottom(EnterScreenDispatcher enterScreenDispatcher,
                                     NavigationModel navigationModel,
                                     EventTracker eventTracker,
-                                    IntroductoryOverlayPresenter introductoryOverlayPresenter) {
+                                    IntroductoryOverlayPresenter introductoryOverlayPresenter,
+                                    NavigationStateController navigationStateController) {
         super(enterScreenDispatcher, navigationModel, eventTracker, introductoryOverlayPresenter);
-        this.navigationModel = navigationModel;
+        this.navigationStateController = navigationStateController;
     }
 
     @Override
     protected void onSetupView(MainPagerAdapter pagerAdapter) {
         bottomNavigationView.setOnNavigationItemReselectedListener(item -> pagerAdapter.resetScroll(item.getItemId()));
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            pager.setCurrentItem(item.getItemId());
+            int itemPosition = item.getItemId();
+            setNavigationState(itemPosition);
+            pager.setCurrentItem(itemPosition);
             return true;
         });
 
         setupMenuItems(bottomNavigationView, pagerAdapter);
 
         onSelectItem(pager.getCurrentItem());
+    }
+
+    private void setNavigationState(int position) {
+        navigationStateController.setState(navigationModel.getItem(position).getScreen());
     }
 
     private void setupMenuItems(BottomNavigationView bottomNavigationView, MainPagerAdapter pagerAdapter) {
@@ -55,6 +63,7 @@ public class MainNavigationViewBottom extends MainNavigationView {
 
     @Override
     protected void onSelectItem(int position) {
+        setNavigationState(position);
         bottomNavigationView.setSelectedItemId(position);
     }
 

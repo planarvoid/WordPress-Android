@@ -4,6 +4,7 @@ import static butterknife.ButterKnife.findById;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.NavigationModel;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.app.Activity;
@@ -18,9 +19,11 @@ public class BottomNavigationViewPresenter extends DefaultActivityLightCycle<Act
 
     public static class Default extends BottomNavigationViewPresenter {
         private final NavigationModel navigationModel;
+        private final NavigationStateController navigationStateController;
 
-        public Default(NavigationModel navigationModel) {
+        public Default(NavigationModel navigationModel, NavigationStateController navigationStateController) {
             this.navigationModel = navigationModel;
+            this.navigationStateController = navigationStateController;
         }
 
         @Override
@@ -41,6 +44,21 @@ public class BottomNavigationViewPresenter extends DefaultActivityLightCycle<Act
                 NavigationModel.Target target = navigationModel.getItem(pageIndex);
                 MenuItem add = menu.add(0, pageIndex, pageIndex, context.getString(target.getName()));
                 add.setIcon(target.getIcon());
+            }
+
+            bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+                navigationStateController.setState(navigationModel.getItem(item.getItemId()).getScreen());
+                return true;
+            });
+
+            setSelectedItem(bottomNavigationView, navigationStateController.getState());
+        }
+
+        private void setSelectedItem(BottomNavigationView view, Screen selectedScreen) {
+            for (int pageIndex = 0; pageIndex < navigationModel.getItemCount(); pageIndex++) {
+                if (navigationModel.getItem(pageIndex).getScreen() == selectedScreen) {
+                    view.setSelectedItemId(pageIndex);
+                }
             }
         }
     }

@@ -70,6 +70,7 @@ public class StorageModule {
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
     public static final String IMAGE_CONFIG = "ImageConfiguration";
     public static final String PLAY_SESSION_STATE = "PlaySessionState";
+    public static final String NAVIGATION_STATE = "NavigationState";
     public static final String FEATURES_FLAGS = "FeatureFlags";
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
     public static final String PREFS_FEATURE_FLAGS = "feature_flags";
@@ -103,6 +104,7 @@ public class StorageModule {
     private static final String PREFS_PLAY_SESSION_STATE = "play_session_state";
     private static final String PREFS_UNAUTHORIZED_ERRORS = "unauthorized_errors";
     private static final String PREFS_ADS = "ads";
+    private static final String PREFS_NAVIGATION_STATE = "navigation_state";
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_SKIPPY)
@@ -303,6 +305,12 @@ public class StorageModule {
     @Named(INTRODUCTORY_OVERLAYS)
     SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
         return context.getSharedPreferences(PREFS_INTRODUCTORY_OVERLAYS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(NAVIGATION_STATE)
+    SharedPreferences provideNavigationStatePrefs(Context context) {
+        return context.getSharedPreferences(PREFS_NAVIGATION_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
