@@ -66,8 +66,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
         val adapter = adapterFactory.create(this)
         compositeDisposable += adapter.selectionItemClick().subscribe(selectionItemClick::onNext)
         collectionRenderer = CollectionRenderer(adapter = adapter,
-                                                sameIdentity = { item1, item2 -> areItemsTheSame(item1, item2) },
-                                                sameContest = { item1, item2 -> item1 == item2 },
+                                                sameIdentity = this::areItemsTheSame,
                                                 emptyStateProvider = SearchEmptyStateProvider(),
                                                 animateLayoutChangesInItems = true,
                                                 parallaxImageScrolling = true)

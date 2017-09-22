@@ -23,7 +23,7 @@ import io.reactivex.subjects.PublishSubject
 @Suppress("TooManyFunctions")
 class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapter: PagingRecyclerItemAdapter<ItemT, VH>,
                                                               private val sameIdentity: (ItemT, ItemT) -> Boolean,
-                                                              private val sameContest: (ItemT, ItemT) -> Boolean,
+                                                              private val sameContent: (ItemT, ItemT) -> Boolean = { first: ItemT, second: ItemT -> first == second },
                                                               private val emptyStateProvider: EmptyStateProvider?,
                                                               private val animateLayoutChangesInItems: Boolean = false,
                                                               private val showDividers: Boolean = false,
@@ -43,7 +43,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         adapter.setOnErrorRetryListener { _ -> onNextPage.onNext(RxSignal.SIGNAL) }
     }
 
-    fun attach(view: View, renderEmptyAtTop: Boolean, layoutmanager: RecyclerView.LayoutManager) {
+    fun attach(view: View, renderEmptyAtTop: Boolean, layoutManager: RecyclerView.LayoutManager) {
 
         if (recyclerView != null) {
             throw IllegalStateException("Recycler View already atteched. Did you forget to detach?")
@@ -51,7 +51,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         recyclerView = view.findViewById(R.id.ak_recycler_view)
         swipeRefreshLayout = view.findViewById(R.id.str_layout)
 
-        configureRecyclerView(layoutmanager)
+        configureRecyclerView(layoutManager)
         emptyStateProvider?.apply {
             emptyAdapter = EmptyAdapter(emptyStateProvider, renderEmptyAtTop)
         }
@@ -200,7 +200,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val oldItem = oldItems[oldItemPosition]
             val newItem = newItems[newItemPosition]
-            return sameContest.invoke(oldItem, newItem)
+            return sameContent.invoke(oldItem, newItem)
         }
     }
 
