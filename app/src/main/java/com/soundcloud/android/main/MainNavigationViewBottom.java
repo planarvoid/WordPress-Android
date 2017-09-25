@@ -52,6 +52,7 @@ public class MainNavigationViewBottom extends MainNavigationView {
         transaction.setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out);
         transaction.replace(R.id.main_container, fragment);
         transaction.commit();
+        appBarLayout.setExpanded(true, true);
     }
 
     private void setNavigationState(int position) {
@@ -81,6 +82,16 @@ public class MainNavigationViewBottom extends MainNavigationView {
     @Override
     protected NavigationModel.Target currentTargetItem() {
         return navigationModel.getItem(bottomNavigationView.getSelectedItemId());
+    }
+
+    @Override
+    void hideToolbar() {
+        //no op
+    }
+
+    @Override
+    void showToolbar() {
+        //no op
     }
 
     @Override

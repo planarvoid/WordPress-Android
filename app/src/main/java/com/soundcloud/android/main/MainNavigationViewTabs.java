@@ -8,6 +8,7 @@ import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -19,6 +20,8 @@ public class MainNavigationViewTabs extends MainNavigationView {
 
     @BindView(R.id.pager) ViewPager pager;
     @BindView(R.id.tab_layout) TabLayout tabBar;
+    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
+
     private final ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
 
         @Override
@@ -67,6 +70,19 @@ public class MainNavigationViewTabs extends MainNavigationView {
     public void onResume(RootActivity activity) {
         super.onResume(activity);
         pager.addOnPageChangeListener(onPageChangeListener);
+    }
+
+    void hideToolbar() {
+        if (collapsingToolbarLayout != null) {
+            collapsingToolbarLayout.setVisibility(View.GONE);
+        }
+    }
+
+    void showToolbar() {
+        if (collapsingToolbarLayout != null && appBarLayout != null) {
+            appBarLayout.setExpanded(true);
+            collapsingToolbarLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

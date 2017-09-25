@@ -104,16 +104,12 @@ public class MainActivity extends PlayerActivity {
     @Override
     public void onCastUnavailable() {
         super.onCastUnavailable();
-        if (!appNavigationExperiment.isBottomNavigationEnabled()) {
-            mainPresenter.hideToolbar();
-        }
+        mainPresenter.hideToolbar();
     }
 
     @Override
     public void onCastAvailable() {
-        if (!appNavigationExperiment.isBottomNavigationEnabled()) {
-            mainPresenter.showToolbar();
-        }
+        mainPresenter.showToolbar();
         super.onCastAvailable();
     }
 

@@ -15,7 +15,6 @@ import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
@@ -23,7 +22,6 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
 
     @BindView(R.id.toolbar_id) Toolbar toolBar;
     @BindView(R.id.appbar) AppBarLayout appBarLayout;
-    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
 
@@ -83,18 +81,9 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
         return activity.getResources().getString(target.getName());
     }
 
-    void hideToolbar() {
-        if (collapsingToolbarLayout != null) {
-            collapsingToolbarLayout.setVisibility(View.GONE);
-        }
-    }
+    abstract void hideToolbar();
 
-    void showToolbar() {
-        if (collapsingToolbarLayout != null && appBarLayout != null) {
-            appBarLayout.setExpanded(true);
-            collapsingToolbarLayout.setVisibility(View.VISIBLE);
-        }
-    }
+    abstract void showToolbar();
 
     void selectItem(Screen screen) {
         int position = navigationModel.getPosition(screen);
