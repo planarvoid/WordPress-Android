@@ -36,7 +36,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                      private val dateProvider: CurrentDateProvider,
                      private val eventBus: EventBusV2,
                      private val cryptoOperations: CryptoOperations,
-                     private val performanceReporter: PerformanceReporter) : Player {
+                     private val performanceReporter: PerformanceReporter) : Player, FlipperCallbacks {
 
     private val flipperWrapper: FlipperWrapper = flipperWrapperFactory.create(this)
 
@@ -71,14 +71,16 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     private fun openStream(playbackItem: PlaybackItem) {
         currentStreamUrl = hlsStreamUrlBuilder.buildStreamUrl(playbackItem)
-
-        when (playbackItem.playbackType) {
-            PlaybackType.AUDIO_DEFAULT, PlaybackType.AUDIO_SNIPPET -> flipperWrapper.open(currentStreamUrl, playbackItem.startPosition)
-            PlaybackType.AUDIO_OFFLINE -> {
-                val deviceSecret = cryptoOperations.checkAndGetDeviceKey()
-                flipperWrapper.openEncrypted(currentStreamUrl, deviceSecret.key, deviceSecret.initVector, playbackItem.startPosition)
+        val streamUrl = currentStreamUrl
+        if (streamUrl != null) {
+            when (playbackItem.playbackType) {
+                PlaybackType.AUDIO_DEFAULT, PlaybackType.AUDIO_SNIPPET -> flipperWrapper.open(streamUrl, playbackItem.startPosition)
+                PlaybackType.AUDIO_OFFLINE -> {
+                    val deviceSecret = cryptoOperations.checkAndGetDeviceKey()
+                    flipperWrapper.openEncrypted(streamUrl, deviceSecret.key, deviceSecret.initVector, playbackItem.startPosition)
+                }
+                else -> throw IllegalStateException("Flipper does not accept playback type: ${playbackItem.playbackType}")
             }
-            else -> throw IllegalStateException("Flipper does not accept playback type: ${playbackItem.playbackType}")
         }
     }
 
@@ -101,10 +103,10 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     override fun getProgress() = progress
 
-    override fun getVolume() = flipperWrapper.volume
+    override fun getVolume() = flipperWrapper.volume.toFloat()
 
     override fun setVolume(level: Float) {
-        flipperWrapper.volume = level
+        flipperWrapper.volume = level.toDouble()
     }
 
     override fun stop() = flipperWrapper.pause()
@@ -121,7 +123,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     override fun getPlayerType() = PlayerType.FLIPPER
 
-    fun onProgressChanged(event: ProgressChange) {
+    override fun onProgressChanged(event: ProgressChange) {
         callbackThread {
             try {
                 if (isCurrentStreamUrl(event.uri) && !isSeekPending) {
@@ -134,7 +136,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         }
     }
 
-    fun onPerformanceEvent(event: AudioPerformanceEvent) {
+    override fun onPerformanceEvent(event: AudioPerformanceEvent) {
         callbackThread {
             try {
                 currentPlaybackItem?.let { performanceReporter.report(it, event, playerType) }
@@ -146,14 +148,14 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     private fun isCurrentStreamUrl(uri: String) = uri == currentStreamUrl
 
-    fun onStateChanged(event: StateChange) {
+    override fun onStateChanged(event: StateChange) {
         callbackThread {
             ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in ${event.state} with: event = [$event]")
             handleStateChanged(event)
         }
     }
 
-    fun onBufferingChanged(event: StateChange) {
+    override fun onBufferingChanged(event: StateChange) {
         callbackThread {
             Log.i(TAG, "onBufferingChanged() called in ${event.state} with: event = [$event]")
             handleStateChanged(event)
@@ -174,7 +176,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         }
     }
 
-    fun onSeekingStatusChanged(seekingStatusChange: SeekingStatusChange) {
+    override fun onSeekingStatusChanged(seekingStatusChange: SeekingStatusChange) {
         callbackThread {
             try {
                 if (isCurrentStreamUrl(seekingStatusChange.uri)) {
@@ -186,7 +188,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         }
     }
 
-    fun onError(error: FlipperError) {
+    override fun onError(error: FlipperError) {
         callbackThread {
             try {
                 val currentConnectionType = connectionHelper.currentConnectionType
