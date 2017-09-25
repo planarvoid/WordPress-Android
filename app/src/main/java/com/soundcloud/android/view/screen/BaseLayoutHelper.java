@@ -42,7 +42,15 @@ public class BaseLayoutHelper {
     }
 
     public View setBaseNoToolbar(AppCompatActivity activity) {
-        return createActionBarLayout(activity, R.layout.base_no_toolbar);
+        final int targetLayout;
+
+        if (appNavigationExperiment.isBottomNavigationEnabled()) {
+            targetLayout = R.layout.base_no_toolbar_with_bottom_view;
+        } else {
+            targetLayout = R.layout.base_no_toolbar;
+        }
+
+        return createActionBarLayout(activity, targetLayout);
     }
 
     public View setMainLayout(AppCompatActivity activity) {
