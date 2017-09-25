@@ -166,6 +166,14 @@ public class PlaybackService extends Service
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        if (!isPlaying()) {
+            stopSelf();
+        }
+    }
+
+    @Override
     public void showNotification(Notification notification) {
         startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notification);
     }
