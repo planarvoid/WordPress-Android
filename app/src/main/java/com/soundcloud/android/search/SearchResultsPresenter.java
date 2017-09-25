@@ -10,7 +10,6 @@ import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -74,17 +73,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         }
     };
 
-    private final Func1<SearchResult, SearchResult> addHeaderItem = new Func1<SearchResult, SearchResult>() {
-        @Override
-        public SearchResult call(SearchResult searchResult) {
-            if (topResultsConfig.isEnabled()) {
-                final SearchResultHeaderRenderer.SearchResultHeader headerItem = SearchResultHeaderRenderer.SearchResultHeader.create(searchType, contentType, searchResult.getResultsCount());
-                searchResult.addItem(0, headerItem);
-            }
-            return searchResult;
-        }
-    };
-
     private final Func1<SearchResult, SearchResult> addUpsellItem = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult searchResult) {
@@ -105,7 +93,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final SearchTracker searchTracker;
     private final ScreenProvider screenProvider;
     private final SearchPlayQueueFilter playQueueFilter;
-    private final TopResultsConfig topResultsConfig;
     private final FeatureOperations featureOperations;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -151,7 +138,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            SearchTracker searchTracker,
                            ScreenProvider screenProvider,
                            SearchPlayQueueFilter playQueueFilter,
-                           TopResultsConfig topResultsConfig,
                            FeatureOperations featureOperations,
                            PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.list().build());
@@ -163,7 +149,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.searchTracker = searchTracker;
         this.screenProvider = screenProvider;
         this.playQueueFilter = playQueueFilter;
-        this.topResultsConfig = topResultsConfig;
         this.featureOperations = featureOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
@@ -231,7 +216,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         return CollectionBinding
                 .from(searchOperations
                               .searchResult(apiQuery, autocompleteUrn(), searchType, contentType)
-                              .map(addHeaderItem)
                               .map(addUpsellItem)
                               .doOnNext(trackSearch)
                               .doOnCompleted(this::endMeasuringSearchTime),

@@ -10,7 +10,6 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.eventlogger.DevEventLoggerMonitorActivity;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsActivity;
@@ -53,7 +52,6 @@ import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
-import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -68,7 +66,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -351,15 +348,6 @@ public final class IntentFactory {
 
     static Intent createSettingsIntent(Context context) {
         return new Intent(context, SettingsActivity.class);
-    }
-
-    static Intent createSearchViewAllIntent(Context context, NavigationTarget.TopResultsMetaData metaData, Optional<Urn> queryUrn) {
-        Intent intent = new Intent(context, TopResultsBucketActivity.class);
-        intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY, metaData.query());
-        Urns.writeToIntent(intent, TopResultsBucketActivity.EXTRA_QUERY_URN, queryUrn);
-        intent.putExtra(TopResultsBucketActivity.EXTRA_BUCKET_KIND, metaData.kind());
-        intent.putExtra(TopResultsBucketActivity.EXTRA_IS_PREMIUM, metaData.isPremium());
-        return intent;
     }
 
     static Intent createExternalAppIntent(Context context, String targetPackage) {

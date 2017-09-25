@@ -20,7 +20,6 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
-import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpsellContext;
@@ -75,7 +74,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
     @Mock private SearchPlayRelatedTracksConfig playRelatedTracksConfig;
-    @Mock private TopResultsConfig topResultsConfig;
     @Mock private FeatureOperations featureOperations;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -107,7 +105,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                searchTracker,
                                                screenProvider,
                                                searchPlayQueueFilter,
-                                               topResultsConfig,
                                                featureOperations,
                                                performanceMetricsEngine);
 
@@ -251,33 +248,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void addHeaderWhenFeatureFlagOn() {
-        setupFragmentArguments(false, SearchType.TRACKS, false);
-        when(topResultsConfig.isEnabled()).thenReturn(true);
-
-        presenter.onCreate(fragmentRule.getFragment(), bundle);
-
-        verify(adapter).onNext(listArgumentCaptor.capture());
-        final ListItem item = listArgumentCaptor.getValue().get(0);
-
-        assertThat(item).isInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
-        final SearchResultHeaderRenderer.SearchResultHeader searchResultHeader = (SearchResultHeaderRenderer.SearchResultHeader) item;
-        assertThat(searchResultHeader.resultCount()).isEqualTo(RESULT_COUNT);
-    }
-
-    @Test
-    public void doNotAddHeaderWhenFeatureFlagOff() {
-        setupFragmentArguments(false, SearchType.TRACKS, false);
-        when(topResultsConfig.isEnabled()).thenReturn(false);
-
-        presenter.onCreate(fragmentRule.getFragment(), bundle);
-
-        verify(adapter).onNext(listArgumentCaptor.capture());
-        final ListItem item = listArgumentCaptor.getValue().get(0);
-        assertThat(item).isNotInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
-    }
-
-    @Test
     public void shouldEndMeasuringSearchPerformanceOnAllSearchType() {
         setupFragmentArguments(false, SearchType.ALL, false);
 
@@ -369,7 +339,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                searchTracker,
                                                screenProvider,
                                                new SearchPlayQueueFilter(playRelatedTracksConfig),
-                                               topResultsConfig,
                                                featureOperations,
                                                performanceMetricsEngine);
 

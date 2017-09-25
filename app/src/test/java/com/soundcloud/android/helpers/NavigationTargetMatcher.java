@@ -16,7 +16,6 @@ public class NavigationTargetMatcher {
                 expectedNavigationTarget.queryUrn().equals(navigationTarget.queryUrn()) &&
                 expectedNavigationTarget.targetUrn().equals(navigationTarget.targetUrn()) &&
                 expectedNavigationTarget.discoverySource().equals(navigationTarget.discoverySource()) &&
-                expectedNavigationTarget.topResultsMetaData().equals(navigationTarget.topResultsMetaData()) &&
                 expectedNavigationTarget.stationsInfoMetaData().equals(navigationTarget.stationsInfoMetaData()) &&
                 expectedNavigationTarget.searchQuerySourceInfo().equals(navigationTarget.searchQuerySourceInfo()) &&
                 expectedNavigationTarget.promotedSourceInfo().equals(navigationTarget.promotedSourceInfo()) &&

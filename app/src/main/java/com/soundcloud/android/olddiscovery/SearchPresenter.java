@@ -5,7 +5,6 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -20,7 +19,6 @@ import com.soundcloud.android.search.history.SearchHistoryFragment;
 import com.soundcloud.android.search.history.SearchHistoryItem;
 import com.soundcloud.android.search.history.SearchHistoryStorage;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
-import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.KeyboardHelper;
@@ -84,7 +82,6 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final SearchTracker searchTracker;
     private final EventTracker eventTracker;
     private final ScreenProvider screenProvider;
-    private final TopResultsConfig topResultsConfig;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final FeatureFlags featureFlags;
     private final Resources resources;
@@ -102,7 +99,6 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                     KeyboardHelper keyboardHelper,
                     EventTracker eventTracker,
                     ScreenProvider screenProvider,
-                    TopResultsConfig topResultsConfig,
                     PerformanceMetricsEngine performanceMetricsEngine,
                     SearchHistoryStorage searchHistoryStorage,
                     FeatureFlags featureFlags) {
@@ -113,7 +109,6 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.keyboardHelper = keyboardHelper;
         this.eventTracker = eventTracker;
         this.screenProvider = screenProvider;
-        this.topResultsConfig = topResultsConfig;
         this.performanceMetricsEngine = performanceMetricsEngine;
         this.searchHistoryStorage = searchHistoryStorage;
         this.featureFlags = featureFlags;
@@ -313,9 +308,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void displaySearchView(int searchViewIndex) {
-        if (!topResultsConfig.isEnabled()) {
-            setElevation(searchViewIndex);
-        }
+        setElevation(searchViewIndex);
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
             searchViewFlipper.setDisplayedChild(searchViewIndex);
         }
@@ -349,8 +342,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private Fragment getResultsFragment(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
-        return topResultsConfig.isEnabled() ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
-                                            : TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
+        return TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
     }
 
     private void showOutputText(Optional<String> outputText) {

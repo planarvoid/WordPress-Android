@@ -262,8 +262,6 @@ public class NavigationResolver {
                 return showSearchScreen(navigationTarget);
             case SEARCH_AUTOCOMPLETE:
                 return showSearchAutocompleteScreen(navigationTarget);
-            case SEARCH_RESULTS_VIEW_ALL:
-                return showSearchResultViewAllScreen(navigationTarget);
             case WEB_VIEW:
                 return startWebView(navigationTarget);
             case TRACKED_REDIRECT:
@@ -643,12 +641,6 @@ public class NavigationResolver {
     @CheckResult
     private Single<NavigationResult> showSearchAutocompleteScreen(NavigationTarget navigationTarget) {
         return Single.just(NavigationResult.create(navigationTarget, createSearchIntent(context)))
-                     .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
-    }
-
-    @CheckResult
-    private Single<NavigationResult> showSearchResultViewAllScreen(NavigationTarget navigationTarget) {
-        return Single.just(NavigationResult.create(navigationTarget, IntentFactory.createSearchViewAllIntent(context, navigationTarget.topResultsMetaData().get(), navigationTarget.queryUrn())))
                      .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 

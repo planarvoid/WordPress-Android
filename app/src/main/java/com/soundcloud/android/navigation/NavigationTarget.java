@@ -12,7 +12,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
-import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
 import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
 
@@ -45,8 +44,6 @@ public abstract class NavigationTarget {
     public abstract Optional<Urn> targetUrn();
 
     public abstract Optional<DiscoverySource> discoverySource();
-
-    public abstract Optional<TopResultsMetaData> topResultsMetaData();
 
     public abstract Optional<StationsInfoMetaData> stationsInfoMetaData();
 
@@ -81,7 +78,6 @@ public abstract class NavigationTarget {
                 .chartsMetaData(Optional.absent())
                 .searchQuerySourceInfo(Optional.absent())
                 .promotedSourceInfo(Optional.absent())
-                .topResultsMetaData(Optional.absent())
                 .stationsInfoMetaData(Optional.absent())
                 .uiEvent(Optional.absent())
                 .notificationPreferencesMetaData(Optional.absent())
@@ -222,14 +218,6 @@ public abstract class NavigationTarget {
         return forNavigationDeeplink(DeepLink.AD_PRESTITIAL, Screen.UNKNOWN);
     }
 
-    public static NavigationTarget forSearchViewAll(Optional<Urn> queryUrn, String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
-        return forNavigationDeeplink(DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
-                .toBuilder()
-                .queryUrn(queryUrn)
-                .topResultsMetaData(Optional.of(TopResultsMetaData.create(query, kind, isPremium)))
-                .build();
-    }
-
     public static NavigationTarget forSearchAutocomplete(Screen screen) {
         return forNavigationDeeplink(DeepLink.SEARCH_AUTOCOMPLETE, screen);
     }
@@ -330,9 +318,6 @@ public abstract class NavigationTarget {
         abstract NavigationTarget build();
 
         // Optional arguments depending on the started context
-
-        abstract Builder topResultsMetaData(Optional<TopResultsMetaData> metaData);
-
         abstract Builder stationsInfoMetaData(Optional<StationsInfoMetaData> metaData);
 
         abstract Builder deeplink(Optional<DeepLink> deepLink);
@@ -406,19 +391,6 @@ public abstract class NavigationTarget {
 
         static ChartsMetaData create(ChartType type, Urn genre) {
             return new AutoValue_NavigationTarget_ChartsMetaData(Optional.absent(), Optional.of(ChartDetails.create(type, genre)));
-        }
-    }
-
-    @AutoValue
-    abstract static class TopResultsMetaData {
-        abstract String query();
-
-        abstract TopResultsBucketViewModel.Kind kind();
-
-        abstract boolean isPremium();
-
-        static TopResultsMetaData create(String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
-            return new AutoValue_NavigationTarget_TopResultsMetaData(query, kind, isPremium);
         }
     }
 

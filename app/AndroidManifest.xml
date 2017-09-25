@@ -299,7 +299,6 @@
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".olddiscovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
         <activity android:name=".discovery.systemplaylist.SystemPlaylistActivity" android:theme="@style/Theme.SoundCloud" />
-        <activity android:name=".search.topresults.TopResultsBucketActivity" />
 
         <!-- stations -->
         <activity android:label="@string/stations_collection_title_station_page" android:name=".stations.StationInfoActivity" />

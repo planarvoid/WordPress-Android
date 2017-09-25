@@ -125,9 +125,6 @@ import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.history.SearchHistoryFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
-import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
-import com.soundcloud.android.search.topresults.TopResultsFragment;
-import com.soundcloud.android.search.topresults.TopResultsPresenter;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
@@ -355,7 +352,6 @@ public interface ApplicationComponent {
     void inject(DiscoveryFragment discoveryFragment);
     void inject(SearchActivity searchActivity);
     void inject(SearchHistoryFragment searchHistoryFragment);
-    void inject(TopResultsFragment topResultsFragment);
     void inject(HomeFragment newHomeFragment);
     void inject(SearchPremiumResultsActivity searchPremiumResultsActivity);
     void inject(TabbedSearchFragment tabbedSearchFragment);
@@ -365,7 +361,6 @@ public interface ApplicationComponent {
     void inject(SearchPremiumResultsFragment searchPremiumResultsFragment);
     void inject(SystemPlaylistActivity systemPlaylistActivity);
     void inject(SystemPlaylistFragment systemPlaylistFragment);
-    void inject(TopResultsBucketActivity viewAllActivity);
 
     //CollectionModule
     void inject(CollectionFragment collectionFragment);
@@ -388,6 +383,5 @@ public interface ApplicationComponent {
     PlaylistDetailsPresenterFactory playlistDetailsPresenterFactory();
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
-    TopResultsPresenter topResultsPresenter();
     HomePresenter homePresenter();
 }

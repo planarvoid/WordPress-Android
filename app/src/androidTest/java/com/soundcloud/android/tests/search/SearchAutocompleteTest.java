@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.search;
 import static com.soundcloud.android.framework.TestUser.autocompleteTestUser;
 import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
 import static com.soundcloud.android.properties.Flag.NEW_HOME;
-import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -33,7 +32,6 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
     @Override
     protected void beforeActivityLaunched() {
         FeatureFlagsHelper helper = create(getInstrumentation().getTargetContext());
-        helper.disable(SEARCH_TOP_RESULTS);
         helper.enable(NEW_HOME);
     }
 

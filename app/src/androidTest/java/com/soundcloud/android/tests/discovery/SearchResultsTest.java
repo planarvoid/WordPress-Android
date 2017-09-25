@@ -2,7 +2,6 @@ package com.soundcloud.android.tests.discovery;
 
 import static com.soundcloud.android.framework.TestUser.searchUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -34,17 +33,6 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return searchUser;
-    }
-
-    @Override
-    protected void beforeActivityLaunched() {
-        getFeatureFlags().disable(SEARCH_TOP_RESULTS);
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        getFeatureFlags().reset(SEARCH_TOP_RESULTS);
-        super.tearDown();
     }
 
     @Override

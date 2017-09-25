@@ -1,21 +1,15 @@
 package com.soundcloud.android.tests.discovery;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.upsellUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static com.soundcloud.android.properties.FeatureFlagsHelper.create;
-import static com.soundcloud.android.properties.Flag.SEARCH_TOP_RESULTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
@@ -40,7 +34,6 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeActivityLaunched() {
-        create(getInstrumentation().getTargetContext()).disable(SEARCH_TOP_RESULTS);
         enableUpsell(getInstrumentation().getTargetContext());
     }
 
