@@ -50,7 +50,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
         subject.onItemClick(null,
                             view,
                             0,
-                            fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT),
+                            fromTrackItem(Urn.NOT_SET, trackItem, UserSoundsTypes.SPOTLIGHT),
                             USER_URN,
                             null,
                             module);
@@ -64,7 +64,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
         subject.onItemClick(null,
                             view,
                             0,
-                            fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT),
+                            fromPlaylistItem(Urn.NOT_SET, playlistItem, UserSoundsTypes.SPOTLIGHT),
                             null,
                             null,
                             module);
@@ -146,7 +146,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     public void shouldOpenPlaylist() throws Exception {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        final UserSoundsItem item = UserSoundsItem.fromPlaylistItem(playlistItem, UserSoundsTypes.PLAYLISTS);
+        final UserSoundsItem item = UserSoundsItem.fromPlaylistItem(Urn.NOT_SET, playlistItem, UserSoundsTypes.PLAYLISTS);
         final Module module = Module.create(Module.USER_PLAYLISTS, 1);
         final int position = 0;
 

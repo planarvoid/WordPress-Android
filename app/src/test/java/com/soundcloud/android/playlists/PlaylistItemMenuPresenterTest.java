@@ -25,10 +25,13 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
@@ -82,6 +85,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private FeedbackController feedbackController;
+    @Mock private Navigator navigator;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -112,6 +116,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   featureOperations,
                                                   offlineOperations,
                                                   navigationExecutor,
+                                                  navigator,
                                                   playQueueHelper,
                                                   eventTracker,
                                                   playlistMenuRenderFactory,
@@ -295,7 +300,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlistItem);
         presenter.show(button, playlistItem);
 
-        verify(playlistMenuRenderer, times(1)).render(playlistItem);
+        verify(playlistMenuRenderer, times(1)).render(playlistItem, ItemMenuOptions.Companion.createDefault());
     }
 
     @Test
@@ -306,7 +311,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onDismiss();
         presenter.show(button, playlistItem);
 
-        verify(playlistMenuRenderer, times(2)).render(playlistItem);
+        verify(playlistMenuRenderer, times(2)).render(playlistItem, ItemMenuOptions.Companion.createDefault());
     }
 
     @Test
@@ -377,6 +382,13 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_NEXT);
         assertThat(event.clickObjectUrn().get()).isEqualTo(playlistItem.getUrn());
         assertThat(event.originScreen().get()).isEqualTo(SCREEN);
+    }
+
+    @Test
+    public void handleGoToArtistProfileShouldInvokeNavigator() {
+        presenter.handleGoToArtistProfile(Urn.forUser(1));
+
+        verify(navigator).navigateTo(NavigationTarget.forProfile(Urn.forUser(1)));
     }
 
     private void assertOfflineStorageErrorDialog() {

@@ -8,6 +8,9 @@
         android:id="@+id/start_station"
         android:title="@string/stations_start_track_station" />
     <item
+        android:id="@+id/go_to_artist"
+        android:title="@string/go_to_artist" />
+    <item
         android:id="@+id/add_to_likes"
         android:title="@string/btn_like"
         android:visible="false" />

@@ -5,7 +5,6 @@ import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.optional.Optional;
 
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class UserSoundsPlaylistItemRenderer implements CellRenderer<UserSoundsItem> {
+class UserSoundsPlaylistItemRenderer extends UserSoundsItemRenderer  {
     private final PlaylistItemRenderer playlistItemRenderer;
 
     @Inject
@@ -37,9 +36,12 @@ class UserSoundsPlaylistItemRenderer implements CellRenderer<UserSoundsItem> {
 
         if (playlistItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
-            playlistItemRenderer.bindPlaylistView(playlistItem.get(), itemView,
-                                                  Optional.of(fromModule(userSoundsItem.collectionType(),
-                                                                         getPositionInModule(items, userSoundsItem))));
+            final PlaylistItem playlist = playlistItem.get();
+            playlistItemRenderer.bindPlaylistView(playlist,
+                                                  itemView,
+                                                  Optional.of(fromModule(userSoundsItem.collectionType(), getPositionInModule(items, userSoundsItem))),
+                                                  createItemMenuOptions(userSoundsItem, playlist));
         }
     }
+
 }

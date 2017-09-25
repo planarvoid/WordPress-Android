@@ -1,31 +1,22 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget;
-import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
@@ -46,7 +37,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -56,7 +46,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     private TrackItemRenderer renderer;
 
-    @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private EventBus eventBus;
@@ -69,8 +58,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private TrackItemView.Factory trackItemViewFactory;
     @Mock private OfflineSettingsOperations offlineSettingsOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
-    @Mock private GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
-    @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
     @Mock private TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private TrackItem trackItem;
@@ -90,8 +77,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          trackItemViewFactory,
                                          offlineSettingsOperations,
                                          connectionHelper,
-                                         goOnboardingTooltipExperiment,
-                                         lazyOf(introductoryOverlayPresenter),
                                          trackStatsDisplayPolicy);
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
@@ -354,59 +339,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);
-    }
-
-    @Test
-    public void shouldNotShowGoPlusIntroductoryOverlayIfTrackIsNotFullHighTier() {
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(true).subHighTier(true).build());
-
-        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
-
-        verifyZeroInteractions(introductoryOverlayPresenter);
-    }
-
-    @Test
-    public void shouldNotShowGoPlusIntroductoryOverlayIfExperimentIsNotEnabled() {
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(false);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
-
-        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
-
-        verifyZeroInteractions(introductoryOverlayPresenter);
-    }
-
-    @Test
-    public void shouldNotShowGoPlusIntroductoryOverlayIfNotHighTier() {
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
-        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
-
-        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
-
-        verifyZeroInteractions(introductoryOverlayPresenter);
-    }
-
-    @Test
-    public void shouldShowGoPlusIntroductoryOverlay() {
-        when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
-
-        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
-
-        ArgumentCaptor<IntroductoryOverlay> introductoryOverlayCaptor = ArgumentCaptor.forClass(IntroductoryOverlay.class);
-        verify(introductoryOverlayPresenter).showIfNeeded(introductoryOverlayCaptor.capture());
-
-        IntroductoryOverlay introductoryOverlay = introductoryOverlayCaptor.getValue();
-        assertThat(introductoryOverlay.overlayKey()).isEqualTo(IntroductoryOverlayKey.SEARCH_GO_PLUS);
-        assertThat(introductoryOverlay.targetView()).isEqualTo(trackItemView.getGoIndicator());
-        assertThat(introductoryOverlay.title()).isEqualTo(R.string.overlay_search_go_plus_title);
-        assertThat(introductoryOverlay.description()).isEqualTo(R.string.overlay_search_go_plus_description);
-        assertThat(introductoryOverlay.icon()).isEqualTo(Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
-        assertThat(introductoryOverlay.event()).isEqualTo(Optional.of(GoOnboardingTooltipEvent.forSearchGoPlus()));
     }
 
 }

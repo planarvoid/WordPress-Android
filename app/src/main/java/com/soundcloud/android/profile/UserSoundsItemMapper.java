@@ -5,6 +5,7 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -28,12 +29,12 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
     public Iterable<UserSoundsItem> call(UserProfile userProfile) {
         final List<UserSoundsItem> items = new ArrayList<>(estimateItemCount(userProfile));
 
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT, userProfile.getSpotlight()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.TRACKS, userProfile.getTracks()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.ALBUMS, userProfile.getAlbums()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.REPOSTS, userProfile.getReposts()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.LIKES, userProfile.getLikes()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.SPOTLIGHT, userProfile.getSpotlight()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.TRACKS, userProfile.getTracks()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.ALBUMS, userProfile.getAlbums()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.REPOSTS, userProfile.getReposts()));
+        items.addAll(entityHolderMapper.map(userProfile, UserSoundsTypes.LIKES, userProfile.getLikes()));
 
         if (!items.isEmpty()) {
             items.add(UserSoundsItem.fromEndOfListDivider());
@@ -58,9 +59,7 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
         public EntityHolderMapper() {
         }
 
-        public List<UserSoundsItem> map(
-                int collectionType,
-                ModelCollection<? extends PlayableItem> itemsToMap) {
+        public List<UserSoundsItem> map(UserProfile userProfile, int collectionType, ModelCollection<? extends PlayableItem> itemsToMap) {
             final List<UserSoundsItem> items = new ArrayList<>(3 + itemsToMap.getCollection().size());
 
             if (!itemsToMap.getCollection().isEmpty()) {
@@ -70,7 +69,7 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
 
                 items.addAll(transform(
                         itemsToMap.getCollection(),
-                        toUserSoundsItem(collectionType)));
+                        toUserSoundsItem(userProfile.getUser().getUrn(), collectionType)));
 
                 if (itemsToMap.getNextLink().isPresent()) {
                     items.add(UserSoundsItem.fromViewAll(collectionType));
@@ -79,13 +78,12 @@ public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSou
             return items;
         }
 
-        private Function<PlayableItem, UserSoundsItem> toUserSoundsItem(
-                final int collectionType) {
+        private Function<PlayableItem, UserSoundsItem> toUserSoundsItem(Urn userUrn, final int collectionType) {
             return playableItem -> {
                 if (playableItem.getUrn().isTrack()) {
-                    return fromTrackItem((TrackItem) playableItem, collectionType);
+                    return fromTrackItem(userUrn, (TrackItem) playableItem, collectionType);
                 } else {
-                    return fromPlaylistItem((PlaylistItem) playableItem, collectionType);
+                    return fromPlaylistItem(userUrn, (PlaylistItem) playableItem, collectionType);
                 }
             };
         }

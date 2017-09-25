@@ -12,6 +12,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -23,7 +24,6 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -67,14 +67,14 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistView(playlists.get(position), itemView, Optional.absent(), Optional.absent());
+        bindPlaylistView(playlists.get(position), itemView, Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
-    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module) {
-        bindPlaylistView(playlist, itemView, module, Optional.absent());
+    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, ItemMenuOptions itemMenuOptions) {
+        bindPlaylistView(playlist, itemView, module, Optional.absent(), itemMenuOptions);
     }
 
-    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, Optional<String> clickSource) {
+    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, Optional<String> clickSource, ItemMenuOptions itemMenuOptions) {
         getTextView(itemView, R.id.list_item_header).setText(playlist.creatorName());
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.title());
 
@@ -82,16 +82,18 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module, clickSource);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module, clickSource, itemMenuOptions);
     }
 
     private void setupOverFlow(final View button,
                                final PlaylistItem playlist,
                                final Optional<Module> module,
-                               Optional<String> clickSource) {
+                               Optional<String> clickSource,
+                               ItemMenuOptions itemMenuOptions) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button,
                                                                       playlist,
-                                                                      getEventContextMetaDataBuilder(playlist, module, clickSource)));
+                                                                      getEventContextMetaDataBuilder(playlist, module, clickSource),
+                                                                      itemMenuOptions));
     }
 
     private void showTrackCount(View itemView, PlaylistItem playlist) {

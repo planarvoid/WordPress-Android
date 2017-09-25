@@ -18,6 +18,8 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -26,6 +28,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -68,6 +71,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final Navigator navigator;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -78,6 +82,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private boolean isShowing;
 
     private EventContextMetadata eventContextMetadata;
+
+    private ItemMenuOptions options = ItemMenuOptions.Companion.createDefault();
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
@@ -99,7 +105,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper,
                            FeedbackController feedbackController,
                            NavigationExecutor navigationExecutor,
-                           PerformanceMetricsEngine performanceMetricsEngine) {
+                           PerformanceMetricsEngine performanceMetricsEngine,
+                           Navigator navigator) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -120,6 +127,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.feedbackController = feedbackController;
         this.navigationExecutor = navigationExecutor;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.navigator = navigator;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -132,10 +140,18 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      View button,
                      TrackItem track,
                      EventContextMetadata.Builder builder) {
+        show(activity, button, track, builder, ItemMenuOptions.Companion.createDefault());
+    }
+
+    public void show(FragmentActivity activity,
+                     View button,
+                     TrackItem track,
+                     EventContextMetadata.Builder builder,
+                     ItemMenuOptions itemMenuOptions) {
         if (track.isPromoted()) {
-            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, PromotedSourceInfo.fromItem(track), builder);
+            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, PromotedSourceInfo.fromItem(track), builder, itemMenuOptions);
         } else {
-            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, builder);
+            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, builder, itemMenuOptions);
         }
     }
 
@@ -146,13 +162,25 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      Urn ownerUrn,
                      PromotedSourceInfo promotedSourceInfo,
                      EventContextMetadata.Builder builder) {
+        show(activity, button, track, playlistUrn, ownerUrn, promotedSourceInfo, builder, ItemMenuOptions.Companion.createDefault());
+    }
+
+    public void show(FragmentActivity fragmentActivity,
+                     View button,
+                     TrackItem track,
+                     Urn playlistUrn,
+                     Urn ownerUrn,
+                     PromotedSourceInfo promotedSourceInfo,
+                     EventContextMetadata.Builder builder,
+                     ItemMenuOptions itemMenuOptions) {
         if (!isShowing) {
-            this.activity = activity;
+            this.activity = fragmentActivity;
             this.track = track;
             this.promotedSourceInfo = promotedSourceInfo;
             this.playlistUrn = playlistUrn;
             this.ownerUrn = ownerUrn;
             this.eventContextMetadata = builder.isFromOverflow(true).build();
+            this.options = itemMenuOptions;
             loadTrack(setupMenu(button, ownerUrn));
             this.isShowing = true;
         }
@@ -166,6 +194,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         menu.setItemEnabled(R.id.add_to_likes, false);
         menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist(ownerUrn));
         menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist(ownerUrn));
+        menu.setItemVisible(R.id.go_to_artist, options.getDisplayGoToArtistProfile());
 
         configureStationOptions(button.getContext(), menu);
         configureAdditionalEngagementsOptions(menu);
@@ -245,15 +274,22 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
             case R.id.play_next:
                 playNext(track.getUrn());
                 return true;
+            case R.id.go_to_artist:
+                handleGoToArtist(track.creatorUrn());
+                return true;
             default:
                 return false;
         }
     }
 
+    private void handleGoToArtist(Urn userUrn) {
+        navigator.navigateTo(NavigationTarget.forProfile(userUrn));
+    }
+
     private void handleStation() {
         stationHandler.openStationWithSeedTrack(
                 track.getUrn(),
-                                                UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));
+                UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));
     }
 
     private void playNext(Urn trackUrn) {
@@ -262,7 +298,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         if (playQueueManager.isQueueEmpty()) {
             final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
-                  .subscribe(new ExpandPlayerSingleObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
+                             .subscribe(new ExpandPlayerSingleObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
         } else {
             playQueueManager.insertNext(trackUrn);
         }

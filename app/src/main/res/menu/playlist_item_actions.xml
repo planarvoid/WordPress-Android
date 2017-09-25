@@ -5,6 +5,9 @@
         android:id="@+id/play_next"
         android:title="@string/play_next" />
     <item
+        android:id="@+id/go_to_artist"
+        android:title="@string/go_to_artist" />
+    <item
         android:id="@+id/add_to_likes"
         android:title="@string/btn_like"
         android:visible="false" />

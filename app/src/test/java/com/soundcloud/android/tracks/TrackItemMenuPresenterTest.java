@@ -26,6 +26,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -81,11 +83,12 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PopupMenuWrapper popupMenuWrapper;
     @Mock MenuItem menuItem;
     @Mock View view;
+    @Mock Navigator navigator;
 
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
-    private Track track = ModelFixtures.track();
+    private Track track = ModelFixtures.trackBuilder().creatorUrn(Urn.forUser(1)).build();
     private TrackItem trackItem = ModelFixtures.trackItem(track);
 
     private TrackItemMenuPresenter presenter;
@@ -119,7 +122,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                changeLikeToSaveExperimentStringHelper,
                                                feedbackController,
                                                navigationExecutor,
-                                               performanceMetricsEngine);
+                                               performanceMetricsEngine,
+                                               navigator);
     }
 
     @Test
@@ -233,6 +237,16 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         verify(stationHandler).openStationWithSeedTrack(eq(trackItem.getUrn()), uiEventArgumentCaptor.capture());
         assertThat(uiEventArgumentCaptor.getValue().kind()).isEqualTo(UIEvent.Kind.NAVIGATION);
         assertThat(uiEventArgumentCaptor.getValue().clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
+    }
+
+    @Test
+    public void clickOnGoToArtistProfileShouldInvokeNavigator() {
+        when(menuItem.getItemId()).thenReturn(R.id.go_to_artist);
+
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(navigator).navigateTo(NavigationTarget.forProfile(Urn.forUser(1)));
     }
 
     @Test

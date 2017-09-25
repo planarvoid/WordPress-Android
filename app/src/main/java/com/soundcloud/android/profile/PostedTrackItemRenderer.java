@@ -2,9 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.tracks.TrackItem;
@@ -16,7 +14,6 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import dagger.Lazy;
 
 import android.view.View;
 
@@ -36,8 +33,6 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                             TrackItemView.Factory trackItemViewFactory,
                             OfflineSettingsOperations offlineSettingsOperations,
                             NetworkConnectionHelper connectionHelper,
-                            GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
-                            Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter,
                             TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         super(imageOperations,
               numberFormatter,
@@ -49,8 +44,6 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
               trackItemViewFactory,
               offlineSettingsOperations,
               connectionHelper,
-              goOnboardingTooltipExperiment,
-              introductoryOverlayPresenter,
               trackStatsDisplayPolicy);
     }
 

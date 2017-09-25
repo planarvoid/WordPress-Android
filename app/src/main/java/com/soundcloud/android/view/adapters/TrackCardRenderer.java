@@ -10,6 +10,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
@@ -69,12 +70,13 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        bindTrackCard(trackItems.get(position), itemView, Optional.absent());
+        bindTrackCard(trackItems.get(position), itemView, Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindTrackCard(final TrackItem track,
                               final View itemView,
-                              final Optional<Module> module) {
+                              final Optional<Module> module,
+                              ItemMenuOptions itemMenuOptions) {
         final TrackCardViewHolder viewHolder = (TrackCardViewHolder) itemView.getTag();
         viewHolder.resetAdditionalInformation();
 
@@ -83,9 +85,10 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         viewHolder.bindArtworkView(track);
         showPlayCountOrNowPlaying(viewHolder, track);
         viewHolder.overflowButton.setOnClickListener(overflowButton -> menuPresenter.show(getFragmentActivity(itemView),
-                                                                                  viewHolder.overflowButton,
-                                                                                  track,
-                                                                                  getEventContextMetadataBuilder(module)));
+                                                                                          viewHolder.overflowButton,
+                                                                                          track,
+                                                                                          getEventContextMetadataBuilder(module),
+                                                                                          itemMenuOptions));
     }
 
     public void setLayoutResource(@LayoutRes int layoutResource) {

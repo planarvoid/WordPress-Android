@@ -15,6 +15,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -74,10 +75,10 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistCardView(playlists.get(position), itemView, Optional.absent());
+        bindPlaylistCardView(playlists.get(position), itemView, Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
-    public void bindPlaylistCardView(PlaylistItem playlist, View itemView, Optional<Module> module) {
+    public void bindPlaylistCardView(PlaylistItem playlist, View itemView, Optional<Module> module, ItemMenuOptions itemMenuOptions) {
         PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
 
         bindArtworkView(viewHolder, playlist);
@@ -85,7 +86,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         viewHolder.trackCount.setText(String.valueOf(playlist.trackCount()));
         viewHolder.tracksView.setText(tracksQuantity);
 
-        setupEngagementBar(viewHolder, playlist, module);
+        setupEngagementBar(viewHolder, playlist, module, itemMenuOptions);
     }
 
     public void setLayoutResource(@LayoutRes int layoutResource) {
@@ -94,14 +95,16 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private void setupEngagementBar(PlaylistViewHolder playlistView,
                                     final PlaylistItem playlistItem,
-                                    final Optional<Module> module) {
+                                    final Optional<Module> module,
+                                    ItemMenuOptions itemMenuOptions) {
         cardEngagementsPresenter.bind(playlistView,
                                       playlistItem,
                                       getEventContextMetadataBuilder(module).build());
 
         playlistView.overflowButton.setOnClickListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
                                                                                                         playlistItem,
-                                                                                                        getEventContextMetadataBuilder(module)));
+                                                                                                        getEventContextMetadataBuilder(module),
+                                                                                                        itemMenuOptions));
     }
 
     private EventContextMetadata.Builder getEventContextMetadataBuilder(final Optional<Module> module) {

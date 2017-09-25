@@ -20,11 +20,14 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleObserver;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -55,6 +58,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final NavigationExecutor navigationExecutor;
+    private final Navigator navigator;
     private final PlayQueueHelper playQueueHelper;
     private final EventTracker eventTracker;
     private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
@@ -71,7 +75,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private Optional<PromotedSourceInfo> promotedSourceInfo;
     private EntityMetadata entityMetadata;
     private PlaylistItemMenuRenderer renderer;
-    private boolean isShowing = false;
+    private boolean isShowing;
+    private ItemMenuOptions itemMenuOptions;
 
     @Inject
     public PlaylistItemMenuPresenter(Context appContext,
@@ -84,6 +89,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations,
                                      NavigationExecutor navigationExecutor,
+                                     Navigator navigator,
                                      PlayQueueHelper playQueueHelper,
                                      EventTracker eventTracker,
                                      PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
@@ -102,6 +108,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.navigationExecutor = navigationExecutor;
+        this.navigator = navigator;
         this.playQueueHelper = playQueueHelper;
         this.eventTracker = eventTracker;
         this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
@@ -113,7 +120,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void show(View button, PlaylistItem playlist) {
-        show(button, playlist, null);
+        show(button, playlist, null, ItemMenuOptions.Companion.createDefault());
     }
 
     public void show(View button, Urn playlistUrn) {
@@ -123,6 +130,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
             this.playlistUrn = playlistUrn;
             this.promotedSourceInfo = Optional.absent();
             this.entityMetadata = EntityMetadata.EMPTY;
+            this.itemMenuOptions = ItemMenuOptions.Companion.createDefault();
             loadPlaylist(playlistUrn);
             isShowing = true;
         }
@@ -130,13 +138,15 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     public void show(View button,
                      PlaylistItem playlist,
-                     EventContextMetadata.Builder eventContextMetadataBuilder) {
+                     EventContextMetadata.Builder eventContextMetadataBuilder,
+                     ItemMenuOptions itemMenuOptions) {
         if (!isShowing) {
             this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
             renderer = playlistItemMenuRendererFactory.create(this, button);
             playlistUrn = playlist.getUrn();
             promotedSourceInfo = loadPromotedSourceInfo(playlist);
             entityMetadata = EntityMetadata.from(playlist);
+            this.itemMenuOptions = itemMenuOptions;
             loadPlaylist(playlistUrn);
             isShowing = true;
         }
@@ -154,6 +164,11 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         playlistDisposable.dispose();
         playlistDisposable = Disposables.empty();
         isShowing = false;
+    }
+
+    @Override
+    public void handleGoToArtistProfile(Urn creatorUrn) {
+        navigator.navigateTo(NavigationTarget.forProfile(creatorUrn));
     }
 
     public void handlePlayNext() {
@@ -293,15 +308,15 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private void loadPlaylist(Urn urn) {
         playlistDisposable.dispose();
         playlistDisposable = playlistRepository.withUrn(urn)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new PlaylistSubscriber());
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .subscribeWith(new PlaylistSubscriber());
     }
 
     private final class PlaylistSubscriber extends DefaultMaybeObserver<Playlist> {
 
         @Override
         public void onSuccess(Playlist playlist) {
-            renderer.render(entityItemCreator.playlistItem(playlist));
+            renderer.render(entityItemCreator.playlistItem(playlist), itemMenuOptions);
         }
     }
 }

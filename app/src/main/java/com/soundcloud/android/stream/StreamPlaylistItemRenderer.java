@@ -10,6 +10,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 
 import android.content.res.Resources;
@@ -76,8 +77,10 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
                                       playlistItem,
                                       getEventContextMetadataBuilder(playlistItem, position).build());
 
-        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton, playlistItem,
-                                                                                  getEventContextMetadataBuilder(playlistItem, position)));
+        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
+                                                                                          playlistItem,
+                                                                                          getEventContextMetadataBuilder(playlistItem, position),
+                                                                                          ItemMenuOptions.Companion.createDefault()));
     }
 
     @VisibleForTesting

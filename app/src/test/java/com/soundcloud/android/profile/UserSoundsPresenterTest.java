@@ -156,7 +156,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        when(adapter.getItems()).thenReturn(Lists.newArrayList(fromPlaylistItem(ModelFixtures.playlistItem(playlist), UserSoundsTypes.SPOTLIGHT)));
+        when(adapter.getItems()).thenReturn(Lists.newArrayList(fromPlaylistItem(Urn.NOT_SET, ModelFixtures.playlistItem(playlist), UserSoundsTypes.SPOTLIGHT)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -169,7 +169,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldDelegateClickEventsToClickListener() {
         final TrackItem trackItem = ModelFixtures.trackItem();
-        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, TRACKS);
+        final UserSoundsItem userSoundsItem = fromTrackItem(Urn.NOT_SET, trackItem, TRACKS);
 
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
         when(adapter.getItems()).thenReturn(singletonList(userSoundsItem));

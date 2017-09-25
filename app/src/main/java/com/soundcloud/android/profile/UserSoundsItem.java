@@ -31,38 +31,40 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     static final int TYPE_PLAYLIST = 4;
     static final int TYPE_END_OF_LIST_DIVIDER = 5;
 
-    static UserSoundsItem fromPlaylistItem(PlaylistItem playlistItem, int collectionType) {
+    static UserSoundsItem fromPlaylistItem(Urn userUrn, PlaylistItem playlistItem, int collectionType) {
         return builder()
-                    .itemType(UserSoundsItem.TYPE_PLAYLIST)
-                    .collectionType(collectionType)
-                    .playlistItem(Optional.fromNullable(playlistItem))
-                    .trackItem(Optional.absent())
+                .itemType(UserSoundsItem.TYPE_PLAYLIST)
+                .collectionType(collectionType)
+                .playlistItem(Optional.fromNullable(playlistItem))
+                .trackItem(Optional.absent())
+                .userUrn(userUrn)
                 .build();
     }
 
-    static UserSoundsItem fromTrackItem(TrackItem trackItem, int collectionType) {
+    static UserSoundsItem fromTrackItem(Urn userUrn, TrackItem trackItem, int collectionType) {
         return builder()
-                    .itemType(UserSoundsItem.TYPE_TRACK)
-                    .collectionType(collectionType)
-                    .playlistItem(Optional.absent())
-                    .trackItem(Optional.fromNullable(trackItem))
+                .itemType(UserSoundsItem.TYPE_TRACK)
+                .collectionType(collectionType)
+                .playlistItem(Optional.absent())
+                .trackItem(Optional.fromNullable(trackItem))
+                .userUrn(userUrn)
                 .build();
     }
 
     private UserSoundsItem copyWithTrackItem(TrackItem trackItem) {
-        return fromTrackItem(trackItem, collectionType());
+        return fromTrackItem(userUrn(), trackItem, collectionType());
     }
 
     private UserSoundsItem copyWithPlaylistItem(PlaylistItem playlistItem) {
-        return fromPlaylistItem(playlistItem, collectionType());
+        return fromPlaylistItem(userUrn(), playlistItem, collectionType());
     }
 
     static UserSoundsItem fromViewAll(int collectionType) {
         return builder()
-                    .itemType(UserSoundsItem.TYPE_VIEW_ALL)
-                    .collectionType(collectionType)
-                    .playlistItem(Optional.absent())
-                    .trackItem(Optional.absent())
+                .itemType(UserSoundsItem.TYPE_VIEW_ALL)
+                .collectionType(collectionType)
+                .playlistItem(Optional.absent())
+                .trackItem(Optional.absent())
                 .build();
     }
 
@@ -94,7 +96,8 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     }
 
     public static UserSoundsItem.Builder builder() {
-        return new AutoValue_UserSoundsItem.Builder();
+        return new AutoValue_UserSoundsItem.Builder()
+                .userUrn(Urn.NOT_SET);
     }
 
     public abstract int itemType();
@@ -104,6 +107,8 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     public abstract Optional<TrackItem> trackItem();
 
     public abstract Optional<PlaylistItem> playlistItem();
+
+    public abstract Urn userUrn();
 
     public abstract Builder toBuilder();
 
@@ -228,6 +233,8 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
         public abstract Builder trackItem(Optional<TrackItem> value);
 
         public abstract Builder playlistItem(Optional<PlaylistItem> value);
+
+        public abstract Builder userUrn(Urn userUrn);
 
         public abstract UserSoundsItem build();
     }

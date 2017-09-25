@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -27,18 +26,17 @@ public class UserSoundsItemMapperTest {
 
     @Mock UserSoundsItemMapper.EntityHolderMapper entityHolderMapper;
     @Mock UserSoundsItem mockUserSoundsItem;
-    @Mock PlayQueueManager playQueueManager;
 
     @Test
     public void shouldMapItemsToUserSoundsItems() throws Exception {
         UserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
 
-        mockEntityHolderMapper(UserSoundsTypes.SPOTLIGHT, profile.getSpotlight());
-        mockEntityHolderMapper(UserSoundsTypes.TRACKS, profile.getTracks());
-        mockEntityHolderMapper(UserSoundsTypes.ALBUMS, profile.getAlbums());
-        mockEntityHolderMapper(UserSoundsTypes.PLAYLISTS, profile.getPlaylists());
-        mockEntityHolderMapper(UserSoundsTypes.REPOSTS, profile.getReposts());
-        mockEntityHolderMapper(UserSoundsTypes.LIKES, profile.getLikes());
+        mockEntityHolderMapper(profile, UserSoundsTypes.SPOTLIGHT, profile.getSpotlight());
+        mockEntityHolderMapper(profile, UserSoundsTypes.TRACKS, profile.getTracks());
+        mockEntityHolderMapper(profile, UserSoundsTypes.ALBUMS, profile.getAlbums());
+        mockEntityHolderMapper(profile, UserSoundsTypes.PLAYLISTS, profile.getPlaylists());
+        mockEntityHolderMapper(profile, UserSoundsTypes.REPOSTS, profile.getReposts());
+        mockEntityHolderMapper(profile, UserSoundsTypes.LIKES, profile.getLikes());
 
         ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsItemMapper(entityHolderMapper).call(profile));
 
@@ -55,11 +53,12 @@ public class UserSoundsItemMapperTest {
 
     @Test
     public void shouldMapEntityHolder() throws Exception {
+        final UserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
         final TrackItem trackPost = ModelFixtures.trackItem();
         final PlaylistItem playlistPost = ModelFixtures.playlistItem();
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
-        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
+        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(profile, UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
         assertThat(result.get(0).itemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
@@ -78,6 +77,7 @@ public class UserSoundsItemMapperTest {
 
     @Test
     public void shouldMapEntityHolderWithNextLink() throws Exception {
+        final UserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
         final TrackItem trackItem = ModelFixtures.trackItem();
         final Map<String, Link> links = new HashMap<>();
         links.put(ModelCollection.NEXT_LINK_REL, new Link("some://link"));
@@ -85,12 +85,12 @@ public class UserSoundsItemMapperTest {
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(
                 singletonList(trackItem), links);
 
-        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
+        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(profile, UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.get(3).itemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
     }
 
-    private void mockEntityHolderMapper(int collectionType, ModelCollection<? extends PlayableItem> collection) {
-        when(entityHolderMapper.map(collectionType, collection)).thenReturn(newArrayList(mockUserSoundsItem));
+    private void mockEntityHolderMapper(UserProfile profile, int collectionType, ModelCollection<? extends PlayableItem> collection) {
+        when(entityHolderMapper.map(profile, collectionType, collection)).thenReturn(newArrayList(mockUserSoundsItem));
     }
 }

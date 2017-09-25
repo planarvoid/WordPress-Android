@@ -10,6 +10,8 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -30,6 +32,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
     private PopupMenuWrapper menu;
     private PlaylistItem playlist;
+    private ItemMenuOptions itemMenuOptions;
 
     interface Listener {
 
@@ -51,6 +54,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
         void onDismiss();
 
+        void handleGoToArtistProfile(Urn creatorUrn);
     }
 
     PlaylistItemMenuRenderer(Listener listener,
@@ -74,8 +78,9 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
         menu.setOnDismissListener(this);
     }
 
-    void render(PlaylistItem playlist) {
+    void render(PlaylistItem playlist, ItemMenuOptions itemMenuOptions) {
         this.playlist = playlist;
+        this.itemMenuOptions = itemMenuOptions;
         setupMenu(playlist);
     }
 
@@ -84,7 +89,12 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
         configureAdditionalEngagementsOptions(playlist);
         configureOfflineOptions(playlist);
         configurePlayNextOption();
+        configureGoToArtistProfile();
         menu.show();
+    }
+
+    private void configureGoToArtistProfile() {
+        menu.setItemVisible(R.id.go_to_artist, itemMenuOptions.getDisplayGoToArtistProfile());
     }
 
     private void configureAdditionalEngagementsOptions(PlaylistItem playlist) {
@@ -204,6 +214,9 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                 return true;
             case R.id.delete_playlist:
                 listener.deletePlaylist(context);
+                return true;
+            case R.id.go_to_artist:
+                listener.handleGoToArtistProfile(playlist.creatorUrn());
                 return true;
             default:
                 return false;

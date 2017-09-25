@@ -8,30 +8,24 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
-import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import dagger.Lazy;
 
 import android.content.Context;
 import android.view.View;
@@ -54,8 +48,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final NetworkConnectionHelper connectionHelper;
-    private final GoOnboardingTooltipExperiment goOnboardingTooltipExperiment;
-    private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
     private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private Listener listener;
@@ -81,8 +73,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              TrackItemView.Factory trackItemViewFactory,
                              OfflineSettingsOperations offlineSettingsOperations,
                              NetworkConnectionHelper connectionHelper,
-                             GoOnboardingTooltipExperiment goOnboardingTooltipExperiment,
-                             Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter,
                              TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -94,8 +84,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.trackItemViewFactory = trackItemViewFactory;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.connectionHelper = connectionHelper;
-        this.goOnboardingTooltipExperiment = goOnboardingTooltipExperiment;
-        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
     }
 
@@ -110,23 +98,16 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        bindTrackView(position, itemView, trackItems.get(position));
-    }
-
-    public void bindTrackView(final int position, View itemView, TrackItem track) {
-        bindTrackView(track,
-                      itemView,
-                      position,
-                      Optional.absent(),
-                      Optional.absent());
+        bindTrackView(trackItems.get(position), itemView, position, Optional.absent(), Optional.absent(), Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindTrackView(final TrackItem track,
                               View itemView,
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
-                              Optional<Module> module) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
+                              Optional<Module> module,
+                              ItemMenuOptions itemMenuOptions) {
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent(), itemMenuOptions);
     }
 
     public void bindPlaylistTrackView(final TrackItem track,
@@ -141,12 +122,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.setOnClickListener(null);
         }
 
-        bindOfflineTrackView(track,
-                             itemView,
-                             position,
-                             trackSourceInfo,
-                             pageUrn,
-                             Optional.of(Module.create(Module.PLAYLIST, position)));
+        bindTrackView(track,
+                      itemView,
+                      position,
+                      trackSourceInfo,
+                      Optional.of(Module.create(Module.PLAYLIST, position)),
+                      pageUrn,
+                      Optional.of(ActiveFooter.OFFLINE_STATE),
+                      ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindSystemPlaylistTrackView(final TrackItem track,
@@ -160,7 +143,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       trackSourceInfo,
                       Optional.absent(),
                       pageUrn,
-                      Optional.of(ActiveFooter.PLAYS_AND_POSTED));
+                      Optional.of(ActiveFooter.PLAYS_AND_POSTED),
+                      ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindOfflineTrackView(final TrackItem trackItem,
@@ -174,51 +158,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       trackSourceInfo,
                       module,
                       Optional.absent(),
-                      Optional.of(ActiveFooter.OFFLINE_STATE));
-    }
-
-    void bindOfflineTrackView(final TrackItem trackItem,
-                              View itemView,
-                              final int position,
-                              Optional<TrackSourceInfo> trackSourceInfo,
-                              Optional<Urn> pageUrn,
-                              Optional<Module> module) {
-        bindTrackView(trackItem,
-                      itemView,
-                      position,
-                      trackSourceInfo,
-                      module,
-                      pageUrn,
-                      Optional.of(ActiveFooter.OFFLINE_STATE));
-    }
-
-    public void bindSearchTrackView(final TrackItem track,
-                                    View itemView,
-                                    final int position,
-                                    Optional<TrackSourceInfo> trackSourceInfo,
-                                    Optional<Module> module) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent());
-        showGoPlusIntroductoryOverlayIfNeeded(itemView, track);
-    }
-
-    private void showGoPlusIntroductoryOverlayIfNeeded(View itemView, TrackItem track) {
-        final TrackItemView trackItemView = (TrackItemView) itemView.getTag();
-        if (canShowOverlay(track)) {
-            introductoryOverlayPresenter.get().showIfNeeded(IntroductoryOverlay.builder()
-                                                                               .overlayKey(IntroductoryOverlayKey.SEARCH_GO_PLUS)
-                                                                               .targetView(trackItemView.getGoIndicator())
-                                                                               .title(R.string.overlay_search_go_plus_title)
-                                                                               .description(R.string.overlay_search_go_plus_description)
-                                                                               .icon(Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)))
-                                                                               .event(Optional.of(GoOnboardingTooltipEvent.forSearchGoPlus()))
-                                                                               .build());
-        }
-    }
-
-    private boolean canShowOverlay(TrackItem track) {
-        return goOnboardingTooltipExperiment.isEnabled()
-                && Plan.HIGH_TIER == featureOperations.getCurrentPlan()
-                && isFullHighTierTrack(track);
+                      Optional.of(ActiveFooter.OFFLINE_STATE),
+                      ItemMenuOptions.Companion.createDefault());
     }
 
     private void bindTrackView(final TrackItem trackItem,
@@ -227,7 +168,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                Optional<TrackSourceInfo> trackSourceInfo,
                                Optional<Module> module,
                                Optional<Urn> pageUrn,
-                               Optional<ActiveFooter> activeFooter) {
+                               Optional<ActiveFooter> activeFooter,
+                               ItemMenuOptions itemMenuOptions) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(trackItem.creatorName());
         trackItemView.setTitle(trackItem.title(), trackItem.isBlocked()
@@ -243,7 +185,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoBottom(trackItemView, trackItem, activeFooter);
 
         bindArtwork(trackItemView, trackItem);
-        bindOverFlow(trackItemView, trackItem, position, pageUrn, trackSourceInfo, module);
+        bindOverFlow(trackItemView, trackItem, position, pageUrn, trackSourceInfo, module, itemMenuOptions);
     }
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
@@ -263,8 +205,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               final int position,
                               final Optional<Urn> pageUrn,
                               final Optional<TrackSourceInfo> trackSourceInfo,
-                              final Optional<Module> module) {
-        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, pageUrn, trackSourceInfo, module));
+                              final Optional<Module> module,
+                              final ItemMenuOptions itemMenuOptions) {
+        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, pageUrn, trackSourceInfo, module, itemMenuOptions));
     }
 
     protected void showTrackItemMenu(View button,
@@ -272,7 +215,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                      int position,
                                      Optional<Urn> pageUrn,
                                      Optional<TrackSourceInfo> trackSourceInfo,
-                                     Optional<Module> module) {
+                                     Optional<Module> module,
+                                     ItemMenuOptions itemMenuOptions) {
         Urn playlistUrn = null;
         Urn ownerUrn = null;
         PromotedSourceInfo promotedSourceInfo = null;
@@ -289,7 +233,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                     playlistUrn,
                                     ownerUrn,
                                     promotedSourceInfo,
-                                    getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo));
+                                    getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo),
+                                    itemMenuOptions);
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(TrackItem item,
