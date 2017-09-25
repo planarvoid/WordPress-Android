@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.crashlytics;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.crashlytics.android.ndk.CrashlyticsNdk;
 import io.fabric.sdk.android.Fabric;
 
 import android.content.Context;
@@ -25,7 +26,7 @@ public class FabricProvider {
     }
 
     public static void initialize(Context context) {
-        Fabric.with(context, new Crashlytics(), new Answers());
+        Fabric.with(context, new Crashlytics(), new CrashlyticsNdk(), new Answers());
     }
 
     public boolean isInitialized() {
