@@ -249,7 +249,7 @@
   <string name="comment_at_time">Commento a %s</string>
   <string name="comment_on_tracktitle">Commento su %s</string>
   <string name="comment_posted">Commento pubblicato.</string>
-  <string name="comment_error">Impossibile creare il commento in questo momento</string>
+  <string name="comment_error">Impossibile pubblicare il commento. Riprova più tardi.</string>
   <string name="share_tracktitle_artist_link">Ascolta %1$s di %2$s #np su #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Ascolta %1$s #np su #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
@@ -257,6 +257,13 @@
   <string name="uploaded_xtimeago">Caricata %s</string>
   <string name="track_info_no_description">Nessuna descrizione disponibile</string>
   <string name="up_next">A seguire</string>
+  <string name="go_to_artist">Accedi al profilo dell\'artista</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">Invia nuovamente l\'e-mail</string>
+  <string name="confirm_primary_email_title">Verifica il tuo indirizzo e-mail</string>
+  <string name="confirm_primary_email_body">È stata inviata un\'e-mail di verifica dell\'account all\'indirizzo con cui hai effettuato l\'accesso. Fai clic sul collegamento in questa e-mail per scrivere i commenti.</string>
+  <string name="confirm_primary_email_sent">E-mail di verifica inviata.</string>
+  <string name="confirm_primary_email_error">Impossibile inviare l\'e-mail. Riprova più tardi.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Riproduzione non possibile</string>
   <string name="playback_error_connection">Verifica la tua connessione e tocca per riprovare.</string>
@@ -404,7 +411,7 @@
   <string name="search_found_albums_results_header">Trovati %s album</string>
   <string name="search_found_playlists_results_header">Trovate %s playlist</string>
   <string name="search_found_people_results_header">Trovate %s persone</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Ancora nessun elemento scoperto</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Svuota la cache dell\'applicazione</string>
@@ -877,7 +884,7 @@ Riavvia l\'applicazione.</string>
   </plurals>
   <string name="search_premium_content_view_all">Tutti i risultati di SoundCloud Go+</string>
   <string name="search_premium_content_upsell">Fai l\'upgrade per le tracce complete</string>
-  <string name="search_hint">Cerca in SoundCloud</string>
+  <string name="search_hint">Cerca su SoundCloud</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notifiche push</string>
   <string name="push_notifications_all_summary">Attiva tutte le notifiche push\no seleziona quali ricevere.</string>

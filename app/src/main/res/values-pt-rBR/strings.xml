@@ -249,7 +249,7 @@
   <string name="comment_at_time">Comentário às %s</string>
   <string name="comment_on_tracktitle">Comentário em %s</string>
   <string name="comment_posted">Seu comentário foi publicado.</string>
-  <string name="comment_error">Não foi possível criar o comentário</string>
+  <string name="comment_error">Ups... deu erro ao postar o comentário. Tente novamente mais tarde.</string>
   <string name="share_tracktitle_artist_link">Ouça %1$s de %2$s #np na #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Ouça %1$s #np na #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
@@ -257,6 +257,13 @@
   <string name="uploaded_xtimeago">Carregado %s</string>
   <string name="track_info_no_description">Sem descrição disponível</string>
   <string name="up_next">Próximo</string>
+  <string name="go_to_artist">Ir para o perfil do artista</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">Reenviar e-mail</string>
+  <string name="confirm_primary_email_title">Verifique seu endereço de e-mail</string>
+  <string name="confirm_primary_email_body">Foi enviado para o endereço com o qual você se inscreveu um e-mail de verificação da conta. Clique no link neste e-mail para fazer comentários.</string>
+  <string name="confirm_primary_email_sent">E-mail de verificação enviado.</string>
+  <string name="confirm_primary_email_error">Ups... deu erro ao enviar o e-mail. Tente novamente mais tarde.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Não reproduzível</string>
   <string name="playback_error_connection">Verifique sua conexão e toque para tentar novamente.</string>
@@ -404,7 +411,7 @@
   <string name="search_found_albums_results_header">%s álbuns encontrados</string>
   <string name="search_found_playlists_results_header">%s playlists encontradas</string>
   <string name="search_found_people_results_header">%s pessoas encontradas</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Ainda sem itens descobertos</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Limpar cache do app</string>
@@ -656,7 +663,7 @@
   <string name="conversion_restrictions_message_trial">Oferta limitada a %1$d dias de teste por usuário. Depois dos primeiros %2$d dias, a assinatura é renovada automaticamente, a menos que seja cancelada antes do término do %3$d dias de teste. A assinatura pode ser cancelada a qualquer momento na soundcloud.com. Todos os preços incluem taxas locais aplicáveis sobre as vendas.\n\nOs residentes de Quebec, no Canadá, não têm direito a testes por causa das restrições locais.</string>
   <string name="conversion_restrictions_message_no_trial">Esta assinatura não um período de teste, você já usou seu teste grátis ou é residente de Quebec e não tem direito ao teste por causa das restrições locais.\n\nAo adquirir uma assinatura, será cobrado o preço normal atual por mês (incluindo as taxas locais aplicáveis sobre as vendas), a menos que o serviço seja cancelado antes da próxima data de renovação.</string>
   <string name="conversion_restrictions_message_promo">A oferta só está disponível para os usuários que ainda não fizeram um teste grátis. Primeiros %1$s da assinatura para o total de %2$s. Se o usuário não cancelar a assinatura antes do final desses %1$s, ela será renovada automaticamente a cada mês, por um preço de %3$s/mês até que o usuário a cancele.\n\nA opção sem anúncios é definida pela remoção das interrupções no áudio e no vídeo.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Sempre que você vê ou ouve um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\n\Quer pular as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com a SoundCloud Go.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Sempre que você vê ou ouve um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\nQuer pular as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com a SoundCloud Go.</string>
   <string name="plan_conversion_error_dialog_title">Não foi possível mudar de plano</string>
   <string name="plan_conversion_error_message_generic">Ocorreu um erro, e não conseguimos alterar seu plano neste momento. Entre em contato com a equipe de suporte da comunidade.</string>
   <string name="plan_conversion_error_message_apple">Você tem atualmente uma assinatura da Apple iTunes. Para mudar de plano, é necessário encerrar primeiro a assinatura da Apple iTunes na App Store.</string>

@@ -249,7 +249,7 @@
   <string name="comment_at_time">Reactie op %s</string>
   <string name="comment_on_tracktitle">Reactie op %s</string>
   <string name="comment_posted">Je reactie is gepost.</string>
-  <string name="comment_error">Reactie kan momenteel niet worden gemaakt</string>
+  <string name="comment_error">Oeps... reactie kan niet worden gepost. Probeer het later nog eens.</string>
   <string name="share_tracktitle_artist_link"> Luister naar %1$s van %2$s #np op #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Luister naar %1$s #np op #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
@@ -257,6 +257,13 @@
   <string name="uploaded_xtimeago">%s geüpload</string>
   <string name="track_info_no_description">Geen beschrijving beschikbaar</string>
   <string name="up_next">Volgende</string>
+  <string name="go_to_artist">Ga naar artiestenprofiel</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">E-mail opnieuw verzenden</string>
+  <string name="confirm_primary_email_title">Je e-mailadres verifiëren</string>
+  <string name="confirm_primary_email_body">Er is een accountverificatiemail verzonden naar het adres waarmee je je hebt aangemeld. Klik op de link in deze e-mail om reacties te posten.</string>
+  <string name="confirm_primary_email_sent">Verificatiemail verzonden.</string>
+  <string name="confirm_primary_email_error">Oeps... e-mail kan niet worden verzonden. Probeer het later nog eens.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Niet afspeelbaar</string>
   <string name="playback_error_connection">Controleer je verbinding en tik om het nog eens te proberen.</string>
@@ -404,7 +411,7 @@
   <string name="search_found_albums_results_header">%s albums gevonden</string>
   <string name="search_found_playlists_results_header">%s afspeellijsten gevonden</string>
   <string name="search_found_people_results_header">%s personen gevonden</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Nog geen ontdekkingsitems</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Toepassingscache wissen</string>
@@ -875,7 +882,7 @@
   </plurals>
   <string name="search_premium_content_view_all">Zie alle SoundCloud Go+-resultaten</string>
   <string name="search_premium_content_upsell">Upgrade om volledige tracks te horen</string>
-  <string name="search_hint">Zoeken op SoundCloud</string>
+  <string name="search_hint">Zoek op SoundCloud</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Pushmeldingen</string>
   <string name="push_notifications_all_summary">Schakel alle mobiele meldingen in\nof selecteer welke je wilt ontvangen.</string>

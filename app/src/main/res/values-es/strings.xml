@@ -249,7 +249,7 @@
   <string name="comment_at_time">Comentario en %s</string>
   <string name="comment_on_tracktitle">Comentar %s</string>
   <string name="comment_posted">Tu comentario se ha posteado.</string>
-  <string name="comment_error">El comentario no se pudo crear en este momento.</string>
+  <string name="comment_error">Vaya! No se ha podido publicar el comentario. Inténtalo de nuevo más tarde.</string>
   <string name="share_tracktitle_artist_link">Escucha %1$s de %2$s #np en #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Escucha %1$s #np en #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
@@ -257,6 +257,13 @@
   <string name="uploaded_xtimeago">Se ha subido %s</string>
   <string name="track_info_no_description">No hay ninguna descripción disponible</string>
   <string name="up_next">A continuación</string>
+  <string name="go_to_artist">Ir al perfil del artista</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">Reenviar el mensaje de correo electrónico</string>
+  <string name="confirm_primary_email_title">Verifica tu dirección de email</string>
+  <string name="confirm_primary_email_body">Se ha enviado un mensaje de correo electrónico de verificación de cuenta a la dirección que indicaste al registrarte. Haz clic en el enlace en este mensaje de correo electrónico para hacer comentarios.</string>
+  <string name="confirm_primary_email_sent">Se ha enviado un mensaje de correo electrónico de verificación.</string>
+  <string name="confirm_primary_email_error">Vaya! No se ha podido enviar el mensaje de correo electrónico. Inténtalo de nuevo más tarde.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">No se puede reproducir</string>
   <string name="playback_error_connection">Comprueba tu conexión y toca la pantalla para intentarlo de nuevo.</string>
@@ -404,7 +411,7 @@
   <string name="search_found_albums_results_header">Encontramos %s álbumes</string>
   <string name="search_found_playlists_results_header">Encontramos %s listas</string>
   <string name="search_found_people_results_header">Encontramos a %s personas</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Aún no hay descubrimientos</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Borrar la caché de la app</string>

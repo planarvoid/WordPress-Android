@@ -116,7 +116,8 @@
   <string name="authentication_email_taken_message">Diese E-Mail-Adresse wird bereits für ein Konto verwendet. Melde dich mit diesem an oder gib eine andere E-Mail-Adresse ein.</string>
   <string name="authentication_email_invalid_message">Wir können keine E-Mails an die von dir eingegebene Domain senden. Bitte überprüfe ihre Schreibweise.</string>
   <string name="authentication_age_restriction">Du musst mindestens %1$s Jahre alt sein, um in dieser Region ein Konto erstellen zu dürfen.</string>
-    <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
+  <string name="authentication_email_other_error_message">Leider ist eine Kontoerstellung mit den von dir angegebenen Daten nicht möglich.</string>
+  <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Melde dich an oder registriere dich, um diesen Link zu öffnen.</string>
   <!--APP SHORTCUTS-->
@@ -248,7 +249,7 @@
   <string name="comment_at_time">Kommentar bei %s</string>
   <string name="comment_on_tracktitle">Kommentar zu %s</string>
   <string name="comment_posted">Dein Kommentar wurde gepostet.</string>
-  <string name="comment_error">Kommentar konnte nicht erstellt werden.</string>
+  <string name="comment_error">Der Kommentar konnte leider nicht gepostet werden. Bitte versuch es später erneut.</string>
   <string name="share_tracktitle_artist_link">Hör dir %1$s von %2$s an #np auf #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Hör dir %1$s an #np auf #SoundCloud\n%2$s</string>
   <string name="share_subject">%s – SoundCloud</string>
@@ -256,6 +257,13 @@
   <string name="uploaded_xtimeago">Hochgeladen: %s</string>
   <string name="track_info_no_description">Keine Beschreibung verfügbar</string>
   <string name="up_next">Es folgt:</string>
+  <string name="go_to_artist">Zum Profil des Künstlers</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">E-Mail erneut senden</string>
+  <string name="confirm_primary_email_title">Bestätige deine E-Mail-Adresse</string>
+  <string name="confirm_primary_email_body">Eine Kontobestätigungs-E-Mail wurde an die Adresse gesendet, mit der du dich angemeldet hast. Bitte klicke auf den Link in dieser E-Mail, um Kommentare zu posten.</string>
+  <string name="confirm_primary_email_sent">Bestätigungs-E-Mail wurde gesendet.</string>
+  <string name="confirm_primary_email_error">Die E-Mail konnte leider nicht gesendet werden. Bitte versuch es später erneut.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Nicht spielbar</string>
   <string name="playback_error_connection">Überprüfe deine Verbindung. Tippe, um es erneut zu versuchen.</string>
@@ -403,12 +411,14 @@
   <string name="search_found_albums_results_header">%s Alben gefunden</string>
   <string name="search_found_playlists_results_header">%s Playlists gefunden</string>
   <string name="search_found_people_results_header">%s Leute gefunden</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Noch keine entdeckten Elemente</string>
-  <!--__DISCOVERY PLAYLISTS-->
+  <!--__SETTINGS-->
   <string name="pref_clear_cache">App-Cache löschen</string>
   <string name="pref_clear_cache_desc">Lösche den Anwendungs-Cache für mehr Speicherplatz auf deinem Gerät.</string>
   <string name="pref_privacy">Datenschutz</string>
+  <string name="pref_autoplay_related">Ähnliche Tracks autom. abspielen</string>
+  <string name="pref_autoplay_related_desc">Nach dem Ende der Playlist werden anhand des letzten Tracks ausgewählte weitere Tracks gespielt.</string>
   <string name="pref_revoke_access">Abmelden</string>
   <string name="pref_sync_wifi_only">Daten nur über WLAN aktualisieren</string>
   <string name="pref_sync_wifi_only_description">Nur neue Likes etc. über WLAN aktualisieren</string>

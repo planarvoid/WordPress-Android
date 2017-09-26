@@ -254,7 +254,7 @@
   <string name="comment_at_time">Commenter à %s</string>
   <string name="comment_on_tracktitle">Commenter à %s</string>
   <string name="comment_posted">Votre commentaire a été publié</string>
-  <string name="comment_error">Le commentaire n\'a pas pu être créé pour le moment</string>
+  <string name="comment_error">Oups... Impossible de poster le commentaire. Veuillez réessayer plus tard.</string>
   <string name="share_tracktitle_artist_link">Écouter %1$s par %2$s #np sur #SoundCloud\n%3$s</string>
   <string name="share_tracktitle_link">Écouter %1$s #np sur #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
@@ -262,6 +262,13 @@
   <string name="uploaded_xtimeago">Uploadé %s</string>
   <string name="track_info_no_description">Aucune description n\'est disponible</string>
   <string name="up_next">Suivant</string>
+  <string name="go_to_artist">Accéder au profil de l\'artiste</string>
+  <!--__PRIMARY EMAIL CONFIRMATION-->
+  <string name="btn_resend_email_confirmation">Renvoyer l\'e-mail</string>
+  <string name="confirm_primary_email_title">Vérifier votre adresse e-mail</string>
+  <string name="confirm_primary_email_body">Un e-mail de vérification de compte a été envoyé à l\'adresse avec laquelle vous vous êtes inscrit. Veuillez cliquer sur le lien de cet e-mail pour tout commentaire.</string>
+  <string name="confirm_primary_email_sent">E-mail de vérification envoyé.</string>
+  <string name="confirm_primary_email_error">Oups... Impossible d\'envoyer l\'e-mail. Veuillez réessayer plus tard.</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Non jouable</string>
   <string name="playback_error_connection">Vérifiez votre connexion et appuyez pour réessayer.</string>
@@ -409,7 +416,7 @@
   <string name="search_found_albums_results_header">%s albums trouvés</string>
   <string name="search_found_playlists_results_header">%s playlists trouvées</string>
   <string name="search_found_people_results_header">%s utilisateurs trouvés</string>
-  <!--__DISCOVERY RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
   <string name="discovery_empty">Aucun élément de découverte pour le moment</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Vider le cache de l\'application</string>
