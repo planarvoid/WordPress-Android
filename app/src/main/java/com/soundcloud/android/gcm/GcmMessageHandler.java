@@ -6,6 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +49,13 @@ public class GcmMessageHandler {
         if (scApiKey.equals(remoteMessage.getFrom())) {
             final String payload = remoteMessage.getData().get(EXTRA_DATA);
             if (Strings.isBlank(payload)) {
-                ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + remoteMessage));
+                MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(remoteMessage);
+                toStringHelper.add("data", remoteMessage.getData());
+                if (remoteMessage.getNotification() != null) {
+                    toStringHelper.add("body", remoteMessage.getNotification().getBody());
+                    toStringHelper.add("title", remoteMessage.getNotification().getTitle());
+                }
+                ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + toStringHelper.toString()));
             } else {
                 handleScMessage(remoteMessage, payload);
             }
