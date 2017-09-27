@@ -10,6 +10,8 @@
     "dependencies": [
       "api-mobile",
       "public-api",
-      "public-api-strangler"
+      "public-api-strangler",
+      "facebook",
+      "google"
     ]
 }
