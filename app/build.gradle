@@ -209,9 +209,6 @@ dependencies {
   compile (libraries.crashlytics) {
     transitive = true
   }
-  compile (libraries.crashlyticsNdk) {
-    transitive = true
-  }
   compile libraries.jacksonAnnotations
   compile libraries.jacksonDataBind
   compile libraries.jacksonCore
