@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("PMD.GodClass")
 public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
@@ -43,6 +45,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private PlayerFragment playerFragment;
     private LockableBottomSheetBehavior<View> bottomSheetBehavior;
+
+    private final List<SlideListener> slideListeners = new ArrayList<>();
 
     private boolean isLocked;
     private boolean isPlayQueueLocked;
@@ -94,7 +98,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                onPanelSlide(bottomSheet, slideOffset);
+                onPanelSlide(slideOffset);
             }
         });
 
@@ -127,9 +131,13 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                        });
     }
 
-    public void onPanelSlide(View bottomSheet, float slideOffset) {
+    public void onPanelSlide(float slideOffset) {
         playerFragment.onPlayerSlide(slideOffset);
         statusBarColorController.onPlayerSlide(slideOffset);
+
+        for (int listenerIndex = 0; listenerIndex < slideListeners.size(); listenerIndex++) {
+            slideListeners.get(listenerIndex).onPlayerSlide(slideOffset);
+        }
     }
 
     private void setupTrackInsertedSubscriber(final View view) {
@@ -216,12 +224,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private boolean shouldExpand(Bundle bundle) {
-        if (bundle == null) {
-            return false;
-        } else {
-            return bundle.getBoolean(EXTRA_EXPAND_PLAYER, false) || isPlayQueueLocked;
-        }
-
+        return bundle != null && (isPlayQueueLocked || bundle.getBoolean(EXTRA_EXPAND_PLAYER, false));
     }
 
     @Override
@@ -363,5 +366,17 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void notifyCollapsedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+    }
+
+    public void addSlideListener(SlideListener slideListener) {
+        slideListeners.add(slideListener);
+    }
+
+    public void removeSlideListener(SlideListener slideListener) {
+        slideListeners.remove(slideListener);
+    }
+
+    public interface SlideListener {
+        void onPlayerSlide(float slideOffset);
     }
 }

@@ -52,4 +52,12 @@ public class PlayerController extends ActivityLightCycleDispatcher<AppCompatActi
     public boolean handleBackPressed() {
         return playerController.handleBackPressed();
     }
+
+    public void addSlideListener(SlidingPlayerController.SlideListener listener) {
+        playerController.addSlideListener(listener);
+    }
+
+    public void removeSlideListener(SlidingPlayerController.SlideListener listener) {
+        playerController.removeSlideListener(listener);
+    }
 }

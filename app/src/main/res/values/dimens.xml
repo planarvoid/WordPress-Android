@@ -120,6 +120,9 @@
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="fixed_tab_padding">4dp</dimen>
 
+    <!-- Bottom Nav -->
+    <dimen name="bottom_nav_height">@dimen/design_bottom_navigation_height</dimen>
+
     <!-- Profile -->
     <dimen name="profile_image_top_margin">-52dp</dimen>
     <dimen name="profile_image_dimen">104dp</dimen>

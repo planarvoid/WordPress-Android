@@ -45,6 +45,14 @@ public class MainActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
         }
+
+        playerController.addSlideListener(mainPresenter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        playerController.removeSlideListener(mainPresenter);
+        super.onDestroy();
     }
 
     @Override

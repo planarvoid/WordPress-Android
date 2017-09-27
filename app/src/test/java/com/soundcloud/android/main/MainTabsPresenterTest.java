@@ -52,9 +52,10 @@ public class MainTabsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetupMainTabsView() {
-        mainTabsPresenter.onCreate(rootActivity, new Bundle());
+        Bundle savedInstanceState = new Bundle();
+        mainTabsPresenter.onCreate(rootActivity, savedInstanceState);
 
-        verify(mainNavigationView).setupViews(rootActivity, pagerAdapterFactory.create(rootActivity));
+        verify(mainNavigationView).setupViews(rootActivity, savedInstanceState, pagerAdapterFactory.create(rootActivity));
     }
 
     @Test

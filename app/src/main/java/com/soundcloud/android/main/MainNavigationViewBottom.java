@@ -8,6 +8,8 @@ import com.soundcloud.android.navigation.NavigationStateController;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Px;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -17,7 +19,11 @@ import android.view.View;
 
 public class MainNavigationViewBottom extends MainNavigationView {
 
+    private static final String EXTRA_BOTTOM_NAV_OFFSET = "bottomnav_offset";
+
     @BindView(R.id.bottom_navigation_view) BottomNavigationView bottomNavigationView;
+    @Px private int bottomNavHeightPx;
+    private float bottomNavOffset;
 
     private final EnterScreenDispatcher enterScreenDispatcher;
     private final NavigationStateController navigationStateController;
@@ -33,7 +39,13 @@ public class MainNavigationViewBottom extends MainNavigationView {
     }
 
     @Override
-    protected void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter) {
+    protected void onSetupView(RootActivity activity, Bundle savedInstanceState, MainPagerAdapter pagerAdapter) {
+        bottomNavHeightPx = bottomNavigationView.getResources().getDimensionPixelSize(R.dimen.bottom_nav_height);
+
+        if (savedInstanceState != null) {
+            onPlayerSlide(savedInstanceState.getFloat(EXTRA_BOTTOM_NAV_OFFSET));
+        }
+
         bottomNavigationView.setOnNavigationItemReselectedListener(item -> pagerAdapter.resetScroll(item.getItemId()));
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int itemPosition = item.getItemId();
@@ -95,7 +107,19 @@ public class MainNavigationViewBottom extends MainNavigationView {
     }
 
     @Override
+    void onPlayerSlide(float slideOffset) {
+        bottomNavOffset = slideOffset;
+        bottomNavigationView.setTranslationY(bottomNavHeightPx * slideOffset);
+    }
+
+    @Override
     protected Optional<View> getMoreTabCustomView() {
         return Optional.absent();
+    }
+
+    @Override
+    public void onSaveInstanceState(RootActivity host, Bundle bundle) {
+        super.onSaveInstanceState(host, bundle);
+        bundle.putFloat(EXTRA_BOTTOM_NAV_OFFSET, bottomNavOffset);
     }
 }

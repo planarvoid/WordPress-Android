@@ -14,6 +14,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 
+import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -40,10 +41,10 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
         enterScreenDispatcher.setListener(this);
     }
 
-    void setupViews(RootActivity activity, MainPagerAdapter pagerAdapter) {
+    void setupViews(RootActivity activity, Bundle savedInstanceState, MainPagerAdapter pagerAdapter) {
         ButterKnife.bind(this, activity);
         activity.setSupportActionBar(toolBar);
-        onSetupView(activity, pagerAdapter);
+        onSetupView(activity, savedInstanceState, pagerAdapter);
     }
 
     void showOfflineSettingsIntroductoryOverlay() {
@@ -71,7 +72,7 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
         target.getPageViewScreen().ifPresent(screen -> eventTracker.trackScreen(ScreenEvent.create(screen), activity.getReferringEvent()));
     }
 
-    protected abstract void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter);
+    protected abstract void onSetupView(RootActivity activity, Bundle savedInstanceState, MainPagerAdapter pagerAdapter);
 
     protected abstract void onSelectItem(int position);
 
@@ -84,6 +85,8 @@ public abstract class MainNavigationView extends ActivityLightCycleDispatcher<Ro
     abstract void hideToolbar();
 
     abstract void showToolbar();
+
+    abstract void onPlayerSlide(float slideOffset);
 
     void selectItem(Screen screen) {
         int position = navigationModel.getPosition(screen);

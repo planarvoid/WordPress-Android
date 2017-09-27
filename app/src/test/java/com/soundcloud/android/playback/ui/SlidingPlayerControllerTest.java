@@ -5,6 +5,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -273,7 +274,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void onPlayerSlideReportsSlidePositionToPlayerFragment() {
         controller.onCreate(activity, createBundleWithExpandingCommand());
-        controller.onPanelSlide(playerView, .33f);
+        controller.onPanelSlide(.33f);
 
         verify(playerFragment).onPlayerSlide(.33f);
     }
@@ -404,17 +405,40 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         verify(playerBehavior).setHideable(false);
     }
 
+    @Test
+    public void playerSlideIsForwardedToListeners() {
+        float slideOffset = 0.33f;
+        float otherSlideOffset = slideOffset + 0.25f;
+        SlidingPlayerController.SlideListener listener1 = mock(SlidingPlayerController.SlideListener.class);
+        SlidingPlayerController.SlideListener listener2 = mock(SlidingPlayerController.SlideListener.class);
+
+        controller.addSlideListener(listener1);
+        controller.addSlideListener(listener2);
+
+        controller.onPanelSlide(slideOffset);
+
+        verify(listener1).onPlayerSlide(slideOffset);
+        verify(listener2).onPlayerSlide(slideOffset);
+
+        controller.removeSlideListener(listener1);
+
+        controller.onPanelSlide(otherSlideOffset);
+
+        verify(listener1, never()).onPlayerSlide(otherSlideOffset);
+        verify(listener2).onPlayerSlide(otherSlideOffset);
+    }
+
     private void collapsePanel() {
-        controller.onPanelSlide(layout, 0.6f);
-        controller.onPanelSlide(layout, 0.4f);
-        controller.onPanelSlide(layout, 0.3f);
+        controller.onPanelSlide(0.6f);
+        controller.onPanelSlide(0.4f);
+        controller.onPanelSlide(0.3f);
         when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     private void expandPanel() {
-        controller.onPanelSlide(layout, 0.4f);
-        controller.onPanelSlide(layout, 0.6f);
-        controller.onPanelSlide(layout, 0.7f);
+        controller.onPanelSlide(0.4f);
+        controller.onPanelSlide(0.6f);
+        controller.onPanelSlide(0.7f);
         when(playerBehavior.getState()).thenReturn(BottomSheetBehavior.STATE_EXPANDED);
     }
 

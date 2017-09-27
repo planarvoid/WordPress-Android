@@ -8,6 +8,7 @@ import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -40,7 +41,7 @@ public class MainNavigationViewTabs extends MainNavigationView {
     }
 
     @Override
-    protected void onSetupView(RootActivity activity, MainPagerAdapter pagerAdapter) {
+    protected void onSetupView(RootActivity activity, Bundle savedInstanceState, MainPagerAdapter pagerAdapter) {
         pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
         pager.setPageMarginDrawable(R.color.page_background);
         pager.setAdapter(pagerAdapter);
@@ -83,6 +84,11 @@ public class MainNavigationViewTabs extends MainNavigationView {
             appBarLayout.setExpanded(true);
             collapsingToolbarLayout.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    void onPlayerSlide(float slideOffset) {
+        // no-op
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.soundcloud.android.configuration.experiments.GoOnboardingTooltipExper
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.collections.Pair;
@@ -26,7 +27,7 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
-public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootActivity> {
+public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootActivity> implements SlidingPlayerController.SlideListener {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
@@ -66,13 +67,13 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
     }
 
     @Override
-    public void onCreate(RootActivity activity, Bundle bundle) {
-        super.onCreate(activity, bundle);
+    public void onCreate(RootActivity activity, Bundle savedInstanceState) {
+        super.onCreate(activity, savedInstanceState);
         this.activity = activity;
 
-        mainNavigationView.setupViews(activity, pagerAdapterFactory.create(activity));
+        mainNavigationView.setupViews(activity, savedInstanceState, pagerAdapterFactory.create(activity));
 
-        if (bundle == null) {
+        if (savedInstanceState == null) {
             setTabFromIntent(activity.getIntent());
         }
         startDevelopmentMenuStream();
@@ -114,6 +115,11 @@ public class MainNavigationPresenter extends ActivityLightCycleDispatcher<RootAc
 
     void showToolbar() {
         mainNavigationView.showToolbar();
+    }
+
+    @Override
+    public void onPlayerSlide(float slideOffset) {
+        mainNavigationView.onPlayerSlide(slideOffset);
     }
 
     private void startDevelopmentMenuStream() {
