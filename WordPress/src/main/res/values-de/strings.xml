@@ -48,7 +48,6 @@ Language: de
 	<string name="start_over_email_body">Ich möchte mit der Website %s neu beginnen.</string>
 	<string name="start_over_email_subject">Mit der Website %s neu beginnen</string>
 	<string name="site_picker_remove_site_error">Beim Entfernen der Website ist ein Fehler aufgetreten. Bitte versuche es später erneut.</string>
-	<string name="editor_post_saved_locally_unfinished_media">Es befinden sich nicht fertiggestellte Medien-Uploads im Beitrag; er wurde lokal gespeichert.</string>
 	<string name="sure_to_remove_account">Möchtest du diese Website aus der App entfernen?</string>
 	<string name="error_publish_no_network">Gerät ist offline. Änderungen wurden lokal gespeichert.</string>
 	<string name="editor_post_saved_online">Der Beitrag wurde online gespeichert</string>
@@ -69,11 +68,8 @@ Language: de
 	<string name="keep_editing">Weiter bearbeiten</string>
 	<string name="error_all_media_upload_canceled">Aufgrund eines unbekannten Fehlers wurden alle Medien-Uploads abgebrochen. Bitte versuche erneut, die Inhalte hochzuladen</string>
 	<string name="error_unknown_post_type">Unbekanntes Beitragsformat</string>
-	<string name="error_unknown_post">Unbekannter Beitrag; eine lokale Kopie dieses Beitrags wurde möglicherweise nicht mit dem Server synchronisiert.</string>
 	<string name="error_fetch_site_after_creation">Die Website wurde erstellt. Gegebenenfalls musst du deine Websites in der Website-Auswahl aktualisieren.</string>
-	<string name="error_upload_params">Beim Hochladen der %1$s ist ein Fehler aufgetreten: %2$s</string>
 	<string name="submit_for_review">Abschicken</string>
-	<string name="role_subscriber">Abonnent</string>
 	<string name="tell_me_more">Weitere Informationen</string>
 	<string name="duplicate_site_detected">Es wurde eine doppelte Website entdeckt.</string>
 	<string name="site_settings_optimize_images">Bilder optimieren</string>
@@ -98,7 +94,6 @@ Language: de
 	<string name="reader_label_visit">Besuche</string>
 	<string name="all_your_sites">Alle meine Websites</string>
 	<string name="pending_draft_more">Du hast %d Beiträge geschrieben, aber nie veröffentlicht. Tippe, um sie zu prüfen.</string>
-	<string name="no_default_app_available_to_open_link">Der Link konnte nicht geöffnet werden.</string>
 	<string name="notification_pending_drafts">Benachrichtige mich bei wartenden Entwürfen</string>
 	<string name="invalid_verification_code_format">Muss eine 6-stellige Zahl sein</string>
 	<string name="confirm_discard_changes">Nicht gespeicherte Änderungen verwerfen?</string>
@@ -140,10 +135,6 @@ Language: de
 	<string name="timespan_now">Jetzt</string>
 	<string name="role_viewer">Besucher</string>
 	<string name="role_follower">Follower</string>
-	<string name="role_contributor">Mitarbeiter</string>
-	<string name="role_author">Autor</string>
-	<string name="role_editor">Redakteur</string>
-	<string name="role_admin">Administrator</string>
 	<string name="error_post_my_profile_no_connection">Keine Verbindung, dein Profil konnte nicht gespeichert werden</string>
 	<string name="alignment_right">Rechts</string>
 	<string name="alignment_left">Links</string>
@@ -481,7 +472,6 @@ Language: de
 	<string name="site_settings_address_title">Adresse</string>
 	<string name="site_settings_tagline_title">Untertitel</string>
 	<string name="site_settings_title_title">Website-Titel</string>
-	<string name="site_settings_this_device_header">Auf diesem Gerät</string>
 	<string name="site_settings_discussion_new_posts_header">Standardeinstellungen für neue Beiträge</string>
 	<string name="site_settings_writing_header">Schreiben</string>
 	<string name="site_settings_account_header">Konto</string>
@@ -708,7 +698,6 @@ Language: de
 	<string name="stats_period">Zeitraum</string>
 	<string name="stats_overall">Gesamt</string>
 	<string name="stats_total">Insgesamt</string>
-	<string name="post_uploading">Hochladen</string>
 	<string name="stats_visitors">Besucher</string>
 	<string name="stats_views">Aufrufe</string>
 	<string name="stats_timeframe_years">Jahre</string>
@@ -775,7 +764,6 @@ Language: de
 	<string name="delete_sure">Lösche diesen Entwurf</string>
 	<string name="delete_sure_post">Lösche diesen Beitrag</string>
 	<string name="signing_out">Abmelden ...</string>
-	<string name="posting_post">Veröffentliche "%s"</string>
 	<string name="pages_empty_list">Keine Seiten bisher. Warum nicht jetzt Eine erstellen?</string>
 	<string name="comment_reply_to_user">Antwort zu %s</string>
 	<string name="posts_empty_list">Keine Beiträge bisher. Warum nicht jetzt einen erstellen?</string>
@@ -783,7 +771,6 @@ Language: de
 	<string name="comment">Kommentar</string>
 	<string name="mnu_comment_liked">Gefällt</string>
 	<string name="uploading_total">Hochladen %1$d von %2$d</string>
-	<string name="sending_content">Lade %s Inhalt hoch</string>
 	<string name="stats_no_blog">Statistiken konnten nicht geladen werden für den angefragten Blog</string>
 	<string name="older_last_week">Älter als eine Woche</string>
 	<string name="older_two_days">Älter als zwei Tage</string>
@@ -885,7 +872,6 @@ Language: de
 	<string name="error_refresh_notifications">Benachrichtigungen konnten nicht aktualisiert werden</string>
 	<string name="error_refresh_pages">Seiten konnten nicht aktualisiert werden</string>
 	<string name="error_refresh_posts">Beiträge konnten nicht aktualisiert werden</string>
-	<string name="error_delete_post">Beim Löschen von %s trat ein Fehler auf</string>
 	<string name="notifications_empty_list">Keine Benachrichtigungen</string>
 	<string name="reply_failed">Antwort fehlgeschlagen</string>
 	<string name="invalid_url_message">Überprüfe ob die eingegebene Blog-URL gültig ist</string>
@@ -902,7 +888,6 @@ Language: de
 	<string name="theme_auth_error_message">Stelle sicher, dass du die Berechtigung hast Themes festzulegen</string>
 	<string name="theme_set_failed">Theme festlegen fehlgeschlagen</string>
 	<string name="theme_fetch_failed">Abrufen der Themes fehlgeschlagen</string>
-	<string name="wait_until_upload_completes">Warte bis der Upload fertig ist</string>
 	<string name="blog_not_found">Beim Aufrufen des Blogs ist ein Fehler aufgetreten</string>
 	<string name="gallery_error">Das Medien-Objekt konnte nicht abgerufen werden</string>
 	<string name="could_not_remove_account">Website konnte nicht entfernt werden</string>
@@ -1122,6 +1107,7 @@ Language: de
 	<string name="publish_date">Veröffentlichen</string>
 	<string name="post_content">Inhalt (hier tippen um Text oder Medien hinzuzufügen)</string>
 	<string name="incorrect_credentials">Falscher Benutzername oder falsches Passwort.</string>
+	<string name="log_in">Anmelden</string>
 	<string name="username">Benutzername</string>
 	<string name="password">Passwort</string>
 	<string name="reader">Reader</string>

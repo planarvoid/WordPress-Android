@@ -6,14 +6,11 @@ Generator: GlotPress/2.4.0-alpha
 Language: cy_GB
 -->
 <resources>
-	<string name="role_subscriber">Tanysgrifiwr</string>
 	<string name="tell_me_more">Gwybod mwy...</string>
 	<string name="duplicate_site_detected">Mae gwefan dyblyg wedi\'i chanfod.</string>
 	<string name="cannot_add_duplicate_site">Mae\'r wefan hon yn bodoli eisoes yn yr ap, chewch chi ddim ychwanegu iddi.</string>
 	<string name="already_logged_in_wpcom_same_username">Rydych eisoes wedi mewngofnodi i\'ch cyfrif WordPress.com. Dylai eich gwefan ymddangos yn y dewisydd gwefan, gwnewch yn siŵr nad yw wedi cael ei guddio.</string>
 	<string name="already_logged_in_wpcom">Rydych eisoes wedi mewngofnodi i gyfrif WordPress.com, chewch chi ddim ychwanegu gwefan WordPress.com sy\'n rhwym i gyfrif arall.</string>
-	<string name="migration_error_not_connected">Mae\'r broses mudo wedi methu: ceisiwch agor yr ap pan fydd\n      gennych gysylltiad rhwydwaith.</string>
-	<string name="migration_message">Diweddaru ap WordPress...</string>
 	<string name="checking_username">Gwirio enw defnyddiwr</string>
 	<string name="jetpack_different_com_account">Nid yw gwefannau Jetpack sy\'n perthyn i gyfrifon WordPress gwahanol yn cael eu cynnal</string>
 	<string name="jetpack_use_com_account">I ychwanegu eich gwefan Jetpack, mewngofnodwch i gyfrif WordPress.com a ddefnyddiwyd gennych i gysylltu Jetpack.</string>
@@ -49,7 +46,6 @@ Language: cy_GB
 	<string name="reader_label_visit">Ymweld</string>
 	<string name="all_your_sites">Fy Ngwefannau</string>
 	<string name="pending_draft_more">Rydych wedi drafftio %d cofnod ond heb eu chyhoeddi. Tapiwch i wirio.</string>
-	<string name="no_default_app_available_to_open_link">Methu agor y ddolen</string>
 	<string name="notification_pending_drafts">Rhoi gwybod i mi am ddrafftiau sy\'n disgwyl</string>
 	<string name="invalid_verification_code_format">Rhaid iddo fod yn rif chwe digid</string>
 	<string name="confirm_discard_changes">Hepgor newidiadau heb eu cadw?</string>
@@ -91,10 +87,6 @@ Language: cy_GB
 	<string name="timespan_now">nawr</string>
 	<string name="role_viewer">Darllenydd</string>
 	<string name="role_follower">Dilynwr</string>
-	<string name="role_contributor">Cyfrannwr</string>
-	<string name="role_author">Awdur</string>
-	<string name="role_editor">Golygydd</string>
-	<string name="role_admin">Gweinyddwr</string>
 	<string name="error_post_my_profile_no_connection">Dim cysylltiad, methu cadw ei proffil</string>
 	<string name="alignment_right">De</string>
 	<string name="alignment_left">Chwith</string>
@@ -432,7 +424,6 @@ Language: cy_GB
 	<string name="site_settings_address_title">Cyfeiriad</string>
 	<string name="site_settings_tagline_title">Llinell tag</string>
 	<string name="site_settings_title_title">Teitl y Wefan</string>
-	<string name="site_settings_this_device_header">Y ddyfais hon</string>
 	<string name="site_settings_discussion_new_posts_header">Rhagosodiadau ar gyfer cofnodion ewydd</string>
 	<string name="site_settings_writing_header">Ysgrifennu</string>
 	<string name="site_settings_account_header">Cyfrif</string>
@@ -659,7 +650,6 @@ Language: cy_GB
 	<string name="stats_period">Cyfnod</string>
 	<string name="stats_overall">O\'r Cyfan</string>
 	<string name="stats_total">Cyfanswm</string>
-	<string name="post_uploading">Llwytho</string>
 	<string name="stats_visitors">Ymwelwyr</string>
 	<string name="stats_views">Golwg</string>
 	<string name="stats_timeframe_years">Blwyddyn</string>
@@ -726,7 +716,6 @@ Language: cy_GB
 	<string name="delete_sure">Dileu\'r drafft</string>
 	<string name="delete_sure_post">Dileu\'r cofnod</string>
 	<string name="signing_out">Allgofnodi…</string>
-	<string name="posting_post">Cofnodi "%s"</string>
 	<string name="pages_empty_list">Dim tudalen eto. Beth am greu un?</string>
 	<string name="comment_reply_to_user">Ateb %s</string>
 	<string name="posts_empty_list">Dim cofnod eto. Beth am greu un?</string>
@@ -734,7 +723,6 @@ Language: cy_GB
 	<string name="comment">Sylw</string>
 	<string name="mnu_comment_liked">Hoffi</string>
 	<string name="uploading_total">Llwytho %1$d o %2$d</string>
-	<string name="sending_content">Llwytho cynnwys %s</string>
 	<string name="stats_no_blog">Nid oedd modd llwytho ystadegau\'r blog dan sylw</string>
 	<string name="older_last_week">Mwy nag wythnos</string>
 	<string name="older_two_days">Mwy na 2 ddiwrnod</string>
@@ -836,7 +824,6 @@ Language: cy_GB
 	<string name="error_refresh_notifications">Nid oedd modd adnewyddu\'r hysbysiadau ar hyn o bryd</string>
 	<string name="error_refresh_pages">Nid oedd modd adnewyddu\'r tudalennau ar hyn o bryd</string>
 	<string name="error_refresh_posts">Nid oedd modd adnewyddu\'r cofnodion ar hyn o bryd</string>
-	<string name="error_delete_post">Digwyddodd gwall wrth ddileu y%s</string>
 	<string name="notifications_empty_list">Dim hysbysiadau</string>
 	<string name="reply_failed">Methodd yr ateb</string>
 	<string name="invalid_url_message">Gwiriwch fod URL y blog yn ddilys</string>
@@ -853,7 +840,6 @@ Language: cy_GB
 	<string name="theme_auth_error_message">Sicrhewch bod gennych breintiau gosod themâu</string>
 	<string name="theme_set_failed">Methu gosod thema</string>
 	<string name="theme_fetch_failed">Methu estyn themâu</string>
-	<string name="wait_until_upload_completes">Arhoswch nes bod y llwytho i fyny wedi cwblhau</string>
 	<string name="blog_not_found">Digwyddodd gwall wrth geisio cael mynediad at y blog</string>
 	<string name="gallery_error">Methu estyn y cyfrwng</string>
 	<string name="could_not_remove_account">Methu tynnu\'r blog</string>

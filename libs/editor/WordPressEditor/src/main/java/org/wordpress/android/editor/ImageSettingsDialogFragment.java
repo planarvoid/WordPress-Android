@@ -188,7 +188,7 @@ public class ImageSettingsDialogFragment extends DialogFragment {
 
                 mLinkTo.setText(mImageMeta.getString(ATTR_URL_LINK));
 
-                mMaxImageWidth = MediaUtils.getMaximumImageWidth(mImageMeta.getInt("naturalWidth"),
+                mMaxImageWidth = MediaUtils.getMaximumImageSize(mImageMeta.getInt("naturalWidth"),
                         bundle.getString(EXTRA_MAX_WIDTH));
 
                 setupWidthSeekBar(widthSeekBar, mWidthText, mImageMeta.getInt(ATTR_DIMEN_WIDTH));
@@ -366,9 +366,11 @@ public class ImageSettingsDialogFragment extends DialogFragment {
      * Loads the given network image URL into the {@link NetworkImageView}.
      */
     private void loadThumbnail(String imageUrl) {
-        if (imageUrl == null) {
-            AppLog.e(AppLog.T.MEDIA, "Image url is null! Show the default error image.");
+        if (imageUrl == null || mImageLoader == null) {
             showErrorImage();
+            if (imageUrl == null) {
+                AppLog.e(AppLog.T.MEDIA, "Image url is null! Show the default error image.");
+            }
             return;
         }
 

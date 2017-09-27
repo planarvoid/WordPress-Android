@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Translation-Revision-Date: 2017-06-16 10:48:28+0000
+Translation-Revision-Date: 2017-09-08 13:03:23+0000
 Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;
 Generator: GlotPress/2.4.0-alpha
 Language: ar
 -->
 <resources>
+	<string name="error_unknown_post">تعذر العثور على المقالة على الخادم</string>
+	<string name="error_post_does_not_exist">لم تعد هذه المقالة موجودة</string>
+	<string name="error_media_recover_page">تعذر علينا رفع الوسائط الخاصة بهذه المقالة. يرجى تحرير المقالة للمحاولة مجددًا.</string>
+	<string name="error_media_canceled">تم إلغاء رفع الوسائط</string>
+	<string name="async_promo_title">النشر مع التمتع بالثقة</string>
+	<string name="editor_uploading_post">يجري رفع مقالتك</string>
+	<string name="uploading_post_media">جارٍ رفع الوسائط…</string>
+	<string name="dialog_confirm_cancel_post_media_uploading">هل أنت متأكد من ذلك؟ سيؤدي حذف هذه المقالة إلى إلغاء رفع الوسائط كذلك.</string>
+	<string name="page_scheduled">تمت جدولة الصفحة</string>
+	<string name="post_scheduled">تمت جدولة المقالة</string>
+	<string name="post_draft_param">تم حفظ "%s" كمسودة!</string>
+	<string name="post_scheduled_param">تمت جدولة "%s"!</string>
+	<string name="post_updated_param">تم تحديث "%s"!</string>
+	<string name="post_published_param">تم نشر "%s"!</string>
+	<string name="button_retry">إعادة المحاولة</string>
 	<string name="smart_toast_comments_long_press">اضغط مع الاستمرار لتحديد العديد من التعليقات</string>
 	<string name="smart_toast_photo_long_press">اضغط مع الاستمرار لتحديد العديد من الصور</string>
 	<string name="photo_picker_choose_video">اختيار مقطع فيديو من الجهاز</string>
@@ -42,18 +57,13 @@ Language: ar
 	<string name="keep_editing">متابعة التحرير</string>
 	<string name="error_all_media_upload_canceled">تم إلغاء جميع عمليات رفع الوسائط بسبب خطأ غير معروف. يُرجى إعادة محاولة الرفع</string>
 	<string name="error_unknown_post_type">تنسيق المقالة غير معروف</string>
-	<string name="error_unknown_post">مقالة غير معروفة، ربما تكون النسخة المحلية من هذه المقالة غير متزامنة مع الخادم</string>
 	<string name="error_fetch_site_after_creation">تم إنشاء الموقع، ربما تحتاج إلى تحديث مواقعك في منتقي المواقع.</string>
-	<string name="error_upload_params">حدث خطأ أثناء رفع %1$s: %2$s</string>
 	<string name="submit_for_review">إرسال</string>
-	<string name="role_subscriber">مشترك</string>
 	<string name="tell_me_more">أرغب في معرفة المزيد</string>
 	<string name="duplicate_site_detected">تم اكتشاف موقع متكرر.</string>
 	<string name="cannot_add_duplicate_site">الموقع موجود بالفعل في التطبيق، لا يمكنك إضافته.</string>
 	<string name="already_logged_in_wpcom_same_username">أنت قيد تسجيل الدخول بالفعل إلى حساب وردبرس.كوم الخاص بك. ينبغي أن يظهر موقعك في منتقي المواقع، تأكد من أنَّه ليس مخفيًا.</string>
 	<string name="already_logged_in_wpcom">أنت قيد تسجيل الدخول بالفعل إلى حساب وردبرس.كوم، ولا يمكنك إضافة موقع وردبرس.كوم مرتبط بحساب آخر.</string>
-	<string name="migration_error_not_connected">فشلت عملية الترحيل: حاول تشغيل التطبيق عندما يتوفر لديك\n اتصال بالشبكة.</string>
-	<string name="migration_message">تحديث تطبيق ووردبريس...</string>
 	<string name="checking_username">التحقق من اسم المستخدم</string>
 	<string name="jetpack_different_com_account">مواقع Jetpack التي تنتمي إلى حسابات ووردبريس.كوم المختلفة غير مدعومة</string>
 	<string name="jetpack_use_com_account">لإضافة موقع Jetpack الخاص بك، سجل الدخول إلى حساب وردبرس.كوم الذي استخدمته للاتصال بـ Jetpack.</string>
@@ -88,10 +98,6 @@ Language: ar
 	<string name="like">أعجبني</string>
 	<string name="reader_label_image_count_one">صورة واحدة</string>
 	<string name="timespan_now">الآن</string>
-	<string name="role_admin">المسؤول</string>
-	<string name="role_editor">المحرر</string>
-	<string name="role_author">الكاتب</string>
-	<string name="role_contributor">المساهم</string>
 	<string name="role_follower">المتابع</string>
 	<string name="role_viewer">المشاهدة</string>
 	<string name="error_post_my_profile_no_connection">لا يوجد اتصال، تعذر حفظ ملفك الشخصي</string>
@@ -428,7 +434,6 @@ Language: ar
 	<string name="site_settings_address_title">العنوان</string>
 	<string name="site_settings_title_title">عنوان الموقع</string>
 	<string name="site_settings_tagline_title">الشعار</string>
-	<string name="site_settings_this_device_header">هذا الجهاز</string>
 	<string name="site_settings_discussion_new_posts_header">الإعدادات الافتراضية للمقالات الجديدة</string>
 	<string name="site_settings_account_header">الحساب</string>
 	<string name="site_settings_writing_header">كتابة</string>
@@ -645,7 +650,6 @@ Language: ar
 	<string name="logs_copied_to_clipboard">تم نسخ سجلات التطبيق إلى الحافظة</string>
 	<string name="reader_label_new_posts">مقالات جديدة</string>
 	<string name="stats_period">الفترة</string>
-	<string name="post_uploading">جارٍ الرفع</string>
 	<string name="stats_total">الإجمالي</string>
 	<string name="stats_overall">الكلي</string>
 	<string name="reader_page_recommended_blogs">مواقع قد تحوز إعجابك</string>
@@ -739,7 +743,6 @@ Language: ar
 	<string name="older_two_days">أقدم من يومين</string>
 	<string name="older_last_week">أقدم من أسبوع</string>
 	<string name="stats_no_blog">يتعذر تحميل الإحصاءات للمدونة المطلوبة</string>
-	<string name="sending_content">تحميل محتوى %s</string>
 	<string name="uploading_total">تحميل %1$d من %2$d</string>
 	<string name="mnu_comment_liked">أعجبني</string>
 	<string name="comment">تعليق</string>
@@ -747,7 +750,6 @@ Language: ar
 	<string name="posts_empty_list">لا توجد مقالات حتى الآن. لماذا لا تبادر بإنشاء واحدة؟</string>
 	<string name="comment_reply_to_user">رد على %s</string>
 	<string name="pages_empty_list">لا توجد صفحات حتى الآن. لماذا لا تبادر بإنشاء واحدة؟</string>
-	<string name="posting_post">نشر "%s"</string>
 	<string name="reader_empty_followed_blogs_title">لم تتابع أي مواقع حتى الآن</string>
 	<string name="reader_menu_block_blog">حظر هذه المدونة</string>
 	<string name="reader_toast_err_block_blog">غير قادر على حظر المدونة</string>
@@ -820,7 +822,6 @@ Language: ar
 	<string name="stats_bar_graph_empty">الإحصائيات غير متوفرة</string>
 	<string name="cat_name_required">حقل اسم التصنيف مطلوب</string>
 	<string name="blog_not_found">حدث خطأ أثناء دخول هذه المدونة </string>
-	<string name="wait_until_upload_completes">انتظر حتى يتم الرفع</string>
 	<string name="error_refresh_stats">الإحصائيات لا يمكن تحديثها في هذا الوقت</string>
 	<string name="error_moderate_comment">حدث خطأ أثناء الإدارة</string>
 	<string name="error_edit_comment">حدث خطأ أثناء تعديل التعليق </string>
@@ -834,7 +835,6 @@ Language: ar
 	<string name="theme_auth_error_message">تاكد من أن لديك صلاحيات لتعيين القوالب</string>
 	<string name="category_automatically_renamed">اسم التصنيف %1$s  ليس صالحًا . تم اعادة تسميته لـ %2$s.</string>
 	<string name="sdcard_message">بطاقة ذاكرة SD  مطلوبة لرفع ملفات الوسائط</string>
-	<string name="error_delete_post">حدث خطأ أثناء حذف الـ  %s</string>
 	<string name="error_refresh_posts">المقالات لايمكن تحديثها في الوقت الحاضر</string>
 	<string name="error_refresh_pages">الصفحات لايمكن تحديثها في الوقت الحاضر</string>
 	<string name="error_refresh_notifications">التنبيهات لايمكن تحديثها في الوقت الحاضر</string>

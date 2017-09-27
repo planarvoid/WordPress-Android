@@ -1,17 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Translation-Revision-Date: 2017-07-27 14:28:24+0000
+Translation-Revision-Date: 2017-09-14 16:38:40+0000
 Plural-Forms: nplurals=2; plural=n > 1;
 Generator: GlotPress/2.4.0-alpha
 Language: fr
 -->
 <resources>
+	<string name="login_epilogue_mysites_other">Mes sites</string>
+	<string name="login_epilogue_mysites_one">Mon site</string>
+	<string name="login_email_client_not_found">Aucune application de messagerie détectée</string>
+	<string name="login_empty_2fa">Veuillez saisir votre code de vérification</string>
+	<string name="login_empty_username">Veuillez saisir un nom d’utilisateur</string>
+	<string name="login_empty_site_url">Veuillez saisir une adresse de site</string>
+	<string name="login_log_in_for_deeplink">Connectez-vous à WordPress.com pour accéder à l’article.</string>
+	<string name="login_error_while_adding_site">Erreur lors de l’ajout du site. Code erreur : %s</string>
+	<string name="login_checking_site_address">Vérification de l’adresse du site</string>
+	<string name="login_site_address_more_help">Besoin d’aide ?</string>
+	<string name="login_site_address_help_content">L’adresse de votre site apparait dans la barre en haut de l’écran quand vous visitez votre site avec Chrome.</string>
+	<string name="login_site_address_help_title">Quelle est l’adresse de mon site ?</string>
+	<string name="login_site_address_help">Besoin d’aide pour trouver l’adresse de votre site ?</string>
+	<string name="login_site_address">Adresse du site</string>
+	<string name="enter_site_address">Saisissez l’adresse de votre site WordPress que vous voulez connecter.</string>
+	<string name="login_username_at">\@%s</string>
+	<string name="login_already_logged_in_wpcom">Déjà connecté·e à WordPress.com</string>
+	<string name="login_continue">Continuer</string>
+	<string name="connect_more">Connecter un autre site</string>
+	<string name="enter_wpcom_password">Saisissez votre mot de passe WordPress.com.</string>
+	<string name="login_magic_link_email_requesting">Demande de l’e-mail de connexion</string>
+	<string name="login_magic_links_sent_label">Votre lien magique est en route ! Vérifiez votre messagerie sur cet appareil et appuyez sur le lien dans l’e-mail reçu de WordPress.com.</string>
+	<string name="login_magic_links_label">Nous allons vous envoyer un lien magique qui vous connectera instantanément, sans mot de passe. Fini la frappe au clavier !</string>
+	<string name="password_incorrect">Il semblerait que ce mot de passe est incorrect. Veuillez vérifier et essayer à nouveau.</string>
+	<string name="email_not_registered_wpcom">Cet e-mail n’est pas enregistré sur WordPress.com.</string>
+	<string name="requesting_otp">Demande d’un code de vérification par SMS.</string>
+	<string name="login_text_otp">Envoyez-moi un code à la place.</string>
+	<string name="enter_verification_code">On y est presque ! Veuillez saisir le code de vérification de votre app d’authentification.</string>
+	<string name="enter_the_address_of_your_wordpress_site">Saisissez l’adresse de votre site WordPress</string>
+	<string name="enter_username_instead">Se connecter avec le nom d’utilisateur à la place.</string>
+	<string name="enter_site_address_instead">Connectez-vous à votre site en saisissant votre adresse de site à la place.</string>
+	<string name="open_mail">Ouvrir les e-mails</string>
+	<string name="next">Suivant</string>
+	<string name="enter_email_wordpress_com">Connectez-vous à WordPress.com en utilisant une adresse de messagerie pour gérer tous vos sites WordPress.com.</string>
+	<string name="login_promo_text_jetpack">Gérer votre site propulsé par Jetpack sur le pouce. Vous avez WordPress dans votre poche.</string>
 	<string name="image_optimization_promo_desc">L’optimisation réduit la taille des images pour une mise en ligne plus rapide.\n\nVous pouvez l’activer ou non à tout moment, dans les réglages du site.</string>
 	<string name="image_optimization_promo_title">Activer l’optimisation des images ?</string>
 	<string name="leave_off">Laisser désactivée</string>
 	<string name="turn_on">Activer</string>
 	<string name="me_profile_photo">Photographie de profil.</string>
 	<string name="error_media_parse_error">Réponse inattendue reçue du serveur.</string>
+	<string name="post_title">Titre</string>
+	<string name="error_media_small">Le média est trop petit pour s’afficher</string>
+	<string name="now">Maintenant</string>
 	<string name="post_settings_slug">Identifiant</string>
 	<string name="post_settings_excerpt">Extrait</string>
 	<string name="post_settings_not_set">Non configuré</string>
@@ -37,7 +75,6 @@ Language: fr
 	<string name="draft_uploaded">Brouillon envoyé</string>
 	<string name="report_bug">Rapport de bug</string>
 	<string name="video_quality">Qualité vidéo</string>
-	<string name="max_video_resolution">Largeur par défaut de vidéo</string>
 	<string name="permission_location">Emplacement</string>
 	<string name="permission_camera">Appareil photo</string>
 	<string name="permission_storage">Stockage</string>
@@ -50,6 +87,7 @@ Language: fr
 	<string name="connected">Connecté</string>
 	<string name="twitter">Twitter</string>
 	<string name="sharing_comment_likes_description">Permettre à tous les commentaires d\'être aimés par vous et vos lecteurs</string>
+	<string name="visual">Visuel</string>
 	<string name="buttons">Boutons</string>
 	<string name="sharing_sharing_buttons_description">Choisissez quels boutons seront affichés sous vos articles</string>
 	<string name="twitter_username">Nom d’utilisateur Twitter</string>
@@ -87,6 +125,7 @@ Language: fr
 	<string name="fab_content_description_write">Écrire</string>
 	<string name="my_site_btn_sharing">Partage</string>
 	<string name="button_not_now">Pas maintenant</string>
+	<string name="media_error_internal_server_error">Erreur de mise en ligne. Essayez de changer l\'option « Optimiser les images » dans les réglages de votre site.</string>
 	<string name="media_downloading">Enregistrement du fichier sur cet appareil</string>
 	<string name="error_media_save">Impossible d’enregistrer les médias</string>
 	<string name="editor_scheduled_post_saved_online">Article programmé</string>
@@ -122,7 +161,7 @@ Language: fr
 	<string name="start_over_email_body">Je souhaite recommencer avec le site %s</string>
 	<string name="start_over_email_subject">Recommencer avec le site %s</string>
 	<string name="site_picker_remove_site_error">Erreur lors de la suppression du site, réessayez</string>
-	<string name="editor_post_saved_locally_unfinished_media">Le chargement multimédia de l\'article n\'est pas terminé et n\'a pas été enregistré localement</string>
+	<string name="editor_post_saved_locally_failed_media">Cet article a des fichiers joints dont la mise en ligne a échoué. Il a été enregistré localement</string>
 	<string name="sure_to_remove_account">Supprimer ce site de l\'application ?</string>
 	<string name="photo_picker_title">Choisir une photo</string>
 	<string name="error_publish_no_network">L’appareil est hors ligne. Les modifications ont été sauvegardées localement.</string>
@@ -145,18 +184,13 @@ Language: fr
 	<string name="image_quality">Qualité d’image</string>
 	<string name="error_all_media_upload_canceled">Tous les chargements de médias ont été annulés à cause d’une erreur inconnue. Veuillez recommencer le chargement</string>
 	<string name="error_unknown_post_type">Format d\'article inconnu</string>
-	<string name="error_unknown_post">Article inconnu, la copie locale de cet article n’est peut-être pas synchronisée avec le serveur</string>
 	<string name="error_fetch_site_after_creation">Le site a été créé. Vous devrez peut-être actualiser vos sites dans le sélecteur de site.</string>
-	<string name="error_upload_params">Erreur lors du chargement - %1$s : %2$s</string>
 	<string name="submit_for_review">Envoyer</string>
-	<string name="role_subscriber">Abonné</string>
 	<string name="tell_me_more">En savoir plus</string>
 	<string name="duplicate_site_detected">Un site dupliqué a été détecté.</string>
 	<string name="cannot_add_duplicate_site">Ce site existe déjà dans l’app. Vous ne pouvez pas l’ajouter.</string>
 	<string name="already_logged_in_wpcom_same_username">Vous êtes déjà connecté à votre compte WordPress.com. Votre site devrait apparaître dans le sélecteur de sites. Veuillez vérifier qu’il n’est pas caché.</string>
 	<string name="already_logged_in_wpcom">Vous êtes déjà connecté à votre compte WordPress.com. Vous ne pouvez pas ajouter un site WordPress.com lié à un autre compte.</string>
-	<string name="migration_error_not_connected">La procédure de migration a échoué&amp;nbsp;: essayez de lancer l’app quand vous serez connecté.</string>
-	<string name="migration_message">Mise à jour de l’app WordPress…</string>
 	<string name="checking_username">Vérification du nom d’utilisateur</string>
 	<string name="jetpack_different_com_account">Les sites Jetpack liés à des comptes WordPress.com différents ne sont pas supportés</string>
 	<string name="jetpack_use_com_account">Pour ajouter votre site Jetpack, connectez-vous au même compte WordPress.com que vous utilisez pour vous connecter à Jetpack.</string>
@@ -165,6 +199,7 @@ Language: fr
 	<string name="error_media_refresh_no_connection">Connexion obligatoire pour actualiser la bibliothèque</string>
 	<string name="error_media_unauthorized">Vous n’avez pas le droit de voir ni de modifier le média</string>
 	<string name="error_media_not_found">Média introuvable</string>
+	<string name="error_media_insufficient_fs_permissions">Vous n\'avez pas les droits de lecture pour les fichiers médias de cet appareil</string>
 	<string name="site_settings_optimize_images">Optimiser les images</string>
 	<string name="no_site_error">Impossible de se connecter au site WordPress. Aucun site WordPress valide \nn’est présent à cette adresse. Vérifier l’adresse du site (URL) saisie.</string>
 	<string name="media_generic_error">Une erreur de média s’est produite</string>
@@ -192,7 +227,6 @@ Language: fr
 	<string name="reader_label_visit">Visitez</string>
 	<string name="all_your_sites">Tous Mes Sites</string>
 	<string name="pending_draft_more">Vous avez rédigé %d articles, mais vous ne les avez jamais publiés. Appuyez pour les vérifier.</string>
-	<string name="no_default_app_available_to_open_link">Impossible d’ouvrir le lien</string>
 	<string name="notification_pending_drafts">Me notifier quand des brouillons sont en attente</string>
 	<string name="invalid_verification_code_format">Doit être un nombre à six chiffres</string>
 	<string name="confirm_discard_changes">Annuler les modifications non sauvegardées ?</string>
@@ -234,10 +268,6 @@ Language: fr
 	<string name="timespan_now">maintenant</string>
 	<string name="role_viewer">Lecteur</string>
 	<string name="role_follower">Abonné</string>
-	<string name="role_contributor">Contributeur</string>
-	<string name="role_author">Auteur</string>
-	<string name="role_editor">Éditeur</string>
-	<string name="role_admin">Administrateur</string>
 	<string name="error_post_my_profile_no_connection">Aucune connexion, impossible d\'enregistrer le profil</string>
 	<string name="alignment_right">Droit</string>
 	<string name="alignment_left">Gauche</string>
@@ -272,6 +302,7 @@ Language: fr
 	<string name="format_bar_description_html">HTML</string>
 	<string name="format_bar_description_ol">Liste ordonnée</string>
 	<string name="format_bar_description_ul">Liste non-ordonnée</string>
+	<string name="format_bar_description_more">Insérer séparateur More</string>
 	<string name="format_bar_description_quote">Bloc de citation</string>
 	<string name="format_bar_description_strike">Barré</string>
 	<string name="format_bar_description_underline">Souligné</string>
@@ -456,6 +487,8 @@ Language: fr
 	<string name="pending_email_change_snackbar">Cliquez sur le lien de vérification de l\'e-mail envoyé à %1$s pour confirmer votre nouvelle adresse.</string>
 	<string name="editor_toast_uploading_please_wait">Vous êtes actuellement en train de mettre en ligne un média. Veuillez patienter jusqu\'à ce que soit terminé.</string>
 	<string name="error_refresh_comments_showing_older">Les commentaires ne peuvent pas être actualisés en ce moment - affichage des commentaires plus anciens</string>
+	<string name="post_settings_set_featured_image">Définir une image mise à la une</string>
+	<string name="post_settings_featured_image">Image à la une</string>
 	<string name="visual_editor_enabled">Éditeur visuel activé</string>
 	<string name="editor_content_placeholder">Partagez ici votre histoire...</string>
 	<string name="editor_page_title_placeholder">Titre de la page</string>
@@ -579,7 +612,6 @@ Language: fr
 	<string name="site_settings_address_title">Adresse</string>
 	<string name="site_settings_tagline_title">Slogan</string>
 	<string name="site_settings_title_title">Titre du site</string>
-	<string name="site_settings_this_device_header">Cet appareil</string>
 	<string name="site_settings_discussion_new_posts_header">Par défaut pour les nouveaux articles</string>
 	<string name="site_settings_writing_header">Écriture</string>
 	<string name="site_settings_account_header">Compte</string>
@@ -662,6 +694,7 @@ Language: fr
 	<string name="stats_widget_loading_data">Chargement des données…</string>
 	<string name="stats_widget_name_for_blog">Stats du jour pour %1$s</string>
 	<string name="stats_widget_name">Stats du jour WordPress</string>
+	<string name="post_settings_add_location_permission_required">Permission nécessaire pour ajouter la géolocalisation</string>
 	<string name="add_media_permission_required">Droits requis pour ajouter du contenu multimédia</string>
 	<string name="access_media_permission_required">Droits requis pour accéder au contenu multimédia</string>
 	<string name="stats_enable_rest_api_in_jetpack">Pour voir vos stats, vous devez d\'abord activer le module Jetpack nommé JSON API.</string>
@@ -807,7 +840,7 @@ Language: fr
 	<string name="stats_period">Période</string>
 	<string name="stats_overall">Global</string>
 	<string name="stats_total">Total</string>
-	<string name="post_uploading">En cours d\'upload</string>
+	<string name="post_uploading">Article en cours d\'envoi</string>
 	<string name="stats_visitors">Visiteurs</string>
 	<string name="stats_views">Visites</string>
 	<string name="stats_timeframe_years">Années</string>
@@ -874,7 +907,6 @@ Language: fr
 	<string name="delete_sure">Supprimer ce brouillon</string>
 	<string name="delete_sure_post">Supprimer cet article</string>
 	<string name="signing_out">Déconnexion…</string>
-	<string name="posting_post">Publication de "%s"</string>
 	<string name="pages_empty_list">Pas encore de page. Pourquoi ne pas en créer une?</string>
 	<string name="comment_reply_to_user">Réponse à %s</string>
 	<string name="posts_empty_list">Pas encore d\'article. Pourquoi ne pas en créer un?</string>
@@ -882,7 +914,7 @@ Language: fr
 	<string name="comment">Commentaire</string>
 	<string name="mnu_comment_liked">Aimé</string>
 	<string name="uploading_total">Upload %1$d sur %2$d</string>
-	<string name="sending_content">Upload du contenu de %s</string>
+	<string name="sending_content">Mise en ligne du contenu : %s...</string>
 	<string name="select_a_blog">Sélectionnez un site WordPress</string>
 	<string name="stats_no_blog">Les statistiques ne peuvent pas être chargée pour ce blog</string>
 	<string name="older_last_week">Plus d\'une semaine</string>
@@ -985,7 +1017,7 @@ Language: fr
 	<string name="error_refresh_notifications">Les notifications ne peuvent être actualisées pour l\'instant</string>
 	<string name="error_refresh_pages">Les pages ne peuvent pas être actualisées pour l\'instant </string>
 	<string name="error_refresh_posts">Les articles ne peuvent pas être actualisés pour l\'instant</string>
-	<string name="error_delete_post">Une erreur s\'est produite lors de la suppression de %s</string>
+	<string name="error_deleting_post">Une erreur s\'est produite lors de la suppression de l\'article</string>
 	<string name="notifications_empty_list">Aucune notifications</string>
 	<string name="reply_failed">Échec de la réponse</string>
 	<string name="invalid_url_message">Vérifiez que l\'URL du blog est valide</string>
@@ -1002,7 +1034,6 @@ Language: fr
 	<string name="theme_auth_error_message">Vérifiez que vous disposez des droits pour définir les thèmes</string>
 	<string name="theme_set_failed">Échec de définition du thème</string>
 	<string name="theme_fetch_failed">Échec de chargement des thèmes</string>
-	<string name="wait_until_upload_completes">Patientez jusqu\'au chargement complet</string>
 	<string name="blog_not_found">Une erreur s\'est produite en accédant à ce blog</string>
 	<string name="gallery_error">Le média ne peut pas être récupéré</string>
 	<string name="could_not_remove_account">Impossible de supprimer le site</string>
@@ -1224,6 +1255,7 @@ Language: fr
 	<string name="publish_date">Publié le</string>
 	<string name="post_content">Contenu (touchez pour ajouter du texte et des médias)</string>
 	<string name="incorrect_credentials">Le nom d\'utilisateur ou le mot de passe ne sont pas valides.</string>
+	<string name="log_in">Connexion</string>
 	<string name="username">Identifiant</string>
 	<string name="password">Mot de passe</string>
 	<string name="reader">Lecteur</string>
@@ -1245,7 +1277,7 @@ Language: fr
 	<string name="app_title">WordPress pour Android</string>
 	<string name="tos">Conditions d\'utilisation</string>
 	<string name="version">Version</string>
-	<string name="max_thumbnail_px_width">Largeur d\'iImage par défaut</string>
+	<string name="max_thumbnail_px_size">Largeur d\'iImage par défaut</string>
 	<string name="image_alignment">Alignement</string>
 	<string name="refresh">Rafraichir</string>
 	<string name="untitled">Sans titre</string>
@@ -1261,6 +1293,7 @@ Language: fr
 	<string name="quickpress_window_title">Sélectionner le blog pour le raccourci QuickPress</string>
 	<string name="upload_full_size_image">Envoyer l\'image et ajouter un lien vers la taille originale</string>
 	<string name="categories">Catégories</string>
+	<string name="tags_separate_with_commas">Séparez les étiquettes par des virgules</string>
 	<string name="title">Titre</string>
 	<string name="dlg_deleting_comments">Effacement de commentaires en cours</string>
 	<string name="notification_vibrate">Vibrer</string>
