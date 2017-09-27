@@ -1,72 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout android:id="@+id/sliding_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/content_bottom_padding_behavior">
-
-        <include layout="@layout/toolbar" />
-
-        <android.support.design.widget.CoordinatorLayout
-            android:id="@+id/profile_coordinator"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar_id">
-
-            <android.support.design.widget.AppBarLayout
-                android:id="@+id/appbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true">
-
-                <include
-                    layout="@layout/profile_header_no_banner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_collapseMode="none"
-                    app:layout_scrollFlags="scroll" />
-
-                <com.soundcloud.android.view.CustomFontTabLayout
-                    android:id="@+id/tab_indicator_fixed"
-                    style="@style/TabsTheme.Fixed.Elevated"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/white"
-                    android:clipToPadding="false"
-                    android:foregroundGravity="bottom"
-                    android:visibility="gone"
-                    app:layout_collapseMode="pin" />
-
-            </android.support.design.widget.AppBarLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <View style="@style/ToolbarShadow" />
-
-            </FrameLayout>
-
-            <!-- this just has to exist inside the coordinator layout -->
-            <View
-                android:id="@+id/snackbar_anchor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </android.support.design.widget.CoordinatorLayout>
-
-    </RelativeLayout>
+    <include layout="@layout/profile_no_banner_content" />
 
     <include layout="@layout/player_root" />
 

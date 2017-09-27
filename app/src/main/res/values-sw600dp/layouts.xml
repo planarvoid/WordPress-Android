@@ -2,4 +2,5 @@
 <resources>
     <item name="go_offboarding_buttons" type="layout">@layout/go_offboarding_buttons_wide_screen</item>
     <item name="profile" type="layout">@layout/profile_no_banner</item>
+    <item name="profile_with_bottom_view" type="layout">@layout/profile_no_banner_with_bottom_view</item>
 </resources>
