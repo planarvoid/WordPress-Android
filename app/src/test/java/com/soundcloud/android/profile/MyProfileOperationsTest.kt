@@ -3,6 +3,7 @@ package com.soundcloud.android.profile
 import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.sync.SyncInitiatorBridge
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults
@@ -29,7 +30,7 @@ import java.util.Date
 class MyProfileOperationsTest {
     private lateinit var operations: MyProfileOperations
 
-    @Mock private lateinit var postStorage: PostsStorage
+    @Mock private lateinit var postsStorage: PostsStorage
     @Mock private lateinit var syncInitiatorBridge: SyncInitiatorBridge
     @Mock private lateinit var userAssociationStorage: UserAssociationStorage
     @Mock private lateinit var trackRepository: TrackRepository
@@ -41,7 +42,7 @@ class MyProfileOperationsTest {
     @Throws(Exception::class)
     fun setUp() {
         operations = MyProfileOperations(
-                postStorage,
+                postsStorage,
                 syncInitiatorBridge,
                 userAssociationStorage,
                 scheduler,
@@ -65,7 +66,7 @@ class MyProfileOperationsTest {
 
         whenever(trackRepository.fromUrns(tracks)).thenReturn(Single.just(mapOf<Urn, Track>(urn2 to lastPostedPublicTrack, urn1 to otherTrack)))
 
-        whenever(postStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
+        whenever(postsStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
 
         operations.lastPublicPostedTrack()
                 .test()
@@ -89,7 +90,7 @@ class MyProfileOperationsTest {
 
         whenever(trackRepository.fromUrns(tracks)).thenReturn(Single.just(mapOf<Urn, Track>(urn2 to privateTrack, urn1 to publicTrack)))
 
-        whenever(postStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
+        whenever(postsStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
 
         operations.lastPublicPostedTrack()
                 .test()
@@ -112,7 +113,7 @@ class MyProfileOperationsTest {
 
         whenever(trackRepository.fromUrns(tracks)).thenReturn(Single.just(mapOf<Urn, Track>(urn1 to availableTrack)))
 
-        whenever(postStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
+        whenever(postsStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(listOf(Association(urn2, date2), Association(urn1, date1))))
 
         operations.lastPublicPostedTrack()
                 .test()

@@ -7,12 +7,13 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,27 +47,27 @@ public class PlaylistPostOperationsTest {
     @Test
     public void removeShouldRemoveLocalPlaylist() {
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        when(postsStorage.remove(localPlaylist)).thenReturn(Observable.just(new TxnResult()));
+        when(postsStorage.removePlaylist(localPlaylist)).thenReturn(Single.just(new TxnResult()));
 
         operations.remove(localPlaylist).subscribe();
 
-        verify(postsStorage).remove(localPlaylist);
+        verify(postsStorage).removePlaylist(localPlaylist);
     }
 
     @Test
     public void removeShouldMarkForRemovalSyncedPlaylist() {
         final Urn playlist = Urn.forPlaylist(123);
-        when(postsStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new TxnResult()));
+        when(postsStorage.markPlaylistPendingRemoval(playlist)).thenReturn(Single.just(new TxnResult()));
 
         operations.remove(playlist).subscribe();
 
-        verify(postsStorage).markPendingRemoval(playlist);
+        verify(postsStorage).markPlaylistPendingRemoval(playlist);
     }
 
     @Test
     public void removeShouldTriggerMyPlaylistSync() {
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        when(postsStorage.remove(localPlaylist)).thenReturn(Observable.just(new TxnResult()));
+        when(postsStorage.removePlaylist(localPlaylist)).thenReturn(Single.just(new TxnResult()));
 
         operations.remove(localPlaylist).subscribe();
 
@@ -76,7 +77,7 @@ public class PlaylistPostOperationsTest {
     @Test
     public void shouldPublishEntityChangedEventAfterRemovingPlaylist() {
         final Urn playlist = Urn.forPlaylist(213L);
-        when(postsStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new TxnResult()));
+        when(postsStorage.markPlaylistPendingRemoval(playlist)).thenReturn(Single.just(new TxnResult()));
 
         operations.remove(playlist).subscribe();
 

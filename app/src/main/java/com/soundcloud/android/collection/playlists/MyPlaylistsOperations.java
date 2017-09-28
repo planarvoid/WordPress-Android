@@ -12,7 +12,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistRepository;
-import com.soundcloud.android.playlists.PostsStorage;
+import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Sets;

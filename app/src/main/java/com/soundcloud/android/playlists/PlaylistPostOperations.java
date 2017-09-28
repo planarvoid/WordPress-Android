@@ -4,12 +4,13 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBusV2;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,13 +33,13 @@ class PlaylistPostOperations {
         this.eventBus = eventBus;
     }
 
-    Observable<RxSignal> remove(final Urn urn) {
-        final Observable<TxnResult> remove = urn.isLocal()
-                                             ? postsStorage.remove(urn)
-                                             : postsStorage.markPendingRemoval(urn);
+    Single<RxSignal> remove(final Urn urn) {
+        final Single<TxnResult> remove = urn.isLocal()
+                                         ? postsStorage.removePlaylist(urn)
+                                         : postsStorage.markPlaylistPendingRemoval(urn);
         return remove
-                .flatMapSingle(__ -> syncInitiator.requestSystemSync().toSingle(() -> RxSignal.SIGNAL))
-                .doOnNext(eventBus.publishAction1(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityDeleted(urn)))
+                .flatMap(__ -> syncInitiator.requestSystemSync().toSingle(() -> RxSignal.SIGNAL))
+                .doOnSuccess(eventBus.publishAction1(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityDeleted(urn)))
                 .subscribeOn(scheduler);
     }
 

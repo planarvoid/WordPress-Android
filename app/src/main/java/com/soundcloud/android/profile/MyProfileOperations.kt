@@ -4,6 +4,7 @@ import android.support.annotation.VisibleForTesting
 import com.soundcloud.android.ApplicationModule
 import com.soundcloud.android.Consts
 import com.soundcloud.android.model.Association
+import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.sync.SyncInitiatorBridge
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository

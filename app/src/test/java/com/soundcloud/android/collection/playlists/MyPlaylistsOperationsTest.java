@@ -11,8 +11,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
-import com.soundcloud.android.playlists.PostsStorage;
 import com.soundcloud.android.playlists.PlaylistRepository;
+import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Lists;
@@ -47,9 +47,6 @@ public class MyPlaylistsOperationsTest {
     private Playlist likedPlaylist1;
     private Playlist likedPlaylist2;
     private Playlist likedPlaylist3Offline;
-    private PlaylistAssociation postedPlaylistAssociation1;
-    private PlaylistAssociation postedPlaylistAssociation2;
-    private PlaylistAssociation albumAssociation1;
     private PlaylistAssociation likedPlaylistAssociation1;
     private PlaylistAssociation likedPlaylistAssociation2;
     private PlaylistAssociation likedPlaylistAssociation3Offline;
@@ -72,12 +69,12 @@ public class MyPlaylistsOperationsTest {
         likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L), "eclair", OfflineState.DOWNLOADED);
         album1 = getAlbum(Urn.forPlaylist(6L), "froyo");
 
-        postedPlaylistAssociation1 = getAssociatedPlaylist(postedPlaylist1, new Date(1));
-        postedPlaylistAssociation2 = getAssociatedPlaylist(postedPlaylist2, new Date(3));
+        PlaylistAssociation postedPlaylistAssociation1 = getAssociatedPlaylist(postedPlaylist1, new Date(1));
+        PlaylistAssociation postedPlaylistAssociation2 = getAssociatedPlaylist(postedPlaylist2, new Date(3));
         likedPlaylistAssociation1 = getAssociatedPlaylist(likedPlaylist1, new Date(2));
         likedPlaylistAssociation2 = getAssociatedPlaylist(likedPlaylist2, new Date(4));
         likedPlaylistAssociation3Offline = getAssociatedPlaylist(likedPlaylist3Offline, new Date(5));
-        albumAssociation1 = getAssociatedPlaylist(album1, new Date(6));
+        PlaylistAssociation albumAssociation1 = getAssociatedPlaylist(album1, new Date(6));
 
         mockLikes(Arrays.asList(
                 likedPlaylistAssociation1,
@@ -97,7 +94,7 @@ public class MyPlaylistsOperationsTest {
         when(likesStorage.loadPlaylistLikes(eq(Long.MAX_VALUE), any(Integer.class)))
                 .thenReturn(Single.just(Lists.transform(likedPlaylists, PlaylistAssociation::getAssociation)));
         when(playlistRepository.withUrns(Lists.transform(likedPlaylists, PlaylistAssociation::getTargetUrn)))
-                               .thenReturn(Single.just(Maps.asMap(Lists.transform(likedPlaylists, PlaylistAssociation::getPlaylist), Playlist::urn)));
+                .thenReturn(Single.just(Maps.asMap(Lists.transform(likedPlaylists, PlaylistAssociation::getPlaylist), Playlist::urn)));
     }
 
     private void mockPosts(List<PlaylistAssociation> postedPlaylists) {
@@ -114,10 +111,10 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                album1,
-                postedPlaylist2,
-                postedPlaylist1
-        ));
+                          album1,
+                          postedPlaylist2,
+                          postedPlaylist1
+                  ));
     }
 
     @Test
@@ -126,10 +123,10 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                likedPlaylist3Offline,
-                likedPlaylist2,
-                likedPlaylist1
-        ));
+                          likedPlaylist3Offline,
+                          likedPlaylist2,
+                          likedPlaylist1
+                  ));
     }
 
     @Test
@@ -138,8 +135,8 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(singletonList(
-                album1
-        ));
+                          album1
+                  ));
     }
 
     @Test
@@ -148,13 +145,13 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                album1,
-                likedPlaylist3Offline,
-                likedPlaylist2,
-                postedPlaylist2,
-                likedPlaylist1,
-                postedPlaylist1
-        ));
+                          album1,
+                          likedPlaylist3Offline,
+                          likedPlaylist2,
+                          postedPlaylist2,
+                          likedPlaylist1,
+                          postedPlaylist1
+                  ));
     }
 
     @Test
@@ -170,13 +167,13 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                album1,
-                likedPlaylist3,
-                likedPlaylist3Offline,
-                likedPlaylist2,
-                postedPlaylist2,
-                likedPlaylist1
-        ));
+                          album1,
+                          likedPlaylist3,
+                          likedPlaylist3Offline,
+                          likedPlaylist2,
+                          postedPlaylist2,
+                          likedPlaylist1
+                  ));
     }
 
     @Test
@@ -186,13 +183,13 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                album1,
-                likedPlaylist3Offline,
-                likedPlaylist2,
-                postedPlaylist2,
-                likedPlaylist1,
-                postedPlaylist1
-        ));
+                          album1,
+                          likedPlaylist3Offline,
+                          likedPlaylist2,
+                          postedPlaylist2,
+                          likedPlaylist1,
+                          postedPlaylist1
+                  ));
     }
 
     @Test
@@ -203,13 +200,13 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(Arrays.asList(
-                postedPlaylist1,
-                postedPlaylist2,
-                likedPlaylist1,
-                likedPlaylist2,
-                likedPlaylist3Offline,
-                album1
-        ));
+                          postedPlaylist1,
+                          postedPlaylist2,
+                          likedPlaylist1,
+                          likedPlaylist2,
+                          likedPlaylist3Offline,
+                          album1
+                  ));
     }
 
     @Test
@@ -218,7 +215,7 @@ public class MyPlaylistsOperationsTest {
         operations.myPlaylists(options).test()
                   .assertValueCount(1)
                   .assertValues(singletonList(
-                likedPlaylist3Offline));
+                          likedPlaylist3Offline));
     }
 
     @Test
@@ -232,7 +229,7 @@ public class MyPlaylistsOperationsTest {
 
         TestObserver<List<Playlist>> testObserver = operations.myPlaylists(options).test();
 
-         testObserver.assertNoValues();
+        testObserver.assertNoValues();
 
         subject.onComplete();
 

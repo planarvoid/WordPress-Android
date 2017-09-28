@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Urn
 import com.soundcloud.android.model.UrnHolder
 import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
-import com.soundcloud.android.profile.PostsStorage
+import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
 import com.soundcloud.android.users.UserAssociationStorage
@@ -25,7 +25,6 @@ class LocalSearchSuggestionOperations
 @Inject
 constructor(private val likesStorage: LikesStorage,
             private val postsStorage: PostsStorage,
-            private val playlistPostsStorage: com.soundcloud.android.playlists.PostsStorage,
             private val trackRepository: TrackRepository,
             private val playlistRepository: PlaylistRepository,
             private val userAssociationStorage: UserAssociationStorage,
@@ -107,7 +106,7 @@ constructor(private val likesStorage: LikesStorage,
     }
 
     private fun getPostedPlaylistsWithTitleLike(searchQuery: String, limit: Int): Single<List<DatabaseSearchSuggestion>> {
-        return getFilteredPlaylistSuggestions(playlistPostsStorage.loadPostedPlaylists(limit),
+        return getFilteredPlaylistSuggestions(postsStorage.loadPostedPlaylists(limit),
                                               searchQuery,
                                               { it.title().contains(searchQuery, ignoreCase = true) },
                                               { playlist, kind -> playlistMapperByTitle(playlist, kind) },

@@ -5,8 +5,8 @@ import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
+import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.profile.Following
-import com.soundcloud.android.profile.PostsStorage
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.tracks.Track
@@ -30,7 +30,6 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
 
     @Mock private lateinit var likesStorage: LikesStorage
     @Mock private lateinit var postsStorage: PostsStorage
-    @Mock private lateinit var playlistPostsStorage: com.soundcloud.android.playlists.PostsStorage
     @Mock private lateinit var trackRepository: TrackRepository
     @Mock private lateinit var playlistRepository: PlaylistRepository
     @Mock private lateinit var userAssociationStorage: UserAssociationStorage
@@ -56,7 +55,6 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
     fun setUp() {
         suggestionOperationsLocal = LocalSearchSuggestionOperations(likesStorage,
                                                                     postsStorage,
-                                                                    playlistPostsStorage,
                                                                     trackRepository,
                                                                     playlistRepository,
                                                                     userAssociationStorage,
@@ -354,7 +352,7 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
     }
 
     private fun configurePostedPlaylistsResponse(playlists: List<Playlist>) {
-        `when`(playlistPostsStorage.loadPostedPlaylists(ArgumentMatchers.anyInt())).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
+        `when`(postsStorage.loadPostedPlaylists(ArgumentMatchers.anyInt())).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
         `when`(playlistRepository.withUrns(playlists.map { it.urn() })).thenReturn(Single.just(playlists.map { it.urn() to it }.toMap()))
     }
 
