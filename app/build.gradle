@@ -102,6 +102,12 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
+  defaultConfig {
+    ndk {
+      abiFilters 'x86', 'armeabi', 'armeabi-v7a'
+    }
+  }
+
   testOptions {
     unitTests.returnDefaultValues = true
 
@@ -207,6 +213,9 @@ dependencies {
   compile libraries.adjustAndroid
   compile libraries.dagger
   compile (libraries.crashlytics) {
+    transitive = true
+  }
+  compile (libraries.crashlyticsNdk) {
     transitive = true
   }
   compile libraries.jacksonAnnotations
