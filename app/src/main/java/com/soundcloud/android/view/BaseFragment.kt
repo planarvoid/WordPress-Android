@@ -2,7 +2,9 @@ package com.soundcloud.android.view
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.View
+import com.soundcloud.android.utils.ErrorUtils
 import javax.inject.Inject
 
 abstract class BaseFragment<T : Destroyable> : Fragment {
@@ -22,11 +24,21 @@ abstract class BaseFragment<T : Destroyable> : Fragment {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            presenter = createPresenter()
-            presenterId = presenterManager.save(presenter as T)
+            initializePresenter()
         } else {
             presenterId = savedInstanceState.getLong(Companion.PRESENTER_KEY)
-            presenter = presenterManager.get<T>(presenterId)
+            presenter = presenterManager.get(presenterId)
+            if (presenter == null) {
+                ErrorUtils.log(Log.INFO, "com.soundcloud.android.view.BaseFragment.onCreate", "Reinitializing empty presenter")
+                initializePresenter()
+            }
+        }
+    }
+
+    private fun initializePresenter() {
+        presenter = createPresenter()
+        (presenter as? Destroyable)?.let {
+            presenterId = presenterManager.save(it)
         }
     }
 
@@ -45,9 +57,9 @@ abstract class BaseFragment<T : Destroyable> : Fragment {
     }
 
     override fun onDestroy() {
-        if (!activity.isChangingConfigurations) {
+        if (!activity.isChangingConfigurations && activity.isFinishing) {
             presenterManager.remove(presenterId)
-            presenter!!.destroy()
+            presenter?.destroy()
         }
         super.onDestroy()
     }

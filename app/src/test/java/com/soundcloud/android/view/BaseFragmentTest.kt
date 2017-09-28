@@ -8,6 +8,7 @@ import org.junit.Before
 import org.junit.Test
 import org.robolectric.shadows.support.v4.SupportFragmentTestUtil
 
+@Suppress("IllegalIdentifier")
 class BaseFragmentTest : AndroidUnitTest() {
 
     private lateinit var baseFragment: TestBaseFragment
@@ -41,7 +42,7 @@ class BaseFragmentTest : AndroidUnitTest() {
         baseFragment.onViewCreated(mock(), null)
 
         assertThat(baseFragment.connectedPresenter).isSameAs(basePresenter)
-
+        baseFragment.activity.finish()
         baseFragment.onDestroyView()
         baseFragment.onDestroy()
 
