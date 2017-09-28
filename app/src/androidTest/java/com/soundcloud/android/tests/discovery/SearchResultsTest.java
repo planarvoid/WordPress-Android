@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.DuplicatedPageViews;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -41,6 +42,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
+    @DuplicatedPageViews // "https://soundcloud.atlassian.net/browse/DROID-1852" We are double tracking page views due to discovery backend without uniflow
     @Test
     public void testSubmittingSearchQueryOpensSearchResults() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
@@ -115,6 +117,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
                    equalTo("Playlist"));
     }
 
+    @DuplicatedPageViews // "https://soundcloud.atlassian.net/browse/DROID-1852" We are double tracking page views due to discovery backend without uniflow
     @Test
     public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() throws Exception {
         mrLocalLocal.startEventTracking();
@@ -148,6 +151,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Current tab should be PLAYLISTS", resultsScreen.currentTabTitle(), is("PLAYLISTS"));
     }
 
+    @DuplicatedPageViews // "https://soundcloud.atlassian.net/browse/DROID-1852" We are double tracking page views due to discovery backend without uniflow
     @Test
     public void testAllResultsLoadsNextPage() throws Exception {
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
