@@ -27,7 +27,7 @@ import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.users.FollowingStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -40,7 +40,7 @@ class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final UserAssociationStorage userAssociationStorage;
+    private final FollowingStorage followingStorage;
     private final SoundRecorder soundRecorder;
     private final FeatureStorage featureStorage;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
@@ -67,7 +67,7 @@ class AccountCleanupAction implements Action0 {
     private final WaveformOperations waveformOperations;
 
     @Inject
-    AccountCleanupAction(UserAssociationStorage userAssociationStorage,
+    AccountCleanupAction(FollowingStorage followingStorage,
                          SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage,
@@ -90,7 +90,7 @@ class AccountCleanupAction implements Action0 {
                          SecureFileStorage secureFileStorage,
                          DiscoveryWritableStorage discoveryWritableStorage,
                          WaveformOperations waveformOperations) {
-        this.userAssociationStorage = userAssociationStorage;
+        this.followingStorage = followingStorage;
         this.soundRecorder = soundRecorder;
         this.featureStorage = featureStorage;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
@@ -123,7 +123,7 @@ class AccountCleanupAction implements Action0 {
 
         clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-        userAssociationStorage.clear();
+        followingStorage.clear();
         offlineSettingsStorage.clear();
         secureFileStorage.reset();
         featureStorage.clear();

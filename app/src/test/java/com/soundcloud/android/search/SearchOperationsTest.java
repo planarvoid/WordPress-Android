@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -28,18 +29,22 @@ import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.UserItemRepository;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.Pager;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
@@ -71,7 +76,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
-    @Mock private TrackItemRepository trackRepository;
+    @Mock private TrackItemRepository trackItemRepository;
+    @Mock private UserItemRepository userItemRepository;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -94,7 +100,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
                                                                     loadFollowingCommand,
-                                                                    ModelFixtures.entityItemCreator()), trackRepository);
+                                                                    ModelFixtures.entityItemCreator(),
+                                                                    userItemRepository,
+                                                                    trackItemRepository),
+                                          trackItemRepository);
     }
 
     @Test
@@ -364,6 +373,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldBackFillLikesForPlaylistsInUniversalSearchResult() {
         final List<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(forUser(user), forTrack(track), forPlaylist(playlist));
+        initUserItemRepo(user);
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
@@ -392,6 +402,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forTrack(track),
                 forUser(user2),
                 forPlaylist(playlist));
+        initUserItemRepo(user, user2);
         final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ModelFixtures::listItemFromSearchItem),
                                                                                    Optional.absent(),
                                                                                    Optional.absent());
@@ -421,6 +432,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forUser(user),
                 forPlaylist(playlist2), // should be enriched with like status
                 forTrack(track));
+        initUserItemRepo(user);
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
@@ -605,6 +617,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forUser(user),
                 forTrack(track),
                 forPlaylist(playlist));
+        initUserItemRepo(user);
         final SearchModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems =
                 new SearchModelCollection<>(searchItems);
         mockPremiumSearchApiResponse(searchItems, apiPremiumUniversalSearchItems);
@@ -673,7 +686,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void shouldNotMapPremiumContentInUsersWhenBuildingSearchResult() {
         final List<ApiUser> searchUserItems = singletonList(user);
         final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
-        mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
+        final SearchModelCollection<ApiUser> apiUsers = mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
+
+        final ArrayList<UserItem> userItems = Lists.newArrayList(Iterables.transform(apiUsers, apiUser -> UserItem.from(User.fromApiUser(apiUser), false)));
+        when(userItemRepository.userItems(apiUsers)).thenReturn(Single.just(userItems));
 
         operations.searchResult("query", Optional.absent(), SearchType.USERS).subscribe(subscriber);
 
@@ -688,6 +704,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forUser(user),
                 forTrack(track),
                 forPlaylist(playlist));
+        initUserItemRepo(user);
         mockPremiumSearchApiResponse(apiUniversalSearchItems, null);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
@@ -755,15 +772,17 @@ public class SearchOperationsTest extends AndroidUnitTest {
         assertThat(pagingFunction.getAllUrns()).isEmpty();
     }
 
-    private <T> void mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {
-        final Observable observable = Observable.just(new SearchModelCollection<>(searchItems,
-                                                                                  Collections.emptyMap(),
-                                                                                  "queryUrn",
-                                                                                  apiPremiumItems,
-                                                                                  TRACK_RESULTS_COUNT,
-                                                                                  PLAYLIST_RESULTS_COUNT,
-                                                                                  USER_RESULTS_COUNT));
+    private <T> SearchModelCollection<T> mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {
+        final SearchModelCollection<T> searchModelCollection = new SearchModelCollection<>(searchItems,
+                                                                              Collections.emptyMap(),
+                                                                              "queryUrn",
+                                                                              apiPremiumItems,
+                                                                              TRACK_RESULTS_COUNT,
+                                                                              PLAYLIST_RESULTS_COUNT,
+                                                                              USER_RESULTS_COUNT);
+        final Observable observable = Observable.just(searchModelCollection);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
+        return searchModelCollection;
     }
 
     private ApiUniversalSearchItem forTrack(ApiTrack track) {
@@ -778,4 +797,14 @@ public class SearchOperationsTest extends AndroidUnitTest {
         return new ApiUniversalSearchItem(user, null, null);
     }
 
+
+    private void initUserItemRepo(ApiUser... users) {
+        final List<ApiUser> apiUsers = Arrays.asList(users);
+        final List<Urn> urns = Lists.newArrayList(Iterables.transform(apiUsers, ApiUser::getUrn));
+        final HashMap<Urn, UserItem> userItemHashMap = Maps.newHashMap();
+        for (ApiUser apiUser : apiUsers) {
+            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromApiUser(apiUser), false));
+        }
+        when(userItemRepository.userItemsMap(ArgumentMatchers.argThat(argument -> Lists.newArrayList(argument).containsAll(urns)))).thenReturn(Single.just(userItemHashMap));
+    }
 }

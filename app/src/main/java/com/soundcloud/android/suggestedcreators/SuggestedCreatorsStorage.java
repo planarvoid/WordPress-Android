@@ -3,6 +3,7 @@ package com.soundcloud.android.suggestedcreators;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -26,12 +27,14 @@ public class SuggestedCreatorsStorage {
     private final PropellerRxV2 propellerRx;
     private final PropellerDatabase propeller;
     private final DateProvider dateProvider;
+    private final EntityItemCreator entityItemCreator;
 
     @Inject
-    SuggestedCreatorsStorage(PropellerRxV2 propellerRx, PropellerDatabase propeller, CurrentDateProvider dateProvider) {
+    SuggestedCreatorsStorage(PropellerRxV2 propellerRx, PropellerDatabase propeller, CurrentDateProvider dateProvider, EntityItemCreator entityItemCreator) {
         this.propellerRx = propellerRx;
         this.propeller = propeller;
         this.dateProvider = dateProvider;
+        this.entityItemCreator = entityItemCreator;
     }
 
     Single<List<SuggestedCreator>> suggestedCreators() {
@@ -53,7 +56,7 @@ public class SuggestedCreatorsStorage {
 
     private Query buildSuggestedCreatorsQuery() {
         return Query.from(Tables.SuggestedCreators.TABLE)
-                    .leftJoin(Tables.UsersView.TABLE, Tables.SuggestedCreators.SEED_USER_ID, Tables.UsersView.ID)
+                    .leftJoin(Tables.Users.TABLE, Tables.SuggestedCreators.SEED_USER_ID, Tables.Users._ID)
                     .select("*");
     }
 
@@ -77,7 +80,8 @@ public class SuggestedCreatorsStorage {
             if (reader.isNotNull(Tables.SuggestedCreators.FOLLOWED_AT.name())) {
                 followedAt = Optional.of(reader.getDateFromTimestamp(Tables.SuggestedCreators.FOLLOWED_AT.name()));
             }
-            return SuggestedCreator.create(userRecord, SuggestedCreatorRelation.from(relation), followedAt);
+            //We're removing suggested creators anyway
+            return SuggestedCreator.create(entityItemCreator.userItem(userRecord, false), SuggestedCreatorRelation.from(relation), followedAt);
         }
     }
 }

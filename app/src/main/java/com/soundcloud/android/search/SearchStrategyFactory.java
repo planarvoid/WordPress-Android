@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Iterables.transform;
 import static java.lang.String.format;
 
 import com.soundcloud.android.ApplicationModule;
@@ -20,8 +22,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchOperations.ContentType;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -76,6 +81,8 @@ class SearchStrategyFactory {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadFollowingCommand loadFollowingCommand;
     private final EntityItemCreator entityItemCreator;
+    private final UserItemRepository userItemRepository;
+    private final TrackItemRepository trackItemRepository;
 
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -162,7 +169,8 @@ class SearchStrategyFactory {
                           CacheUniversalSearchCommand cacheUniversalSearchCommand,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           LoadFollowingCommand loadFollowingCommand,
-                          EntityItemCreator entityItemCreator) {
+                          EntityItemCreator entityItemCreator,
+                          UserItemRepository userItemRepository, TrackItemRepository trackItemRepository) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storePlaylistsCommand = storePlaylistsCommand;
@@ -172,6 +180,8 @@ class SearchStrategyFactory {
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadFollowingCommand = loadFollowingCommand;
         this.entityItemCreator = entityItemCreator;
+        this.userItemRepository = userItemRepository;
+        this.trackItemRepository = trackItemRepository;
     }
 
     SearchStrategy getSearchStrategy(SearchType searchType) {
@@ -204,9 +214,9 @@ class SearchStrategyFactory {
 
         Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, ContentType contentType) {
             final ApiRequest.Builder requestBuilder = ApiRequest.get(getEndpoint(contentType))
-                                                   .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE,
-                                                                          String.valueOf(Consts.LIST_PAGE_SIZE))
-                                                   .addQueryParam("q", query);
+                                                                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE,
+                                                                                       String.valueOf(Consts.LIST_PAGE_SIZE))
+                                                                .addQueryParam("q", query);
             if (queryUrn.isPresent()) {
                 requestBuilder.addQueryParam("query_urn", queryUrn.get().toString());
             }
@@ -284,8 +294,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeUsersCommand.toAction1())
                               .doOnNext(cachePremiumUsers)
-                              .map(searchResult -> searchResult.transform(entityItemCreator::userItem))
-                              .map(TO_SEARCH_RESULT)
+                              .flatMap(SearchStrategyFactory.this::toSearchResult)
                               .map(mergeFollowings);
         }
     }
@@ -306,22 +315,37 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(cacheUniversalSearchCommand)
                               .doOnNext(cachePremiumContent)
-                              .map(item -> item.transform(this::toListItem))
+                              .flatMap(searchItems -> backfillUserItems(searchItems).map(userItemsMap -> searchItems.transform(searchItem -> toListItem(searchItem, userItemsMap))))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
                               .map(mergePlaylistLikeStatus)
                               .map(mergeFollowings);
         }
 
-        private ListItem toListItem(ApiUniversalSearchItem searchItem) {
-                if (searchItem.track().isPresent()) {
-                    return entityItemCreator.trackItem(searchItem.track().get());
-                } else if (searchItem.playlist().isPresent()) {
-                    return entityItemCreator.playlistItem(searchItem.playlist().get());
-                } else if (searchItem.user().isPresent()) {
-                    return entityItemCreator.userItem(searchItem.user().get());
+        private ListItem toListItem(ApiUniversalSearchItem searchItem, Map<Urn, UserItem> userItemMap) {
+            if (searchItem.track().isPresent()) {
+                return entityItemCreator.trackItem(searchItem.track().get());
+            } else if (searchItem.playlist().isPresent()) {
+                return entityItemCreator.playlistItem(searchItem.playlist().get());
+            } else if (searchItem.user().isPresent()) {
+                final Urn urn = searchItem.user().get().getUrn();
+                if (userItemMap.containsKey(urn)) {
+                    return userItemMap.get(urn);
                 } else {
-                    throw new RuntimeException(format("Empty ApiUniversalSearchItem: %s", this));
+                    return entityItemCreator.userItem(searchItem.user().get(), false);
                 }
+            } else {
+                throw new IllegalArgumentException(format("Empty ApiUniversalSearchItem: %s", this));
+            }
         }
+
+        private Observable<Map<Urn, UserItem>> backfillUserItems(Iterable<ApiUniversalSearchItem> searchItems) {
+            final Iterable<Urn> userUrns = transform(filter(searchItems, searchItem -> searchItem.user().isPresent()), searchItem -> searchItem.user().get().getUrn());
+            return RxJava.toV1Observable(userItemRepository.userItemsMap(userUrns));
+        }
+    }
+
+    private Observable<SearchResult> toSearchResult(SearchModelCollection<ApiUser> searchResult) {
+        return RxJava.toV1Observable(userItemRepository.userItems(searchResult))
+                     .map(userItems -> SearchResult.fromSearchableItems(userItems, searchResult.getNextLink(), searchResult.getQueryUrn(), searchResult.resultsCount()));
     }
 }

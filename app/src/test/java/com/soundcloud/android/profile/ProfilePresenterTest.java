@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -66,7 +67,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    private User profileUser;
+    private UserItem profileUser;
     private Intent intent = new Intent();
 
     @Before
@@ -120,7 +121,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onCreate(activity, null);
 
         verify(activity).setTitle(R.string.side_menu_profile);
-        verify(activity).setTitle(profileUser.username());
+        verify(activity).setTitle(profileUser.user().username());
     }
 
     @Test
@@ -146,10 +147,10 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     public void entityStateChangedEventReloadsUserOnHeaderPresenter() throws Exception {
         profilePresenter.onCreate(activity, null);
 
-        final User updatedProfileUser = ModelFixtures.userBuilder(false).username("updated-name").build();
+        final UserItem updatedProfileUser = ModelFixtures.userItem(ModelFixtures.userBuilder().username("updated-name").build());
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
-        final User user = ModelFixtures.userBuilder(false).urn(USER_URN).build();
+        final User user = ModelFixtures.userBuilder().urn(USER_URN).build();
         eventBus.publish(EventQueue.USER_CHANGED,
                          UserChangedEvent.forUpdate(user));
 
@@ -161,13 +162,13 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onCreate(activity, null);
         Mockito.reset(profileOperations);
 
-        final User user = ModelFixtures.userBuilder(false).urn(Urn.forUser(444)).build();
+        final User user = ModelFixtures.userBuilder().urn(Urn.forUser(444)).build();
         eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(user));
 
         verifyZeroInteractions(profileOperations);
     }
 
-    private User createProfileUser() {
-        return ModelFixtures.user();
+    private UserItem createProfileUser() {
+        return ModelFixtures.userItem();
     }
 }

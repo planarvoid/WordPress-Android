@@ -9,8 +9,8 @@ import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
-import com.soundcloud.android.users.UserAssociationStorage
-import com.soundcloud.android.users.UserStorage
+import com.soundcloud.android.users.FollowingStorage
+import com.soundcloud.android.users.UserRepository
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.enrichItemsWithProperties
 import com.soundcloud.java.collections.Lists
@@ -27,8 +27,8 @@ constructor(private val likesStorage: LikesStorage,
             private val postsStorage: PostsStorage,
             private val trackRepository: TrackRepository,
             private val playlistRepository: PlaylistRepository,
-            private val userAssociationStorage: UserAssociationStorage,
-            private val userStorage: UserStorage) {
+            private val followingStorage: FollowingStorage,
+            private val userRepository: UserRepository) {
 
     fun getSuggestions(searchQuery: String, loggedInUserUrn: Urn, limit: Int): Single<List<SearchSuggestion>> {
         return getInitialSuggestions(searchQuery, loggedInUserUrn, limit)
@@ -49,25 +49,29 @@ constructor(private val likesStorage: LikesStorage,
     }
 
     private fun getFollowingUsersWithUsernameLike(searchQuery: String): Single<List<DatabaseSearchSuggestion>> {
-        return userAssociationStorage
+        return followingStorage
                 .loadFollowings()
-                .map { followings ->
+                .flatMap { followings ->
+                    userRepository.usersInfoMap(followings.map { it.userUrn }).map { followings to it }
+                }
+                .map { (followings, users) ->
                     followings
-                            .filter { it.user().username().contains(searchQuery, ignoreCase = true) }
-                            .sortedByDescending { it.userAssociation().addedAt().or(Date(0L)) }
+                            .map { it to users[it.userUrn] }
+                            .filter { it.second != null && it.second?.username()?.contains(searchQuery, ignoreCase = true) == true }
+                            .sortedByDescending { if (it.first.addedAt != null) it.first.addedAt else Date(0L) }
                             .map {
-                                DatabaseSearchSuggestion.create(it.user().urn(),
-                                                                it.user().username(),
-                                                                it.user().avatarUrl(),
-                                                                it.user().isPro,
+                                DatabaseSearchSuggestion.create(it.second?.urn(),
+                                                                it.second?.username(),
+                                                                it.second?.avatarUrl(),
+                                                                it.second?.isPro == true,
                                                                 DatabaseSearchSuggestion.Kind.Following)
                             }
                 }
     }
 
     private fun getLoggedInUser(searchQuery: String, urn: Urn): Single<List<DatabaseSearchSuggestion>> {
-        return userStorage.
-                loadUsers(listOf(urn))
+        return userRepository.
+                usersInfo(listOf(urn))
                 .map { users ->
                     users
                             .filter { it.username().contains(searchQuery, ignoreCase = true) }

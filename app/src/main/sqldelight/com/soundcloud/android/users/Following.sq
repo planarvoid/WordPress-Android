@@ -1,0 +1,57 @@
+import java.util.Date;
+import com.soundcloud.android.model.Urn;
+
+CREATE TABLE following (
+    user_urn TEXT AS Urn NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0,
+    added_at INTEGER AS Date,
+    removed_at INTEGER AS Date,
+    PRIMARY KEY(user_urn) ON CONFLICT REPLACE
+);
+
+insertRow:
+INSERT INTO following (user_urn, position)
+VALUES (?, ?);
+
+insertOrReplaceFromToggle:
+REPLACE INTO following (user_urn, added_at, removed_at)
+VALUES (?, ?, ?);
+
+selectAll:
+SELECT * FROM following;
+
+selectById:
+SELECT * FROM following WHERE user_urn = ?;
+
+loadFollowed:
+SELECT * FROM following WHERE removed_at IS NULL;
+
+loadFollowedUserIds:
+SELECT user_urn FROM following WHERE added_at IS NULL AND removed_at IS NULL;
+
+selectOrdered:
+SELECT * FROM following WHERE position >= ? AND removed_at IS NULL ORDER BY position ASC, ifnull(added_at, 0) DESC LIMIT ?;
+
+selectStale:
+SELECT * FROM following WHERE added_at NOT NULL OR removed_at NOT NULL;
+
+selectStaleCount:
+SELECT COUNT(*) FROM following WHERE added_at NOT NULL OR removed_at NOT NULL;
+
+selectActiveFollowingCount:
+SELECT COUNT(*) FROM following WHERE user_urn = ? AND removed_at IS NULL;
+
+clearAddedAt:
+UPDATE following SET added_at = null WHERE user_urn = ?;
+
+deleteAll:
+DELETE FROM following;
+
+deleteIn:
+DELETE FROM following WHERE user_urn IN ?;
+
+deleteByTargetId:
+DELETE FROM following WHERE user_urn = ?;
+
+dropTable:
+DROP TABLE IF EXISTS following;

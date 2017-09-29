@@ -29,7 +29,7 @@ public class EngagementsTrackingTest {
     private static final Urn USER_URN = Urn.forUser(33L);
     private static final TrackItem PROMOTED_TRACK = expectedPromotedTrack();
     private static final Track TRACK = ModelFixtures.trackBuilder().build();
-    private static final User FOLLOWED_USER = ModelFixtures.user(true);
+    private static final User FOLLOWED_USER = ModelFixtures.user();
 
     private EngagementsTracking engagementsTracking;
     private TestObserver<UIEvent> testObserver;

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.observers.TestObserver;
@@ -27,7 +28,7 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRxV2(), propeller(), new TestDateProvider(NOW));
+        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRxV2(), propeller(), new TestDateProvider(NOW), ModelFixtures.entityItemCreator());
     }
 
     @Test
@@ -38,7 +39,7 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         final TestObserver<List<SuggestedCreator>> subscriber = suggestedCreatorsStorage.suggestedCreators().test().assertValueCount(1);
         List<SuggestedCreator> actual = subscriber.values().get(0);
         SuggestedCreator suggestedCreator = actual.get(0);
-        assertThat(suggestedCreator.getCreator().urn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
+        assertThat(suggestedCreator.getCreator().getUrn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
         assertThat(suggestedCreator.getRelation().value()).isEqualTo(apiSuggestedCreator.getRelationKey());
         assertThat(suggestedCreator.followedAt()).isNot(PRESENT);
     }
@@ -54,7 +55,7 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         final TestObserver<List<SuggestedCreator>> subscriber = suggestedCreatorsStorage.suggestedCreators().test().assertValueCount(1);
         List<SuggestedCreator> actual = subscriber.values().get(0);
         SuggestedCreator suggestedCreator = actual.get(0);
-        assertThat(suggestedCreator.getCreator().urn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
+        assertThat(suggestedCreator.getCreator().getUrn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
         assertThat(suggestedCreator.followedAt()).is(PRESENT);
         assertThat(suggestedCreator.followedAt().get().getTime()).isEqualTo(NOW);
     }

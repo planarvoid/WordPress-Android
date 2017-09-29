@@ -10,8 +10,8 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 public abstract class UserItem implements ListItem, FollowableItem, UpdatableUserItem {
 
-    public static UserItem from(User user) {
-        return builder().user(user).isFollowedByMe(user.isFollowing()).build();
+    public static UserItem from(User user, boolean isFollowingByMe) {
+        return builder().user(user).isFollowedByMe(isFollowingByMe).build();
     }
 
     public abstract User user();

@@ -276,11 +276,11 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private User emptyUser() {
-        return ModelFixtures.userBuilder(false).build();
+        return ModelFixtures.userBuilder().build();
     }
 
     private User fullUser() {
-        return ModelFixtures.userBuilder(false)
+        return ModelFixtures.userBuilder()
                             .websiteName(of(WEBSITE_NAME))
                             .websiteUrl(of(WEBSITE_URL))
                             .discogsName(of(DISCOGS_NAME))

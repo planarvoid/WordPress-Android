@@ -31,7 +31,8 @@ public class MigrationEngine {
                            StreamCacheMigration streamCacheMigration,
                            PlayHistoryMigration playHistoryMigration,
                            RecentlyPlayedMigration recentlyPlayedMigration,
-                           OfflineContentMigration offlineContentMigration) {
+                           OfflineContentMigration offlineContentMigration,
+                           FollowingMigration followingMigration) {
         this(BuildConfig.VERSION_CODE,
              sharedPreferences,
              settingsMigration,
@@ -39,7 +40,8 @@ public class MigrationEngine {
              streamCacheMigration,
              playHistoryMigration,
              recentlyPlayedMigration,
-             offlineContentMigration);
+             offlineContentMigration,
+             followingMigration);
     }
 
     @VisibleForTesting

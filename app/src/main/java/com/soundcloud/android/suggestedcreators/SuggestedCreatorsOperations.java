@@ -12,7 +12,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.users.UserAssociation;
+import com.soundcloud.android.users.Following;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.Lists;
@@ -33,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 public class SuggestedCreatorsOperations {
     private static final long VISIBLE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
     private static final int FOLLOWINGS_LIMIT = 5;
-    private final Predicate<List<UserAssociation>> lessThanLimitFollowers = new Predicate<List<UserAssociation>>() {
+    private final Predicate<List<Following>> lessThanLimitFollowers = new Predicate<List<Following>>() {
         @Override
-        public boolean test(List<UserAssociation> userAssociations) {
-            return userAssociations.size() <= FOLLOWINGS_LIMIT || featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL);
+        public boolean test(List<Following> followings) {
+            return followings.size() <= FOLLOWINGS_LIMIT || featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL);
         }
     };
     private final FeatureFlags featureFlags;
@@ -69,7 +69,7 @@ public class SuggestedCreatorsOperations {
 
     public Maybe<StreamItem> suggestedCreators() {
         if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS) || suggestedCreatorsExperiment.isEnabled()) {
-            return myProfileOperations.followingsUserAssociations()
+            return myProfileOperations.followings()
                                       .filter(lessThanLimitFollowers)
                                       .flatMap(this::loadSuggestedCreators);
         }
@@ -81,22 +81,22 @@ public class SuggestedCreatorsOperations {
                                       suggestedCreatorsStorage.toggleFollowSuggestedCreator(urn, isFollowing).subscribeOn(scheduler));
     }
 
-    private Maybe<StreamItem> loadSuggestedCreators(List<UserAssociation> userAssociations) {
+    private Maybe<StreamItem> loadSuggestedCreators(List<Following> userAssociations) {
         return lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
                                  .filter(list -> !list.isEmpty())
                                  .map(StreamItem::forSuggestedCreators);
     }
 
-    private Function<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<UserAssociation> userAssociations) {
+    private Function<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<Following> followings) {
         return suggestedCreators -> {
             final List<SuggestedCreator> result = Lists.newArrayList();
             final long currentTimeMillis = dateProvider.getCurrentTime();
             for (SuggestedCreator suggestedCreator : suggestedCreators) {
                 boolean add = true;
-                for (final UserAssociation userAssociation : userAssociations) {
+                for (final Following following : followings) {
                     final Optional<Date> followedAt = suggestedCreator.followedAt();
                     final boolean wasRecentlyFollowed = followedAt.isPresent() && followedAt.get().getTime() > (currentTimeMillis - VISIBLE_INTERVAL);
-                    if (userAssociation.userUrn().equals(suggestedCreator.getCreator().urn()) && !wasRecentlyFollowed) {
+                    if (!wasRecentlyFollowed && following.getUserUrn().equals(suggestedCreator.getCreator().getUrn())) {
                         add = false;
                         break;
                     }

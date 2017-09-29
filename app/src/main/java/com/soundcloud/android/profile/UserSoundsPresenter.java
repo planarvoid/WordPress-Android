@@ -24,6 +24,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
@@ -182,6 +183,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private void displaySecondaryTextForOtherUser() {
         userSubscription.unsubscribe();
         userSubscription = operations.getLocalProfileUser(userUrn)
+                                     .map(UserItem::user)
                                      .observeOn(AndroidSchedulers.mainThread())
                                      .subscribe(new DefaultSubscriber<User>() {
                                          @Override

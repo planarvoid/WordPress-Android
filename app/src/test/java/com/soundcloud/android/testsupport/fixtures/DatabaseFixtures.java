@@ -5,7 +5,6 @@ import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
@@ -105,16 +104,6 @@ public class DatabaseFixtures {
         return trackUrns;
     }
 
-    public void insertFollowing(Urn followedUrn, int position) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWING);
-        cv.put(Tables.UserAssociations.RESOURCE_TYPE, Tables.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(Tables.UserAssociations.TARGET_ID, followedUrn.getNumericId());
-        cv.put(Tables.UserAssociations.CREATED_AT, System.currentTimeMillis());
-        cv.put(Tables.UserAssociations.POSITION, position);
-        insertInto(Tables.UserAssociations.TABLE, cv.get());
-    }
-
     public void insertFollowing(Urn followedUrn) {
         insertFollowing(followedUrn, System.currentTimeMillis());
     }
@@ -126,36 +115,6 @@ public class DatabaseFixtures {
         cv.put(Tables.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(Tables.UserAssociations.CREATED_AT, follwedAt);
         cv.put(Tables.UserAssociations.POSITION, 0);
-        insertInto(Tables.UserAssociations.TABLE, cv.get());
-    }
-
-    public void insertFollowingPendingRemoval(Urn followedUrn, long removedAt) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWING);
-        cv.put(Tables.UserAssociations.RESOURCE_TYPE, Tables.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(Tables.UserAssociations.TARGET_ID, followedUrn.getNumericId());
-        cv.put(Tables.UserAssociations.CREATED_AT, System.currentTimeMillis());
-        cv.put(Tables.UserAssociations.REMOVED_AT, removedAt);
-        insertInto(Tables.UserAssociations.TABLE, cv.get());
-    }
-
-    public void insertFollowingPendingAddition(Urn followedUrn, long addedAt) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWING);
-        cv.put(Tables.UserAssociations.RESOURCE_TYPE, Tables.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(Tables.UserAssociations.TARGET_ID, followedUrn.getNumericId());
-        cv.put(Tables.UserAssociations.CREATED_AT, System.currentTimeMillis());
-        cv.put(Tables.UserAssociations.ADDED_AT, addedAt);
-        insertInto(Tables.UserAssociations.TABLE, cv.get());
-    }
-
-    public void insertFollower(Urn userUrn, int position) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWER);
-        cv.put(Tables.UserAssociations.RESOURCE_TYPE, Tables.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(Tables.UserAssociations.TARGET_ID, userUrn.getNumericId());
-        cv.put(Tables.UserAssociations.CREATED_AT, System.currentTimeMillis());
-        cv.put(Tables.UserAssociations.POSITION, position);
         insertInto(Tables.UserAssociations.TABLE, cv.get());
     }
 
@@ -242,35 +201,9 @@ public class DatabaseFixtures {
         return playlist;
     }
 
-    public ApiPlaylist insertPlaylistWithTitle(String title) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setTitle(title);
-        insertUser(playlist.getUser());
-        insertPlaylist(playlist);
-        return playlist;
-    }
-
-    public ApiPlaylist insertPlaylistWithTitle(String title, ApiUser user) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setTitle(title);
-        playlist.setUser(user);
-        insertPlaylist(playlist);
-        return playlist;
-    }
-
     public ApiPlaylist insertPlaylistWithCreatedAt(Date createdAt) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setCreatedAt(createdAt);
-        insertUser(playlist.getUser());
-        insertPlaylist(playlist);
-        return playlist;
-    }
-
-    public ApiPlaylist insertPlaylistAlbum(String setType, String releaseDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setIsAlbum(true);
-        playlist.setSetType(setType);
-        playlist.setReleaseDate(releaseDate);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
@@ -285,12 +218,6 @@ public class DatabaseFixtures {
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
-    }
-
-    public void insertPlaylists(List<ApiPlaylist> playlists) {
-        for (ApiPlaylist playlist : playlists) {
-            insertPlaylist(playlist);
-        }
     }
 
     public void insertPlaylist(ApiPlaylist playlist) {
@@ -374,41 +301,9 @@ public class DatabaseFixtures {
         return playlist;
     }
 
-    public ApiTrack insertTrackWithTitle(String title, ApiUser user) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setTitle(title);
-        track.setUser(user);
-        insertTrack(track);
-        return track;
-    }
-
-    public ApiTrack insertTrackWithTitle(String title, ApiUser user, long createdAt) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setTitle(title);
-        track.setUser(user);
-        track.setCreatedAt(new Date(createdAt));
-        insertTrack(track);
-        return track;
-    }
-
     public ApiTrack insertTrackWithCreationDate(ApiUser user, Date createdAtDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setCreatedAt(createdAtDate);
-        track.setUser(user);
-        insertTrack(track);
-        return track;
-    }
-
-    public ApiTrack insertPrivateTrackWithCreationDate(ApiUser user, Date createdAtDate) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setCreatedAt(createdAtDate);
-        track.setUser(user);
-        track.setSharing(Sharing.PRIVATE);
-        insertTrack(track);
-        return track;
-    }
-
-    public ApiTrack insertTrackWithUser(ApiTrack track, ApiUser user) {
         track.setUser(user);
         insertTrack(track);
         return track;
@@ -754,13 +649,6 @@ public class DatabaseFixtures {
         return apiTrackPost;
     }
 
-    public ApiTrack insertTrackPost(ApiTrack apiTrack, long postedDate) {
-        insertTrackPost(apiTrack.getUrn().getNumericId(),
-                        postedDate,
-                        false);
-        return apiTrack;
-    }
-
     public void insertTrackRepost(long id, long createdAt) {
         insertTrackPost(id, createdAt, true);
     }
@@ -790,11 +678,6 @@ public class DatabaseFixtures {
     public ApiPlaylist insertPostedPlaylist(Date postedAt) {
         ApiPlaylist apiPlaylist = insertPlaylistWithCreatedAt(postedAt);
         insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedAt.getTime(), false);
-        return apiPlaylist;
-    }
-
-    public ApiPlaylist insertPostedPlaylist(ApiPlaylist apiPlaylist, long postedDate) {
-        insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedDate, false);
         return apiPlaylist;
     }
 

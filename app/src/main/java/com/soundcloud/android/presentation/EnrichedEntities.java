@@ -68,14 +68,12 @@ public class EnrichedEntities implements EntityItemEmitter {
 
     @Override
     public Observable<List<UserItem>> userItems(List<ApiUser> apiUsers) {
-        List<UserItem> items = Lists.transform(apiUsers, entityItemCreator::userItem);
-        return withUserUpdates(items);
+        return withUserUpdates(apiUsers);
     }
 
     @Override
     public Observable<Map<Urn, UserItem>> userItemsAsMap(List<ApiUser> apiUsers) {
-        List<UserItem> items = Lists.transform(apiUsers, entityItemCreator::userItem);
-        return withUserUpdates(items).map(playlistItems -> asMap(playlistItems, UserItem::getUrn));
+        return withUserUpdates(apiUsers).map(playlistItems -> asMap(playlistItems, UserItem::getUrn));
     }
 
     private Observable<List<TrackItem>> withTrackUpdates(List<TrackItem> items) {
@@ -100,17 +98,18 @@ public class EnrichedEntities implements EntityItemEmitter {
         }
     }
 
-    private Observable<List<UserItem>> withUserUpdates(List<UserItem> items) {
+    private Observable<List<UserItem>> withUserUpdates(List<ApiUser> items) {
         if (items.isEmpty()) {
             return Observable.empty();
         } else {
             return Observable.combineLatest(
                     Observable.just(items),
                     followingStateProvider.followingStatuses(),
-                    (userItems, followStatuses) -> {
-                        List<UserItem> updatedUserItems = new ArrayList<>(userItems.size());
-                        for (UserItem userItem : userItems) {
-                            updatedUserItems.add(userItem.copyWithFollowing(followStatuses.isFollowed(userItem.getUrn())));
+                    (users, followStatuses) -> {
+                        List<UserItem> updatedUserItems = new ArrayList<>(users.size());
+                        for (ApiUser apiUser : users) {
+                            updatedUserItems.add(entityItemCreator.userItem(apiUser, followStatuses.isFollowed(apiUser.getUrn())));
+
                         }
                         return updatedUserItems;
                     }

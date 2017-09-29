@@ -12,7 +12,7 @@ import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
@@ -134,7 +134,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         userSubscription = profileOperations
                 .getLocalProfileUser(user)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new UserDetailsSubscriber());
+                .subscribe(new UserItemDetailsSubscriber());
     }
 
     @Override
@@ -146,12 +146,12 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         super.onDestroy(activity);
     }
 
-    private final class UserDetailsSubscriber extends DefaultSubscriber<User> {
+    private final class UserItemDetailsSubscriber extends DefaultSubscriber<UserItem> {
         @Override
-        public void onNext(User profileUser) {
+        public void onNext(UserItem profileUser) {
             headerPresenter.setUserDetails(profileUser);
             if (!accountOperations.isLoggedInUser(user) && profileConfig.showProfileBanner()) {
-                rootActivity.ifPresent(activity -> activity.setTitle(profileUser.username()));
+                rootActivity.ifPresent(activity -> activity.setTitle(profileUser.user().username()));
             }
         }
     }

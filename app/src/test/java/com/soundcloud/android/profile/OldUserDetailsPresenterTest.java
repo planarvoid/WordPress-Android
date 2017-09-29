@@ -262,15 +262,15 @@ public class OldUserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private User userWithBlankDescription() {
-        return ModelFixtures.userBuilder(false).description(of("")).build();
+        return ModelFixtures.userBuilder().description(of("")).build();
     }
 
     private User userWithDescription() {
-        return ModelFixtures.userBuilder(false).description(of(DESCRIPTION)).build();
+        return ModelFixtures.userBuilder().description(of(DESCRIPTION)).build();
     }
 
     private User userWithFullDetails() {
-        return ModelFixtures.userBuilder(false)
+        return ModelFixtures.userBuilder()
                             .description(of(DESCRIPTION))
                             .websiteName(WEBSITE_NAME)
                             .websiteUrl(of(WEBSITE_URL))

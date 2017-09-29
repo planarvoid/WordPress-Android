@@ -71,12 +71,12 @@ public class EntityItemCreator {
         return playlistItem(apiPlaylistPost.getApiPlaylist());
     }
 
-    public UserItem userItem(User user) {
-        return UserItem.from(user);
+    public UserItem userItem(User user, boolean isFollowedByMe) {
+        return UserItem.from(user, isFollowedByMe);
     }
 
-    public UserItem userItem(ApiUser apiUser) {
-        return userItem(User.fromApiUser(apiUser));
+    public UserItem userItem(ApiUser apiUser, boolean isFollowedByMe) {
+        return userItem(User.fromApiUser(apiUser), isFollowedByMe);
     }
 
     public Map<Urn, TrackItem> convertTrackMap(Map<Urn, Track> map) {

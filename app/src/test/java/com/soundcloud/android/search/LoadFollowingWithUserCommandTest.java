@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Map;
 
-public class LoadFollowingCommandTest extends StorageIntegrationTest {
+public class LoadFollowingWithUserCommandTest extends StorageIntegrationTest {
 
     private LoadFollowingCommand command;
     private ApiUser followedUser;

@@ -24,9 +24,9 @@ import android.view.View;
 
 public class UserMenuPresenterTest extends AndroidUnitTest {
     private static final EventContextMetadata EVENT_CONTEXT_METADATA = EventContextMetadata.builder().build();
-    private static final User USER = ModelFixtures.user();
+    private static final UserItem USER = ModelFixtures.userItem();
 
-    @Mock private UserRepository userRepository;
+    @Mock private UserItemRepository userItemRepository;
     @Mock private FollowingOperations followingOperations;
     @Mock private StartStationHandler stationHandler;
     @Mock private UserMenuRendererFactory userMenuRenderFactory;
@@ -39,11 +39,11 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Maybe.just(USER));
+        when(userItemRepository.localUserItem(any(Urn.class))).thenReturn(Maybe.just(USER));
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,
                                           followingOperations,
-                                          userRepository,
+                                          userItemRepository,
                                           stationHandler,
                                           engagementsTracking,
                                           accountOperations);
@@ -55,12 +55,12 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     public void togglesFollowStatus() {
         final CompletableSubject followObservable = CompletableSubject.create();
 
-        when(followingOperations.toggleFollowing(USER.urn(), !USER.isFollowing())).thenReturn(followObservable);
-        presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);
+        when(followingOperations.toggleFollowing(USER.getUrn(), !USER.isFollowedByMe())).thenReturn(followObservable);
+        presenter.show(button, USER.getUrn(), EVENT_CONTEXT_METADATA);
 
         presenter.handleToggleFollow(USER);
 
-        verify(engagementsTracking).followUserUrn(USER.urn(), !USER.isFollowing(), EVENT_CONTEXT_METADATA);
+        verify(engagementsTracking).followUserUrn(USER.getUrn(), !USER.isFollowedByMe(), EVENT_CONTEXT_METADATA);
 
         assertThat(followObservable.hasObservers()).isTrue();
     }
@@ -68,11 +68,11 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void startsStation() {
         AppCompatActivity activity = activity();
-        presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);
+        presenter.show(button, USER.getUrn(), EVENT_CONTEXT_METADATA);
 
         presenter.handleOpenStation(activity, USER);
 
-        verify(stationHandler).startStation(Urn.forArtistStation(USER.urn().getNumericId()));
+        verify(stationHandler).startStation(Urn.forArtistStation(USER.getUrn().getNumericId()));
     }
 
 }

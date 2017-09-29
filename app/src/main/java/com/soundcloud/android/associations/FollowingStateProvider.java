@@ -6,8 +6,8 @@ import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.rx.observers.LambdaSingleObserver;
-import com.soundcloud.android.users.UserAssociation;
-import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.users.Following;
+import com.soundcloud.android.users.FollowingStorage;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
@@ -29,7 +29,7 @@ import java.util.Set;
 @Singleton
 public class FollowingStateProvider {
 
-    private final UserAssociationStorage userAssociationStorage;
+    private final FollowingStorage followingStorage;
     private final BehaviorSubject<FollowingStatuses> statuses = BehaviorSubject.create();
     private final EventBusV2 eventBus;
     private final Scheduler scheduler;
@@ -39,10 +39,10 @@ public class FollowingStateProvider {
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
-    public FollowingStateProvider(UserAssociationStorage userAssociationStorage,
+    public FollowingStateProvider(FollowingStorage followingStorage,
                                   EventBusV2 eventBus,
                                   @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
-        this.userAssociationStorage = userAssociationStorage;
+        this.followingStorage = followingStorage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
     }
@@ -51,10 +51,10 @@ public class FollowingStateProvider {
         publishSnapshot();
 
         compositeDisposable.addAll(
-                userAssociationStorage.followedUserAssociations().map(userAssociations -> Lists.transform(userAssociations, UserAssociation::userUrn))
-                                      .subscribeOn(scheduler)
-                                      .observeOn(AndroidSchedulers.mainThread())
-                                      .subscribeWith(LambdaSingleObserver.onNext(followings -> {
+                followingStorage.followings().map(userAssociations -> Lists.transform(userAssociations, Following::getUserUrn))
+                                .subscribeOn(scheduler)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(LambdaSingleObserver.onNext(followings -> {
                                           setFollowings(followings);
                                           publishSnapshot();
                                       })),

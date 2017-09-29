@@ -1,27 +1,26 @@
 package com.soundcloud.android.search.suggestions
 
+import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.likes.LikesStorage
 import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.posts.PostsStorage
-import com.soundcloud.android.profile.Following
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
+import com.soundcloud.android.users.Following
+import com.soundcloud.android.users.FollowingStorage
 import com.soundcloud.android.users.User
-import com.soundcloud.android.users.UserAssociation
-import com.soundcloud.android.users.UserAssociationStorage
-import com.soundcloud.android.users.UserStorage
+import com.soundcloud.android.users.UserRepository
 import com.soundcloud.java.optional.Optional
 import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import java.util.Date
 
 class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
@@ -32,8 +31,8 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
     @Mock private lateinit var postsStorage: PostsStorage
     @Mock private lateinit var trackRepository: TrackRepository
     @Mock private lateinit var playlistRepository: PlaylistRepository
-    @Mock private lateinit var userAssociationStorage: UserAssociationStorage
-    @Mock private lateinit var userStorage: UserStorage
+    @Mock private lateinit var followingStorage: FollowingStorage
+    @Mock private lateinit var userRepository: UserRepository
 
     private lateinit var likedTrack: Track
     private lateinit var postedTrack: Track
@@ -57,8 +56,8 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
                                                                     postsStorage,
                                                                     trackRepository,
                                                                     playlistRepository,
-                                                                    userAssociationStorage,
-                                                                    userStorage)
+                                                                    followingStorage,
+                                                                    userRepository)
 
         followingUser = ModelFixtures.userBuilder().username("Random account").signupDate(Optional.of(Date(500L))).build()
         loggedInUser = ModelFixtures.userBuilder().username("Myself").build()
@@ -329,31 +328,32 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
     }
 
     private fun configureLikedTracksResponse(tracks: List<Track>) {
-        `when`(likesStorage.loadTrackLikes()).thenReturn(Single.just(tracks.map { Association(it.urn(), it.createdAt()) }))
-        `when`(trackRepository.fromUrns(tracks.map { it.urn() })).thenReturn(Single.just(tracks.map { it.urn() to it }.toMap()))
+        whenever(likesStorage.loadTrackLikes()).thenReturn(Single.just(tracks.map { Association(it.urn(), it.createdAt()) }))
+        whenever(trackRepository.fromUrns(tracks.map { it.urn() })).thenReturn(Single.just(tracks.map { it.urn() to it }.toMap()))
     }
 
     private fun configurePostedTracksResponse(tracks: List<Track>) {
-        `when`(postsStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(tracks.map { Association(it.urn(), it.createdAt()) }))
-        `when`(trackRepository.fromUrns(tracks.map { it.urn() })).thenReturn(Single.just(tracks.map { it.urn() to it }.toMap()))
+        whenever(postsStorage.loadPostedTracksSortedByDateDesc()).thenReturn(Single.just(tracks.map { Association(it.urn(), it.createdAt()) }))
+        whenever(trackRepository.fromUrns(tracks.map { it.urn() })).thenReturn(Single.just(tracks.map { it.urn() to it }.toMap()))
     }
 
     private fun configureFollowingUsersResponse(users: List<User>) {
-        `when`(userAssociationStorage.loadFollowings()).thenReturn(Single.just(users.map { Following.from(it, UserAssociation.create(it.urn(), 0, 0, it.signupDate(), Optional.absent())) }))
+        whenever(followingStorage.loadFollowings()).thenReturn(Single.just(users.map { Following(it.urn(), 0, it.signupDate().orNull(), null) }))
+        whenever(userRepository.usersInfoMap(users.map { it.urn() })).thenReturn(Single.just(users.associateBy { it.urn() }))
     }
 
     private fun configureLoggedInUserResponse(loggedInUser: User) {
-        `when`(userStorage.loadUsers(listOf(loggedInUser.urn()))).thenReturn(Single.just(listOf(loggedInUser)))
+        whenever(userRepository.usersInfo(listOf(loggedInUser.urn()))).thenReturn(Single.just(listOf(loggedInUser)))
     }
 
     private fun configureLikedPlaylistsResponse(playlists: List<Playlist>) {
-        `when`(likesStorage.loadPlaylistLikes()).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
-        `when`(playlistRepository.withUrns(playlists.map { it.urn() })).thenReturn(Single.just(playlists.map { it.urn() to it }.toMap()))
+        whenever(likesStorage.loadPlaylistLikes()).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
+        whenever(playlistRepository.withUrns(playlists.map { it.urn() })).thenReturn(Single.just(playlists.map { it.urn() to it }.toMap()))
     }
 
     private fun configurePostedPlaylistsResponse(playlists: List<Playlist>) {
-        `when`(postsStorage.loadPostedPlaylists(ArgumentMatchers.anyInt())).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
-        `when`(playlistRepository.withUrns(playlists.map { it.urn() })).thenReturn(Single.just(playlists.map { it.urn() to it }.toMap()))
+        whenever(postsStorage.loadPostedPlaylists(ArgumentMatchers.anyInt())).thenReturn(Single.just(playlists.map { Association(it.urn(), it.createdAt()) }))
+        whenever(playlistRepository.withUrns(playlists.map { it.urn() })).thenReturn(Single.just(playlists.map { it.urn() to it }.toMap()))
     }
 
     private fun buildSearchSuggestionFromUser(user: User): SearchSuggestion {

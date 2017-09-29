@@ -31,7 +31,7 @@ constructor(private val collectionDatabase: CollectionDatabase) {
     }
 
     fun loadContextIdsByType(contextType: Int): Set<Long> {
-        return collectionDatabase.executeQuery(FACTORY.selectIdsByContextType(contextType.toLong()), { cursor -> cursor.getLong(0) }).toSet()
+        return collectionDatabase.executeQuery(FACTORY.selectIdsByContextType(contextType.toLong()), FACTORY.selectIdsByContextTypeMapper()).toSet()
     }
 
     fun loadUnSyncedRecentlyPlayed() = loadBySyncStatus(false)

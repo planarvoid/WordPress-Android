@@ -9,9 +9,9 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
-import com.soundcloud.android.users.UserAssociation
-import com.soundcloud.android.users.UserAssociationStorage
-import com.soundcloud.java.optional.Optional
+import com.soundcloud.android.users.Following
+import com.soundcloud.android.users.FollowingStorage
+import com.soundcloud.android.users.User
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before
@@ -23,7 +23,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import rx.observers.TestSubscriber
-import java.util.Arrays
 import java.util.Date
 
 @RunWith(MockitoJUnitRunner::class)
@@ -32,11 +31,11 @@ class MyProfileOperationsTest {
 
     @Mock private lateinit var postsStorage: PostsStorage
     @Mock private lateinit var syncInitiatorBridge: SyncInitiatorBridge
-    @Mock private lateinit var userAssociationStorage: UserAssociationStorage
+    @Mock private lateinit var followingStorage: FollowingStorage
     @Mock private lateinit var trackRepository: TrackRepository
 
     private val scheduler = Schedulers.trampoline()
-    private lateinit var subscriber: TestSubscriber<List<Following>>
+    private lateinit var subscriber: TestSubscriber<List<Pair<Following, User>>>
 
     @Before
     @Throws(Exception::class)
@@ -44,7 +43,7 @@ class MyProfileOperationsTest {
         operations = MyProfileOperations(
                 postsStorage,
                 syncInitiatorBridge,
-                userAssociationStorage,
+                followingStorage,
                 scheduler,
                 trackRepository)
 
@@ -126,28 +125,28 @@ class MyProfileOperationsTest {
 
     @Test
     fun returnsListOfFollowingsUrns() {
-        val userAssociation1 = createUserAssociation(Urn.forUser(123L))
-        val userAssociation2 = createUserAssociation(Urn.forUser(124L))
-        val followingsUrn = Arrays.asList(userAssociation1, userAssociation2)
+        val following1 = createFollowing(Urn.forUser(123L))
+        val following2 = createFollowing(Urn.forUser(124L))
+        val followingsUrn = listOf(following1, following2)
 
-        whenever(userAssociationStorage.followedUserAssociations()).thenReturn(Single.just(
+        whenever(followingStorage.followings()).thenReturn(Single.just(
                 followingsUrn))
 
-        operations.followingsUserAssociations().test().assertComplete().assertValue(followingsUrn)
+        operations.followings().test().assertComplete().assertValue(listOf(following1, following2))
 
         verify<SyncInitiatorBridge>(syncInitiatorBridge, never()).refreshFollowings()
     }
 
     @Test
     fun syncsWhenStoredFollowingsListEmpty() {
-        whenever(userAssociationStorage.followedUserAssociations()).thenReturn(Single.just(emptyList<UserAssociation>()))
+        whenever(followingStorage.followings()).thenReturn(Single.just(emptyList()))
         whenever(syncInitiatorBridge.refreshFollowings()).thenReturn(Single.just(TestSyncJobResults.successWithChange()))
 
-        operations.followingsUserAssociations().test().assertComplete().assertValue(emptyList())
+        operations.followings().test().assertComplete().assertValue(emptyList())
 
         verify(syncInitiatorBridge).refreshFollowings()
-        verify(userAssociationStorage, times(2)).followedUserAssociations()
+        verify(followingStorage, times(2)).followings()
     }
 
-    private fun createUserAssociation(urn: Urn): UserAssociation = UserAssociation.create(urn, 0, 1, Optional.absent(), Optional.absent())
+    private fun createFollowing(urn: Urn): Following = Following(userUrn = urn, position = 0)
 }

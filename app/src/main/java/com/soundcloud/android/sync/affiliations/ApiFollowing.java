@@ -11,7 +11,7 @@ import java.util.Date;
 @AutoValue
 public abstract class ApiFollowing {
 
-    static final Function<ApiFollowing, Long> TO_USER_IDS = input -> input.getTargetUrn().getNumericId();
+    static final Function<ApiFollowing, Urn> TO_USER_URNS = ApiFollowing::getTargetUrn;
 
     @JsonCreator
     public static ApiFollowing create(@JsonProperty("user") Urn userUrn,

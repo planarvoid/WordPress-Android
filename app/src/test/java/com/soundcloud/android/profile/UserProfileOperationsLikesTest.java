@@ -16,6 +16,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -43,6 +44,7 @@ public class UserProfileOperationsLikesTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
+    @Mock private UserItemRepository userItemRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
@@ -67,6 +69,7 @@ public class UserProfileOperationsLikesTest {
                 Schedulers.immediate(),
                 loadPlaylistLikedStatuses,
                 userRepository,
+                userItemRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
                 storeUsersCommand,

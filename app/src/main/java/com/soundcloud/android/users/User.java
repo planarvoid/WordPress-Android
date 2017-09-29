@@ -6,7 +6,7 @@ import static com.soundcloud.android.model.Urn.forUser;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables.UsersView;
+import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 
@@ -49,33 +49,30 @@ public abstract class User {
 
     public abstract Optional<Urn> artistStation();
 
-    public abstract boolean isFollowing();
-
     public abstract boolean isPro();
 
     public abstract User.Builder toBuilder();
 
     public static User fromCursorReader(CursorReader cursorReader) {
         return new AutoValue_User.Builder()
-                .urn(forUser(cursorReader.getLong(UsersView.ID.name())))
-                .username(cursorReader.getString(UsersView.USERNAME.name()))
-                .firstName(Optional.fromNullable(cursorReader.getString(UsersView.FIRST_NAME.name())))
-                .lastName(Optional.fromNullable(cursorReader.getString(UsersView.LAST_NAME.name())))
-                .signupDate(cursorReader.hasColumn(UsersView.SIGNUP_DATE.name()) ? Optional.of(cursorReader.getDateFromTimestamp(UsersView.SIGNUP_DATE.name())): Optional.absent())
-                .country(Optional.fromNullable(cursorReader.getString(UsersView.COUNTRY.name())))
-                .city(Optional.fromNullable(cursorReader.getString(UsersView.CITY.name())))
-                .followersCount(cursorReader.getInt(UsersView.FOLLOWERS_COUNT.name()))
-                .followingsCount(cursorReader.getInt(UsersView.FOLLOWINGS_COUNT.name()))
-                .description(Optional.fromNullable(cursorReader.getString(UsersView.DESCRIPTION.name())))
-                .avatarUrl(Optional.fromNullable(cursorReader.getString(UsersView.AVATAR_URL.name())))
-                .visualUrl(Optional.fromNullable(cursorReader.getString(UsersView.VISUAL_URL.name())))
-                .websiteUrl(Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_URL.name())))
-                .websiteName(Optional.fromNullable(cursorReader.getString(UsersView.WEBSITE_NAME.name())))
-                .mySpaceName(Optional.fromNullable(cursorReader.getString(UsersView.MYSPACE_NAME.name())))
-                .discogsName(Optional.fromNullable(cursorReader.getString(UsersView.DISCOGS_NAME.name())))
-                .artistStation(Optional.fromNullable(cursorReader.getString(UsersView.ARTIST_STATION.name())).transform(STRING_TO_URN))
-                .isFollowing(cursorReader.getBoolean(UsersView.IS_FOLLOWING.name()))
-                .isPro(cursorReader.getBoolean(UsersView.IS_PRO.name()))
+                .urn(forUser(cursorReader.getLong(Users._ID.name())))
+                .username(cursorReader.getString(Users.USERNAME.name()))
+                .firstName(Optional.fromNullable(cursorReader.getString(Users.FIRST_NAME.name())))
+                .lastName(Optional.fromNullable(cursorReader.getString(Users.LAST_NAME.name())))
+                .signupDate(cursorReader.hasColumn(Users.SIGNUP_DATE.name()) ? Optional.of(cursorReader.getDateFromTimestamp(Users.SIGNUP_DATE.name())) : Optional.absent())
+                .country(Optional.fromNullable(cursorReader.getString(Users.COUNTRY.name())))
+                .city(Optional.fromNullable(cursorReader.getString(Users.CITY.name())))
+                .followersCount(cursorReader.getInt(Users.FOLLOWERS_COUNT.name()))
+                .followingsCount(cursorReader.getInt(Users.FOLLOWINGS_COUNT.name()))
+                .description(Optional.fromNullable(cursorReader.getString(Users.DESCRIPTION.name())))
+                .avatarUrl(Optional.fromNullable(cursorReader.getString(Users.AVATAR_URL.name())))
+                .visualUrl(Optional.fromNullable(cursorReader.getString(Users.VISUAL_URL.name())))
+                .websiteUrl(Optional.fromNullable(cursorReader.getString(Users.WEBSITE_URL.name())))
+                .websiteName(Optional.fromNullable(cursorReader.getString(Users.WEBSITE_NAME.name())))
+                .mySpaceName(Optional.fromNullable(cursorReader.getString(Users.MYSPACE_NAME.name())))
+                .discogsName(Optional.fromNullable(cursorReader.getString(Users.DISCOGS_NAME.name())))
+                .artistStation(Optional.fromNullable(cursorReader.getString(Users.ARTIST_STATION.name())).transform(STRING_TO_URN))
+                .isPro(cursorReader.getBoolean(Users.IS_PRO.name()))
                 .build();
     }
 
@@ -98,7 +95,6 @@ public abstract class User {
                 .mySpaceName(apiUser.getMyspaceName())
                 .discogsName(apiUser.getDiscogsName())
                 .artistStation(apiUser.getArtistStationUrn())
-                .isFollowing(false)
                 .isPro(apiUser.isPro())
                 .build();
     }
@@ -158,8 +154,6 @@ public abstract class User {
         public abstract Builder discogsName(Optional<String> discogsName);
 
         public abstract Builder artistStation(Optional<Urn> artistStation);
-
-        public abstract Builder isFollowing(boolean isFollowing);
 
         public abstract Builder isPro(boolean isPro);
 

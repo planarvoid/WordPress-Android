@@ -18,8 +18,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +46,7 @@ public class UserProfileOperationsProfileTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
+    @Mock private UserItemRepository userItemRepository;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
@@ -68,6 +71,7 @@ public class UserProfileOperationsProfileTest {
                 Schedulers.immediate(),
                 loadPlaylistLikedStatuses,
                 userRepository,
+                userItemRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
                 storeUsersCommand,
@@ -92,6 +96,7 @@ public class UserProfileOperationsProfileTest {
 
         userUrn = profile.getUser().getUrn();
         when(profileApi.userProfile(userUrn)).thenReturn(Observable.just(profile));
+        when(userItemRepository.userItem(profile.getUser())).thenReturn(Single.just(ModelFixtures.userItem(profile.getUser())));
     }
 
     @Test
@@ -110,7 +115,7 @@ public class UserProfileOperationsProfileTest {
         assertThat(onNextEvents).hasSize(1);
 
         UserProfile actualUserProfile = onNextEvents.get(0);
-        assertThat(actualUserProfile.getUser()).isEqualTo(ModelFixtures.entityItemCreator().userItem(profile.getUser()));
+        assertThat(actualUserProfile.getUser()).isEqualTo(ModelFixtures.entityItemCreator().userItem(profile.getUser(), false));
         assertThat(actualUserProfile.getSpotlight()).isEqualTo(spotlight.transform(entityItemCreator::playableItem));
         assertThat(actualUserProfile.getTracks()).isEqualTo(tracks.transform(entityItemCreator::trackItem));
         assertThat(actualUserProfile.getAlbums()).isEqualTo(albums.transform(entityItemCreator::playlistItem));

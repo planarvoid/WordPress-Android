@@ -29,7 +29,7 @@ import com.soundcloud.android.stream.StreamOperations;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsStorage;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.users.FollowingStorage;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class AccountCleanupActionTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
     @Mock private SoundCloudApplication soundCloudApplication;
-    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private FollowingStorage followingStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
@@ -79,7 +79,7 @@ public class AccountCleanupActionTest {
 
     @Before
     public void setup() {
-        action = new AccountCleanupAction(userAssociationStorage,
+        action = new AccountCleanupAction(followingStorage,
                                           soundRecorder,
                                           featureStorage,
                                           unauthorisedRequestRegistry,
@@ -121,7 +121,7 @@ public class AccountCleanupActionTest {
     @Test
     public void shouldClearUserAssociationStorage() {
         action.call();
-        verify(userAssociationStorage).clear();
+        verify(followingStorage).clear();
     }
 
     @Test

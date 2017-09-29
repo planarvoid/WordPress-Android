@@ -13,8 +13,10 @@ import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
+    @Mock private UserItemRepository userItemRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
@@ -59,6 +62,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
             ),
             NEXT_HREF);
 
+    final List<UserItem> userItems = Arrays.asList(ModelFixtures.userItem(apiUser1), ModelFixtures.userItem(apiUser2));
+
     @Before
     public void setUp() {
         operations = new UserProfileOperations(
@@ -66,6 +71,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
                 Schedulers.immediate(),
                 loadPlaylistLikedStatuses,
                 userRepository,
+                userItemRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
                 storeUsersCommand,
@@ -77,6 +83,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Test
     public void returnsUserFollowersResultFromApi() {
         when(profileApi.userFollowers(USER_URN)).thenReturn(Observable.just(page));
+        when(userItemRepository.userItems(page)).thenReturn(Single.just(userItems));
 
         operations.pagedFollowers(USER_URN).subscribe(observer);
 
@@ -98,6 +105,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
         final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                                   NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(userItemRepository.userItems(page)).thenReturn(Single.just(userItems));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
 
@@ -119,6 +127,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Test
     public void returnsUserFollowingsResultFromApi() {
         when(profileApi.userFollowers(USER_URN)).thenReturn(Observable.just(page));
+        when(userItemRepository.userItems(page)).thenReturn(Single.just(userItems));
 
         operations.pagedFollowers(USER_URN).subscribe(observer);
 
@@ -140,6 +149,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
         final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(userItemRepository.userItems(page)).thenReturn(Single.just(userItems));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
 
@@ -151,6 +161,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
         final PagedRemoteCollection<UserItem> page1 = new PagedRemoteCollection<>(Collections.emptyList(),
                                                                       NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(userItemRepository.userItems(page)).thenReturn(Single.just(userItems));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
 

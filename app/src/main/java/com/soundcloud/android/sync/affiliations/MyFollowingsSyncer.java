@@ -13,11 +13,12 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.PendingIntentFactory;
-import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
-import com.soundcloud.android.users.UserAssociation;
-import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.users.Following;
+import com.soundcloud.android.users.FollowingStorage;
+import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
@@ -49,10 +50,11 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
 
     private final FollowErrorNotificationBuilder notificationBuilder;
     private final ApiClient apiClient;
-    private final UserAssociationStorage userAssociationStorage;
+    private final FollowingStorage followingStorage;
     private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
+    private final UserStorage userStorage;
 
     @Inject
     MyFollowingsSyncer(FollowErrorNotificationBuilder notificationBuilder,
@@ -60,15 +62,17 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
                        FollowingOperations followingOperations,
                        NotificationManager notificationManager,
                        JsonTransformer jsonTransformer,
-                       UserAssociationStorage userAssociationStorage) {
+                       FollowingStorage followingStorage,
+                       UserStorage userStorage) {
 
         super();
         this.notificationBuilder = notificationBuilder;
         this.apiClient = apiClient;
-        this.userAssociationStorage = userAssociationStorage;
+        this.followingStorage = followingStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
+        this.userStorage = userStorage;
     }
 
     @Override
@@ -77,8 +81,8 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     }
 
     private boolean pushUserAssociations() throws IOException, ApiRequestException {
-        if (userAssociationStorage.hasStaleFollowings()) {
-            List<Following> followings = userAssociationStorage.loadStaleFollowings();
+        if (followingStorage.hasStaleFollowings()) {
+            List<Following> followings = followingStorage.loadStaleFollowings();
             for (Following following : followings) {
                 pushFollowing(following);
             }
@@ -87,59 +91,56 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     }
 
     private boolean syncLocalToRemote() throws IOException, ApiMapperException, ApiRequestException {
-        Set<Long> local = userAssociationStorage.loadFollowedUserIds();
-        List<Long> followedUserIds = getFollowingUserIds();
-        Set<Long> remoteSet = new HashSet<>(followedUserIds);
+        Set<Urn> local = followingStorage.loadFollowedUserIds();
+        List<Urn> followedUserIds = getFollowingUserIds();
+        Set<Urn> remoteSet = new HashSet<>(followedUserIds);
         if (local.equals(remoteSet)) {
             return false;
         }
 
         // deletions can happen here, has no impact
-        List<Long> itemDeletions = new ArrayList<>(local);
+        List<Urn> itemDeletions = new ArrayList<>(local);
         itemDeletions.removeAll(followedUserIds);
-        userAssociationStorage.deleteFollowingsById(itemDeletions);
-        userAssociationStorage.insertFollowedUserIds(followedUserIds);
+        followingStorage.deleteFollowingsById(itemDeletions);
+        followingStorage.insertFollowedUserIds(followedUserIds);
         return true;
     }
 
     @NonNull
-    private List<Long> getFollowingUserIds() throws IOException, ApiRequestException, ApiMapperException {
+    private List<Urn> getFollowingUserIds() throws IOException, ApiRequestException, ApiMapperException {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.MY_FOLLOWINGS.path())
                                              .forPrivateApi()
                                              .build();
         ModelCollection<ApiFollowing> apiFollowings = apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiFollowing>>() {
         });
-        return Lists.transform(apiFollowings.getCollection(), ApiFollowing.TO_USER_IDS);
+        return Lists.transform(apiFollowings.getCollection(), ApiFollowing.TO_USER_URNS);
     }
 
     private void pushFollowing(Following following) throws IOException, ApiRequestException {
-        final UserAssociation userAssociation = following.userAssociation();
-        final Urn userUrn = userAssociation.userUrn();
-        final String userName = following.user().username();
+        final Urn userUrn = following.getUserUrn();
 
-        if (userAssociation.addedAt().isPresent()) {
+        if (following.getAddedAt() != null) {
             pushUserAssociationAddition(userUrn,
-                                        userName,
                                         ApiRequest.post(ApiEndpoints.USER_FOLLOWS.path(userUrn))
                                                   .forPrivateApi()
                                                   .build());
-        } else if (userAssociation.removedAt().isPresent()) {
+        } else if (following.getRemovedAt() != null) {
             pushUserAssociationRemoval(userUrn,
                                        ApiRequest.delete(ApiEndpoints.USER_FOLLOWS.path(userUrn))
                                                  .forPrivateApi()
                                                  .build());
         } else {
-            throw new IllegalArgumentException("Following does not need syncing: " + following);
+            throw new IllegalArgumentException("FollowingWithUser does not need syncing: " + following);
         }
     }
 
-    private void pushUserAssociationAddition(Urn userUrn, String userName, ApiRequest request) throws IOException, ApiRequestException {
+    private void pushUserAssociationAddition(Urn userUrn, ApiRequest request) throws IOException, ApiRequestException {
         final ApiResponse response = apiClient.fetchResponse(request);
         int status = response.getStatusCode();
         if (shouldHandleError(status)) {
-            handleError(userUrn, userName, extractApiError(response.getResponseBody()));
+            handleError(userUrn, extractApiError(response.getResponseBody()));
         } else if (response.isSuccess()) {
-            userAssociationStorage.updateFollowingFromPendingState(userUrn);
+            followingStorage.updateFollowingFromPendingState(userUrn);
         } else {
             Log.w(TAG, "failure " + status + " in user association addition of " + userUrn);
             throw response.getFailure();
@@ -156,7 +157,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         if (apiResponse.isSuccess()
                 || apiResponse.getStatusCode() == HttpStatus.NOT_FOUND
                 || apiResponse.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
-            userAssociationStorage.updateFollowingFromPendingState(userUrn);
+            followingStorage.updateFollowingFromPendingState(userUrn);
         } else {
             Log.w(TAG, "failure " + status + " in user association removal of " + userUrn);
             throw apiResponse.getFailure();
@@ -176,13 +177,16 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
         }
     }
 
-    private void handleError(Urn userUrn, String userName, FollowError error) {
-        Optional<Notification> notification = getNotificationForError(userUrn, userName, error);
-        if (notification.isPresent()) {
-            notificationManager.notify(userUrn.toString(),
-                                       NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
-                                       notification.get());
-        }
+    private void handleError(Urn userUrn, FollowError error) {
+        final Optional<User> optionalUser = userStorage.loadUser(userUrn).map(Optional::of).toSingle(Optional.absent()).blockingGet();
+        optionalUser.ifPresent(user -> {
+            Optional<Notification> notification = getNotificationForError(userUrn, user.username(), error);
+            if (notification.isPresent()) {
+                notificationManager.notify(userUrn.toString(),
+                                           NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
+                                           notification.get());
+            }
+        });
         followingOperations.toggleFollowing(userUrn, false).subscribe(new DefaultDisposableCompletableObserver());
     }
 

@@ -27,16 +27,16 @@ import org.mockito.junit.MockitoJUnitRunner
 class UserRepositoryTest {
 
     private val userUrn = Urn.forUser(123L)
-    private val user = ModelFixtures.userBuilder(false)
+    private val user = ModelFixtures.userBuilder()
             .urn(Urn.forUser(123L)).build()
 
-    private val updatedUser = ModelFixtures.userBuilder(false)
+    private val updatedUser = ModelFixtures.userBuilder()
             .urn(Urn.forUser(123L))
             .username("updated-name")
             .build()
 
     private val otherUserUrn = Urn.forUser(124L)
-    private val otherUser = ModelFixtures.userBuilder(false)
+    private val otherUser = ModelFixtures.userBuilder()
             .urn(Urn.forUser(124L))
             .build();
 
@@ -163,7 +163,7 @@ class UserRepositoryTest {
         val urns = listOf(userUrn, otherUserUrn)
         val users = listOf(user, otherUser)
 
-        whenever(userStorage.loadUsers(urns)).thenReturn(Single.just(users))
+        whenever(userStorage.loadUserMap(urns)).thenReturn(Single.just(users.associateBy { it.urn() }))
 
         userRepository.usersInfo(urns)
                 .test()
@@ -177,7 +177,7 @@ class UserRepositoryTest {
         val urns = listOf(userUrn, otherUserUrn)
         val users = listOf(user, otherUser)
 
-        whenever(userStorage.loadUsers(urns)).thenReturn(Single.just(listOf(user)), Single.just(users))
+        whenever(userStorage.loadUserMap(urns)).thenReturn(Single.just(mapOf(user.urn() to user)), Single.just(users.associateBy { it.urn() }))
 
         val syncJobResultObservable = Single.just(SyncJobResult.success(Syncable.USERS.name, true))
         whenever(syncInitiator.batchSyncUsers(ArgumentMatchers.anyList())).thenReturn(syncJobResultObservable)

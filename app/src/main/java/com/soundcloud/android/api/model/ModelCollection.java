@@ -121,4 +121,8 @@ public class ModelCollection<T> implements Iterable<T> {
     public <S> ModelCollection<S> transform(Function<T, S> function) {
         return new ModelCollection<>(newArrayList(Iterables.transform(collection, function)), links, queryUrn);
     }
+
+    public <S> ModelCollection<S> copyWithNewItems(List<S> newData) {
+        return new ModelCollection<>(newData, links, queryUrn);
+    }
 }

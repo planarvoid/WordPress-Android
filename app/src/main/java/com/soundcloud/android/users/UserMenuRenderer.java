@@ -14,13 +14,13 @@ import android.view.View;
 @AutoFactory(allowSubclasses = true)
 class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
 
-    private User user;
+    private UserItem userItem;
 
     interface Listener {
 
-        void handleToggleFollow(User user);
+        void handleToggleFollow(UserItem userItem);
 
-        void handleOpenStation(Activity activity, User user);
+        void handleOpenStation(Activity activity, UserItem userItem);
 
         void onDismiss();
 
@@ -42,17 +42,17 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
         menu.setOnDismissListener(this);
     }
 
-    void render(User user, boolean showFollowAction) {
-        this.user = user;
+    void render(UserItem userItem, boolean showFollowAction) {
+        this.userItem = userItem;
 
-        updateFollowAction(user, showFollowAction);
+        updateFollowAction(userItem.isFollowedByMe(), showFollowAction);
         menu.show();
     }
 
-    private void updateFollowAction(User user, boolean showFollowAction) {
+    private void updateFollowAction(boolean isFollowedByMe, boolean showFollowAction) {
         final MenuItem item = menu.findItem(R.id.toggle_follow);
         updateFollowActionVisibility(item, showFollowAction);
-        updateFollowActionTitle(item, user.isFollowing());
+        updateFollowActionTitle(item, isFollowedByMe);
     }
 
     private void updateFollowActionVisibility(MenuItem item, boolean showFollowAction) {
@@ -67,10 +67,10 @@ class UserMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.toggle_follow:
-                listener.handleToggleFollow(user);
+                listener.handleToggleFollow(userItem);
                 return true;
             case R.id.open_station:
-                listener.handleOpenStation(ViewUtils.getFragmentActivity(context), user);
+                listener.handleOpenStation(ViewUtils.getFragmentActivity(context), userItem);
                 return true;
             default:
                 return false;

@@ -249,7 +249,8 @@ public class ModelFixtures {
     }
 
     public static User user() {
-        return user(false);
+        return userBuilder()
+                .build();
     }
 
     public static User proUser() {
@@ -258,32 +259,43 @@ public class ModelFixtures {
     }
 
     public static User user(Urn urn) {
-        return userBuilder(false).urn(urn).build();
-    }
-
-    public static User user(boolean isFollowing) {
-        return userBuilder(isFollowing)
-                .build();
+        return userBuilder().urn(urn).build();
     }
 
     public static UserItem userItem() {
         return userItem(apiUser());
     }
 
+    public static UserItem userItem(boolean isFollowing) {
+        return userItem(apiUser(), isFollowing);
+    }
+
     public static UserItem userItem(ApiUser user) {
         return userItem(user(user));
+    }
+
+    public static UserItem userItem(ApiUser user, boolean isFollowing) {
+        return userItem(user(user), isFollowing);
     }
 
     public static User user(ApiUser user) {
         return User.fromApiUser(user);
     }
 
+    public static UserItem userItem(User user, boolean isFollowing) {
+        return UserItem.from(user, isFollowing);
+    }
+
     public static UserItem userItem(User user) {
-        return UserItem.from(user);
+        return userItem(user, false);
+    }
+
+    public static UserItem userItem(Urn urn, boolean isFollowing) {
+        return UserItem.from(user(urn), isFollowing);
     }
 
     public static UserItem userItem(Urn urn) {
-        return UserItem.from(user(urn));
+        return userItem(urn, false);
     }
 
     public static List<UserItem> userItems(List<ApiUser> apiUsers) {
@@ -291,10 +303,6 @@ public class ModelFixtures {
     }
 
     public static User.Builder userBuilder() {
-        return userBuilder(false);
-    }
-
-    public static User.Builder userBuilder(boolean isFollowing) {
         return User.builder()
                    .urn(Urn.forUser(runningUserId++))
                    .username("avieciie")
@@ -302,7 +310,6 @@ public class ModelFixtures {
                    .city(of("city"))
                    .followersCount(2)
                    .followingsCount(6)
-                   .isFollowing(isFollowing)
                    .avatarUrl(of("avatar-url"))
                    .visualUrl(of("visual-url"))
                    .isPro(false);
@@ -702,7 +709,7 @@ public class ModelFixtures {
         } else if (searchItem.playlist().isPresent()) {
             return entityItemCreator.playlistItem(searchItem.playlist().get());
         } else if (searchItem.user().isPresent()) {
-            return entityItemCreator.userItem(searchItem.user().get());
+            return entityItemCreator.userItem(searchItem.user().get(), false);
         } else {
             throw new RuntimeException("Unknown search item type " + searchItem);
         }

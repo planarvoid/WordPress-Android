@@ -11,14 +11,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -200,22 +198,12 @@ public abstract class PlayableFixtures {
         return ModelFixtures.playlistItemBuilder(playlist);
     }
 
-    public static Following expectedFollowingForFollowingsScreen(long position) {
-        final Urn urn = Urn.forUser(123L);
-        return Following.from(ModelFixtures.user(),
-                UserAssociation.create(urn, position, -1, Optional.absent(), Optional.absent()));
-    }
-
     public static PlaylistItem expectedPostedPlaylistForPostsScreen() {
         return expectedPostedPlaylistsForPostedPlaylistsScreen();
     }
 
     public static LastPostedTrack expectedLastPostedTrackForPostsScreen() {
         return LastPostedTrack.create(Urn.forTrack(123L), new Date(), "http://permalink.url");
-    }
-
-    public static LastPostedTrack expectedLastPostedTrack(Date date) {
-        return LastPostedTrack.create(Urn.forTrack(123L), date, "http://permalink.url");
     }
 
     private static PlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {

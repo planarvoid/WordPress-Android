@@ -8,8 +8,8 @@ import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.sync.SyncInitiatorBridge
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
-import com.soundcloud.android.users.UserAssociation
-import com.soundcloud.android.users.UserAssociationStorage
+import com.soundcloud.android.users.Following
+import com.soundcloud.android.users.FollowingStorage
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.enrichItemsWithProperties
 import io.reactivex.Scheduler
@@ -24,25 +24,25 @@ class MyProfileOperations
 constructor(
         private val postsStorage: PostsStorage,
         private val syncInitiatorBridge: SyncInitiatorBridge,
-        private val userAssociationStorage: UserAssociationStorage,
+        private val followingStorage: FollowingStorage,
         @param:Named(ApplicationModule.RX_HIGH_PRIORITY) private val scheduler: Scheduler,
         private val trackRepository: TrackRepository) {
 
-    fun followingsUserAssociations(): Single<List<UserAssociation>> {
-        return loadFollowingUserAssociationsFromStorage()
+    fun followings(): Single<List<Following>> {
+        return loadFollowingsFromStorage()
                 .filter { list -> !list.isEmpty() }
                 .switchIfEmpty(
                         Single
                                 .defer {
                                     syncInitiatorBridge
                                             .refreshFollowings()
-                                            .flatMap { loadFollowingUserAssociationsFromStorage() }
+                                            .flatMap { loadFollowingsFromStorage() }
                                 }
                                 .toMaybe())
                 .toSingle(emptyList())
     }
 
-    private fun loadFollowingUserAssociationsFromStorage(): Single<List<UserAssociation>> = userAssociationStorage.followedUserAssociations().subscribeOn(scheduler)
+    private fun loadFollowingsFromStorage() = followingStorage.followings().subscribeOn(scheduler)
 
     fun lastPublicPostedTrack(): Single<LastPostedTrack> {
         return postsStorage

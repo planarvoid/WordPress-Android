@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 public class UserMenuPresenter implements UserMenuRenderer.Listener {
 
-    private final UserRepository userRepository;
+    private final UserItemRepository userItemRepository;
     private final StartStationHandler stationHandler;
     private final EngagementsTracking engagementsTracking;
     private final AccountOperations accountOperations;
@@ -32,13 +32,13 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     @Inject
     UserMenuPresenter(UserMenuRendererFactory rendererFactory,
                       FollowingOperations followingOperations,
-                      UserRepository userRepository,
+                      UserItemRepository userItemRepository,
                       StartStationHandler stationHandler,
                       EngagementsTracking engagementsTracking,
                       AccountOperations accountOperations) {
         this.rendererFactory = rendererFactory;
         this.followingOperations = followingOperations;
-        this.userRepository = userRepository;
+        this.userItemRepository = userItemRepository;
         this.stationHandler = stationHandler;
         this.engagementsTracking = engagementsTracking;
         this.accountOperations = accountOperations;
@@ -51,15 +51,15 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     }
 
     @Override
-    public void handleToggleFollow(User user) {
-        boolean isFollowed = !user.isFollowing();
-        followingOperations.toggleFollowing(user.urn(), isFollowed).subscribe(new DefaultDisposableCompletableObserver());
-        engagementsTracking.followUserUrn(user.urn(), isFollowed, eventContextMetadata);
+    public void handleToggleFollow(UserItem userItem) {
+        boolean isFollowed = !userItem.isFollowedByMe();
+        followingOperations.toggleFollowing(userItem.getUrn(), isFollowed).subscribe(new DefaultDisposableCompletableObserver());
+        engagementsTracking.followUserUrn(userItem.getUrn(), isFollowed, eventContextMetadata);
     }
 
     @Override
-    public void handleOpenStation(Activity activity, User user) {
-        stationHandler.startStation(Urn.forArtistStation(user.urn().getNumericId()));
+    public void handleOpenStation(Activity activity, UserItem userItem) {
+        stationHandler.startStation(Urn.forArtistStation(userItem.getUrn().getNumericId()));
     }
 
     @Override
@@ -69,15 +69,15 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
 
     private void loadUser(Urn urn) {
         compositeDisposable.clear();
-        compositeDisposable.add(userRepository.localUserInfo(urn)
-                                              .observeOn(AndroidSchedulers.mainThread())
-                                              .subscribeWith(new UserObserver()));
+        compositeDisposable.add(userItemRepository.localUserItem(urn)
+                                                  .observeOn(AndroidSchedulers.mainThread())
+                                                  .subscribeWith(new UserObserver()));
     }
 
-    private class UserObserver extends DefaultMaybeObserver<User> {
+    private class UserObserver extends DefaultMaybeObserver<UserItem> {
         @Override
-        public void onSuccess(User user) {
-            renderer.render(user, accountOperations.isLoggedInUser(user.urn()));
+        public void onSuccess(UserItem userItem) {
+            renderer.render(userItem, accountOperations.isLoggedInUser(userItem.getUrn()));
         }
     }
 }

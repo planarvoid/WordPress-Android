@@ -4,7 +4,10 @@ import com.soundcloud.android.api.model.ApiUser
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
-import com.soundcloud.java.optional.Optional.*
+import com.soundcloud.java.optional.Optional.absent
+import com.soundcloud.java.optional.Optional.fromNullable
+import com.soundcloud.java.optional.Optional.of
+import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 
@@ -71,7 +74,6 @@ class UserStorageTest : StorageIntegrationTest() {
         testFixtures().insertFollowing(apiUser.urn)
 
         val expectedUser = getApiUserBuilder(apiUser)
-                .isFollowing(true)
                 .build()
 
         storage.loadUser(apiUser.urn)
@@ -82,7 +84,6 @@ class UserStorageTest : StorageIntegrationTest() {
     @Test
     fun loadsUnfollowedUserPending() {
         val apiUser = testFixtures().insertUser()
-        testFixtures().insertFollowingPendingRemoval(apiUser.urn, 123)
 
         val expectedUser = getApiUserBuilder(apiUser).build()
 
@@ -165,6 +166,21 @@ class UserStorageTest : StorageIntegrationTest() {
                 .assertValue(listOf())
     }
 
+    @Test
+    fun updatesUsersFollowingCount() {
+        val user = ModelFixtures.apiUser()
+        testFixtures().insertUser(user)
+
+        val previousFollowersCount = user.followersCount
+        val newFollowersCount = previousFollowersCount + 1
+
+        storage.updateFollowersCount(user.urn, newFollowersCount).test()
+
+        val updatedUser = storage.loadUser(user.urn).test().values()[0]
+
+        Assertions.assertThat(updatedUser.followersCount()).isEqualTo(newFollowersCount)
+    }
+
     private fun getExtendedUserBuilder(apiUser: ApiUser): User.Builder {
         return getBaseUserBuilder(apiUser)
                 .country(fromNullable(apiUser.country))
@@ -183,7 +199,7 @@ class UserStorageTest : StorageIntegrationTest() {
     }
 
     private fun getBaseUserBuilder(apiUser: ApiUser): User.Builder {
-        return ModelFixtures.userBuilder(false)
+        return ModelFixtures.userBuilder()
                 .urn(apiUser.urn)
                 .username(apiUser.username)
                 .signupDate(apiUser.createdAt)

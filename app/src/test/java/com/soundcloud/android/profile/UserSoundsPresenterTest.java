@@ -34,7 +34,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -67,7 +67,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     private UserProfile userProfileResponse;
     private Bundle fragmentArgs;
     private TestEventBus eventBus = new TestEventBus();
-    private User profileUser;
+    private UserItem profileUser;
 
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacker;
@@ -90,7 +90,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         userProfileResponse = new UserProfileFixtures.Builder().build();
         fragmentArgs = new Bundle();
-        profileUser = ModelFixtures.user();
+        profileUser = ModelFixtures.userItem();
 
         Urns.writeToBundle(fragmentArgs, ProfileArguments.USER_URN_KEY, USER_URN);
         fragmentArgs.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, SEARCH_QUERY_SOURCE_INFO);
@@ -121,7 +121,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     public void configuresEmptyViewInOnViewCreatedForOthersProfile() throws Exception {
         EmptyView emptyView = mock(EmptyView.class);
 
-        when(resources.getString(R.string.empty_user_sounds_message_secondary, profileUser.username()))
+        when(resources.getString(R.string.empty_user_sounds_message_secondary, profileUser.user().username()))
                 .thenReturn("Secondary Text");
 
         fragmentArgs.putBoolean(UserSoundsFragment.IS_CURRENT_USER, false);

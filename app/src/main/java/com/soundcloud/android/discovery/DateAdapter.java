@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Date;
 
-class DateAdapter implements ColumnAdapter<Date, Long> {
+public class DateAdapter implements ColumnAdapter<Date, Long> {
 
     @NonNull
     @Override

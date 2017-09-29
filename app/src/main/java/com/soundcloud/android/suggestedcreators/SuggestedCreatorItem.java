@@ -20,12 +20,12 @@ public abstract class SuggestedCreatorItem implements UserImageSource {
     private boolean shouldDefaultToPalette = false;
 
     public static SuggestedCreatorItem fromSuggestedCreator(SuggestedCreator suggestedCreator) {
-        final AutoValue_SuggestedCreatorItem autoValue_suggestedCreatorItem = new AutoValue_SuggestedCreatorItem(
-                suggestedCreator.getCreator(),
+        final SuggestedCreatorItem suggestedCreatorItem = new AutoValue_SuggestedCreatorItem(
+                suggestedCreator.getCreator().user(),
                 suggestedCreator.getRelation());
-        autoValue_suggestedCreatorItem.following = suggestedCreator.getCreator().isFollowing();
-        autoValue_suggestedCreatorItem.setPalette(Optional.absent());
-        return autoValue_suggestedCreatorItem;
+        suggestedCreatorItem.following = suggestedCreator.getCreator().isFollowedByMe();
+        suggestedCreatorItem.setPalette(Optional.absent());
+        return suggestedCreatorItem;
     }
 
     @Override

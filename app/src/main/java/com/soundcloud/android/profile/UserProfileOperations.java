@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.Lists;
@@ -42,6 +43,7 @@ public class UserProfileOperations {
     private final Scheduler scheduler;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final UserRepository userRepository;
+    private final UserItemRepository userItemRepository;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final StoreProfileCommand storeProfileCommand;
     private final StoreUsersCommand storeUsersCommand;
@@ -82,6 +84,7 @@ public class UserProfileOperations {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           UserRepository userRepository,
+                          UserItemRepository userItemRepository,
                           WriteMixedRecordsCommand writeMixedRecordsCommand,
                           StoreProfileCommand storeProfileCommand,
                           StoreUsersCommand storeUsersCommand,
@@ -92,6 +95,7 @@ public class UserProfileOperations {
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
+        this.userItemRepository = userItemRepository;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.storeProfileCommand = storeProfileCommand;
         this.storeUsersCommand = storeUsersCommand;
@@ -100,8 +104,8 @@ public class UserProfileOperations {
         this.eventBus = eventBus;
     }
 
-    Observable<User> getLocalProfileUser(Urn user) {
-        return RxJava.toV1Observable(userRepository.localUserInfo(user));
+    Observable<UserItem> getLocalProfileUser(Urn user) {
+        return RxJava.toV1Observable(userItemRepository.localUserItem(user));
     }
 
     Observable<User> getLocalAndSyncedProfileUser(Urn user) {
@@ -134,7 +138,7 @@ public class UserProfileOperations {
         return profileApi
                 .userFollowings(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(users -> users.transform(entityItemCreator::userItem))
+                .flatMap(apiUsers -> RxJava.toV1Observable(userItemRepository.userItems(apiUsers)).map(apiUsers::copyWithNewItems))
                 .map(PagedRemoteCollection::new)
                 .subscribeOn(scheduler);
     }
@@ -143,7 +147,7 @@ public class UserProfileOperations {
         return pagingFunction(nextPageLink ->
                                       profileApi.userFollowings(nextPageLink)
                                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                                .map(users -> users.transform(entityItemCreator::userItem))
+                                                .flatMap(apiUsers -> RxJava.toV1Observable(userItemRepository.userItems(apiUsers)).map(apiUsers::copyWithNewItems))
                                                 .map(PagedRemoteCollection::new)
                                                 .subscribeOn(scheduler));
     }
@@ -152,13 +156,12 @@ public class UserProfileOperations {
         return profileApi.userProfile(user)
                          .doOnNext(storeProfileCommand.toAction1())
                          .doOnNext(publishEntityChangedFromProfile())
-                         .map(this::fromApiUserProfile)
+                         .flatMap(apiUserProfile -> RxJava.toV1Observable(userItemRepository.userItem(apiUserProfile.getUser())).map(userItem -> fromApiUserProfile(apiUserProfile, userItem)))
                          .doOnNext(spotlightItemStatusLoader.toAction1())
                          .subscribeOn(scheduler);
     }
 
-    public UserProfile fromApiUserProfile(ApiUserProfile apiUserProfile){
-        UserItem user = entityItemCreator.userItem(apiUserProfile.getUser());
+    public UserProfile fromApiUserProfile(ApiUserProfile apiUserProfile, UserItem user) {
         ModelCollection<PlayableItem> spotlight = apiUserProfile.getSpotlight().transform(entityItemCreator::playableItem);
         ModelCollection<TrackItem> tracks = apiUserProfile.getTracks().transform(entityItemCreator::trackItem);
         ModelCollection<PlaylistItem> albums = apiUserProfile.getAlbums().transform(entityItemCreator::playlistItem);
@@ -178,7 +181,7 @@ public class UserProfileOperations {
 
     Observable<PagedRemoteCollection<PlayableItem>> userReposts(Urn user) {
         return profileApi.userReposts(user)
-                         .doOnNext(reposts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(reposts)))
+                         .doOnNext(reposts -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(reposts)))
                          .map(reposts -> reposts.transform(entityItemCreator::playableItem))
                          .map(PagedRemoteCollection::new)
                          .map(UserProfileOperations.this::mergePlayableInfo)
@@ -197,7 +200,7 @@ public class UserProfileOperations {
 
     Observable<PagedRemoteCollection<PlayableItem>> userTracks(Urn user) {
         return profileApi.userTracks(user)
-                         .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                         .doOnNext(posts -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
                          .map(posts -> posts.transform(entityItemCreator::playableItem))
                          .map(PagedRemoteCollection::new)
                          .map(UserProfileOperations.this::mergePlayableInfo)
@@ -225,16 +228,16 @@ public class UserProfileOperations {
 
     Observable<PagedRemoteCollection<PlaylistItem>> userAlbums(String nextPageLink) {
         return profileApi.userAlbums(nextPageLink)
-                  .doOnNext(writeMixedRecordsCommand.toAction1())
-                  .map(playlists -> playlists.transform(entityItemCreator::playlistItem))
-                  .map(PagedRemoteCollection::new)
-                  .map(UserProfileOperations.this::mergePlaylistInfo)
-                  .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(playlists -> playlists.transform(entityItemCreator::playlistItem))
+                         .map(PagedRemoteCollection::new)
+                         .map(UserProfileOperations.this::mergePlaylistInfo)
+                         .subscribeOn(scheduler);
     }
 
     Observable<PagedRemoteCollection<PlayableItem>> userLikes(Urn user) {
         return profileApi.userLikes(user)
-                         .doOnNext(posts ->  writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
+                         .doOnNext(posts -> writeMixedRecordsCommand.call(TO_RECORD_HOLDERS(posts)))
                          .map(posts -> posts.transform(entityItemCreator::playableItem))
                          .map(PagedRemoteCollection::new)
                          .map(UserProfileOperations.this::mergePlayableInfo)
@@ -255,22 +258,22 @@ public class UserProfileOperations {
         return profileApi
                 .userFollowers(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(users -> users.transform(entityItemCreator::userItem))
+                .flatMap(apiUsers -> RxJava.toV1Observable(userItemRepository.userItems(apiUsers)).map(apiUsers::copyWithNewItems))
                 .map(PagedRemoteCollection::new)
                 .subscribeOn(scheduler);
     }
 
     PagingFunction<PagedRemoteCollection<UserItem>> followersPagingFunction() {
         return pagingFunction(nextPageLink ->
-                 profileApi.userFollowers(nextPageLink)
-                                 .doOnNext(writeMixedRecordsCommand.toAction1())
-                                 .map(users -> users.transform(entityItemCreator::userItem))
-                                 .map(PagedRemoteCollection::new)
-                                 .subscribeOn(scheduler));
+                                      profileApi.userFollowers(nextPageLink)
+                                                .doOnNext(writeMixedRecordsCommand.toAction1())
+                                                .flatMap(apiUsers -> RxJava.toV1Observable(userItemRepository.userItems(apiUsers)).map(apiUsers::copyWithNewItems))
+                                                .map(PagedRemoteCollection::new)
+                                                .subscribeOn(scheduler));
     }
 
     public <T> PagingFunction<PagedRemoteCollection<T>> pagingFunction(final Func1<String,
-                Observable<PagedRemoteCollection<T>>> nextPage) {
+            Observable<PagedRemoteCollection<T>>> nextPage) {
         return PagedCollection.pagingFunction(nextPage, scheduler);
     }
 

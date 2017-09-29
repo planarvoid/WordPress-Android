@@ -22,7 +22,7 @@ public class DiscoveryDatabase extends SqlBriteDatabase {
 
     void cleanUp() throws SQLException {
         runInTransaction(() -> {
-            final SQLiteDatabase writableDatabase = briteDatabase.getWritableDatabase();
+            final SQLiteDatabase writableDatabase = getBriteDatabase().getWritableDatabase();
             writableDatabase.execSQL(DbModel.SelectionItem.DELETEALL);
             writableDatabase.execSQL(DbModel.SingleContentSelectionCard.DELETEALL);
             writableDatabase.execSQL(DbModel.MultipleContentSelectionCard.DELETEALL);

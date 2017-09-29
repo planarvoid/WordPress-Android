@@ -35,7 +35,7 @@ class SuggestedCreatorsFixtures {
     static List<SuggestedCreator> createSuggestedCreators(int count, SuggestedCreatorRelation relation, Date followedAt) {
         final ArrayList<SuggestedCreator> result = Lists.newArrayList();
         for (int i = 0; i < count; i++) {
-            result.add(SuggestedCreator.create(ModelFixtures.user(), relation, Optional.fromNullable(followedAt)));
+            result.add(SuggestedCreator.create(ModelFixtures.userItem(), relation, Optional.fromNullable(followedAt)));
         }
         return result;
     }

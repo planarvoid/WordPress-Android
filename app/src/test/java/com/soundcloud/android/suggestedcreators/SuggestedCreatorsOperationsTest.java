@@ -16,11 +16,10 @@ import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.users.UserAssociation;
+import com.soundcloud.android.users.Following;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.optional.Optional;
 import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -80,7 +79,7 @@ public class SuggestedCreatorsOperationsTest {
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(
                 suggestedCreators));
 
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(
+        when(myProfileOperations.followings()).thenReturn(Single.just(
                 generateNonUserFollowings(5)));
 
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
@@ -94,7 +93,7 @@ public class SuggestedCreatorsOperationsTest {
         when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(true);
         final List<SuggestedCreator> suggestedCreators = createSuggestedCreators(3, SuggestedCreatorRelation.LIKED);
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(suggestedCreators));
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(generateNonUserFollowings(6)));
+        when(myProfileOperations.followings()).thenReturn(Single.just(generateNonUserFollowings(6)));
 
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem notificationItem = subscriber.values().get(0);
@@ -108,10 +107,10 @@ public class SuggestedCreatorsOperationsTest {
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(
                 suggestedCreators));
 
-        final List<UserAssociation> usedUrns = Lists.newArrayList(createUserAssociation(suggestedCreators.get(0)
-                                                                                                         .getCreator()
-                                                                                                         .urn()));
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(usedUrns));
+        final List<Following> usedUrns = Lists.newArrayList(createFollowing(suggestedCreators.get(0)
+                                                                                             .getCreator()
+                                                                                             .getUrn()));
+        when(myProfileOperations.followings()).thenReturn(Single.just(usedUrns));
 
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
@@ -133,10 +132,10 @@ public class SuggestedCreatorsOperationsTest {
                                                                                  timeInPast);
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(
                 suggestedCreators));
-        final List<UserAssociation> usedUrns = Lists.newArrayList(createUserAssociation(suggestedCreators.get(0)
-                                                                                                         .getCreator()
-                                                                                                         .urn(), timeInPast));
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(usedUrns));
+        final List<Following> usedUrns = Lists.newArrayList(createFollowing(suggestedCreators.get(0)
+                                                                                             .getCreator()
+                                                                                             .getUrn(), timeInPast));
+        when(myProfileOperations.followings()).thenReturn(Single.just(usedUrns));
 
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
@@ -159,10 +158,10 @@ public class SuggestedCreatorsOperationsTest {
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(
                 suggestedCreators));
 
-        final List<UserAssociation> usedUrns = Lists.newArrayList(createUserAssociation(suggestedCreators.get(0)
-                                                                                                         .getCreator()
-                                                                                                         .urn(), recentTime));
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(usedUrns));
+        final List<Following> usedUrns = Lists.newArrayList(createFollowing(suggestedCreators.get(0)
+                                                                                             .getCreator()
+                                                                                             .getUrn(), recentTime));
+        when(myProfileOperations.followings()).thenReturn(Single.just(usedUrns));
 
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem.SuggestedCreators notificationItem = (StreamItem.SuggestedCreators) subscriber
@@ -184,20 +183,20 @@ public class SuggestedCreatorsOperationsTest {
         when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Single.just(
                 suggestedCreators));
 
-        final List<UserAssociation> usedUrns = Lists.newArrayList(createUserAssociation(suggestedCreators.get(0)
-                                                                                                         .getCreator()
-                                                                                                         .urn()),
-                                                                  createUserAssociation(suggestedCreators.get(1)
-                                                                                                         .getCreator()
-                                                                                                         .urn()));
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(usedUrns));
+        final List<Following> usedUrns = Lists.newArrayList(createFollowing(suggestedCreators.get(0)
+                                                                                             .getCreator()
+                                                                                             .getUrn()),
+                                                            createFollowing(suggestedCreators.get(1)
+                                                                                             .getCreator()
+                                                                                             .getUrn()));
+        when(myProfileOperations.followings()).thenReturn(Single.just(usedUrns));
 
         operations.suggestedCreators().test().assertNoValues();
     }
 
     @Test
     public void returnsEmptyIfNumberOfFollowingsGreaterThanFive() {
-        when(myProfileOperations.followingsUserAssociations()).thenReturn(Single.just(
+        when(myProfileOperations.followings()).thenReturn(Single.just(
                 generateNonUserFollowings(6)));
 
         operations.suggestedCreators().test().assertNoValues();
@@ -216,29 +215,21 @@ public class SuggestedCreatorsOperationsTest {
         verify(suggestedCreatorsStorage).toggleFollowSuggestedCreator(urn, isFollowing);
     }
 
-    private List<UserAssociation> generateNonUserFollowings(int numberOfUrns) {
-        final List<UserAssociation> userAssociations = Lists.newArrayList();
+    private List<Following> generateNonUserFollowings(int numberOfUrns) {
+        final List<Following> followings = Lists.newArrayList();
         for (int i = 0; i < numberOfUrns; i++) {
-            userAssociations.add(createUserAssociation(new Urn("soundcloud:follower:" + i)));
+            followings.add(createFollowing(new Urn("soundcloud:follower:" + i)));
         }
-        return userAssociations;
+        return followings;
     }
 
     @NonNull
-    private UserAssociation createUserAssociation(Urn urn) {
-        return UserAssociation.create(urn,
-                                      0,
-                                      0,
-                                      Optional.absent(),
-                                      Optional.absent());
+    private Following createFollowing(Urn urn) {
+        return new Following(urn, 0, null, null);
     }
 
     @NonNull
-    private UserAssociation createUserAssociation(Urn urn, Date addedAt) {
-        return UserAssociation.create(urn,
-                                      0,
-                                      0,
-                                      Optional.of(addedAt),
-                                      Optional.absent());
+    private Following createFollowing(Urn urn, Date addedAt) {
+        return new Following(urn, 0, addedAt, null);
     }
 }

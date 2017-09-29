@@ -319,7 +319,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo121(db, oldVersion);
                             break;
                         case 122:
-                            success = upgradeTo122(oldVersion);
+                            success = upgradeTo122(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1150,14 +1150,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    /**
-     * Removed OFFLINE stuff from sounds / soundview
-     */
-    private boolean upgradeTo122(int oldVersion) {
-        // sound view changed
-        return true;
+    private boolean upgradeTo122(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropView("UsersView", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 122);
+        }
+        return false;
     }
-
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
@@ -1229,7 +1230,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return asList(
                 Tables.OfflinePlaylistTracks.TABLE,
                 Tables.PlaylistView.TABLE,
-                Tables.UsersView.TABLE,
                 Tables.TrackView.TABLE
         );
     }

@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn
 import com.soundcloud.android.storage.RepositoryMissedSyncEvent
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.utils.OpenForTesting
+import com.soundcloud.propeller.ChangeResult
 import com.soundcloud.rx.eventbus.EventBusV2
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -36,14 +37,24 @@ constructor(private val userStorage: UserStorage,
      * Returns a list of users from local storage if they exist, and backfills from the api if the users are not found locally.
      * The list might be a subset of the request urns if they are not found even after the server sync.
      */
-    fun usersInfo(userUrns: List<Urn>): Single<List<User>> {
-        return userStorage.loadUsers(userUrns)
+    fun usersInfo(userUrns: List<Urn>): Single<List<User>> = usersInfoMap(userUrns).map { it.values.toList() }
+
+    fun usersInfoMap(userUrns: List<Urn>): Single<Map<Urn, User>> {
+        checkUsersUrn(userUrns)
+        return userStorage.loadUserMap(userUrns)
                 .flatMap { foundUsers -> syncMissingUsers(userUrns, foundUsers) }
                 .doOnSuccess { reportMissingAfterSync(it.size, userUrns.size) }
                 .subscribeOn(scheduler)
     }
 
-    private fun syncMissingUsers(requiredUsers: List<Urn>, foundUsers: List<User>): Single<List<User>> {
+    private fun checkUsersUrn(userUrns: Collection<Urn>) {
+        val urn = userUrns.find { !it.isUser }
+        if (urn != null) {
+            throw IllegalArgumentException("Trying to sync user without a valid user urn. userUrns = [$userUrns]")
+        }
+    }
+
+    private fun syncMissingUsers(requiredUsers: List<Urn>, foundUsers: Map<Urn, User>): Single<Map<Urn, User>> {
         if (foundUsers.size == requiredUsers.size) {
             return Single.just(foundUsers)
         } else {
@@ -51,10 +62,10 @@ constructor(private val userStorage: UserStorage,
         }
     }
 
-    private fun doSyncMissingUsers(requiredUsers: List<Urn>, foundUsers: List<User>): Single<List<User>> {
-        val missingUserUrns = requiredUsers.minus(foundUsers.map { it.urn() })
+    private fun doSyncMissingUsers(requiredUsers: List<Urn>, foundUsers: Map<Urn, User>): Single<Map<Urn, User>> {
+        val missingUserUrns = requiredUsers.minus(foundUsers.keys)
         return syncInitiator.batchSyncUsers(missingUserUrns)
-                .flatMap { userStorage.loadUsers(requiredUsers) }
+                .flatMap { userStorage.loadUserMap(requiredUsers) }
     }
 
     /***
@@ -83,6 +94,10 @@ constructor(private val userStorage: UserStorage,
     fun localUserInfo(userUrn: Urn): Maybe<User> {
         return userStorage.loadUser(userUrn)
                 .subscribeOn(scheduler)
+    }
+
+    fun updateFollowersCount(urn: Urn, followersCount: Int): Single<ChangeResult> {
+        return userStorage.updateFollowersCount(urn, followersCount)
     }
 
     private fun <T> logEmpty() = Maybe.empty<T>().doOnComplete { logMissing(1) }

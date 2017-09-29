@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -120,11 +121,12 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                    .build();
     }
 
-    void setUserDetails(User user) {
+    void setUserDetails(UserItem userItem) {
+        final User user = userItem.user();
         username.setText(user.username());
         setUserImage(user);
         setFollowerCount(user);
-        setFollowingButton(user);
+        setFollowingButton(userItem);
         setArtistStation(user);
         setProBadge(user);
     }
@@ -165,10 +167,10 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         }
     }
 
-    private void setFollowingButton(User user) {
-        boolean hasArtistStation = user.artistStation().isPresent();
+    private void setFollowingButton(UserItem userItem) {
+        boolean hasArtistStation = userItem.user().artistStation().isPresent();
         boolean stationVisible = stationButton.getVisibility() == View.VISIBLE;
-        boolean isFollowed = user.isFollowing();
+        boolean isFollowed = userItem.isFollowedByMe();
 
         if (followButton instanceof ProfileToggleButton) {
             if (isFollowed) {

@@ -3,7 +3,7 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
-import com.soundcloud.android.users.UserAssociationStorage;
+import com.soundcloud.android.users.FollowingStorage;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -12,14 +12,14 @@ import java.util.concurrent.TimeUnit;
 
 public class MyFollowingsSyncProvider extends SyncerRegistry.SyncProvider {
     private final Provider<MyFollowingsSyncer> syncerProvider;
-    private final UserAssociationStorage userAssociationStorage;
+    private final FollowingStorage followingStorage;
 
     @Inject
     MyFollowingsSyncProvider(Provider<MyFollowingsSyncer> syncerProvider,
-                             UserAssociationStorage userAssociationStorage) {
+                             FollowingStorage followingStorage) {
         super(Syncable.MY_FOLLOWINGS);
         this.syncerProvider = syncerProvider;
-        this.userAssociationStorage = userAssociationStorage;
+        this.followingStorage = followingStorage;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class MyFollowingsSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public Boolean isOutOfSync() {
-        return userAssociationStorage.hasStaleFollowings();
+        return followingStorage.hasStaleFollowings();
     }
 
     @Override

@@ -87,4 +87,13 @@ public class SearchModelCollection<T> extends ModelCollection<T> {
                                             usersCount);
     }
 
+    public <S> SearchModelCollection<S> copyWithNewItems(List<S> newData, Optional<List<S>> newPremiumContent) {
+        return new SearchModelCollection<S>(newData,
+                                            links,
+                                            queryUrn,
+                                            premiumContent.transform(it -> it.copyWithNewItems(newPremiumContent.orNull(), absent())),
+                                            tracksCount,
+                                            playlistsCount,
+                                            usersCount);
+    }
 }
