@@ -8,6 +8,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
+import com.soundcloud.android.offline.IOfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
@@ -73,6 +74,7 @@ public class MyPlaylistsOperations {
     private final PostsStorage postsStorage;
     private final LikesStorage likesStorage;
     private final PlaylistRepository playlistRepository;
+    private final IOfflinePropertiesProvider offlinePropertiesProvider;
     private final Scheduler scheduler;
 
     @Inject
@@ -80,11 +82,13 @@ public class MyPlaylistsOperations {
                                  PostsStorage postsStorage,
                                  LikesStorage likesStorage,
                                  PlaylistRepository playlistRepository,
+                                 IOfflinePropertiesProvider offlinePropertiesProvider,
                                  @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.postsStorage = postsStorage;
         this.likesStorage = likesStorage;
         this.playlistRepository = playlistRepository;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.scheduler = scheduler;
     }
 
@@ -152,8 +156,7 @@ public class MyPlaylistsOperations {
         return propertySets -> {
             if (offlineOnly) {
                 for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                    OfflineState offlineState = iterator.next().getPlaylist().offlineState().or(NOT_OFFLINE);
-
+                    OfflineState offlineState = offlinePropertiesProvider.latest().state(iterator.next().getPlaylist().urn());
                     if (offlineState.equals(NOT_OFFLINE)) {
                         iterator.remove();
                     }

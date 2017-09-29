@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.IOfflinePropertiesProvider;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
@@ -21,8 +22,11 @@ import java.util.Map;
 
 public class EntityItemCreator {
 
+    private final IOfflinePropertiesProvider offlinePropertiesProvider;
+
     @Inject
-    public EntityItemCreator() {
+    public EntityItemCreator(IOfflinePropertiesProvider offlinePropertiesProvider) {
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
     }
 
     public PlayableItem playableItem(ApiPlayableSource apiPlayableSource) {
@@ -52,11 +56,11 @@ public class EntityItemCreator {
     }
 
     public PlaylistItem playlistItem(Playlist playlist) {
-        return PlaylistItem.from(playlist);
+        return PlaylistItem.from(playlist, offlinePropertiesProvider.latest());
     }
 
     public PlaylistItem playlistItem(Playlist playlist, StreamEntity streamEntity) {
-        return PlaylistItem.from(playlist, streamEntity);
+        return PlaylistItem.from(playlist, streamEntity, offlinePropertiesProvider.latest());
     }
 
     public PlaylistItem playlistItem(ApiPlaylist apiPlaylist) {

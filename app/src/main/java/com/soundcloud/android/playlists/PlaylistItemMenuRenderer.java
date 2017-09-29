@@ -13,7 +13,6 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -128,18 +127,11 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void configureOfflineOptions(PlaylistItem playlist) {
-        final Optional<Boolean> maybeMarkedForOffline = playlist.isMarkedForOffline();
-
-        if (maybeMarkedForOffline.isPresent()) {
-            final boolean markedForOffline = maybeMarkedForOffline.get();
-
-            if (featureOperations.isOfflineContentEnabled()) {
-                showOfflineContentOption(markedForOffline);
-            } else if (featureOperations.upsellOfflineContent()) {
-                showUpsellOption();
-            } else {
-                hideAllOfflineContentOptions();
-            }
+        final Boolean markedForOffline = playlist.isMarkedForOffline();
+        if (featureOperations.isOfflineContentEnabled()) {
+            showOfflineContentOption(markedForOffline);
+        } else if (featureOperations.upsellOfflineContent()) {
+            showUpsellOption();
         } else {
             hideAllOfflineContentOptions();
         }

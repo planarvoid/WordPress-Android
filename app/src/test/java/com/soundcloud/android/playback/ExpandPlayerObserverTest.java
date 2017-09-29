@@ -29,7 +29,7 @@ public class ExpandPlayerObserverTest {
 
     @Test
     public void showsPlayerOnSuccessfulPlaybackResult() {
-        observer.onNext(PlaybackResult.success());
+        observer.onSuccess(PlaybackResult.success());
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isAutomaticExpand()).isTrue();
     }
@@ -38,7 +38,7 @@ public class ExpandPlayerObserverTest {
     public void showsFeedbackOnPlaybackResultError() {
         PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS);
 
-        observer.onNext(errorResult);
+        observer.onSuccess(errorResult);
 
         verify(playbackFeedbackHelper).showFeedbackOnPlaybackError(errorResult.getErrorReason());
     }

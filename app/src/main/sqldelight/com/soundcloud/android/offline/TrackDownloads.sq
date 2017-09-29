@@ -1,0 +1,55 @@
+import com.soundcloud.android.model.Urn;
+
+CREATE TABLE track_downloads (
+    urn TEXT AS Urn NOT NULL PRIMARY KEY,
+    requested_at INTEGER DEFAULT CURRENT_TIMESTAMP,
+    downloaded_at INTEGER DEFAULT NULL,
+    removed_at INTEGER DEFAULT NULL,
+    unavailable_at INTEGER DEFAULT NULL
+  );
+
+selectAll:
+SELECT * FROM track_downloads;
+
+selectBatch:
+SELECT * FROM track_downloads WHERE urn in ?;
+
+selectAllDownloaded:
+SELECT * FROM track_downloads WHERE downloaded_at IS NOT NULL AND removed_at IS NULL AND unavailable_at IS NULL;
+
+selectDownloaded:
+SELECT * FROM track_downloads WHERE urn in ? AND downloaded_at IS NOT NULL AND removed_at IS NULL AND unavailable_at IS NULL;
+
+selectWithRemovalDateBefore:
+SELECT * FROM track_downloads WHERE removed_at < ?;
+
+selectUnavailable:
+SELECT * FROM track_downloads WHERE unavailable_at IS NOT NULL;
+
+selectRequested:
+SELECT * FROM track_downloads WHERE requested_at IS NOT NULL AND downloaded_at IS NULL AND removed_at IS NULL;
+
+markDownloaded:
+UPDATE track_downloads set downloaded_at = ?, unavailable_at = NULL, removed_at = null WHERE urn = ?;
+
+markUnavailable:
+INSERT OR REPLACE INTO track_downloads(urn, unavailable_at) VALUES (?, ?);
+
+markForRemoval:
+UPDATE track_downloads set removed_at = ? WHERE urn = ?;
+
+
+updateAllForRedownload:
+UPDATE track_downloads set requested_at = ? AND removed_at = NULL AND downloaded_at = NULL and unavailable_at = NULL;
+
+insertRowWithRequestedAt:
+INSERT OR IGNORE INTO track_downloads(urn, requested_at) VALUES (?, ?);
+
+insertRow:
+INSERT INTO track_downloads(urn, requested_at, downloaded_at, removed_at, unavailable_at) VALUES (?, ?, ?, ?, ?);
+
+deleteRow:
+DELETE FROM track_downloads WHERE urn = ?;
+
+deleteAll:
+DELETE FROM track_downloads;

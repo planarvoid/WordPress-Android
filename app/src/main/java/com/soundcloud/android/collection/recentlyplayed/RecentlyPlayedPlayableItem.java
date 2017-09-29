@@ -13,7 +13,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     private final String title;
     private final int trackCount;
     private final boolean isAlbum;
-    private Optional<OfflineState> offlineState;
+    private OfflineState offlineState;
     private final long timestamp;
     private final boolean isPrivate;
     private final boolean isLiked;
@@ -24,7 +24,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                                          String title,
                                                          int trackCount,
                                                          boolean isAlbum,
-                                                         Optional<OfflineState> offlineState,
+                                                         OfflineState offlineState,
                                                          boolean isLiked,
                                                          boolean isPrivate,
                                                          long timestamp) {
@@ -36,14 +36,14 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                                      Optional<String> imageUrl,
                                                      long timestamp,
                                                      boolean userIsPro) {
-        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp, userIsPro);
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, OfflineState.NOT_OFFLINE, false, false, timestamp, userIsPro);
     }
 
     public static RecentlyPlayedPlayableItem forStation(Urn urn,
                                                      String title,
                                                      Optional<String> imageUrl,
                                                      long timestamp) {
-        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, Optional.absent(), false, false, timestamp, false);
+        return new RecentlyPlayedPlayableItem(urn, imageUrl, title, 0, false, OfflineState.NOT_OFFLINE, false, false, timestamp, false);
     }
 
     public RecentlyPlayedPlayableItem(Urn urn,
@@ -51,7 +51,7 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                       String title,
                                       int trackCount,
                                       boolean isAlbum,
-                                      Optional<OfflineState> offlineState,
+                                      OfflineState offlineState,
                                       boolean isLiked,
                                       boolean isPrivate,
                                       long timestamp,
@@ -81,12 +81,12 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
         return isAlbum;
     }
 
-    public Optional<OfflineState> getOfflineState() {
+    public OfflineState getOfflineState() {
         return offlineState;
     }
 
     public void setOfflineState(OfflineState offlineState) {
-        this.offlineState = Optional.of(offlineState);
+        this.offlineState = offlineState;
     }
 
     @Override

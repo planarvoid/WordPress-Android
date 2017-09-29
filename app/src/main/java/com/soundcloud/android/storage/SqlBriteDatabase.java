@@ -43,11 +43,15 @@ public class SqlBriteDatabase {
         return briteDatabase.executeUpdateDelete(table, statement);
     }
 
+    public Single<Long> updateOrDeleteAsync(String table, SQLiteStatement statement) throws SQLException {
+        return Single.fromCallable(() -> updateOrDelete(table, statement));
+    }
+
     public int clear(String table) {
         return briteDatabase.delete(table, null, (String[]) null);
     }
 
-    public void runInTransaction(Runnable runnable) {
+    public BriteDatabase.Transaction runInTransaction(Runnable runnable) {
         final BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
             runnable.run();
@@ -55,6 +59,11 @@ public class SqlBriteDatabase {
         } finally {
             transaction.end();
         }
+        return transaction;
+    }
+
+    public Single<BriteDatabase.Transaction> runInTransactionAsync(Runnable runnable) {
+        return Single.fromCallable(() -> runInTransaction(runnable));
     }
 
     public void batchInsert(String table, List<SQLiteStatement> statements) throws SQLException {

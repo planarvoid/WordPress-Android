@@ -19,30 +19,29 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 public class OfflineContentOperations {
 
-    private final StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
     private final OfflineStatePublisher publisher;
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     private final LoadExpectedContentCommand loadExpectedContentCommand;
     private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
     private final ClearOfflineContentCommand clearOfflineContentCommand;
-    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
-    private final ResetOfflineContentCommand resetOfflineContentCommand;
     private final OfflineServiceInitiator serviceInitiator;
     private final OfflineContentScheduler serviceScheduler;
     private final SyncInitiatorBridge syncInitiatorBridge;
@@ -55,13 +54,14 @@ public class OfflineContentOperations {
     private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
+    private final OfflineSettingsStorage offlineSettingsStorage;
+    private final TrackOfflineStateProvider trackOfflineStateProvider;
+    private final SecureFileStorage secureFileStorage;
 
     @Inject
-    OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
-                             OfflineStatePublisher publisher,
+    OfflineContentOperations(OfflineStatePublisher publisher,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
                              ClearOfflineContentCommand clearOfflineContentCommand,
-                             ResetOfflineContentCommand resetOfflineContentCommand,
                              EventBusV2 eventBus,
                              OfflineContentStorage offlineContentStorage,
                              PolicyOperations policyOperations,
@@ -74,14 +74,14 @@ public class OfflineContentOperations {
                              FeatureOperations featureOperations,
                              TrackDownloadsStorage tracksStorage,
                              CollectionOperations collectionOperations,
-                             LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
                              @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                             IntroductoryOverlayOperations introductoryOverlayOperations) {
-        this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
+                             IntroductoryOverlayOperations introductoryOverlayOperations,
+                             OfflineSettingsStorage offlineSettingsStorage,
+                             TrackOfflineStateProvider trackOfflineStateProvider,
+                             SecureFileStorage secureFileStorage) {
         this.publisher = publisher;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearOfflineContentCommand = clearOfflineContentCommand;
-        this.resetOfflineContentCommand = resetOfflineContentCommand;
         this.eventBus = eventBus;
         this.offlineContentStorage = offlineContentStorage;
         this.policyOperations = policyOperations;
@@ -94,52 +94,58 @@ public class OfflineContentOperations {
         this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;
         this.collectionOperations = collectionOperations;
-        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
         this.scheduler = scheduler;
         this.introductoryOverlayOperations = introductoryOverlayOperations;
+        this.offlineSettingsStorage = offlineSettingsStorage;
+        this.trackOfflineStateProvider = trackOfflineStateProvider;
+        this.secureFileStorage = secureFileStorage;
     }
 
-    public Observable<RxSignal> enableOfflineCollection() {
+    public Single<RxSignal> enableOfflineCollection() {
         return offlineContentStorage
                 .addLikedTrackCollection()
-                .flatMap(o -> setMyPlaylistsAsOfflinePlaylists())
-                .doOnNext(ignored -> offlineContentStorage.addOfflineCollection())
-                .doOnNext(serviceInitiator.startFromUserConsumer())
-                .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
-                .flatMapSingle(ignored -> syncInitiatorBridge.refreshMyPlaylists())
+                .toSingle(() -> RxSignal.SIGNAL)
+                .flatMapCompletable(o -> setMyPlaylistsAsOfflinePlaylists())
+                .doOnComplete(offlineSettingsStorage::addOfflineCollection)
+                .doOnComplete(serviceInitiator::startFromUserConsumer)
+                .doOnComplete(() -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
+                .toSingle(() -> RxSignal.SIGNAL)
+                .flatMap(ignored -> syncInitiatorBridge.refreshMyPlaylists())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
-    private Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
-        return collectionOperations.myPlaylists()
-                                   .map(playlists -> Lists.transform(playlists, Playlist::urn))
-                                   .flatMapObservable(offlineContentStorage::resetOfflinePlaylists);
-    }
-
-    public void disableOfflineCollection() {
-        offlineContentStorage.removeOfflineCollection();
-    }
-
-    public boolean isOfflineCollectionEnabled() {
-        return offlineContentStorage.isOfflineCollectionEnabled();
-    }
-
-    public Observable<RxSignal> disableOfflineLikedTracks() {
-        return offlineContentStorage.removeLikedTrackCollection()
-                                    .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED,
-                                                                      OfflineContentChangedEvent.removed(true)))
-                                    .doOnNext(serviceInitiator.startFromUserConsumer())
-                                    .doOnNext(serviceScheduler.scheduleCleanupConsumer())
-                                    .map(RxUtils.TO_SIGNAL)
+    public Completable removeOfflinePlaylist(Urn playlist) {
+        return offlineContentStorage.removePlaylistsFromOffline(playlist)
                                     .subscribeOn(scheduler);
     }
 
-    public Observable<RxSignal> enableOfflineLikedTracks() {
+    private Completable setMyPlaylistsAsOfflinePlaylists() {
+        return collectionOperations.myPlaylists()
+                                   .map(playlists -> Lists.transform(playlists, Playlist::urn))
+                                   .flatMapCompletable(offlineContentStorage::resetOfflinePlaylists);
+    }
+
+    public void disableOfflineCollection() {
+        offlineSettingsStorage.removeOfflineCollection();
+    }
+
+    public boolean isOfflineCollectionEnabled() {
+        return offlineSettingsStorage.isOfflineCollectionEnabled();
+    }
+
+    public Completable disableOfflineLikedTracks() {
+        return offlineContentStorage.removeLikedTrackCollection()
+                                    .doOnComplete(eventBus.publishAction0(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(true)))
+                                    .doOnComplete(serviceInitiator::startFromUserConsumer)
+                                    .doOnComplete(serviceScheduler.actionScheduleCleanupConsumer())
+                                    .subscribeOn(scheduler);
+    }
+
+    public Completable enableOfflineLikedTracks() {
         return offlineContentStorage.addLikedTrackCollection()
-                                    .doOnNext(serviceInitiator.startFromUserConsumer())
-                                    .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
-                                    .map(RxUtils.TO_SIGNAL)
+                                    .doOnComplete(serviceInitiator::startFromUserConsumer)
+                                    .doOnComplete(() -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
                                     .subscribeOn(scheduler);
     }
 
@@ -159,42 +165,46 @@ public class OfflineContentOperations {
         return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
-    public Observable<RxSignal> makePlaylistAvailableOffline(final Urn playlist) {
+    public Completable makePlaylistAvailableOffline(final Urn playlist) {
         return makePlaylistAvailableOffline(singletonList(playlist));
     }
 
-    Observable<RxSignal> makePlaylistAvailableOffline(final Set<Urn> playlistUrns) {
+    Completable makePlaylistAvailableOffline(final Set<Urn> playlistUrns) {
         return makePlaylistAvailableOffline(Lists.newArrayList(playlistUrns));
     }
 
-    Observable<RxSignal> makePlaylistAvailableOffline(final List<Urn> playlistUrns) {
+    Completable makePlaylistAvailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .storeAsOfflinePlaylists(playlistUrns)
-                .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED, fromPlaylistsMarkedForDownload(playlistUrns)))
-                .doOnNext(serviceInitiator.startFromUserConsumer())
-                .doOnNext(ignored -> syncInitiator.syncPlaylistsAndForget(playlistUrns))
-                .map(RxUtils.TO_SIGNAL)
+                .doOnComplete(eventBus.publishAction0(EventQueue.PLAYLIST_CHANGED, fromPlaylistsMarkedForDownload(playlistUrns)))
+                .doOnComplete(serviceInitiator::startFromUserConsumer)
+                .doOnComplete(() -> syncInitiator.syncPlaylistsAndForget(playlistUrns))
                 .subscribeOn(scheduler);
     }
 
-    public Observable<RxSignal> makePlaylistUnavailableOffline(final Urn playlistUrn) {
+    public Completable replaceOfflinePlaylist(Urn toReplace, Urn updatedPlaylist) {
+        return isOfflinePlaylist(toReplace).filter(aBoolean -> aBoolean)
+                                           .flatMapCompletable(__ -> offlineContentStorage.removePlaylistsFromOffline(Collections.singletonList(toReplace))
+                                                                                          .andThen(makePlaylistAvailableOffline(singletonList(updatedPlaylist))));
+    }
+
+    public Completable makePlaylistUnavailableOffline(final Urn playlistUrn) {
         return makePlaylistUnavailableOffline(singletonList(playlistUrn));
     }
 
-    Observable<RxSignal> makePlaylistUnavailableOffline(final Set<Urn> playlistUrns) {
+    Completable makePlaylistUnavailableOffline(final Set<Urn> playlistUrns) {
         return makePlaylistUnavailableOffline(Lists.newArrayList(playlistUrns));
     }
 
-    Observable<RxSignal> makePlaylistUnavailableOffline(final List<Urn> playlistUrns) {
+    Completable makePlaylistUnavailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
                 .removePlaylistsFromOffline(playlistUrns)
-                .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED,
-                                                  fromPlaylistsUnmarkedForDownload(playlistUrns)))
-                .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED,
-                                                  OfflineContentChangedEvent.removed(playlistUrns)))
-                .doOnNext(serviceInitiator.startFromUserConsumer())
-                .doOnNext(serviceScheduler.scheduleCleanupConsumer())
-                .map(RxUtils.TO_SIGNAL)
+                .doOnComplete(eventBus.publishAction0(EventQueue.PLAYLIST_CHANGED,
+                                                      fromPlaylistsUnmarkedForDownload(playlistUrns)))
+                .doOnComplete(eventBus.publishAction0(EventQueue.OFFLINE_CONTENT_CHANGED,
+                                                      OfflineContentChangedEvent.removed(playlistUrns)))
+                .doOnComplete(serviceInitiator::startFromUserConsumer)
+                .doOnComplete(serviceScheduler.actionScheduleCleanupConsumer())
                 .subscribeOn(scheduler);
     }
 
@@ -214,16 +224,21 @@ public class OfflineContentOperations {
     public Single<RxSignal> clearOfflineContent() {
         return notifyOfflineContentRemoved()
                 .flatMap(ignored -> clearOfflineContentCommand.toSingle())
-                .doOnSuccess(serviceInitiator.startFromUserConsumer())
+                .doOnSuccess(__ -> serviceInitiator.startFromUserConsumer())
                 .map(RxUtils.TO_SIGNAL)
                 .subscribeOn(scheduler);
     }
 
-    public Single<RxSignal> resetOfflineContent(OfflineContentLocation location) {
+    public Completable resetOfflineContent(OfflineContentLocation location) {
         return notifyOfflineContentRequested()
-                .flatMap(ignored -> resetOfflineContentCommand.toSingle(location))
-                .doOnSuccess(serviceInitiator.startFromUserConsumer())
-                .map(RxUtils.TO_SIGNAL)
+                .flatMapCompletable(ignored -> tracksStorage.getResetTracksToRequested()
+                                                            .andThen(Completable.fromAction(() -> {
+                                                                trackOfflineStateProvider.clear();
+                                                                secureFileStorage.deleteAllTracks();
+                                                                offlineSettingsStorage.setOfflineContentLocation(location);
+                                                                secureFileStorage.updateOfflineDir();
+                                                            })))
+                .doOnComplete(() -> serviceInitiator.startFromUserConsumer())
                 .subscribeOn(scheduler);
     }
 
@@ -237,7 +252,7 @@ public class OfflineContentOperations {
 
     private Single<?> notifyOfflineContent(OfflineState state) {
         return Single.zip(
-                loadOfflinePlaylistsCommand.toSingle(),
+                offlineContentStorage.getOfflinePlaylists(),
                 isOfflineLikedTracksEnabled(),
                 (playlists, isOfflineLikedTracks) -> new OfflineContentChangedEvent(state,
                                                                                     playlists,
@@ -248,16 +263,36 @@ public class OfflineContentOperations {
     Single<OfflineContentUpdates> loadOfflineContentUpdates() {
         return tryToUpdatePolicies()
                 .andThen(loadExpectedContentCommand.toSingle())
+                .doOnSuccess(new Consumer<ExpectedOfflineContent>() {
+                    @Override
+                    public void accept(ExpectedOfflineContent expectedOfflineContent) throws Exception {
+                        Log.d("asdf", "accept() called with: " + "expectedOfflineContent = [" + expectedOfflineContent + "]");
+                    }
+                })
                 .flatMap(loadOfflineContentUpdatesCommand::toSingle)
-                .doOnSuccess(this::storeAndPublishUpdates)
+                .doOnSuccess(new Consumer<OfflineContentUpdates>() {
+                    @Override
+                    public void accept(OfflineContentUpdates offlineContentUpdates) throws Exception {
+                        Log.d("asdf", "accept() called with: " + "offlineContentUpdates = [" + offlineContentUpdates + "]");
+                    }
+                })
+                .flatMap(this::storeAndPublishUpdates)
+                .doOnSuccess(new Consumer<OfflineContentUpdates>() {
+                    @Override
+                    public void accept(OfflineContentUpdates offlineContentUpdates) throws Exception {
+                        Log.d("asdf", "accept() called with: " + "offlineContentUpdates = [" + offlineContentUpdates + "]");
+                    }
+                })
                 .subscribeOn(scheduler);
     }
 
-    private void storeAndPublishUpdates(OfflineContentUpdates offlineContentUpdates) {
+    private Single<OfflineContentUpdates> storeAndPublishUpdates(OfflineContentUpdates offlineContentUpdates) {
         // Store and Publish must be atomic from an RX perspective.
         // i.e. do not store without publishing upon unsubscribe
-        storeDownloadUpdatesCommand.call(offlineContentUpdates);
-        publishUpdates(offlineContentUpdates);
+        return tracksStorage.writeUpdates(offlineContentUpdates)
+                            .doOnSuccess(transaction -> publishUpdates(offlineContentUpdates))
+                            .map(transaction -> offlineContentUpdates);
+
     }
 
     private void publishUpdates(OfflineContentUpdates updates) {
@@ -283,11 +318,11 @@ public class OfflineContentOperations {
     }
 
     public boolean hasOfflineContent() {
-        return offlineContentStorage.hasOfflineContent();
+        return offlineSettingsStorage.hasOfflineContent();
     }
 
     void setHasOfflineContent(boolean hasOfflineContent) {
-        offlineContentStorage.setHasOfflineContent(hasOfflineContent);
+        offlineSettingsStorage.setHasOfflineContent(hasOfflineContent);
     }
 
 }

@@ -37,7 +37,7 @@ public class TrackOfflineStateProvider {
     }
 
     public void subscribe() {
-        compositeDisposable.add(trackDownloadsStorage.getOfflineStates()
+        compositeDisposable.add(trackDownloadsStorage.offlineStates()
                                                      .subscribeOn(scheduler)
                                                      .observeOn(AndroidSchedulers.mainThread())
                                                      .subscribeWith(new StorageObserver()));

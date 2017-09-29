@@ -38,7 +38,7 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
         trackOfflineStateProvider = new TrackOfflineStateProvider(trackDownloadsStorage,
                                                                   eventBus,
                                                                   Schedulers.trampoline());
-        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Single.just(getInitialMap()));
+        when(trackDownloadsStorage.offlineStates()).thenReturn(Single.just(getInitialMap()));
     }
 
     @Test

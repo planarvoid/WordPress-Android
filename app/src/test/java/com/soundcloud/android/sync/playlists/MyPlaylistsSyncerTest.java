@@ -26,7 +26,7 @@ import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
+import com.soundcloud.android.offline.OfflineContentStorage;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistStorage;
@@ -38,6 +38,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -66,7 +67,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Mock private ReplacePlaylistPostCommand replacePlaylist;
     @Mock private LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand;
     @Mock private RemovePlaylistCommand removePlaylistCommand;
-    @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private ApiClient apiClient;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private SinglePlaylistSyncer singlePlaylistSyncer;
@@ -78,7 +79,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(singlePlaylistSyncerFactory.create(any(Urn.class))).thenReturn(null);
-        when(loadOfflinePlaylistsCommand.call(any(Void.class))).thenReturn(Collections.emptyList());
+        when(offlineContentStorage.getOfflinePlaylists()).thenReturn(Single.just(Collections.emptyList()));
         when(playlistStorage.playlistWithTrackChanges()).thenReturn(new HashSet<>());
 
         syncer = new MyPlaylistsSyncer(
@@ -89,7 +90,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
                 loadPlaylistPendingRemovalCommand,
                 removePlaylistCommand,
                 apiClient,
-                loadOfflinePlaylistsCommand,
+                offlineContentStorage,
                 singlePlaylistSyncerFactory,
                 playlistStorage,
                 eventBus,
@@ -220,7 +221,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     public void syncsOfflinePlaylists() throws Exception {
         final Urn offlinePlaylist = Urn.forPlaylist(1);
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(singletonList(offlinePlaylist));
+        when(offlineContentStorage.getOfflinePlaylists()).thenReturn(Single.just(singletonList(offlinePlaylist)));
         when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
@@ -235,7 +236,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final Urn playlist = Urn.forPlaylist(1);
         when(playlistStorage.playlistWithTrackChanges()).thenReturn(newHashSet(playlist));
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(singletonList(playlist));
+        when(offlineContentStorage.getOfflinePlaylists()).thenReturn(Single.just(singletonList(playlist)));
         when(singlePlaylistSyncerFactory.create(playlist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
@@ -253,7 +254,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(syncWithNoChange.call()).thenReturn(false);
 
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylist, offlinePlaylistWithNoChange));
+        when(offlineContentStorage.getOfflinePlaylists()).thenReturn(Single.just(Arrays.asList(offlinePlaylist, offlinePlaylistWithNoChange)));
         when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncerFactory.create(offlinePlaylistWithNoChange)).thenReturn(syncWithNoChange);
         when(singlePlaylistSyncer.call()).thenReturn(true);
@@ -273,7 +274,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final Urn offlinePlaylistWithException = Urn.forPlaylist(1);
         final Urn offlinePlaylistToSync = Urn.forPlaylist(2);
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylistWithException, offlinePlaylistToSync));
+        when(offlineContentStorage.getOfflinePlaylists()).thenReturn(Single.just(Arrays.asList(offlinePlaylistWithException, offlinePlaylistToSync)));
 
         final SinglePlaylistSyncer syncWithException = mock(SinglePlaylistSyncer.class);
         when(syncWithException.call()).thenThrow(new IOException("Test"));

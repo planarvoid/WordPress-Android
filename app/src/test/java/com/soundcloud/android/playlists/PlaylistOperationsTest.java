@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static io.reactivex.schedulers.Schedulers.trampoline;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -23,14 +23,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
-import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.List;
 
@@ -64,6 +62,7 @@ public class PlaylistOperationsTest {
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private RemovePlaylistFromDatabaseCommand removePlaylistCommand;
 
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
@@ -75,12 +74,13 @@ public class PlaylistOperationsTest {
     private final List<Urn> newTrackList = asList(trackUrn);
     private TestEventBus eventBus;
 
+
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
         when(syncInitiator.requestSystemSync()).thenReturn(Completable.complete());
-        operations = new PlaylistOperations(Schedulers.immediate(),
+        operations = new PlaylistOperations(trampoline(),
                                             syncInitiator,
                                             playlistRepository,
                                             providerOf(loadPlaylistTrackUrns),
@@ -89,48 +89,47 @@ public class PlaylistOperationsTest {
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
                                             offlineContentOperations,
+                                            removePlaylistCommand,
                                             eventBus);
     }
 
     @Test
     public void trackUrnsForPlaybackReturnsTrackUrnsFromCommand() {
-        final TestSubscriber<List<Urn>> observer = new TestSubscriber<>();
+        final TestObserver<List<Urn>> observer = new TestObserver<>();
         final List<Urn> urnList = asList(Urn.forTrack(123L), Urn.forTrack(456L));
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(loadPlaylistTrackUrns.toObservable(playlistUrn)).thenReturn(rx.Observable.just(urnList));
+        when(loadPlaylistTrackUrns.toSingle(playlistUrn)).thenReturn(Single.just(urnList));
 
         operations.trackUrnsForPlayback(playlistUrn).subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(urnList);
-        assertThat(observer.getOnCompletedEvents()).hasSize(1);
+        observer.assertValue(urnList).assertComplete();
     }
 
     @Test
     public void shouldCreateNewPlaylistUsingCommand() {
-        TestSubscriber<Urn> observer = new TestSubscriber<>();
+        TestObserver<Urn> observer = new TestObserver<>();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(Urn.forPlaylist(1L)));
 
         operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
 
-        observer.assertReceivedOnNext(singletonList(Urn.forPlaylist(1L)));
+        observer.assertValue(Urn.forPlaylist(1L)).assertComplete();
     }
 
     @Test
     public void shouldMarkPlaylistForOfflineAfterCreatingPlaylist() throws Exception {
-        TestSubscriber<Urn> observer = new TestSubscriber<>();
+        TestObserver<Urn> observer = new TestObserver<>();
         Urn playlistUrn = Urn.forPlaylist(123);
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(playlistUrn));
-        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(Observable.just(RxSignal.SIGNAL));
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(Completable.complete());
 
         operations.createNewPlaylist("title", true, true, Urn.forTrack(123)).subscribe(observer);
 
-        observer.assertReceivedOnNext(singletonList(playlistUrn));
+        observer.assertValue(playlistUrn).assertComplete();
     }
 
     @Test
     public void shouldPublishEntityChangedEventAfterCreatingPlaylist() {
-        TestSubscriber<Urn> observer = new TestSubscriber<>();
+        TestObserver<Urn> observer = new TestObserver<>();
         final Urn localPlaylist = Urn.newLocalPlaylist();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(localPlaylist));
 
@@ -143,7 +142,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldRequestSystemSyncAfterCreatingPlaylist() throws Exception {
-        TestSubscriber<Urn> observer = new TestSubscriber<>();
+        TestObserver<Urn> observer = new TestObserver<>();
         when(playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(just(Urn.forPlaylist(123)));
 
         operations.createNewPlaylist("title", true, false, Urn.forTrack(123)).subscribe(observer);
@@ -153,8 +152,8 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldPublishEntityChangedEventAfterAddingATrackToPlaylist() {
-        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class))).thenReturn(
-                just(1));
+        when(addTrackToPlaylistCommand.toSingle(any(AddTrackToPlaylistParams.class))).thenReturn(
+                Single.just(1));
 
         operations.addTrackToPlaylist(playlist.urn(), trackUrn).subscribe();
 
@@ -167,8 +166,8 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldRequestSystemSyncAfterAddingATrackToPlaylist() {
-        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class))).thenReturn(
-                just(1));
+        when(addTrackToPlaylistCommand.toSingle(any(AddTrackToPlaylistParams.class))).thenReturn(
+                Single.just(1));
 
         operations.addTrackToPlaylist(playlist.urn(), trackUrn).subscribe();
 
@@ -178,10 +177,10 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldNotPublishEntityChangedEventWhenAddingTrackToPlaylistFailed() {
-        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class)))
-                .thenReturn(rx.Observable.error(new Exception()));
+        when(addTrackToPlaylistCommand.toSingle(any(AddTrackToPlaylistParams.class)))
+                .thenReturn(Single.error(new Exception()));
 
-        operations.addTrackToPlaylist(playlist.urn(), trackUrn).subscribe(new TestSubscriber<>());
+        operations.addTrackToPlaylist(playlist.urn(), trackUrn).subscribe(new TestObserver<>());
 
         verifyAddToPlaylistParams();
         eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
@@ -189,8 +188,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldPublishEntityChangedEventAfterRemovingTrackFromPlaylist() {
-        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(
-                just(1));
+        when(removeTrackFromPlaylistCommand.toSingle(any(RemoveTrackFromPlaylistParams.class))).thenReturn(Single.just(1));
 
         operations.removeTrackFromPlaylist(playlist.urn(), trackUrn).subscribe();
 
@@ -203,8 +201,8 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldRequestSystemSyncAfterRemovingTrackFromPlaylist() {
-        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(
-                just(1));
+        when(removeTrackFromPlaylistCommand.toSingle(any(RemoveTrackFromPlaylistParams.class))).thenReturn(
+                Single.just(1));
 
         operations.removeTrackFromPlaylist(playlist.urn(), trackUrn).subscribe();
 
@@ -214,10 +212,10 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldNotPublishEntityChangedEventWhenRemovingTrackFromPlaylistFailed() {
-        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class)))
-                .thenReturn(rx.Observable.error(new Exception()));
+        when(removeTrackFromPlaylistCommand.toSingle(any(RemoveTrackFromPlaylistParams.class)))
+                .thenReturn(Single.error(new Exception()));
 
-        operations.removeTrackFromPlaylist(playlist.urn(), trackUrn).subscribe(new TestSubscriber<>());
+        operations.removeTrackFromPlaylist(playlist.urn(), trackUrn).subscribe(new TestObserver<>());
 
         verifyRemoveFromPlaylistParams();
         eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
@@ -225,7 +223,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldPublishEntityChangedEventAfterEditingPlaylist() {
-        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class))).thenReturn(just(1));
+        when(editPlaylistCommand.toSingle(any(EditPlaylistCommandParams.class))).thenReturn(Single.just(1));
 
         operations.editPlaylist(playlist.urn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn)).subscribe();
 
@@ -239,7 +237,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldRequestSystemSyncAfterEditingPlaylist() {
-        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class))).thenReturn(just(1));
+        when(editPlaylistCommand.toSingle(any(EditPlaylistCommandParams.class))).thenReturn(Single.just(1));
 
         operations.editPlaylist(playlist.urn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn)).subscribe();
 
@@ -249,30 +247,30 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldNotPublishEntityChangedEventAfterEditingPlaylistFailed() {
-        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class)))
-                .thenReturn(rx.Observable.error(new Exception()));
+        when(editPlaylistCommand.toSingle(any(EditPlaylistCommandParams.class)))
+                .thenReturn(Single.error(new Exception()));
 
         operations.editPlaylist(playlist.urn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn))
-                  .subscribe(new TestSubscriber<>());
+                  .subscribe(new TestObserver<>());
 
         verifyEditPlaylistCommandParams();
         eventBus.verifyNoEventsOn(EventQueue.PLAYLIST_CHANGED);
     }
 
     private void verifyAddToPlaylistParams() {
-        verify(addTrackToPlaylistCommand).toObservable(addTrackCommandParamsCaptor.capture());
+        verify(addTrackToPlaylistCommand).toSingle(addTrackCommandParamsCaptor.capture());
         assertThat(addTrackCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.urn());
         assertThat(addTrackCommandParamsCaptor.getValue().trackUrn).isEqualTo(trackUrn);
     }
 
     private void verifyRemoveFromPlaylistParams() {
-        verify(removeTrackFromPlaylistCommand).toObservable(removeTrackCommandParamsCaptor.capture());
+        verify(removeTrackFromPlaylistCommand).toSingle(removeTrackCommandParamsCaptor.capture());
         assertThat(removeTrackCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.urn());
         assertThat(removeTrackCommandParamsCaptor.getValue().trackUrn).isEqualTo(trackUrn);
     }
 
     private void verifyEditPlaylistCommandParams() {
-        verify(editPlaylistCommand).toObservable(editPlaylistCommandParamsCaptor.capture());
+        verify(editPlaylistCommand).toSingle(editPlaylistCommandParamsCaptor.capture());
         assertThat(editPlaylistCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.urn());
         assertThat(editPlaylistCommandParamsCaptor.getValue().trackList).isEqualTo(newTrackList);
         assertThat(editPlaylistCommandParamsCaptor.getValue().isPrivate.get()).isEqualTo(IS_PRIVATE);

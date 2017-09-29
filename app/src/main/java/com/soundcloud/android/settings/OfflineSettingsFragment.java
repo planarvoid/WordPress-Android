@@ -25,10 +25,8 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.IOUtils;
@@ -162,7 +160,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void onAutomaticCollectionSyncToggle(boolean automaticSyncEnabled) {
         if (automaticSyncEnabled) {
-            offlineContentOperations.enableOfflineCollection().subscribe(new DefaultObserver<>());
+            offlineContentOperations.enableOfflineCollection().subscribe(new DefaultSingleObserver<>());
             eventBus.publish(EventQueue.TRACKING,
                              OfflineInteractionEvent.fromEnableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
         } else {

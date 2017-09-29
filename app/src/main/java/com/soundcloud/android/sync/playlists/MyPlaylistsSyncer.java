@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
+import com.soundcloud.android.offline.OfflineContentStorage;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.Playlist;
@@ -51,7 +51,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     private final RemovePlaylistCommand removePlaylistCommand;
     private final PlaylistStorage playlistStorage;
     private final ApiClient apiClient;
-    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    private final OfflineContentStorage offlineContentStorage;
     private final boolean syncOfflinePlaylists;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final EventBus eventBus;
@@ -63,7 +63,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
                              @Provided LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand,
                              @Provided RemovePlaylistCommand removePlaylistCommand,
                              @Provided ApiClient apiClient,
-                             @Provided LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
+                             @Provided OfflineContentStorage offlineContentStorage,
                              @Provided SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                              @Provided PlaylistStorage playlistStorage,
                              @Provided EventBus eventBus,
@@ -77,7 +77,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
         this.apiClient = apiClient;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.eventBus = eventBus;
-        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
+        this.offlineContentStorage = offlineContentStorage;
         this.syncOfflinePlaylists = !isUiRequest;
         this.playlistStorage = playlistStorage;
     }
@@ -93,7 +93,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
     private Set<Urn> getPlaylistsToSync() {
         final Set<Urn> playlists = playlistStorage.playlistWithTrackChanges();
         if (syncOfflinePlaylists) {
-            playlists.addAll(loadOfflinePlaylistsCommand.call(null));
+            playlists.addAll(offlineContentStorage.getOfflinePlaylists().blockingGet());
         }
         return playlists;
     }

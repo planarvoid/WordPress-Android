@@ -1,15 +1,20 @@
 package com.soundcloud.android.sync.playlists;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.WriteResult;
+import io.reactivex.Completable;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import android.util.Pair;
 
@@ -18,18 +23,24 @@ import java.util.Date;
 
 public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
+    @Mock private OfflineContentOperations offlineContentOperations;
+    private final CompletableSubject replaceSubject = CompletableSubject.create();
+    private ApiPlaylist oldPlaylist;
+    private ApiPlaylist newPlaylist;
+
     private ReplacePlaylistPostCommand command;
 
     @Before
     public void setUp() throws Exception {
-        command = new ReplacePlaylistPostCommand(propeller());
+        command = new ReplacePlaylistPostCommand(propeller(), offlineContentOperations);
+        oldPlaylist = testFixtures().insertLocalPlaylist();
+        newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+
+        when(offlineContentOperations.replaceOfflinePlaylist(oldPlaylist.getUrn(), newPlaylist.getUrn())).thenReturn(Completable.complete());
     }
 
     @Test
     public void shouldReplaceOldPlaylistMetadata() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
-
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
@@ -39,9 +50,7 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldUpdatePlaylistTracksTableWithNewPlaylistId() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
         ApiTrack playlistTrack = testFixtures().insertPlaylistTrack(oldPlaylist, 0);
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
@@ -52,9 +61,7 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldClearPlaylistTracksAddedAt() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
         ApiTrack playlistTrack = testFixtures().insertPlaylistTrackPendingAddition(oldPlaylist, 0, new Date());
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
@@ -66,8 +73,6 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldUpdatePostsTableWithNewPlaylistId() throws Exception {
         Date createdAt = new Date(456L);
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
         newPlaylist.setCreatedAt(createdAt);
         testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
 
@@ -79,38 +84,11 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldUpdateLikesTableWithNewPlaylistId() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
         testFixtures().insertLike(oldPlaylist.getId(), Tables.Sounds.TYPE_PLAYLIST, new Date());
 
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
         databaseAssertions().assertPlaylistLikeInsertedFor(newPlaylist);
-    }
-
-    @Test
-    public void shouldUpdateOfflineContentWithPlaylistId() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
-        testFixtures().insertPlaylistMarkedForOfflineSync(oldPlaylist);
-
-        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
-        assertThat(result.success()).isTrue();
-
-        databaseAssertions().assertIsOfflinePlaylist(newPlaylist.getUrn());
-    }
-
-    @Test
-    public void shouldNotUpdateOfflineContentWithPlaylistId() throws Exception {
-        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
-        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
-
-        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
-        assertThat(result.success()).isTrue();
-
-        databaseAssertions().assertIsNotOfflinePlaylist(newPlaylist.getUrn());
     }
 }

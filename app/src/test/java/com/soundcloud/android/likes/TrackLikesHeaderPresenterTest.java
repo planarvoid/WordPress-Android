@@ -39,7 +39,6 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -48,6 +47,7 @@ import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.junit.Before;
@@ -306,7 +306,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablesOfflineLikesWithoutDialogWhenExperimentEnabled() {
-        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.just(RxSignal.SIGNAL));
+        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Completable.complete());
         when(goOnboardingTooltipExperiment.isEnabled()).thenReturn(true);
 
         createAndBindView();
@@ -328,7 +328,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void disablesLikesSyncingWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(RxSignal.SIGNAL));
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Completable.complete());
         createAndBindView();
 
         presenter.onMakeAvailableOffline(false);
@@ -458,7 +458,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.empty());
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Completable.never());
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
         createAndBindView();
 

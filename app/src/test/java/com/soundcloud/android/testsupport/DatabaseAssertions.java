@@ -27,8 +27,6 @@ import static com.soundcloud.android.storage.TableColumns.SoundView.USERNAME;
 import static com.soundcloud.android.storage.Tables.Comments.BODY;
 import static com.soundcloud.android.storage.Tables.Comments.TIMESTAMP;
 import static com.soundcloud.android.storage.Tables.Comments.URN;
-import static com.soundcloud.android.storage.Tables.OfflineContent.ID_OFFLINE_LIKES;
-import static com.soundcloud.android.storage.Tables.OfflineContent.TYPE_COLLECTION;
 import static com.soundcloud.android.storage.Tables.Posts.TARGET_TYPE;
 import static com.soundcloud.android.storage.Tables.Posts.TYPE_REPOST;
 import static com.soundcloud.android.storage.Tables.Sounds.ARTWORK_URL;
@@ -59,9 +57,6 @@ import static com.soundcloud.android.storage.Tables.Stations.PERMALINK;
 import static com.soundcloud.android.storage.Tables.Stations.STATION_URN;
 import static com.soundcloud.android.storage.Tables.Stations.TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTION_TYPE;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.BLOCKED;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.MONETIZABLE;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.MONETIZATION_MODEL;
@@ -108,14 +103,12 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.Likes;
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.SuggestedCreators;
-import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.storage.Tables.TrackPolicies;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.storage.Tables.Users;
@@ -191,16 +184,11 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackIsUnavailable(Urn trackUrn, long time) {
-        assertThat(select(from(TABLE)
-                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                                  .whereEq(UNAVAILABLE_AT, time))).counts(1);
+        throw new IllegalStateException("not implemented");
     }
 
     public void assertDownloadIsAvailable(Urn track) {
-        assertThat(select(from(TABLE)
-                                  .whereEq(TrackDownloads._ID, track.getNumericId())
-                                  .whereNull(UNAVAILABLE_AT))).counts(1);
-    }
+        throw new IllegalStateException("not implemented");    }
 
     public void assertPlaylistTrackForAddition(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
@@ -777,68 +765,27 @@ public class DatabaseAssertions {
     }
 
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
-        for (Urn urn : tracksToDownload) {
-            assertThat(select(from(TABLE)
-                                      .whereNull(TrackDownloads.REMOVED_AT)
-                                      .whereNull(TrackDownloads.DOWNLOADED_AT)
-                                      .whereNull(TrackDownloads.UNAVAILABLE_AT)
-                                      .whereNotNull(TrackDownloads.REQUESTED_AT)
-                                      .whereEq(TrackDownloads._ID, urn.getNumericId()))).counts(1);
-        }
+        throw new IllegalStateException("not implemented");
     }
 
     public void assertDownloadPendingRemoval(Urn trackUrn) {
-        assertThat(select(from(TABLE)
-                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                                  .whereNotNull(DOWNLOADED_AT)
-                                  .whereNotNull(TrackDownloads.REMOVED_AT))).counts(1);
+        throw new IllegalStateException("not implemented");
     }
 
     public void assertDownloadResultsInserted(DownloadState result) {
-        assertThat(select(from(TABLE)
-                                  .whereNull(UNAVAILABLE_AT)
-                                  .whereEq(TrackDownloads._ID, result.getTrack().getNumericId())
-                                  .whereEq(DOWNLOADED_AT, result.getTimestamp()))).counts(1);
+        throw new IllegalStateException("not implemented");
     }
 
     public void assertNotDownloaded(Urn trackUrn) {
-        assertThat(select(from(TABLE)
-                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId()))).counts(0);
+        throw new IllegalStateException("not implemented");
     }
 
     public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
-        assertThat(select(from(TABLE)
-                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                                  .whereNotNull(DOWNLOADED_AT)
-                                  .whereNull(TrackDownloads.REMOVED_AT))).counts(1);
+        throw new IllegalStateException("not implemented");
     }
 
     protected QueryBinding select(Query query) {
         return new QueryBinding(this.database, query);
-    }
-
-    public void assertIsOfflinePlaylist(Urn playlistUrn) {
-        assertThat(select(from(OfflineContent.TABLE)
-                                  .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
-                                  .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(1);
-    }
-
-    public void assertIsNotOfflinePlaylist(Urn playlistUrn) {
-        assertThat(select(from(OfflineContent.TABLE)
-                                  .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
-                                  .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(0);
-    }
-
-    public void assertLikedTracksIsNotOffline() {
-        assertThat(select(from(OfflineContent.TABLE)
-                                  .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
-                                  .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(0);
-    }
-
-    public void assertLikedTracksIsOffline() {
-        assertThat(select(from(OfflineContent.TABLE)
-                                  .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
-                                  .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(1);
     }
 
     public void assertCommentInserted(CommentRecord comment) {

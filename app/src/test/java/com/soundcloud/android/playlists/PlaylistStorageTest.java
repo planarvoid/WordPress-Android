@@ -133,7 +133,6 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         assertThat(entity.createdAt()).isEqualTo(apiPlaylist.getCreatedAt());
         assertThat(entity.imageUrlTemplate()).isEqualTo(apiPlaylist.getImageUrlTemplate());
         assertThat(entity.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
-        assertThat(entity.isMarkedForOffline()).isEqualTo(Optional.of(false));
         assertThat(entity.permalinkUrl().get()).isEqualTo(apiPlaylist.getPermalinkUrl());
     }
 

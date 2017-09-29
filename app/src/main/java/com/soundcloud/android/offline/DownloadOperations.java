@@ -11,64 +11,69 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Predicate;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 
 class DownloadOperations {
 
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
-    private final DeleteOfflineTrackCommand deleteOfflineContent;
     private final PlayQueueManager playQueueManager;
     private final StreamUrlBuilder urlBuilder;
     private final Scheduler scheduler;
     private final OfflineTrackAssetDownloader assetDownloader;
     private final DownloadConnectionHelper downloadConnectionHelper;
     private final OfflineSettingsStorage offlineSettingsStorage;
-
-    private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
-        @Override
-        public boolean apply(Urn urn) {
-            return !playQueueManager.isCurrentTrack(urn);
-        }
-    };
+    private final TrackDownloadsStorage trackDownloadsStorage;
 
     @Inject
     DownloadOperations(StrictSSLHttpClient httpClient,
                        SecureFileStorage fileStorage,
-                       DeleteOfflineTrackCommand deleteOfflineContent,
                        PlayQueueManager playQueueManager,
                        StreamUrlBuilder urlBuilder,
                        @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                        OfflineTrackAssetDownloader assetDownloader,
                        DownloadConnectionHelper downloadConnectionHelper,
-                       OfflineSettingsStorage offlineSettingsStorage) {
+                       OfflineSettingsStorage offlineSettingsStorage,
+                       TrackDownloadsStorage trackDownloadsStorage) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
-        this.deleteOfflineContent = deleteOfflineContent;
         this.playQueueManager = playQueueManager;
         this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
         this.assetDownloader = assetDownloader;
         this.downloadConnectionHelper = downloadConnectionHelper;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
     boolean isConnectionValid() {
         return !downloadConnectionHelper.isNetworkDisconnected() && downloadConnectionHelper.isDownloadPermitted();
     }
 
-    Single<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
-        return deleteOfflineContent
-                .toSingle(MoreCollections.filter(requests, isNotCurrentTrackFilter))
-                .subscribeOn(scheduler);
+    Single<List<Urn>> removeOfflineTracks(List<Urn> requests) {
+        return Observable.fromIterable(requests)
+                         .filter(urn -> !playQueueManager.isCurrentTrack(urn))
+                         .flatMapSingle(this::deleteFromFileStorage)
+                         .flatMapMaybe((urn) -> trackDownloadsStorage.deleteWithUrn(urn)
+                                                                     .filter(count -> count > 0)
+                                                                     .map(l -> urn))
+                         .toList()
+                         .subscribeOn(scheduler);
+
+    }
+
+    Single<Urn> deleteFromFileStorage(Urn urn) {
+        return Single.fromCallable(() -> {
+            fileStorage.deleteTrack(urn);
+            return urn;
+        });
     }
 
     void cancelCurrentDownload() {

@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static rx.android.schedulers.AndroidSchedulers.mainThread;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Consts;
@@ -14,13 +12,13 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Single;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -50,9 +48,9 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private MyPlaylistsAdapter adapter;
-    private Subscription addTrackSubscription = RxUtils.invalidSubscription();
-    private Subscription loadPlaylistSubscription = RxUtils.invalidSubscription();
-    private Observable<List<AddTrackToPlaylistItem>> loadPlaylists;
+    private Disposable addTrackSubscription = Disposables.disposed();
+    private Disposable loadPlaylistSubscription = Disposables.disposed();
+    private Single<List<AddTrackToPlaylistItem>> loadPlaylists;
 
     public static AddToPlaylistDialogFragment from(Urn trackUrn,
                                                    String trackTitle) {
@@ -85,14 +83,14 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         // TODO: 12/12/16 Use repository ?
         loadPlaylists = playlistOperations
                 .loadPlaylistForAddingTrack(trackUrn)
-                .observeOn(mainThread())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
                 .cache();
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         adapter = new MyPlaylistsAdapter(getActivity(), featureOperations);
-        loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistsLoadedSubscriber());
+        loadPlaylistSubscription = loadPlaylists.subscribeWith(new PlaylistsLoadedSubscriber());
 
         return new AlertDialog.Builder(getActivity())
                 .setCustomTitle(new CustomFontViewBuilder(getActivity()).setTitle(R.string.add_track_to_playlist).get())
@@ -123,8 +121,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
         addTrackSubscription = playlistOperations
                 .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new TrackAddedSubscriber());
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeWith(new TrackAddedSubscriber());
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }
@@ -136,16 +134,16 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     @Override
     public void onDestroy() {
-        addTrackSubscription.unsubscribe();
-        loadPlaylistSubscription.unsubscribe();
+        addTrackSubscription.dispose();
+        loadPlaylistSubscription.dispose();
         super.onDestroy();
         leakCanaryWrapper.watch(this);
     }
 
-    private final class TrackAddedSubscriber extends DefaultSubscriber<Integer> {
-
+    private final class TrackAddedSubscriber extends DefaultSingleObserver<Integer> {
         @Override
-        public void onNext(Integer ignored) {
+        public void onSuccess(@NonNull Integer integer) {
+            super.onSuccess(integer);
             final Dialog toDismiss = getDialog();
             Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
             if (toDismiss != null) {
@@ -232,11 +230,12 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         }
     }
 
-    private class PlaylistsLoadedSubscriber extends DefaultSubscriber<List<AddTrackToPlaylistItem>> {
+    private class PlaylistsLoadedSubscriber extends DefaultSingleObserver<List<AddTrackToPlaylistItem>> {
         @Override
-        public void onNext(List<AddTrackToPlaylistItem> playlistItems) {
+        public void onSuccess(@NonNull List<AddTrackToPlaylistItem> addTrackToPlaylistItems) {
+            super.onSuccess(addTrackToPlaylistItems);
             adapter.addItem(AddTrackToPlaylistItem.createNewPlaylistItem());
-            for (AddTrackToPlaylistItem playlist : playlistItems) {
+            for (AddTrackToPlaylistItem playlist : addTrackToPlaylistItems) {
                 adapter.addItem(playlist);
             }
             adapter.notifyDataSetChanged();

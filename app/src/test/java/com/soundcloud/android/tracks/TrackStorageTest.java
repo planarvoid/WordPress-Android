@@ -6,7 +6,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
@@ -19,7 +18,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class TrackStorageTest extends StorageIntegrationTest {
 
@@ -38,18 +36,6 @@ public class TrackStorageTest extends StorageIntegrationTest {
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
 
         assertThat(track).isEqualTo(Track.from(apiTrack));
-    }
-
-    @Test
-    public void loadsDownloadedTrack() {
-        ApiTrack apiTrack = testFixtures().insertTrack();
-        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 1000L);
-
-        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
-
-        final Track.Builder expected = Track.from(apiTrack).toBuilder();
-        expected.offlineState(OfflineState.DOWNLOADED);
-        assertThat(track).isEqualTo(expected.build());
     }
 
     @Test
@@ -72,18 +58,6 @@ public class TrackStorageTest extends StorageIntegrationTest {
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
 
         assertThat(track.displayStatsEnabled()).isTrue();
-    }
-
-    @Test
-    public void loadsPendingRemovalTrack() {
-        ApiTrack apiTrack = testFixtures().insertTrack();
-        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);
-
-        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
-
-        final Track.Builder expected = Track.from(apiTrack).toBuilder();
-        expected.offlineState(OfflineState.NOT_OFFLINE);
-        assertThat(track).isEqualTo(expected.build());
     }
 
     @Test

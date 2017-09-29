@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.IsOfflineLikedTracksEnabledCommand.isOfflineLikesEnabledQuery;
-
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
@@ -10,7 +8,6 @@ import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.tracks.TrackPolicyStorage;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.propeller.PropellerDatabase;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -27,23 +24,20 @@ import java.util.concurrent.Callable;
 
 class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> {
 
-    private final PropellerDatabase database;
     private final LikesStorage likesStorage;
     private final TrackPolicyStorage trackPolicyStorage;
-    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand;
+    private final OfflineContentStorage offlineContentStorage;
 
     @Inject
-    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database,
-                                              LikesStorage likesStorage,
+    public LoadTracksWithStalePoliciesCommand(LikesStorage likesStorage,
                                               TrackPolicyStorage trackPolicyStorage,
-                                              LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
-                                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand) {
-        this.database = database;
+                                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
+                                              OfflineContentStorage offlineContentStorage) {
         this.likesStorage = likesStorage;
         this.trackPolicyStorage = trackPolicyStorage;
-        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
+        this.offlineContentStorage = offlineContentStorage;
     }
 
     @Override
@@ -69,11 +63,12 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
     }
 
     private Set<Urn> staleTracksFromPlaylists() {
-        return Observable.fromIterable(loadOfflinePlaylistsCommand.call())
-                         .flatMapSingle(loadPlaylistTrackUrnsCommand::toSingle)
-                         .flatMapSingle(this::getStaleTracks)
-                         .collect((Callable<Set<Urn>>) HashSet::new, Set::addAll)
-                         .blockingGet();
+        return offlineContentStorage.getOfflinePlaylists()
+                                    .flatMapObservable(Observable::fromIterable)
+                                    .flatMapSingle(loadPlaylistTrackUrnsCommand::toSingle)
+                                    .flatMapSingle(this::getStaleTracks)
+                                    .collect((Callable<Set<Urn>>) HashSet::new, Set::addAll)
+                                    .blockingGet();
     }
 
     private long staleTime() {
@@ -81,6 +76,6 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
     }
 
     private boolean isOfflineLikesEnabled() {
-        return database.query(isOfflineLikesEnabledQuery()).firstOrDefault(Boolean.class, false);
+        return offlineContentStorage.isOfflineLikesEnabled().blockingGet();
     }
 }

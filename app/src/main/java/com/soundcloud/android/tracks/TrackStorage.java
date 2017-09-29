@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.offline.OfflineStateMapper.getOfflineState;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.Tables.TrackView.ARTWORK_URL;
@@ -19,10 +18,6 @@ import static com.soundcloud.android.storage.Tables.TrackView.IS_USER_REPOST;
 import static com.soundcloud.android.storage.Tables.TrackView.LIKES_COUNT;
 import static com.soundcloud.android.storage.Tables.TrackView.MONETIZABLE;
 import static com.soundcloud.android.storage.Tables.TrackView.MONETIZATION_MODEL;
-import static com.soundcloud.android.storage.Tables.TrackView.OFFLINE_DOWNLOADED_AT;
-import static com.soundcloud.android.storage.Tables.TrackView.OFFLINE_REMOVED_AT;
-import static com.soundcloud.android.storage.Tables.TrackView.OFFLINE_REQUESTED_AT;
-import static com.soundcloud.android.storage.Tables.TrackView.OFFLINE_UNAVAILABLE_AT;
 import static com.soundcloud.android.storage.Tables.TrackView.PERMALINK_URL;
 import static com.soundcloud.android.storage.Tables.TrackView.PLAY_COUNT;
 import static com.soundcloud.android.storage.Tables.TrackView.POLICY;
@@ -42,7 +37,6 @@ import static com.soundcloud.java.collections.MoreCollections.transform;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.TrackUrnMapperV2;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
@@ -208,8 +202,6 @@ public class TrackStorage {
         builder.displayStatsEnabled(cursorReader.getBoolean(Tables.TrackView.DISPLAY_STATS_ENABLED.name()));
 
         putOptionalFields(cursorReader, builder);
-        putOptionalOfflineSyncDates(cursorReader, builder);
-
         builder.description(Optional.absent());
         return builder.build();
     }
@@ -223,16 +215,6 @@ public class TrackStorage {
         builder.creatorName(Optional.fromNullable(cursorReader.getString(CREATOR_NAME.name())).or(Strings.EMPTY));
         final long creatorId = cursorReader.getLong(CREATOR_ID.name());
         builder.creatorUrn(creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
-    }
-
-    private static void putOptionalOfflineSyncDates(CursorReader cursorReader, Track.Builder builder) {
-        final Date defaultDate = new Date(0);
-        final Date removedAt = getDateOr(cursorReader, OFFLINE_REMOVED_AT.name(), defaultDate);
-        final Date downloadedAt = getDateOr(cursorReader, OFFLINE_DOWNLOADED_AT.name(), defaultDate);
-        final Date requestedAt = getDateOr(cursorReader, OFFLINE_REQUESTED_AT.name(), defaultDate);
-        final Date unavailableAt = getDateOr(cursorReader, OFFLINE_UNAVAILABLE_AT.name(), defaultDate);
-        OfflineState offlineState = getOfflineState(true, requestedAt, removedAt, downloadedAt, unavailableAt);
-        builder.offlineState(offlineState);
     }
 
     private static Date getDateOr(CursorReader cursorReader, String columnName, Date defaultDate) {

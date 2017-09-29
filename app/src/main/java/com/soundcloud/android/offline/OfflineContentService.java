@@ -58,9 +58,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private boolean showResult;
     private long totalDownloadedDuration;
 
-    private final Function<List<Urn>, Single<Collection<Urn>>> removeTracks = new Function<List<Urn>, Single<Collection<Urn>>>() {
+    private final Function<List<Urn>, Single<List<Urn>>> removeTracks = new Function<List<Urn>, Single<List<Urn>>>() {
         @Override
-        public Single<Collection<Urn>> apply(List<Urn> urns) {
+        public Single<List<Urn>> apply(List<Urn> urns) {
             return downloadOperations.removeOfflineTracks(urns);
         }
     };

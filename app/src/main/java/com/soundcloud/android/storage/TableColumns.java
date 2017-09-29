@@ -124,12 +124,6 @@ public final class TableColumns {
         static final String USER_PERMALINK = "sound_user_permalink";
 
         public static final String USER_AVATAR_URL = "sound_user_avatar_url";
-
-        public static final String OFFLINE_DOWNLOADED_AT = "sound_offline_downloaded_at";
-        public static final String OFFLINE_REMOVED_AT = "sound_offline_removed_at";
-        public static final String OFFLINE_REQUESTED_AT = "sound_offline_requested_at";
-        public static final String OFFLINE_UNAVAILABLE_AT = "sound_offline_unavailable_at";
-
         public static final String DISPLAY_STATS_ENABLED = "display_stats_enabled";
     }
 

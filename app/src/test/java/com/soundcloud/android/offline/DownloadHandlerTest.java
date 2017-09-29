@@ -30,7 +30,7 @@ public class DownloadHandlerTest {
 
     @Mock Listener listener;
     @Mock DownloadOperations downloadOperations;
-    @Mock TrackDownloadsStorage tracksStorage;
+    @Mock TrackDownloadsStorage trackDownloadsStorage;
     @Mock SecureFileStorage secureFileStorage;
     @Mock OfflinePerformanceTracker performanceTracker;
     @Mock WriteResult writeResult;
@@ -65,12 +65,11 @@ public class DownloadHandlerTest {
         handler = new DownloadHandler(listener,
                                       downloadOperations,
                                       secureFileStorage,
-                                      tracksStorage,
+                                      trackDownloadsStorage,
                                       performanceTracker);
 
-        when(writeResult.success()).thenReturn(true);
-        when(tracksStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(writeResult);
-        when(tracksStorage.markTrackAsUnavailable(any(Urn.class))).thenReturn(writeResult);
+        when(trackDownloadsStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(true);
+        when(trackDownloadsStorage.markTrackAsUnavailable(any(Urn.class))).thenReturn(true);
     }
 
     @Test
@@ -110,7 +109,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        verify(tracksStorage).storeCompletedDownload(successResult);
+        verify(trackDownloadsStorage).storeCompletedDownload(successResult);
     }
 
     @Test
@@ -120,7 +119,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(failureMessage);
 
-        verify(tracksStorage, never()).storeCompletedDownload(failedResult);
+        verify(trackDownloadsStorage, never()).storeCompletedDownload(failedResult);
     }
 
     @Test
@@ -167,10 +166,8 @@ public class DownloadHandlerTest {
     public void deletesFileAndReportsDownloadFailedWhenFailToStoreSuccessStatus() throws PropellerWriteException {
         ArgumentCaptor<DownloadState> downloadStateCaptor = ArgumentCaptor.forClass(DownloadState.class);
 
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
-                successResult);
-        when(writeResult.success()).thenReturn(false);
-        when(tracksStorage.storeCompletedDownload(successResult)).thenReturn(writeResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(trackDownloadsStorage.storeCompletedDownload(successResult)).thenReturn(false);
 
         handler.handleMessage(successMessage);
 
@@ -189,7 +186,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        verify(tracksStorage).markTrackAsUnavailable(unavailableResult.getTrack());
+        verify(trackDownloadsStorage).markTrackAsUnavailable(unavailableResult.getTrack());
     }
 
     @Test

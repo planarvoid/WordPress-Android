@@ -1,23 +1,10 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.storage.Tables.TrackDownloads;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -26,14 +13,7 @@ import java.util.List;
 
 class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, OfflineContentUpdates> {
 
-    private final PropellerDatabase propellerDatabase;
-    private final DateProvider dateProvider;
-
-    private final Function<DownloadRequest, Urn> TO_URN = request -> request.getUrn();
-
-    private final Predicate<DownloadRequest> IS_SYNCABLE = input -> input.isSyncable() && !input.isSnipped();
-
-    private final Predicate<DownloadRequest> IS_NOT_SYNCABLE = input -> !input.isSyncable() || input.isSnipped();
+    private final TrackDownloadsStorage trackDownloadsStorage;
 
     private static <T> Collection<T> add(Collection<T> items, Collection<T>... collectionsToAdd) {
         final ArrayList<T> result = new ArrayList<>(items);
@@ -52,30 +32,28 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     }
 
     @Inject
-    public LoadOfflineContentUpdatesCommand(PropellerDatabase propellerDatabase, CurrentDateProvider dateProvider) {
-        this.propellerDatabase = propellerDatabase;
-        this.dateProvider = dateProvider;
+    public LoadOfflineContentUpdatesCommand(TrackDownloadsStorage trackDownloadsStorage) {
+        this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
     @Override
     public OfflineContentUpdates call(final ExpectedOfflineContent userExpectedContent) {
         final Collection<DownloadRequest> expectedTracks = userExpectedContent.requests;
-        final List<DownloadRequest> expectedTracksSyncable = newArrayList(MoreCollections.filter(expectedTracks,
-                                                                                                 IS_SYNCABLE));
+        final List<DownloadRequest> expectedTracksSyncable = newArrayList(MoreCollections.filter(expectedTracks, input -> input.isSyncable() && !input.isSnipped()));
 
         final List<Urn> actualRequestedTracks = getTrackDownloadRequests();
         final List<Urn> actualDownloadedTracks = getTracksDownloaded();
-        final List<Urn> actualPendingRemovalsTracks = getTrackPendingRemovals();
+        final List<Urn> actualPendingRemovalsTracks = getTracksToRemove();
         final List<Urn> actualUnavailableTracks = getTracksMarkedAsUnavailable();
 
         final Collection<Urn> expectedTracksSyncableUrns = toUrns(expectedTracksSyncable);
-        final Collection<Urn> tracksToRestore = getTracksToRestore(expectedTracksSyncableUrns,
-                                                                   actualPendingRemovalsTracks);
+        final Collection<Urn> tracksToRestore = getTracksToRestore(expectedTracksSyncableUrns, actualPendingRemovalsTracks);
         final Collection<Urn> newTracksToDownload = getNewPendingDownloads(expectedTracksSyncableUrns,
                                                                            actualRequestedTracks,
                                                                            actualDownloadedTracks,
                                                                            tracksToRestore);
-        final Collection<Urn> unavailableTracks = toUrns(MoreCollections.filter(expectedTracks, IS_NOT_SYNCABLE));
+
+        final Collection<Urn> unavailableTracks = toUrns(MoreCollections.filter(expectedTracks, input -> !input.isSyncable() || input.isSnipped()));
         final Collection<DownloadRequest> tracksToDownload = getAllDownloadRequests(expectedTracksSyncable,
                                                                                     actualPendingRemovalsTracks,
                                                                                     tracksToRestore,
@@ -96,41 +74,19 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     }
 
     private List<Urn> getTracksMarkedAsUnavailable() {
-        Query query = Query
-                .from(TrackDownloads.TABLE)
-                .whereNotNull(TrackDownloads.UNAVAILABLE_AT);
-
-        return propellerDatabase.query(query).toList(new TrackUrnMapper());
+        return trackDownloadsStorage.getUnavailableTracks().blockingGet();
     }
 
     private List<Urn> getTrackDownloadRequests() {
-        final Where isPendingDownloads = filter()
-                .whereNull(REMOVED_AT)
-                .whereNull(DOWNLOADED_AT)
-                .whereNotNull(REQUESTED_AT);
-
-        return propellerDatabase.query(Query.from(TrackDownloads.TABLE)
-                                            .where(isPendingDownloads))
-                                .toList(new TrackUrnMapper());
+        return trackDownloadsStorage.getRequestedTracks().blockingGet();
     }
 
     private List<Urn> getTracksDownloaded() {
-        final Query query = Query.from(TrackDownloads.TABLE)
-                                 .whereNotNull(DOWNLOADED_AT)
-                                 .whereNull(REMOVED_AT);
-        return propellerDatabase.query(query).toList(new TrackUrnMapper());
+        return trackDownloadsStorage.getDownloadedTracks().blockingGet();
     }
 
-    private List<Urn> getTrackPendingRemovals() {
-        final long pendingRemovalThreshold = dateProvider.getCurrentDate()
-                                                         .getTime() - OfflineConstants.PENDING_REMOVAL_DELAY;
-
-        final Query query = Query
-                .from(TrackDownloads.TABLE)
-                .whereNotNull(DOWNLOADED_AT)
-                .whereGe(REMOVED_AT, pendingRemovalThreshold);
-
-        return propellerDatabase.query(query).toList(new TrackUrnMapper());
+    private List<Urn> getTracksToRemove() {
+        return trackDownloadsStorage.getTracksToRemove().blockingGet();
     }
 
     private List<Urn> getNewTrackPendingRemovals(Collection<DownloadRequest> expectedContent, List<Urn> downloaded,
@@ -139,11 +95,11 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     }
 
     private Collection<Urn> toUrns(Collection<DownloadRequest> expectedContent) {
-        return MoreCollections.transform(expectedContent, TO_URN);
+        return MoreCollections.transform(expectedContent, DownloadRequest::getUrn);
     }
 
     private Collection<Urn> getTracksToRestore(Collection<Urn> expectedContent, final List<Urn> pendingRemovals) {
-        return MoreCollections.filter(expectedContent, track -> pendingRemovals.contains(track));
+        return MoreCollections.filter(expectedContent, pendingRemovals::contains);
     }
 
     private Collection<Urn> getNewPendingDownloads(Collection<Urn> expectedContent,

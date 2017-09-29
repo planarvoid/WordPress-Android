@@ -1,14 +1,11 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.java.collections.MoreCollections.transform;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
 import io.reactivex.Observable;
@@ -26,34 +23,27 @@ import java.util.Map;
 
 public class OfflineStateOperations {
 
-    private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
     private final LikesStorage likesStorage;
-    private final TrackItemRepository trackRepository;
-
     private final OfflineContentStorage offlineContentStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final PlaylistStorage playlistStorage;
+    private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand;
     private final Scheduler scheduler;
-    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
 
     @Inject
     OfflineStateOperations(
-            IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand,
             LikesStorage likesStorage,
-            TrackItemRepository trackRepository,
             OfflineContentStorage offlineContentStorage,
             TrackDownloadsStorage trackDownloadsStorage,
             PlaylistStorage playlistStorage,
-            @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-            LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand) {
-        this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
+            LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
+            @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.likesStorage = likesStorage;
-        this.trackRepository = trackRepository;
         this.offlineContentStorage = offlineContentStorage;
         this.trackDownloadsStorage = trackDownloadsStorage;
         this.playlistStorage = playlistStorage;
+        this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
         this.scheduler = scheduler;
-        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
     }
 
     Single<Map<OfflineState, TrackCollections>> loadTracksCollectionsState(Collection<Urn> tracks, OfflineState state) {
@@ -96,7 +86,7 @@ public class OfflineStateOperations {
 
     private Single<Map<OfflineState, TrackCollections>> setState(Collection<Urn> tracks, OfflineState newState) {
         return Single.zip(offlinePlaylistsWithTracks(tracks),
-                          isOfflineLikedTracksEnabledCommand.toSingle(null),
+                          offlineContentStorage.isOfflineLikesEnabled(),
                           areTracksLiked(tracks),
                           (offlinePlaylists, isOfflineLikedTracksEnabled, areTracksLiked) -> populate(isOfflineLikedTracksEnabled && areTracksLiked, offlinePlaylists))
                      .filter(this::isNotEmpty)
@@ -106,7 +96,7 @@ public class OfflineStateOperations {
 
     private Single<List<Urn>> offlinePlaylistsWithTracks(Collection<Urn> tracks) {
         return playlistStorage.loadPlaylistsWithTracks(tracks)
-                              .zipWith(loadOfflinePlaylistsCommand.toSingle(), (urns, offlinePlaylists) -> {
+                              .zipWith(offlineContentStorage.getOfflinePlaylists(), (urns, offlinePlaylists) -> {
                                   ArrayList<Urn> playlistsWithTracks = new ArrayList<>(urns);
                                   playlistsWithTracks.retainAll(offlinePlaylists);
                                   return playlistsWithTracks;
@@ -154,10 +144,10 @@ public class OfflineStateOperations {
     }
 
     Single<OfflineState> loadLikedTrackState() {
-        return isOfflineLikedTracksEnabledCommand.toSingle(null)
-                                                 .filter(isOfflineLikedTracksEnabled -> isOfflineLikedTracksEnabled)
-                                                 .flatMapSingleElement(ignore -> likesOfflineStates().map(this::getCollectionOfflineState))
-                                                 .toSingle(OfflineState.NOT_OFFLINE);
+        return offlineContentStorage.isOfflineLikesEnabled()
+                                    .filter(isOfflineLikedTracksEnabled -> isOfflineLikedTracksEnabled)
+                                    .flatMapSingleElement(ignore -> likesOfflineStates().map(this::getCollectionOfflineState))
+                                    .toSingle(OfflineState.NOT_OFFLINE);
     }
 
     private Single<Collection<OfflineState>> likesOfflineStates() {
@@ -167,10 +157,11 @@ public class OfflineStateOperations {
     }
 
     private Single<Pair<Urn, OfflineState>> getState(Urn playlist) {
-        return trackRepository.forPlaylist(playlist)
-                              .map(trackItems -> transform(trackItems, TrackItem::offlineState))
-                              .map(this::getCollectionOfflineState)
-                              .map(offlineState -> Pair.of(playlist, offlineState));
+        return loadPlaylistTrackUrnsCommand.toSingle(playlist)
+                                           .flatMap((tracks) -> trackDownloadsStorage.getOfflineStates(tracks))
+                                           .map(Map::values)
+                                           .map(this::getCollectionOfflineState)
+                                           .map(offlineState -> Pair.of(playlist, offlineState));
     }
 
     private OfflineState getCollectionOfflineState(Collection<OfflineState> tracksOfflineState) {

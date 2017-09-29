@@ -9,28 +9,32 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackPolicyStorage;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTest {
 
     private LoadTracksWithStalePoliciesCommand command;
+    private final OfflineContentStorage offlineContentStorage = new OfflineContentStorage(sharedPreferences(), Schedulers.trampoline());
 
     @Before
     public void setup() {
-        command = new LoadTracksWithStalePoliciesCommand(propeller(),
-                                                         new LikesStorage(propellerRxV2()),
+        command = new LoadTracksWithStalePoliciesCommand(
+                new LikesStorage(propellerRxV2()),
                                                          new TrackPolicyStorage(propellerRxV2()),
-                                                         new LoadOfflinePlaylistsCommand(propeller()),
-                                                         new LoadPlaylistTrackUrnsCommand(propeller()));
+                                                         new LoadPlaylistTrackUrnsCommand(propeller()),
+                                                         offlineContentStorage);
     }
 
     @Test
     public void loadsLikeWithStalePolicyWhenFeatureEnabled() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
+
         ApiTrack apiTrack = insertTrackAndUpdatePolicies();
 
         Collection<Urn> trackLikes = command.call(null);
@@ -40,7 +44,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void loadsLikeWithMissingPolicyWhenFeatureEnabled() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().clearTrackPolicy(apiTrack);
 
@@ -51,7 +55,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void ignoresLikeWithUpToDatePolicy() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().updatePolicyTimestamp(apiTrack, new Date());
 
@@ -62,7 +66,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void ignoresLikeWithRemovedAt() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
         testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(100));
 
         Collection<Urn> trackLikes = command.call(null);
@@ -81,7 +85,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void doesNotLoadLikedPlaylistWhenNotMarkedAsAvailableOffline() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
         testFixtures().insertLikedPlaylist(new Date(100));
 
         Collection<Urn> trackLikes = command.call(null);
@@ -91,7 +95,8 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void loadOfflinePlaylistTracksWithStalePolicies() {
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        offlineContentStorage.storeAsOfflinePlaylists(Collections.singletonList(playlist.getUrn())).test().assertComplete();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
         final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
 
@@ -102,9 +107,10 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
     @Test
     public void loadOfflinePlaylistTracksAndLikedTracksWithStalePolicies() {
-        testFixtures().insertLikesMarkedForOfflineSync();
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
         final ApiTrack like = insertTrackAndUpdatePolicies();
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        offlineContentStorage.storeAsOfflinePlaylists(Collections.singletonList(playlist.getUrn())).test().assertComplete();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
         final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
 

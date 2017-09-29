@@ -3,7 +3,6 @@ package com.soundcloud.android.tracks;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -72,8 +71,6 @@ public abstract class Track {
 
     public abstract boolean creatorIsPro();
 
-    public abstract OfflineState offlineState();
-
     public abstract Optional<String> description();
 
     public abstract Optional<String> genre();
@@ -126,7 +123,6 @@ public abstract class Track {
                 .commentable(apiTrack.isCommentable())
                 .userLike(isUserLike)
                 .userRepost(isRepost)
-                .offlineState(OfflineState.NOT_OFFLINE)
                 .description(Optional.absent());
 
 
@@ -193,8 +189,6 @@ public abstract class Track {
         public abstract Builder creatorUrn(Urn creatorUrn);
 
         public abstract Builder creatorIsPro(boolean creatorIsPro);
-
-        public abstract Builder offlineState(OfflineState offlineState);
 
         public abstract Builder description(Optional<String> creatorUrn);
 

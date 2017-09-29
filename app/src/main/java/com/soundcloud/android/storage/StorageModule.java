@@ -52,6 +52,7 @@ public class StorageModule {
     public static final String PAYMENTS = "Payments";
     public static final String DEVICE_KEYS = "DeviceKeys";
     public static final String OFFLINE_SETTINGS = "OfflineSettings";
+    public static final String OFFLINE_CONTENT = "OfflineContent";
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
     public static final String ACTIVITIES_SYNC = "ActivitiesSync";
@@ -83,6 +84,7 @@ public class StorageModule {
     private static final String PREFS_PAYMENTS = "payments";
     private static final String PREFS_DEVICE_KEYS = "device_keys";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
+    private static final String PREFS_OFFLINE_CONTENT = "offline_content";
     private static final String PREFS_FEATURES = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
@@ -181,6 +183,12 @@ public class StorageModule {
     @Named(OFFLINE_SETTINGS)
     SharedPreferences provideOfflinePrefs(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(OFFLINE_CONTENT)
+    SharedPreferences provideOfflineContentPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_OFFLINE_CONTENT, Context.MODE_PRIVATE);
     }
 
     @Provides

@@ -5,13 +5,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.view.DownloadImageView;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.android.view.DownloadImageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -45,7 +44,7 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
-        playlistItemIndicatorsView.setupView(view, false, true, Optional.of(OfflineState.REQUESTED));
+        playlistItemIndicatorsView.setupView(view, false, true, OfflineState.REQUESTED);
 
         assertThat(offlineIndicator).isGone();
         assertThat(noNetworkIndicator).isVisible();
@@ -60,7 +59,7 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
-        playlistItemIndicatorsView.setupView(view, false, true, Optional.of(OfflineState.REQUESTED));
+        playlistItemIndicatorsView.setupView(view, false, true, OfflineState.REQUESTED);
 
         assertThat(offlineIndicator).isGone();
         assertThat(noNetworkIndicator).isVisible();
@@ -74,7 +73,7 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
-        playlistItemIndicatorsView.setupView(view, false, true, Optional.of(OfflineState.DOWNLOADED));
+        playlistItemIndicatorsView.setupView(view, false, true, OfflineState.DOWNLOADED);
 
         assertThat(offlineIndicator).isVisible();
         assertThat(noNetworkIndicator).isGone();
@@ -87,7 +86,7 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
         final ImageView noNetworkIndicator = view.findViewById(R.id.no_network_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
 
-        playlistItemIndicatorsView.setupView(view, false, true, Optional.absent());
+        playlistItemIndicatorsView.setupView(view, false, true, OfflineState.NOT_OFFLINE);
 
         assertThat(offlineIndicator).isGone();
         assertThat(noNetworkIndicator).isGone();
@@ -101,7 +100,7 @@ public class PlaylistItemIndicatorsViewTest extends AndroidUnitTest {
         final View likeIndicator = view.findViewById(R.id.like_indicator);
         when(changeLikeToSaveExperiment.isEnabled()).thenReturn(true);
 
-        playlistItemIndicatorsView.setupView(view, false, true, Optional.absent());
+        playlistItemIndicatorsView.setupView(view, false, true, OfflineState.NOT_OFFLINE);
 
         assertThat(offlineIndicator).isGone();
         assertThat(noNetworkIndicator).isGone();

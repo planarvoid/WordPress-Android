@@ -131,7 +131,7 @@ public class StreamPreloader {
         public void onNext(CurrentPlayQueueItemEvent args) {
             final Urn urn = playQueueManager.getNextPlayQueueItem().getUrn();
             preloadSubscription = trackItemRepository.track(urn)
-                                                     .filter(track -> !offlinePlaybackOperations.shouldPlayOffline(track))
+                                                     .filter(track -> !offlinePlaybackOperations.shouldPlayOffline(track.track().urn()))
                                                      .flatMap(waitForValidPreloadConditions)
                                                      .subscribeWith(new PreloadSubscriber());
         }

@@ -33,7 +33,6 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -44,10 +43,10 @@ import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,8 +97,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playlistRepository.withUrn(any(Urn.class))).thenReturn(Maybe.empty());
-        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.empty());
-        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.empty());
+        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Completable.complete());
+        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Completable.complete());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Single.never());
@@ -214,7 +213,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSaveOfflineIfPlaylistOwnedByCurrentUser() {
-        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
+        final CompletableSubject offlineObservable = CompletableSubject.create();
         when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -228,7 +227,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSaveOfflineIfPlaylistLikedByCurrentUser() {
-        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
+        final CompletableSubject offlineObservable = CompletableSubject.create();
         final PlaylistItem likedPlaylist = playlistItem.updateLikeState(true);
         when(offlineOperations.makePlaylistAvailableOffline(likedPlaylist.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -254,7 +253,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLikeAndSaveOffline() {
-        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
+        final CompletableSubject offlineObservable = CompletableSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
@@ -283,7 +282,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
-        final PublishSubject<RxSignal> offlineObservable = PublishSubject.create();
+        final CompletableSubject offlineObservable = CompletableSubject.create();
         when(offlineOperations.makePlaylistUnavailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 

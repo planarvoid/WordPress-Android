@@ -16,12 +16,17 @@ public class OfflineModule {
     @Provides
     @Singleton
     @Named(STRICT_SSL_CLIENT)
-    public OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
-                                            OkHttpClient okHttpClient) {
+    OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
+                                     OkHttpClient okHttpClient) {
         if (applicationProperties.isDevelopmentMode()) {
             return okHttpClient;
         } else {
             return okHttpClient.newBuilder().hostnameVerifier(new SoundCloudHostnameVerifier()).build();
         }
+    }
+
+    @Provides
+    IOfflinePropertiesProvider provideOfflinePropertiesProvider(OfflinePropertiesProvider offlinePropertiesProvider) {
+        return offlinePropertiesProvider;
     }
 }

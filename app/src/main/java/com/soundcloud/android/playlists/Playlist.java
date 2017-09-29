@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -71,10 +70,6 @@ public abstract class Playlist {
 
     public abstract Optional<Boolean> isLikedByCurrentUser();
 
-    public abstract Optional<Boolean> isMarkedForOffline();
-
-    public abstract Optional<OfflineState> offlineState();
-
     public abstract Optional<Boolean> isRepostedByCurrentUser();
 
     public abstract Optional<String> imageUrlTemplate();
@@ -85,10 +80,8 @@ public abstract class Playlist {
         return new AutoValue_Playlist.Builder()
                 .permalinkUrl(Optional.absent())
                 .tags(Optional.absent())
-                .isMarkedForOffline(Optional.absent())
                 .isLikedByCurrentUser(Optional.absent())
                 .isRepostedByCurrentUser(Optional.absent())
-                .offlineState(Optional.absent())
                 .imageUrlTemplate(Optional.absent());
     }
 
@@ -124,10 +117,6 @@ public abstract class Playlist {
 
         public abstract Builder repostCount(int value);
 
-        public Builder isMarkedForOffline(boolean isMarkedForOffline) {
-            return isMarkedForOffline(Optional.of(isMarkedForOffline));
-        }
-
         public abstract Builder permalinkUrl(Optional<String> value);
 
         public Builder permalinkUrl(String value) {
@@ -141,10 +130,6 @@ public abstract class Playlist {
         public abstract Builder setType(Optional<String> setType);
 
         public abstract Builder createdAt(Date date);
-
-        public Builder offlineState(OfflineState offlineState) {
-            return offlineState(Optional.of(offlineState));
-        }
 
         public abstract Builder isAlbum(boolean value);
 
@@ -165,10 +150,6 @@ public abstract class Playlist {
         public Builder isRepostedByCurrentUser(boolean value) {
             return isRepostedByCurrentUser(Optional.fromNullable(value));
         }
-
-        public abstract Builder isMarkedForOffline(Optional<Boolean> value);
-
-        public abstract Builder offlineState(Optional<OfflineState> value);
 
         public abstract Builder isRepostedByCurrentUser(Optional<Boolean> value);
 

@@ -94,7 +94,7 @@ constructor(private val propellerRx: PropellerRxV2,
         }).singleOrError()
     }
 
-    fun removePlaylist(urn: Urn): Single<TxnResult> {
+    fun removePlaylist(urn: Urn): Single<Boolean> {
         require(urn.isPlaylist) { "urn argument: $urn is not a playlist urn" }
 
         return removePlaylistCommand.toSingle(urn)

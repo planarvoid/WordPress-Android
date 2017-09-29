@@ -3,6 +3,8 @@ package com.soundcloud.android.collection.recentlyplayed
 import com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.offline.IOfflinePropertiesProvider
+import com.soundcloud.android.offline.OfflineProperties
 import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.stations.StationMetadata
@@ -35,7 +37,8 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
             private val clearRecentlyPlayedCommand: ClearRecentlyPlayedCommand,
             private val userRepository: UserRepository,
             private val playlistRepository: PlaylistRepository,
-            private val stationsRepository: StationsRepository) {
+            private val stationsRepository: StationsRepository,
+            private val offlinePropertiesProvider: IOfflinePropertiesProvider) {
 
     companion object {
         const val CAROUSEL_ITEMS = 10
@@ -102,7 +105,7 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
     private fun loadPlaylists(urns: List<Urn>, timestamps: Map<Urn, Long>): Single<RecentlyPlayedPlayableItems> {
         return playlistRepository.loadPlaylistsByUrn(urns)
                 .flatMapObservable { Observable.fromIterable(it) }
-                .map { it.toRecentlyPlayedPlayableItem(timestamps.getValue(it.urn())) }
+                .map { it.toRecentlyPlayedPlayableItem(timestamps.getValue(it.urn()), offlinePropertiesProvider.latest()) }
                 .toList()
     }
 
@@ -117,13 +120,13 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
         return Single.just(listOf<RecentlyPlayedPlayableItem>())
     }
 
-    private fun Playlist.toRecentlyPlayedPlayableItem(timestamp: Long) =
+    private fun Playlist.toRecentlyPlayedPlayableItem(timestamp: Long, offlineProperties: OfflineProperties) =
             RecentlyPlayedPlayableItem.forPlaylist(urn(),
                     imageUrlTemplate(),
                     title(),
                     trackCount(),
                     isAlbum,
-                    offlineState(),
+                    offlineProperties.state(urn()),
                     isLikedByCurrentUser.or(false),
                     isPrivate,
                     timestamp

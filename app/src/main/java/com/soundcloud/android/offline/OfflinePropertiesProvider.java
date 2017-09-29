@@ -1,20 +1,14 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
-import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -28,19 +22,20 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Singleton
-public class OfflinePropertiesProvider {
+public class OfflinePropertiesProvider implements IOfflinePropertiesProvider {
 
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final OfflineStateOperations offlineStateOperations;
-    private final MyPlaylistsOperations myPlaylistsOperations;
     private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private final AccountOperations accountOperations;
+    private final OfflineContentStorage offlineContentStorage;
     private final BehaviorSubject<OfflineProperties> subject = BehaviorSubject.create();
 
     @SuppressLint("sc.MissingCompositeDisposableRecycle")
@@ -49,16 +44,16 @@ public class OfflinePropertiesProvider {
     @Inject
     public OfflinePropertiesProvider(TrackDownloadsStorage trackDownloadsStorage,
                                      OfflineStateOperations offlineStateOperations,
-                                     MyPlaylistsOperations myPlaylistsOperations,
                                      EventBusV2 eventBus,
                                      @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                                     AccountOperations accountOperations) {
+                                     AccountOperations accountOperations,
+                                     OfflineContentStorage offlineContentStorage) {
         this.trackDownloadsStorage = trackDownloadsStorage;
         this.offlineStateOperations = offlineStateOperations;
-        this.myPlaylistsOperations = myPlaylistsOperations;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.accountOperations = accountOperations;
+        this.offlineContentStorage = offlineContentStorage;
     }
 
     public void subscribe() {
@@ -89,11 +84,11 @@ public class OfflinePropertiesProvider {
         return new OfflineProperties(updateEntitiesStates(properties, event), updateLikedStates(properties, event));
     }
 
-    private Maybe<OfflineProperties> loadOfflineStates() {
-        return Maybe.zip(
-                trackDownloadsStorage.getOfflineStates().toMaybe(),
+    private Single<OfflineProperties> loadOfflineStates() {
+        return Single.zip(
+                trackDownloadsStorage.offlineStates(),
                 loadPlaylistCollectionOfflineStates(),
-                offlineStateOperations.loadLikedTrackState().toMaybe(),
+                offlineStateOperations.loadLikedTrackState(),
                 this::aggregateOfflineProperties
         );
     }
@@ -105,21 +100,24 @@ public class OfflinePropertiesProvider {
         return new OfflineProperties(allOfflineStates, likedTracksState);
     }
 
-    private Maybe<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
-        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)
-                                    .flatMapSingleElement(this::loadPlaylistsOfflineStatesSync);
+    private Single<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
+        return offlineContentStorage.getOfflinePlaylists()
+                                    .flatMap(this::loadPlaylistsOfflineStatesSync);
     }
 
-    private Single<Map<Urn, OfflineState>> loadPlaylistsOfflineStatesSync(List<Playlist> playlists) {
-        final List<Urn> playlistUrns = transform(playlists, Playlist::urn);
-        //Purpose of this chain is to invert Map<OfflineState, Collection<Urn>> to Map<Urn, OfflineState>
-        return offlineStateOperations.loadPlaylistsOfflineState(playlistUrns)
-                                     //Flat map it to observable of pairs of offline state to playlist urn
-                                     .flatMapObservable(this::flattenMultimap)
-                                     //Build a map of playlist urn -> offline state
-                                     .scan(createMap(), this::addPairToMap)
-                                     //The last value is the fully built map
-                                     .lastOrError();
+    private Single<Map<Urn, OfflineState>> loadPlaylistsOfflineStatesSync(List<Urn> playlists) {
+        if (playlists.isEmpty()) {
+            return Single.just(Collections.emptyMap());
+        } else {
+            //Purpose of this chain is to invert Map<OfflineState, Collection<Urn>> to Map<Urn, OfflineState>
+            return offlineStateOperations.loadPlaylistsOfflineState(playlists)
+                                         //Flat map it to observable of pairs of offline state to playlist urn
+                                         .flatMapObservable(this::flattenMultimap)
+                                         //Build a map of playlist urn -> offline state
+                                         .scan(createMap(), this::addPairToMap)
+                                         //The last value is the fully built map
+                                         .lastOrError();
+        }
     }
 
     private Observable<Pair<OfflineState, Urn>> flattenMultimap(Map<OfflineState, Collection<Urn>> map) {
@@ -159,5 +157,9 @@ public class OfflinePropertiesProvider {
 
     public Observable<OfflineProperties> states() {
         return subject.scan(OfflineProperties::apply).toFlowable(BackpressureStrategy.LATEST).toObservable();
+    }
+
+    public OfflineProperties latest() {
+        return subject.getValue();
     }
 }

@@ -46,7 +46,7 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
     }
 
     public static Builder builder(Track track) {
-        return builder().offlineState(track.offlineState())
+        return builder().offlineState(OfflineState.NOT_OFFLINE)
                         .isUserLike(track.userLike())
                         .likesCount(track.likesCount())
                         .isUserRepost(track.userRepost())

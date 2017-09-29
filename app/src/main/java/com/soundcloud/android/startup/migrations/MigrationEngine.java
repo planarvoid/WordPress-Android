@@ -3,6 +3,7 @@ package com.soundcloud.android.startup.migrations;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.offline.OfflineContentMigration;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
 
@@ -29,14 +30,16 @@ public class MigrationEngine {
                            DiskCacheMigration diskCacheMigration,
                            StreamCacheMigration streamCacheMigration,
                            PlayHistoryMigration playHistoryMigration,
-                           RecentlyPlayedMigration recentlyPlayedMigration) {
+                           RecentlyPlayedMigration recentlyPlayedMigration,
+                           OfflineContentMigration offlineContentMigration) {
         this(BuildConfig.VERSION_CODE,
              sharedPreferences,
              settingsMigration,
              diskCacheMigration,
              streamCacheMigration,
              playHistoryMigration,
-             recentlyPlayedMigration);
+             recentlyPlayedMigration,
+             offlineContentMigration);
     }
 
     @VisibleForTesting

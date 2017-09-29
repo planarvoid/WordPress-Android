@@ -8,7 +8,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.DownloadImageView;
-import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -31,8 +30,7 @@ public class PlaylistItemIndicatorsView {
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
-    public void setupView(View view, boolean isPrivate, boolean isLiked, Optional<OfflineState> offlineState) {
-
+    public void setupView(View view, boolean isPrivate, boolean isLiked, OfflineState offlineState) {
         ButterKnife.findById(view, R.id.private_indicator).setVisibility(isPrivate ? View.VISIBLE : View.GONE);
 
         ImageView noNetworkIndicator = ButterKnife.findById(view, R.id.no_network_indicator);
@@ -41,7 +39,7 @@ public class PlaylistItemIndicatorsView {
 
         ViewUtils.setGone(Arrays.asList(offlineIndicator, noNetworkIndicator, likeIndicator));
         if (shouldShowOfflineIndicator(offlineState)) {
-            showOfflineIndicator(noNetworkIndicator, offlineIndicator, offlineState.get());
+            showOfflineIndicator(noNetworkIndicator, offlineIndicator, offlineState);
         } else {
             offlineIndicator.setState(OfflineState.NOT_OFFLINE);
             likeIndicator.setVisibility(shouldShowLikeIndicator(isLiked)
@@ -59,8 +57,8 @@ public class PlaylistItemIndicatorsView {
         }
     }
 
-    private boolean shouldShowOfflineIndicator(Optional<OfflineState> offlineState) {
-        return offlineState.isPresent() && OfflineState.NOT_OFFLINE != offlineState.get();
+    private boolean shouldShowOfflineIndicator(OfflineState offlineState) {
+        return OfflineState.NOT_OFFLINE != offlineState;
     }
 
     private boolean shouldShowNoNetworkIndicator() {

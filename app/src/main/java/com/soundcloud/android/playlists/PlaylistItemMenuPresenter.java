@@ -29,8 +29,8 @@ import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -209,7 +209,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                                                playlistUrn,
                                                                promotedSourceInfo.orNull());
         } else {
-            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
+            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultCompletableObserver());
             eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                     screenProvider.getLastScreenTag(),
                     playlistUrn,
@@ -245,7 +245,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                        entityMetadata));
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike, playlist)) {
-            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
+            offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new DefaultCompletableObserver());
         }
     }
 
@@ -291,7 +291,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     private void saveOffline() {
-        offlineContentOperations.makePlaylistAvailableOffline(playlistUrn).subscribe(new DefaultObserver<>());
+        offlineContentOperations.makePlaylistAvailableOffline(playlistUrn).subscribe(new DefaultCompletableObserver());
     }
 
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {

@@ -15,7 +15,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -122,7 +122,7 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
         eventBus.publish(EventQueue.TRACKING, OfflineContentLocation.DEVICE_STORAGE == offlineContentLocation
                                               ? OfflineInteractionEvent.forOfflineStorageLocationDevice()
                                               : OfflineInteractionEvent.forOfflineStorageLocationSdCard());
-        offlineContentOperations.resetOfflineContent(offlineContentLocation).subscribe(new DefaultSingleObserver<>());
+        offlineContentOperations.resetOfflineContent(offlineContentLocation).subscribe(new DefaultCompletableObserver());
         activity.finish();
     }
 

@@ -1,13 +1,8 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.IsOfflineLikedTracksEnabledCommand.isOfflineLikesEnabledQuery;
-import static com.soundcloud.android.storage.Table.PlaylistTracks;
-import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.android.utils.RepoUtilsKt.enrichItemsWithProperties;
-import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Association;
@@ -16,17 +11,13 @@ import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Maps;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.query.Query;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 
 import javax.inject.Inject;
@@ -38,32 +29,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent> {
 
     private static final long STALE_POLICY_CUTOFF_TIME = TimeUnit.DAYS.toMillis(30);
 
-    private final PropellerDatabase database;
     private final LikesStorage likesStorage;
     private final TrackStorage trackStorage;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
-    private final LoadOfflinePlaylistsCommand playlistsCommand;
     private final PlaylistStorage playlistStorage;
+    private final OfflineContentStorage offlineContentStorage;
 
     @Inject
-    LoadExpectedContentCommand(PropellerDatabase database,
-                               LikesStorage likesStorage,
+    LoadExpectedContentCommand(LikesStorage likesStorage,
                                TrackStorage trackStorage,
                                LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-                               LoadOfflinePlaylistsCommand playlistsCommand,
-                               PlaylistStorage playlistStorage) {
-        this.database = database;
+                               PlaylistStorage playlistStorage, OfflineContentStorage offlineContentStorage) {
         this.likesStorage = likesStorage;
         this.trackStorage = trackStorage;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
-        this.playlistsCommand = playlistsCommand;
         this.playlistStorage = playlistStorage;
+        this.offlineContentStorage = offlineContentStorage;
     }
 
     @Override
@@ -81,11 +69,9 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
     }
 
     private Collection<Urn> getPlaylistsWithoutTracks() {
-        return database.query(Query.from(OfflineContent.TABLE)
-                                   .leftJoin(PlaylistTracks, filter().whereEq(OfflineContent._ID, TableColumns.PlaylistTracks.PLAYLIST_ID))
-                                   .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
-                                   .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID)))
-                       .toList(new PlaylistUrnMapper());
+        return offlineContentStorage.getOfflinePlaylists().flatMap(urns -> Observable.fromIterable(urns)
+                                                                                     .flatMapMaybe(urn -> loadPlaylistTracksCommand.toSingle(urn).filter(List::isEmpty).map(tracks -> urn))
+                                                                                     .collect((Callable<ArrayList<Urn>>) ArrayList::new, Collection::add)).blockingGet();
     }
 
     private List<OfflineRequestData> tracksFromLikes() {
@@ -125,15 +111,15 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
                            .flatMap(source -> enrichItemsWithProperties(source, trackStorage.loadTracks(Lists.transform(source, UrnHolder::urn)), (track, like) -> track))
                            .map(this::filterTracksForStalePolicies)
                            .map(tracks -> Lists.transform(Lists.newArrayList(tracks), input -> OfflineRequestData.fromLikes(
-                              input.urn(),
-                              input.imageUrlTemplate(),
-                              input.creatorUrn(),
-                              input.fullDuration(),
-                              input.waveformUrl(),
-                              input.isSyncable(),
-                              input.snipped()
+                                   input.urn(),
+                                   input.imageUrlTemplate(),
+                                   input.creatorUrn(),
+                                   input.fullDuration(),
+                                   input.waveformUrl(),
+                                   input.isSyncable(),
+                                   input.snipped()
 
-                      ))).blockingGet();
+                           ))).blockingGet();
     }
 
     private Collection<Track> filterTracksForStalePolicies(List<Track> tracks) {
@@ -141,9 +127,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
     }
 
     private boolean isOfflineLikedTracksEnabled() {
-        return database
-                .query(isOfflineLikesEnabledQuery())
-                .first(Boolean.class);
+        return offlineContentStorage.isOfflineLikesEnabled().blockingGet();
     }
 
     private long stalePolicyCutoff() {
@@ -151,14 +135,12 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
     }
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
-        Single<List<Association>> playlistLikes = likesStorage.loadPlaylistLikes();
-        Single<List<Urn>> offlinePlaylists = playlistsCommand.toSingle();
-        return offlinePlaylists.flatMap(playlistStorage::loadPlaylists)
-                               .zipWith(playlistLikes, this::orderedOfflinePlaylists)
-                               .flatMap((playlists) -> Observable.fromIterable(playlists)
-                                                                 .concatMap(this::playlistTracksForDownoad)
-                                                                 .collect(ArrayList::new, this::toPlaylistTrackOfflineRequestData))
-                               .blockingGet();
+        return offlineContentStorage.getOfflinePlaylists().flatMap(playlistStorage::loadPlaylists)
+                                    .zipWith(likesStorage.loadPlaylistLikes(), this::orderedOfflinePlaylists)
+                                    .flatMap((playlists) -> Observable.fromIterable(playlists)
+                                                                      .concatMap(this::playlistTracksForDownoad)
+                                                                      .collect(ArrayList::new, this::toPlaylistTrackOfflineRequestData))
+                                    .blockingGet();
     }
 
     private void toPlaylistTrackOfflineRequestData(List<OfflineRequestData> offlineRequestDatas, Collection<Track> tracks) {

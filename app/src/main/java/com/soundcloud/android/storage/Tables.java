@@ -1,15 +1,18 @@
 package com.soundcloud.android.storage;
 
 import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
+import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
-import com.soundcloud.android.playlists.PlaylistQueries;
 import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -760,11 +763,6 @@ public interface Tables {
         public static final Column RELEASE_DATE = Column.create(TABLE, "pv_release_date", String.class);
         public static final Column SET_TYPE = Column.create(TABLE, "pv_set_type", String.class);
         public static final Column LOCAL_TRACK_COUNT = Column.create(TABLE, "pv_local_track_count", Long.class);
-        public static final Column HAS_PENDING_DOWNLOAD_REQUEST = Column.create(TABLE,
-                                                                                "pv_has_pending_download_request", Boolean.class);
-        public static final Column HAS_DOWNLOADED_TRACKS = Column.create(TABLE, "pv_has_downloaded_tracks", Boolean.class);
-        public static final Column HAS_UNAVAILABLE_TRACKS = Column.create(TABLE, "pv_has_unavailable_tracks", Boolean.class);
-        public static final Column IS_MARKED_FOR_OFFLINE = Column.create(TABLE, "pv_is_marked_for_offline", Boolean.class);
         public static final Column IS_USER_LIKE = Column.create(TABLE, "pv_is_user_like", Boolean.class);
         public static final Column IS_USER_REPOST = Column.create(TABLE, "pv_is_user_repost", Boolean.class);
         public static final Column IS_ALBUM = Column.create(TABLE, "pv_is_album", Boolean.class);
@@ -774,7 +772,7 @@ public interface Tables {
             return SQL;
         }
 
-        public static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
+        static final String SQL = "CREATE VIEW IF NOT EXISTS PlaylistView AS " +
                 Query.from(SoundView.name())
                      .select(field(SoundView.field(TableColumns.SoundView._ID)).as(ID.name()),
                              field(SoundView.field(TableColumns.SoundView.TITLE)).as(TITLE.name()),
@@ -794,14 +792,17 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.RELEASE_DATE)).as(RELEASE_DATE.name()),
                              field(SoundView.field(TableColumns.SoundView.SET_TYPE)).as(SET_TYPE.name()),
                              field(SoundView.field(TableColumns.SoundView.IS_ALBUM)).as(IS_ALBUM.name()),
-                             field("(" + PlaylistQueries.LOCAL_TRACK_COUNT.build() + ")").as(LOCAL_TRACK_COUNT.name()),
+                             field("(" + localTrackCount() + ")").as(LOCAL_TRACK_COUNT.name()),
                              exists(likeQuery()).as(IS_USER_LIKE.name()),
-                             exists(repostQuery()).as(IS_USER_REPOST.name()),
-                             exists(PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST.name()),
-                             exists(PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS.name()),
-                             exists(PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS.name()),
-                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE.name()))
+                             exists(repostQuery()).as(IS_USER_REPOST.name()))
                      .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Tables.Sounds.TYPE_PLAYLIST);
+
+        private static Query localTrackCount() {
+            return Query.from(Table.PlaylistTracks)
+                        .select(count(PlaylistTracks.field(TRACK_ID)))
+                        .joinOn(SoundView.field(TableColumns.SoundView._ID),
+                                PlaylistTracks.field(PLAYLIST_ID));
+        }
 
         private static Query creatorIsProQuery() {
             final Where joinConditions = filter()
@@ -947,11 +948,6 @@ public interface Tables {
         public static final Column ARTWORK_URL = Column.create(TABLE, "tv_artwork_url", String.class);
         public static final Column IS_USER_LIKE = Column.create(TABLE, "tv_is_user_like", String.class);
         public static final Column IS_USER_REPOST = Column.create(TABLE, "tv_is_user_repost", String.class);
-
-        public static final Column OFFLINE_REMOVED_AT = Column.create(TABLE, "tv_offline_removed_at", Long.class);
-        public static final Column OFFLINE_DOWNLOADED_AT = Column.create(TABLE, "tv_offline_downloaded_at", Long.class);
-        public static final Column OFFLINE_REQUESTED_AT = Column.create(TABLE, "tv_offline_requested_at", Long.class);
-        public static final Column OFFLINE_UNAVAILABLE_AT = Column.create(TABLE, "tv_offline_unavailable_at", Long.class);
         public static final Column DISPLAY_STATS_ENABLED = Column.create(TABLE, "tv_display_stats_enabled", Boolean.class);
 
         @Override
@@ -992,10 +988,6 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(SUB_HIGH_TIER.name()),
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(SUB_MID_TIER.name()),
 
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_DOWNLOADED_AT)).as(OFFLINE_DOWNLOADED_AT.name()),
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REMOVED_AT)).as(OFFLINE_REMOVED_AT.name()),
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_REQUESTED_AT)).as(OFFLINE_REQUESTED_AT.name()),
-                             field(SoundView.field(TableColumns.SoundView.OFFLINE_UNAVAILABLE_AT)).as(OFFLINE_UNAVAILABLE_AT.name()),
                              field(SoundView.field(TableColumns.SoundView.DISPLAY_STATS_ENABLED)).as(DISPLAY_STATS_ENABLED.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),

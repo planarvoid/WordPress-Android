@@ -68,6 +68,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
@@ -75,7 +76,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowLog;
-import rx.Observable;
 
 import android.support.annotation.NonNull;
 
@@ -253,7 +253,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeAvailableOfflineWithOwnerPlaylistMakesAvailableOffline() throws Exception {
         connect();
 
-        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
+        CompletableSubject offlineSubject = CompletableSubject.create();
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
@@ -264,9 +264,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(RxSignal.SIGNAL);
-
         assertThat(offlineSubject.hasObservers()).isTrue();
+        offlineSubject.onComplete();
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
     }
 
@@ -274,7 +273,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineDoesNotMakeOtherUsersPlaylistOfflineWithFailedLike() throws Exception {
         connect();
 
-        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
+        CompletableSubject offlineSubject = CompletableSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -292,7 +291,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
         connect();
 
-        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
+        CompletableSubject offlineSubject = CompletableSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
@@ -302,9 +301,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(RxSignal.SIGNAL);
-
         assertThat(offlineSubject.hasObservers()).isTrue();
+        offlineSubject.onComplete();
+
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
     }
 
@@ -312,13 +311,13 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
+        CompletableSubject offlineSubject = CompletableSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
         inputs.onMakeOfflineAvailable();
 
-        offlineSubject.onNext(RxSignal.SIGNAL);
+        offlineSubject.onComplete();
 
         OfflineInteractionEvent event = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
         assertThat(event.clickObject()).isEqualTo(of(playlistUrn));
@@ -330,12 +329,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeAvailableOfflineHandlesOfflineContentNotAccessible() {
         connect();
 
-        rx.subjects.PublishSubject<RxSignal> offlineSubject = rx.subjects.PublishSubject.create();
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
 
         inputs.onMakeOfflineAvailable();
-
-        offlineSubject.onNext(RxSignal.SIGNAL);
 
         verify(playlistDetailView).showOfflineStorageErrorDialog(any());
         verifyZeroInteractions(offlineContentOperations);
@@ -345,7 +341,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineMakesOfflineUnavailable() throws Exception {
         connect();
 
-        PublishSubject<RxSignal> offlineSubject = PublishSubject.create();
+        CompletableSubject offlineSubject = CompletableSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(offlineSubject);
 
         inputs.onMakeOfflineUnavailable();
@@ -367,7 +363,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onMakeUnavailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(PublishSubject.create());
+        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn)).thenReturn(CompletableSubject.create());
 
         inputs.onMakeOfflineUnavailable();
 
@@ -382,7 +378,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         List<Urn> trackUrns = transform(trackItems, PlayableItem::getUrn);
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Observable.just(trackUrns));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Single.just(trackUrns));
         when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(Single.just(PlaybackResult.success()));
 
         inputs.onHeaderPlayButtonClicked();
@@ -395,7 +391,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         List<Urn> trackUrns = transform(trackItems, PlayableItem::getUrn);
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Observable.just(trackUrns));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(Single.just(trackUrns));
         when(playbackInitiator.playTracks(trackUrns, 0, createPlaySessionSource())).thenReturn(Single.just(PlaybackResult.error(ErrorReason.MISSING_PLAYABLE_TRACKS)));
 
         inputs.onHeaderPlayButtonClicked();
@@ -662,7 +658,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(playlistOperations.editPlaylistTracks(
                 updatedPlaylist.urn(),
                 asList(trackItem2.getUrn(), trackItem1.getUrn())
-        )).thenReturn(Observable.just(asList(track2, track1)));
+        )).thenReturn(Single.just(asList(track2, track1)));
 
         inputs.actionUpdateTrackList(asList(
                 getPlaylistDetailTrackItem(trackItem2, initialPlaylist),

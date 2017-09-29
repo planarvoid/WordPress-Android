@@ -15,7 +15,6 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
@@ -23,6 +22,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +48,7 @@ public class OfflineContentControllerTest {
     private OfflineContentController controller;
     private TestEventBusV2 eventBus;
     private io.reactivex.subjects.PublishSubject<Boolean> wifiOnlyToggleSetting;
+    CompletableSubject completableSubject = CompletableSubject.create();
     private PublishSubject<Void> onCollectionChanged;
     private TestObserver<Object> startServiceObserver;
 
@@ -236,15 +237,14 @@ public class OfflineContentControllerTest {
         Urn playlist1 = Urn.forPlaylist(123L);
         Urn playlist2 = Urn.forPlaylist(456L);
 
-        PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Sets.newHashSet(playlist1, playlist2))).thenReturn(
-                makePlaylistUnavailableOffline);
+                completableSubject);
 
         controller.subscribe();
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntitiesDeleted(Sets.newHashSet(playlist1, playlist2)));
 
         startServiceObserver.assertNoValues();
-        makePlaylistUnavailableOffline.onNext(RxSignal.SIGNAL);
+        completableSubject.onComplete();
         startServiceObserver.assertValueCount(1);
     }
 
@@ -253,9 +253,8 @@ public class OfflineContentControllerTest {
         Urn playlist1 = Urn.forPlaylist(123L);
         Urn playlist2 = Urn.forPlaylist(456L);
 
-        PublishSubject<RxSignal> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Sets.newHashSet(playlist1, playlist2))).thenReturn(
-                makePlaylistUnavailableOffline);
+                completableSubject);
 
         controller.subscribe();
         Map<Urn, LikesStatusEvent.LikeStatus> likes = new HashMap<>(2);
@@ -264,38 +263,34 @@ public class OfflineContentControllerTest {
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(likes));
 
         startServiceObserver.assertNoValues();
-        makePlaylistUnavailableOffline.onNext(RxSignal.SIGNAL);
+        completableSubject.onComplete();
         startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
-        PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(
-                makeAvailableOffline);
+        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(completableSubject);
 
         controller.subscribe();
 
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(PLAYLIST));
 
         startServiceObserver.assertValueCount(0);
-        makeAvailableOffline.onNext(RxSignal.SIGNAL);
+        completableSubject.onComplete();
         startServiceObserver.assertValueCount(1);
     }
 
     @Test
     public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
-        PublishSubject<RxSignal> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(
-                makeAvailableOffline);
+        when(offlineContentOperations.makePlaylistAvailableOffline(Sets.newHashSet(PLAYLIST))).thenReturn(completableSubject);
 
         controller.subscribe();
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(PLAYLIST, true, 1));
 
         startServiceObserver.assertValueCount(0);
-        makeAvailableOffline.onNext(RxSignal.SIGNAL);
+        completableSubject.onComplete();
         startServiceObserver.assertValueCount(1);
     }
 

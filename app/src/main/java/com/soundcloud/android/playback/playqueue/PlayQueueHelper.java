@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -52,8 +51,8 @@ public class PlayQueueHelper {
 
     public void playNext(Urn playlistUrn) {
         if (playQueueManager.isQueueEmpty()) {
-            RxJava.toV2Observable(playlistOperations.trackUrnsForPlayback(playlistUrn))
-                              .flatMapSingle(tracks -> playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screenProvider.getLastScreenTag())))
+            playlistOperations.trackUrnsForPlayback(playlistUrn)
+                              .flatMap(tracks -> playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screenProvider.getLastScreenTag())))
                               .observeOn(AndroidSchedulers.mainThread())
                               .subscribeWith(new ExpandPlayerObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
         } else {

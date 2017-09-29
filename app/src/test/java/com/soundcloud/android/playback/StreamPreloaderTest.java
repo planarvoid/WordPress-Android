@@ -98,7 +98,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     @Test
     public void doesNotPreloadWhenNextTrackIsOffline() {
-        when(offlinePlaybackOperations.shouldPlayOffline(track)).thenReturn(true);
+        when(offlinePlaybackOperations.shouldPlayOffline(track.track().urn())).thenReturn(true);
         setupValidNextTrack();
         setupValidSpaceRemaining();
 

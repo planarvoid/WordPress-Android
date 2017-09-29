@@ -296,7 +296,7 @@ public abstract class PlayableFixtures {
         final PlaylistItem.Builder playlistItem = ModelFixtures.playlistItem(apiPlaylist).toBuilder();
         playlistItem.isUserLike(isLiked);
         playlistItem.isUserRepost(isReposted);
-        playlistItem.isMarkedForOffline(Optional.of(markedForOffline));
+        playlistItem.isMarkedForOffline(markedForOffline);
         playlistItem.repostedProperties(repostedProperties);
         return playlistItem.build();
     }

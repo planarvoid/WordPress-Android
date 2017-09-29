@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.playlist;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -15,7 +14,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;

@@ -1,27 +1,44 @@
 package com.soundcloud.android.framework;
 
-import static android.provider.BaseColumns._ID;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentUpdates;
+import com.soundcloud.android.offline.OfflineDatabase;
+import com.soundcloud.android.offline.OfflineDatabaseOpenHelper;
+import com.soundcloud.android.offline.TrackDownloadsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SchemaMigrationHelper;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.OfflineContent;
-import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.storage.Tables.TrackPolicies;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import io.reactivex.schedulers.Schedulers;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+
+import java.util.Collections;
 
 public class IntegrationTestsFixtures {
 
     public void insertOfflineTrack(Context context, Urn track) {
-        insert(context, TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
         insert(context, TrackPolicies.TABLE.name(), buildTrackPoliciesValues(track, System.currentTimeMillis()));
+        getTrackDownloadsStorage(context)
+                .writeUpdates(OfflineContentUpdates.builder().newTracksToDownload(Collections.singletonList(track)).build())
+                .test()
+                .assertComplete();
+    }
+
+    @NonNull
+    protected TrackDownloadsStorage getTrackDownloadsStorage(Context context) {
+        return new TrackDownloadsStorage(new CurrentDateProvider(),
+                                         new OfflineDatabase(new OfflineDatabaseOpenHelper(context), Schedulers.trampoline()));
     }
 
     public void clearLikes(Context context) {
@@ -34,9 +51,12 @@ public class IntegrationTestsFixtures {
     }
 
     public void clearOfflineContent(Context context) {
-        final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
-        db.delete(TrackDownloads.TABLE.name(), null, null);
-        db.delete(OfflineContent.TABLE.name(), null, null);
+        // clear downloads storage
+        getTrackDownloadsStorage(context).deleteAllDownloads().test().assertComplete();
+
+        // clear backing offline content preference
+        final SharedPreferences offlineContentStorage = context.getSharedPreferences(StorageModule.OFFLINE_CONTENT, Context.MODE_PRIVATE);
+        offlineContentStorage.edit().clear().commit();
     }
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
@@ -61,14 +81,6 @@ public class IntegrationTestsFixtures {
     private void update(Context context, ContentValues contentValues) {
         final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         db.update(TrackPolicies.TABLE.name(), contentValues, filter().build(), null);
-    }
-
-    private static ContentValues buildTrackDownloadValues(Urn track, long date) {
-        return ContentValuesBuilder.values(2)
-                                   .put(_ID, track.getNumericId())
-                                   .put(TrackDownloads.REQUESTED_AT, date)
-                                   .put(TrackDownloads.DOWNLOADED_AT, date)
-                                   .get();
     }
 
     private static ContentValues buildTrackPoliciesValues(long date) {

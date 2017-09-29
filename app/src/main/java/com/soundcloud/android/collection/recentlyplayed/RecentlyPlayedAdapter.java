@@ -57,12 +57,9 @@ class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem
             final RecentlyPlayedItem recentlyPlayedItem = items.get(i);
             if (recentlyPlayedItem.getKind().equals(RecentlyPlayedItem.Kind.RecentlyPlayedPlaylist)) {
                 final RecentlyPlayedPlayableItem playableItem = (RecentlyPlayedPlayableItem) recentlyPlayedItem;
-
-                if (event.entities.contains(playableItem.getUrn())) {
-                    if (!playableItem.getOfflineState().or(OfflineState.NOT_OFFLINE).equals(event.state)) {
-                        playableItem.setOfflineState(event.state);
-                        changed = true;
-                    }
+                if (event.entities.contains(playableItem.getUrn()) && !playableItem.getOfflineState().equals(event.state)) {
+                    playableItem.setOfflineState(event.state);
+                    changed = true;
                 }
             }
         }

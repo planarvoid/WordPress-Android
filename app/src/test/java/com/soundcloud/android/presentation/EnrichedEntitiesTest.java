@@ -45,7 +45,7 @@ public class EnrichedEntitiesTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        enrichedEntities = new EnrichedEntities(new EntityItemCreator(),
+        enrichedEntities = new EnrichedEntities(new EntityItemCreator(ModelFixtures.testOfflinePropertiesProvider()),
                                                 likesStateProvider,
                                                 repostsStateProvider,
                                                 playSessionStateProvider,

@@ -8,11 +8,10 @@ import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Posts;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -27,10 +26,12 @@ class ReplacePlaylistPostCommand
         extends LegacyCommand<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
 
     private final PropellerDatabase propeller;
+    private final OfflineContentOperations offlineContentOperations;
 
     @Inject
-    ReplacePlaylistPostCommand(PropellerDatabase propeller) {
+    ReplacePlaylistPostCommand(PropellerDatabase propeller, OfflineContentOperations offlineContentOperations) {
         this.propeller = propeller;
+        this.offlineContentOperations = offlineContentOperations;
     }
 
     @Override
@@ -45,23 +46,12 @@ class ReplacePlaylistPostCommand
                 removePlaylist(propeller);
                 updatePostsTable(propeller);
                 updateLikesTable(propeller);
-                updateOfflinePlaylist(propeller);
+                updateOfflinePlaylist();
 
             }
 
-            private void updateOfflinePlaylist(PropellerDatabase propeller) {
-                final ContentValues offlinePlaylistValues = new ContentValues();
-                offlinePlaylistValues.put(OfflineContent._ID.name(), newPlaylist.getUrn().getNumericId());
-                offlinePlaylistValues.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_PLAYLIST);
-
-                final ChangeResult changeResult = step(
-                        propeller.delete(OfflineContent.TABLE,
-                                         filter().whereEq(OfflineContent._ID, localPlaylistUrn.getNumericId())
-                                                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)));
-
-                if (changeResult.getNumRowsAffected() > 0) {
-                    step(propeller.insert(OfflineContent.TABLE, offlinePlaylistValues));
-                }
+            private void updateOfflinePlaylist() {
+                offlineContentOperations.replaceOfflinePlaylist(localPlaylistUrn, newPlaylist.getUrn()).blockingGet();
             }
 
             private void insertNewPlaylistAndUser(PropellerDatabase propeller) {

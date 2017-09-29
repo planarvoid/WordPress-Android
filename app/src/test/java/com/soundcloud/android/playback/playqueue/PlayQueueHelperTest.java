@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import rx.Observable;
 
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     public void shouldIntialisePlayQueue() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(playlistOperations.trackUrnsForPlayback(eq(playlistUrn)))
-                .thenReturn(Observable.just(trackList));
+                .thenReturn(Single.just(trackList));
         when(playbackInitiator.playTracks(trackList, 0, playSessionSource))
                 .thenReturn(Single.just(PlaybackResult.success()));
 

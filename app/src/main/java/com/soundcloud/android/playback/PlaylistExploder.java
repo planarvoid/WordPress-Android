@@ -4,13 +4,11 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.java.collections.MoreCollections;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.disposables.CompositeDisposable;
 
-import android.support.annotation.NonNull;
+import android.annotation.SuppressLint;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,7 +28,9 @@ public class PlaylistExploder {
     private final PlayQueueManager playQueueManager;
 
     private final Set<Urn> explodedPlaylists = new HashSet<>();
-    private final CompositeSubscription loadPlaylistsSubscription = new CompositeSubscription();
+
+    @SuppressLint("sc.MissingCompositeDisposableRecycle") // this class is tied to app lifecycle
+    private final CompositeDisposable loadPlaylistsSubscription = new CompositeDisposable();
 
     @Inject
     public PlaylistExploder(PlaylistOperations playlistOperations,
@@ -63,19 +63,21 @@ public class PlaylistExploder {
     private void loadPlaylistTracks(final Urn playlist) {
         explodedPlaylists.add(playlist);
         loadPlaylistsSubscription.add(playlistOperations.trackUrnsForPlayback(playlist)
-                                                        .doOnTerminate(removePlaylistLoad(playlist))
-                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                        .subscribe(new DefaultSubscriber<List<Urn>>() {
+                                                        .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                                                        .doOnSuccess(urns -> removePlaylistLoad(playlist))
+                                                        .doOnError(throwable -> removePlaylistLoad(playlist))
+                                                        .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                                                        .subscribeWith(new DefaultSingleObserver<List<Urn>>() {
                                                             @Override
-                                                            public void onNext(List<Urn> args) {
-                                                                playQueueManager.insertPlaylistTracks(playlist, args);
+                                                            public void onSuccess(@io.reactivex.annotations.NonNull List<Urn> urns) {
+                                                                super.onSuccess(urns);
+                                                                playQueueManager.insertPlaylistTracks(playlist, urns);
                                                             }
                                                         }));
     }
 
-    @NonNull
-    private Action0 removePlaylistLoad(final Urn playlist) {
-        return () -> explodedPlaylists.remove(playlist);
+    private void removePlaylistLoad(final Urn playlist) {
+        explodedPlaylists.remove(playlist);
     }
 
     private Collection<Urn> getSurroundingPlaylists(int position, int count) {

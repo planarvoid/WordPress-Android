@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class OfflineSettingsStorage {
+    private static final String KEY_OFFLINE_CONTENT = "has_content_offline";
+    private static final String KEY_IS_OFFLINE_COLLECTION = "is_offline_collection";
 
     public static final long UNLIMITED = Long.MAX_VALUE;
     public static final String OFFLINE_SETTINGS_ONBOARDING = "offline_settings_onboarding";
@@ -78,6 +80,18 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putBoolean(OFFLINE_SETTINGS_ONBOARDING, true).apply();
     }
 
+    public Boolean isOfflineCollectionEnabled() {
+        return sharedPreferences.getBoolean(KEY_IS_OFFLINE_COLLECTION, false);
+    }
+
+    public void removeOfflineCollection() {
+        sharedPreferences.edit().putBoolean(KEY_IS_OFFLINE_COLLECTION, false).apply();
+    }
+
+    public void addOfflineCollection() {
+        sharedPreferences.edit().putBoolean(KEY_IS_OFFLINE_COLLECTION, true).apply();
+    }
+
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                          .filter(OFFLINE_WIFI_ONLY::equals)
@@ -87,6 +101,14 @@ public class OfflineSettingsStorage {
     public Observable<String> getOfflineContentLocationChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                          .filter(OFFLINE_CONTENT_LOCATION::equals);
+    }
+
+    public boolean hasOfflineContent() {
+        return sharedPreferences.getBoolean(KEY_OFFLINE_CONTENT, false);
+    }
+
+    public void setHasOfflineContent(boolean hasOfflineContent) {
+        sharedPreferences.edit().putBoolean(KEY_OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
     public void clear() {

@@ -1,7 +1,5 @@
 package com.soundcloud.android.tests.settings;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static com.soundcloud.android.R.string;
 import static com.soundcloud.android.R.string.offline_cannot_set_limit_below_usage;
 import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
@@ -14,11 +12,9 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.OfflineSettingsOnboardingScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
@@ -27,8 +23,6 @@ import com.soundcloud.android.tests.ActivityTest;
 import org.junit.Test;
 
 import android.content.Context;
-
-import java.io.IOException;
 
 public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     private MoreScreen moreScreen;

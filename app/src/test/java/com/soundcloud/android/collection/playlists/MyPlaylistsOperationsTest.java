@@ -14,6 +14,7 @@ import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Maps;
@@ -53,13 +54,6 @@ public class MyPlaylistsOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new MyPlaylistsOperations(
-                syncInitiator,
-                postsStorage,
-                likesStorage,
-                playlistRepository,
-                Schedulers.trampoline());
-
         when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Single.just(true));
 
         postedPlaylist1 = getPlaylistItem(Urn.forPlaylist(1L), "apple");
@@ -86,6 +80,14 @@ public class MyPlaylistsOperationsTest {
                 postedPlaylistAssociation2,
                 albumAssociation1
         ));
+
+        operations = new MyPlaylistsOperations(
+                syncInitiator,
+                postsStorage,
+                likesStorage,
+                playlistRepository,
+                TestOfflinePropertiesProvider.fromOfflinePlaylist(likedPlaylist3Offline.urn()),
+                Schedulers.trampoline());
 
     }
 
@@ -285,6 +287,6 @@ public class MyPlaylistsOperationsTest {
     }
 
     private Playlist getLikedPlaylistOffline(Urn urn, String title, OfflineState state) {
-        return getPlaylistBuilder(urn, title).offlineState(state).build();
+        return getPlaylistBuilder(urn, title).build();
     }
 }

@@ -31,6 +31,8 @@ import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.IOfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.Playlist;
@@ -55,6 +57,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
@@ -63,6 +66,8 @@ import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
+
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,7 +80,12 @@ public class ModelFixtures {
     private static final ModelFactory modelFactory = new ModelFactory();
 
     public static EntityItemCreator entityItemCreator() {
-        return new EntityItemCreator();
+        return new EntityItemCreator(testOfflinePropertiesProvider());
+    }
+
+    @NonNull
+    public static IOfflinePropertiesProvider testOfflinePropertiesProvider() {
+        return new TestOfflinePropertiesProvider(new OfflineProperties());
     }
 
     static {
@@ -416,20 +426,20 @@ public class ModelFixtures {
         return playlistItemBuilder(playlist());
     }
 
+    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist) {
+        return PlaylistItem.builder(playlist, new OfflineProperties());
+    }
+
     public static PlaylistItem playlistItem(ApiPlaylist apilaylist) {
         return playlistItem(Playlist.from(apilaylist));
     }
 
-    public static PlaylistItem.Builder playlistItemBuilder(ApiPlaylist apilaylist) {
-        return playlistItemBuilder(Playlist.from(apilaylist));
-    }
-
     public static PlaylistItem playlistItem(Playlist playlist) {
-        return playlistItemBuilder(playlist).build();
+        return playlistItemBuilder(playlist, new OfflineProperties()).build();
     }
 
-    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist) {
-        return PlaylistItem.builder(playlist);
+    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist, OfflineProperties offlineProperties) {
+        return PlaylistItem.builder(playlist, offlineProperties);
     }
 
     public static PlaylistItem playlistItem(Urn urn) {
@@ -662,7 +672,7 @@ public class ModelFixtures {
         final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date())
                                                       .promotedProperties(promotedStreamProperties)
                                                       .build();
-        return PlaylistItem.from(playlist, streamEntity);
+        return PlaylistItem.from(playlist, streamEntity, new OfflineProperties());
     }
 
     private static PromotedProperties getPromotedProperties(User promoter) {
@@ -686,7 +696,7 @@ public class ModelFixtures {
     }
 
     public static ListItem listItemFromSearchItem(ApiUniversalSearchItem searchItem) {
-        EntityItemCreator entityItemCreator = new EntityItemCreator();
+        EntityItemCreator entityItemCreator = new EntityItemCreator(testOfflinePropertiesProvider());
         if (searchItem.track().isPresent()) {
             return entityItemCreator.trackItem(searchItem.track().get());
         } else if (searchItem.playlist().isPresent()) {

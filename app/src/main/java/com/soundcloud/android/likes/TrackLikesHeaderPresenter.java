@@ -25,6 +25,7 @@ import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -231,7 +232,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private void handleEnableOfflineLikes() {
         if (goOnboardingTooltipExperiment.isEnabled()) {
-            offlineContentOperations.enableOfflineLikedTracks().subscribe(new DefaultObserver<>());
+            offlineContentOperations.enableOfflineLikedTracks().subscribe(new DefaultCompletableObserver());
         } else {
             syncLikesDialogProvider.get().show(fragment.getFragmentManager());
         }
@@ -241,7 +242,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         if (offlineContentOperations.isOfflineCollectionEnabled()) {
             ConfirmRemoveOfflineDialogFragment.showForLikes(fragment.getFragmentManager());
         } else {
-            offlineContentOperations.disableOfflineLikedTracks().subscribe(new DefaultObserver<>());
+            offlineContentOperations.disableOfflineLikedTracks().subscribe(new DefaultCompletableObserver());
             eventBus.publish(EventQueue.TRACKING,
                              OfflineInteractionEvent.fromRemoveOfflineLikes(Screen.LIKES.get()));
         }

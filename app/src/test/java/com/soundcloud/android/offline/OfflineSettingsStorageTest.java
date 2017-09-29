@@ -86,4 +86,34 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
         assertTrue(storage.hasSeenOfflineSettingsOnboarding());
     }
 
+    @Test
+    public void offlineContentFlagIsNotSetByDefault() {
+        assertThat(storage.hasOfflineContent()).isFalse();
+    }
+
+    @Test
+    public void savesOfflineContentFlag() {
+        storage.setHasOfflineContent(true);
+
+        assertThat(storage.hasOfflineContent()).isTrue();
+    }
+
+    @Test
+    public void isOfflineCollectionEnabledReturnsFalseByDefault() {
+        assertThat(storage.isOfflineCollectionEnabled()).isFalse();
+    }
+
+    @Test
+    public void storeOfflineCollectionEnabled() {
+        storage.addOfflineCollection();
+
+        assertThat(storage.isOfflineCollectionEnabled()).isTrue();
+    }
+
+    @Test
+    public void storeOfflineCollectionDisabled() {
+        storage.removeOfflineCollection();
+
+        assertThat(storage.isOfflineCollectionEnabled()).isFalse();
+    }
 }

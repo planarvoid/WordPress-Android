@@ -19,6 +19,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import edu.emory.mathcs.backport.java.util.Collections;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DownloadOperationsTest {
@@ -37,7 +40,6 @@ public class DownloadOperationsTest {
     @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage fileStorage;
     @Mock private StrictSSLHttpClient.TrackFileResponse response;
-    @Mock private DeleteOfflineTrackCommand deleteOfflineContent;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private InputStream downloadStream;
     @Mock private StreamUrlBuilder streamUrlBuilder;
@@ -45,6 +47,7 @@ public class DownloadOperationsTest {
     @Mock private OfflineTrackAssetDownloader assetDownloader;
     @Mock private DownloadConnectionHelper downloadConnectionHelper;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
+    @Mock private TrackDownloadsStorage trackDownloadsStorage;
 
     private DownloadOperations operations;
 
@@ -56,13 +59,13 @@ public class DownloadOperationsTest {
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient,
                                             fileStorage,
-                                            deleteOfflineContent,
                                             playQueueManager,
                                             streamUrlBuilder,
                                             Schedulers.trampoline(),
                                             assetDownloader,
                                             downloadConnectionHelper,
-                                            offlineSettingsStorage);
+                                            offlineSettingsStorage,
+                                            trackDownloadsStorage);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isUnavailable()).thenReturn(false);
@@ -72,6 +75,44 @@ public class DownloadOperationsTest {
         when(fileStorage.isEnoughMinimumSpace()).thenReturn(true);
         when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(true);
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
+    }
+
+    @Test
+    public void removeOfflineTracksDeletesMetadataAndFiles() throws Exception {
+        List trackList = Collections.singletonList(trackUrn);
+        when(trackDownloadsStorage.deleteWithUrn(trackUrn)).thenReturn(Single.just(1L));
+        when(fileStorage.deleteTrack(trackUrn)).thenReturn(true);
+
+        operations.removeOfflineTracks(trackList).test().assertValue(trackList).assertComplete();
+    }
+
+    @Test
+    public void removeOfflineTracksDoesNotDeleteCurrentPlayqueueItem() throws Exception {
+        List trackList = Collections.singletonList(trackUrn);
+        when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(true);
+
+        operations.removeOfflineTracks(trackList).test().assertValue(Collections.emptyList()).assertComplete();
+
+        verify(trackDownloadsStorage, never()).deleteWithUrn(trackUrn);
+        verify(fileStorage, never()).deleteTrack(trackUrn);
+    }
+
+    @Test
+    public void removeOfflineTracksDoesNotReturnUnremovedTrack() throws Exception {
+        List trackList = Collections.singletonList(trackUrn);
+        when(trackDownloadsStorage.deleteWithUrn(trackUrn)).thenReturn(Single.just(0L));
+        when(fileStorage.deleteTrack(trackUrn)).thenReturn(false);
+
+        operations.removeOfflineTracks(trackList).test().assertValue(Collections.emptyList()).assertComplete();
+    }
+
+    @Test
+    public void removeOfflineTracksDeletesMetadataEvenIfFileNotRemoved() throws Exception {
+        List trackList = Collections.singletonList(trackUrn);
+        when(trackDownloadsStorage.deleteWithUrn(trackUrn)).thenReturn(Single.just(1L));
+        when(fileStorage.deleteTrack(trackUrn)).thenReturn(false);
+
+        operations.removeOfflineTracks(trackList).test().assertValue(trackList).assertComplete();
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -121,7 +122,8 @@ public class OfflineContentController {
                        .filter(ignored -> offlineContentOperations.isOfflineCollectionEnabled())
                        .filter(UrnStateChangedEvent::containsCreatedPlaylist)
                        .map(UrnStateChangedEvent::urns)
-                       .flatMap(offlineContentOperations::makePlaylistAvailableOffline)
+                       .flatMapSingle((playlistUrns) -> offlineContentOperations.makePlaylistAvailableOffline(playlistUrns)
+                                                                                .toSingle(() -> RxSignal.SIGNAL))
                        .cast(Object.class);
     }
 
@@ -130,7 +132,8 @@ public class OfflineContentController {
         return eventBus.queue(EventQueue.URN_STATE_CHANGED)
                        .filter(UrnStateChangedEvent::containsDeletedPlaylist)
                        .map(UrnStateChangedEvent::urns)
-                       .flatMap(offlineContentOperations::makePlaylistUnavailableOffline)
+                       .flatMapSingle((playlistUrns) -> offlineContentOperations.makePlaylistUnavailableOffline(playlistUrns)
+                                                                                .toSingle(() -> RxSignal.SIGNAL))
                        .cast(Object.class);
     }
 
@@ -141,7 +144,8 @@ public class OfflineContentController {
                        .filter(ignored -> offlineContentOperations.isOfflineCollectionEnabled())
                        .filter(LikesStatusEvent::containsLikedPlaylist)
                        .map(event -> event.likes().keySet())
-                       .flatMap(offlineContentOperations::makePlaylistAvailableOffline)
+                       .flatMapSingle((playlistUrns) -> offlineContentOperations.makePlaylistAvailableOffline(playlistUrns)
+                                                                                .toSingle(() -> RxSignal.SIGNAL))
                        .cast(Object.class);
     }
 
@@ -150,7 +154,8 @@ public class OfflineContentController {
         return eventBus.queue(EventQueue.LIKE_CHANGED)
                        .filter(LikesStatusEvent::containsUnlikedPlaylist)
                        .map(event -> event.likes().keySet())
-                       .flatMap(offlineContentOperations::makePlaylistUnavailableOffline)
+                       .flatMapSingle((playlistUrns) -> offlineContentOperations.makePlaylistUnavailableOffline(playlistUrns)
+                                                                                .toSingle(() -> RxSignal.SIGNAL))
                        .cast(Object.class);
     }
 

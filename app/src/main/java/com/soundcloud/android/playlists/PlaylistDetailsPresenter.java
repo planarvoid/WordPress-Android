@@ -44,9 +44,8 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxSignal;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -55,6 +54,7 @@ import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -260,7 +260,7 @@ public class PlaylistDetailsPresenter {
     private Observable<PlaybackResult> actionPlayPlaylist(PublishSubject<RxSignal> trigger) {
         return model().compose(Transformers.takeWhenV2(trigger))
                       .map(model -> model.metadata().urn())
-                      .flatMap(urn -> RxJava.toV2Observable(playlistOperations.trackUrnsForPlayback(urn)))
+                      .flatMapSingle(playlistOperations::trackUrnsForPlayback)
                       .withLatestFrom(playSessionSource(), Pair::of)
                       .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()).toObservable());
     }
@@ -361,23 +361,23 @@ public class PlaylistDetailsPresenter {
         final Urn creatorUrn = model.metadata().creatorUrn();
         final PlaySessionSource playSessionSource = pair.second();
 
-        final Observable<RxSignal> operation = offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)
-                                                                       .doOnNext(signal -> {
+        final Completable operation = offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)
+                                                                        .doOnComplete(() -> {
                                                                            final OfflineInteractionEvent event = getOfflinePlaylistTrackingEvent(playlistUrn,
                                                                                                                                                  true,
                                                                                                                                                  playSessionSource);
                                                                            eventBus.publish(EventQueue.TRACKING, event);
                                                                        });
         if (isInUserCollection(playlistUrn, creatorUrn)) {
-            return operation.flatMap(ignored -> submitUpdateViewModel(true));
+            return operation.andThen(submitUpdateViewModel(true));
         } else {
             return likeOperations.toggleLike(playlistUrn, true).toObservable().flatMap(whenLikeSucceeded(operation));
         }
     }
 
-    private Function<LikeOperations.LikeResult, Observable<? extends PlaylistAsyncViewModel<PlaylistDetailsViewModel>>> whenLikeSucceeded(Observable<RxSignal> action) {
+    private Function<LikeOperations.LikeResult, Observable<? extends PlaylistAsyncViewModel<PlaylistDetailsViewModel>>> whenLikeSucceeded(Completable action) {
         return likeResult -> likeResult == LikeOperations.LikeResult.LIKE_SUCCEEDED ?
-                             action.flatMap(ignored -> submitUpdateViewModel(true)) :
+                             action.andThen(submitUpdateViewModel(true)) :
                              submitUpdateViewModel(false);
     }
 
@@ -444,7 +444,7 @@ public class PlaylistDetailsPresenter {
     }
 
     private void makePlaylistUnAvailableOffline(Pair<Urn, PlaySessionSource> urnSourcePair) {
-        offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()).subscribeWith(new DefaultObserver<>());
+        offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()).subscribeWith(new DefaultCompletableObserver());
         eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urnSourcePair.first(), false, urnSourcePair.second()));
     }
 
@@ -866,7 +866,7 @@ public class PlaylistDetailsPresenter {
         static Observable<UpdateTrackListResult> toResult(Resources resources, PlaylistDetailsInputs inputs, Urn playlistUrn, PlaylistOperations playlistOperations) {
             return inputs
                     .tracklistUpdated
-                    .flatMap(tracks -> RxJava.toV2Observable(playlistOperations.editPlaylistTracks(playlistUrn, transform(tracks, PlaylistDetailTrackItem::getUrn))))
+                    .flatMapSingle(tracks -> playlistOperations.editPlaylistTracks(playlistUrn, transform(tracks, PlaylistDetailTrackItem::getUrn)))
                     .map(tracks -> new UpdateTrackListResult(resources, tracks));
         }
     }

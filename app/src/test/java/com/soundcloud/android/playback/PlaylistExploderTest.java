@@ -14,11 +14,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,9 +53,9 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playQueueManager.getPreviousPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKBEHIND_COUNT))
                 .thenReturn(Arrays.asList(playlistUrn3));
 
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(Observable.just(trackUrns1));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Observable.just(trackUrns2));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn3)).thenReturn(Observable.just(trackUrns3));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(Single.just(trackUrns1));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Single.just(trackUrns2));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn3)).thenReturn(Single.just(trackUrns3));
 
         playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
@@ -71,7 +71,7 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playQueueManager.getPlayQueueItems(anyInt(), anyInt()))
                 .thenReturn(Arrays.asList(playlistUrn1));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(
-                Observable.error(new IOException()), Observable.just(trackUrns1));
+                Single.error(new IOException()), Single.just(trackUrns1));
 
         playlistExploder.onCurrentPlayQueueItem(CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(playQueueManager, never()).insertPlaylistTracks(any(Urn.class), anyList());
@@ -84,10 +84,10 @@ public class PlaylistExploderTest extends AndroidUnitTest {
     public void playlistLoadsAreUnsubscribedOnQueueChange() {
         final Urn playlistUrn1 = Urn.forPlaylist(123);
         final Urn playlistUrn2 = Urn.forPlaylist(456);
-        final PublishSubject<List<Urn>> playlistLoad1 = PublishSubject.create();
-        final PublishSubject<List<Urn>> playlistLoad2 = PublishSubject.create();
-        final PublishSubject<List<Urn>> playlistLoad3 = PublishSubject.create();
-        final PublishSubject<List<Urn>> playlistLoad4 = PublishSubject.create();
+        final SingleSubject<List<Urn>> playlistLoad1 = SingleSubject.create();
+        final SingleSubject<List<Urn>> playlistLoad2 = SingleSubject.create();
+        final SingleSubject<List<Urn>> playlistLoad3 = SingleSubject.create();
+        final SingleSubject<List<Urn>> playlistLoad4 = SingleSubject.create();
 
         when(playQueueManager.getPlayQueueItems(anyInt(), anyInt()))
                 .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));

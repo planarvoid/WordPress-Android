@@ -17,11 +17,9 @@ import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
-import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
@@ -29,13 +27,11 @@ import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
-import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -917,75 +913,6 @@ public class DatabaseFixtures {
         cv.put(Tables.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         insertInto(Tables.TrackPolicies.TABLE, cv.get());
-    }
-
-    public void insertPolicyHighTierMonetizable(Urn urn) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.TrackPolicies.TRACK_ID, urn.getNumericId());
-        cv.put(Tables.TrackPolicies.POLICY, "SNIP");
-        cv.put(Tables.TrackPolicies.MONETIZABLE, true);
-        cv.put(Tables.TrackPolicies.MONETIZATION_MODEL, "SUB_HIGH_TIER");
-        cv.put(Tables.TrackPolicies.SUB_MID_TIER, false);
-        cv.put(Tables.TrackPolicies.SUB_HIGH_TIER, true);
-        cv.put(Tables.TrackPolicies.SYNCABLE, false);
-
-        insertInto(Tables.TrackPolicies.TABLE, cv.get());
-    }
-
-    public void insertTrackPendingDownload(Urn trackUrn, long requestedAt) {
-        ContentValues cv = new ContentValues();
-        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAt);
-        insertInto(TrackDownloads.TABLE, cv);
-    }
-
-    public void insertCompletedTrackDownload(Urn trackUrn, long requestedAtTimestamp, long completedTimestamp) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
-        cv.put(TrackDownloads.DOWNLOADED_AT, completedTimestamp);
-        insertInto(TrackDownloads.TABLE, cv.get());
-    }
-
-    public void insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT, unavailableTimestamp - 1);
-        cv.put(TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
-        insertInto(TrackDownloads.TABLE, cv.get());
-    }
-
-    public void insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
-        insertTrackDownloadPendingRemoval(trackUrn, 0, removedAtTimestamp);
-    }
-
-    public void insertTrackDownloadPendingRemoval(Urn trackUrn, long requestedAtTimestamp, long removedAtTimestamp) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
-        cv.put(TrackDownloads.DOWNLOADED_AT, requestedAtTimestamp);
-        cv.put(TrackDownloads.REMOVED_AT, removedAtTimestamp);
-        insertInto(TrackDownloads.TABLE, cv.get());
-    }
-
-    public ApiPlaylist insertPlaylistMarkedForOfflineSync() {
-        final ApiPlaylist apiPlaylist = insertPlaylist();
-        insertPlaylistMarkedForOfflineSync(apiPlaylist);
-        return apiPlaylist;
-    }
-
-    public void insertPlaylistMarkedForOfflineSync(ApiPlaylist playlist) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(OfflineContent._ID, playlist.getUrn().getNumericId());
-        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
-        insertInto(OfflineContent.TABLE, cv.get());
-    }
-
-    public void insertLikesMarkedForOfflineSync() {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES);
-        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
-        insertInto(OfflineContent.TABLE, cv.get());
     }
 
     public void insertUnsupportedActivity() {

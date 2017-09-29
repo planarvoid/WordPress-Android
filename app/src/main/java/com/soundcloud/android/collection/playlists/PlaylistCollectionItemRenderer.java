@@ -8,12 +8,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.OverflowButtonBackground;
 import com.soundcloud.android.view.OverflowAnchorImageView;
-import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -75,10 +75,11 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
                                              ApiImageSize.getFullImageSize(resources),
                                              artwork,
                                              ImageOperations.DisplayType.DEFAULT);
+
         playlistItemIndicatorsView.setupView(view, playlistItem.isPrivate(), playlistItem.isUserLike(),
                                              featureOperations.isOfflineContentEnabled()
-                                             ? Optional.of(playlistItem.offlineState())
-                                             : Optional.absent());
+                                             ? playlistItem.offlineState()
+                                             : OfflineState.NOT_OFFLINE);
     }
 
     private void setupOverFlow(final OverflowAnchorImageView button, final PlaylistItem playlistItem) {

@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
@@ -66,12 +67,12 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         }
     }
 
-    public static PlaylistItem from(Playlist playlist) {
-        return builder(playlist).build();
+    public static PlaylistItem from(Playlist playlist, OfflineProperties offlineProperties) {
+        return builder(playlist, offlineProperties).build();
     }
 
-    public static PlaylistItem from(Playlist playlist, StreamEntity streamEntity) {
-        final Builder builder = builder(playlist);
+    public static PlaylistItem from(Playlist playlist, StreamEntity streamEntity, OfflineProperties offlineProperties) {
+        final Builder builder = builder(playlist, offlineProperties);
         if (streamEntity.promotedProperties().isPresent()) {
             builder.promotedProperties(streamEntity.promotedProperties());
         }
@@ -81,18 +82,19 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         return builder.build();
     }
 
-    public static PlaylistItem from(ApiPlaylist apiPlaylist) {
-        return builder(Playlist.from(apiPlaylist)).build();
+    public static PlaylistItem from(ApiPlaylist apiPlaylist, OfflineProperties offlineProperties) {
+        return builder(Playlist.from(apiPlaylist), offlineProperties).build();
     }
 
-    public static Builder builder(Playlist playlist) {
-        return new AutoValue_PlaylistItem.Builder().offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
+    public static Builder builder(Playlist playlist, OfflineProperties offlineProperties) {
+        OfflineState offlineState = offlineProperties.state(playlist.urn());
+        return new AutoValue_PlaylistItem.Builder().offlineState(offlineState)
                                                    .isUserLike(playlist.isLikedByCurrentUser().or(false))
                                                    .likesCount(playlist.likesCount())
                                                    .isUserRepost(playlist.isRepostedByCurrentUser().or(false))
                                                    .repostsCount(playlist.repostCount())
                                                    .trackCount(playlist.trackCount())
-                                                   .isMarkedForOffline(playlist.isMarkedForOffline())
+                                                   .isMarkedForOffline(!offlineState.equals(OfflineState.NOT_OFFLINE))
                                                    .promotedProperties(Optional.absent())
                                                    .repostedProperties(Optional.absent())
                                                    .playlist(playlist);
@@ -100,14 +102,14 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     @Override
     public PlaylistItem updatedWithPlaylist(Playlist playlist) {
-        return from(playlist);
+        return toBuilder().playlist(playlist).build();
     }
 
     public abstract Playlist playlist();
 
     public abstract int trackCount();
 
-    public abstract Optional<Boolean> isMarkedForOffline();
+    public abstract Boolean isMarkedForOffline();
 
     public Optional<String> getImageUrlTemplate() {
         return playlist().imageUrlTemplate();
@@ -223,7 +225,7 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     @Override
     public PlaylistItem updatedWithMarkedForOffline(boolean markedForOffline) {
-        return toBuilder().isMarkedForOffline(Optional.of(markedForOffline)).build();
+        return toBuilder().isMarkedForOffline(markedForOffline).build();
     }
 
     public PlaylistItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
@@ -244,7 +246,7 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
         public abstract Builder trackCount(int trackCount);
 
-        public abstract Builder isMarkedForOffline(Optional<Boolean> isMarkedForOffline);
+        public abstract Builder isMarkedForOffline(Boolean isMarkedForOffline);
 
         public abstract Builder playlist(Playlist playlist);
 

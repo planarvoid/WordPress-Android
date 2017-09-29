@@ -46,8 +46,6 @@ import java.util.Collections;
 
 public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
-    private static final Urn URN = Urn.forPlaylist(123L);
-
     @Mock private LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     @Mock private FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
     @Mock private StorePlaylistsCommand storePlaylistCommand;
@@ -63,7 +61,6 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
     private ApiPlaylist updatedPlaylist;
-
 
     @Before
     public void setUp() throws Exception {

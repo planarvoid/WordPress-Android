@@ -3,12 +3,14 @@ package com.soundcloud.android.collection.recentlyplayed
 import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.offline.OfflineState
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.stations.StationMetadata
 import com.soundcloud.android.stations.StationsRepository
 import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.SyncResult
 import com.soundcloud.android.sync.Syncable
+import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.users.UserRepository
 import com.soundcloud.java.optional.Optional
@@ -18,7 +20,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.anyInt
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -70,7 +74,6 @@ class RecentlyPlayedOperationsTest {
             .imageUrlTemplate(Optional.absent())
             .trackCount(5)
             .isAlbum(false)
-            .offlineState(Optional.absent())
             .isLikedByCurrentUser(true)
             .isPrivate(true)
             .build()
@@ -79,26 +82,27 @@ class RecentlyPlayedOperationsTest {
     private val artistStationPlayableItem = RecentlyPlayedPlayableItem.forStation(artistStationUrn, "artist-station-title", Optional.absent(), 200)
     private val trackStationPlayableItem = RecentlyPlayedPlayableItem.forStation(trackStationUrn, "track-station-title", Optional.absent(), 300)
     private val playlistPlayableItem = RecentlyPlayedPlayableItem.forPlaylist(playlistUrn,
-            Optional.absent(),
-            "playlist-title",
-            5,
-            false,
-            Optional.absent(),
-            true,
-            true,
-            400)
+                                                                              Optional.absent(),
+                                                                              "playlist-title",
+                                                                              5,
+                                                                              false,
+                                                                              OfflineState.NOT_OFFLINE,
+                                                                              true,
+                                                                              true,
+                                                                              400)
 
     @Before
     fun setUp() {
         whenever(syncOperations.lazySyncIfStale(Syncable.RECENTLY_PLAYED)).thenReturn(Single.just(SyncResult.noOp()))
 
         operations = RecentlyPlayedOperations(recentlyPlayedStorage,
-                scheduler,
-                syncOperations,
-                clearRecentlyPlayedCommand,
-                userRepository,
-                playlistRepository,
-                stationsRepository)
+                                              scheduler,
+                                              syncOperations,
+                                              clearRecentlyPlayedCommand,
+                                              userRepository,
+                                              playlistRepository,
+                                              stationsRepository,
+                                              TestOfflinePropertiesProvider())
     }
 
     @Test

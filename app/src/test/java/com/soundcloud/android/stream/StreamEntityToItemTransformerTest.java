@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
@@ -74,7 +75,7 @@ public class StreamEntityToItemTransformerTest {
 
     @Test
     public void enrichesPlaylistStreamItem() throws Exception {
-        final PlaylistItem playlistItem = PlaylistItem.from(playlist);
+        final PlaylistItem playlistItem = PlaylistItem.from(playlist, new OfflineProperties());
         final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem).build();
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Single.just(Collections.singletonMap(playlist.urn(), playlist)));

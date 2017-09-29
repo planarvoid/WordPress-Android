@@ -15,7 +15,6 @@ import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -156,7 +155,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     private PlaylistItem buildPlaylistWithMarkedForOffline(boolean markedForOffline) {
-        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(Optional.of(markedForOffline)).build();
+        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(markedForOffline).build();
     }
 
     private PlaylistItem buildPlaylistWithUserLike(boolean userLike) {

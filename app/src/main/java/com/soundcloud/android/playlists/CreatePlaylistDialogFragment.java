@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
@@ -14,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -107,10 +106,10 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private void createPlaylist(final String title, final boolean isPrivate, final boolean isOffline) {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        fireAndForget(playlistOperations.createNewPlaylist(title,
-                                                           isPrivate,
-                                                           isOffline,
-                                                           Urn.forTrack(firstTrackId)));
+        playlistOperations.createNewPlaylist(title,
+                                             isPrivate,
+                                             isOffline,
+                                             Urn.forTrack(firstTrackId)).subscribe(new DefaultSingleObserver<>());
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }

@@ -29,7 +29,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 121;
+    public static final int DATABASE_VERSION = 122;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -317,6 +317,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 121:
                             success = upgradeTo121(db, oldVersion);
+                            break;
+                        case 122:
+                            success = upgradeTo122(oldVersion);
                             break;
                         default:
                             break;
@@ -1146,6 +1149,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /**
+     * Removed OFFLINE stuff from sounds / soundview
+     */
+    private boolean upgradeTo122(int oldVersion) {
+        // sound view changed
+        return true;
+    }
+
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {

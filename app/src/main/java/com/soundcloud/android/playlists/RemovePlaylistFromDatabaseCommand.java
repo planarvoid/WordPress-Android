@@ -12,10 +12,10 @@ import com.soundcloud.propeller.TxnResult;
 
 import javax.inject.Inject;
 
-public class RemovePlaylistCommand extends DefaultWriteStorageCommand<Urn, TxnResult> {
+public class RemovePlaylistFromDatabaseCommand extends DefaultWriteStorageCommand<Urn, TxnResult> {
 
     @Inject
-    RemovePlaylistCommand(PropellerDatabase propeller) {
+    RemovePlaylistFromDatabaseCommand(PropellerDatabase propeller) {
         super(propeller);
     }
 
@@ -32,13 +32,10 @@ public class RemovePlaylistCommand extends DefaultWriteStorageCommand<Urn, TxnRe
             }
 
             private void removePlaylistFromAssociatedViews(PropellerDatabase propeller) {
+                //TODO : When these are removed, we should delete this and go to the repository to remove instead
                 step(propeller.delete(Table.Activities, filter()
                         .whereEq(TableColumns.Activities.SOUND_TYPE, Tables.Sounds.TYPE_PLAYLIST)
                         .whereEq(TableColumns.Activities.SOUND_ID, playlist.getNumericId())));
-
-                step(propeller.delete(Tables.OfflineContent.TABLE, filter()
-                        .whereEq(Tables.OfflineContent._TYPE, Tables.OfflineContent.TYPE_PLAYLIST)
-                        .whereEq(Tables.OfflineContent._ID, playlist.getNumericId())));
 
                 step(propeller.delete(Table.SoundStream, filter()
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, Tables.Sounds.TYPE_PLAYLIST)

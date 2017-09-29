@@ -173,24 +173,19 @@ class PostsStorageTest : StorageIntegrationTest() {
         val playlist = ModelFixtures.playlistBuilder(apiPlaylist)
                 .isLikedByCurrentUser(false)
                 .isRepostedByCurrentUser(false)
-                .isMarkedForOffline(false)
 
         insertPlaylistPost(apiPlaylist.urn.numericId, postedAt)
         return createPlaylistAssociation(playlist, postedAt)
     }
 
-    private fun createPlaylistPostAt(playlistPostedAt: Date): PlaylistAssociation {
-        return createPlaylistAssociation(playlistPostedAt, playlistPostedAt)
-    }
+    private fun createPlaylistPostAt(playlistPostedAt: Date): PlaylistAssociation = createPlaylistAssociation(playlistPostedAt, playlistPostedAt)
 
     private fun createPlaylistAssociation(builder: Playlist.Builder, createdAt: Date): PlaylistAssociation {
         val playlist = builder.isLikedByCurrentUser(false).build()
         return PlaylistAssociation.create(playlist, Association(playlist.urn(), createdAt))
     }
 
-    private fun createPlaylistAt(creationDate: Date): ApiPlaylist {
-        return testFixtures().insertPlaylistWithCreatedAt(creationDate)
-    }
+    private fun createPlaylistAt(creationDate: Date): ApiPlaylist = testFixtures().insertPlaylistWithCreatedAt(creationDate)
 
     private fun insertPlaylistPost(playlistId: Long, postedAt: Date) {
         testFixtures().insertPlaylistPost(playlistId, postedAt.time, false)

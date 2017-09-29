@@ -8,12 +8,12 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Completable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import io.reactivex.Observable;
 
 import android.content.DialogInterface;
 
@@ -35,7 +35,7 @@ public class OfflineLikesDialogTest {
 
     @Test
     public void sendsTrackingEventWhenAddingOfflineLikes() {
-        when(operations.enableOfflineLikedTracks()).thenReturn(Observable.empty());
+        when(operations.enableOfflineLikedTracks()).thenReturn(Completable.complete());
         when(screenProvider.getLastScreenTag()).thenReturn(PAGE_NAME);
         dialog.onClick(mock(DialogInterface.class), 0);
 

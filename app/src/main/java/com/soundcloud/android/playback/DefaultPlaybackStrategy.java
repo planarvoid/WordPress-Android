@@ -88,7 +88,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                                                               if (track.blocked()) {
                                                                   return Completable.error(new BlockedTrackException(trackUrn));
                                                               } else {
-                                                                  if (offlinePlaybackOperations.shouldPlayOffline(trackItem)) {
+                                                                  if (offlinePlaybackOperations.shouldPlayOffline(trackItem.track().urn())) {
                                                                       handleOfflineTrackPlayback(track, trackUrn);
                                                                   } else if (track.snipped()) {
                                                                       serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));

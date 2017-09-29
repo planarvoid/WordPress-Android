@@ -1,159 +1,100 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.propeller.ContentValuesBuilder.values;
-import static com.soundcloud.propeller.query.ColumnFunctions.exists;
-import static com.soundcloud.propeller.query.Filter.filter;
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
-
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRxV2;
-import com.soundcloud.propeller.schema.BulkInsertValues;
-import io.reactivex.Observable;
+import com.soundcloud.java.collections.Lists;
+import io.reactivex.Completable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.functions.Action;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Arrays;
+import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-@SuppressLint("sc.RxJava1Usage")
-class OfflineContentStorage {
-    private static final String IS_OFFLINE_COLLECTION = "is_offline_collection";
-    private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
-    private static final String OFFLINE_CONTENT = "has_content_offline";
+public class OfflineContentStorage {
 
-    private final PropellerRxV2 propellerRx;
-    private final SharedPreferences sharedPreferences;
-    private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
+    private static final String KEY_OFFLINE_LIKES = "likes_marked_for_offline";
+    private static final String KEY_OFFLINE_PLAYLISTS = "playlists_marked_for_offline";
+
+    private final SharedPreferences offlineContent;
+    private final Scheduler scheduler;
 
     @Inject
-    public OfflineContentStorage(PropellerRxV2 propellerRx,
-                                 @Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences,
-                                 IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand) {
-        this.propellerRx = propellerRx;
-        this.sharedPreferences = sharedPreferences;
-        this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
+    public OfflineContentStorage(@Named(StorageModule.OFFLINE_CONTENT) SharedPreferences offlineContent,
+                                 @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
+        this.offlineContent = offlineContent;
+        this.scheduler = scheduler;
     }
 
-    public Boolean isOfflineCollectionEnabled() {
-        return sharedPreferences.getBoolean(IS_OFFLINE_COLLECTION, false);
+    Single<Boolean> isOfflinePlaylist(Urn playlistUrn) {
+        return Single.fromCallable(() -> offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, Collections.emptySet()).contains(playlistUrn.toString()));
     }
 
-    public void removeOfflineCollection() {
-        sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, false).apply();
+    public Single<Boolean> isOfflineLikesEnabled() {
+        return Single.fromCallable(() -> offlineContent.getBoolean(KEY_OFFLINE_LIKES, false));
     }
 
-    public void addOfflineCollection() {
-        sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, true).apply();
+    public Completable removePlaylistsFromOffline(Urn playlist) {
+        return removePlaylistsFromOffline(Collections.singletonList(playlist));
     }
 
-    public Single<Boolean> isOfflinePlaylist(Urn playlistUrn) {
-        return propellerRx.queryResult(isMarkedForOfflineQuery(playlistUrn)).map(queryResult -> queryResult.toList(scalar(Boolean.class)).get(0)).singleOrError();
-    }
-
-    public io.reactivex.Single<Boolean> isOfflineLikesEnabled() {
-        return isOfflineLikedTracksEnabledCommand.toSingle();
-    }
-
-    public Observable<TxnResult> storeAsOfflinePlaylists(final List<Urn> playlistUrns) {
-        return propellerRx.bulkInsert(OfflineContent.TABLE, buildBulkValuesForPlaylists(playlistUrns));
-    }
-
-    Observable<ChangeResult> removePlaylistsFromOffline(List<Urn> playlistUrns) {
-        return propellerRx.delete(
-                OfflineContent.TABLE,
-                playlistFilter(playlistUrns)
-        );
-    }
-
-    public Observable<TxnResult> resetOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
-        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(OfflineContent.TABLE, offlinePlaylistsFilter()));
-                step(propeller.bulkInsert(OfflineContent.TABLE,
-                                          buildBulkValuesForPlaylists(expectedOfflinePlaylists)));
-            }
+    Completable storeAsOfflinePlaylists(final List<Urn> playlistUrns) {
+        return updatePlaylists(() -> {
+            Set<String> playlists = offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, new HashSet<>());
+            playlists.addAll(Urns.toString(playlistUrns));
+            return playlists;
         });
     }
 
-    public Observable<ChangeResult> removeLikedTrackCollection() {
-        return propellerRx.delete(OfflineContent.TABLE, offlineLikesFilter());
+    Completable removePlaylistsFromOffline(List<Urn> playlistUrns) {
+        return updatePlaylists(() -> {
+            Set<String> playlists = offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, Collections.emptySet());
+            playlists.removeAll(Urns.toString(playlistUrns));
+            return playlists;
+        });
     }
 
-    public Observable<ChangeResult> addLikedTrackCollection() {
-        return propellerRx.upsert(OfflineContent.TABLE, buildContentValuesForOfflineLikes());
+    Completable resetOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
+        return updatePlaylists(() -> new HashSet<>(Urns.toString(expectedOfflinePlaylists)));
     }
 
-    public boolean hasOfflineContent() {
-        return sharedPreferences.getBoolean(OFFLINE_CONTENT, false);
+    public Single<List<Urn>> getOfflinePlaylists() {
+        return Single.fromCallable(() -> new ArrayList<>(offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, Collections.emptySet())))
+                     .map(strings -> Lists.transform(strings, Urn::new));
     }
 
-    public void setHasOfflineContent(boolean hasOfflineContent) {
-        sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
+    @SuppressLint("ApplySharedPref")
+    private Completable updatePlaylists(Provider<Set<String>> playlistsProvider) {
+        return asyncCompletable(() -> offlineContent.edit().putStringSet(KEY_OFFLINE_PLAYLISTS, playlistsProvider.get()).commit());
     }
 
-    private Query isMarkedForOfflineQuery(Urn playlistUrn) {
-        return Query.apply(exists(Query.from(OfflineContent.TABLE)
-                                       .where(playlistFilter(playlistUrn)))
-                                   .as(IS_OFFLINE_PLAYLIST));
+    @SuppressLint("ApplySharedPref")
+    Completable removeLikedTrackCollection() {
+        return asyncCompletable(() -> offlineContent.edit().putBoolean(KEY_OFFLINE_LIKES, false).commit());
     }
 
-    private BulkInsertValues buildBulkValuesForPlaylists(List<Urn> expectedOfflinePlaylists) {
-        BulkInsertValues.Builder builder = new BulkInsertValues.Builder(
-                Arrays.asList(
-                        OfflineContent._ID,
-                        OfflineContent._TYPE
-                )
-        );
-        for (Urn playlist : expectedOfflinePlaylists) {
-            builder.addRow(Arrays.asList(
-                    playlist.getNumericId(),
-                    OfflineContent.TYPE_PLAYLIST
-            ));
-        }
-        return builder.build();
+    @SuppressLint("ApplySharedPref")
+    Completable removeAllOfflineContent() {
+        return asyncCompletable(() -> offlineContent.edit().clear().commit());
     }
 
-    private ContentValues buildContentValuesForOfflineLikes() {
-        return values(2)
-                .put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
-                .put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION)
-                .get();
+    @SuppressLint("ApplySharedPref")
+    Completable addLikedTrackCollection() {
+        return asyncCompletable(() -> offlineContent.edit().putBoolean(KEY_OFFLINE_LIKES, true).commit());
     }
 
-    static Where offlineLikesFilter() {
-        return filter()
-                .whereEq(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
+    private Completable asyncCompletable(Action action) {
+        return Completable.fromAction(action).subscribeOn(scheduler);
     }
-
-    private Where offlinePlaylistsFilter() {
-        return filter().whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
-    }
-
-    private Where playlistFilter(Urn urn) {
-        return filter()
-                .whereEq(OfflineContent._ID, urn.getNumericId())
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
-    }
-
-    private Where playlistFilter(List<Urn> urns) {
-        return filter()
-                .whereIn(OfflineContent._ID, Urns.toIds(urns))
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
-    }
-
 }

@@ -64,6 +64,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private Track.Builder trackBuilder;
+    private TrackItem.Builder trackItemBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -95,6 +96,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                     .displayStatsEnabled(true)
                                     .playCount(870);
 
+        trackItemBuilder = TrackItem.builder(trackBuilder.build());
         trackItem = ModelFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
@@ -199,7 +201,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowNotAvailableOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.UNAVAILABLE).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.UNAVAILABLE).build();
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
@@ -211,7 +213,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -224,7 +226,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -237,7 +239,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -247,7 +249,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadingTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADING).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.DOWNLOADING).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -257,7 +259,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADED).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.DOWNLOADED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -275,7 +277,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.blocked(true).build()).offlineState(OfflineState.UNAVAILABLE).build();
         updatedTrackItem = updatedTrackItem.withPlayingState(true);
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));

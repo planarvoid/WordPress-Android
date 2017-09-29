@@ -1,13 +1,12 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import io.reactivex.functions.Consumer;
 
 import android.content.Context;
 
 import javax.inject.Inject;
 
-class OfflineServiceInitiator {
+public class OfflineServiceInitiator {
     private final Context context;
 
     @Inject
@@ -23,8 +22,8 @@ class OfflineServiceInitiator {
         OfflineContentService.stop(context);
     }
 
-    Consumer<Object> startFromUserConsumer() {
-        return ignored -> OfflineContentService.startFromUserAction(context);
+    void startFromUserConsumer() {
+        OfflineContentService.startFromUserAction(context);
     }
 
     DefaultObserver<Object> startObserver() {

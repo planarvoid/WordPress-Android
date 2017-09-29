@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -40,15 +39,6 @@ public class NewPlaylistMapper extends RxResultMapper<Playlist> {
                                                  .isRepostedByCurrentUser(cursorReader.getBoolean(Tables.PlaylistView.IS_USER_REPOST.name()));
 
         builder.permalinkUrl(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.PERMALINK_URL.name())));
-
-        final boolean isMarkedForOffline = cursorReader.getBoolean(Tables.PlaylistView.IS_MARKED_FOR_OFFLINE.name());
-        builder.isMarkedForOffline(isMarkedForOffline);
-        if (isMarkedForOffline) {
-            builder.offlineState(OfflineState.getOfflineState(
-                    cursorReader.getBoolean(Tables.PlaylistView.HAS_PENDING_DOWNLOAD_REQUEST.name()),
-                    cursorReader.getBoolean(Tables.PlaylistView.HAS_DOWNLOADED_TRACKS.name()),
-                    cursorReader.getBoolean(Tables.PlaylistView.HAS_UNAVAILABLE_TRACKS.name())));
-        }
         return builder.build();
     }
 

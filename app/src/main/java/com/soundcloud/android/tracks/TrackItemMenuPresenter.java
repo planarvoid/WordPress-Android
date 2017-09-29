@@ -30,7 +30,7 @@ import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
@@ -265,8 +265,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 }
                 final Urn trackUrn = track.getUrn();
                 playlistOperations.removeTrackFromPlaylist(playlistUrn, trackUrn)
-                                  .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-                                  .subscribe(new DefaultSubscriber<>());
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .subscribe(new DefaultSingleObserver<>());
                 return true;
             case R.id.start_station:
                 handleStation();

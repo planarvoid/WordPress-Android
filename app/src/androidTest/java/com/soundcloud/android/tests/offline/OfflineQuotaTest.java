@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.offline;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.offlineUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
@@ -13,14 +12,11 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import org.junit.Test;
 
 import android.content.Context;
-
-import java.io.IOException;
 
 public class OfflineQuotaTest extends ActivityTest<MainActivity> {
 

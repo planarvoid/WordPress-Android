@@ -94,7 +94,7 @@ class DownloadHandler extends Handler {
     }
 
     private DownloadState tryToStoreDownloadSuccess(DownloadState result) {
-        if (!trackDownloadsStorage.storeCompletedDownload(result).success()) {
+        if (!trackDownloadsStorage.storeCompletedDownload(result)) {
             secureFileStorage.deleteTrack(result.getTrack());
             return DownloadState.error(result.request);
         }

@@ -90,25 +90,6 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         testSubscriber.assertValues(Collections.emptyList());
     }
 
-    @Test
-    public void addTrackToPlaylistItemsLoadCorrectPlaylistOfflineState() {
-        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
-
-        final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
-        testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
-
-        final ApiPlaylist normalPlaylist = insertPostedPlaylist();
-
-        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123)).subscribe(testSubscriber);
-
-        testSubscriber.assertValues(
-                Arrays.asList(
-                        createAddTrackToPlaylistItem(offlinePlaylist, false, true),
-                        createAddTrackToPlaylistItem(normalPlaylist, false)
-                )
-        );
-    }
-
 
     @Test
     public void insertsNewPlaylist() {

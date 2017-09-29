@@ -101,8 +101,6 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .isPrivate(playlist.isPrivate())
                 .isRepostedByUser(playlist.isRepostedByCurrentUser().or(false))
                 .likesCount(playlist.likesCount())
-                .isMarkedForOffline(playlist.isMarkedForOffline().or(false))
-                .offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
                 .imageUrlTemplate(playlist.imageUrlTemplate())
                 .build();
     }

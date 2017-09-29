@@ -66,7 +66,7 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
 
     @Test
     public void scheduleCleanupConsumer() throws Exception {
-        scheduler.scheduleCleanupConsumer().accept(1);
+        scheduler.actionScheduleCleanupConsumer().run();
 
         verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE),
                                  eq(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY),

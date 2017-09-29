@@ -32,9 +32,10 @@ class PlaylistDetailFixtures {
         final PlaylistDetailsMetadata metadata = PlaylistDetailsMetadata
                 .builder()
                 .with(resources, playlist, trackItems, false, PlaylistDetailsMetadata.OfflineOptions.NONE)
-                .with(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
                 .isRepostedByUser(false)
                 .isLikedByUser(false)
+                .isMarkedForOffline(false)
+                .offlineState(OfflineState.NOT_OFFLINE)
                 .isInEditMode(false)
                 .build();
         return PlaylistDetailsViewModel.builder()

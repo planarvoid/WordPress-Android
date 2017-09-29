@@ -16,14 +16,17 @@ import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackStorage;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
+    private final OfflineContentStorage offlineContentStorage = offlineContentStorageWithLikesEnabled();
     private LoadExpectedContentCommand command;
 
     private long NOW;
@@ -31,18 +34,23 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() {
         NOW = System.currentTimeMillis();
-        command = new LoadExpectedContentCommand(propeller(),
-                                                 new LikesStorage(propellerRxV2()),
-                                                 new TrackStorage(propellerRxV2()),
-                                                 new LoadPlaylistTracksCommand(propeller()),
-                                                 new LoadOfflinePlaylistsCommand(propeller()),
-                                                 new PlaylistStorage(propeller(),propellerRxV2(),new NewPlaylistMapper()));
+        command = new LoadExpectedContentCommand(
+                new LikesStorage(propellerRxV2()),
+                new TrackStorage(propellerRxV2()),
+                new LoadPlaylistTracksCommand(propeller()),
+                new PlaylistStorage(propeller(), propellerRxV2(), new NewPlaylistMapper()),
+                offlineContentStorage);
+
+    }
+
+    private OfflineContentStorage offlineContentStorageWithLikesEnabled() {
+        OfflineContentStorage offlineContentStorage = new OfflineContentStorage(sharedPreferences(), Schedulers.trampoline());
+        offlineContentStorage.addLikedTrackCollection().test().assertComplete();
+        return offlineContentStorage;
     }
 
     @Test
     public void returnsLikedTracksAsPendingDownloads() throws Exception {
-        enableOfflineLikes();
-
         ApiTrack apiTrack = insertSyncableLikedTrack(100L);
 
         final ExpectedOfflineContent toBeOffline = command.call(null);
@@ -52,7 +60,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOfflinePlaylistTracksAsPendingDownloads() throws Exception {
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = getOfflinePlaylist();
         final ApiTrack track1 = insertSyncablePlaylistTrack(playlist, 0);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
@@ -62,31 +70,10 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void returnsEmptyListWhenAllDownloadsCompleted() throws Exception {
+    public void returnsEmptyListWhenLikesNotMarkedForOffline() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 100);
 
-        ExpectedOfflineContent toBeOffline = command.call(null);
-
-        assertThat(toBeOffline.requests).isEmpty();
-    }
-
-    @Test
-    public void doesNotReturnTrackDownloadsPendingRemoval() throws Exception {
-        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
-
-        ExpectedOfflineContent toBeOffline = command.call(null);
-
-        assertThat(toBeOffline.requests).isEmpty();
-    }
-
-    @Test
-    public void doesNotReturnDownloadedTrackPendingRemoval() throws Exception {
-        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
-        database().execSQL("UPDATE TrackDownloads SET downloaded_at=100"
-                                   + " WHERE _id=" + apiTrack.getUrn().getNumericId());
+        offlineContentStorage.removeLikedTrackCollection().test().assertComplete();
 
         ExpectedOfflineContent toBeOffline = command.call(null);
 
@@ -105,8 +92,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsLikesPendingDownloadOrderedByLikeDate() throws Exception {
-        enableOfflineLikes();
-
         final ApiTrack apiTrack1 = insertSyncableLikedTrack(100);
         final ApiTrack apiTrack2 = insertSyncableLikedTrack(200);
         final ApiTrack apiTrack3 = insertSyncableLikedTrack(300);
@@ -122,8 +107,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOfflinePlaylistTracksOrderedByPosition() throws Exception {
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
-
+        final ApiPlaylist playlist = getOfflinePlaylist();
         final ApiTrack playlistTrack1 = insertSyncablePlaylistTrack(playlist, 1);
         final ApiTrack playlistTrack0 = insertSyncablePlaylistTrack(playlist, 0);
 
@@ -155,15 +139,15 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiUser user = testFixtures().insertUser();
 
         final ApiPlaylist olderCreatedPlaylist = testFixtures().insertPlaylistWithCreationDate(user, OLDER);
-        testFixtures().insertPlaylistMarkedForOfflineSync(olderCreatedPlaylist);
+        markPlaylistAsOffline(olderCreatedPlaylist.getUrn());
         final ApiTrack trackInOlderCreatedPlaylist = insertSyncablePlaylistTrack(olderCreatedPlaylist, 0);
 
         final ApiPlaylist newlyLikedPlaylist = testFixtures().insertLikedPlaylist(OLDEST, NEW);
-        testFixtures().insertPlaylistMarkedForOfflineSync(newlyLikedPlaylist);
+        markPlaylistAsOffline(newlyLikedPlaylist.getUrn());
         final ApiTrack trackInNewlyLikedPlaylist = insertSyncablePlaylistTrack(newlyLikedPlaylist, 0);
 
         final ApiPlaylist oldCreatedPlaylist = testFixtures().insertPlaylistWithCreationDate(user, OLD);
-        testFixtures().insertPlaylistMarkedForOfflineSync(oldCreatedPlaylist);
+        markPlaylistAsOffline(oldCreatedPlaylist.getUrn());
         final ApiTrack trackInOldCreatedPlaylist = insertSyncablePlaylistTrack(oldCreatedPlaylist, 0);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
@@ -177,11 +161,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOfflinePlaylistTracksBeforeLikes() throws Exception {
-        enableOfflineLikes();
-
         final ApiTrack apiTrack = insertSyncableLikedTrack(100);
 
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = getOfflinePlaylist();
         final ApiTrack playlistTrack = insertSyncablePlaylistTrack(playlist, 0);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
@@ -194,35 +176,15 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotReturnDuplicatedDownloadRequests() throws Exception {
-        enableOfflineLikes();
-
         final ApiTrack apiTrack = insertSyncableLikedTrack(100);
+        final ApiPlaylist playlist = getOfflinePlaylist();
 
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         testFixtures().insertPlaylistTrack(playlist.getUrn(), apiTrack.getUrn(), 0);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(downloadRequestFromLikesAndPlaylists(apiTrack));
-    }
-
-    @Test
-    public void doesNotReturnTracksWithoutPolicy() {
-        testFixtures().insertLikedTrack(new Date(100));
-
-        ExpectedOfflineContent toBeOffline = command.call(null);
-
-        assertThat(toBeOffline.requests).isEmpty();
-    }
-
-    @Test
-    public void doesNotReturnBlockedTacks() {
-        insertCreatorOptOutLikedTrack(100);
-
-        ExpectedOfflineContent toBeOffline = command.call(null);
-
-        assertThat(toBeOffline.requests).isEmpty();
     }
 
     @Test
@@ -247,7 +209,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotIncludeTracksRemovedFromAPlaylist() {
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = getOfflinePlaylist();
         final ApiTrack playlistTrack1 = testFixtures().insertPlaylistTrackPendingRemoval(playlist, 1, new Date(NOW));
         testFixtures().insertPolicyAllow(playlistTrack1.getUrn(), NOW);
 
@@ -258,7 +220,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotReturnOfflinePlaylistTracksWhenPolicyUpdateHappenedAfterTheLast30Days() throws Exception {
-        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = getOfflinePlaylist();
         final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn = track1.getUrn();
         testFixtures().insertPolicyAllow(urn, NOW - TimeUnit.DAYS.toMillis(30));
@@ -270,15 +232,11 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void commandReturnsPlaylistsWithoutTracks() {
-        testFixtures().insertLikesMarkedForOfflineSync();
-        testFixtures().insertPlaylistTrack(testFixtures().insertPlaylistMarkedForOfflineSync(), 0);
-        final ApiPlaylist playlistWithoutTracks = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiPlaylist playlist = getOfflinePlaylist();
+        testFixtures().insertPlaylistTrack(playlist, 0);
+        final ApiPlaylist playlistWithoutTracks = getOfflinePlaylist();
 
         assertThat(command.call(null).emptyPlaylists).containsExactly(playlistWithoutTracks.getUrn());
-    }
-
-    private void enableOfflineLikes() {
-        testFixtures().insertLikesMarkedForOfflineSync();
     }
 
     private ApiTrack insertCreatorOptOutLikedTrack(long likedAt) {
@@ -298,4 +256,15 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         testFixtures().insertPolicyAllow(playlistTrack.getUrn(), NOW);
         return playlistTrack;
     }
+
+    private ApiPlaylist getOfflinePlaylist() {
+        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        markPlaylistAsOffline(playlist.getUrn());
+        return playlist;
+    }
+
+    private void markPlaylistAsOffline(Urn urn) {
+        offlineContentStorage.storeAsOfflinePlaylists(Collections.singletonList(urn)).test().assertComplete();
+    }
+
 }
