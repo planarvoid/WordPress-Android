@@ -82,7 +82,8 @@ def excludeAnnotations = [
 ] as String[]
 
 def excludeAnnotationsRelease = [
-        'com.soundcloud.android.framework.annotation.AdsTest'
+        'com.soundcloud.android.framework.annotation.AdsTest',
+        'com.soundcloud.android.framework.annotation.DuplicatedPageViews'
 ] as String[]
 excludeAnnotationsRelease = excludeAnnotationsRelease + excludeAnnotations as String []
 

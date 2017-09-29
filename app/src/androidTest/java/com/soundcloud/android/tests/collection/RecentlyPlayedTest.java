@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.DuplicatedPageViews;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -16,6 +17,7 @@ import com.soundcloud.android.screens.stations.StationHomeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import org.junit.Test;
 
+@DuplicatedPageViews // "https://soundcloud.atlassian.net/browse/DROID-1852" We are double tracking page views due to discovery backend without uniflow
 public class RecentlyPlayedTest extends ActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_RECENTLY_PLAYED_PLAYLIST = "specs/audio-events-recently-played-playlist.spec";
     private static final String TEST_SCENARIO_RECENTLY_PLAYED_STATION = "specs/audio-events-recently-played-station.spec";
