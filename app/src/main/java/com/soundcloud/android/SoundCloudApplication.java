@@ -276,7 +276,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
-            FabricProvider.initialize(this);
+            FabricProvider.initialize(this, applicationProperties);
         }
         uncaughtExceptionHandlerController.setHandler();
     }
