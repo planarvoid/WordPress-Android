@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.CallSuper;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -71,6 +72,7 @@ public class Navigator {
         @Override
         @CallSuper
         public void onNext(NavigationResult result) {
+            ErrorUtils.log(Log.INFO, "Navigator", "Navigation result with target: [" + result.target() + "] , success: " + result.isSuccess());
             try {
                 if (!result.isSuccess()) {
                     feedbackController.showFeedback(Feedback.create(R.string.error_unknown_navigation));
