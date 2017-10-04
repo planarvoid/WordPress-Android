@@ -8,7 +8,7 @@ ext {
 
   // Dependency versions
   androidMultiDex = "1.0.2"
-  androidSupportVersion = '26.0.1'
+  androidSupportVersion = '26.1.0'
   lintVersion = '25.3.3'
   testRunnerVersion = '1.0.1'
   espressoVersion = '3.0.1'
