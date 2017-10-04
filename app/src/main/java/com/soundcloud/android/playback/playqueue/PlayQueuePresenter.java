@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
@@ -18,18 +19,21 @@ import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,8 +52,9 @@ class PlayQueuePresenter {
     private final EventBusV2 eventBus;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final Scheduler scheduler;
     private final CompositeDisposable disposables = new CompositeDisposable();
-    private final Subject<Boolean> rebuildSubject = PublishSubject.create();
+    private final Subject<RxSignal> rebuildSubject = PublishSubject.create();
 
     private Optional<PlayQueueView> playQueueView = Optional.absent();
     private Optional<UndoHolder> undoHolder = Optional.absent();
@@ -65,7 +70,8 @@ class PlayQueuePresenter {
                        PlaylistExploder playlistExploder,
                        EventBusV2 eventBus,
                        PlayQueueUIItemMapper playQueueUIItemMapper,
-                       PerformanceMetricsEngine performanceMetricsEngine) {
+                       PerformanceMetricsEngine performanceMetricsEngine,
+                       @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.playQueueManager = playQueueManager;
         this.playbackStateProvider = playbackStateProvider;
         this.playSessionController = playSessionController;
@@ -74,6 +80,7 @@ class PlayQueuePresenter {
         this.eventBus = eventBus;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.scheduler = scheduler;
     }
 
     void attachView(PlayQueueView playQueueView) {
@@ -114,6 +121,8 @@ class PlayQueuePresenter {
                                       .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
                                       .doOnNext(newItems -> items = newItems)
                                       .doOnNext(items -> setNowPlaying())
+                                      .subscribeOn(scheduler)
+                                      .observeOn(AndroidSchedulers.mainThread())
                                       .subscribeWith(new PlayQueueObserver()));
     }
 
@@ -130,7 +139,7 @@ class PlayQueuePresenter {
         if (playQueueView.isPresent() && undoHolder.isPresent()) {
             UndoHolder undoHolder = this.undoHolder.get();
             items.addAll(undoHolder.adapterPosition, undoHolder.playQueueUIItems);
-            rebuildSubject.onNext(true);
+            rebuildSubject.onNext(RxSignal.SIGNAL);
             playQueueManager.insertItemsAtPosition(undoHolder.playQueuePosition, undoHolder.playQueueItems);
 
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE));
@@ -291,7 +300,7 @@ class PlayQueuePresenter {
 
         playQueueView.get().showUndo(textId);
         items.removeAll(playQueueUIItems);
-        rebuildSubject.onNext(true);
+        rebuildSubject.onNext(RxSignal.SIGNAL);
         List<PlayQueueItem> trackPlayQueueItems = new ArrayList<>();
         int playQueuePosition = -1;
         for (PlayQueueUIItem playQueueUIItem : playQueueUIItems) {
@@ -329,7 +338,7 @@ class PlayQueuePresenter {
 
     void moveItems(int fromAdapterPosition, int toAdapterPosition) {
         if (playQueueView.isPresent()) {
-            rebuildSubject.onNext(true);
+            rebuildSubject.onNext(RxSignal.SIGNAL);
             playQueueManager.moveItem(getQueuePosition(fromAdapterPosition),
                                       getQueuePosition(toAdapterPosition));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));

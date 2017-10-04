@@ -35,6 +35,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +87,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 playlistExploder,
                 eventBus,
                 playQueueUIItemMapper,
-                performanceMetricsEngine);
+                performanceMetricsEngine,
+                Schedulers.trampoline());
 
         loadQueueUpdate = PlayQueueUIItemsUpdate.forQueueLoad();
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
