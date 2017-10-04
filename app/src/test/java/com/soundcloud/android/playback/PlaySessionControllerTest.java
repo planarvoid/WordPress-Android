@@ -36,6 +36,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -94,6 +95,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         playCurrentSubject = CompletableSubject.create();
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
+        when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(trackPlayQueueItem.getUrn()));
         when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(true);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
@@ -852,6 +854,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     private void setupAdInProgress(long currentProgress, PlayQueueItem playQueueItem) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000, trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
+        when(playQueueManager.getCurrentItemUrn()).thenReturn(Optional.of(playQueueItem.getUrn()));
         when(playSessionStateProvider.isCurrentlyPlaying(playQueueItem.getUrn())).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(progress);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);

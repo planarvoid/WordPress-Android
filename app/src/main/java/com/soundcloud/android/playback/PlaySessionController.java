@@ -139,11 +139,16 @@ public class PlaySessionController {
 
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
-            playbackProgressRepository.put(playQueueManager.getCurrentPlayQueueItem().getUrn(), position);
-            if (isPlayingCurrentPlayQueueItem()) {
-                playbackStrategyProvider.get().seek(position);
+            final Optional<Urn> currentItemUrn = playQueueManager.getCurrentItemUrn();
+            if (!currentItemUrn.isPresent()) {
+                ErrorUtils.log(android.util.Log.INFO, TAG, "Current item is empty");
             } else {
-                playQueueManager.saveCurrentPosition();
+                playbackProgressRepository.put(currentItemUrn.get(), position);
+                if (isPlayingCurrentPlayQueueItem()) {
+                    playbackStrategyProvider.get().seek(position);
+                } else {
+                    playQueueManager.saveCurrentPosition();
+                }
             }
         }
     }
