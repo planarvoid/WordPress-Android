@@ -59,10 +59,6 @@
           {
             "unit_tests": {
               "cmd": "./gradlew clean runUnitTests",
-              "artifacts": [
-                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk",
-                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
-              ],
               "test-reports": "**/build/test-results/**/*.xml",
               "no-clean": true,
               "plugins": {
@@ -79,6 +75,10 @@
           {
             "acceptance_tests": {
               "cmd": "BUILD_TYPE=preRelease ./gradlew runMarshmallowTestsRelease",
+              "artifacts": [
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk",
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
+              ],
               "test-reports": "results/xml/*.xml",
               "plugins": {
                 "htmlReports": [
