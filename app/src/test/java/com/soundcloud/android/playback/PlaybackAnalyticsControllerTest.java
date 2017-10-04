@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -11,12 +12,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -161,6 +164,20 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onStateTransition(playbackItem, wrap(transition));
 
         verify(adSessionDispatcher).setAdMetadata(videoAd, null);
+    }
+
+    @Test
+    public void onPlaystateChangedDoesNotSetAdDataForPlaybackItemIfAdTypeWrong() {
+        final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(track);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(leaveBehindAd));
+        playbackItem = TestPlaybackItem.audio();
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track, 0, 0);
+
+        controller.onStateTransition(playbackItem, wrap(transition));
+
+        verify(adSessionDispatcher, never()).setAdMetadata(any(), isNull());
     }
 
     @Test
