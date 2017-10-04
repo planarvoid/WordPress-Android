@@ -12,7 +12,7 @@ ext {
   lintVersion = '25.3.3'
   testRunnerVersion = '1.0.1'
   espressoVersion = '3.0.1'
-  googleServicesVersion = '11.2.0'
+  googleServicesVersion = '11.4.0'
   lightCycleVersion = '1.6.1'
   daggerVersion = '2.11'
   propellerVersion = '0.74'
