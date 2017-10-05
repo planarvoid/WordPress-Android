@@ -15,6 +15,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.skippy.SkippyCache;
+import com.soundcloud.android.playback.skippy.SkippyConfiguration;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -35,7 +37,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackServiceController serviceInitiator;
-    @Mock private StreamCacheConfig.SkippyConfig streamCacheConfig;
+    @Mock private SkippyCache skippyCache;
     @Mock private CastConnectionHelper castConnectionHelper;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
@@ -45,9 +47,14 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        preloader = new StreamPreloader(eventBus, trackRepository, playQueueManager,
-                                        castConnectionHelper, offlinePlaybackOperations,
-                                        serviceInitiator, streamCacheConfig);
+        SkippyConfiguration skippyConfiguration = new SkippyConfiguration(context(), skippyCache, false);
+        preloader = new StreamPreloader(eventBus,
+                                        trackRepository,
+                                        playQueueManager,
+                                        castConnectionHelper,
+                                        offlinePlaybackOperations,
+                                        serviceInitiator,
+                                        skippyConfiguration);
         preloader.subscribe();
         track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build());
         when(trackRepository.track(nextTrackUrn)).thenReturn(Maybe.just(track));
@@ -136,7 +143,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Test
     public void doesNotPreloadWithoutEnoughSpaceInCache() {
         setupValidNextTrack();
-        when(streamCacheConfig.getRemainingCacheSpace()).thenReturn(StreamPreloader.CACHE_CUSHION - 1);
+        when(skippyCache.remainingSpace()).thenReturn(StreamPreloader.CACHE_CUSHION - 1);
 
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
@@ -196,7 +203,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     }
 
     private void setupValidSpaceRemaining() {
-        when(streamCacheConfig.getRemainingCacheSpace()).thenReturn(StreamPreloader.CACHE_CUSHION + 1);
+        when(skippyCache.remainingSpace()).thenReturn(StreamPreloader.CACHE_CUSHION + 1);
     }
 
     private void firePlayQueueItemChanged() {

@@ -20,7 +20,7 @@ constructor(private val flipperConfiguration: FlipperConfiguration) {
                 cache.minFreeSpaceAvailablePercentage(),
                 PROGRESS_INTERVAL_MS,
                 forceEncryptedHls,
-                cache.logFilePath()
+                Strings.EMPTY // used for local debugging only
         ), listener)
         player.setMediaCodecDelegate(DECODER)
         return player

@@ -1,6 +1,7 @@
 package com.soundcloud.android.startup.migrations;
 
-import com.soundcloud.android.playback.StreamCacheConfig;
+import com.soundcloud.android.playback.skippy.SkippyCache;
+import com.soundcloud.android.playback.skippy.SkippyConfiguration;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
@@ -11,16 +12,16 @@ class StreamCacheMigration implements Migration {
 
     private static final String TAG = "StreamCacheMigration";
 
-    private final StreamCacheConfig.SkippyConfig streamCacheConfig;
+    private final SkippyCache skippyCache;
 
     @Inject
-    StreamCacheMigration(StreamCacheConfig.SkippyConfig streamCacheConfig) {
-        this.streamCacheConfig = streamCacheConfig;
+    StreamCacheMigration(SkippyConfiguration skippyConfiguration) {
+        this.skippyCache = skippyConfiguration.getCache();
     }
 
     @Override
     public void applyMigration() {
-        File streamCacheDirectory = streamCacheConfig.getStreamCacheDirectory();
+        File streamCacheDirectory = skippyCache.directory();
 
         if (streamCacheDirectory != null) {
             IOUtils.cleanDir(streamCacheDirectory);

@@ -1,22 +1,20 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.playback.flipper.FlipperCache;
-import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.playback.skippy.SkippyCache;
+import com.soundcloud.android.utils.CountryProvider;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.File;
 import java.util.Locale;
 
-public class StreamCacheConfig {
+public class StreamCacheConfig<Key> implements PlayerCache<Key> {
 
     @VisibleForTesting static final long MIN_SIZE_BYTES = 120 * 1024 * 1024; // 120MB
     @VisibleForTesting static final long MAX_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
@@ -26,19 +24,37 @@ public class StreamCacheConfig {
     private static final String COUNTRY_NEW_ZEALAND = "NZ";
     private static final String COUNTRY_AUSTRALIA = "AU";
 
-    private final TelphonyBasedCountryProvider countryProvider;
+    private final Context context;
+    private final CountryProvider countryProvider;
     private final IOUtils ioUtils;
-    @Nullable private final File streamCacheDirectory;
+    private final Key cacheKey;
+    @Nullable private final File cacheDir;
 
-    StreamCacheConfig(TelphonyBasedCountryProvider countryProvider,
-                      IOUtils ioUtils,
-                      @Nullable File streamCacheDirectory) {
+    StreamCacheConfig(Context context, CountryProvider countryProvider, IOUtils ioUtils, Key cacheKey, @Nullable File cacheDirectory) {
+        this.context = context;
         this.countryProvider = countryProvider;
-        this.streamCacheDirectory = streamCacheDirectory;
+        this.cacheKey = cacheKey;
+        this.cacheDir = cacheDirectory;
         this.ioUtils = ioUtils;
     }
 
-    public long getStreamCacheSize() {
+    @NotNull
+    @Override
+    public Key key() {
+        return cacheKey;
+    }
+
+    @Nullable
+    @Override
+    public File directory() {
+        if (cacheDir != null && !cacheDir.exists()) {
+            IOUtils.createCacheDirs(context, cacheDir);
+        }
+        return cacheDir;
+    }
+
+    @Override
+    public long size() {
         final String countryCode = countryProvider.getCountryCode();
         if (Strings.isBlank(countryCode)
                 || Locale.US.getCountry().equalsIgnoreCase(countryCode)
@@ -53,84 +69,42 @@ public class StreamCacheConfig {
         }
     }
 
-    @Nullable
-    public File getStreamCacheDirectory() {
-        return streamCacheDirectory;
-    }
-
-    public byte getStreamCacheMinFreeSpaceAvailablePercentage() {
+    @Override
+    public byte minFreeSpaceAvailablePercentage() {
         return STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE;
     }
 
-    public long getRemainingCacheSpace() {
-        if (streamCacheDirectory == null) {
+    @Override
+    public long remainingSpace() {
+        if (cacheDir == null) {
             return 0;
         } else {
-            final double usableDiskPercentLeft = (((double) streamCacheDirectory.getUsableSpace()) / streamCacheDirectory
-                    .getTotalSpace()) * 100;
-            final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * streamCacheDirectory
-                    .getTotalSpace());
-            final long spaceRemainingUnderSizeCeiling = getStreamCacheSize() - ioUtils.dirSize(streamCacheDirectory);
+            final double usableDiskPercentLeft = (((double) cacheDir.getUsableSpace()) / cacheDir.getTotalSpace()) * 100;
+            final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * cacheDir.getTotalSpace());
+            final long spaceRemainingUnderSizeCeiling = size() - ioUtils.dirSize(cacheDir);
             return Math.max(0, Math.min(spaceRemainingUnderPercentCeiling, spaceRemainingUnderSizeCeiling));
         }
     }
 
-    public static class SkippyConfig extends StreamCacheConfig {
+    static class SkippyConfig extends StreamCacheConfig<byte[]> implements SkippyCache {
 
-        @Inject
-        SkippyConfig(TelphonyBasedCountryProvider countryProvider,
+        SkippyConfig(Context context,
+                     CountryProvider countryProvider,
                      IOUtils ioUtils,
-                     @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY_SKIPPY) File streamCacheDirectory) {
-            super(countryProvider, ioUtils, streamCacheDirectory);
+                     byte[] cacheKey,
+                     File streamCacheDirectory) {
+            super(context, countryProvider, ioUtils, cacheKey, streamCacheDirectory);
         }
     }
 
-    public static class FlipperConfig extends StreamCacheConfig implements FlipperCache {
-
-        private final Context context;
-        private final String cacheKey;
+    static class FlipperConfig extends StreamCacheConfig<String> implements FlipperCache {
 
         FlipperConfig(Context context,
-                      TelphonyBasedCountryProvider countryProvider,
+                      CountryProvider countryProvider,
                       IOUtils ioUtils,
                       String cacheKey,
                       File streamCacheDirectory) {
-            super(countryProvider, ioUtils, streamCacheDirectory);
-            this.context = context;
-            this.cacheKey = cacheKey;
-        }
-
-        @NotNull
-        @Override
-        public String key() {
-            return cacheKey;
-        }
-
-        @org.jetbrains.annotations.Nullable
-        @Override
-        public File directory() {
-            File directory = getStreamCacheDirectory();
-            if (directory != null && !directory.exists()) {
-                IOUtils.createCacheDirs(context, directory);
-            }
-            return directory;
-        }
-
-        @Override
-        public long size() {
-            return getStreamCacheSize();
-        }
-
-        @Override
-        public byte minFreeSpaceAvailablePercentage() {
-            return getStreamCacheMinFreeSpaceAvailablePercentage();
-        }
-
-        @org.jetbrains.annotations.Nullable
-        @Override
-        public String logFilePath() {
-            // TODO: Miloš to update this
-            return "";
+            super(context, countryProvider, ioUtils, cacheKey, streamCacheDirectory);
         }
     }
 }

@@ -7,6 +7,8 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.skippy.SkippyCache;
+import com.soundcloud.android.playback.skippy.SkippyConfiguration;
 import com.soundcloud.android.rx.observers.DefaultMaybeObserver;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracks.TrackItem;
@@ -40,7 +42,7 @@ public class StreamPreloader {
     private final CastConnectionHelper castConnectionHelper;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackServiceController serviceController;
-    private final StreamCacheConfig.SkippyConfig skippyConfig;
+    private final SkippyCache skippyCache;
 
     private Disposable preloadSubscription = Disposables.disposed();
 
@@ -99,7 +101,7 @@ public class StreamPreloader {
     }
 
     private boolean hasSpaceInCache() {
-        return skippyConfig.getRemainingCacheSpace() > CACHE_CUSHION;
+        return skippyCache.remainingSpace() > CACHE_CUSHION;
     }
 
     @Inject
@@ -108,14 +110,15 @@ public class StreamPreloader {
                     PlayQueueManager playQueueManager,
                     CastConnectionHelper castConnectionHelper,
                     OfflinePlaybackOperations offlinePlaybackOperations,
-                    PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
+                    PlaybackServiceController serviceController,
+                    SkippyConfiguration skippyConfiguration) {
         this.eventBus = eventBus;
         this.trackItemRepository = trackItemRepository;
         this.playQueueManager = playQueueManager;
         this.castConnectionHelper = castConnectionHelper;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.serviceController = serviceController;
-        this.skippyConfig = skippyConfig;
+        this.skippyCache = skippyConfiguration.getCache();
     }
 
     public void subscribe() {

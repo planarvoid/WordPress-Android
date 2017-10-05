@@ -1,11 +1,5 @@
 package com.soundcloud.android.playback.flipper
 
-import java.io.File
+import com.soundcloud.android.playback.PlayerCache
 
-interface FlipperCache {
-    fun key(): String
-    fun directory(): File?
-    fun size(): Long
-    fun minFreeSpaceAvailablePercentage(): Byte
-    fun logFilePath(): String?
-}
+interface FlipperCache : PlayerCache<String>

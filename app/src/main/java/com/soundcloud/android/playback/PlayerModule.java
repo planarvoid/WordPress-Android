@@ -3,6 +3,9 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.flipper.FlipperCache;
 import com.soundcloud.android.playback.flipper.FlipperConfiguration;
+import com.soundcloud.android.playback.skippy.SkippyCache;
+import com.soundcloud.android.playback.skippy.SkippyConfiguration;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.StorageModule;
@@ -20,8 +23,28 @@ import java.nio.charset.Charset;
 
 @Module
 public class PlayerModule {
+    private static final String SKIPPY_CACHE_PREFERENCE_KEY = "skippy_cache";
+    private static final String SKIPPY_CACHE_KEY = "SkippyCacheKey";
+
     private static final String FLIPPER_CACHE_PREFERENCE_KEY = "flipper_cache";
     private static final String FLIPPER_CACHE_KEY = "FlipperCacheKey";
+
+    @Named(SKIPPY_CACHE_KEY)
+    @Provides
+    public byte[] provideSkippyCacheKey(CryptoOperations cryptoOperations) {
+        return cryptoOperations.getKeyOrGenerateAndStore(SKIPPY_CACHE_PREFERENCE_KEY);
+    }
+
+    @Provides
+    public SkippyConfiguration provideSkippyConfiguration(Context context,
+                                                          TelphonyBasedCountryProvider countryProvider,
+                                                          IOUtils ioUtils,
+                                                          @Nullable @Named(SKIPPY_CACHE_KEY) byte[] cacheKey,
+                                                          @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY_SKIPPY) File streamCacheDirectory,
+                                                          ApplicationProperties applicationProperties) {
+        SkippyCache cache = new StreamCacheConfig.SkippyConfig(context, countryProvider, ioUtils, cacheKey, streamCacheDirectory);
+        return new SkippyConfiguration(context, cache, !applicationProperties.isReleaseBuild());
+    }
 
     @Named(FLIPPER_CACHE_KEY)
     @Provides

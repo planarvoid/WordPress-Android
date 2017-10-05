@@ -50,7 +50,6 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +135,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
         when(configuration.getCachePath()).thenReturn(CACHE_PATH);
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
-        when(skippyFactory.createPreloaderConfiguration()).thenReturn(preloadConfiguration);
     }
 
     @Test
