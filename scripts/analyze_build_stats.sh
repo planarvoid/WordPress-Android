@@ -76,6 +76,29 @@ function rxJavaMigration {
     echo ${OUT}
 }
 
+function kotlinMigration {
+    MASTER_JAVA=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} javafiles)
+    MASTER_KOTLIN=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} kotlinfiles)
+    LOCAL_JAVA=$(getValueFromFile ${FILE_BUILD_STATS} javafiles)
+    LOCAL_KOTLIN=$(getValueFromFile ${FILE_BUILD_STATS} kotlinfiles)
+    MASTER_PERCENTAGE=$(percentage ${MASTER_KOTLIN} $(($MASTER_JAVA+$MASTER_KOTLIN)))
+    LOCAL_PERCENTAGE=$(percentage ${LOCAL_KOTLIN} $(($LOCAL_JAVA+$LOCAL_KOTLIN)))
+    DIFF_NUM_JAVA_FILES=$((${LOCAL_JAVA} - ${MASTER_JAVA}))
+    DIFF_NUM_KOTLIN_FILES=$((${LOCAL_KOTLIN} - ${MASTER_KOTLIN}))
+    DIFF_PERCENTAGE=`bc <<< ${LOCAL_PERCENTAGE}-${MASTER_PERCENTAGE}`
+
+    MASTER_PERCENTAGE_FORMATTED=$(formatPercentage ${MASTER_PERCENTAGE})
+    LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
+    DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
+
+    OUT=$(printf "| **Java files** | $MASTER_JAVA | $LOCAL_JAVA | $DIFF_NUM_JAVA_FILES | \n")
+    echo ${OUT}
+    OUT=$(printf "| **Kotlin files** | $MASTER_KOTLIN | $LOCAL_KOTLIN | $DIFF_NUM_KOTLIN_FILES | \n")
+    echo ${OUT}
+    OUT=$(printf "| **Kotlin %%** | $MASTER_PERCENTAGE_FORMATTED | $LOCAL_PERCENTAGE_FORMATTED | $DIFF_PERCENTAGE_FORMATTED | \n")
+    echo ${OUT}
+}
+
 function methodCount {
     MASTER=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} methodcount)
     LOCAL=$(getValueFromFile ${FILE_BUILD_STATS} methodcount)
@@ -105,5 +128,6 @@ printf "| ------ | ------ | ------------------ | ---- | \n" >> ${FILE_STATS}
 apkSize >> ${FILE_STATS}
 methodCount >> ${FILE_STATS}
 rxJavaMigration >> ${FILE_STATS}
+kotlinMigration >> ${FILE_STATS}
 
 ./scripts/github/create_github_comment.sh ${ghprbPullId} "`cat $FILE_STATS`"
