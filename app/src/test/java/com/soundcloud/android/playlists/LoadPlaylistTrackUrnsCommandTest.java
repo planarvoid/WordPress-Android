@@ -39,7 +39,10 @@ public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
         ApiTrack track2 = testFixtures().insertPlaylistTrack(playlist, 1);
 
         // use a real playlist URN to test the join logic
-        final Urn missingTrackUrn = testFixtures().insertPlaylist().getUrn();
+        final Urn missingTrackUrn = testFixtures().insertPlaylist(Urn.forPlaylist(123L)).getUrn();
+
+        // This calls a different `insertPlaylistTrack` method than the other 2 calls above which does NOT
+        // insert this Track into the Sounds Table so it should get filtered by the JOIN in the command
         testFixtures().insertPlaylistTrack(playlist.getUrn(), missingTrackUrn, 2);
 
         List<Urn> trackUrns = command.call(playlist.getUrn());
