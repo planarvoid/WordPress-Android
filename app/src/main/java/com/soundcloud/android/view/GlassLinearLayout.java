@@ -6,13 +6,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.java.optional.Optional;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -49,24 +48,14 @@ public class GlassLinearLayout extends LinearLayout {
     private int source;
     private long lastUpdate = System.currentTimeMillis() - MINIMUM_DELAY_MS;
     private boolean updating;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
     private ViewTreeObserverCompat viewTreeObserver;
 
     @Inject ImageProcessor imageProcessor;
 
     private PublishSubject<Bitmap> subject;
 
-    private BackgroundUpdater backgroundUpdater = new BackgroundUpdater();
-
-    private Func1<Bitmap, Bitmap> blurBackground = new Func1<Bitmap, Bitmap>() {
-        @Override
-        public Bitmap call(Bitmap backgroundBitmap) {
-            Bitmap scaledBitmap = scaleBitmap(backgroundBitmap, blurWidth, blurHeightExtra);
-            imageProcessor.blurBitmap(scaledBitmap, blurBitmap, Optional.of(blurRadius));
-            scaledBitmap.recycle();
-            return Bitmap.createBitmap(blurBitmap, 0, 0, blurWidth, blurHeight);
-        }
-    };
+    private final BackgroundUpdater backgroundUpdater = new BackgroundUpdater();
 
     private int blurWidth;
     private int blurHeight;
@@ -119,10 +108,16 @@ public class GlassLinearLayout extends LinearLayout {
         if (LOLLIPOP_OR_HIGHER) {
             updating = false;
             lastUpdate = System.currentTimeMillis() - MINIMUM_DELAY_MS;
-            subscription = subject.map(blurBackground)
-                                  .subscribeOn(Schedulers.computation())
-                                  .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(backgroundUpdater);
+            disposable = subject
+                    .map(bitmap -> {
+                        Bitmap scaledBitmap = scaleBitmap(bitmap, blurWidth, blurHeightExtra);
+                        imageProcessor.blurBitmap(scaledBitmap, blurBitmap, Optional.of(blurRadius));
+                        scaledBitmap.recycle();
+                        return Bitmap.createBitmap(blurBitmap, 0, 0, blurWidth, blurHeight);
+                    })
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(backgroundUpdater);
             viewTreeObserver = new ViewTreeObserverCompatImpl();
             getViewTreeObserver().addOnDrawListener((ViewTreeObserverCompatImpl) viewTreeObserver);
         }
@@ -133,7 +128,7 @@ public class GlassLinearLayout extends LinearLayout {
     protected void onDetachedFromWindow() {
         if (LOLLIPOP_OR_HIGHER) {
             getViewTreeObserver().removeOnDrawListener((ViewTreeObserverCompatImpl) viewTreeObserver);
-            subscription.unsubscribe();
+            disposable.dispose();
             cleanupBitmaps();
             viewTreeObserver = null;
         }
@@ -201,7 +196,7 @@ public class GlassLinearLayout extends LinearLayout {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private class BackgroundUpdater extends DefaultSubscriber<Bitmap> {
+    private class BackgroundUpdater extends DefaultObserver<Bitmap> {
         @Override
         public void onNext(Bitmap bitmap) {
             setBackground(new BitmapDrawable(getResources(), bitmap));
@@ -218,7 +213,7 @@ public class GlassLinearLayout extends LinearLayout {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    class ViewTreeObserverCompatImpl implements ViewTreeObserverCompat, ViewTreeObserver.OnDrawListener {
+    private class ViewTreeObserverCompatImpl implements ViewTreeObserverCompat, ViewTreeObserver.OnDrawListener {
         @Override
         public void onDraw() {
             long current = System.currentTimeMillis();
