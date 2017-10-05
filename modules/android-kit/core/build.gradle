@@ -1,11 +1,4 @@
-apply plugin: 'java'
-
-test {
-  testLogging {
-    events 'skipped', 'failed'
-    exceptionFormat 'full'
-  }
-}
+apply from: "$rootProject.projectDir/buildsystem/java7-library.gradle"
 
 dependencies {
   compile libraries.jetbrainsAnnotations
@@ -19,6 +12,3 @@ dependencies {
   testCompile unitTestLibraries.assertj
   testCompile unitTestLibraries.equalsVerifier
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7

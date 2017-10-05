@@ -1,33 +1,15 @@
-apply plugin: 'com.android.library'
-
-android {
-  compileSdkVersion rootProject.ext.androidCompileSdkVersion
-  buildToolsVersion rootProject.ext.androidBuildToolsVersion
-
-  defaultConfig {
-    targetSdkVersion rootProject.ext.androidTargetSdkVersion
-    minSdkVersion rootProject.ext.androidMinSdkVersion
+buildscript {
+  dependencies {
+    classpath gradlePlugins.retrolambda
   }
+}
 
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
-  }
+apply from: "$rootProject.projectDir/buildsystem/android-library.gradle"
+apply plugin: 'me.tatarka.retrolambda'
 
-  buildTypes {
-    release {
-      minifyEnabled false
-    }
-  }
-
-  testOptions {
-    unitTests.all {
-      testLogging {
-        events 'skipped', 'failed'
-        exceptionFormat 'full'
-      }
-    }
-  }
+retrolambda {
+  // Shush Retrolambda... Don't log so much in Java projects, please
+  jvmArgs '-Dretrolambda.quiet=true'
 }
 
 configurations {

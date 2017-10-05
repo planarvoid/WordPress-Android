@@ -2,15 +2,19 @@ buildscript {
   dependencies {
     classpath gradlePlugins.apt
     classpath gradlePlugins.memento
+    classpath gradlePlugins.retrolambda
   }
 }
 
-apply plugin: 'java'
+apply from: "$rootProject.projectDir/buildsystem/java8-library.gradle"
+apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.soundcloud.memento'
 apply plugin: 'net.ltgt.apt'
 
-targetCompatibility = JavaVersion.VERSION_1_8
-sourceCompatibility = JavaVersion.VERSION_1_8
+retrolambda {
+  // Shush Retrolambda... Don't log so much in Java projects, please
+  jvmArgs '-Dretrolambda.quiet=true'
+}
 
 configurations {
   lintChecks
@@ -18,13 +22,6 @@ configurations {
 
 def libraries = rootProject.ext.libraries
 def unitTestLibraries = rootProject.ext.unitTestLibraries
-
-test {
-  testLogging {
-    events 'skipped', 'failed'
-    exceptionFormat 'full'
-  }
-}
 
 dependencies {
   apt libraries.mementoCompiler

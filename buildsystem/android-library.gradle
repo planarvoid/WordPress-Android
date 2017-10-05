@@ -1,0 +1,39 @@
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion rootProject.ext.androidCompileSdkVersion
+  buildToolsVersion rootProject.ext.androidBuildToolsVersion
+
+  defaultConfig {
+    minSdkVersion rootProject.ext.androidMinSdkVersion
+    targetSdkVersion rootProject.ext.androidTargetSdkVersion
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  // This is a list of common META-INF errors in dependencies
+  packagingOptions {
+    exclude 'LICENSE.txt'
+    exclude 'META-INF/ASL2.0'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/services/javax.annotation.processing.Processor'
+    exclude 'META-INF/rxjava.properties'
+  }
+
+  testOptions {
+    unitTests.returnDefaultValues = true
+
+    // This allows us see tests execution progress in the output on the CI.
+    unitTests.all {
+      testLogging {
+        events 'skipped', 'failed'
+        exceptionFormat 'full'
+      }
+    }
+  }
+}

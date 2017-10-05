@@ -4,18 +4,16 @@ buildscript {
   }
 }
 
-apply plugin: 'java'
+apply from: "$rootProject.projectDir/buildsystem/java8-library.gradle"
 apply plugin: 'me.tatarka.retrolambda'
+
+retrolambda {
+  // Shush Retrolambda... Don't log so much in Java projects, please
+  jvmArgs '-Dretrolambda.quiet=true'
+}
 
 configurations {
   apt
-}
-
-test {
-  testLogging {
-    events 'skipped', 'failed'
-    exceptionFormat 'full'
-  }
 }
 
 dependencies {
@@ -27,11 +25,3 @@ dependencies {
   apt libraries.autoValue
   compileOnly libraries.autoValue
 }
-
-retrolambda {
-  // Shush Retrolambda... Don't log so much in Java projects, please
-  jvmArgs '-Dretrolambda.quiet=true'
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
