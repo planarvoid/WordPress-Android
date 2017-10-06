@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils.collection
 
 import com.nhaarman.mockito_kotlin.whenever
+import com.soundcloud.android.SoundCloudApplication
 import com.soundcloud.android.api.ApiRequestException
 import com.soundcloud.android.model.AsyncLoadingState
 import com.soundcloud.android.testsupport.AndroidUnitTest
@@ -11,8 +12,10 @@ import com.soundcloud.java.optional.Optional.of
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function
+import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.subjects.PublishSubject
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -44,7 +47,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Mock internal lateinit var firstPageFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
     @Mock internal lateinit var refreshFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
-    @Mock internal lateinit var nextPageprovider: TestProvider
+    @Mock internal lateinit var nextPageProvider: TestProvider
 
     private val loadFirstPage = PublishSubject.create<String>()
     private val loadNextPage = PublishSubject.create<Any>()
@@ -62,10 +65,16 @@ class AsyncLoaderTest : AndroidUnitTest() {
     private val resultWithViewAction = PageResult<List<Int>, ViewAction>(data = firstPageData, nextPage = of(TestProvider(secondPageSubject)), action = of(viewAction))
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         whenever(firstPageFunc.apply(firstPageParams)).thenReturn(firstPageSubject)
         whenever(refreshFunc.apply(anyString())).thenReturn(refreshSubject)
+        RxJavaPlugins.setErrorHandler { e ->
+            Thread.currentThread().setUncaughtExceptionHandler { _, f ->
+                Thread.currentThread().uncaughtExceptionHandler = null
+                throw f as InternalError
+            }
+            SoundCloudApplication.handleThrowableInDebug(e)
+        }
 
         asyncLoader = AsyncLoader(
                 loadFirstPage,
@@ -83,8 +92,12 @@ class AsyncLoaderTest : AndroidUnitTest() {
         )
     }
 
+    @After
+    fun tearDown() {
+        RxJavaPlugins.setErrorHandler(null);
+    }
+
     @Test
-    @Throws(Exception::class)
     fun `first page loads correctly`() {
         val subscriber = asyncLoader.test()
 
@@ -99,7 +112,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `unsubscribes From Source After Loading Page`() {
         val subscriber = asyncLoader.test()
 
@@ -114,7 +126,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `first Page Errors`() {
         val subscriber = asyncLoader.test()
 
@@ -130,7 +141,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `first Page Recovers`() {
         whenever<Observable<PageResult<List<Int>, ViewAction>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.error<PageResult<List<Int>, ViewAction>>(networkError), firstPageSubject)
 
@@ -151,7 +161,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `second Page Loads`() {
         val subscriber = asyncLoader.test()
 
@@ -172,7 +181,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `unsubscribes From Source After Loading Two Pages`() {
         val subscriber = asyncLoader.test()
 
@@ -194,7 +202,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `second Page Errors`() {
         val subscriber = asyncLoader.test()
 
@@ -215,12 +222,12 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `second Page Errors And Recovers`() {
         val secondPageErrorSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
 
-        whenever<Observable<PageResult<List<Int>, ViewAction>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>, ViewAction>>(PageResult<List<Int>, ViewAction>(firstPageData, nextPage = of(nextPageprovider))))
-        com.nhaarman.mockito_kotlin.whenever(nextPageprovider.get()).thenReturn(secondPageErrorSubject, secondPageSubject)
+        whenever<Observable<PageResult<List<Int>, ViewAction>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>, ViewAction>>(PageResult<List<Int>, ViewAction>(firstPageData, nextPage = of(
+                nextPageProvider))))
+        com.nhaarman.mockito_kotlin.whenever(nextPageProvider.get()).thenReturn(secondPageErrorSubject, secondPageSubject)
 
         val subscriber = asyncLoader.test()
 
@@ -247,7 +254,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `third Page Loads With No More Pages`() {
         val testSubscriber = asyncLoader.test()
 
@@ -274,7 +280,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `reEmission Does Not Override Next Page`() {
         val testSubscriber = asyncLoader.test()
 
@@ -304,8 +309,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
-    fun `refresh Error Does Not Propogate`() {
+    fun `refresh Error Does Not Propagate`() {
         // load second page data after refresh
         val subscriber = asyncLoader.test()
 
@@ -330,10 +334,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
                 AsyncLoaderState(data = of(firstPageData + secondPageData),
                                  asyncLoadingState = AsyncLoadingState.builder().refreshError(of(ViewError.from(networkError))).requestMoreOnScroll(true).build())
         )
+
+        subscriber.assertNoErrors()
     }
 
     @Test
-    @Throws(Exception::class)
     fun `refresh Wipes Out Old State`() {
         val refreshResult = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
 
@@ -361,10 +366,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
                 AsyncLoaderState(data = of(secondPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).requestMoreOnScroll(true).build())
 
         )
+
+        subscriber.assertNoErrors()
     }
 
     @Test
-    @Throws(Exception::class)
     fun `unsubscribes From Source After Refreshing`() {
         val refreshResult = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
 
@@ -395,7 +401,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `refresh Error Keeps Old State`() {
         val subscriber = asyncLoader.test()
 
@@ -424,7 +429,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `action is removed after it's performed for the first time`() {
         val subscriber = asyncLoader.test()
 
@@ -442,7 +446,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun `refresh action is removed after it's performed for the first time`() {
         val refreshResultWithViewAction = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)), action = of(viewAction))
 

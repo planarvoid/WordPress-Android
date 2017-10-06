@@ -85,9 +85,11 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
                     Observable.create<Observable<PageState>> { e ->
                         compositeDisposable.add(refreshObservable.take(1)
                                                         .doOnSubscribe { refreshStateSubject.onNext(RefreshState(true)) }
-                                                        .doOnError { throwable -> refreshStateSubject.onNext(RefreshState(false, Optional.of(throwable))) }
-                                                        .doOnNext { p -> refreshStateSubject.onNext(RefreshState(false)) }
-                                                        .subscribe { e.onNext(refreshObservable.lift(doOnFirst(this::keepNextPageObservable)).map { loadedPageState(it) }) })
+                                                        .subscribe({
+                                                                       refreshStateSubject.onNext(RefreshState(false))
+                                                                       e.onNext(refreshObservable.lift(doOnFirst(this::keepNextPageObservable)).map { loadedPageState(it) })
+                                                                   },
+                                                                   { throwable -> refreshStateSubject.onNext(RefreshState(false, Optional.of(throwable))) }))
                     }
                 }
     }
@@ -138,8 +140,7 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
     private fun combinePageData(objects: Array<Any>): PageData? {
         var combinedData: PageData? = null
         objects.map { toPageState(it) }
-                .filterNotNull() // if we make data nullable instead of Optional
-                .filter { it.data.isPresent } // if we keep the Optional
+                .filter { it.data.isPresent }
                 .forEach {
                     if (combinedData == null) {
                         combinedData = it.data.get()

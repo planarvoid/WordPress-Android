@@ -347,7 +347,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         });
     }
 
-    private void handleThrowableInDebug(Throwable t) {
+    public static void handleThrowableInDebug(Throwable t) {
         //We don't want to crash the app in debug when we unsubscribe from RX chain
         if (t.getCause() != null && t.getCause().getCause() != null && t.getCause().getCause() instanceof InterruptedIOException) {
             //Ignore interrupted cause
