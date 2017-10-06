@@ -204,9 +204,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void showPlaybackResult(PlaybackResult playbackResult) {
-        expandPlayerObserver.onSuccess(playbackResult);
+        expandPlayerObserver.onNext(playbackResult);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import org.junit.Test;
 
@@ -83,10 +82,7 @@ public class AudioAdTest extends AdBaseTest {
         assertFalse(playerElement.isAdPageVisible());
     }
 
-    @org.junit.Ignore
-    @Ignore
     @Test
-    //FIXME "Crashing with a Debug exception from Rx chain - https://soundcloud.atlassian.net/browse/DROID-1881"
     public void testDoesNotOpenTrackWhileAdIsPlaying() throws Exception {
         swipeToAd();
         playerElement.pressBackToCollapse();

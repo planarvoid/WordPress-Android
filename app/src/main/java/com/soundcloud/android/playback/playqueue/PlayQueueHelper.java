@@ -5,7 +5,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerObserver;
+import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -54,7 +54,7 @@ public class PlayQueueHelper {
             playlistOperations.trackUrnsForPlayback(playlistUrn)
                               .flatMap(tracks -> playbackInitiator.playTracks(tracks, 0, PlaySessionSource.forPlayNext(screenProvider.getLastScreenTag())))
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribeWith(new ExpandPlayerObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
+                              .subscribeWith(new ExpandPlayerSingleObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
         } else {
             trackRepository.forPlaylist(playlistUrn)
                   .observeOn(AndroidSchedulers.mainThread())
