@@ -129,6 +129,16 @@ public class PlaybackContextTest {
         assertSearchResultContext(Screen.SEARCH_PREMIUM_CONTENT);
     }
 
+    @Test
+    public void returnsBucketFromBucketString() {
+        assertThat(Bucket.fromString(Bucket.CAST.toString())).isEqualTo(Optional.of(Bucket.CAST));
+    }
+
+    @Test
+    public void returnsEmptyBucketFromUnknownString() {
+        assertThat(Bucket.fromString("unknown string")).isEqualTo(Optional.absent());
+    }
+
     private void assertSearchResultContext(Screen screen) {
         final Urn queryUrn = new Urn("soundcloud:query:453asdf");
         final String queryString = "Michael Jackson";

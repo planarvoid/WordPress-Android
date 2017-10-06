@@ -43,6 +43,15 @@ public abstract class PlaybackContext {
             }
             return OTHER;
         }
+
+        static Optional<Bucket> fromString(String value) {
+            for (Bucket bucket : values()) {
+                if (bucket.toString().equals(value)) {
+                    return Optional.of(bucket);
+                }
+            }
+            return Optional.absent();
+        }
     }
 
     public static PlaybackContext create(PlaySessionSource playSessionSource) {

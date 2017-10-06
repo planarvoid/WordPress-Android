@@ -23,6 +23,7 @@ import io.reactivex.Single;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -157,7 +158,14 @@ public class PlayQueueStorage {
         private Bucket getPlaybackContextBucket(Cursor cursor) {
             int columnIndex = cursor.getColumnIndex(CONTEXT_TYPE);
             String result = cursor.getString(columnIndex);
-            return result == null ? Bucket.OTHER : Bucket.valueOf(result);
+            if (result != null) {
+                final Optional<Bucket> bucket = Bucket.fromString(result);
+                if (bucket.isPresent()) {
+                    return bucket.get();
+                }
+                ErrorUtils.log(Log.INFO, "PlayQueueStorage", "Loading unknown playback context from database: " + result);
+            }
+            return Bucket.OTHER;
         }
 
         private Optional<String> getPlaybackContextQuery(Cursor cursor) {
