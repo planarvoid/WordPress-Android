@@ -26,6 +26,7 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.LightCycleLogger;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
@@ -266,6 +267,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        Log.d("PlaylistDetailFragment", "[LIFE_CYCLE] onPrepareMenuOptions fragment = " + this.toString());
         super.onPrepareOptionsMenu(menu);
         toolbarView.onPrepareOptionsMenu(menu);
     }
