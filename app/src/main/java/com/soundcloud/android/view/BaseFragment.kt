@@ -1,16 +1,19 @@
 package com.soundcloud.android.view
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.View
+import com.soundcloud.android.utils.LightCycleLogger
+import com.soundcloud.lightcycle.LightCycle
+import com.soundcloud.lightcycle.LightCycleSupportFragment
 import javax.inject.Inject
 
-abstract class BaseFragment<T : Destroyable> : Fragment {
+abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFragment<T>> {
 
     internal var presenter: T? = null
     private var presenterId: Long = 0
 
     @Inject lateinit var presenterManager: PresenterManager
+    @LightCycle internal var logger = LightCycleLogger.forSupportFragment(javaClass.name)
 
     constructor() : super()
 

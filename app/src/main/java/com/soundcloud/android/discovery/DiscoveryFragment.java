@@ -6,12 +6,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +27,7 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
 
     @Inject @LightCycle DiscoveryPresenter presenter;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @LightCycle SupportFragmentLightCycle<Fragment> logger = LightCycleLogger.forSupportFragment("DiscoveryFragment");
 
     public DiscoveryFragment() {
         setRetainInstance(true);

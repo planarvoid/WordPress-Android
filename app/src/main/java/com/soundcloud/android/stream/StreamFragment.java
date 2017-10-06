@@ -5,11 +5,14 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.LightCycleLogger;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,7 @@ public class StreamFragment extends LightCycleSupportFragment<StreamFragment>
         implements RefreshableScreen, MainPagerAdapter.ScrollContent, MainPagerAdapter.FocusListener {
 
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @LightCycle SupportFragmentLightCycle<Fragment> logger = LightCycleLogger.forSupportFragment("StreamFragment");
     @Inject @LightCycle StreamPresenter presenter;
 
     public StreamFragment() {
