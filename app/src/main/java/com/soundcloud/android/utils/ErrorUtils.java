@@ -39,6 +39,13 @@ public final class ErrorUtils {
         // not to be instantiated.
     }
 
+    public static String getStackTrace(Throwable throwable) {
+        final StringWriter result = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(result);
+        throwable.printStackTrace(printWriter);
+        return result.toString();
+    }
+
     public static void handleThrowable(Throwable t, CallsiteToken callsiteToken) {
         final StringWriter callsiteTrace = new StringWriter();
         callsiteToken.printStackTrace(new PrintWriter(callsiteTrace));

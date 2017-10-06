@@ -7,6 +7,7 @@ import rx.exceptions.OnErrorFailedException;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
 // Note : don't use injection in this class.
 // It is used before Dagger is setup - otherwise we would never report potential Dagger crashes.
@@ -43,6 +44,7 @@ class UncaughtExceptionHandlerController {
     void setHandler() {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
         handler = (thread, e) -> {
+            ErrorUtils.log(Log.ERROR, "UncaughtExceptionHandler", ErrorUtils.getStackTrace(e));
             final Throwable purged = ErrorUtils.purgeOnNextValueCause(e);
             if (ErrorUtils.isCausedByOutOfMemory(e)) {
                 memoryReporter.reportOomStats();
