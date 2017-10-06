@@ -3,6 +3,8 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.flipper.FlipperCache;
 import com.soundcloud.android.playback.flipper.FlipperConfiguration;
+import com.soundcloud.android.playback.flipper.FlipperPerformanceReporter;
+import com.soundcloud.android.playback.skippy.SkippyPerformanceReporter;
 import com.soundcloud.android.playback.skippy.SkippyCache;
 import com.soundcloud.android.playback.skippy.SkippyConfiguration;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -11,6 +13,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Module;
 import dagger.Provides;
 
@@ -61,5 +64,15 @@ public class PlayerModule {
                                                             FeatureFlags featureFlags) {
         FlipperCache cache = new StreamCacheConfig.FlipperConfig(context, countryProvider, ioUtils, cacheKey, streamCacheDirectory);
         return new FlipperConfiguration(cache, featureFlags.isEnabled(Flag.ENCRYPTED_HLS));
+    }
+
+    @Provides
+    public SkippyPerformanceReporter provideSkippyPerformanceReporter(EventBusV2 eventBus) {
+        return new SkippyPerformanceReporter(eventBus);
+    }
+
+    @Provides
+    public FlipperPerformanceReporter provideFlipperPerformanceReporter(EventBusV2 eventBus) {
+        return new FlipperPerformanceReporter(eventBus);
     }
 }

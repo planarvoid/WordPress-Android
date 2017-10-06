@@ -1,26 +1,24 @@
 package com.soundcloud.android.playback.flipper;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioPerformanceEvent;
+import com.soundcloud.android.playback.PlaybackMetric;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
-import com.soundcloud.android.utils.ConnectionHelper;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PerformanceReporterTest {
+public class FlipperPerformanceReporterTest {
 
     private static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
     private static final PlayerType PLAYER_TYPE = PlayerType.FLIPPER;
@@ -31,33 +29,36 @@ public class PerformanceReporterTest {
     private static final int BITRATE = 128000;
     private static final ConnectionType CONNECTION_TYPE = ConnectionType.FOUR_G;
 
-    @Mock private AccountOperations accountOperations;
-    @Mock private ConnectionHelper connectionHelper;
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
-    private PerformanceReporter performanceReporter;
+    private FlipperPerformanceReporter performanceReporter;
 
     @Before
     public void setUp() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(CONNECTION_TYPE);
-
-        performanceReporter = new PerformanceReporter(eventBus, accountOperations, connectionHelper);
+        performanceReporter = new FlipperPerformanceReporter(eventBus);
     }
 
     @Test
-    public void doesNotReportAdPerformance() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType("anyType");
-        performanceReporter.report(TestPlaybackItem.audioAd(), audioPerformanceEvent, PlayerType.FLIPPER);
+    public void doesNotReportAudioAdPerformance() {
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
+        performanceReporter.report(PlaybackType.AUDIO_AD, audioPerformanceEvent, PlayerType.FLIPPER, USER_URN, CONNECTION_TYPE);
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    @Test
+    public void doesNotReportVideoAdPerformance() {
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
+        performanceReporter.report(PlaybackType.VIDEO_AD, audioPerformanceEvent, PlayerType.FLIPPER, USER_URN, CONNECTION_TYPE);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
     @Test
     public void reportsTimeToPlayEvent() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType("play");
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
 
-        performanceReporter.report(TestPlaybackItem.audio(), audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
@@ -65,9 +66,9 @@ public class PerformanceReporterTest {
 
     @Test
     public void reportsTimeToSeekEvent() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType("seek");
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_SEEK);
 
-        performanceReporter.report(TestPlaybackItem.audio(), audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
@@ -75,9 +76,9 @@ public class PerformanceReporterTest {
 
     @Test
     public void reportsTimeToPlaylistEvent() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType("playlist");
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_GET_PLAYLIST);
 
-        performanceReporter.report(TestPlaybackItem.audio(), audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
@@ -85,16 +86,16 @@ public class PerformanceReporterTest {
 
     @Test
     public void reportsCacheUsagePercentage() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType("cacheUsage");
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.CACHE_USAGE_PERCENT);
 
-        performanceReporter.report(TestPlaybackItem.audio(), audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT);
     }
 
-    private AudioPerformanceEvent createAudioPerformanceEventWithType(String type) {
-        return new AudioPerformanceEvent(type, LATENCY, PROTOCOL.getValue(), CDN_HOST, FORMAT, BITRATE, null);
+    private AudioPerformanceEvent createAudioPerformanceEventWithType(PlaybackMetric metric) {
+        return new AudioPerformanceEvent(metric, LATENCY, PROTOCOL.getValue(), CDN_HOST, FORMAT, BITRATE, null);
     }
 
     private void assertPerformanceEvent(PlaybackPerformanceEvent event, int metric) {
@@ -108,5 +109,4 @@ public class PerformanceReporterTest {
         assertThat(event.bitrate()).isEqualTo(BITRATE);
         assertThat(event.userUrn()).isEqualTo(USER_URN);
     }
-
 }

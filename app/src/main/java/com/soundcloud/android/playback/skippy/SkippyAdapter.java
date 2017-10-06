@@ -9,10 +9,10 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
@@ -23,9 +23,9 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -68,6 +68,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final BufferUnderrunListener bufferUnderrunListener;
     private final CryptoOperations cryptoOperations;
     private final CurrentDateProvider dateProvider;
+    private final SkippyPerformanceReporter performanceReporter;
 
     private Urn latestItemUrn;
     private volatile String currentStreamUrl;
@@ -86,7 +87,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                   LockUtil lockUtil,
                   BufferUnderrunListener bufferUnderrunListener,
                   CryptoOperations cryptoOperations,
-                  CurrentDateProvider dateProvider) {
+                  CurrentDateProvider dateProvider,
+                  SkippyPerformanceReporter performanceReporter) {
         this.skippyFactory = skippyFactory;
         this.hlsStreamUrlBuilder = hlsStreamUrlBuilder;
         this.progressChangeHandler = progressChangeHandler;
@@ -97,6 +99,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
         this.stateHandler = bufferUnderrunStateChangeHandler;
+        this.performanceReporter = performanceReporter;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
         this.dateProvider = dateProvider;
 
@@ -346,26 +349,29 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                       String cdnHost,
                                       Skippy.SkippyMediaType format,
                                       int bitRate) {
-        if (!accountOperations.isUserLoggedIn() || metric.equals(PlaybackMetric.TIME_TO_BUFFER)) {
-            return;
+        AudioPerformanceEvent audioPerformanceEvent = new AudioPerformanceEvent(SkippyExtensionsKt.map(metric),
+                                                                                value,
+                                                                                getPlaybackProtocol().getValue(),
+                                                                                cdnHost == null ? "" : cdnHost,
+                                                                                format.name(),
+                                                                                bitRate,
+                                                                                null);
+        final PlayerType playerType = getPlayerType();
+        final Urn userUrn = accountOperations.getLoggedInUserUrn();
+        final ConnectionType connectionType = connectionHelper.getCurrentConnectionType();
+
+        if (metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY) {
+            performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent,
+                                                        playerType,
+                                                        userUrn,
+                                                        connectionType);
+        } else {
+            performanceReporter.report(currentPlaybackItem.getPlaybackType(),
+                                       audioPerformanceEvent,
+                                       playerType,
+                                       userUrn,
+                                       connectionType);
         }
-
-        if (allowPerformanceMeasureEvent(metric)) {
-            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE,
-                             createPerformanceEvent(metric, value, cdnHost, format, bitRate));
-        }
-    }
-
-    private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
-        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY
-                || metric == PlaybackMetric.CACHE_USAGE_PERCENT
-                || metric == PlaybackMetric.TIME_TO_PLAY
-                || metric == PlaybackMetric.UNINTERRUPTED_PLAYTIME
-                || !isCurrentItemAd();
-    }
-
-    private boolean isCurrentItemAd() {
-        return currentPlaybackItem != null && currentPlaybackItem.getPlaybackType() == PlaybackType.AUDIO_AD;
     }
 
     @Override
@@ -412,51 +418,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private PlaybackProtocol getPlaybackProtocol() {
         return PlaybackProtocol.HLS;
-    }
-
-    @Nullable
-    private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric,
-                                                            long value,
-                                                            String cdnHost,
-                                                            Skippy.SkippyMediaType format,
-                                                            int bitRate) {
-        PlaybackPerformanceEvent.Builder builder;
-
-        switch (metric) {
-            case TIME_TO_PLAY:
-                builder = PlaybackPerformanceEvent.timeToPlay(currentPlaybackItem.getPlaybackType());
-                break;
-            case TIME_TO_BUFFER:
-                builder = PlaybackPerformanceEvent.timeToBuffer();
-                break;
-            case TIME_TO_GET_PLAYLIST:
-                builder = PlaybackPerformanceEvent.timeToPlaylist();
-                break;
-            case TIME_TO_SEEK:
-                builder = PlaybackPerformanceEvent.timeToSeek();
-                break;
-            case FRAGMENT_DOWNLOAD_RATE:
-                builder = PlaybackPerformanceEvent.fragmentDownloadRate();
-                break;
-            case TIME_TO_LOAD_LIBRARY:
-                builder = PlaybackPerformanceEvent.timeToLoad();
-                break;
-            case CACHE_USAGE_PERCENT:
-                builder = PlaybackPerformanceEvent.cacheUsagePercent();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected performance metric : " + metric);
-        }
-
-        return builder.metricValue(value)
-                      .protocol(getPlaybackProtocol())
-                      .playerType(getPlayerType())
-                      .connectionType(connectionHelper.getCurrentConnectionType())
-                      .cdnHost(cdnHost)
-                      .format(format.name())
-                      .bitrate(bitRate)
-                      .userUrn(accountOperations.getLoggedInUserUrn())
-                      .build();
     }
 
     @Override

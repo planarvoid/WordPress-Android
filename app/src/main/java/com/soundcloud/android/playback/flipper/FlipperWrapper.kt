@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.flipper
 
+import com.soundcloud.android.playback.AudioPerformanceEvent
+import com.soundcloud.android.playback.PlaybackMetric
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.flippernative.api.PlayerListener
 import com.soundcloud.flippernative.api.audio_performance
@@ -32,7 +34,7 @@ constructor(private val flipperCallbacks: FlipperCallbacks, flipperFactory: Flip
     }
 
     override fun onPerformanceEvent(event: audio_performance) {
-        flipperCallbacks.onPerformanceEvent(AudioPerformanceEvent(event.type.const_get_value(), event.latency.const_get_value(), event.protocol.const_get_value(),
+        flipperCallbacks.onPerformanceEvent(AudioPerformanceEvent(PlaybackMetric.from(event.type.const_get_value()), event.latency.const_get_value(), event.protocol.const_get_value(),
                                                                   event.host.const_get_value(), event.format.const_get_value(), event.bitrate.const_get_value().toInt(),
                                                                   event.details._value.toJson()))
     }

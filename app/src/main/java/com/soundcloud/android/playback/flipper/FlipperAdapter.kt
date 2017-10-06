@@ -3,11 +3,11 @@ package com.soundcloud.android.playback.flipper
 import android.support.annotation.UiThread
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.crypto.CryptoOperations
-import com.soundcloud.android.events.ConnectionType
 import com.soundcloud.android.events.EventQueue
 import com.soundcloud.android.events.PlaybackErrorEvent
 import com.soundcloud.android.events.PlayerType
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.playback.AudioPerformanceEvent
 import com.soundcloud.android.playback.HlsStreamUrlBuilder
 import com.soundcloud.android.playback.PlaybackItem
 import com.soundcloud.android.playback.PlaybackStateTransition
@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.PlaybackType
 import com.soundcloud.android.playback.Player
 import com.soundcloud.android.playback.PreloadItem
 import com.soundcloud.android.utils.ConnectionHelper
-import com.soundcloud.android.utils.CurrentDateProvider
 import com.soundcloud.android.utils.ErrorUtils
 import com.soundcloud.android.utils.LockUtil
 import com.soundcloud.android.utils.Log
@@ -33,10 +32,9 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                      private val connectionHelper: ConnectionHelper,
                      private val wakelockUtil: LockUtil,
                      private val callbackHandler: FlipperCallbackHandler,
-                     private val dateProvider: CurrentDateProvider,
                      private val eventBus: EventBusV2,
                      private val cryptoOperations: CryptoOperations,
-                     private val performanceReporter: PerformanceReporter) : Player, FlipperCallbacks {
+                     private val performanceReporter: FlipperPerformanceReporter) : Player, FlipperCallbacks {
 
     private val flipperWrapper: FlipperWrapper = flipperWrapperFactory.create(this)
 
@@ -139,7 +137,9 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun onPerformanceEvent(event: AudioPerformanceEvent) {
         callbackThread {
             try {
-                currentPlaybackItem?.let { performanceReporter.report(it, event, playerType) }
+                currentPlaybackItem?.let {
+                    performanceReporter.report(it.playbackType, event, playerType, accountOperations.loggedInUserUrn, connectionHelper.currentConnectionType)
+                }
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
@@ -191,7 +191,6 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun onError(error: FlipperError) {
         callbackThread {
             try {
-                val currentConnectionType = connectionHelper.currentConnectionType
                 if (!error.isNetworkError()) {
                     // Don't log network errors to Fabric as they are very common and noisy
                     ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
@@ -207,7 +206,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     @UiThread
     private fun reportStateTransition(event: StateChange, urn: Urn, progress: Long) {
-        with(PlaybackStateTransition(event.playbackState(), event.playStateReason(), urn, progress, event.duration, dateProvider)) {
+        with(PlaybackStateTransition(event.playbackState(), event.playStateReason(), urn, progress, event.duration)) {
             addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, event.streamingProtocol.playbackProtocol().value)
             addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, playerType.value)
             addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.currentConnectionType.value)

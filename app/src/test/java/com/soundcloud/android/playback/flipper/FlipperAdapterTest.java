@@ -20,23 +20,24 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.HlsStreamUrlBuilder;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
+import com.soundcloud.android.playback.PlaybackMetric;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.testsupport.fixtures.TestPreloadItem;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.LockUtil;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.flippernative.api.ErrorReason;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.StreamingProtocol;
@@ -53,6 +54,8 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 public class FlipperAdapterTest extends AndroidUnitTest {
+    private static final Urn LOGGED_IN_USER_URN = Urn.forUser(123L);
+    private static final ConnectionType CONNECTION_TYPE = ConnectionType.WIFI;
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private static final String OPUS = PlaybackConstants.MediaType.OPUS;
     private static final int BITRATE = 128000;
@@ -61,7 +64,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     private static final long DURATION = 1000L;
     private FlipperAdapter flipperAdapter;
     private TestEventBusV2 eventBus = new TestEventBusV2();
-    private CurrentDateProvider dateProvider = new TestDateProvider();
     private FlipperCallbackHandler callbackHandler = new FlipperCallbackHandler(Looper.getMainLooper());
 
     @Mock FlipperWrapperFactory flipperWrapperFactory;
@@ -72,7 +74,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     @Mock ConnectionHelper connectionHelper;
     @Mock LockUtil lockUtil;
     @Mock CryptoOperations cryptoOperations;
-    @Mock PerformanceReporter performanceReporter;
+    @Mock FlipperPerformanceReporter performanceReporter;
 
     @Captor ArgumentCaptor<PlaybackStateTransition> transitionCaptor;
 
@@ -80,6 +82,8 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(flipperWrapperFactory.create(any(FlipperAdapter.class))).thenReturn(flipperWrapper);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(CONNECTION_TYPE);
 
         flipperAdapter = new FlipperAdapter(flipperWrapperFactory,
                                             accountOperations,
@@ -87,7 +91,6 @@ public class FlipperAdapterTest extends AndroidUnitTest {
                                             connectionHelper,
                                             lockUtil,
                                             callbackHandler,
-                                            dateProvider,
                                             eventBus,
                                             cryptoOperations,
                                             performanceReporter);
@@ -219,11 +222,11 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     public void performanceEventIsForwardedToReporter() {
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent("type", 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
 
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter).report(playbackItem, audioPerformance, PlayerType.FLIPPER);
+        verify(performanceReporter).report(playbackItem.getPlaybackType(), audioPerformance, PlayerType.FLIPPER, LOGGED_IN_USER_URN, CONNECTION_TYPE);
     }
 
     @Test
@@ -239,10 +242,10 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         flipperAdapter.onStateChanged(stateChange);
 
         // Suppose a second thread posts a performance event after the playback item is disposed
-        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent("type", 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter, never()).report(any(PlaybackItem.class), any(AudioPerformanceEvent.class), any(PlayerType.class));
+        verify(performanceReporter, never()).report(any(PlaybackType.class), any(AudioPerformanceEvent.class), any(PlayerType.class), any(Urn.class), any(ConnectionType.class));
     }
 
     @Test

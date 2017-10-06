@@ -12,6 +12,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -24,22 +25,11 @@ import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.AudioAdPlaybackItem;
-import com.soundcloud.android.playback.AudioPlaybackItem;
-import com.soundcloud.android.playback.BufferUnderrunListener;
-import com.soundcloud.android.playback.HlsStreamUrlBuilder;
-import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackItem;
-import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackType;
-import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.*;
+import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -95,7 +85,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private LockUtil lockUtil;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private CryptoOperations cryptoOperations;
+    @Mock private SkippyPerformanceReporter performanceReporter;
     @Captor private ArgumentCaptor<PlaybackStateTransition> playbackStateTransitionCaptor;
+    @Captor private ArgumentCaptor<AudioPerformanceEvent> audioPerformanceEventArgumentCaptor;
 
     private Urn userUrn;
     private TestEventBusV2 eventBus = new TestEventBusV2();
@@ -121,7 +113,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                           lockUtil,
                                           bufferUnderrunListener,
                                           cryptoOperations,
-                                          dateProvider);
+                                          dateProvider,
+                                          performanceReporter);
         skippyAdapter.setListener(listener);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -694,100 +687,27 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void performanceMetricPublishesTimeToPlayEventEvent() {
+    public void performanceMetricIsForwardedToReporter() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
         skippyAdapter.play(playbackItem);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
-    }
-
-    @Test
-    public void performanceMetricPublishesTimeToPlayEventEventForAudioAds() {
-        AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(trackUrn));
-        when(hlsStreamUrlBuilder.buildStreamUrl(adPlaybackItem)).thenReturn(STREAM_URL);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-
-        skippyAdapter.play(adPlaybackItem);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
-
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
-    }
-
-    @Test
-    public void performanceMetricPublishesTimeToPlaylistEvent() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-
-        skippyAdapter.play(playbackItem);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST,
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY,
                                             1000L,
                                             STREAM_URL,
                                             CDN_HOST,
                                             MP3,
                                             BITRATE);
 
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
-    }
-
-    @Test
-    public void performanceMetricPublishesTimeToSeekEvent() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-
-        skippyAdapter.play(playbackItem);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
-
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
-    }
-
-    @Test
-    public void performanceMetricPublishesFragmentDownloadRateEvent() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-
-        skippyAdapter.play(playbackItem);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE,
-                                            1000L,
-                                            STREAM_URL,
-                                            CDN_HOST,
-                                            MP3,
-                                            BITRATE);
-
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
+        verify(performanceReporter).report(eq(playbackItem.getPlaybackType()), audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY), eq(userUrn), eq(ConnectionType.FOUR_G));
+        assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_PLAY);
+        verifyNoMoreInteractions(performanceReporter);
     }
 
     @Test
     public void performanceMetricPublishesTimeToLoadEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
 
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_LOAD_LIBRARY,
                                             1000L,
@@ -796,13 +716,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
-        assertThat(event.metricValue()).isEqualTo(1000L);
-        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
+        verify(performanceReporter).reportTimeToLoadLibrary(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY), eq(userUrn), eq(ConnectionType.WIFI));
+        assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_LOAD_LIBRARY);
+        verifyNoMoreInteractions(performanceReporter);
     }
 
     @Test
@@ -848,19 +764,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events.size()).isEqualTo(1);
         assertThat(events.get(0)).isInstanceOf(FileAccessEvent.class);
-    }
-
-    @Test
-    public void shouldNotPerformAnyActionIfUserIsNotLoggedInWhenGettingPerformanceCallback() {
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE,
-                                            1000L,
-                                            STREAM_URL,
-                                            CDN_HOST,
-                                            MP3,
-                                            BITRATE);
-        verify(accountOperations, never()).getLoggedInUserUrn();
-        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
     private void verifyStateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {

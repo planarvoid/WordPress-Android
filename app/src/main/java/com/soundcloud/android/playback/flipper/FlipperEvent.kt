@@ -16,14 +16,6 @@ data class StateChange(val uri: String,
                        val duration: Long,
                        val streamingProtocol: StreamingProtocol)
 
-data class AudioPerformanceEvent(val type: String,
-                                 val latency: Long,
-                                 val protocol: String,
-                                 val cdnHost: String,
-                                 val format: String,
-                                 val bitRate: Int,
-                                 val detailsJson: String?)
-
 data class FlipperError(val category: String,
                         val sourceFile: String,
                         val line: Int,
