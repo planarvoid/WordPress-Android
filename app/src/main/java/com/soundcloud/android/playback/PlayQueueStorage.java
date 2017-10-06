@@ -16,6 +16,7 @@ import static com.soundcloud.android.playback.PlayQueueModel.SOURCE_VERSION;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackContext.Bucket;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.squareup.sqldelight.RowMapper;
 import io.reactivex.Completable;
