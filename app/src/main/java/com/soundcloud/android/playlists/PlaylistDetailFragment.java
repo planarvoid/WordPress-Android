@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import static android.util.Log.INFO;
+
 import butterknife.ButterKnife;
 import com.soundcloud.android.model.AsyncLoadingState;
 import com.soundcloud.android.navigation.NavigationExecutor;
@@ -70,6 +72,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
     public static final String EXTRA_AUTOPLAY = "autoplay";
+
+    private static final String TAG = "PlaylistDetailFragment";
 
     @Inject PlaylistDetailsPresenterFactory playlistPresenterFactory;
     @Inject PlaylistEngagementsRenderer playlistEngagementsRenderer;
@@ -266,7 +270,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Log.d("PlaylistDetailFragment", "[LIFE_CYCLE] onPrepareMenuOptions fragment = " + this.toString());
+        ErrorUtils.log(INFO, TAG, "[LIFE_CYCLE] onPrepareMenuOptions fragment = " + this.toString());
         super.onPrepareOptionsMenu(menu);
         toolbarView.onPrepareOptionsMenu(menu);
     }
