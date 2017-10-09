@@ -1,6 +1,7 @@
 package com.soundcloud.android.memento
 
 import nebula.test.IntegrationSpec
+import org.apache.commons.io.FileUtils
 
 class LibraryIntegrationSpec extends IntegrationSpec {
 
@@ -10,6 +11,7 @@ class LibraryIntegrationSpec extends IntegrationSpec {
     rootPath = new File(".").absolutePath.replace("/modules/lint/integTest/.", "")
     buildFile << androidBuild("com.example.android")
     writeAndroidManifestWithActivity("com.example.android", "MainActivity")
+    copyBuildsystemDir()
 
     addSubproject(":modules:android-kit:platform", "")
     addSubproject(":modules:android-kit:core", "")
@@ -132,6 +134,13 @@ class LibraryIntegrationSpec extends IntegrationSpec {
             </manifest>
             """.stripIndent()
     writeActivity(mainActivity, packageDotted, baseDir)
+  }
+
+  private copyBuildsystemDir(File baseDir = getProjectDir()) {
+    def rootBuildSystemDir = new File("$rootPath/buildsystem")
+    def projectBuildSystemDir = new File("$baseDir/buildsystem")
+
+    FileUtils.copyDirectory(rootBuildSystemDir, projectBuildSystemDir)
   }
 
   private void writeActivity(String name, String packageDotted, File baseDir = getProjectDir()) {
