@@ -591,28 +591,40 @@ public class MediaSettingsActivity extends AppCompatActivity implements Activity
             String imageUrl = mediaUri;
             if (SiteUtils.isPhotonCapable(mSite)) {
                 imageUrl = PhotonUtils.getPhotonImageUrl(mediaUri, size, 0);
+                // if the image isn't cached, load a smaller thumbnail first - the thumbnail should already
+                // be cached since we came here from the media browser
+                if (isImage() && !mImageLoader.isCached(imageUrl, size, 0)) {
+                    int thumbWidth = MediaGridAdapter.getThumbnailWidth(this);
+                    int thumbHeight = MediaGridAdapter.getThumbnailHeight(this);
+                    String thumbUrl = PhotonUtils.getPhotonImageUrl(mediaUri, thumbWidth, thumbHeight);
+                    downloadImage(thumbUrl, thumbWidth);
+                }
             }
-            mImageLoader.get(imageUrl, new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (!isFinishing() && response.getBitmap() != null) {
-                        showProgress(false);
-                        mImageView.setImageBitmap(response.getBitmap());
-                    }
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    AppLog.e(AppLog.T.MEDIA, error);
-                    if (!isFinishing()) {
-                        showProgress(false);
-                        delayedFinishWithError();
-                    }
-                }
-            }, size, 0);
+            downloadImage(imageUrl, size);
         } else {
             new LocalImageTask(mediaUri, size).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
+    }
+
+    private void downloadImage(@NonNull String imageUrl, int size) {
+        mImageLoader.get(imageUrl, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (!isFinishing() && response.getBitmap() != null) {
+                    showProgress(false);
+                    mImageView.setImageBitmap(response.getBitmap());
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AppLog.e(AppLog.T.MEDIA, error);
+                if (!isFinishing()) {
+                    showProgress(false);
+                    ToastUtils.showToast(MediaSettingsActivity.this, R.string.error_media_not_found);
+                }
+            }
+        }, size, 0);
     }
 
     /*

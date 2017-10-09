@@ -85,9 +85,18 @@ public class MediaGridAdapter extends RecyclerView.Adapter<MediaGridAdapter.Grid
         mInflater = LayoutInflater.from(context);
         mHandler = new Handler();
 
-        int displayWidth = DisplayUtils.getDisplayPixelWidth(mContext);
-        mThumbWidth = displayWidth / getColumnCount(mContext);
-        mThumbHeight = (int) (mThumbWidth * 0.75f);
+        mThumbWidth = getThumbnailWidth(context);
+        mThumbHeight = getThumbnailHeight(context);
+    }
+
+    static int getThumbnailWidth(Context context) {
+        int displayWidth = DisplayUtils.getDisplayPixelWidth(context);
+        return displayWidth / getColumnCount(context);
+    }
+
+    static int getThumbnailHeight(Context context) {
+        int thumbWidth = getThumbnailWidth(context);
+        return (int) (thumbWidth * 0.75f);
     }
 
     public void setShowPreviewIcon(boolean show) {
