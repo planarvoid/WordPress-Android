@@ -32,5 +32,5 @@ constructor(private val offlineServiceInitiator: OfflineServiceInitiator,
         offlineServiceInitiator.start()
     }
 
-    override fun getApplicableAppVersionCode(): Int = 769
+    override fun getApplicableAppVersionCode(): Int = 777
 }
