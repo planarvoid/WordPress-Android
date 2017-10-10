@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
@@ -22,16 +23,16 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     public static final String PLAYABLE_TYPE = "track";
 
-    public static TrackItem from(ApiTrack apiTrack) {
-        return from(Track.from(apiTrack));
+    public static TrackItem from(ApiTrack apiTrack, OfflineProperties offlineProperties) {
+        return from(Track.from(apiTrack), offlineProperties);
     }
 
-    public static TrackItem from(Track track) {
-        return builder(track).build();
+    public static TrackItem from(Track track, OfflineProperties offlineProperties) {
+        return builder(track, offlineProperties).build();
     }
 
-    public static TrackItem from(Track track, StreamEntity streamEntity) {
-        final Builder builder = builder(track);
+    public static TrackItem from(Track track, StreamEntity streamEntity, OfflineProperties offlineProperties) {
+        final Builder builder = builder(track, offlineProperties);
         if (streamEntity.isPromoted()) {
             builder.promotedProperties(streamEntity.promotedProperties());
         }
@@ -45,8 +46,8 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return toBuilder().isPlaying(isPlaying).build();
     }
 
-    public static Builder builder(Track track) {
-        return builder().offlineState(OfflineState.NOT_OFFLINE)
+    public static Builder builder(Track track, OfflineProperties offlineProperties) {
+        return builder().offlineState(offlineProperties.state(track.urn()))
                         .isUserLike(track.userLike())
                         .likesCount(track.likesCount())
                         .isUserRepost(track.userRepost())

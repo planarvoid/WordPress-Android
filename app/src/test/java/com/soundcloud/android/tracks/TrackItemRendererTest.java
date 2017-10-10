@@ -20,6 +20,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -96,7 +97,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                     .displayStatsEnabled(true)
                                     .playCount(870);
 
-        trackItemBuilder = TrackItem.builder(trackBuilder.build());
+        trackItemBuilder = TrackItem.builder(trackBuilder.build(), new OfflineProperties());
         trackItem = ModelFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
@@ -201,7 +202,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowNotAvailableOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.UNAVAILABLE).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.UNAVAILABLE).build();
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
@@ -213,7 +214,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -226,7 +227,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -239,7 +240,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.REQUESTED).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.REQUESTED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -249,7 +250,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadingTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.DOWNLOADING).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.DOWNLOADING).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -259,7 +260,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build()).offlineState(OfflineState.DOWNLOADED).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.build(), new OfflineProperties()).offlineState(OfflineState.DOWNLOADED).build();
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
 
@@ -277,7 +278,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.blocked(true).build()).offlineState(OfflineState.UNAVAILABLE).build();
+        TrackItem updatedTrackItem = TrackItem.builder(trackBuilder.blocked(true).build(), new OfflineProperties()).offlineState(OfflineState.UNAVAILABLE).build();
         updatedTrackItem = updatedTrackItem.withPlayingState(true);
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));

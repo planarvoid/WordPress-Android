@@ -40,15 +40,15 @@ public class EntityItemCreator {
     }
 
     public TrackItem trackItem(Track track) {
-        return TrackItem.from(track);
+        return TrackItem.from(track, offlinePropertiesProvider.latest());
     }
 
     public TrackItem trackItem(Track track, StreamEntity streamEntity) {
-        return TrackItem.from(track, streamEntity);
+        return TrackItem.from(track, streamEntity, offlinePropertiesProvider.latest());
     }
 
     public TrackItem trackItem(ApiTrack apiTrack) {
-        return TrackItem.from(apiTrack);
+        return TrackItem.from(apiTrack, offlinePropertiesProvider.latest());
     }
 
     public TrackItem trackItem(ApiTrackPost apiTrackPost) {

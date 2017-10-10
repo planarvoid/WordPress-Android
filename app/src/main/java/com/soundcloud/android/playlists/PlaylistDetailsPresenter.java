@@ -177,7 +177,7 @@ public class PlaylistDetailsPresenter {
             return Observable
                     .merge(
                             Arrays.asList(
-                                    UpdateTrackListIntent.toResult(resources, inputs, urn, playlistOperations),
+                                    UpdateTrackListIntent.toResult(resources, inputs, urn, playlistOperations, entityItemCreator),
                                     DismissUpsellIntent.toResult(inputs.onUpsellDismissed, playlistUpsellOperations),
                                     NowPlayingIntent.toResult(currentTrackPlaying()),
                                     EditModeChangedIntent.toResult(inputs.editMode, offlinePropertiesProvider.states()),
@@ -834,16 +834,18 @@ public class PlaylistDetailsPresenter {
 
             final Resources resources;
             final List<Track> updatedTracksList;
+            final EntityItemCreator entityItemCreator;
 
-            UpdateTrackListResult(Resources resources, List<Track> updatedTracksList) {
+            UpdateTrackListResult(Resources resources, List<Track> updatedTracksList, EntityItemCreator entityItemCreator) {
                 this.resources = resources;
                 this.updatedTracksList = updatedTracksList;
+                this.entityItemCreator = entityItemCreator;
                 System.out.println("### UpdateTrackListResult " + updatedTracksList);
             }
 
             @Override
             public PlaylistAsyncViewModel<PlaylistDetailsViewModel> apply(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
-                final List<TrackItem> tracksList = transform(this.updatedTracksList, TrackItem::from);
+                final List<TrackItem> tracksList = transform(this.updatedTracksList, entityItemCreator::trackItem);
                 final PlaylistDetailsViewModel previewViewModel = previous.data().get();
 
                 final PlaylistDetailTrackItem.Builder detailTrackItemBuilder = PlaylistDetailTrackItem.builder().inEditMode(previewViewModel.metadata().isInEditMode())
@@ -863,11 +865,11 @@ public class PlaylistDetailsPresenter {
             }
         }
 
-        static Observable<UpdateTrackListResult> toResult(Resources resources, PlaylistDetailsInputs inputs, Urn playlistUrn, PlaylistOperations playlistOperations) {
+        static Observable<UpdateTrackListResult> toResult(Resources resources, PlaylistDetailsInputs inputs, Urn playlistUrn, PlaylistOperations playlistOperations, EntityItemCreator entityItemCreator) {
             return inputs
                     .tracklistUpdated
                     .flatMapSingle(tracks -> playlistOperations.editPlaylistTracks(playlistUrn, transform(tracks, PlaylistDetailTrackItem::getUrn)))
-                    .map(tracks -> new UpdateTrackListResult(resources, tracks));
+                    .map(tracks -> new UpdateTrackListResult(resources, tracks, entityItemCreator));
         }
     }
 
@@ -911,7 +913,7 @@ public class PlaylistDetailsPresenter {
             private PlaylistAsyncViewModel<PlaylistDetailsViewModel> modelWithPlaylist(PlaylistAsyncViewModel<PlaylistDetailsViewModel> previous) {
                 final PlaylistWithExtras updatedPlaylistWithExtras = this.playlistWithExtrasState.playlistWithExtras().get();
                 final Optional<PlaylistDetailsViewModel> data = previous.data();
-                final List<TrackItem> updatedTrackItems = toTrackItems(updatedPlaylistWithExtras.tracks());
+                final List<TrackItem> updatedTrackItems = toTrackItems(updatedPlaylistWithExtras.tracks(), entityItemCreator);
                 final Playlist playlist = updatedPlaylistWithExtras.playlist();
                 final PlaylistDetailsViewModel.Builder viewModelBuilder;
                 final boolean inEditMode;
@@ -975,9 +977,9 @@ public class PlaylistDetailsPresenter {
                                .build();
             }
 
-            private static List<TrackItem> toTrackItems(Optional<List<Track>> tracksOptional) {
+            private static List<TrackItem> toTrackItems(Optional<List<Track>> tracksOptional, EntityItemCreator entityItemCreator) {
                 if (tracksOptional.isPresent()) {
-                    return transform(tracksOptional.get(), TrackItem::from);
+                    return transform(tracksOptional.get(), entityItemCreator::trackItem);
                 } else {
                     return emptyList();
                 }

@@ -374,7 +374,7 @@ public class ModelFixtures {
     }
 
     public static TrackItem trackItem() {
-        return TrackItem.builder(track()).build();
+        return TrackItem.builder(track(), new OfflineProperties()).build();
     }
 
     public static List<TrackItem> trackItems(List<ApiTrack> apiTracks) {
