@@ -24,10 +24,8 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -263,26 +261,8 @@ public class OfflineContentOperations {
     Single<OfflineContentUpdates> loadOfflineContentUpdates() {
         return tryToUpdatePolicies()
                 .andThen(loadExpectedContentCommand.toSingle())
-                .doOnSuccess(new Consumer<ExpectedOfflineContent>() {
-                    @Override
-                    public void accept(ExpectedOfflineContent expectedOfflineContent) throws Exception {
-                        Log.d("asdf", "accept() called with: " + "expectedOfflineContent = [" + expectedOfflineContent + "]");
-                    }
-                })
                 .flatMap(loadOfflineContentUpdatesCommand::toSingle)
-                .doOnSuccess(new Consumer<OfflineContentUpdates>() {
-                    @Override
-                    public void accept(OfflineContentUpdates offlineContentUpdates) throws Exception {
-                        Log.d("asdf", "accept() called with: " + "offlineContentUpdates = [" + offlineContentUpdates + "]");
-                    }
-                })
                 .flatMap(this::storeAndPublishUpdates)
-                .doOnSuccess(new Consumer<OfflineContentUpdates>() {
-                    @Override
-                    public void accept(OfflineContentUpdates offlineContentUpdates) throws Exception {
-                        Log.d("asdf", "accept() called with: " + "offlineContentUpdates = [" + offlineContentUpdates + "]");
-                    }
-                })
                 .subscribeOn(scheduler);
     }
 
