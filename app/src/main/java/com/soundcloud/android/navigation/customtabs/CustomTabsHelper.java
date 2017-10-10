@@ -2,6 +2,7 @@ package com.soundcloud.android.navigation.customtabs;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.Lists;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +29,7 @@ public final class CustomTabsHelper {
     @VisibleForTesting public static final String ACTION_CUSTOM_TABS_CONNECTION =
             "android.support.customtabs.action.CustomTabsService";
     @VisibleForTesting public static final String URL_TO_BE_MATCHED_AGAINST_VIEW_INTENT = "http://www.example.com";
+    private static final List<String> SAMSUNG_J7_DEVICES = Lists.newArrayList("j7xelte", "on7xelte", "j7e3g", "j7elte");
 
     private static String sPackageNameToUse;
 
@@ -34,7 +37,14 @@ public final class CustomTabsHelper {
     }
 
     public static boolean isChromeCustomTabsAvailable(Context context) {
-        return getPackageNameToUse(context) != null;
+        return getPackageNameToUse(context) != null && !isDeviceSamsungGalaxyJ7();
+    }
+
+    private static boolean isDeviceSamsungGalaxyJ7() {
+        // Samsung Galaxy J7 devices seem to have a high probability of getting a native crash
+        // https://soundcloud.atlassian.net/browse/DROID-1841
+        // This is just a workaround to fallback to native web view for those devices
+        return SAMSUNG_J7_DEVICES.contains(Build.DEVICE);
     }
 
     public static CustomTabsMetadata createMetadata(Context context, Uri uri) {
