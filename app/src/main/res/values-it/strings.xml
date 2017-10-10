@@ -426,9 +426,12 @@
   <string name="pref_analytics_desc">L\'attivazione dell\'analisi ci consente di raccogliere dati riguardo all\'uso dell\'app e di migliorarla. Consulta l\'Informativa sulla privacy per maggiori dettagli.</string>
   <string name="pref_crashlogs">Registri degli arresti anomali</string>
   <string name="pref_crashlogs_desc">L\'attivazione dei registri degli arresti anomali ci aiuta a migliorare significativamente l\'app. Non raccogliamo dati personali. Consulta l\'Informativa sulla privacy per maggiori dettagli.</string>
+  <string name="pref_clear_search_history">Cancella cronologia di ricerca</string>
+  <string name="pref_clear_search_history_desc">Rimuovi tutti i termini di ricerca salvati</string>
   <string name="cache_clearing">Svuotamento della cache</string>
   <string name="cache_clearing_message">Eliminazione file nella cache...</string>
   <string name="cache_cleared">Cache svuotata</string>
+  <string name="search_history_cleared">Cronologia di ricerca cancellata</string>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">Eliminare i dati utente?</string>
   <string name="sign_out_description">Dovrai riconnettere il tuo account di SoundCloud.</string>

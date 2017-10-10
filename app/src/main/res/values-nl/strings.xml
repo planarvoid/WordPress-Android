@@ -426,9 +426,12 @@
   <string name="pref_analytics_desc">Met analytics kunnen we gegevens over je gebruik van deze app verzamelen om ons te helpen de app te verbeteren. Raadpleeg ons Privacybeleid voor meer informatie.</string>
   <string name="pref_crashlogs">Crashlogs</string>
   <string name="pref_crashlogs_desc">Door crashlogs in te schakelen help je ons de app aanzienlijk te verbeteren. We verzamelen geen persoonlijke informatie. Raadpleeg ons Privacybeleid voor meer informatie.</string>
+  <string name="pref_clear_search_history">Zoekgeschiedenis wissen</string>
+  <string name="pref_clear_search_history_desc">Al je opgeslagen zoektermen verwijderen</string>
   <string name="cache_clearing">Cache wissen</string>
   <string name="cache_clearing_message">Cachebestanden verwijderen...</string>
   <string name="cache_cleared">Cache gewist</string>
+  <string name="search_history_cleared">Zoekgeschiedenis gewist</string>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">Gebruikersgegevens wissen?</string>
   <string name="sign_out_description">Je moet opnieuw verbinding maken met je SoundCloud-account.</string>

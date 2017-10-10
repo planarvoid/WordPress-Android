@@ -426,9 +426,12 @@
   <string name="pref_analytics_desc">La habilitación de las analíticas nos permite la recolección de datos del uso de la app y nos ayuda a mejorarla. Consulta nuestra Política de privacidad para más detalles.</string>
   <string name="pref_crashlogs">CrashLogs</string>
   <string name="pref_crashlogs_desc">La habilitación de las incidencias nos permite mejorar la app de forma considerable. Consulta nuestra Política de privacidad para más detalles.</string>
+  <string name="pref_clear_search_history">Borrar historial de búsquedas</string>
+  <string name="pref_clear_search_history_desc">Eliminar todos los términos de búsqueda guardados</string>
   <string name="cache_clearing">Borrando caché</string>
   <string name="cache_clearing_message">Borrando los archivos de la caché...</string>
   <string name="cache_cleared">Caché borrada</string>
+  <string name="search_history_cleared">Historial de búsquedas borrado</string>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">¿Desear borrar los datos de usuario?</string>
   <string name="sign_out_description">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>

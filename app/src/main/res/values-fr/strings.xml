@@ -431,9 +431,12 @@
   <string name="pref_analytics_desc">L\'activation des fonctions d\'analytique nous permet de collecter des données concernant votre utilisation de l\'application, nous aidant ainsi à améliorer celle-ci. Consultez notre Politique de confidentialité pour plus d\'informations.</string>
   <string name="pref_crashlogs">Journal des pannes</string>
   <string name="pref_crashlogs_desc">L\'activation des journaux d\'incident nous permet d\'améliorer considérablement l\'application. Nous ne collectons aucune donnée personnelle. Pour en savoir plus, consultez notre Politique de confidentialité.</string>
+  <string name="pref_clear_search_history">Effacer l\'historique des recherches</string>
+  <string name="pref_clear_search_history_desc">Supprimer tous les termes de recherche enregistrés</string>
   <string name="cache_clearing">Vider le cache</string>
   <string name="cache_clearing_message">Suppression des fichiers mis en cache...</string>
   <string name="cache_cleared">Cache supprimé</string>
+  <string name="search_history_cleared">Historique des recherches effacé</string>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">Effacer les données d\'utilisateur ?</string>
   <string name="sign_out_description">Vous devrez vous reconnecter à votre compte SoundCloud.</string>
