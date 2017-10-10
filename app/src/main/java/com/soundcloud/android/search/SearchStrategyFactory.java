@@ -24,7 +24,6 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchOperations.ContentType;
-import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.java.collections.Lists;
@@ -79,10 +78,8 @@ class SearchStrategyFactory {
     private final StoreUsersCommand storeUsersCommand;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
-    private final LoadFollowingCommand loadFollowingCommand;
     private final EntityItemCreator entityItemCreator;
     private final UserItemRepository userItemRepository;
-    private final TrackItemRepository trackItemRepository;
 
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -99,24 +96,6 @@ class SearchStrategyFactory {
                 }
             }
             return input.copyWithSearchableItems(result);
-        }
-    };
-
-    private final Func1<SearchResult, SearchResult> mergeFollowings = new Func1<SearchResult, SearchResult>() {
-        @Override
-        public SearchResult call(SearchResult input) {
-            final Map<Urn, Boolean> userIsFollowing = loadFollowingCommand.call(Lists.transform(input.getItems(), Entity::getUrn));
-            final List<ListItem> updatedSearchResult = new ArrayList<>(input.getItems().size());
-            for (final ListItem resultItem : input) {
-                final Urn itemUrn = resultItem.getUrn();
-                if (userIsFollowing.containsKey(itemUrn)) {
-                    final UserItem updatedUserItem = ((UserItem) resultItem).copyWithFollowing(userIsFollowing.get(itemUrn));
-                    updatedSearchResult.add(updatedUserItem);
-                } else {
-                    updatedSearchResult.add(resultItem);
-                }
-            }
-            return input.copyWithSearchableItems(updatedSearchResult);
         }
     };
 
@@ -168,9 +147,8 @@ class SearchStrategyFactory {
                           StoreUsersCommand storeUsersCommand,
                           CacheUniversalSearchCommand cacheUniversalSearchCommand,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                          LoadFollowingCommand loadFollowingCommand,
                           EntityItemCreator entityItemCreator,
-                          UserItemRepository userItemRepository, TrackItemRepository trackItemRepository) {
+                          UserItemRepository userItemRepository) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storePlaylistsCommand = storePlaylistsCommand;
@@ -178,10 +156,8 @@ class SearchStrategyFactory {
         this.storeUsersCommand = storeUsersCommand;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
-        this.loadFollowingCommand = loadFollowingCommand;
         this.entityItemCreator = entityItemCreator;
         this.userItemRepository = userItemRepository;
-        this.trackItemRepository = trackItemRepository;
     }
 
     SearchStrategy getSearchStrategy(SearchType searchType) {
@@ -294,8 +270,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeUsersCommand.toAction1())
                               .doOnNext(cachePremiumUsers)
-                              .flatMap(SearchStrategyFactory.this::toSearchResult)
-                              .map(mergeFollowings);
+                              .flatMap(SearchStrategyFactory.this::toSearchResult);
         }
     }
 
@@ -317,8 +292,7 @@ class SearchStrategyFactory {
                               .doOnNext(cachePremiumContent)
                               .flatMap(searchItems -> backfillUserItems(searchItems).map(userItemsMap -> searchItems.transform(searchItem -> toListItem(searchItem, userItemsMap))))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
-                              .map(mergePlaylistLikeStatus)
-                              .map(mergeFollowings);
+                              .map(mergePlaylistLikeStatus);
         }
 
         private ListItem toListItem(ApiUniversalSearchItem searchItem, Map<Urn, UserItem> userItemMap) {

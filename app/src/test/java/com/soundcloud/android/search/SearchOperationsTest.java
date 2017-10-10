@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static com.soundcloud.java.collections.Iterables.transform;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyIterable;
@@ -36,7 +37,6 @@ import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemRepository;
-import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -75,7 +75,6 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
-    @Mock private LoadFollowingCommand loadFollowingCommand;
     @Mock private TrackItemRepository trackItemRepository;
     @Mock private UserItemRepository userItemRepository;
 
@@ -99,10 +98,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                     storeUsersCommand,
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
-                                                                    loadFollowingCommand,
                                                                     ModelFixtures.entityItemCreator(),
-                                                                    userItemRepository,
-                                                                    trackItemRepository),
+                                                                    userItemRepository),
                                           trackItemRepository);
     }
 
@@ -402,15 +399,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forTrack(track),
                 forUser(user2),
                 forPlaylist(playlist));
-        initUserItemRepo(user, user2);
-        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ModelFixtures::listItemFromSearchItem),
-                                                                                   Optional.absent(),
-                                                                                   Optional.absent());
-        final Map<Urn, Boolean> userFollowings = Collections.singletonMap(user.getUrn(), true);
+        initUserItemRepo(user.getUrn(), user, user2);
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-        when(loadFollowingCommand.call(Lists.transform(expectedSearchResult.getItems(), Entity::getUrn))).thenReturn(userFollowings);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
@@ -688,7 +680,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
         final SearchModelCollection<ApiUser> apiUsers = mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
 
-        final ArrayList<UserItem> userItems = Lists.newArrayList(Iterables.transform(apiUsers, apiUser -> UserItem.from(User.fromApiUser(apiUser), false)));
+        final ArrayList<UserItem> userItems = Lists.newArrayList(transform(apiUsers, apiUser -> UserItem.from(User.fromApiUser(apiUser), false)));
         when(userItemRepository.userItems(apiUsers)).thenReturn(Single.just(userItems));
 
         operations.searchResult("query", Optional.absent(), SearchType.USERS).subscribe(subscriber);
@@ -800,10 +792,21 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     private void initUserItemRepo(ApiUser... users) {
         final List<ApiUser> apiUsers = Arrays.asList(users);
-        final List<Urn> urns = Lists.newArrayList(Iterables.transform(apiUsers, ApiUser::getUrn));
+        final List<Urn> urns = Lists.newArrayList(transform(apiUsers, ApiUser::getUrn));
         final HashMap<Urn, UserItem> userItemHashMap = Maps.newHashMap();
         for (ApiUser apiUser : apiUsers) {
             userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromApiUser(apiUser), false));
+        }
+        when(userItemRepository.userItemsMap(ArgumentMatchers.argThat(argument -> Lists.newArrayList(argument).containsAll(urns)))).thenReturn(Single.just(userItemHashMap));
+    }
+
+
+    private void initUserItemRepo(Urn followedUser, ApiUser... users) {
+        final List<ApiUser> apiUsers = Arrays.asList(users);
+        final List<Urn> urns = Lists.newArrayList(transform(apiUsers, ApiUser::getUrn));
+        final HashMap<Urn, UserItem> userItemHashMap = Maps.newHashMap();
+        for (ApiUser apiUser : apiUsers) {
+            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromApiUser(apiUser), followedUser.equals(apiUser.getUrn())));
         }
         when(userItemRepository.userItemsMap(ArgumentMatchers.argThat(argument -> Lists.newArrayList(argument).containsAll(urns)))).thenReturn(Single.just(userItemHashMap));
     }
