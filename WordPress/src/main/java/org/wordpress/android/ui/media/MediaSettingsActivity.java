@@ -423,6 +423,8 @@ public class MediaSettingsActivity extends AppCompatActivity implements Activity
         if (mOverrideClosingTransition) {
             finish();
         } else {
+            // hide the fab so it doesn't animate during the transition
+            mFabView.setVisibility(View.GONE);
             supportFinishAfterTransition();
         }
     }
