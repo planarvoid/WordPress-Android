@@ -44,13 +44,19 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Inject
     public PlayQueueView(PlayQueuePresenter playQueuePresenter,
-                         PlayQueueAdapter playQueueAdapter,
                          PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                          FeedbackController feedbackController,
                          SmoothScrollLinearLayoutManager layoutManager,
-                         PerformanceMetricsEngine performanceMetricsEngine) {
+                         PerformanceMetricsEngine performanceMetricsEngine,
+                         TrackPlayQueueItemRenderer trackPlayQueueItemRenderer,
+                         HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer,
+                         MagicBoxPlayQueueItemRenderer magicBoxPlayQueueItemRenderer) {
         this.playQueuePresenter = playQueuePresenter;
-        this.playQueueAdapter = playQueueAdapter;
+        this.playQueueAdapter = new PlayQueueAdapter(
+                trackPlayQueueItemRenderer,
+                headerPlayQueueItemRenderer,
+                magicBoxPlayQueueItemRenderer
+        );
         this.feedbackController = feedbackController;
         this.layoutManager = layoutManager;
         this.performanceMetricsEngine = performanceMetricsEngine;
@@ -72,6 +78,8 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private void initRecyclerView() {
+        playQueueAdapter.setHasStableIds(true);
+
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(playQueueAdapter);
         recyclerView.setHasFixedSize(false);
@@ -87,6 +95,8 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        playQueueAdapter.clear();
+        recyclerView.setAdapter(null);
         recyclerView.setLayoutManager(null);
         unbinder.unbind();
         playQueuePresenter.detachContract();

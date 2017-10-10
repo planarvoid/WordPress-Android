@@ -45,6 +45,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment> {
@@ -69,7 +70,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private boolean isResumed;
     private boolean isPlayQueueVisible;
     private boolean setPlayQueueAfterScroll;
-    private FragmentManager fragmentManager;
+    private WeakReference<FragmentManager> fragmentManagerRef;
 
     @Inject
     PlayerPresenter(PlayerPagerPresenter presenter,
@@ -96,7 +97,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     @Override
     public void onCreate(PlayerFragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        fragmentManager = fragment.getFragmentManager();
+        fragmentManagerRef = new WeakReference<>(fragment.getFragmentManager());
     }
 
     @Override
@@ -259,41 +260,45 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void removePlayQueue(Fragment fragment) {
-        if (fragment != null) {
+        FragmentManager fragmentManager = fragmentManagerRef.get();
+        if (fragment != null && fragmentManager != null) {
             fragmentManager.beginTransaction()
-                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                           .remove(fragment)
-                           .commitAllowingStateLoss();
+                              .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                              .remove(fragment)
+                              .commitAllowingStateLoss();
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
         }
     }
 
     private void addPlayQueue(Fragment fragment) {
-        if (fragment == null) {
+        FragmentManager fragmentManager = fragmentManagerRef.get();
+        if (fragment == null && fragmentManager != null) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
             fragmentManager.beginTransaction()
-                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                           .add(R.id.player_pager_holder,
+                              .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                              .add(R.id.player_pager_holder,
                                 playQueueFragmentFactory.create(),
                                 PlayQueueFragment.TAG)
-                           .commitAllowingStateLoss();
+                              .commitAllowingStateLoss();
         }
     }
 
     boolean handleBackPressed() {
-        Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
-        if (fragment == null) {
-            return false;
-        } else {
-            isPlayQueueVisible = false;
-            setQueuePositionToCurrent();
-            removePlayQueue(fragment);
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
-            return true;
+        FragmentManager fragmentManager = fragmentManagerRef.get();
+        if (fragmentManager != null) {
+            Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
+            if (fragment != null) {
+                isPlayQueueVisible = false;
+                setQueuePositionToCurrent();
+                removePlayQueue(fragment);
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueClose());
+                return true;
+            }
         }
+        return false;
     }
 
-    private static class ChangeTracksHandler extends Handler {
+    private static final class ChangeTracksHandler extends Handler {
         private final PlayerPresenter playerPresenter;
 
         private ChangeTracksHandler(PlayerPresenter playerPresenter) {
@@ -309,14 +314,17 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final class PlayQueueVisibilitySubscriber extends DefaultObserver<PlayQueueUIEvent> {
         @Override
         public void onNext(PlayQueueUIEvent playQueueUIEvent) {
-            Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
-            if (playQueueUIEvent.isDisplayEvent()) {
-                isPlayQueueVisible = true;
-                addPlayQueue(fragment);
-            } else if (playQueueUIEvent.isHideEvent()) {
-                isPlayQueueVisible = false;
-                setQueuePositionToCurrent();
-                removePlayQueue(fragment);
+            FragmentManager fragmentManager = fragmentManagerRef.get();
+            if (fragmentManager != null) {
+                Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
+                if (playQueueUIEvent.isDisplayEvent()) {
+                    isPlayQueueVisible = true;
+                    addPlayQueue(fragment);
+                } else if (playQueueUIEvent.isHideEvent()) {
+                    isPlayQueueVisible = false;
+                    setQueuePositionToCurrent();
+                    removePlayQueue(fragment);
+                }
             }
         }
 

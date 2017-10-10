@@ -41,12 +41,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 
 public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
@@ -73,7 +75,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
 
-    private FragmentActivity activity;
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
     private Urn playlistUrn;
@@ -84,6 +85,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private EventContextMetadata eventContextMetadata;
 
     private ItemMenuOptions options = ItemMenuOptions.Companion.createDefault();
+    private WeakReference<FragmentManager> fragmentManagerRef;
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
@@ -174,7 +176,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      EventContextMetadata.Builder builder,
                      ItemMenuOptions itemMenuOptions) {
         if (!isShowing) {
-            this.activity = fragmentActivity;
+            this.fragmentManagerRef = new WeakReference<>(fragmentActivity.getFragmentManager());
             this.track = track;
             this.promotedSourceInfo = promotedSourceInfo;
             this.playlistUrn = playlistUrn;
@@ -239,7 +241,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     public void onDismiss() {
         trackDisposable.dispose();
         trackDisposable = Disposables.empty();
-        activity = null;
         track = null;
         isShowing = false;
     }
@@ -311,8 +312,11 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.getUrn(), track.title());
-        from.show(activity.getFragmentManager());
+        FragmentManager fragmentManager = fragmentManagerRef.get();
+        if (fragmentManager != null) {
+            AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.getUrn(), track.title());
+            from.show(fragmentManager);
+        }
     }
 
     private void trackLike(boolean addLike) {

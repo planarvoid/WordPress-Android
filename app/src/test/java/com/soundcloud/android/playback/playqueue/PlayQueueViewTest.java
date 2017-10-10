@@ -23,17 +23,22 @@ public class PlayQueueViewTest {
     @Mock SmoothScrollLinearLayoutManager smoothScrollLinearLayoutManager;
     @Mock PerformanceMetricsEngine performanceMetricsEngine;
     @Mock ToggleButton toggleButton;
+    @Mock TrackPlayQueueItemRenderer trackPlayQueueItemRenderer;
+    @Mock HeaderPlayQueueItemRenderer headerPlayQueueItemRenderer;
+    @Mock MagicBoxPlayQueueItemRenderer magicBoxPlayQueueItemRenderer;
 
     private PlayQueueView playQueueView;
 
     @Before
     public void setUp() throws Exception {
         playQueueView = new PlayQueueView(playQueuePresenter,
-                                          playQueueAdapter,
                                           playQueueSwipeToRemoveCallbackFactory,
                                           feedbackController,
                                           smoothScrollLinearLayoutManager,
-                                          performanceMetricsEngine);
+                                          performanceMetricsEngine,
+                                          trackPlayQueueItemRenderer,
+                                          headerPlayQueueItemRenderer,
+                                          magicBoxPlayQueueItemRenderer);
     }
 
     @Test

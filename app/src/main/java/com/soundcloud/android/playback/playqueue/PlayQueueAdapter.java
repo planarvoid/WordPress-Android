@@ -7,7 +7,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import android.view.View;
 import android.widget.ImageView;
 
-import javax.inject.Inject;
 import java.util.Collections;
 
 class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItemAdapter.ViewHolder> {
@@ -16,7 +15,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
     private final MagicBoxPlayQueueItemRenderer magicBoxRenderer;
     private PlayQueueView.DragListener dragListener;
 
-    @Inject
     PlayQueueAdapter(TrackPlayQueueItemRenderer trackRenderer,
                      HeaderPlayQueueItemRenderer headerRenderer,
                      MagicBoxPlayQueueItemRenderer magicBoxRenderer) {
@@ -26,7 +24,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
         );
         this.trackRenderer = trackRenderer;
         this.magicBoxRenderer = magicBoxRenderer;
-        setHasStableIds(true);
     }
 
     @Override
