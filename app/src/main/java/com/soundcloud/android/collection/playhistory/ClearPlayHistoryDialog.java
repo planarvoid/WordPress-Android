@@ -2,17 +2,17 @@ package com.soundcloud.android.collection.playhistory;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-public class ClearPlayHistoryDialog extends DialogFragment implements DialogInterface.OnClickListener {
+public class ClearPlayHistoryDialog extends LoggingDialogFragment implements DialogInterface.OnClickListener {
 
     private static final String TAG = "ClearPlayHistory";
 

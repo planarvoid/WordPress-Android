@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
@@ -17,7 +18,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -25,7 +25,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class OfflineLikesDialog extends DialogFragment implements DialogInterface.OnClickListener {
+public class OfflineLikesDialog extends LoggingDialogFragment implements DialogInterface.OnClickListener {
 
     private static final String TAG = "OfflineLikes";
 

@@ -4,6 +4,7 @@ import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -25,7 +26,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +33,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public class TrackInfoFragment extends DialogFragment implements View.OnClickListener {
+public class TrackInfoFragment extends LoggingDialogFragment implements View.OnClickListener {
     private static final String TAG = TrackInfoFragment.class.getSimpleName();
     private static final String EXTRA_URN = "Urn";
     private static final int COLLAPSE_DELAY_MILLIS = 300;

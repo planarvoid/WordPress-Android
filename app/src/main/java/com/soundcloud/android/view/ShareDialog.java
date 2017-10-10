@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import rx.Observable;
 import rx.subjects.ReplaySubject;
 
@@ -15,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -26,7 +26,7 @@ import android.view.WindowManager;
  * hitting back but not by touching outside the window's bounds. Use {@link #onCancelObservable()} to be notified
  * of cancellation.
  */
-public class ShareDialog extends DialogFragment {
+public class ShareDialog extends LoggingDialogFragment {
 
     private static final String TAG = "ShareDialog";
 

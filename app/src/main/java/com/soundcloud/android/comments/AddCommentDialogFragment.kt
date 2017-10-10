@@ -3,11 +3,11 @@ package com.soundcloud.android.comments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
 import android.view.View
 import com.soundcloud.android.R
 import com.soundcloud.android.SoundCloudApplication
+import com.soundcloud.android.dialog.LoggingDialogFragment
 import com.soundcloud.android.main.PlayerActivity
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.tracks.TrackItem
@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.comment_input.view.*
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-class AddCommentDialogFragment : DialogFragment() {
+class AddCommentDialogFragment : LoggingDialogFragment() {
 
     @Inject internal lateinit var trackRepository: TrackRepository
     @Inject internal lateinit var leakCanaryWrapper: LeakCanaryWrapper

@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.model.Urn;
@@ -20,14 +21,13 @@ import com.soundcloud.rx.eventbus.EventBus;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
+public class ConfirmRemoveOfflineDialogFragment extends LoggingDialogFragment {
 
     private static final String TAG = "RemoveOffline";
     private static final String PLAYLIST_URN = "PlaylistUrn";

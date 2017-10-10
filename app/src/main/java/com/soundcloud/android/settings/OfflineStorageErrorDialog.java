@@ -2,17 +2,17 @@ package com.soundcloud.android.settings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-public class OfflineStorageErrorDialog extends DialogFragment {
+public class OfflineStorageErrorDialog extends LoggingDialogFragment {
 
     private static final String TAG = "OfflineStorageErrorDialog";
 
