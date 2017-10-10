@@ -36,12 +36,14 @@ import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector.SwipeDirection;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
@@ -57,6 +59,7 @@ import android.os.Bundle;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -168,6 +171,12 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {
+        if (ApplicationProperties.isAlphaOrBelow()) {
+            // https://soundcloud.atlassian.net/browse/DROID-1467
+            // please remove this wrapping conditional once we confirm this is not currently an issue. Do not want to crash production in edge cases right now
+            AndroidUtils.assertOnUiThread("Cannot set playqueue from non-UI thread");
+        }
+
         selectedPage = currentItem;
         currentPlayQueue = playQueue;
         trackPagerAdapter.notifyDataSetChanged();
@@ -192,7 +201,16 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     int getCurrentItemPosition() {
-        return trackPager.getCurrentItem();
+        int pagerItem = trackPager.getCurrentItem();
+
+        // https://soundcloud.atlassian.net/browse/DROID-1467
+        // This is basically a workaround as we cannot guarantee the position of the pager after notifying
+        // the change as updating it is asynchronous
+        if (pagerItem > currentPlayQueue.size() - 1) {
+            return selectedPage == Consts.NOT_SET ? 0 : selectedPage;
+        } else {
+            return trackPager.getCurrentItem();
+        }
     }
 
     PlayQueueItem getItemAtPosition(int position) {

@@ -285,6 +285,15 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getCurrentItemFallsbackOnSetItemIfPagerReturnsInvalidIndex() {
+        when(playerTrackPager.getCurrentItem()).thenReturn(10);
+
+        presenter.setCurrentPlayQueue(playQueue, 1);
+
+        assertThat(presenter.getCurrentItemPosition()).isEqualTo(1);
+    }
+
+    @Test
     public void onPlayingStateEventCallsSetPlayStateForOtherPage() {
         presenter.onResume(playerFragment);
         setCurrentTrackState(0, true);

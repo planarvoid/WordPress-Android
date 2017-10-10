@@ -40,6 +40,13 @@ public class ApplicationProperties {
     static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT) || "google_sdk_x86".equals(Build.PRODUCT);
 
+    private static final List<String> BUILD_TYPES_BETA_AND_BELOW = Arrays.asList(BuildType.ALPHA.name().toLowerCase(Locale.US),
+                                                                                 BuildType.BETA.name().toLowerCase(Locale.US),
+                                                                                 BuildType.DEBUG.name().toLowerCase(Locale.US));
+
+    private static final List<String> BUILD_TYPES_ALPHA_AND_BELOW = Arrays.asList(BuildType.ALPHA.name().toLowerCase(Locale.US),
+                                                                                  BuildType.DEBUG.name().toLowerCase(Locale.US));
+
     public String getFeedbackEmail() {
         return buildType.feedbackEmail;
     }
@@ -76,10 +83,11 @@ public class ApplicationProperties {
     }
 
     public static boolean isBetaOrBelow() {
-        List<String> buildTypesBetaAndBelow = Arrays.asList(BuildType.ALPHA.name().toLowerCase(Locale.US),
-                                             BuildType.BETA.name().toLowerCase(Locale.US),
-                                             BuildType.DEBUG.name().toLowerCase(Locale.US));
-        return buildTypesBetaAndBelow.contains(BuildConfig.BUILD_TYPE);
+        return BUILD_TYPES_BETA_AND_BELOW.contains(BuildConfig.BUILD_TYPE);
+    }
+
+    public static boolean isAlphaOrBelow() {
+        return BUILD_TYPES_ALPHA_AND_BELOW.contains(BuildConfig.BUILD_TYPE);
     }
 
     public boolean isGooglePlusEnabled() {
