@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.playback.AudioPerformanceEvent;
+import com.soundcloud.android.playback.RemoveParameterFromResume;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -185,11 +186,15 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     public void resume(@NonNull PlaybackItem playbackItem) {
         if (playbackItem.getUrn().equals(latestItemUrn)) {
             if (currentPlaybackItem != null) {
+                ErrorUtils.log(android.util.Log.INFO, TAG, "[SKIPPY] resume called for " + playbackItem + ", and currentPlaybackItem = " + currentPlaybackItem);
                 skippy.resume();
             } else {
+                RemoveParameterFromResume.handleExceptionAccordingToBuildType("[SKIPPY] playbackItem param = " + playbackItem + ", latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = null");
                 startPlayback(playbackItem, lastStateChangeProgress);
             }
         } else {
+            String message = "[SKIPPY] playbackItem param = " + playbackItem + " is different from latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = " + currentPlaybackItem;
+            RemoveParameterFromResume.handleExceptionAccordingToBuildType(message);
             play(playbackItem);
         }
     }

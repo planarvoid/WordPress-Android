@@ -321,7 +321,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         verify(skippy).resume();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class) // Exception expected while investigation in PR #8772 is running
     public void resumeRestartsPlaybackWhenStoppedAtItsPreviousPosition() {
         skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, 1500L, 3000L, STREAM_URL, MP3, BITRATE);
@@ -332,7 +332,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         verify(skippy).play(STREAM_URL, 1500L);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class) // Exception expected while investigation in PR #8772 is running
     public void resumeStartsPlaybackWhenNeverPlayed() {
         skippyAdapter.resume(playbackItem);
 

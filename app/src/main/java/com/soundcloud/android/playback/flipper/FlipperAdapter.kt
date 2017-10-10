@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition
 import com.soundcloud.android.playback.PlaybackType
 import com.soundcloud.android.playback.Player
 import com.soundcloud.android.playback.PreloadItem
+import com.soundcloud.android.playback.RemoveParameterFromResume
 import com.soundcloud.android.utils.ConnectionHelper
 import com.soundcloud.android.utils.ErrorUtils
 import com.soundcloud.android.utils.LockUtil
@@ -84,6 +85,12 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     override fun resume(playbackItem: PlaybackItem) {
         Log.d(TAG, "resume() called with: playbackItem = [$playbackItem, ${playbackItem.urn} in duration ${playbackItem.duration}]")
+
+        if (currentPlaybackItem == null) {
+            // could we have issued a resume(playbackItem) without calling play() before?
+            RemoveParameterFromResume.handleExceptionAccordingToBuildType("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null")
+        }
+
         currentPlaybackItem = playbackItem
         startPlayback()
     }
