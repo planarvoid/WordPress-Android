@@ -2,8 +2,8 @@ package com.soundcloud.android.comments
 
 
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
+import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
 import android.view.View
 import com.soundcloud.android.R

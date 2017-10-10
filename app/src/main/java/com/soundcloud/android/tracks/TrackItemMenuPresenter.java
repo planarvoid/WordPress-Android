@@ -41,9 +41,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 
-import android.app.FragmentManager;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -176,7 +176,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      EventContextMetadata.Builder builder,
                      ItemMenuOptions itemMenuOptions) {
         if (!isShowing) {
-            this.fragmentManagerRef = new WeakReference<>(fragmentActivity.getFragmentManager());
+            this.fragmentManagerRef = new WeakReference<>(fragmentActivity.getSupportFragmentManager());
             this.track = track;
             this.promotedSourceInfo = promotedSourceInfo;
             this.playlistUrn = playlistUrn;

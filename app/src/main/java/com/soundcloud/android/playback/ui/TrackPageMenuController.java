@@ -203,7 +203,7 @@ public class TrackPageMenuController
     private void handleComment() {
         track.getSource().ifPresent(source -> {
             final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(source, commentPosition, playQueueManager.getScreenTag());
-            fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
+            fragment.show(activity.getSupportFragmentManager(), ADD_COMMENT_DIALOG_TAG);
         });
     }
 
@@ -229,7 +229,7 @@ public class TrackPageMenuController
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.getUrn(), track.getTitle());
-        from.show(activity.getFragmentManager());
+        from.show(activity.getSupportFragmentManager());
     }
 
     public void setTrack(PlayerTrackState track) {

@@ -98,7 +98,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
             super.onError(e);
             if (ErrorUtils.isForbiddenError(e)) {
                 final ConfirmPrimaryEmailDialogFragment fragment = ConfirmPrimaryEmailDialogFragment.create();
-                fragment.show(activity.getFragmentManager(), CONFIRM_PRIMARY_EMAIL_DIALOG_TAG);
+                fragment.show(activity.getSupportFragmentManager(), CONFIRM_PRIMARY_EMAIL_DIALOG_TAG);
             } else {
                 final Feedback feedback = Feedback.create(R.string.comment_error, Feedback.LENGTH_LONG);
                 feedbackController.showFeedback(feedback);
