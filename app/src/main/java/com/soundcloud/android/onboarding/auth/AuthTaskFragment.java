@@ -10,6 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.onboarding.auth.tasks.AgeRestrictionAuthResult;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
@@ -26,12 +27,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public abstract class AuthTaskFragment extends DialogFragment {
+public abstract class AuthTaskFragment extends LoggingDialogFragment {
     private AuthTask task;
     private AuthTaskResult result;
     private WeakReference<OnAuthResultListener> listenerRef;

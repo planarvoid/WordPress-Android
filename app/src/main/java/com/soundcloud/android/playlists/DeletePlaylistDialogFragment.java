@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
@@ -11,14 +12,13 @@ import com.soundcloud.android.utils.Urns;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class DeletePlaylistDialogFragment extends DialogFragment {
+public class DeletePlaylistDialogFragment extends LoggingDialogFragment {
 
     public static final String TAG = "DeletePlaylist";
     private static final String PLAYLIST_URN = "PlaylistUrn";

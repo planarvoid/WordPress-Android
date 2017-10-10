@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -23,7 +24,6 @@ import io.reactivex.disposables.Disposables;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -35,7 +35,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import java.util.List;
 
-public class AddToPlaylistDialogFragment extends DialogFragment {
+public class AddToPlaylistDialogFragment extends LoggingDialogFragment {
 
     private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
 

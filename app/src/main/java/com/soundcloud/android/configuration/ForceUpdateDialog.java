@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -9,12 +10,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 
-public class ForceUpdateDialog extends DialogFragment {
+public class ForceUpdateDialog extends LoggingDialogFragment {
 
     public static final String DIALOG_TAG = "force_update_dlg";
     private static final String PLAY_STORE_URL = "market://details?id=com.soundcloud.android";

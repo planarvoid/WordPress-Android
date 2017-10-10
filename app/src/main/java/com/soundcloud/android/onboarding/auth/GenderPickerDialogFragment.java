@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 
 import android.app.Dialog;
@@ -13,7 +14,7 @@ import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
-public class GenderPickerDialogFragment extends DialogFragment {
+public class GenderPickerDialogFragment extends LoggingDialogFragment {
 
     public static final String GENDER_BUNDLE_KEY = "GENDER_KEY";
 

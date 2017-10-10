@@ -5,11 +5,10 @@ import com.soundcloud.android.accounts.LogoutActivity;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-public class TokenExpiredDialogFragment extends DialogFragment {
+public class TokenExpiredDialogFragment extends LoggingDialogFragment {
     public static final String TAG = "TokenExpiredDialog";
 
     @Override

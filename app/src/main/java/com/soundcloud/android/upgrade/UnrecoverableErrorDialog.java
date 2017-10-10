@@ -1,22 +1,22 @@
 package com.soundcloud.android.upgrade;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
+import com.soundcloud.android.navigation.NavigationExecutor;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class UnrecoverableErrorDialog extends DialogFragment {
+public class UnrecoverableErrorDialog extends LoggingDialogFragment {
 
     private static final String DIALOG_TAG = "go_onboarding_error_dlg";
 

@@ -5,6 +5,7 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -18,7 +19,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class CreatePlaylistDialogFragment extends DialogFragment {
+public class CreatePlaylistDialogFragment extends LoggingDialogFragment {
 
     private static final String CREATE_PLAYLIST_DIALOG_TAG = "create_new_set_dialog";
 

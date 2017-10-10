@@ -6,6 +6,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
@@ -35,7 +36,7 @@ import android.widget.ProgressBar;
 
 import javax.inject.Inject;
 
-public class FullImageDialog extends DialogFragment {
+public class FullImageDialog extends LoggingDialogFragment {
 
     private static final String TAG = "FullImage";
     private static final String KEY_URN = "urn";
