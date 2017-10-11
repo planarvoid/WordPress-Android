@@ -14,7 +14,7 @@ import com.soundcloud.android.users.UserRepository
 import com.soundcloud.android.utils.OpenForTesting
 import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.functions.Function4
+import io.reactivex.rxkotlin.Singles
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -42,11 +42,11 @@ constructor(@param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
             val playlists = getPlaylists(contextUrns) { it.isPlaylist }
             val tracks = getTracks(contextUrns) { it.isTrack }
 
-            return Single.zip<Map<Urn, String>, Map<Urn, String>, Map<Urn, String>, Map<Urn, String>, Map<Urn, String>>(users,
-                    stations,
-                    playlists,
-                    tracks,
-                    Function4 { t1, t2, t3, t4 -> t1.plus(t2).plus(t3).plus(t4) }).subscribeOn(scheduler)
+            return Singles.zip(users,
+                                    stations,
+                                    playlists,
+                                    tracks,
+                                    { t1, t2, t3, t4 -> t1 + t2 + t3 + t4 }).subscribeOn(scheduler)
         }
 
     private fun getStations(contextUrns: MutableList<Urn>, function: (Urn) -> Boolean): Single<Map<Urn, String>> {
@@ -71,7 +71,7 @@ constructor(@param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
         }
     }
 
-    private fun getPlaylists(contextUrns: MutableList<Urn>, function: (Urn) -> Boolean): Single<Map<Urn, String>>? {
+    private fun getPlaylists(contextUrns: MutableList<Urn>, function: (Urn) -> Boolean): Single<Map<Urn, String>> {
         if (contextUrns.filter(function).isNotEmpty()) {
             return playlistRepository
                     .withUrns(contextUrns.filter(function))
@@ -82,7 +82,7 @@ constructor(@param:Named(RX_HIGH_PRIORITY) private val scheduler: Scheduler,
         }
     }
 
-    private fun getTracks(contextUrns: MutableList<Urn>, function: (Urn) -> Boolean): Single<Map<Urn, String>>? {
+    private fun getTracks(contextUrns: MutableList<Urn>, function: (Urn) -> Boolean): Single<Map<Urn, String>> {
         if (contextUrns.filter(function).isNotEmpty()) {
             return trackRepository
                     .fromUrns(contextUrns.filter(function))

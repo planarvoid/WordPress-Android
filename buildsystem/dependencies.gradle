@@ -56,6 +56,7 @@ ext {
 
           // Kotlin
           kotlinStdLib                 : "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion",
+          rxKotlin                     : "io.reactivex.rxjava2:rxkotlin:2.1.0",
 
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",

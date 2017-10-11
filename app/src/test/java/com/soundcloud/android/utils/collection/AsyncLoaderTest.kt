@@ -10,7 +10,6 @@ import com.soundcloud.android.view.ViewError
 import com.soundcloud.java.optional.Optional
 import com.soundcloud.java.optional.Optional.of
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.subjects.PublishSubject
@@ -47,7 +46,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Mock internal lateinit var firstPageFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
     @Mock internal lateinit var refreshFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
-    @Mock internal lateinit var nextPageProvider: TestProvider
+    @Mock internal lateinit var nextPageprovider: TestProvider
 
     private val loadFirstPage = PublishSubject.create<String>()
     private val loadNextPage = PublishSubject.create<Any>()
@@ -78,16 +77,16 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
         asyncLoader = AsyncLoader(
                 loadFirstPage,
-                firstPageFunc,
+                { firstPageFunc.apply(it) },
                 refreshRequested,
-                refreshFunc,
+                { refreshFunc.apply(it) },
                 loadNextPage,
-                Optional.of(BiFunction { integers1, integers2 ->
-                    val items = ArrayList<Int>(integers1.size + integers2.size)
-                    items.addAll(integers1)
-                    items.addAll(integers2)
-                    items
-                }),
+                Optional.of({ integers1, integers2 ->
+                                val items = ArrayList<Int>(integers1.size + integers2.size)
+                                items.addAll(integers1)
+                                items.addAll(integers2)
+                                items
+                            }),
                 actionPerformed
         )
     }
@@ -225,17 +224,16 @@ class AsyncLoaderTest : AndroidUnitTest() {
     fun `second Page Errors And Recovers`() {
         val secondPageErrorSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
 
-        whenever<Observable<PageResult<List<Int>, ViewAction>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>, ViewAction>>(PageResult<List<Int>, ViewAction>(firstPageData, nextPage = of(
-                nextPageProvider))))
-        com.nhaarman.mockito_kotlin.whenever(nextPageProvider.get()).thenReturn(secondPageErrorSubject, secondPageSubject)
+        whenever(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>, ViewAction>>(PageResult<List<Int>, ViewAction>(
+                firstPageData,
+                nextPage = of(nextPageprovider))))
+        whenever(nextPageprovider.get()).thenReturn(secondPageErrorSubject, secondPageSubject)
 
         val subscriber = asyncLoader.test()
 
         loadFirstPage.onNext(firstPageParams)
 
         loadNextPage.onNext(SIGNAL)
-
-
 
         secondPageErrorSubject.onError(networkError)
 

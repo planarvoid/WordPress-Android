@@ -20,6 +20,7 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import io.reactivex.rxkotlin.Singles
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -80,16 +81,16 @@ constructor(private val eventBus: EventBusV2,
     }
 
     private fun obtainNewFollowersCount(userUrn: Urn, following: Boolean): Single<Int> {
-        return Single.zip(userRepository.userInfo(userUrn).map { it.followersCount() }.toSingle(Consts.NOT_SET),
-                          followingStorage.isFollowing(userUrn),
-                          BiFunction { currentFollowersCount, currentFollowingState ->
-                              if (currentFollowingState == following || currentFollowersCount == Consts.NOT_SET) {
-                                  currentFollowersCount
-                              } else if (following) {
-                                  currentFollowersCount + 1
-                              } else {
-                                  currentFollowersCount - 1
-                              }
-                          })
+        return Singles.zip(userRepository.userInfo(userUrn).map { it.followersCount() }.toSingle(Consts.NOT_SET),
+                           followingStorage.isFollowing(userUrn),
+                           { currentFollowersCount: Int, currentFollowingState: Boolean ->
+                               if (currentFollowingState == following || currentFollowersCount == Consts.NOT_SET) {
+                                   currentFollowersCount
+                               } else if (following) {
+                                   currentFollowersCount + 1
+                               } else {
+                                   currentFollowersCount - 1
+                               }
+                           })
     }
 }

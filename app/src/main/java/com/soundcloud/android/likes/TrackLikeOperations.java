@@ -17,7 +17,6 @@ import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.functions.BiFunction;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -30,8 +29,6 @@ public class TrackLikeOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
     static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
-    private static final BiFunction<TrackItem, Association, LikeWithTrack> COMBINER = (trackItem, like) -> LikeWithTrack
-            .create(like, trackItem);
 
     private final LikesStorage likesStorage;
     private final Scheduler scheduler;
@@ -81,7 +78,8 @@ public class TrackLikeOperations {
 
     public Single<List<LikeWithTrack>> likedTracks(long beforeTime) {
         return likesStorage.loadTrackLikes(beforeTime, PAGE_SIZE)
-                           .flatMap(source -> enrichItemsWithProperties(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
+                           .flatMap(source -> enrichItemsWithProperties(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)),
+                                                                        (trackItem, like) -> LikeWithTrack.create(like, trackItem)))
                            .subscribeOn(scheduler);
     }
 

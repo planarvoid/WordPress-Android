@@ -14,7 +14,6 @@ import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.enrichItemsWithProperties
 import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -50,7 +49,7 @@ constructor(
                 .flatMap { posts ->
                     enrichItemsWithProperties(posts,
                                               trackRepository.fromUrns(posts.map { it.urn }),
-                                              BiFunction { track: Track, association: Association -> track to association })
+                                              { track: Track, association: Association -> track to association })
                 }
                 .map { it.first { !it.first.isPrivate } }
                 .map { LastPostedTrack.create(it.first.urn(), it.second.createdAt, it.first.permalinkUrl()) }

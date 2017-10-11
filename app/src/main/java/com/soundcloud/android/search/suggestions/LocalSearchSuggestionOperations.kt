@@ -15,7 +15,6 @@ import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.enrichItemsWithProperties
 import com.soundcloud.java.collections.Lists
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function8
 import java.util.Date
 import javax.inject.Inject
@@ -142,7 +141,7 @@ constructor(private val likesStorage: LikesStorage,
                 .flatMap { source ->
                     enrichItemsWithProperties(source,
                                               trackRepository.fromUrns(Lists.transform(source, UrnHolder::urn)),
-                                              BiFunction { track: Track, association: Association -> track to association })
+                                              { track: Track, association: Association -> track to association })
                 }
                 .map { list -> filterSortAndConvertTracks(list, searchQuery, filter, mapper, kind) }
     }
@@ -183,7 +182,7 @@ constructor(private val likesStorage: LikesStorage,
                 .flatMap { source ->
                     enrichItemsWithProperties(source,
                                               playlistRepository.withUrns(Lists.transform(source, UrnHolder::urn)),
-                                              BiFunction { playlist: Playlist, association: Association -> playlist to association })
+                                              { playlist: Playlist, association: Association -> playlist to association })
                 }
                 .map { list -> filterSortAndConvertPlaylists(list, searchQuery, filter, mapper, kind) }
     }

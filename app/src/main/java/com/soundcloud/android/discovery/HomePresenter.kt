@@ -17,7 +17,7 @@ import com.soundcloud.android.view.BaseView
 import com.soundcloud.java.optional.Optional
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
+import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 
 internal class HomePresenter
@@ -43,13 +43,13 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                                        }
                                                    }
                                            ),
-                                   Observable.combineLatest<Long, List<DiscoveryCardViewModel>, Pair<Long, Optional<Urn>>>(view.enterScreenTimestamp
-                                                                                                                                   .filter { it.second == Screen.DISCOVER }
-                                                                                                                                   .map { it.first },
-                                                                                                                           loader.map { it.data }.filter { it.isPresent }.map { it.get() },
-                                                                                                                           BiFunction { first, second ->
-                                                                                                                               Pair(first, Optional.fromNullable(second.responseQueryUrn()))
-                                                                                                                           })
+                                   Observables.combineLatest(view.enterScreenTimestamp
+                                                                      .filter { it.second == Screen.DISCOVER }
+                                                                      .map { it.first },
+                                                             loader.map { it.data }.filter { it.isPresent }.map { it.get() },
+                                                             { first, second ->
+                                                                  Pair(first, Optional.fromNullable(second.responseQueryUrn()))
+                                                              })
                                            .distinctUntilChanged { (first) -> first }
                                            .subscribeWith(LambdaObserver.onNext { pair -> this.trackPageView(pair.second) }))
     }

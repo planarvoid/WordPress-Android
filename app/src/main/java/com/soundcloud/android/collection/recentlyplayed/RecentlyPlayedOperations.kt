@@ -20,7 +20,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.functions.Function3
+import io.reactivex.rxkotlin.Singles
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -79,7 +79,7 @@ constructor(private val recentlyPlayedStorage: RecentlyPlayedStorage,
         val artistsItems = loadIfNotEmpty(recentlyPlayedArtists, this::loadArtists)
         val stationsItems = loadIfNotEmpty(recentlyPlayedStations, this::loadStations)
 
-        return Single.zip(playlistItems, artistsItems, stationsItems, Function3(this::combineResults))
+        return Singles.zip(playlistItems, artistsItems, stationsItems, this::combineResults)
     }
 
     private fun combineResults(playlists: RecentlyPlayedPlayableItems, artists: RecentlyPlayedPlayableItems, stations: RecentlyPlayedPlayableItems): RecentlyPlayedPlayableItems {

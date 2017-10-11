@@ -8,7 +8,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
 import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -19,8 +18,8 @@ abstract class BasePresenter<ViewModel, ActionType, PageParams, in View : BaseVi
     private val refreshSignal = PublishSubject.create<PageParams>()
     private val actionPerformedSignal = PublishSubject.create<ActionType>()
     val loader: ConnectableObservable<AsyncLoaderState<ViewModel, ActionType>> = AsyncLoader.Companion.startWith<ViewModel, ActionType, PageParams>(requestContentSignal.distinctUntilChanged(),
-                                                                                                                                                    Function { firstPageFunc(it) })
-            .withRefresh(refreshSignal, Function { refreshFunc(it) })
+                                                                                                                                                    { firstPageFunc(it) })
+            .withRefresh(refreshSignal, { refreshFunc(it) })
             .withAction(actionPerformedSignal)
             .build().observeOn(AndroidSchedulers.mainThread())
             .distinctUntilChanged()

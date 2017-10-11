@@ -12,6 +12,7 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
+import org.jetbrains.annotations.NotNull
 import javax.inject.Inject
 import javax.inject.Named
 

@@ -207,6 +207,7 @@ dependencies {
   compile libraries.lintlib
 
   compile libraries.kotlinStdLib
+  compile libraries.rxKotlin
 
   /* 3rd Party Libraries */
   compile libraries.comscore
