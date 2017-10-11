@@ -169,6 +169,11 @@ public class ApplicationProperties {
     }
 
     public boolean shouldReportCrashes() {
-        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !isBuildType(BuildType.DEBUG) && buildType != null;
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && buildType != null && !isBuildType(BuildType.DEBUG);
+    }
+
+    public boolean shouldReportNativeCrashes() {
+        // The Crashlytics NDK dependency is only included in Beta since it sometimes causes an ANR after a native crash.
+        return shouldReportCrashes() && isBuildType(BuildType.BETA);
     }
 }

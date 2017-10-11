@@ -153,6 +153,7 @@ android {
 
 configurations {
   testSupport // for exporting our test helpers
+  prodBetaCompile { }
 }
 
 task testSupportJar(type: Jar, dependsOn: ':app:compileDevDebugUnitTestSources') {
@@ -215,9 +216,12 @@ dependencies {
   compile (libraries.crashlytics) {
     transitive = true
   }
-  compile (libraries.crashlyticsNdk) {
+  // We only include Crashlytics native libraries in Beta because CrashlyticsNDK often
+  // causes an ANR when a native crash is encountered. See FabricProvider.initialize().
+  prodBetaCompile (libraries.crashlyticsNdk) {
     transitive = true
   }
+
   compile libraries.jacksonAnnotations
   compile libraries.jacksonDataBind
   compile libraries.jacksonCore
