@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -124,6 +125,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verifyZeroInteractions(playQueueOperations);
+        verify(playQueueManager, never()).appendPlayQueueItems(anyIterable());
     }
 
     @Test
@@ -133,6 +135,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
         verifyZeroInteractions(playQueueOperations);
+        verify(playQueueManager, never()).appendPlayQueueItems(anyIterable());
     }
 
     @Test
@@ -194,7 +197,33 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
 
         extender.loadRecommendations(trackPlayQueueItem.getUrn());
 
-        verify(playQueueManager, never()).appendPlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager, never()).appendPlayQueueItems(anyIterable());
+    }
+
+    @Test
+    public void doesNotAppendTracksWhenPlayQueueIsEmpty() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+
+        extender.onPlayQueueEvent(PlayQueueEvent.fromNewQueue(Urn.forPlaylist(123L)));
+
+        verifyZeroInteractions(playQueueOperations);
+        verify(playQueueManager, never()).appendPlayQueueItems(anyIterable());
+    }
+
+    @Test
+    public void doesNotAppendTracksForStationWhenPlayQueueIsEmpty() {
+        Urn stationUrn = Urn.forTrackStation(123L);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, singletonList(StationTrack.create(TRACK_URN, Urn.NOT_SET)), playSessionSource);
+        final int queueSize = 0;
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+        when(playQueueManager.getQueueSize()).thenReturn(queueSize);
+        when(playQueueManager.getCollectionUrn()).thenReturn(stationUrn);
+        when(stationsOperations.fetchUpcomingTracks(stationUrn, queueSize, playSessionSource)).thenReturn(Single.just(playQueue));
+
+        extender.onPlayQueueEvent(PlayQueueEvent.fromNewQueue(stationUrn));
+
+        verifyZeroInteractions(stationsOperations);
+        verify(playQueueManager, never()).appendPlayQueueItems(anyIterable());
     }
 
     private void setWithinToleranceAtEnd() {

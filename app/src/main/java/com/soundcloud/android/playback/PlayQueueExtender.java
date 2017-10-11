@@ -58,10 +58,10 @@ public class PlayQueueExtender {
     }
 
     private void extendPlayQueue(Urn collectionUrn) {
-        final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
+        if (!castConnectionHelper.isCasting() && !playQueueManager.isQueueEmpty()) {
+            final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
 
-        if (!castConnectionHelper.isCasting()) {
-            if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
+            if (!playQueueManager.getCollectionUrn().isStation() && lastPlayQueueItem.isTrack()) {
                 loadRecommendedDisposable = playQueueOperations
                         .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(),
                                                 fromContinuousPlay(),
@@ -83,13 +83,8 @@ public class PlayQueueExtender {
         }
     }
 
-    private boolean currentQueueAllowsRecommendations() {
-        return !playQueueManager.getCollectionUrn().isStation();
-    }
-
     private boolean withinRecommendedFetchTolerance() {
-        return !playQueueManager.isQueueEmpty() &&
-                playQueueManager.getPlayableQueueItemsRemaining() <= RECOMMENDED_LOAD_TOLERANCE;
+        return playQueueManager.getPlayableQueueItemsRemaining() <= RECOMMENDED_LOAD_TOLERANCE;
     }
 
     // Hacky, but the similar sounds service needs to know if it is allowed to not fulfill this request. This should
@@ -105,27 +100,18 @@ public class PlayQueueExtender {
         @Override
         public void onSuccess(PlayQueue playQueue) {
             super.onSuccess(playQueue);
-            boolean expression = !playQueueManager.isQueueEmpty();
-            if (!expression) {
-                throw new IllegalArgumentException("Should not append to empty queue");
-            }
-            playQueueManager.appendPlayQueueItems(playQueue);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            if (e instanceof IllegalArgumentException) {
+            if (playQueueManager.isQueueEmpty()) {
                 // we should not need this, as we should never get this far with an empty queue.
                 // Just being defensive while we investigate
                 // https://github.com/soundcloud/android-listeners/issues/3938
+                // and chasing DROID-1831
 
                 final HashMap<String, String> valuePairs = new HashMap<>(2);
                 valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));
                 valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
-                ErrorUtils.handleSilentException(e, valuePairs);
-            } else {
-                super.onError(e);
+                ErrorUtils.handleSilentException(new IllegalArgumentException("Should not append to empty queue"), valuePairs);
             }
+            playQueueManager.appendPlayQueueItems(playQueue);
         }
     }
 
