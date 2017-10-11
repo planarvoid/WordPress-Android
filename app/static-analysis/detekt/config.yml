@@ -242,7 +242,7 @@ style:
   MagicNumber:
     active: true
     ignoreNumbers: '-1,0,1,2'
-    ignoreHashCodeFunction: false
+    ignoreHashCodeFunction: true
     ignorePropertyDeclaration: true
     ignoreAnnotation: false
   WildcardImport:

@@ -8,7 +8,12 @@ import com.soundcloud.android.properties.ApplicationProperties
 import com.soundcloud.android.utils.ErrorUtils
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.*
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 
@@ -49,8 +54,10 @@ class ScSchedulers {
     }
 
     private class WaitTimeMonitoringExecutorService(private val executor: ThreadPoolExecutor) : ExecutorService by executor {
-        private val QUEUE_WAIT_WARNING_THRESHOLD = TimeUnit.SECONDS.toMillis(1)
-        private val QUEUE_SIZE_WARNING_THRESHOLD = 3
+        companion object {
+            private val QUEUE_WAIT_WARNING_THRESHOLD = TimeUnit.SECONDS.toMillis(1)
+            private const val QUEUE_SIZE_WARNING_THRESHOLD = 3
+        }
 
         override fun execute(runnable: Runnable) {
             logExecuteWarning()

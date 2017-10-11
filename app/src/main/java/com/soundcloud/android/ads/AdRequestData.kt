@@ -2,7 +2,7 @@ package com.soundcloud.android.ads
 
 import com.soundcloud.android.model.Urn
 import com.soundcloud.java.optional.Optional
-import java.util.*
+import java.util.UUID
 
 data class AdRequestData(
         val monetizableTrackUrn: Urn? = null,

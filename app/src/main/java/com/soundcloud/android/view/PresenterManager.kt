@@ -2,7 +2,6 @@ package com.soundcloud.android.view
 
 import android.util.LongSparseArray
 import com.soundcloud.android.utils.OpenForTesting
-
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,8 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class PresenterManager
 @Inject
-constructor()
-{
+constructor() {
 
     private val presenters = LongSparseArray<Destroyable>()
     private var runningId: Long = 0

@@ -123,7 +123,7 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
         val loadingState = AsyncLoadingState.builder()
                 .isLoadingNextPage(lastPageState.loading)
                 .requestMoreOnScroll(!lastPageState.loading && !lastPageState.error.isPresent && hasMorePages())
-                .nextPageError(lastPageState.error.transform({ ViewError.from(it) }))
+                .nextPageError(lastPageState.error.transform { ViewError.from(it) })
                 .build()
 
         return if (combinedData != null) AsyncLoaderState(data = Optional.of(combinedData),
