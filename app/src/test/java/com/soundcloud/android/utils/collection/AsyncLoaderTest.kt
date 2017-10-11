@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils.collection
 
 import com.nhaarman.mockito_kotlin.whenever
-import com.soundcloud.android.SoundCloudApplication
 import com.soundcloud.android.api.ApiRequestException
 import com.soundcloud.android.model.AsyncLoadingState
 import com.soundcloud.android.testsupport.AndroidUnitTest
@@ -11,10 +10,8 @@ import com.soundcloud.java.optional.Optional
 import com.soundcloud.java.optional.Optional.of
 import io.reactivex.Observable
 import io.reactivex.functions.Function
-import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.subjects.PublishSubject
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -67,13 +64,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
     fun setUp() {
         whenever(firstPageFunc.apply(firstPageParams)).thenReturn(firstPageSubject)
         whenever(refreshFunc.apply(anyString())).thenReturn(refreshSubject)
-        RxJavaPlugins.setErrorHandler { e ->
-            Thread.currentThread().setUncaughtExceptionHandler { _, f ->
-                Thread.currentThread().uncaughtExceptionHandler = null
-                throw f as InternalError
-            }
-            SoundCloudApplication.handleThrowableInDebug(e)
-        }
 
         asyncLoader = AsyncLoader(
                 loadFirstPage,
@@ -89,11 +79,6 @@ class AsyncLoaderTest : AndroidUnitTest() {
                             }),
                 actionPerformed
         )
-    }
-
-    @After
-    fun tearDown() {
-        RxJavaPlugins.setErrorHandler(null);
     }
 
     @Test

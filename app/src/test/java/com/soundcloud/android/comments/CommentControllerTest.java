@@ -7,9 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
@@ -44,6 +42,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Mock private View player;
     @Mock private FeedbackController feedbackController;
     @Mock private NavigationExecutor navigationExecutor;
+    @Mock private ConfirmPrimaryEmailDialogFragment.Factory dialogFragmentFactory;
     @Captor private ArgumentCaptor<Feedback> feedbackArgumentCaptor;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
@@ -58,7 +57,7 @@ public class CommentControllerTest extends AndroidUnitTest {
         track = PlayableFixtures.fromApiTrack();
         comment = new Comment(ModelFixtures.apiComment(new Urn("soundcloud:comments:123")));
 
-        controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigationExecutor);
+        controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigationExecutor, dialogFragmentFactory);
         controller.onCreate(activity, null);
     }
 
@@ -87,11 +86,13 @@ public class CommentControllerTest extends AndroidUnitTest {
     public void showsEmailNotConfirmedDialogWhenNotAllowedToAddComment() {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(Single.error(ApiRequestException.notAllowed(null, null)));
+        final ConfirmPrimaryEmailDialogFragment dialogFragment = mock(ConfirmPrimaryEmailDialogFragment.class);
+        when(dialogFragmentFactory.create()).thenReturn(dialogFragment);
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
         verifyZeroInteractions(feedbackController);
-        // not truly verifying the dialog is shown as we don't have access to its instance
+        verify(dialogFragment).show(activity.getSupportFragmentManager(), "confirm_primary_email_dialog");
     }
 
     @Test

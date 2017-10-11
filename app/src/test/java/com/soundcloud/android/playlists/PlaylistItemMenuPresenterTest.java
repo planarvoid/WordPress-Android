@@ -257,9 +257,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
         when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Single.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
+        when(changeLikeToSaveExperiment.isEnabled()).thenReturn(true);
 
         presenter.show(button, playlistItem);
-        presenter.saveOffline(activity(), playlistItem);
+        presenter.saveOffline(context(), playlistItem);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
         verify(likeOperations).toggleLike(playlistItem.getUrn(), true);

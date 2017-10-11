@@ -34,6 +34,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     private final Lazy<CommentsOperations> commentsOperationsLazy;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
+    private final ConfirmPrimaryEmailDialogFragment.Factory dialogFragmentFactory;
     private final EventBusV2 eventBus;
 
     private Disposable disposable = RxUtils.invalidDisposable();
@@ -43,11 +44,13 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     public CommentController(EventBusV2 eventBus,
                              Lazy<CommentsOperations> commentsOperationsLazy,
                              FeedbackController feedbackController,
-                             NavigationExecutor navigationExecutor) {
+                             NavigationExecutor navigationExecutor,
+                             ConfirmPrimaryEmailDialogFragment.Factory dialogFragmentFactory) {
         this.eventBus = eventBus;
         this.commentsOperationsLazy = commentsOperationsLazy;
         this.feedbackController = feedbackController;
         this.navigationExecutor = navigationExecutor;
+        this.dialogFragmentFactory = dialogFragmentFactory;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
         public void onError(Throwable e) {
             super.onError(e);
             if (ErrorUtils.isForbiddenError(e)) {
-                final ConfirmPrimaryEmailDialogFragment fragment = ConfirmPrimaryEmailDialogFragment.create();
+                final ConfirmPrimaryEmailDialogFragment fragment = dialogFragmentFactory.create();
                 fragment.show(activity.getSupportFragmentManager(), CONFIRM_PRIMARY_EMAIL_DIALOG_TAG);
             } else {
                 final Feedback feedback = Feedback.create(R.string.comment_error, Feedback.LENGTH_LONG);

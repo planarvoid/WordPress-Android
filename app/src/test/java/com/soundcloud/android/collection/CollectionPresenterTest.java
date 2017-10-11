@@ -192,6 +192,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
+        when(collectionOperations.collections()).thenReturn(Observable.just(MY_COLLECTION));
 
         collectionSyncedBus.onNext(1);
 
@@ -206,6 +207,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
+        when(collectionOperations.collections()).thenReturn(Observable.just(MY_COLLECTION));
 
         collectionSyncedBus.onNext(1);
         verify(collectionOperations, never()).collections();

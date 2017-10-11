@@ -526,6 +526,11 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234L));
         final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
         when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
+        when(playSessionController.playNewQueue(any(PlayQueue.class),
+                                                any(Urn.class),
+                                                anyInt(),
+                                                any(PlaySessionSource.class)))
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
         playbackInitiator.playTracks(newTrackList, 0, PlaySessionSource.EMPTY).subscribe();
@@ -551,6 +556,11 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234L));
         final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
         when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
+        when(playSessionController.playNewQueue(any(PlayQueue.class),
+                                                any(Urn.class),
+                                                anyInt(),
+                                                any(PlaySessionSource.class)))
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
         playbackInitiator.playTracks(newTrackList, 2, PlaySessionSource.EMPTY).subscribe();
@@ -574,6 +584,11 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
         String screenName = "screen-name";
         PlaySessionSource source = new PlaySessionSource(screenName);
+        when(playSessionController.playNewQueue(any(PlayQueue.class),
+                                                any(Urn.class),
+                                                anyInt(),
+                                                any(PlaySessionSource.class)))
+                .thenReturn(Single.just(PlaybackResult.success()));
 
         playbackInitiator.playTracks(newTrackList, 0, source).subscribe();
 

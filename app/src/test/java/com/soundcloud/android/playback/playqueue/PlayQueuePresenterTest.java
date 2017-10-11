@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -74,6 +75,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     private PlayQueuePresenter presenter;
     private TestEventBusV2 eventBus = new TestEventBusV2();
     private PlayQueueUIItemsUpdate loadQueueUpdate;
+    private TrackQueueItem currentPlayQueueItem;
 
     @Before
     public void setUp() throws Exception {
@@ -94,7 +96,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123)));
+        currentPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(currentPlayQueueItem);
         when(item.isTrack()).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
         setUIItems();
@@ -148,6 +151,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(trackPlayQueueUIItem.isTrack()).thenReturn(true);
         when(trackPlayQueueUIItem.isGoTrack()).thenReturn(true);
         when(trackPlayQueueUIItem.getPlayState()).thenReturn(PlayState.COMING_UP);
+        when(trackPlayQueueUIItem.getPlayQueueItem()).thenReturn(currentPlayQueueItem);
         uiSubject.onNext(loadQueueUpdate.withItems(Collections.singletonList(trackPlayQueueUIItem)));
 
         presenter.trackClicked(0);

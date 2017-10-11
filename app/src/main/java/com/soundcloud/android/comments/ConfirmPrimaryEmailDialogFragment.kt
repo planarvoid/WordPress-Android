@@ -11,9 +11,11 @@ import com.soundcloud.android.dialog.LoggingDialogFragment
 import com.soundcloud.android.feedback.Feedback
 import com.soundcloud.android.rx.observers.DefaultCompletableObserver
 import com.soundcloud.android.utils.LeakCanaryWrapper
+import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.view.snackbar.FeedbackController
 import javax.inject.Inject
 
+@OpenForTesting
 class ConfirmPrimaryEmailDialogFragment : LoggingDialogFragment() {
 
     @Inject internal lateinit var meOperations: MeOperations
@@ -56,8 +58,11 @@ class ConfirmPrimaryEmailDialogFragment : LoggingDialogFragment() {
         leakCanaryWrapper.watch(this)
     }
 
-    companion object {
-        @JvmStatic
+
+    @OpenForTesting
+    class Factory
+    @Inject
+    constructor() {
         fun create() = ConfirmPrimaryEmailDialogFragment()
     }
 }

@@ -1,9 +1,13 @@
 package com.soundcloud.android.testsupport;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.SoundCloudApplication;
+import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -38,6 +42,22 @@ public abstract class AndroidUnitTest {
     @Rule public TestRule injectMocksRule = (base, description) -> {
         MockitoAnnotations.initMocks(AndroidUnitTest.this);
         return base;
+    };
+
+    @Rule public TestRule rxJavaErrors = (base, description) -> new Statement() {
+        @Override
+        public void evaluate() throws Throwable {
+            final Consumer<? super Throwable> previousErrorHandler = RxJavaPlugins.getErrorHandler();
+            RxJavaPlugins.setErrorHandler(e -> {
+                Thread.currentThread().setUncaughtExceptionHandler((t, f) -> {
+                    Thread.currentThread().setUncaughtExceptionHandler(null);
+                    throw new RuntimeException(f);
+                });
+                SoundCloudApplication.handleThrowableInDebug(e);
+            });
+            base.evaluate();
+            RxJavaPlugins.setErrorHandler(previousErrorHandler);
+        }
     };
 
     protected static Intent getNextStartedService() {
