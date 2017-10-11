@@ -31,7 +31,6 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-@SuppressWarnings("TooManyFunctions")
 internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchItemRenderer.SearchListener {
 
     @Inject internal lateinit var presenterLazy: Lazy<HomePresenter>

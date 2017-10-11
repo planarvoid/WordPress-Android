@@ -20,7 +20,6 @@ import com.soundcloud.android.view.adapters.RecyclerViewParallaxer
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-@Suppress("TooManyFunctions")
 class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapter: PagingRecyclerItemAdapter<ItemT, VH>,
                                                               private val sameIdentity: (ItemT, ItemT) -> Boolean,
                                                               private val sameContent: (ItemT, ItemT) -> Boolean = { first: ItemT, second: ItemT -> first == second },

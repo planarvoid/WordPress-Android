@@ -23,7 +23,7 @@ import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.rx.eventbus.EventBusV2
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions", "CatchThrowable")
+@Suppress("CatchThrowable")
 @OpenForTesting
 class FlipperAdapter
 @Inject

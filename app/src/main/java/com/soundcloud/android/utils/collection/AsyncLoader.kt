@@ -13,7 +13,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Provider
 
-@SuppressWarnings("TooManyFunctions")
 class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructor(private val firstPageRequested: Observable<FirstPageParamsType>,
                                                                                   private val paramsToFirstPage: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>,
                                                                                   private val refreshRequested: Observable<FirstPageParamsType>,

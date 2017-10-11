@@ -10,7 +10,6 @@ import com.squareup.sqldelight.RowMapper
 import io.reactivex.Single
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
 @OpenForTesting
 class RecentlyPlayedStorage
 @Inject

@@ -27,7 +27,6 @@ import javax.inject.Named
 typealias RecentlyPlayedPlayableItemsLoader = (List<Urn>, Map<Urn, Long>) -> Single<RecentlyPlayedPlayableItems>
 typealias RecentlyPlayedPlayableItems = List<RecentlyPlayedPlayableItem>
 
-@Suppress("TooManyFunctions")
 @OpenForTesting
 class RecentlyPlayedOperations
 @Inject
