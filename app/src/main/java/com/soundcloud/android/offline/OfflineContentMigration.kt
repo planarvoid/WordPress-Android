@@ -3,6 +3,7 @@ package com.soundcloud.android.offline
 import android.database.sqlite.SQLiteDatabase
 import com.soundcloud.android.commands.PlaylistUrnMapper
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.properties.ApplicationProperties
 import com.soundcloud.android.startup.migrations.Migration
 import com.soundcloud.propeller.PropellerDatabase
 import com.soundcloud.propeller.query.Query
@@ -32,5 +33,6 @@ constructor(private val offlineServiceInitiator: OfflineServiceInitiator,
         offlineServiceInitiator.start()
     }
 
-    override fun getApplicableAppVersionCode(): Int = 777
+    // we had to do a hotfix of the previous release after already deploying a beta, so the migration versions differ depending on variant
+    override fun getApplicableAppVersionCode(): Int = if (ApplicationProperties.isBetaOrBelow()) 777 else 786
 }
