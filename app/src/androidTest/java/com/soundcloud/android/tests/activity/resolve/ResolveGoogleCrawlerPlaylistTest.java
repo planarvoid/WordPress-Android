@@ -20,6 +20,7 @@ public class ResolveGoogleCrawlerPlaylistTest extends ResolveGoogleCrawlerBaseTe
     }
 
     @Test
+    @org.junit.Ignore
     @Ignore //FIXME https://soundcloud.atlassian.net/browse/DROID-1351
     public void testResolveUrl() throws Exception {
         PlaylistDetailsScreen playlistScreen = new PlaylistDetailsScreen(solo);

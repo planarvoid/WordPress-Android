@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.offline;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.likesUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyCheckTime;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
@@ -41,6 +40,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     @Test
+    @org.junit.Ignore
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
@@ -50,6 +50,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     @Test
+    @org.junit.Ignore
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
@@ -61,6 +62,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     @Test
+    @org.junit.Ignore
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()

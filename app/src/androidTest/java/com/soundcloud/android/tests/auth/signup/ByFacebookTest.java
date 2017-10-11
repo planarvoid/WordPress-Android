@@ -6,10 +6,10 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ByFacebookTest extends SignUpTest {
@@ -24,6 +24,7 @@ public class ByFacebookTest extends SignUpTest {
         super.setUp();
     }
 
+    @Ignore // Ignored on Firebase as Facebook might block the account for signing in both in EU and NA
     @Test
     public void testUserSuccess() throws Exception {
         addMockedResponse(SIGN_UP.path(), "sign-up-success.json");

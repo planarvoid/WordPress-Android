@@ -25,6 +25,7 @@ ext {
   kotlinVersion = '1.1.51'
   detektVersion = '1.0.0.RC4-3'
   mementoVersion = '0.2-SNAPSHOT'
+  flankVersion = '1.4.2'
 
   libraries = [
           // Annotation processors / Annotations

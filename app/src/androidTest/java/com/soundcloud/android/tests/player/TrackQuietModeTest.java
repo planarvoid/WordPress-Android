@@ -2,7 +2,6 @@ package com.soundcloud.android.tests.player;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;

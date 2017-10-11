@@ -15,7 +15,6 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.discovery.SearchResultsTest;
 import org.junit.Test;
 
 public class SearchNavigationTest extends ActivityTest<MainActivity> {
@@ -39,6 +38,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
+    @org.junit.Ignore
     @Ignore
     @Test
     public void testVerifySearchNavigation() throws Exception {

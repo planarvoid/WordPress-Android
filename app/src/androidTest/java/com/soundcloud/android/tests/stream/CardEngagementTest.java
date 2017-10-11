@@ -1,11 +1,9 @@
 package com.soundcloud.android.tests.stream;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static com.soundcloud.android.R.string;
 import static com.soundcloud.android.R.string.like_toast_overflow_action;
 import static com.soundcloud.android.R.string.reposted_to_followers;
 import static com.soundcloud.android.R.string.unlike_toast_overflow_action;
@@ -18,7 +16,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
@@ -53,7 +50,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
         Resources resources = getInstrumentation().getContext().getResources();
         String body = readBodyOfFile(resources, "engagements-user-stream.json");
         stubFor(get(urlPathMatching("/stream"))
-                        .willReturn(aResponse().withStatus(200).withBody(body)));
+                .willReturn(aResponse().withStatus(200).withBody(body)));
     }
 
     @Override
@@ -108,7 +105,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
 
         final String repostToastMessage = getRepostToastMessage(reposted);
         assertTrue("Did not observe a toast with a message: " + repostToastMessage,
-                   waiter.expectToastWithText(toastObserver, repostToastMessage));
+                waiter.expectToastWithText(toastObserver, repostToastMessage));
 
         // toggle from overflow
         TrackItemMenuElement menuElement = track.clickOverflowButton();
@@ -129,7 +126,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,
-                   waiter.expectToastWithText(toastObserver, likeToastMessage));
+                waiter.expectToastWithText(toastObserver, likeToastMessage));
 
         track.toggleLike();
         assertThat(track.isLiked(), is(liked));

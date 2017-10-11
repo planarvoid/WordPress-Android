@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.tests.TestConsts;
 import org.junit.Test;
 
 import android.net.Uri;
@@ -19,6 +18,7 @@ public class ResolveGoogleCrawlerProfileTest extends ResolveGoogleCrawlerBaseTes
         return STEVE_ANGELLO_DEEP_LINK;
     }
 
+    @org.junit.Ignore
     @Ignore //FIXME https://soundcloud.atlassian.net/browse/DROID-1351
     @Test
     public void testResolveUrl() throws Exception {

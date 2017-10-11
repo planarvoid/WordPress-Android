@@ -30,6 +30,7 @@ public class AudioAdTest extends AdBaseTest {
         return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
+    @org.junit.Ignore
     @Test
     public void testQuartileEvents() throws Exception {
         mrLocalLocal.startEventTracking();
@@ -40,6 +41,7 @@ public class AudioAdTest extends AdBaseTest {
         mrLocalLocal.verify(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
+    @org.junit.Ignore
     @Test
     public void testSkipIsNotAllowedOnAd() throws Exception {
         swipeToAd();
@@ -52,6 +54,7 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
+    @org.junit.Ignore
     @Test
     public void testTappingFullBleedAdArtworkTwiceResumesPlayingAd() throws Exception {
         swipeToAd();
@@ -71,6 +74,7 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(SkipAllowed()));
     }
 
+    @org.junit.Ignore
     @Test
     public void testSkipAdShouldStartTheMonetizableTrack() throws Exception {
         swipeToAd();
@@ -82,6 +86,7 @@ public class AudioAdTest extends AdBaseTest {
         assertFalse(playerElement.isAdPageVisible());
     }
 
+    @org.junit.Ignore
     @Test
     public void testDoesNotOpenTrackWhileAdIsPlaying() throws Exception {
         swipeToAd();
@@ -95,6 +100,7 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement.isFooterAdTextVisible(), is(true));
     }
 
+    @org.junit.Ignore
     @Test
     public void testShowWhyAdsDialogWhenClickingWhyAds() throws Exception {
         swipeToAd();
@@ -105,6 +111,7 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(dialog, is(not(visible())));
     }
 
+    @org.junit.Ignore
     @Test
     public void testCustomCTAButtonText() throws Exception {
         swipeToAd();
@@ -112,6 +119,7 @@ public class AudioAdTest extends AdBaseTest {
         assertEquals(playerElement.getAdCTAButtonText(), "TRY FREE FOR 30 DAYS");
     }
 
+    @org.junit.Ignore
     @Test
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() throws Exception {
         playerElement

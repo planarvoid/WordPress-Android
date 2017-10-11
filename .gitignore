@@ -42,6 +42,11 @@ target
 .gradletasknamecache
 build
 
+#Firebase / google cloud
+.config
+.gsutil
+bucket
+
 # Test data
 tests-*.sqlite
 coverage-error.log

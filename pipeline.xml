@@ -1,0 +1,61 @@
+<pipeline isLocked="false" labeltemplate="${COUNT}-${git[:7]}" name="android-listeners">
+  <materials>
+    <git branch="gocd" materialName="git" url="git@github.com:soundcloud/android-listeners.git"/>
+  </materials>
+  <stage name="build">
+    <jobs>
+      <job name="build-pr">
+        <tasks>
+          <exec command="make">
+            <arg>debug-apk</arg>
+            <runif status="passed"/>
+          </exec>
+        </tasks>
+        <artifacts>
+          <artifact src="app/build/outputs/apk/"/>
+        </artifacts>
+      </job>
+    </jobs>
+  </stage>
+  <stage name="test">
+    <jobs>
+      <job name="static-analysis">
+        <tasks>
+          <exec command="make">
+            <arg>static-analysis</arg>
+            <runif status="passed"/>
+          </exec>
+        </tasks>
+        <tabs>
+          <tab name="Linting" path="app/build/reports/lint-results-prodDebug.html"/>
+        </tabs>
+        <artifacts>
+          <test dest="results" src="**/app/build/reports/*"/>
+        </artifacts>
+      </job>
+      <job name="acceptance-tests-firebase">
+        <tasks>
+          <fetchartifact dest="app/build/outputs/" job="build-pr" pipeline="android-listeners" srcdir="app/build/outputs/apk" stage="build">
+            <runif status="passed"/>
+          </fetchartifact>
+          <exec command="make">
+            <arg>acceptance-test-firebase</arg>
+          </exec>
+        </tasks>
+        <artifacts>
+          <test dest="results" src="**/results/*.xml"/>
+        </artifacts>
+      </job>
+      <job name="unit-test">
+        <tasks>
+          <exec command="make">
+            <arg>unit-test</arg>
+          </exec>
+        </tasks>
+        <artifacts>
+          <test src="app/build/test-results/**/*.xml"/>
+        </artifacts>
+      </job>
+    </jobs>
+  </stage>
+</pipeline>

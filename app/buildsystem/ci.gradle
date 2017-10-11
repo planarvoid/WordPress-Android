@@ -197,6 +197,20 @@ task runAcceptanceTests(dependsOn: ['assembleAcceptanceTest', 'connectedAndroidT
   description 'Installs and runs the tests for Debug build on connected devices.'
 }
 
+// Firebase TestLab
+task assembleAppApkForFirebase(dependsOn: ':app:assembleDevDebug')
+
+task assembleTestApkForFirebase(dependsOn: ':app:assembleProdDebugAndroidTest')
+
+task assembleApksForFirebase(dependsOn: ['assembleAppApkForFirebase', 'assembleTestApkForFirebase'])
+
+task runAcceptanceTestsOnFirebase(type: Exec ) {
+  description 'Assembles App and Test apks for execution on Firebase Test Lab.'
+  workingDir "$rootDir"
+  commandLine './scripts/flank_test.sh'
+}
+runAcceptanceTestsOnFirebase.mustRunAfter('assembleAppApkForFirebase', 'assembleTestApkForFirebase')
+
 // *********************************************************************************************************************
 // UNIT TESTS
 // *********************************************************************************************************************

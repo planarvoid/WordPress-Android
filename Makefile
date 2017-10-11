@@ -1,0 +1,13 @@
+# Make commands for GoCD pipeline (or to simulate pipeline steps locally)
+
+unit-test:
+	crun android-dev-compile -- ./gradlew clean runUnitTests
+
+debug-apk:
+	crun android-dev-compile -- ./gradlew assembleApksForFirebase
+
+static-analysis:
+	crun android-dev-compile -- ./gradlew staticAnalysis
+
+acceptance-test-firebase:
+	crun android-dev-gcloud -- ./scripts/flank_test.sh

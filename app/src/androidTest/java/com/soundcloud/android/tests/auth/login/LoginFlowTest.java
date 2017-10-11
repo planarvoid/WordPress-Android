@@ -97,6 +97,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */
+    @Ignore // Ignored on Firebase as Facebook might block the account for signing in both in EU and NA
     @Test
     public void testLoginWithFacebookWebFlow() throws Exception {
         addMockedResponse(SIGN_IN.path(), 200, "sign-in-facebook.json");

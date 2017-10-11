@@ -9,10 +9,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsUpsellScreen;
-import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.player.ads.AdBaseTest;
 import org.junit.Test;
 
@@ -38,6 +36,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
+    @org.junit.Ignore
     @Test
     public void testWhyAdsUpsellImpressionAndClick() throws Exception {
         swipeToAd();

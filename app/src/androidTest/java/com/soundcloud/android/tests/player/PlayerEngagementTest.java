@@ -40,6 +40,7 @@ public class PlayerEngagementTest extends ActivityTest<LauncherActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
+    @org.junit.Ignore
     @Ignore
     /** This test is flaky for many reasons. RecyclerView issues, the overflow menu in the Player cannot be clicked
      * correctly sometimes. Ignoring this as part of my build sheriff role.

@@ -17,6 +17,7 @@ public class LeaveBehindTest extends AdBaseTest {
         return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
+    @org.junit.Ignore
     @Test
     public void testFinishAdShouldShowLeaveBehind() throws Exception {
         swipeToAd();

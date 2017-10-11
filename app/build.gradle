@@ -12,7 +12,7 @@ ext {
   releaseName             = System.env.containsKey('RELEASE_NAME') ? System.env.RELEASE_NAME : '' //'' signals local build
   pipelineVersion         = System.env.containsKey('PIPELINE_VERSION') ? System.env.PIPELINE_VERSION : '0-0' // '0-0' signals local build
   buildType               = System.env.containsKey('BUILD_TYPE') ? System.env.BUILD_TYPE : 'debug' // 'debug' signals local build
-  buildFlavor             = System.env.containsKey('JENKINS_URL') ? 'prod' : 'dev' // 'prod' signals CI build; 'dev' signals local build
+  buildFlavor             = ( System.env.containsKey('JENKINS_URL') || System.env.containsKey('GO_PIPELINE_COUNTER') ) ? 'prod' : 'dev' // 'prod' signals CI build; 'dev' signals local build
   gitBranch               = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
 
   rootPackage               = "com.soundcloud.android"
@@ -27,12 +27,21 @@ ext {
   buildSrcDir = 'buildsystem'
 }
 
-private def int getCurrentVersionCode() {
+private int getCurrentVersionCode() {
   Integer.parseInt(extractFromManifest('versionCode=\"(\\d+)\"'))
 }
 
-private def String getCurrentVersionName() {
+private String getCurrentVersionName() {
   extractFromManifest('versionName=\"(.+)\"')
+}
+
+// This should only be here during the time where we're running UI tests on Mobile Testrunner and on Firebase.
+private static int getRetryCount() {
+  if (System.env.containsKey('JENKINS_URL')) {
+    return 0
+  } else {
+    return 2
+  }
 }
 
 private def extractFromManifest(String regex) {
@@ -95,6 +104,7 @@ android {
     testInstrumentationRunner project.ext.testInstrumentationRunner
 
     buildConfigField "int", "ROBOELETRIC_SDK_VERSION", "$rootProject.ext.robolectricConfigSdkVersion"
+    buildConfigField "int", 'TEST_RETRY_COUNT', "${getRetryCount()}"
   }
 
   compileOptions {

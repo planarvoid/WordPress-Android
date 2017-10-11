@@ -54,12 +54,12 @@ import java.util.concurrent.TimeUnit
  * - Espresso (via [ActivityTestRule])
  * - WireMock for network stubbing concerns
  * - MrLocalLocal for verifying event tracking
- *
+ *g
  * and handles screenshots for test failures.
  */
 abstract class ActivityTest<T : Activity>
 protected constructor(activityClass: Class<T>) {
-    @JvmField @Rule val retryRule = RetryRule(0)
+    @JvmField @Rule val retryRule = RetryRule(BuildConfig.TEST_RETRY_COUNT)
     @JvmField @Rule val activityTestRule: ActivityTestRule<T> = ActivityTestRule(activityClass, true, false)
     @JvmField @Rule val logHandlerRule = LogHandlerRule()
     @JvmField @Rule val screenshot = ScreenshotOnTestFailureRule()
@@ -71,19 +71,18 @@ protected constructor(activityClass: Class<T>) {
         get() = ExperimentsHelper.create(activityTestRule.activity.applicationContext)
 
     lateinit protected var toastObserver: ToastObserver
+    private var activityIntent: Intent? = null
     lateinit var solo: Han
     lateinit protected var mainNavHelper: MainNavigationHelper
     lateinit var waiter: Waiter
     lateinit protected var connectionHelper: TestConnectionHelper
     lateinit private var wireMockServer: WireMockServer
     lateinit protected var mrLocalLocal: MrLocalLocal
-    private var activityIntent: Intent? = null
 
     @Before
     @Throws(Exception::class)
     open fun setUp() {
         configureWiremock()
-
         addActivityMonitors(instrumentation)
 
         solo = Han(instrumentation).apply {
@@ -145,9 +144,7 @@ protected constructor(activityClass: Class<T>) {
         stopWiremock()
     }
 
-    private fun setDefaultLocale() {
-        setLocale(Locale.US, activityTestRule.activity.resources)
-    }
+    private fun setDefaultLocale() = setLocale(Locale.US, activityTestRule.activity.resources)
 
     private fun setLocale(locale: Locale, resources: Resources) {
         Locale.setDefault(locale)
@@ -187,9 +184,7 @@ protected constructor(activityClass: Class<T>) {
 
     protected open fun wiremockLoggingEnabled() = false
 
-    protected open fun addActivityMonitors(instrumentation: Instrumentation) {
-
-    }
+    protected open fun addActivityMonitors(instrumentation: Instrumentation) {}
 
     /***
      * Add stubs for wiremock, e.g. :
@@ -216,14 +211,14 @@ protected constructor(activityClass: Class<T>) {
 
         for (pi in activityManager.runningAppProcesses) {
             if (BuildConfig.APPLICATION_ID == pi.processName) {
-                Log.d(javaClass.simpleName, "killSelf:" + pi.processName + "," + pi.pid)
+                Log.d(javaClass.simpleName, "killSelf: ${pi.processName}, ${pi.pid}")
                 android.os.Process.killProcess(pi.pid)
             }
         }
     }
 
     protected fun log(msg: Any?, vararg args: Any) {
-        Log.d(javaClass.simpleName, if (msg == null) null else String.format(msg.toString(), *args))
+        Log.d(javaClass.simpleName, if (msg != null) String.format(msg.toString(), *args) else null)
     }
 
     private fun logIn() {
