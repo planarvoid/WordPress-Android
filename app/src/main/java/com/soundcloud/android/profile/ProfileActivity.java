@@ -44,10 +44,9 @@ public class ProfileActivity extends FullscreenablePlayerActivity {
         super.setActivityContentView();
 
         final boolean bottomNavEnabled = appNavigationExperiment.isBottomNavigationEnabled();
-        final boolean showProfileBanner = profileConfig.showProfileBanner();
 
         final int targetLayout;
-        if (showProfileBanner) {
+        if (shouldBeFullscreen()) {
             targetLayout = bottomNavEnabled ? R.layout.profile_with_bottom_view : R.layout.profile;
         } else {
             targetLayout = bottomNavEnabled ? R.layout.profile_no_banner_with_bottom_view : R.layout.profile_no_banner;

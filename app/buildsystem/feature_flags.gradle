@@ -12,7 +12,6 @@ enum Feature {
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   NEW_HOME,
-  PROFILE_BANNER,
   FLIPPER_V2,
   ENCRYPTED_HLS,
   SEARCH_PLAY_RELATED_TRACKS,
@@ -33,7 +32,6 @@ android {
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_V2.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
@@ -59,7 +57,6 @@ android {
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
     }
@@ -68,7 +65,6 @@ android {
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
@@ -90,7 +86,6 @@ android {
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_HIDE
@@ -104,7 +99,6 @@ android {
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_HIDE
