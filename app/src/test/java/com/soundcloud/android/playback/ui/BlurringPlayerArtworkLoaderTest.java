@@ -10,15 +10,14 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,26 +30,25 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
     @Mock ImageView wrappedImageView;
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
-    @Mock Subscription subscription;
     @Mock ViewVisibilityProvider viewVisibilityProvider;
     @Mock ImageResource imageResource;
 
     private PlayerArtworkLoader playerArtworkLoader;
     private Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-    private Scheduler immediateScheduler = Schedulers.immediate();
+    private Scheduler immediateScheduler = Schedulers.trampoline();
 
     @Before
     public void setUp() throws Exception {
         playerArtworkLoader = new BlurringPlayerArtworkLoader(imageOperations,
                                                               resources(),
-                                                              Schedulers.immediate(),
-                                                              Schedulers.immediate());
+                                                              Schedulers.trampoline(),
+                                                              Schedulers.trampoline());
     }
 
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() {
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler)).thenReturn(Observable.empty());
+        when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler)).thenReturn(Single.never());
 
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
@@ -67,7 +65,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         final Bitmap blurredBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
         when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))
-                .thenReturn(Observable.just(blurredBitmap));
+                .thenReturn(Single.just(blurredBitmap));
 
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
@@ -83,7 +81,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         final Bitmap blurredBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
         when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))
-                .thenReturn(Observable.just(blurredBitmap));
+                .thenReturn(Single.just(blurredBitmap));
         when(viewVisibilityProvider.isCurrentlyVisible(imageOverlayView)).thenReturn(true);
 
         playerArtworkLoader.loadArtwork(imageResource,
@@ -99,8 +97,8 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
 
     @Test
     public void loadArtworkUnsubscribesFromOldBlurringOperations() {
-        PublishSubject<Bitmap> firstBlurObservable = PublishSubject.create();
-        PublishSubject<Bitmap> secondBlurObservable = PublishSubject.create();
+        SingleSubject<Bitmap> firstBlurObservable = SingleSubject.create();
+        SingleSubject<Bitmap> secondBlurObservable = SingleSubject.create();
 
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
         when(imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), immediateScheduler, immediateScheduler))

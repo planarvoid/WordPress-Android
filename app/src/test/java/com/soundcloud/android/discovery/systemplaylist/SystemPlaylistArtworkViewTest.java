@@ -10,10 +10,10 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -53,7 +53,7 @@ public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
         final ImageResource track2 = mock(ImageResource.class);
         final ImageResource track3 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3);
-        final Observable<Bitmap> empty = Observable.empty();
+        final Single<Bitmap> empty = Single.never();
         when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(empty);
 
         view.bindWithAnimation(imageOperations, entities);
@@ -66,7 +66,7 @@ public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
         final ImageResource track1 = mock(ImageResource.class);
         final List<ImageResource> entities = Collections.singletonList(track1);
 
-        final Observable<Bitmap> observable = Observable.just(mock(Bitmap.class));
+        final Single<Bitmap> observable = Single.just(mock(Bitmap.class));
 
         when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(observable);
 

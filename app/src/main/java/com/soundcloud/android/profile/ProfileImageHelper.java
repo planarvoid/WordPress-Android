@@ -5,8 +5,11 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.PlaceholderGenerator;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Single;
 import rx.Notification;
 import rx.Observable;
 import rx.functions.Func1;
@@ -14,7 +17,6 @@ import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -47,12 +49,12 @@ public class ProfileImageHelper {
         avatarView.setImageResource(android.R.color.transparent);
         bannerView.setImageResource(android.R.color.transparent);
 
-        Observable<Notification<Bitmap>> loadBanner = bindVisualBanner(bannerView,
-                userImageSource).materialize()
-                .filter(FILTER_OUT_COMPLETED);
+        Observable<Notification<RxSignal>> loadBanner = RxJava.toV1Observable(bindVisualBanner(bannerView, userImageSource).toObservable())
+                                                              .materialize()
+                                                              .filter(FILTER_OUT_COMPLETED);
         Observable<Notification<Palette>> loadAvatar = bindAvatar(avatarView, userImageSource)
-                                                        .materialize()
-                                                        .filter(FILTER_OUT_COMPLETED);
+                .materialize()
+                .filter(FILTER_OUT_COMPLETED);
         subscriptions.add(Observable.zip(loadBanner, loadAvatar, combineImageLoadingEvents(userImageSource))
                                     .subscribe(new ImageLoadingSubscriber(bannerView, backgroundAnimator)));
     }
@@ -61,7 +63,7 @@ public class ProfileImageHelper {
         subscriptions.clear();
     }
 
-    private Func2<Notification<Bitmap>, Notification<Palette>, UserImageSource> combineImageLoadingEvents(
+    private Func2<Notification<RxSignal>, Notification<Palette>, UserImageSource> combineImageLoadingEvents(
             final UserImageSource suggestedCreatorItem) {
         return (bitmapNotification, paletteNotification) -> {
             if (paletteNotification.getKind() == Notification.Kind.OnNext) {
@@ -76,12 +78,12 @@ public class ProfileImageHelper {
         };
     }
 
-    private Observable<Bitmap> bindVisualBanner(final ImageView imageView,
-                                                final UserImageSource suggestedCreatorItem) {
+    private Single<RxSignal> bindVisualBanner(final ImageView imageView,
+                                              final UserImageSource suggestedCreatorItem) {
         final Urn creatorUrn = suggestedCreatorItem.getCreatorUrn();
 
         if (shouldDisplayGradientFromPalette(suggestedCreatorItem)) {
-            return Observable.just(null);
+            return Single.just(RxSignal.SIGNAL);
         } else {
             final Optional<Palette> palette = suggestedCreatorItem.getPalette();
             return imageOperations.displayInAdapterView(
@@ -93,7 +95,7 @@ public class ProfileImageHelper {
                     imageView,
                     generateFallbackDrawable(palette, creatorUrn),
                     ImageOperations.DisplayType.DEFAULT
-            );
+            ).map(ignore -> RxSignal.SIGNAL);
         }
     }
 
@@ -112,11 +114,11 @@ public class ProfileImageHelper {
 
     private Observable<Palette> bindAvatar(final ImageView imageView,
                                            final UserImageSource suggestedCreatorItem) {
-        return imageOperations.displayCircularInAdapterViewAndGeneratePalette(
+        return RxJava.toV1Observable(imageOperations.displayCircularInAdapterViewAndGeneratePalette(
                 SimpleImageResource.create(suggestedCreatorItem.getCreatorUrn(),
-                        suggestedCreatorItem.getAvatarUrl()),
+                                           suggestedCreatorItem.getAvatarUrl()),
                 ApiImageSize.getFullImageSize(resources),
-                imageView);
+                imageView));
     }
 
     private static class BackgroundAnimator {
@@ -143,8 +145,8 @@ public class ProfileImageHelper {
 
     private static boolean shouldDisplayGradientFromPalette(UserImageSource suggestedCreatorItem) {
         return (!suggestedCreatorItem.getVisualUrl()
-                .isPresent() || suggestedCreatorItem.shouldDefaultToPalette()) && suggestedCreatorItem.getPalette()
-                .isPresent();
+                                     .isPresent() || suggestedCreatorItem.shouldDefaultToPalette()) && suggestedCreatorItem.getPalette()
+                                                                                                                           .isPresent();
     }
 
     private static class ImageLoadingSubscriber extends DefaultSubscriber<UserImageSource> {

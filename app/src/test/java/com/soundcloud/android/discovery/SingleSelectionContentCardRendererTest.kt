@@ -88,7 +88,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
         assertThat(count).isVisible
         verify(imageOperations).displayInAdapterView(
-                cardWithCount.selectionItem.urn,
+                cardWithCount.selectionItem.urn!!,
                 fromNullable(cardWithCount.selectionItem.artworkUrlTemplate),
                 ApiImageSize.getFullImageSize(resources),
                 imageView,
@@ -106,7 +106,7 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 
         assertThat(count).isNotVisible
         verify(imageOperations).displayInAdapterView(
-                cardWithoutCount.selectionItem.urn,
+                cardWithoutCount.selectionItem.urn!!,
                 fromNullable(cardWithoutCount.selectionItem.artworkUrlTemplate),
                 ApiImageSize.getFullImageSize(resources),
                 imageView,

@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.soundcloud.android.utils.images.ImageUtils;
-import rx.Subscriber;
+import io.reactivex.SingleEmitter;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -10,17 +10,17 @@ import javax.inject.Inject;
 
 public class FallbackBitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
-    private final Subscriber<? super Bitmap> subscriber;
+    private final SingleEmitter<? super Bitmap> subscriber;
     private final Bitmap fallbackImage;
 
-    public FallbackBitmapLoadingAdapter(Subscriber<? super Bitmap> subscriber, Bitmap fallbackImage) {
+    public FallbackBitmapLoadingAdapter(SingleEmitter<? super Bitmap> subscriber, Bitmap fallbackImage) {
         this.subscriber = subscriber;
         this.fallbackImage = fallbackImage;
     }
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        if (subscriber.isUnsubscribed()) {
+        if (subscriber.isDisposed()) {
             fallbackImage.recycle();
         } else {
             emitLoadedOrFallbackImage(loadedImage);
@@ -39,16 +39,13 @@ public class FallbackBitmapLoadingAdapter extends ImageUtils.ViewlessLoadingList
 
     @Override
     public void onLoadingFailed(String imageUri, View view, Throwable cause) {
-        if (!subscriber.isUnsubscribed()) {
+        if (!subscriber.isDisposed()) {
             emitAndComplete(fallbackImage);
         }
     }
 
     private void emitAndComplete(Bitmap image) {
-        if (!subscriber.isUnsubscribed()) {
-            subscriber.onNext(image);
-            subscriber.onCompleted();
-        }
+        subscriber.onSuccess(image);
     }
 
     public static class Factory {
@@ -58,7 +55,7 @@ public class FallbackBitmapLoadingAdapter extends ImageUtils.ViewlessLoadingList
             // no-op
         }
 
-        public FallbackBitmapLoadingAdapter create(Subscriber subscriber, Bitmap fallback) {
+        public FallbackBitmapLoadingAdapter create(SingleEmitter<? super Bitmap> subscriber, Bitmap fallback) {
             return new FallbackBitmapLoadingAdapter(subscriber, fallback);
         }
     }

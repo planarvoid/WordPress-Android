@@ -49,13 +49,15 @@ constructor(private val imageOperations: ImageOperations, private val resources:
     }
 
     private fun bindSelectionItem(view: ImageView, countTextView: TextView, selectionItem: SelectionItemViewModel) {
-        imageOperations.displayInAdapterView(
-                selectionItem.urn,
-                fromNullable(selectionItem.artworkUrlTemplate),
-                ApiImageSize.getFullImageSize(resources),
-                view,
-                ImageOperations.DisplayType.DEFAULT)
+        selectionItem.urn?.let {
+            imageOperations.displayInAdapterView(
+                    it,
+                    fromNullable(selectionItem.artworkUrlTemplate),
+                    ApiImageSize.getFullImageSize(resources),
+                    view,
+                    ImageOperations.DisplayType.DEFAULT)
 
+        }
         bindText(countTextView, selectionItem.count?.toString())
     }
 

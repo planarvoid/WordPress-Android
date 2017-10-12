@@ -14,7 +14,7 @@ import com.soundcloud.android.utils.DeviceHelper
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.cache.Cache
 import com.soundcloud.java.optional.Optional
-import rx.functions.Action1
+import io.reactivex.functions.Consumer
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -53,7 +53,7 @@ constructor(@param:Named(PLACEHOLDER_CACHE) private val placeholderCache: Cache<
 
     fun getBlurredImage(urn: Urn): Bitmap? = blurredImageCache.get(urn)
 
-    fun cacheBlurredBitmap(resourceUrn: Urn): Action1<Bitmap> = Action1 { blurredImageCache.put(resourceUrn, it) }
+    fun cacheBlurredBitmap(resourceUrn: Urn) = Consumer { bitmap: Bitmap -> blurredImageCache.put(resourceUrn, bitmap) }
 
     companion object {
         private const val DEFAULT_CACHE_KEY = "default_cache_key"

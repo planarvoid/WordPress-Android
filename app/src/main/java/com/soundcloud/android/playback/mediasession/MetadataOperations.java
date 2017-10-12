@@ -12,7 +12,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
@@ -103,8 +102,8 @@ class MetadataOperations {
     private Single<TrackAndBitmap> loadArtwork(final TrackItem trackItem, final SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
 
-        return RxJava.toV2Single(imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize))
-                     .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
+        return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
+                              .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
     }
 
     @Nullable

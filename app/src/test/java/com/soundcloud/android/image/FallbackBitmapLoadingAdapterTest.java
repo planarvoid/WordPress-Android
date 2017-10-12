@@ -1,29 +1,28 @@
 package com.soundcloud.android.image;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import io.reactivex.SingleEmitter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import android.graphics.Bitmap;
 import android.view.View;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FallbackBitmapLoadingAdapterTest {
 
     private FallbackBitmapLoadingAdapter adapter;
 
-    TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
+    @Mock SingleEmitter<Bitmap> singleEmitter;
 
     private @Mock View view;
     private @Mock Bitmap bitmap;
@@ -31,23 +30,22 @@ public class FallbackBitmapLoadingAdapterTest {
 
     @Test
     public void onLoadingFailedFallBackToDrawable() throws Exception {
-        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
+        adapter = new FallbackBitmapLoadingAdapter(singleEmitter, fallbackImage);
         adapter.onLoadingFailed("uri", view, new IOException());
-
-        assertThat(subscriber.getOnErrorEvents()).isEmpty();
-        assertThat(subscriber.getOnNextEvents()).containsExactly(fallbackImage);
+        verify(singleEmitter, never()).onError(any());
+        verify(singleEmitter).onSuccess(fallbackImage);
     }
 
     @Test
     public void onLoadingCompleteEmitsBitmap() throws Exception {
-        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
+        adapter = new FallbackBitmapLoadingAdapter(singleEmitter, fallbackImage);
         adapter.onLoadingComplete("uri", view, bitmap);
-        subscriber.assertValue(bitmap);
+        verify(singleEmitter).onSuccess(bitmap);
     }
 
     @Test
     public void onLoadingCompleteRecycleFallbackBitmap() throws Exception {
-        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
+        adapter = new FallbackBitmapLoadingAdapter(singleEmitter, fallbackImage);
 
         adapter.onLoadingComplete("uri", view, bitmap);
 
@@ -56,16 +54,16 @@ public class FallbackBitmapLoadingAdapterTest {
 
     @Test
     public void onLoadingCompleteDoesNotEmitBitmapIfUnsubscribed() throws Exception {
-        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
-        subscriber.unsubscribe();
+        when(singleEmitter.isDisposed()).thenReturn(true);
+        adapter = new FallbackBitmapLoadingAdapter(singleEmitter, fallbackImage);
         adapter.onLoadingComplete("uri", view, bitmap);
-        subscriber.assertReceivedOnNext(Collections.emptyList());
+        verify(singleEmitter, never()).onSuccess(any());
     }
 
     @Test
     public void onLoadingCompleteDoesNotCopyBitmapIfUnsubscribed() throws Exception {
-        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
-        subscriber.unsubscribe();
+        when(singleEmitter.isDisposed()).thenReturn(true);
+        adapter = new FallbackBitmapLoadingAdapter(singleEmitter, fallbackImage);
         adapter.onLoadingComplete("uri", view, bitmap);
         verify(bitmap, never()).copy(any(Bitmap.Config.class), anyBoolean());
     }

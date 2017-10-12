@@ -3,14 +3,15 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -41,11 +42,11 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
 
     @Override
     public Observable<Bitmap> loadAdBackgroundImage(final Urn trackUrn) {
-        return imageOperations.blurredArtwork(resources,
-                                              toImageResource(trackUrn),
-                                              Optional.absent(),
-                                              graphicsScheduler,
-                                              observeOnScheduler);
+        return RxJava.toV1Observable(imageOperations.blurredArtwork(resources,
+                                                     toImageResource(trackUrn),
+                                                     Optional.absent(),
+                                                     graphicsScheduler,
+                                                     observeOnScheduler));
     }
 
     @Override
@@ -59,11 +60,11 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
                                       ImageView imageOverlay,
                                       Optional<ViewVisibilityProvider> viewVisibilityProvider) {
         blurSubscription.unsubscribe();
-        blurSubscription = imageOperations.blurredArtwork(resources,
+        blurSubscription = RxJava.toV1Observable(imageOperations.blurredArtwork(resources,
                                                           imageResource,
                                                           Optional.absent(),
                                                           graphicsScheduler,
-                                                          observeOnScheduler)
+                                                          observeOnScheduler))
                                           .subscribe(new BlurredOverlaySubscriber(imageOverlay,
                                                                                   viewVisibilityProvider));
     }

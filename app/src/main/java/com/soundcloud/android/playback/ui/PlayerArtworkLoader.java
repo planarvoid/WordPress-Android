@@ -4,6 +4,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
@@ -36,10 +37,10 @@ public class PlayerArtworkLoader {
     }
 
     public Observable<Bitmap> loadAdBackgroundImage(Urn trackUrn) {
-        return imageOperations.bitmap(
+        return RxJava.toV1Observable(imageOperations.bitmap(
                 Uri.parse(imageOperations.getImageUrl(Optional.absent(),
                                                       trackUrn,
-                                                      ApiImageSize.getFullImageSize(resources)))
+                                                      ApiImageSize.getFullImageSize(resources))))
         );
     }
 
@@ -50,6 +51,7 @@ public class PlayerArtworkLoader {
             public Urn getUrn() {
                 return trackUrn;
             }
+
             @Override
             public Optional<String> getImageUrlTemplate() {
                 return Optional.absent();

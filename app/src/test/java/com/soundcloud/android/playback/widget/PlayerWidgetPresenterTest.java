@@ -21,12 +21,12 @@ import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.verification.VerificationMode;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -49,7 +49,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     @Test
     public void updatesWidgetStateWhenPlayStateChanges() {
         final TrackItem updatedTrack = PlayableFixtures.expectedTrackForWidget();
-        setupArtworkLoad(updatedTrack, Observable.empty());
+        setupArtworkLoad(updatedTrack, Single.never());
         presenter.updateTrackInformation(context(), updatedTrack);
 
         presenter.updatePlayState(context(), true);
@@ -60,7 +60,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     @Test
     public void updatesTrackWhenPlayableChanges() {
         final TrackItem updatedTrack = PlayableFixtures.expectedTrackForWidget();
-        setupArtworkLoad(updatedTrack, Observable.empty());
+        setupArtworkLoad(updatedTrack, Single.never());
         presenter.updateTrackInformation(context(), updatedTrack);
 
         verifyUpdateViaPlayBackWidgetProvider();
@@ -76,14 +76,14 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     @Test
     public void unsubscribesFromArtworkLoadingWhenResetting() {
         final TrackItem trackProperties = PlayableFixtures.expectedTrackForWidget();
-        final PublishSubject<Bitmap> subject = PublishSubject.create();
+        final SingleSubject<Bitmap> subject = SingleSubject.create();
         setupArtworkLoad(trackProperties, subject);
 
         presenter.updateTrackInformation(context(), trackProperties);
         presenter.reset(context());
         reset(appWidgetManager);
 
-        subject.onNext(mock(Bitmap.class));
+        subject.onSuccess(mock(Bitmap.class));
         verifyUpdateViaPlayBackWidgetProvider(never());
     }
 
@@ -99,12 +99,12 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
         verify(appWidgetManager).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 
-    private void setupArtworkLoad(TrackItem trackItem, Observable<Bitmap> bitmapObservable) {
+    private void setupArtworkLoad(TrackItem trackItem, Single<Bitmap> bitmapSingle) {
         when(imageOperations.artwork(argThat(isImageResourceFor(trackItem)),
                                      same(ApiImageSize.getNotificationLargeIconImageSize(resources())),
                                      eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width)),
                                      eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))))
-                .thenReturn(bitmapObservable);
+                .thenReturn(bitmapSingle);
     }
 
 }

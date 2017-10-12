@@ -9,12 +9,12 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.Log;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import org.jetbrains.annotations.NotNull;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -37,7 +37,7 @@ class PlayerWidgetPresenter {
     private final ImageOperations imageOperations;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
-    private Subscription artworkSubscription = RxUtils.invalidSubscription();
+    private Disposable artworkDisposable = RxUtils.invalidDisposable();
 
     @Nullable private WidgetItem widgetItem;
 
@@ -51,13 +51,13 @@ class PlayerWidgetPresenter {
     }
 
     void updateForVideoAd(final Context context) {
-        artworkSubscription.unsubscribe();
+        artworkDisposable.dispose();
         widgetItem = WidgetItem.forVideoAd(context.getResources());
         updateRemoveViews(context);
     }
 
     void updateForAudioAd(final Context context) {
-        artworkSubscription.unsubscribe();
+        artworkDisposable.dispose();
         widgetItem = WidgetItem.forAudioAd(context.getResources());
         updateRemoveViews(context);
     }
@@ -72,7 +72,7 @@ class PlayerWidgetPresenter {
     }
 
     void updateTrackInformation(final Context context, final TrackItem trackItem) {
-        artworkSubscription.unsubscribe();
+        artworkDisposable.dispose();
         widgetItem = WidgetItem.fromTrackItem(trackItem);
         updateAndLoadArtwork(context);
     }
@@ -86,14 +86,14 @@ class PlayerWidgetPresenter {
     }
 
     private void loadArtwork(Context context) {
-        artworkSubscription = imageOperations.artwork(widgetItem,
-                                                      getApiImageSize(context.getResources()),
-                                                      context.getResources()
+        artworkDisposable = imageOperations.artwork(widgetItem,
+                                                    getApiImageSize(context.getResources()),
+                                                    context.getResources()
                                                              .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
-                                                      context.getResources()
+                                                    context.getResources()
                                                              .getDimensionPixelSize(R.dimen.widget_image_estimated_height))
-                                             .observeOn(AndroidSchedulers.mainThread())
-                                             .subscribe(getArtworkSubscriber(context));
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribeWith(getArtworkSubscriber(context));
     }
 
     private void updateRemoveViews(Context context) {
@@ -111,10 +111,11 @@ class PlayerWidgetPresenter {
     }
 
     @NotNull
-    private DefaultSubscriber<Bitmap> getArtworkSubscriber(final Context context) {
-        return new DefaultSubscriber<Bitmap>() {
+    private DefaultSingleObserver<Bitmap> getArtworkSubscriber(final Context context) {
+        return new DefaultSingleObserver<Bitmap>() {
             @Override
-            public void onNext(Bitmap bitmap) {
+            public void onSuccess(Bitmap bitmap) {
+                super.onSuccess(bitmap);
                 updateRemoveViews(context, bitmap);
             }
         };
@@ -122,7 +123,7 @@ class PlayerWidgetPresenter {
 
     void reset(Context context) {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
-        artworkSubscription.unsubscribe();
+        artworkDisposable.dispose();
         widgetItem = null;
 
         pushUpdate(buildEmptyRemoteViews(context));

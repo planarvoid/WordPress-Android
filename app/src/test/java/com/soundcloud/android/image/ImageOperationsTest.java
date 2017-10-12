@@ -32,6 +32,12 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.functions.Consumer;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,12 +45,6 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.functions.Action1;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -86,7 +86,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         }
     };
 
-    @Mock private Action1<Bitmap> bitmapAction1;
+    @Mock private Consumer<Bitmap> bitmapAction1;
 
     @Mock ImageLoader imageLoader;
     @Mock ApiUrlBuilder apiUrlBuilder;
@@ -128,7 +128,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
                 placeholderGenerator,
                 circularPlaceholderGenerator,
                 imageCache);
-        scheduler = Schedulers.immediate();
+        scheduler = Schedulers.trampoline();
 
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
@@ -367,12 +367,11 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void displayWithPlaceholderObservablePassesBitmapFromLoadCompleteToAdapter() {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> listenerCaptor = ArgumentCaptor.forClass(ImageLoadingListener.class);
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
-        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
+        when(bitmapLoadingAdapterFactory.create(any(SingleEmitter.class))).thenReturn(bitmapLoadingAdapter);
 
         imageOperations.displayWithPlaceholderObservable(imageResource,
                                                          ApiImageSize.T500,
-                                                         imageView).subscribe(subscriber);
+                                                         imageView).test();
 
         verify(imageLoader).displayImage(any(String.class),
                                          any(ImageViewAware.class),
@@ -388,10 +387,9 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.bitmap(Uri.parse(URL));
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
-        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
-        observable.subscribe(subscriber);
+        Single<Bitmap> single = imageOperations.bitmap(Uri.parse(URL));
+        when(bitmapLoadingAdapterFactory.create(any(SingleEmitter.class))).thenReturn(bitmapLoadingAdapter);
+        single.test();
 
         verify(imageLoader).displayImage(eq(URL),
                                          any(NonViewAware.class),
@@ -407,10 +405,9 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void adImageObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.bitmap(Uri.parse(URL));
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
-        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
-        observable.subscribe(subscriber);
+        Single<Bitmap> single = imageOperations.bitmap(Uri.parse(URL));
+        when(bitmapLoadingAdapterFactory.create(any(SingleEmitter.class))).thenReturn(bitmapLoadingAdapter);
+        single.test();
 
         verify(imageLoader).displayImage(eq(URL),
                                          any(NonViewAware.class),
@@ -430,11 +427,10 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(imageResource, ApiImageSize.T120);
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
-        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
+        Single<Bitmap> single = imageOperations.artwork(imageResource, ApiImageSize.T120);
+        when(viewlessLoadingAdapterFactory.create(any(SingleEmitter.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
-        observable.subscribe(subscriber);
+        single.test();
 
         verify(imageLoader).loadImage(eq(CDN_URL), captor.capture());
         captor.getValue().onLoadingComplete("asdf", imageView, bitmap);
@@ -445,11 +441,10 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void artworkObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(imageResource, ApiImageSize.T120);
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
-        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
+        Single<Bitmap> single = imageOperations.artwork(imageResource, ApiImageSize.T120);
+        when(viewlessLoadingAdapterFactory.create(any(SingleEmitter.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
-        observable.subscribe(subscriber);
+        single.test();
 
         verify(imageLoader).loadImage(eq(CDN_URL), captor.capture());
         Exception cause = new Exception("Decoding error");
@@ -461,19 +456,17 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void blurredPlayerArtworkReturnsBlurredImageFromCache() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(imageCache.getBlurredImage(URN)).thenReturn(blurredBitmap);
 
-        imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).subscribe(subscriber);
+        final TestObserver<Bitmap> test = imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).test();
 
-        assertThat(subscriber.getOnNextEvents()).containsExactly(blurredBitmap);
+        test.assertValue(blurredBitmap);
     }
 
     @Test
     public void blurredPlayerArtworkCreatesBlurredImageFromCache() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap cachedBitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
@@ -481,21 +474,21 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(memoryCache.get(anyString())).thenReturn(cachedBitmap);
         when(imageProcessor.blurBitmap(cachedBitmap, Optional.absent())).thenReturn(blurredBitmap);
 
-        imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).subscribe(subscriber);
+        final TestObserver<Bitmap> test = imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).test();
 
-        assertThat(subscriber.getOnNextEvents()).containsExactly(blurredBitmap);
+        test.assertValue(blurredBitmap);
     }
 
     @Test
     public void blurredPlayerArtworkCachesBlurredImage() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap cachedBitmaop = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
         when(imageProcessor.blurBitmap(cachedBitmaop, Optional.absent())).thenReturn(blurredBitmap);
+        when(imageCache.cacheBlurredBitmap(URN)).thenReturn(bitmap -> {});
 
-        imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).subscribe(subscriber);
+        imageOperations.blurredArtwork(resources(), imageResource, Optional.absent(), scheduler, scheduler).test();
 
         verify(imageCache).cacheBlurredBitmap(URN);
     }

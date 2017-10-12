@@ -21,6 +21,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
@@ -54,7 +55,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
         when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
-                                     any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(rx.Observable.just(bitmap));
+                                     any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Single.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
                 .thenReturn(adBitmap);
     }

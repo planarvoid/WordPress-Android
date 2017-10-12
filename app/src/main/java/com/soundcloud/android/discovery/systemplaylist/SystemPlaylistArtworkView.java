@@ -5,13 +5,12 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Observable;
-import rx.Subscription;
+import com.soundcloud.android.rx.observers.DefaultCompletableObserver;
+import io.reactivex.Completable;
+import io.reactivex.disposables.Disposable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -26,7 +25,7 @@ import java.util.List;
 public class SystemPlaylistArtworkView extends FrameLayout {
     private LayoutInflater inflater;
     private ViewFlipper artworkAnimator;
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.invalidDisposable();
     int artworkLayout;
 
     public SystemPlaylistArtworkView(Context context) {
@@ -58,28 +57,30 @@ public class SystemPlaylistArtworkView extends FrameLayout {
     }
 
     public void bindWithAnimation(ImageOperations imageOperations, List<? extends ImageResource> imageResources) {
-        List<Observable<Bitmap>> observables = new ArrayList<>(imageResources.size());
+        List<Completable> completables = new ArrayList<>(imageResources.size());
 
         artworkAnimator.removeAllViews();
 
         for (int i = 0; i < imageResources.size(); i++) {
             inflater.inflate(artworkLayout, artworkAnimator);
             final ImageView imageView = (ImageView) artworkAnimator.getChildAt(i);
-            observables.add(imageOperations.displayWithPlaceholderObservable(imageResources.get(i),
+            completables.add(imageOperations.displayWithPlaceholderObservable(imageResources.get(i),
                                                                              ApiImageSize.getFullImageSize(imageView.getResources()),
-                                                                             imageView));
+                                                                             imageView)
+                                           .toCompletable());
         }
 
-        subscription = Observable.zip(observables, ignored -> ignored)
-                                 .subscribe(new DefaultSubscriber<Object[]>() {
-                                                @Override
-                                                public void onNext(Object[] ignored) {
-                                                    artworkAnimator.startFlipping();
-                                                    artworkAnimator.setInAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_in));
-                                                    artworkAnimator.setOutAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_out));
-                                                }
-                                            }
-                                 );
+
+        disposable = Completable.merge(completables)
+                                .subscribeWith(new DefaultCompletableObserver() {
+                                                   @Override
+                                                   public void onComplete() {
+                                                       artworkAnimator.startFlipping();
+                                                       artworkAnimator.setInAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_in));
+                                                       artworkAnimator.setOutAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_out));
+                                                   }
+                                               }
+                                );
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
@@ -105,6 +106,6 @@ public class SystemPlaylistArtworkView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        subscription.unsubscribe();
+        disposable.dispose();
     }
 }

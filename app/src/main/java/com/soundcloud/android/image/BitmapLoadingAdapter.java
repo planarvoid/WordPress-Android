@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.soundcloud.android.utils.images.ImageUtils;
-import rx.Subscriber;
+import io.reactivex.SingleEmitter;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -10,9 +10,9 @@ import javax.inject.Inject;
 
 public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
-    private final Subscriber<? super Bitmap> subscriber;
+    private final SingleEmitter<? super Bitmap> subscriber;
 
-    public BitmapLoadingAdapter(Subscriber<? super Bitmap> subscriber) {
+    public BitmapLoadingAdapter(SingleEmitter<? super Bitmap> subscriber) {
         this.subscriber = subscriber;
     }
 
@@ -23,10 +23,7 @@ public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        if (!subscriber.isUnsubscribed()) {
-            subscriber.onNext(loadedImage);
-            subscriber.onCompleted();
-        }
+        subscriber.onSuccess(loadedImage);
     }
 
     public static class Factory {
@@ -35,7 +32,7 @@ public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
             // No-op
         }
 
-        public BitmapLoadingAdapter create(Subscriber<? super Bitmap> subscriber) {
+        public BitmapLoadingAdapter create(SingleEmitter<? super Bitmap> subscriber) {
             return new BitmapLoadingAdapter(subscriber);
         }
     }
