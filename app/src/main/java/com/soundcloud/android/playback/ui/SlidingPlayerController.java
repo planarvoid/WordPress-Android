@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private final LockableBottomSheetBehavior.Factory lockableBottomSheetBehaviorFactory;
     private final CompositeSubscription subscription = new CompositeSubscription();
 
-    private PlayerFragment playerFragment;
+    private WeakReference<PlayerFragment> playerFragmentRef;
     private LockableBottomSheetBehavior<View> bottomSheetBehavior;
 
     private final List<SlideListener> slideListeners = new ArrayList<>();
@@ -69,7 +70,11 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Nullable
     public View getSnackbarHolder() {
-        View playerFragmentView = playerFragment.getView();
+        View playerFragmentView = null;
+        PlayerFragment playerFragment = playerFragmentRef.get();
+        if (playerFragment != null) {
+            playerFragmentView = playerFragment.getView();
+        }
         return playerFragmentView != null ? playerFragmentView.getRootView().findViewById(android.R.id.content) : null;
     }
 
@@ -111,11 +116,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         }
         expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
 
-        playerFragment = getPlayerFragmentFromActivity(activity);
+        PlayerFragment playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
             throw new IllegalArgumentException(
                     "Player fragment not found. Make sure it is present with the expected id.");
         }
+        this.playerFragmentRef = new WeakReference<>(playerFragment);
     }
 
     private void setupPlayerContainerLayoutObserver() {
@@ -131,8 +137,11 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                        });
     }
 
-    public void onPanelSlide(float slideOffset) {
-        playerFragment.onPlayerSlide(slideOffset);
+    void onPanelSlide(float slideOffset) {
+        PlayerFragment playerFragment = playerFragmentRef.get();
+        if (playerFragment != null) {
+            playerFragment.onPlayerSlide(slideOffset);
+        }
         statusBarColorController.onPlayerSlide(slideOffset);
 
         for (int listenerIndex = 0; listenerIndex < slideListeners.size(); listenerIndex++) {
@@ -191,7 +200,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     public boolean handleBackPressed() {
-        if (playerFragment.handleBackPressed()) {
+        if (playerFragmentRef.get() != null && playerFragmentRef.get().handleBackPressed()) {
             return true;
         } else {
             if (!isLocked && isExpanded()) {

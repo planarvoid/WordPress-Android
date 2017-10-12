@@ -17,11 +17,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
 public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
     private final UnauthorisedRequestRegistry requestRegistry;
-    private final FragmentManager fragmentManager;
+    private final WeakReference<FragmentManager> fragmentManagerRef;
     private final TokenExpiredDialogFragment tokenExpiredDialog;
 
     public UnauthorisedRequestReceiver(Context context, FragmentManager fragmentManager) {
@@ -33,7 +34,7 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
                                           FragmentManager fragmentManager,
                                           TokenExpiredDialogFragment tokenExpiredDialog) {
         requestRegistry = unauthorisedRequestRegistry;
-        this.fragmentManager = fragmentManager;
+        this.fragmentManagerRef = new WeakReference<>(fragmentManager);
         this.tokenExpiredDialog = tokenExpiredDialog;
     }
 
@@ -41,7 +42,8 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (requestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()) {
             requestRegistry.clearObservedUnauthorisedRequestTimestamp();
-            if (fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
+            FragmentManager fragmentManager = fragmentManagerRef.get();
+            if (fragmentManager != null && fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
                 tokenExpiredDialog.show(fragmentManager, TokenExpiredDialogFragment.TAG);
             }
         }

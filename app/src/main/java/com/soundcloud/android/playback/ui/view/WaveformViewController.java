@@ -23,6 +23,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.BitSet;
 
 public class WaveformViewController
@@ -300,18 +301,29 @@ public class WaveformViewController
             waveformSubscription.unsubscribe();
             waveformSubscription = waveformObservable
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new WaveformSubscriber());
+                    .subscribe(new WaveformSubscriber(waveformView));
             createState.clear(IS_CREATION_PENDING);
         }
     }
 
     private class WaveformSubscriber extends DefaultSubscriber<WaveformData> {
+
+        private final WeakReference<WaveformView> waveformViewRef;
+
+        WaveformSubscriber(WaveformView waveformView) {
+            this.waveformViewRef = new WeakReference<>(waveformView);
+        }
+
         @Override
         public void onNext(WaveformData waveformData) {
             isWaveformLoaded = true;
-            waveformView.setWaveformData(waveformData, adjustedWidth, getPlayableProportion());
-            if (currentState != IDLE) {
-                waveformView.showExpandedWaveform();
+            WaveformView waveformView = waveformViewRef.get();
+            if (waveformView != null) {
+                waveformView.setWaveformData(waveformData, adjustedWidth, getPlayableProportion());
+
+                if (currentState != IDLE) {
+                    waveformView.showExpandedWaveform();
+                }
             }
         }
     }
