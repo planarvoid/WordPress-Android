@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-abstract class TrackLikesItem {
+public abstract class TrackLikesItem {
 
     public enum Kind {
         HeaderItem,
