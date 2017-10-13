@@ -4,6 +4,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord>, ChangeResult> {
 
+    private static final int BATCH_SIZE = 500;
     private final int type;
 
     @Inject
@@ -24,12 +26,14 @@ class RemoveLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecor
 
     @Override
     protected ChangeResult write(PropellerDatabase propeller, Collection<LikeRecord> input) {
-        List<Long> ids = new ArrayList<>(input.size());
-        for (LikeRecord like : input) {
-            ids.add(like.getTargetUrn().getNumericId());
+        for (List<Long> batch : Lists.partition(Lists.transform(new ArrayList<>(input), input1 -> input1.getTargetUrn().getNumericId()), BATCH_SIZE)) {
+            ChangeResult delete = propeller.delete(Tables.Likes.TABLE, filter()
+                    .whereIn(Tables.Likes._ID, batch)
+                    .whereEq(Tables.Likes._TYPE, type));
+            if (!delete.success()) {
+                return delete;
+            }
         }
-        return propeller.delete(Tables.Likes.TABLE, filter()
-                .whereIn(Tables.Likes._ID, ids)
-                .whereEq(Tables.Likes._TYPE, type));
+        return new ChangeResult(input.size());
     }
 }
