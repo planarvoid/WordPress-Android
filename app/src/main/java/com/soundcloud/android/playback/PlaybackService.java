@@ -276,7 +276,7 @@ public class PlaybackService extends Service
         if (streamPlayer.isPlaying()) {
             pause();
         } else if (currentPlaybackItem.isPresent()) {
-            play();
+            resume();
         }
     }
 
@@ -320,8 +320,8 @@ public class PlaybackService extends Service
         }
     }
 
-    public void play() {
-        Log.d(TAG, "Playing");
+    public void resume() {
+        Log.d(TAG, "Resuming playback for " + currentPlaybackItem);
         if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent()) {
             if (mediaSessionController.onPlay()) {
                 resetVolume(streamPlayer.getProgress());

@@ -189,12 +189,12 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                 ErrorUtils.log(android.util.Log.INFO, TAG, "[SKIPPY] resume called for " + playbackItem + ", and currentPlaybackItem = " + currentPlaybackItem);
                 skippy.resume();
             } else {
-                RemoveParameterFromResume.handleExceptionAccordingToBuildType("[SKIPPY] playbackItem param = " + playbackItem + ", latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = null");
+                RemoveParameterFromResume.handleException("[SKIPPY] playbackItem param = " + playbackItem + ", latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = null");
                 startPlayback(playbackItem, lastStateChangeProgress);
             }
         } else {
             String message = "[SKIPPY] playbackItem param = " + playbackItem + " is different from latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = " + currentPlaybackItem;
-            RemoveParameterFromResume.handleExceptionAccordingToBuildType(message);
+            RemoveParameterFromResume.handleException(message);
             play(playbackItem);
         }
     }
@@ -278,6 +278,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                Skippy.SkippyMediaType format,
                                int bitrate) {
         try {
+            ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in state " + state + ", reason " + reason + ", errorCode " + errorCode +
+                    ", uri " + uri + " and currentPlaybackItem is " + (currentPlaybackItem == null ? "null" : currentPlaybackItem));
             handleStateChanged(state, reason, errorCode, position, duration, uri, format, bitrate);
         } catch (Throwable t) {
             ErrorUtils.handleThrowable(t, getClass());

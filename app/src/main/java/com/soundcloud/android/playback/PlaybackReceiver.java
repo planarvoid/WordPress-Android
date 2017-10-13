@@ -44,7 +44,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Action.TOGGLE_PLAYBACK.equals(action)) {
                 playbackService.togglePlayback();
             } else if (Action.RESUME.equals(action)) {
-                playbackService.play();
+                playbackService.resume();
             } else if (Action.PAUSE.equals(action)) {
                 playbackService.pause();
             } else if (Action.SEEK.equals(action)) {

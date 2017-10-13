@@ -42,6 +42,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     @Volatile private var currentStreamUrl: String? = null
     private var currentPlaybackItem: PlaybackItem? = null
     private var playerListener: Player.PlayerListener? = null
+    private var lastReportedPlaybackTransition: PlaybackStateTransition? = null // do not use this field, this is temporary while investigating DROID-1910
 
     // Flipper may send past progress events when seeking, leading to UI glitches.
     // This boolean helps us to workaround this.
@@ -84,15 +85,16 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     }
 
     override fun resume(playbackItem: PlaybackItem) {
-        Log.d(TAG, "resume() called with: playbackItem = [$playbackItem, ${playbackItem.urn} in duration ${playbackItem.duration}]")
+        ErrorUtils.log(android.util.Log.DEBUG, TAG, "resume() called with: playbackItem = [$playbackItem, ${playbackItem.urn} in duration ${playbackItem.duration}]")
 
-        if (currentPlaybackItem == null) {
-            // could we have issued a resume(playbackItem) without calling play() before?
-            RemoveParameterFromResume.handleExceptionAccordingToBuildType("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null")
+        lastReportedPlaybackTransition?.let {
+            if (!it.wasError() && currentPlaybackItem == null) {
+                RemoveParameterFromResume.handleException("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null, " +
+                                                                                      "lastReportedPlaybackTransition = ${lastReportedPlaybackTransition}")
+            }
         }
 
-        currentPlaybackItem = playbackItem
-        startPlayback()
+        play(playbackItem)
     }
 
     private fun startPlayback() = flipperWrapper.play()
@@ -221,6 +223,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
             addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl)
 
             playerListener?.onPlaystateChanged(this)
+            lastReportedPlaybackTransition = this
 
             if (isPlaying) wakelockUtil.lock() else wakelockUtil.unlock()
             if (playbackHasStopped()) {
