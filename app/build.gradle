@@ -37,10 +37,10 @@ private String getCurrentVersionName() {
 
 // This should only be here during the time where we're running UI tests on Mobile Testrunner and on Firebase.
 private static int getRetryCount() {
-  if (System.env.containsKey('JENKINS_URL')) {
-    return 0
-  } else {
+  if (System.env.containsKey('GO_PIPELINE_COUNTER')) {
     return 2
+  } else {
+    return 0
   }
 }
 
