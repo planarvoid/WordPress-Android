@@ -11,6 +11,9 @@ import static com.soundcloud.propeller.query.Query.on;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.IOfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineProperties;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
@@ -30,6 +33,7 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 class PlaylistTracksStorage {
     private static final String IS_TRACK_ALREADY_ADDED = "track_exists_in_playlist";
@@ -38,14 +42,17 @@ class PlaylistTracksStorage {
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
     private final AccountOperations accountOperations;
+    private IOfflinePropertiesProvider offlinePropertiesProvider;
 
     @Inject
     PlaylistTracksStorage(PropellerRx propellerRx,
                           CurrentDateProvider dateProvider,
-                          AccountOperations accountOperations) {
+                          AccountOperations accountOperations,
+                          IOfflinePropertiesProvider offlinePropertiesProvider) {
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
+        this.offlinePropertiesProvider = offlinePropertiesProvider;
     }
 
     private Query queryPlaylistsWithTrackExistStatus(Urn trackUrn) {
@@ -154,27 +161,39 @@ class PlaylistTracksStorage {
     Observable<List<AddTrackToPlaylistItem>> loadAddTrackToPlaylistItems(Urn trackUrn) {
         return propellerRx
                 .query(queryPlaylistsWithTrackExistStatus(trackUrn))
-                .map(new AddTrackToPlaylistItemMapper())
+                .map(new AddTrackToPlaylistItemMapper(offlinePropertiesProvider))
                 .toList();
     }
 
     private static final class AddTrackToPlaylistItemMapper
             extends RxResultMapper<AddTrackToPlaylistItem> {
 
+        private final IOfflinePropertiesProvider offlinePropertiesProvider;
+
+        public AddTrackToPlaylistItemMapper(IOfflinePropertiesProvider offlinePropertiesProvider) {
+            this.offlinePropertiesProvider = offlinePropertiesProvider;
+        }
+
         @Override
         public AddTrackToPlaylistItem map(CursorReader reader) {
+            Urn playlistUrn = Urn.forPlaylist(reader.getLong(SoundView._ID));
             return new AddTrackToPlaylistItem(
-                    Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID)),
+                    playlistUrn,
                     reader.getString(SoundView.TITLE),
                     Math.max(reader.getInt(LOCAL_TRACK_COUNT),
                              reader.getInt(TableColumns.SoundView.TRACK_COUNT)),
                     readPrivateFlag(reader),
-                    false,
+                    isMarkedForOffline(playlistUrn),
                     reader.getBoolean(IS_TRACK_ALREADY_ADDED));
         }
 
+        protected boolean isMarkedForOffline(Urn playlistUrn) {
+            Map<Urn, OfflineState> offlineEntitiesStates = offlinePropertiesProvider.latest().getOfflineEntitiesStates();
+            return offlineEntitiesStates.containsKey(playlistUrn) && !offlineEntitiesStates.get(playlistUrn).equals(OfflineState.NOT_OFFLINE);
+        }
+
         private boolean readPrivateFlag(CursorReader reader) {
-            return Sharing.PRIVATE.name().equalsIgnoreCase(reader.getString(SoundView.SHARING));
+            return Sharing.PRIVATE.value().equalsIgnoreCase(reader.getString(SoundView.SHARING));
         }
     }
 }

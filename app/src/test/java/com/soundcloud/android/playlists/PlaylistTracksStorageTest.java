@@ -7,7 +7,9 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,13 +28,15 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     private static final Date ADDED_AT = new Date();
     private PlaylistTracksStorage playlistTracksStorage;
     private TestDateProvider dateProvider;
+    private TestOfflinePropertiesProvider offlinePropertiesProvider = new TestOfflinePropertiesProvider();
 
     @Before
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider(ADDED_AT);
         playlistTracksStorage = new PlaylistTracksStorage(propellerRx(),
                                                           dateProvider,
-                                                          accountOperations);
+                                                          accountOperations,
+                                                          offlinePropertiesProvider);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));
     }
 
@@ -48,6 +52,32 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         testSubscriber.assertValues(Arrays.asList(
                 createAddTrackToPlaylistItem(apiPlaylist1, false),
                 createAddTrackToPlaylistItem(apiPlaylist2, false)));
+    }
+
+    @Test
+    public void playlistForAddingTrackLoadsPlaylistWithOfflineState() {
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
+        final ApiPlaylist apiPlaylist1 = testFixtures().insertPostedPlaylist(ADDED_AT);
+        offlinePropertiesProvider.setEntityState(apiPlaylist1.getUrn(), OfflineState.DOWNLOADED);
+
+        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123L))
+                             .subscribe(testSubscriber);
+
+        testSubscriber.assertValues(Arrays.asList(
+                createAddTrackToPlaylistItem(apiPlaylist1, false, true)));
+    }
+
+    @Test
+    public void playlistForAddingTrackLoadsPlaylistWithNotOfflineState() {
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
+        final ApiPlaylist apiPlaylist1 = testFixtures().insertPostedPlaylist(ADDED_AT);
+        offlinePropertiesProvider.setEntityState(apiPlaylist1.getUrn(), OfflineState.NOT_OFFLINE);
+
+        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123L))
+                             .subscribe(testSubscriber);
+
+        testSubscriber.assertValues(Arrays.asList(
+                createAddTrackToPlaylistItem(apiPlaylist1, false, false)));
     }
 
     @Test

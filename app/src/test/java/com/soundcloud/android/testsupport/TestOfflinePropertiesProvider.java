@@ -8,13 +8,14 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 public class TestOfflinePropertiesProvider implements IOfflinePropertiesProvider {
 
     private final OfflineProperties properties;
 
     public TestOfflinePropertiesProvider() {
-        this(new OfflineProperties());
+        this(new OfflineProperties(new HashMap<>(), OfflineState.NOT_OFFLINE));
     }
 
     public TestOfflinePropertiesProvider(OfflineProperties properties) {
@@ -24,6 +25,10 @@ public class TestOfflinePropertiesProvider implements IOfflinePropertiesProvider
     @Override
     public void subscribe() {
         // no-op
+    }
+
+    public void setEntityState(Urn entity, OfflineState state) {
+        properties.getOfflineEntitiesStates().put(entity, state);
     }
 
     @Override

@@ -160,6 +160,7 @@ public class OfflinePropertiesProvider implements IOfflinePropertiesProvider {
     }
 
     public OfflineProperties latest() {
-        return subject.getValue();
+        OfflineProperties value = subject.getValue();
+        return value == null ? new OfflineProperties() : value;
     }
 }
