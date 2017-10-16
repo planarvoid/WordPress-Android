@@ -79,7 +79,7 @@ CLOSE_THRESHOLD=$(($NOW - $WARNING_DIFF - $CLOSE_DIFF))
 I=0
 while IFS='' read -r line || [[ -n "$line" ]]; do
     DATE=$(echo $line | sed 's/"//g')
-    UNIXDATE=$(date -j -u -f "%Y-%m-%dT%H:%M:%SZ" $DATE +%s)
+    UNIXDATE=$(date -d $DATE +%s) # this command fails on macOS, try `date -j -u -f "%Y-%m-%dT%H:%M:%SZ" $DATE +%s` for debugging locally
 
     if [ "${UNIXDATE}" -lt "${WARNING_THRESHOLD}" ]
     then
