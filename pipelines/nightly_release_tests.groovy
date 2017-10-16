@@ -71,7 +71,6 @@ def reportingStage(def isSuccess, def error) {
 
   sh "./scripts/release_build_of_master_branch_acceptance_tests_report.sh $status"
 
-  sh "./scripts/detect_stale_prs.sh"
   if (!isSuccess) {
     // to mark build as failed
     throw error
