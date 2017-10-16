@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Resources;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,7 +22,11 @@ public class GcmMessageHandler {
 
     private static final String TAG = "GcmMessageReceiver";
     private static final String SC_ACTION_STOP = "stop";
-    private static final String EXTRA_DATA = "data";
+    @VisibleForTesting static final String EXTRA_DATA = "data";
+
+    /** See @{@link com.appboy.push.AppboyNotificationUtils#isAppboyPushMessage(android.content.Intent)}. */
+    @VisibleForTesting static final String APPBOY_KEY = "_ab";
+    @VisibleForTesting static final String APPBOY_VALUE = "true";
 
     private final Resources resources;
     private final GcmDecryptor gcmDecryptor;
@@ -47,6 +52,11 @@ public class GcmMessageHandler {
     public void handleMessage(RemoteMessage remoteMessage) {
         final String scApiKey = resources.getString(R.string.gcm_defaultSenderId);
         if (scApiKey.equals(remoteMessage.getFrom())) {
+            final String appboyValue = Strings.nullToEmpty(remoteMessage.getData().get(APPBOY_KEY));
+            if (appboyValue.equals(APPBOY_VALUE)) {
+                return;
+            }
+
             final String payload = remoteMessage.getData().get(EXTRA_DATA);
             if (Strings.isBlank(payload)) {
                 MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(remoteMessage);

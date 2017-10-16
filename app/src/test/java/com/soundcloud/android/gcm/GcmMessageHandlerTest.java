@@ -1,5 +1,7 @@
 package com.soundcloud.android.gcm;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,7 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     @Mock private ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private GcmStorage gcmStorage;
+    @Mock private GcmMessageHandler.Listener listener;
 
     @Before
     public void setUp() throws Exception {
@@ -36,6 +39,7 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
                                         concurrentPlaybackOperations,
                                         accountOperations,
                                         gcmStorage);
+        handler.setListener(listener);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
     }
 
@@ -85,9 +89,54 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
         verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 
+    @Test
+    public void ignoresAllMessagesWithoutPayload() throws UnsupportedEncodingException, EncryptionException {
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
+        RemoteMessage remoteMessage = getRemoteMessage();
+        remoteMessage.getData().remove(GcmMessageHandler.EXTRA_DATA);
+        handler.handleMessage(remoteMessage);
+
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
+        verify(listener, never()).onRemoteMessage(any(), any());
+    }
+
+    @Test
+    public void ignoresAppboyMessagesWithoutPayload() throws UnsupportedEncodingException, EncryptionException {
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
+        RemoteMessage remoteMessage = getRemoteMessage();
+        remoteMessage.getData().remove(GcmMessageHandler.EXTRA_DATA);
+        remoteMessage.getData().put(GcmMessageHandler.APPBOY_KEY, GcmMessageHandler.APPBOY_VALUE);
+        handler.handleMessage(remoteMessage);
+
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
+        verify(listener, never()).onRemoteMessage(any(), any());
+    }
+
+    @Test
+    public void ignoresAppboyMessagesWithPayload() throws UnsupportedEncodingException, EncryptionException {
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
+        RemoteMessage remoteMessage = getRemoteMessage();
+        remoteMessage.getData().put(GcmMessageHandler.APPBOY_KEY, GcmMessageHandler.APPBOY_VALUE);
+        handler.handleMessage(remoteMessage);
+
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
+        verify(listener, never()).onRemoteMessage(any(), any());
+    }
+
+    @Test
+    public void handlesNonAppboyMessages() throws UnsupportedEncodingException, EncryptionException {
+        String payload = "{\"action\":\"stop\", \"user_id\":123}";
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn(payload);
+        RemoteMessage remoteMessage = getRemoteMessage();
+        handler.handleMessage(remoteMessage);
+
+        verify(concurrentPlaybackOperations).pauseIfPlaying();
+        verify(listener).onRemoteMessage(eq(remoteMessage), eq(payload));
+    }
+
     private RemoteMessage getRemoteMessage() {
         final Map<String, String> data = new HashMap<>();
-        data.put("data", ENCRYPTED_DATA);
+        data.put(GcmMessageHandler.EXTRA_DATA, ENCRYPTED_DATA);
         data.put("from", resources().getString(R.string.gcm_defaultSenderId));
         return new RemoteMessage.Builder("to").setData(data).build();
     }
