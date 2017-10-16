@@ -87,8 +87,8 @@ function statsForMigration {
     LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
     DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
 
-    writeToStatsTable $2 ${MASTER_ORIG_METRIC} ${LOCAL_ORIG_METRIC} ${DIFF_ORIG_METRIC} ${DIFF_ORIG_METRIC}
-    writeToStatsTable $4 ${MASTER_NEW_METRIC} ${LOCAL_NEW_METRIC} ${DIFF_NEW_METRIC} ${DIFF_NEW_METRIC}
+    writeToStatsTable "$2" ${MASTER_ORIG_METRIC} ${LOCAL_ORIG_METRIC} ${DIFF_ORIG_METRIC} ${DIFF_ORIG_METRIC}
+    writeToStatsTable "$4" ${MASTER_NEW_METRIC} ${LOCAL_NEW_METRIC} ${DIFF_NEW_METRIC} ${DIFF_NEW_METRIC}
     writeToStatsTable "$5" ${MASTER_PERCENTAGE_FORMATTED} ${LOCAL_PERCENTAGE_FORMATTED} ${DIFF_PERCENTAGE_FORMATTED} ${DIFF_PERCENTAGE}
 }
 
@@ -98,6 +98,10 @@ function rxJavaMigration {
 
 function kotlinMigration {
     statsForMigration javafiles "Java files" kotlinfiles "Kotlin files" "Kotlin %%"
+}
+
+function uniflowMigration {
+    statsForMigration oldarchitecture "Old arch. presenters" uniflow "Uniflow fragments" "Uniflow %%"
 }
 
 function methodCount {
@@ -129,5 +133,6 @@ apkSize >> ${FILE_STATS}
 methodCount >> ${FILE_STATS}
 rxJavaMigration >> ${FILE_STATS}
 kotlinMigration >> ${FILE_STATS}
+uniflowMigration >> ${FILE_STATS}
 
 ./scripts/github/create_github_comment.sh ${ghprbPullId} "`cat $FILE_STATS`"
