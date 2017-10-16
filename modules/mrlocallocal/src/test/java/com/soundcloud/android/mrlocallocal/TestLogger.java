@@ -10,4 +10,9 @@ class TestLogger implements Logger {
     public void error(String message) {
         System.out.println(message);
     }
+
+    @Override
+    public String getResultOutput() {
+        return "";
+    }
 }

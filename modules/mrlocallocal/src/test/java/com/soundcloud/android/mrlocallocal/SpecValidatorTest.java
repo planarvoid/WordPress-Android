@@ -344,7 +344,7 @@ public class SpecValidatorTest {
 
     private boolean validate(List<String> whiteListedEvents, List<SpecEvent> expectedEvents, List<LoggedEvent> events) throws MrLocalLocalException {
         Spec spec = Spec.create(whiteListedEvents, expectedEvents);
-        return specValidator.verify(spec, events, 0).wasSuccessful();
+        return specValidator.verify(spec, events, 0).getWasSuccessful();
     }
 
     private static Map<String, Object> tsParam(long ts) {

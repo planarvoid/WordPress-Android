@@ -30,7 +30,7 @@ class SpecValidator {
         loggedEvents = sortEventsByTimestamp(loggedEvents);
 
         MrLocalLocalResult result = verifyEventCounts(spec.expectedEvents(), loggedEvents);
-        if (!result.wasSuccessful()) {
+        if (!result.getWasSuccessful()) {
             return result;
         }
 
@@ -66,7 +66,7 @@ class SpecValidator {
         }
 
         if (!success) {
-            return MrLocalLocalResult.error(false, "🔥 MrLocalLocal validation failed... See logs above for details.");
+            return MrLocalLocalResult.error(false, "🔥 MrLocalLocal validation failed... See logs below for more details.", logger.getResultOutput());
         }
 
         return MrLocalLocalResult.success();
@@ -110,14 +110,15 @@ class SpecValidator {
         printErrorMessage(expectedEvents, loggedEvents, expectedEventCount, loggedEventCount);
 
         if (loggedEventCount < minimumExpectedEventCount) {
-            return MrLocalLocalResult.error(true, String.format("Expected at least %d events but logged %d", minimumExpectedEventCount, loggedEventCount));
+            return MrLocalLocalResult.error(true, String.format("Expected at least %d events but logged %d", minimumExpectedEventCount, loggedEventCount), logger.getResultOutput());
         }
 
         return MrLocalLocalResult.error(false,
                                         String.format("Spec expects %d events (%d optional) - we logged %d events",
                                                       expectedEventCount,
                                                       expectedEventCount - minimumExpectedEventCount,
-                                                      loggedEventCount));
+                                                      loggedEventCount),
+                                        logger.getResultOutput());
     }
 
     private void printErrorMessage(List<SpecEvent> expectedEvents, List<LoggedEvent> loggedEvents, int expectedEventCount, int loggedEventCount) {
