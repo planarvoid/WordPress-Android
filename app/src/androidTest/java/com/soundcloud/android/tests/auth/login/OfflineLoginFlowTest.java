@@ -5,7 +5,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.http.Fault.RANDOM_DATA_THEN_CLOSE;
-import static com.soundcloud.android.R.string;
 import static com.soundcloud.android.R.string.authentication_error_no_connection_message;
 import static com.soundcloud.android.R.string.authentication_recover_password_failure;
 import static com.soundcloud.android.api.ApiEndpoints.SIGN_IN;
@@ -19,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -28,10 +28,7 @@ import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.google.android.gms.auth.GoogleAuthException;
-import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
@@ -42,7 +39,6 @@ import com.soundcloud.android.utils.TestGplusRegistrationActivity;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.MockitoAnnotations;
 
 import android.app.Activity;
 import android.content.Context;
@@ -75,6 +71,12 @@ public class OfflineLoginFlowTest extends LoginTest {
 
         connectionHelper.setNetworkConnected(false);
         stopWiremock(); // these depend on no connection
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        reset(facebookLoginManager);
     }
 
     @Override
