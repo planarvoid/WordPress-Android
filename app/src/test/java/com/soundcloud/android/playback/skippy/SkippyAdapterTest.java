@@ -333,14 +333,14 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void resumeRestartsPlaybackWhenStoppedAtItsPreviousPosition() {
+    public void resumeRestartsPlaybackWhenStoppedAtItsStartPosition() {
         skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, 1500L, 3000L, STREAM_URL, MP3, BITRATE);
 
         skippyAdapter.stop();
         skippyAdapter.resume(playbackItem);
 
-        verify(skippy).play(STREAM_URL, 1500L);
+        verify(skippy, times(2)).play(STREAM_URL, playbackItem.getStartPosition());
     }
 
     @Test
