@@ -24,7 +24,7 @@ function getValueFromFile {
 }
 
 function formatFileSize {
-    awk "BEGIN {printf \"%.3fMB\n\", $1 / 1000000}"
+    awk "BEGIN {printf \"%.4fMB\n\", $1 / 1000000}"
 }
 
 function formatPercentage {
@@ -43,6 +43,18 @@ function percentage {
     fi
 }
 
+# $1 metric name
+# $2 master value
+# $3 local value
+# $4 diff value
+# $5 value to consider whether printing should happen
+function writeToStatsTable {
+    SHOULD_PRINT=`bc <<< "$5 != 0"`
+    if [ ${SHOULD_PRINT} -eq 1 ]; then
+        echo $(printf "| **$1** | $2 | $3 | $4 | \n")
+    fi
+}
+
 function apkSize {
     MASTER=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} apksize)
     LOCAL=$(getValueFromFile ${FILE_BUILD_STATS} apksize)
@@ -52,51 +64,40 @@ function apkSize {
     MESSAGE_BRANCH=$(formatFileSize ${LOCAL})
     MESSAGE_DIFF=$(formatFileSize ${DIFF})
 
-    OUT=$(printf "| **APK Size** | $MESSAGE_MASTER | $MESSAGE_BRANCH | $MESSAGE_DIFF | \n")
-    echo ${OUT}
+    writeToStatsTable "APK Size" ${MESSAGE_MASTER} ${MESSAGE_BRANCH} ${MESSAGE_DIFF} ${DIFF}
+}
+
+## $1 original metric key
+## $2 original metric name
+## $3 new metric key
+## $4 new metric name
+## $5 percentage diff name
+function statsForMigration {
+    MASTER_ORIG_METRIC=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} $1)
+    MASTER_NEW_METRIC=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} $3)
+    LOCAL_ORIG_METRIC=$(getValueFromFile ${FILE_BUILD_STATS} $1)
+    LOCAL_NEW_METRIC=$(getValueFromFile ${FILE_BUILD_STATS} $3)
+    MASTER_PERCENTAGE=$(percentage ${MASTER_NEW_METRIC} $(($MASTER_ORIG_METRIC+$MASTER_NEW_METRIC)))
+    LOCAL_PERCENTAGE=$(percentage ${LOCAL_NEW_METRIC} $(($LOCAL_ORIG_METRIC+$LOCAL_NEW_METRIC)))
+    DIFF_ORIG_METRIC=$((${LOCAL_ORIG_METRIC} - ${MASTER_ORIG_METRIC}))
+    DIFF_NEW_METRIC=$((${LOCAL_NEW_METRIC} - ${MASTER_NEW_METRIC}))
+    DIFF_PERCENTAGE=`bc <<< ${LOCAL_PERCENTAGE}-${MASTER_PERCENTAGE}`
+
+    MASTER_PERCENTAGE_FORMATTED=$(formatPercentage ${MASTER_PERCENTAGE})
+    LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
+    DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
+
+    writeToStatsTable $2 ${MASTER_ORIG_METRIC} ${LOCAL_ORIG_METRIC} ${DIFF_ORIG_METRIC} ${DIFF_ORIG_METRIC}
+    writeToStatsTable $4 ${MASTER_NEW_METRIC} ${LOCAL_NEW_METRIC} ${DIFF_NEW_METRIC} ${DIFF_NEW_METRIC}
+    writeToStatsTable "$5" ${MASTER_PERCENTAGE_FORMATTED} ${LOCAL_PERCENTAGE_FORMATTED} ${DIFF_PERCENTAGE_FORMATTED} ${DIFF_PERCENTAGE}
 }
 
 function rxJavaMigration {
-    MASTER_RX=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} rxjava)
-    MASTER_RX2=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} rx2)
-    LOCAL_RX=$(getValueFromFile ${FILE_BUILD_STATS} rxjava)
-    LOCAL_RX2=$(getValueFromFile ${FILE_BUILD_STATS} rx2)
-    MASTER_PERCENTAGE=$(percentage ${MASTER_RX2} $(($MASTER_RX+$MASTER_RX2)))
-    LOCAL_PERCENTAGE=$(percentage ${LOCAL_RX2} $(($LOCAL_RX+$LOCAL_RX2)))
-    DIFF_IMPORTS=$((${LOCAL_RX2} - ${MASTER_RX2}))
-    DIFF_PERCENTAGE=`bc <<< ${LOCAL_PERCENTAGE}-${MASTER_PERCENTAGE}`
-
-    MASTER_PERCENTAGE_FORMATTED=$(formatPercentage ${MASTER_PERCENTAGE})
-    LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
-    DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
-
-    OUT=$(printf "| **RxJava2 imports** | $MASTER_RX2 | $LOCAL_RX2 | $DIFF_IMPORTS | \n")
-    echo ${OUT}
-    OUT=$(printf "| **RxJava2 %%** | $MASTER_PERCENTAGE_FORMATTED | $LOCAL_PERCENTAGE_FORMATTED | $DIFF_PERCENTAGE_FORMATTED | \n")
-    echo ${OUT}
+    statsForMigration rxjava "RxJava imports" rx2 "RxJava2 imports" "RxJava2 %%"
 }
 
 function kotlinMigration {
-    MASTER_JAVA=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} javafiles)
-    MASTER_KOTLIN=$(getValueFromFile ${FILE_MASTER_BUILD_STATS} kotlinfiles)
-    LOCAL_JAVA=$(getValueFromFile ${FILE_BUILD_STATS} javafiles)
-    LOCAL_KOTLIN=$(getValueFromFile ${FILE_BUILD_STATS} kotlinfiles)
-    MASTER_PERCENTAGE=$(percentage ${MASTER_KOTLIN} $(($MASTER_JAVA+$MASTER_KOTLIN)))
-    LOCAL_PERCENTAGE=$(percentage ${LOCAL_KOTLIN} $(($LOCAL_JAVA+$LOCAL_KOTLIN)))
-    DIFF_NUM_JAVA_FILES=$((${LOCAL_JAVA} - ${MASTER_JAVA}))
-    DIFF_NUM_KOTLIN_FILES=$((${LOCAL_KOTLIN} - ${MASTER_KOTLIN}))
-    DIFF_PERCENTAGE=`bc <<< ${LOCAL_PERCENTAGE}-${MASTER_PERCENTAGE}`
-
-    MASTER_PERCENTAGE_FORMATTED=$(formatPercentage ${MASTER_PERCENTAGE})
-    LOCAL_PERCENTAGE_FORMATTED=$(formatPercentage ${LOCAL_PERCENTAGE})
-    DIFF_PERCENTAGE_FORMATTED=$(formatPercentage ${DIFF_PERCENTAGE})
-
-    OUT=$(printf "| **Java files** | $MASTER_JAVA | $LOCAL_JAVA | $DIFF_NUM_JAVA_FILES | \n")
-    echo ${OUT}
-    OUT=$(printf "| **Kotlin files** | $MASTER_KOTLIN | $LOCAL_KOTLIN | $DIFF_NUM_KOTLIN_FILES | \n")
-    echo ${OUT}
-    OUT=$(printf "| **Kotlin %%** | $MASTER_PERCENTAGE_FORMATTED | $LOCAL_PERCENTAGE_FORMATTED | $DIFF_PERCENTAGE_FORMATTED | \n")
-    echo ${OUT}
+    statsForMigration javafiles "Java files" kotlinfiles "Kotlin files" "Kotlin %%"
 }
 
 function methodCount {
@@ -104,8 +105,7 @@ function methodCount {
     LOCAL=$(getValueFromFile ${FILE_BUILD_STATS} methodcount)
     DIFF=$((${LOCAL} - ${MASTER}))
 
-    OUT=$(printf "| **Method Count** | $MASTER | $LOCAL | $DIFF | \n")
-    echo ${OUT}
+    writeToStatsTable "Method Count" ${MASTER} ${LOCAL} ${DIFF} ${DIFF}
 }
 
 ## Download stats from latest master build
