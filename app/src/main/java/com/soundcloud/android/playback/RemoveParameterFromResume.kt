@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback
 
-import com.soundcloud.android.properties.ApplicationProperties
 import com.soundcloud.android.utils.ErrorUtils
 
 /**
@@ -16,12 +15,8 @@ import com.soundcloud.android.utils.ErrorUtils
 class RemoveParameterFromResume {
     companion object Companion {
         @JvmStatic
-        fun handleExceptionAccordingToBuildType(message: String) {
-            if (ApplicationProperties.isBetaOrBelow()) {
-                throw IllegalStateException(message)
-            } else {
-                ErrorUtils.handleSilentException(message, IllegalStateException(message))
-            }
+        fun handleException(message: String) {
+            ErrorUtils.handleSilentException(message, IllegalStateException(message))
         }
     }
 }

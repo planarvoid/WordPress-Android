@@ -14,9 +14,16 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Likes;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.propeller.WriteResult;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
+import java.util.List;
 
 public class RemoveLikesCommandTest extends StorageIntegrationTest {
 
@@ -54,4 +61,21 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
         assertThat(select(from(Likes.TABLE))).counts(1);
     }
 
+    @Test
+    public void shouldRemoveLotsOfLikes() throws Exception {
+
+        List<ApiTrack> tracks = ModelFixtures.apiTracks(2000);
+        for (ApiTrack track : tracks) {
+            final ApiLike trackLike = apiTrackLike(track);
+            testFixtures().insertLike(trackLike);
+        }
+
+        assertThat(select(from(Likes.TABLE))).counts(2000);
+
+        WriteResult call = command.call(Lists.transform(tracks, input -> ApiLike.create(input.getUrn(), new Date())));
+
+        Assertions.assertThat(call.success()).isTrue();
+        assertThat(select(from(Likes.TABLE))).counts(0);
+
+    }
 }

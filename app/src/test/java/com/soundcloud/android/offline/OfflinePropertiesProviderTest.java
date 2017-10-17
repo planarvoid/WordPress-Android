@@ -8,6 +8,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
@@ -68,6 +69,11 @@ public class OfflinePropertiesProviderTest {
         provider.states()
                 .test()
                 .assertNoValues();
+    }
+
+    @Test
+    public void latestReturnsEmptyPropertiesIfNotLoaded() throws Exception {
+        assertThat(provider.latest()).isEqualTo(new OfflineProperties());
     }
 
     @Test

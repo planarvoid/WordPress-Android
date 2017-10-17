@@ -28,8 +28,19 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.*;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.AudioPerformanceEvent;
+import com.soundcloud.android.playback.AudioPlaybackItem;
+import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.HlsStreamUrlBuilder;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackItem;
+import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackType;
+import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -321,18 +332,18 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         verify(skippy).resume();
     }
 
-    @Test(expected = IllegalStateException.class) // Exception expected while investigation in PR #8772 is running
-    public void resumeRestartsPlaybackWhenStoppedAtItsPreviousPosition() {
+    @Test
+    public void resumeRestartsPlaybackWhenStoppedAtItsStartPosition() {
         skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, 1500L, 3000L, STREAM_URL, MP3, BITRATE);
 
         skippyAdapter.stop();
         skippyAdapter.resume(playbackItem);
 
-        verify(skippy).play(STREAM_URL, 1500L);
+        verify(skippy, times(2)).play(STREAM_URL, playbackItem.getStartPosition());
     }
 
-    @Test(expected = IllegalStateException.class) // Exception expected while investigation in PR #8772 is running
+    @Test
     public void resumeStartsPlaybackWhenNeverPlayed() {
         skippyAdapter.resume(playbackItem);
 

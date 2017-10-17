@@ -10,6 +10,6 @@ constructor(val syncInitiatorBridge: SyncInitiatorBridge) : Migration {
         syncInitiatorBridge.refreshFollowings()
     }
 
-    override fun getApplicableAppVersionCode(): Int = 777
+    override fun getApplicableAppVersionCode(): Int = 786
 
 }

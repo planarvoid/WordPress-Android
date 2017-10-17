@@ -399,6 +399,21 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         assertOnLastPlaybackErrorEvent(category, PlaybackProtocol.HLS, OPUS, BITRATE, CDN_HOST);
     }
 
+    @Test
+    public void resumingAfterErrorTransitionOpensAndPlaysTheStream() {
+        // user is playing a track and for some reason flipper errors out
+        AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
+        String mediaUri = whenPlaying(playbackItem);
+        flipperAdapter.onStateChanged(stateChange(playbackItem.getUrn(), PlayerState.Error, ErrorReason.Failed, POSITION, DURATION));
+
+        // user tries to resume playback via notification/widget/other external mechanism
+        flipperAdapter.resume(playbackItem);
+
+        // flipper should recover from the error by reopening the stream and playing it
+        verify(flipperWrapper, times(2)).open(eq(mediaUri), eq(0L)); // times(2): once for the initial open call and once for the recovery call in resume()
+        verify(flipperWrapper, times(2)).play();
+    }
+
     private void assertOnLastPlaybackErrorEvent(String category,
                                                 PlaybackProtocol protocol, String format,
                                                 int bitrate, String cdnHost) {
@@ -428,9 +443,11 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE)).isEqualTo("true");
     }
 
-    private void whenPlaying(AudioPlaybackItem audio) {
-        when(hlsStreamUrlBuilder.buildStreamUrl(audio)).thenReturn(fakeMediaUri(audio.getUrn()));
+    private String whenPlaying(AudioPlaybackItem audio) {
+        final String mediaUri = fakeMediaUri(audio.getUrn());
+        when(hlsStreamUrlBuilder.buildStreamUrl(audio)).thenReturn(mediaUri);
         flipperAdapter.play(audio);
+        return mediaUri;
     }
 
     @NonNull

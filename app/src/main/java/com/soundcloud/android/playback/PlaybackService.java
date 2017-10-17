@@ -9,6 +9,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.playback.mediasession.MediaSessionController;
 import com.soundcloud.android.playback.mediasession.MediaSessionControllerFactory;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -112,6 +113,7 @@ public class PlaybackService extends Service
         scheduleServiceShutdownCheck();
         instance = this;
 
+        ErrorUtils.log(android.util.Log.INFO, TAG, "onCreate() called");
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
     }
 
@@ -122,6 +124,7 @@ public class PlaybackService extends Service
 
     @Override
     public void onDestroy() {
+        ErrorUtils.log(android.util.Log.INFO, TAG, "onDestroy() called");
         stop();
         volumeController.resetVolume();
         mediaSessionController.onDestroy();
@@ -149,6 +152,7 @@ public class PlaybackService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         delayedStopHandler.removeCallbacksAndMessages(null);
+        ErrorUtils.log(android.util.Log.INFO, TAG, "onStartCommand() called with intent " + intent);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
 
         if (intent != null) {
@@ -210,7 +214,7 @@ public class PlaybackService extends Service
 
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
-        Log.d(TAG, "Received new playState " + stateTransition);
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
         if (currentPlaybackItem.isPresent()) {
@@ -272,16 +276,16 @@ public class PlaybackService extends Service
     }
 
     public void togglePlayback() {
-        Log.d(TAG, "Toggling playback");
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Toggling playback");
         if (streamPlayer.isPlaying()) {
             pause();
         } else if (currentPlaybackItem.isPresent()) {
-            play();
+            resume();
         }
     }
 
     public void seek(long pos) {
-        Log.d(TAG, "Seeking to " + pos);
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Seeking to " + pos);
         resetVolume(pos);
         mediaSessionController.onSeek(pos);
         streamPlayer.seek(pos);
@@ -312,7 +316,7 @@ public class PlaybackService extends Service
     }
 
     void play(PlaybackItem playbackItem) {
-        Log.d(TAG, "Play item (playbackItem=" + playbackItem + ")");
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Play item (playbackItem=" + playbackItem + ")");
         currentPlaybackItem = Optional.of(playbackItem);
         if (mediaSessionController.onPlay(playbackItem)) {
             resetVolume(playbackItem.getStartPosition());
@@ -320,8 +324,8 @@ public class PlaybackService extends Service
         }
     }
 
-    public void play() {
-        Log.d(TAG, "Playing");
+    public void resume() {
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Resuming for currentPlaybackItem " + currentPlaybackItem);
         if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent()) {
             if (mediaSessionController.onPlay()) {
                 resetVolume(streamPlayer.getProgress());
@@ -336,7 +340,7 @@ public class PlaybackService extends Service
     }
 
     public void pause() {
-        Log.d(TAG, "Pausing");
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Pausing");
         streamPlayer.pause();
         mediaSessionController.onPause();
         unpinNotification(false);
@@ -348,7 +352,7 @@ public class PlaybackService extends Service
     }
 
     public void stop() {
-        Log.d(TAG, "Stopping");
+        ErrorUtils.log(android.util.Log.INFO, TAG, "Stopping");
         streamPlayer.stop();
         mediaSessionController.onStop();
         unpinNotification(true);
@@ -401,7 +405,7 @@ public class PlaybackService extends Service
             if (service != null && !service.streamPlayer.isPlaying()
                     && service.focusLossState == FocusLossState.NONE) {
 
-                Log.d(TAG, "DelayedStopHandler: stopping service");
+                ErrorUtils.log(android.util.Log.INFO, TAG, "DelayedStopHandler: stopping service");
                 service.stopSelf();
             }
         }

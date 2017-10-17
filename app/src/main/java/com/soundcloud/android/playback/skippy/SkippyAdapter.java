@@ -15,6 +15,7 @@ import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.HlsStreamUrlBuilder;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -25,8 +26,6 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
-import com.soundcloud.android.playback.AudioPerformanceEvent;
-import com.soundcloud.android.playback.RemoveParameterFromResume;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -71,7 +70,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final CurrentDateProvider dateProvider;
     private final SkippyPerformanceReporter performanceReporter;
 
-    private Urn latestItemUrn;
     private volatile String currentStreamUrl;
     private PlaybackItem currentPlaybackItem;
     private PlayerListener playerListener;
@@ -164,7 +162,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private void startPlayback(PlaybackItem playbackItem, long fromPos) {
-        latestItemUrn = playbackItem.getUrn();
         currentPlaybackItem = playbackItem;
         currentStreamUrl = hlsStreamUrlBuilder.buildStreamUrl(playbackItem);
         switch (playbackItem.getPlaybackType()) {
@@ -184,17 +181,12 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void resume(@NonNull PlaybackItem playbackItem) {
-        if (playbackItem.getUrn().equals(latestItemUrn)) {
-            if (currentPlaybackItem != null) {
-                ErrorUtils.log(android.util.Log.INFO, TAG, "[SKIPPY] resume called for " + playbackItem + ", and currentPlaybackItem = " + currentPlaybackItem);
-                skippy.resume();
-            } else {
-                RemoveParameterFromResume.handleExceptionAccordingToBuildType("[SKIPPY] playbackItem param = " + playbackItem + ", latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = null");
-                startPlayback(playbackItem, lastStateChangeProgress);
-            }
+        ErrorUtils.log(android.util.Log.INFO, TAG, "resume() called for " + playbackItem + ", " +
+                "and currentPlaybackItem = " + (currentPlaybackItem == null ? "null" : currentPlaybackItem));
+
+        if (playbackItem.equals(currentPlaybackItem)) {
+            skippy.resume();
         } else {
-            String message = "[SKIPPY] playbackItem param = " + playbackItem + " is different from latestItemUrn = " + latestItemUrn + ", currentPlaybackItem = " + currentPlaybackItem;
-            RemoveParameterFromResume.handleExceptionAccordingToBuildType(message);
             play(playbackItem);
         }
     }
@@ -278,6 +270,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                Skippy.SkippyMediaType format,
                                int bitrate) {
         try {
+            ErrorUtils.log(android.util.Log.INFO, TAG, "onStateChanged() called in state " + state + ", reason " + reason + ", errorCode " + errorCode +
+                    ", uri " + uri + " and currentPlaybackItem is " + (currentPlaybackItem == null ? "null" : currentPlaybackItem));
             handleStateChanged(state, reason, errorCode, position, duration, uri, format, bitrate);
         } catch (Throwable t) {
             ErrorUtils.handleThrowable(t, getClass());
