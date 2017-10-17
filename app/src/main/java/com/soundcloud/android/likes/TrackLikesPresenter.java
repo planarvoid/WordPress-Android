@@ -172,7 +172,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                                     .cache();
         collectionDisposable = allLikedTrackUrns.doOnSuccess(tick -> checkAutoPlayIntent())
                                                 .map(List::size)
-                                                .subscribeWith(LambdaSingleObserver.onNext(headerPresenter::updateTrackCount));
+                                                .subscribeWith(LambdaSingleObserver.onSuccess(headerPresenter::updateTrackCount));
     }
 
     private void checkAutoPlayIntent() {

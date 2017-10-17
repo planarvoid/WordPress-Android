@@ -54,7 +54,7 @@ public class FollowingStateProvider {
                 followingStorage.followings().map(userAssociations -> Lists.transform(userAssociations, Following::getUserUrn))
                                 .subscribeOn(scheduler)
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeWith(LambdaSingleObserver.onNext(followings -> {
+                                .subscribeWith(LambdaSingleObserver.onSuccess(followings -> {
                                           setFollowings(followings);
                                           publishSnapshot();
                                       })),

@@ -91,7 +91,7 @@ public class BugReporter {
 
         collectLogCat(context, outputFile).subscribeOn(scheduler)
                                           .observeOn(AndroidSchedulers.mainThread())
-                                          .subscribeWith(LambdaSingleObserver.onNext((uri) -> {
+                                          .subscribeWith(LambdaSingleObserver.onSuccess((uri) -> {
                                               if (!Uri.EMPTY.equals(uri)) {
                                                   intent.putExtra(Intent.EXTRA_STREAM, uri);
                                               }

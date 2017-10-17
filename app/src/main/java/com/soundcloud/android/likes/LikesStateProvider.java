@@ -52,7 +52,7 @@ public class LikesStateProvider {
                 likesStorage.loadLikes()
                             .subscribeOn(scheduler)
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeWith(LambdaSingleObserver.onNext(likes -> {
+                            .subscribeWith(LambdaSingleObserver.onSuccess(likes -> {
                                                                            setLikes(likes);
                                                                            publishSnapshot();
                                                                        }

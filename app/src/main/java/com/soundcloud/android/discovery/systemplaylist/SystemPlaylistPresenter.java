@@ -132,7 +132,7 @@ class SystemPlaylistPresenter extends RecyclerViewPresenter<SystemPlaylist, Syst
                         (timestamp, systemPlaylist) -> systemPlaylist)
                           .firstOrError()
                           .map(systemPlaylist -> ScreenEvent.createForSystemPlaylist(Screen.SYSTEM_PLAYLIST, systemPlaylist.urn(), systemPlaylist.trackingFeatureName(), systemPlaylist.queryUrn()))
-                          .subscribeWith(LambdaSingleObserver.onNext(screenEvent -> eventTracker.trackScreen(screenEvent, trackingStateProvider.getLastEvent())))
+                          .subscribeWith(LambdaSingleObserver.onSuccess(screenEvent -> eventTracker.trackScreen(screenEvent, trackingStateProvider.getLastEvent())))
         );
     }
 

@@ -49,7 +49,7 @@ public class RepostsStateProvider {
         compositeDisposable.addAll(repostStorage.loadReposts()
                      .subscribeOn(scheduler)
                      .observeOn(AndroidSchedulers.mainThread())
-                     .subscribeWith(LambdaSingleObserver.onNext(reposts -> {
+                     .subscribeWith(LambdaSingleObserver.onSuccess(reposts -> {
                                                                 setReposts(reposts);
                                                                 publishSnapshot();
                                                             }

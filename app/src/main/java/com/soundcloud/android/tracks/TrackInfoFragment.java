@@ -180,7 +180,7 @@ public class TrackInfoFragment extends LoggingDialogFragment implements View.OnC
             eventBus.queue(EventQueue.PLAYER_UI)
                     .filter(PlayerUIEvent.PLAYER_IS_COLLAPSED_V2)
                     .firstOrError()
-                    .subscribe(LambdaSingleObserver.onNext(args -> navigationExecutor.openTrackComments(context, trackurn)));
+                    .subscribe(LambdaSingleObserver.onSuccess(args -> navigationExecutor.openTrackComments(context, trackurn)));
         }
 
     }

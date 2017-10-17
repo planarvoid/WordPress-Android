@@ -34,6 +34,6 @@ public class SimpleBlurredImageLoader {
                                        Optional.of(BLUR_RADIUS),
                                        scheduler,
                                        AndroidSchedulers.mainThread())
-                       .subscribe(LambdaSingleObserver.onNext(blurredArtworkView::setImageBitmap));
+                       .subscribe(LambdaSingleObserver.onSuccess(blurredArtworkView::setImageBitmap));
     }
 }

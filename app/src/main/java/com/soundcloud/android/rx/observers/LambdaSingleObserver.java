@@ -4,20 +4,20 @@ import io.reactivex.functions.Consumer;
 
 public final class LambdaSingleObserver<T> extends DefaultSingleObserver<T> {
 
-    private final Consumer<T> onNextConsumer;
+    private final Consumer<T> onSuccessConsumer;
 
-    public static <T> LambdaSingleObserver<T> onNext(Consumer<T> onNextAction) {
-        return new LambdaSingleObserver<T>(onNextAction);
+    public static <T> LambdaSingleObserver<T> onSuccess(Consumer<T> onSuccessConsumer) {
+        return new LambdaSingleObserver<>(onSuccessConsumer);
     }
 
-    private LambdaSingleObserver(Consumer<T> onNextConsumer) {
-        this.onNextConsumer = onNextConsumer;
+    private LambdaSingleObserver(Consumer<T> onSuccessConsumer) {
+        this.onSuccessConsumer = onSuccessConsumer;
     }
 
     @Override
     public void onSuccess(T args) {
         try {
-            onNextConsumer.accept(args);
+            onSuccessConsumer.accept(args);
             super.onSuccess(args);
         } catch (Exception e) {
             onError(e);
