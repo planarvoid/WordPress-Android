@@ -8,14 +8,15 @@ import android.content.res.Resources;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class PlaylistsModule {
+public abstract class PlaylistsModule {
 
     static final String FULLSCREEN_PLAYLIST_DETAILS = "fullscreen_playlist_details";
 
     @Named(FULLSCREEN_PLAYLIST_DETAILS)
     @Provides
-    boolean showFullscreenPlaylistDetails(Resources resources) {
+    static boolean showFullscreenPlaylistDetails(Resources resources) {
         return resources.getBoolean(R.bool.show_fullscreen_playlist_details);
     }
 

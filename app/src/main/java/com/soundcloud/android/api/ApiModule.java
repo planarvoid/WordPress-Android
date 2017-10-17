@@ -54,7 +54,7 @@ public class ApiModule {
     }
 
     @Provides
-    public ApiClient provideApiClient(OkHttpClient httpClient,
+    static ApiClient provideApiClient(OkHttpClient httpClient,
                                       ApiUrlBuilder urlBuilder,
                                       JsonTransformer jsonTransformer,
                                       DeviceHelper deviceHelper,
@@ -73,19 +73,19 @@ public class ApiModule {
     }
 
     @Provides
-    Locale provideDefaultLocale() {
+    static Locale provideDefaultLocale() {
         return Locale.getDefault();
     }
 
     @Provides
     @Singleton
-    JsonTransformer provideJsonTransformer() {
+    static JsonTransformer provideJsonTransformer() {
         return new JacksonJsonTransformer();
     }
 
     @Provides
     @Singleton
-    UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
+    static UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
         return UnauthorisedRequestRegistry.getInstance(context);
     }
 
@@ -102,7 +102,7 @@ public class ApiModule {
      */
     @Provides
     @Singleton
-    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor,
+    static OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor,
                                                            ApplicationProperties applicationProperties) {
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
                 .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)

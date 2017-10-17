@@ -10,18 +10,19 @@ import dagger.Provides;
 
 import javax.inject.Singleton;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class FirebaseModule {
+public abstract class FirebaseModule {
 
     @Provides
     @Singleton
-    FirebaseOptions provideFirebaseOptions() {
+    static FirebaseOptions provideFirebaseOptions() {
         return FirebaseApp.getInstance().getOptions();
     }
 
     @Provides
     @Singleton
-    FirebaseRemoteConfig provideFirebaseRemoteConfig(ApplicationProperties applicationProperties) {
+    static FirebaseRemoteConfig provideFirebaseRemoteConfig(ApplicationProperties applicationProperties) {
         final FirebaseRemoteConfigSettings remoteConfigSettings = new FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(applicationProperties.isDevelopmentMode())
                 .build();

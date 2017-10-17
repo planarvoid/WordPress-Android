@@ -39,11 +39,12 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class StorageModule {
+public abstract class StorageModule {
 
     static final String DEBUG_PROPELLER_RX = "DebugPropellerRx";
-    public static final String DB_CLEANUP_HELPERS = "DatabaseCleanupHelpers";
+    static final String DB_CLEANUP_HELPERS = "DatabaseCleanupHelpers";
 
     public static final String STREAM_CACHE_DIRECTORY_SKIPPY = "StreamCacheDirectorySkippy";
     public static final String STREAM_CACHE_DIRECTORY_FLIPPER = "StreamCacheDirectoryFlipper";
@@ -111,21 +112,21 @@ public class StorageModule {
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_SKIPPY)
     @Nullable
-    File provideStreamCacheDirectorySkippy(Context context) {
+    static File provideStreamCacheDirectorySkippy(Context context) {
         return IOUtils.createExternalStorageDir(context, "skippy");
     }
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_FLIPPER)
     @Nullable
-    File provideStreamCacheDirectoryFlipper(Context context) {
+    static File provideStreamCacheDirectoryFlipper(Context context) {
         return IOUtils.createExternalStorageDir(context, "flipper");
     }
 
     @Provides
     @Named(WAVEFORM_CACHE)
     @Singleton
-    DualCache<WaveformData> provideWaveformCache(Context context, WaveformCacheSerializer waveformCacheSerializer) {
+    static DualCache<WaveformData> provideWaveformCache(Context context, WaveformCacheSerializer waveformCacheSerializer) {
         int maxSizeDiskMB = 1024 * 1024 * 2;
         int maxSizeRamMB = 1024 * 512;
         int version = 1;
@@ -145,74 +146,74 @@ public class StorageModule {
     }
 
     @Provides
-    ContentResolver provideContentResolver(SoundCloudApplication application) {
+    static ContentResolver provideContentResolver(SoundCloudApplication application) {
         return application.getContentResolver();
     }
 
     @Provides
     @Named(GCM)
-    SharedPreferences provideGcmPrefs(Context context) {
+    static SharedPreferences provideGcmPrefs(Context context) {
         return context.getSharedPreferences(PREFS_GCM, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(COLLECTIONS)
-    SharedPreferences provideCollectionsPrefs(Context context) {
+    static SharedPreferences provideCollectionsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_COLLECTIONS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(DEVICE_MANAGEMENT)
-    SharedPreferences provideDeviceManagementPrefs(Context context) {
+    static SharedPreferences provideDeviceManagementPrefs(Context context) {
         return context.getSharedPreferences(PREFS_DEVICE_MANAGEMENT, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PAYMENTS)
-    SharedPreferences providePaymentsPrefs(Context context) {
+    static SharedPreferences providePaymentsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_PAYMENTS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(DEVICE_KEYS)
-    SharedPreferences provideKeysPrefs(Context context) {
+    static SharedPreferences provideKeysPrefs(Context context) {
         return context.getSharedPreferences(PREFS_DEVICE_KEYS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(OFFLINE_SETTINGS)
-    SharedPreferences provideOfflinePrefs(Context context) {
+    static SharedPreferences provideOfflinePrefs(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(OFFLINE_CONTENT)
-    SharedPreferences provideOfflineContentPrefs(Context context) {
+    static SharedPreferences provideOfflineContentPrefs(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_CONTENT, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(POLICY_SETTINGS)
-    SharedPreferences providePolicyPrefs(Context context) {
+    static SharedPreferences providePolicyPrefs(Context context) {
         return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(CONFIGURATION_SETTINGS)
-    SharedPreferences provideConfigurationPrefs(Context context) {
+    static SharedPreferences provideConfigurationPrefs(Context context) {
         return context.getSharedPreferences(PREFS_CONFIGURATION_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ANALYTICS_SETTINGS)
-    SharedPreferences provideAnalyticsPrefs(Context context) {
+    static SharedPreferences provideAnalyticsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_ANALYTICS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Singleton
     @Named(FEATURES)
-    SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
+    static SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE),
                                          obfuscator);
     }
@@ -220,132 +221,132 @@ public class StorageModule {
     @Provides
     @Singleton
     @Named(FEATURES_FLAGS)
-    SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
+    static SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE),
                                          obfuscator);
     }
 
     @Provides
     @Named(ADS)
-    SharedPreferences provideAdsPrefs(Context context) {
+    static SharedPreferences provideAdsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_ADS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(STREAM_SYNC)
-    SharedPreferences provideStreamSyncPrefs(Context context) {
+    static SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(UPSELL)
-    SharedPreferences provideStreamPrefs(Context context) {
+    static SharedPreferences provideStreamPrefs(Context context) {
         return context.getSharedPreferences(PREFS_UPSELL, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ACTIVITIES_SYNC)
-    SharedPreferences provideActivitiesSyncPrefs(Context context) {
+    static SharedPreferences provideActivitiesSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_ACTIVITIES_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(RECOMMENDED_TRACKS_SYNC)
-    SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
+    static SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_RECOMMENDED_TRACKS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(CHARTS_SYNC)
-    SharedPreferences provideChartsSyncPrefs(Context context) {
+    static SharedPreferences provideChartsSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_CHARTS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(FACEBOOK_INVITES)
-    SharedPreferences provideFacebookInvitesPrefs(Context context) {
+    static SharedPreferences provideFacebookInvitesPrefs(Context context) {
         return context.getSharedPreferences(PREFS_FACEBOOK_INVITES, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(STATIONS)
-    SharedPreferences provideStationsPreferences(Context context) {
+    static SharedPreferences provideStationsPreferences(Context context) {
         return context.getSharedPreferences(PREFS_STATIONS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PLAYER)
-    SharedPreferences providePlayerPreferences(Context context) {
+    static SharedPreferences providePlayerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_PLAYER, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(SYNCER)
-    SharedPreferences provideSyncerPreferences(Context context) {
+    static SharedPreferences provideSyncerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_SYNCER, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ENTITY_SYNC_STATE)
-    SharedPreferences provideEntitySyncStatePreferences(Context context) {
+    static SharedPreferences provideEntitySyncStatePreferences(Context context) {
         return context.getSharedPreferences(PREFS_ENTITY_SYNC_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(NOTIFICATION_PREFERENCES)
-    SharedPreferences provideNotificationPreferences(Context context) {
+    static SharedPreferences provideNotificationPreferences(Context context) {
         return context.getSharedPreferences(PREFS_NOTIFICATION_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(IMAGE_CONFIG)
-    SharedPreferences provideImageConfiguration(Context context) {
+    static SharedPreferences provideImageConfiguration(Context context) {
         return context.getSharedPreferences(PREFS_IMAGE_CONFIG, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PLAY_SESSION_STATE)
-    SharedPreferences providePlaySessionState(Context context) {
+    static SharedPreferences providePlaySessionState(Context context) {
         return context.getSharedPreferences(PREFS_PLAY_SESSION_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(INTRODUCTORY_OVERLAYS)
-    SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
+    static SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
         return context.getSharedPreferences(PREFS_INTRODUCTORY_OVERLAYS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(NAVIGATION_STATE)
-    SharedPreferences provideNavigationStatePrefs(Context context) {
+    static SharedPreferences provideNavigationStatePrefs(Context context) {
         return context.getSharedPreferences(PREFS_NAVIGATION_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Singleton
     @Named(FEATURES_FLAGS)
-    PersistentStorage provideFeatureFlagsStorage(@Named(FEATURES_FLAGS) SharedPreferences preferences) {
+    static PersistentStorage provideFeatureFlagsStorage(@Named(FEATURES_FLAGS) SharedPreferences preferences) {
         return new PersistentStorage(preferences);
     }
 
     @Provides
     @Named(UNAUTHORIZED_ERRORS)
-    SharedPreferences provideUnauthorizedErrorsPreferences(Context context) {
+    static SharedPreferences provideUnauthorizedErrorsPreferences(Context context) {
         return getUnauthorizedErrorsSharedPreferences(context);
     }
 
     @Provides
-    SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
+    static SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
         return provideDatabaseManager(context, applicationProperties).getWritableDatabase();
     }
 
     @Provides
-    DatabaseManager provideDatabaseManager(Context context, ApplicationProperties applicationProperties) {
+    static DatabaseManager provideDatabaseManager(Context context, ApplicationProperties applicationProperties) {
         return DatabaseManager.getInstance(context, applicationProperties);
     }
 
     @Provides
-    PropellerDatabase providePropeller(SQLiteDatabase database, Lazy<DebugQueryHook> debugQueryHookLazy) {
+    static PropellerDatabase providePropeller(SQLiteDatabase database, Lazy<DebugQueryHook> debugQueryHookLazy) {
         final PropellerDatabase propeller;
         propeller = new PropellerDatabase(database, debugQueryHookLazy.get());
         propeller.setAssertBackgroundThread();
@@ -354,18 +355,18 @@ public class StorageModule {
 
     @Provides
     @Nullable
-    DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties, Lazy<SlowQueryReporter> slowQueryReporterLazy) {
+    static DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties, Lazy<SlowQueryReporter> slowQueryReporterLazy) {
         return new DebugQueryHook(slowQueryReporterLazy.get(), applicationProperties.shouldLogQueries());
     }
 
     @Provides
-    PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
+    static PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
         return new PropellerRx(propeller);
     }
 
     @Provides
     @Named(DEBUG_PROPELLER_RX)
-    PropellerRxV2 provideDebugPropellerRxWrapper(SQLiteDatabase database) {
+    static PropellerRxV2 provideDebugPropellerRxWrapper(SQLiteDatabase database) {
         PropellerDatabase propeller = new PropellerDatabase(database);
         propeller.setAssertBackgroundThread();
         return new PropellerRxV2(propeller);
@@ -373,7 +374,7 @@ public class StorageModule {
 
     @Provides
     @Named(DB_CLEANUP_HELPERS)
-    List<CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
+    static List<CleanupHelper> provideCleanupHelpers(LikeCleanupHelper likeCleanupHelper,
                                               ActivitiesCleanupHelper activitiesCleanupHelper,
                                               PostsCleanupHelper postsCleanupHelper,
                                               FollowingCleanupHelper followingCleanupHelper,

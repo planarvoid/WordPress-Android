@@ -18,21 +18,22 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class LikesSyncModule {
+public abstract class LikesSyncModule {
 
-    public static final String TRACK_LIKES_SYNCER = "TrackLikesSyncer";
-    public static final String PLAYLIST_LIKES_SYNCER = "PlaylistLikesSyncer";
-    public static final String TRACK_LIKE_ADDITIONS = "TrackLikeAdditions";
-    public static final String TRACK_LIKE_DELETIONS = "TrackLikeDeletions";
-    public static final String PLAYLIST_LIKE_ADDITIONS = "PlaylistLikeAdditions";
-    public static final String PLAYLIST_LIKE_DELETIONS = "PlaylistLikeDeletions";
-    public static final String REMOVE_TRACK_LIKES = "RemoveTrackLikes";
-    public static final String REMOVE_PLAYLIST_LIKES = "RemovePlaylistLikes";
+    static final String TRACK_LIKES_SYNCER = "TrackLikesSyncer";
+    static final String PLAYLIST_LIKES_SYNCER = "PlaylistLikesSyncer";
+    private static final String TRACK_LIKE_ADDITIONS = "TrackLikeAdditions";
+    private static final String TRACK_LIKE_DELETIONS = "TrackLikeDeletions";
+    private static final String PLAYLIST_LIKE_ADDITIONS = "PlaylistLikeAdditions";
+    private static final String PLAYLIST_LIKE_DELETIONS = "PlaylistLikeDeletions";
+    private static final String REMOVE_TRACK_LIKES = "RemoveTrackLikes";
+    private static final String REMOVE_PLAYLIST_LIKES = "RemovePlaylistLikes";
 
     @Provides
     @Named(TRACK_LIKES_SYNCER)
-    LikesSyncer<ApiTrack> provideTrackLikesSyncer(
+    static LikesSyncer<ApiTrack> provideTrackLikesSyncer(
             FetchLikesCommand fetchLikesCommand,
             FetchTracksCommand fetchTracks,
             LoadLikesCommand loadLikes,
@@ -60,7 +61,7 @@ public class LikesSyncModule {
 
     @Provides
     @Named(PLAYLIST_LIKES_SYNCER)
-    LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer(
+    static LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer(
             FetchLikesCommand fetchLikesCommand,
             FetchPlaylistsCommand fetchPlaylists,
             LoadLikesCommand loadLikes,
@@ -88,7 +89,7 @@ public class LikesSyncModule {
 
     @Provides
     @Named(TRACK_LIKE_ADDITIONS)
-    PushLikesCommand<ApiLike> provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
+    static PushLikesCommand<ApiLike> provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
         return new PushLikesCommand<>(apiClient,
                                       ApiEndpoints.CREATE_TRACK_LIKES,
                                       new TypeToken<ModelCollection<ApiLike>>() {
@@ -97,7 +98,7 @@ public class LikesSyncModule {
 
     @Provides
     @Named(TRACK_LIKE_DELETIONS)
-    PushLikesCommand<ApiDeletedLike> provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
+    static PushLikesCommand<ApiDeletedLike> provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
         return new PushLikesCommand<>(apiClient,
                                       ApiEndpoints.DELETE_TRACK_LIKES,
                                       new TypeToken<ModelCollection<ApiDeletedLike>>() {
@@ -106,7 +107,7 @@ public class LikesSyncModule {
 
     @Provides
     @Named(PLAYLIST_LIKE_ADDITIONS)
-    PushLikesCommand<ApiLike> providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
+    static PushLikesCommand<ApiLike> providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
         return new PushLikesCommand<>(apiClient,
                                       ApiEndpoints.CREATE_PLAYLIST_LIKES,
                                       new TypeToken<ModelCollection<ApiLike>>() {
@@ -115,7 +116,7 @@ public class LikesSyncModule {
 
     @Provides
     @Named(PLAYLIST_LIKE_DELETIONS)
-    PushLikesCommand<ApiDeletedLike> providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
+    static PushLikesCommand<ApiDeletedLike> providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
         return new PushLikesCommand<>(apiClient,
                                       ApiEndpoints.DELETE_PLAYLIST_LIKES,
                                       new TypeToken<ModelCollection<ApiDeletedLike>>() {
@@ -124,13 +125,13 @@ public class LikesSyncModule {
 
     @Provides
     @Named(REMOVE_TRACK_LIKES)
-    RemoveLikesCommand provideRemoveTrackLikesCommand(PropellerDatabase database) {
+    static RemoveLikesCommand provideRemoveTrackLikesCommand(PropellerDatabase database) {
         return new RemoveLikesCommand(database, Tables.Sounds.TYPE_TRACK);
     }
 
     @Provides
     @Named(REMOVE_PLAYLIST_LIKES)
-    RemoveLikesCommand provideRemovePlaylistLikesCommand(PropellerDatabase database) {
+    static RemoveLikesCommand provideRemovePlaylistLikesCommand(PropellerDatabase database) {
         return new RemoveLikesCommand(database, Tables.Sounds.TYPE_PLAYLIST);
     }
 }

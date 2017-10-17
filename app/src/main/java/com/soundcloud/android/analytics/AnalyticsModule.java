@@ -34,7 +34,7 @@ public class AnalyticsModule {
 
     @Provides
     @Nullable
-    ComScoreAnalyticsProvider provideComScoreProvider(Context context) {
+    static ComScoreAnalyticsProvider provideComScoreProvider(Context context) {
         // cf. https://github.com/soundcloud/android-listeners/issues/1811
         try {
             return new ComScoreAnalyticsProvider(context);
@@ -46,7 +46,7 @@ public class AnalyticsModule {
 
     @Provides
     @Singleton
-    FirebaseAnalytics provideFirebaseAnalytics(Context context) {
+    static FirebaseAnalytics provideFirebaseAnalytics(Context context) {
         final FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
         firebaseAnalytics.setAnalyticsCollectionEnabled(true);
         return firebaseAnalytics;
@@ -54,7 +54,7 @@ public class AnalyticsModule {
 
     @Provides
     @Named(BASE_PROVIDERS)
-    List<AnalyticsProvider> provideBaseProviders(EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider,
+    static List<AnalyticsProvider> provideBaseProviders(EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider,
                                                  PromotedAnalyticsProvider promotedAnalyticsProvider) {
         List<AnalyticsProvider> providers = new ArrayList<>(3);
         providers.add(eventLoggerAnalyticsProvider);
@@ -64,7 +64,7 @@ public class AnalyticsModule {
 
     @Provides
     @Named(TRACKING_DB)
-    PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
+    static PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
         return new PropellerDatabase(dbHelper.getWritableDatabase());
     }
 

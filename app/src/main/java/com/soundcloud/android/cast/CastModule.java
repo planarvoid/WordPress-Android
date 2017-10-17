@@ -14,14 +14,15 @@ import android.content.Context;
 
 import javax.inject.Singleton;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class CastModule {
+public abstract class CastModule {
 
     private static final int REQUIRED_GOOGLE_PLAY_SERVICE_VERSION = 9256000;
 
     @Provides
     @Singleton
-    CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
+    static CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
         try {
             if (isCastEnabled(googlePlayServicesWrapper, context)) {
                 return new DefaultCastContextWrapper(CastContext.getSharedInstance(context));
@@ -35,7 +36,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    CastConnectionHelper provideCastConnectionHelper(Context context,
+    static CastConnectionHelper provideCastConnectionHelper(Context context,
                                                             Lazy<CastContextWrapper> castContext,
                                                             GooglePlayServicesWrapper gpsWrapper) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
@@ -50,7 +51,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    CastPlayer provideCastPlayer(PlayQueueManager playQueueManager,
+    static CastPlayer provideCastPlayer(PlayQueueManager playQueueManager,
                                         EventBus eventBus,
                                         CastProtocol castProtocol,
                                         PlaySessionStateProvider playSessionStateProvider,
@@ -62,7 +63,7 @@ public class CastModule {
                                      castQueueController, castPlayStateReporter, castQueueSlicer);
     }
 
-    private boolean isCastEnabled(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
+    private static boolean isCastEnabled(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
         return googlePlayServicesWrapper.isPlayServiceAvailable(context, REQUIRED_GOOGLE_PLAY_SERVICE_VERSION);
     }
 

@@ -13,31 +13,32 @@ import android.graphics.drawable.TransitionDrawable;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class ImageModule {
+public abstract class ImageModule {
 
     static final String PLACEHOLDER_CACHE = "PlaceholderCache";
     static final String BLURRED_IMAGE_CACHE = "BlurredImageCache";
 
     @Provides
-    public ImageLoader provideImageLoader() {
+    static ImageLoader provideImageLoader() {
         return ImageLoader.getInstance();
     }
 
     @Provides
     @Named(PLACEHOLDER_CACHE)
-    public Cache<String, TransitionDrawable> providePlaceholderCache() {
+    static Cache<String, TransitionDrawable> providePlaceholderCache() {
         return Cache.withSoftValues(50);
     }
 
     @Provides
     @Named(BLURRED_IMAGE_CACHE)
-    public Cache<Urn, Bitmap> provideBlurredImageCache() {
+    static Cache<Urn, Bitmap> provideBlurredImageCache() {
         return Cache.withSoftValues(10);
     }
 
     @Provides
-    public FileNameGenerator provideHashCodeFileNameGenerator() {
+    static FileNameGenerator provideHashCodeFileNameGenerator() {
         return new HashCodeFileNameGenerator();
     }
 

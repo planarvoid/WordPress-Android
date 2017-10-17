@@ -6,19 +6,20 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class ProfileModule {
+public abstract class ProfileModule {
 
     static final String PROFILE_SCROLL_HELPER = "profile_scroll_helper";
 
     @Provides
-    ProfileApi provideProfileApi(ProfileApiMobile profileApi) {
+    static ProfileApi provideProfileApi(ProfileApiMobile profileApi) {
         return profileApi;
     }
 
     @Named(PROFILE_SCROLL_HELPER)
     @Provides
-    ProfileScrollHelper provideProfileScrollHelper(ProfileConfig profileConfig,
+    static ProfileScrollHelper provideProfileScrollHelper(ProfileConfig profileConfig,
                                                    Lazy<ProfileScrollHelper> profileScrollHelperLazy,
                                                    Lazy<BannerProfileScrollHelper> bannerProfileScrollHelperLazy) {
         if (profileConfig.showProfileBanner()) {

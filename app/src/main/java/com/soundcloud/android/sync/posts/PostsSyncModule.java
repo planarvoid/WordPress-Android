@@ -14,31 +14,32 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class PostsSyncModule {
+public abstract class PostsSyncModule {
 
     public static final String MY_PLAYLIST_POSTS_SYNCER = "MyPlaylistPostsSyncer";
-    public static final String MY_TRACK_POSTS_SYNCER = "MyTrackPostsSyncer";
-    public static final String LOAD_PLAYLIST_POSTS = "LoadPlaylistPosts";
-    public static final String FETCH_PLAYLIST_POSTS = "FetchPlaylistPosts";
-    public static final String LOAD_TRACK_POSTS = "LoadTrackPosts";
-    public static final String FETCH_TRACK_POSTS = "FetchTrackPosts";
+    static final String MY_TRACK_POSTS_SYNCER = "MyTrackPostsSyncer";
+    private static final String LOAD_PLAYLIST_POSTS = "LoadPlaylistPosts";
+    private static final String FETCH_PLAYLIST_POSTS = "FetchPlaylistPosts";
+    private static final String LOAD_TRACK_POSTS = "LoadTrackPosts";
+    private static final String FETCH_TRACK_POSTS = "FetchTrackPosts";
 
     @Provides
     @Named(LOAD_PLAYLIST_POSTS)
-    LoadLocalPostsCommand provideLoadLocalPlaylistPostsCommand(PropellerDatabase database) {
+    static LoadLocalPostsCommand provideLoadLocalPlaylistPostsCommand(PropellerDatabase database) {
         return new LoadLocalPostsCommand(database, Tables.Sounds.TYPE_PLAYLIST);
     }
 
     @Provides
     @Named(FETCH_PLAYLIST_POSTS)
-    FetchPostsCommand provideFetchPlaylistPostsCommand(ApiClient apiClient) {
+    static FetchPostsCommand provideFetchPlaylistPostsCommand(ApiClient apiClient) {
         return new FetchPostsCommand(apiClient).with(ApiEndpoints.MY_PLAYLIST_POSTS);
     }
 
     @Provides
     @Named(MY_PLAYLIST_POSTS_SYNCER)
-    PostsSyncer provideMyPlaylistPostsSyncer(@Named(LOAD_PLAYLIST_POSTS) LoadLocalPostsCommand loadLocalPosts,
+    static PostsSyncer provideMyPlaylistPostsSyncer(@Named(LOAD_PLAYLIST_POSTS) LoadLocalPostsCommand loadLocalPosts,
                                              @Named(FETCH_PLAYLIST_POSTS) FetchPostsCommand fetchRemotePosts,
                                              StorePostsCommand storePostsCommand,
                                              RemovePostsCommand removePostsCommand,
@@ -51,19 +52,19 @@ public class PostsSyncModule {
 
     @Provides
     @Named(LOAD_TRACK_POSTS)
-    LoadLocalPostsCommand provideLoadLocalTrackPostsCommand(PropellerDatabase database) {
+    static LoadLocalPostsCommand provideLoadLocalTrackPostsCommand(PropellerDatabase database) {
         return new LoadLocalPostsCommand(database, Tables.Sounds.TYPE_TRACK);
     }
 
     @Provides
     @Named(FETCH_TRACK_POSTS)
-    FetchPostsCommand provideFetchTrackPostsCommand(ApiClient apiClient) {
+    static FetchPostsCommand provideFetchTrackPostsCommand(ApiClient apiClient) {
         return new FetchPostsCommand(apiClient).with(ApiEndpoints.MY_TRACK_POSTS);
     }
 
     @Provides
     @Named(MY_TRACK_POSTS_SYNCER)
-    PostsSyncer provideMyPostsSyncer(@Named(LOAD_TRACK_POSTS) LoadLocalPostsCommand loadLocalPosts,
+    static PostsSyncer provideMyPostsSyncer(@Named(LOAD_TRACK_POSTS) LoadLocalPostsCommand loadLocalPosts,
                                      @Named(FETCH_TRACK_POSTS) FetchPostsCommand fetchRemotePosts,
                                      StorePostsCommand storePostsCommand,
                                      RemovePostsCommand removePostsCommand,

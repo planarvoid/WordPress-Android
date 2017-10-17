@@ -143,60 +143,60 @@ public class ApplicationModule {
 
     private final SoundCloudApplication application;
 
-    public ApplicationModule(SoundCloudApplication application) {
+    protected ApplicationModule(SoundCloudApplication application) {
         this.application = application;
     }
 
     @Provides
-    public SoundCloudApplication provideApplication() {
+    SoundCloudApplication provideApplication() {
         return application;
     }
 
     @Provides
-    public Context provideContext() {
+    Context provideContext() {
         return application;
     }
 
     @Provides
-    public Resources provideResources() {
+    Resources provideResources() {
         return application.getResources();
     }
 
     @Provides
     @Singleton
-    public NavigationModel navigationModel(NavigationModelFactory navigationModelFactory) {
+    static NavigationModel navigationModel(NavigationModelFactory navigationModelFactory) {
         return navigationModelFactory.build();
     }
 
     @Provides
-    public CondensedNumberFormatter provideNumberFormatter() {
+    CondensedNumberFormatter provideNumberFormatter() {
         return CondensedNumberFormatter.create(Locale.getDefault(), application.getResources());
     }
 
     @Provides
-    public AccountManager provideAccountManager() {
+    AccountManager provideAccountManager() {
         return AccountManager.get(application);
     }
 
     @Provides
-    public SharedPreferences provideDefaultSharedPreferences() {
+    SharedPreferences provideDefaultSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
     }
 
     @Provides
-    public ConnectivityManager provideConnectivityManager() {
+    ConnectivityManager provideConnectivityManager() {
         return (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     // EventBus is just required for the test implementation
     @Provides
     @Singleton
-    public ConnectionHelper provideConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager, EventBus eventBus) {
+    protected ConnectionHelper provideConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager, EventBus eventBus) {
         return new NetworkConnectionHelper(connectivityManager, telephonyManager);
     }
 
     @Provides
-    public ConfigurationOperations provideConfigurationOperations(ApiClientRx apiClientRx,
+    protected ConfigurationOperations provideConfigurationOperations(ApiClientRx apiClientRx,
                                                                   ExperimentOperations experimentOperations,
                                                                   FeatureOperations featureOperations,
                                                                   PendingPlanOperations pendingPlanOperations,
@@ -219,66 +219,66 @@ public class ApplicationModule {
     }
 
     @Provides
-    public AlarmManager provideAlarmManager() {
+    AlarmManager provideAlarmManager() {
         return (AlarmManager) application.getSystemService(Context.ALARM_SERVICE);
     }
 
     @Provides
-    public TelephonyManager provideTelephonyManager() {
+    TelephonyManager provideTelephonyManager() {
         return (TelephonyManager) application.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @Provides
-    public NotificationManager provideNotificationManager() {
+    NotificationManager provideNotificationManager() {
         return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Provides
-    public LocalBroadcastManager provideLocalBroadcastManager() {
+    LocalBroadcastManager provideLocalBroadcastManager() {
         return LocalBroadcastManager.getInstance(application);
     }
 
     @Provides
     @Singleton
-    public EventBus provideEventBus() {
+    static EventBus provideEventBus() {
         return new DefaultEventBus(AndroidSchedulers.mainThread());
     }
 
     @Provides
     @Singleton
-    public EventBusV2 provideEventBusV2(EventBus eventBus) {
+    static EventBusV2 provideEventBusV2(EventBus eventBus) {
         return new DefaultEventBusV2(io.reactivex.android.schedulers.AndroidSchedulers.mainThread(), eventBus);
     }
 
     @Provides
     @Named(MAIN_LOOPER)
-    public Looper providesMainLooper() {
+    static Looper providesMainLooper() {
         return Looper.getMainLooper();
     }
 
     @Provides
-    public SoundRecorder provideSoundRecorder() {
+    SoundRecorder provideSoundRecorder() {
         return SoundRecorder.getInstance(application);
     }
 
     @Provides
-    public AppWidgetManager provideAppWidgetManager(Context context) {
+    static AppWidgetManager provideAppWidgetManager(Context context) {
         return AppWidgetManager.getInstance(context);
     }
 
     @Provides
-    public NotificationCompat.Builder provideNotificationBuilder(Context context) {
+    static NotificationCompat.Builder provideNotificationBuilder(Context context) {
         return new NotificationCompat.Builder(context);
     }
 
     @Singleton
     @Provides
-    public LruCache<Urn, WaveformData> provideWaveformCache() {
+    static LruCache<Urn, WaveformData> provideWaveformCache() {
         return new LruCache<>(DEFAULT_WAVEFORM_CACHE_SIZE);
     }
 
     @Provides
-    public ImageProcessor provideImageProcessor(Context context) {
+    static ImageProcessor provideImageProcessor(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return new ImageProcessorJB(context);
         } else {
@@ -287,7 +287,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public MainNavigationView provideNavigationView(AppNavigationExperiment appNavigationExperiment,
+    static MainNavigationView provideNavigationView(AppNavigationExperiment appNavigationExperiment,
                                                     EnterScreenDispatcher enterScreenDispatcher,
                                                     NavigationModel navigationModel,
                                                     EventTracker eventTracker,
@@ -301,7 +301,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public BottomNavigationViewPresenter provideBottomNavigationViewPresenter(AppNavigationExperiment appNavigationExperiment,
+    static BottomNavigationViewPresenter provideBottomNavigationViewPresenter(AppNavigationExperiment appNavigationExperiment,
                                                                               NavigationModel navigationModel,
                                                                               NavigationStateController navigationStateController) {
         if (appNavigationExperiment.isBottomNavigationEnabled()) {
@@ -312,7 +312,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
+    static PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     TrackItemRepository trackItemRepository,
@@ -337,36 +337,36 @@ public class ApplicationModule {
     }
 
     @Provides
-    public WifiManager provideWifiManager() {
+    WifiManager provideWifiManager() {
         return (WifiManager) application.getSystemService(Context.WIFI_SERVICE);
     }
 
     @Provides
-    public PowerManager providePowerManager() {
+    PowerManager providePowerManager() {
         return (PowerManager) application.getSystemService(Context.POWER_SERVICE);
     }
 
     @Provides
     @Named(HIGH_PRIORITY)
-    public rx.Scheduler provideHighPriorityScheduler() {
+    static rx.Scheduler provideHighPriorityScheduler() {
         return ScSchedulers.HIGH_PRIO_SCHEDULER;
     }
 
     @Provides
     @Named(LOW_PRIORITY)
-    public rx.Scheduler provideLowPriorityScheduler() {
+    static rx.Scheduler provideLowPriorityScheduler() {
         return ScSchedulers.LOW_PRIO_SCHEDULER;
     }
 
     @Provides
     @Named(RX_HIGH_PRIORITY)
-    public Scheduler provideHighPriorityRxScheduler() {
+    static Scheduler provideHighPriorityRxScheduler() {
         return ScSchedulers.RX_HIGH_PRIORITY_SCHEDULER;
     }
 
     @Provides
     @Named(RX_LOW_PRIORITY)
-    public Scheduler provideLowPriorityRxScheduler() {
+    static Scheduler provideLowPriorityRxScheduler() {
         return ScSchedulers.RX_LOW_PRIORITY_SCHEDULER;
     }
 
@@ -378,13 +378,13 @@ public class ApplicationModule {
     }
 
     @Provides
-    public FacebookSdk provideFacebookSdk() {
+    static FacebookSdk provideFacebookSdk() {
         return new FacebookSdk();
     }
 
     @SuppressLint("VisibleForTests")
     @Provides
-    public NavigationExecutor provideNavigationExecutor() {
+    static NavigationExecutor provideNavigationExecutor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new SmoothNavigationExecutor();
         } else {
@@ -394,12 +394,12 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public FabricReporter provideFabricReporter() {
+    static FabricReporter provideFabricReporter() {
         return new FabricReporter();
     }
 
     @Provides
-    public LikeButtonPresenter provideLikeButtonPresenter(CondensedNumberFormatter numberFormatter) {
+    static LikeButtonPresenter provideLikeButtonPresenter(CondensedNumberFormatter numberFormatter) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new MaterialLikeButtonPresenter(numberFormatter);
         } else {
@@ -409,19 +409,19 @@ public class ApplicationModule {
 
     @Provides
     @Named(CURRENT_DATE_PROVIDER)
-    public DateProvider provideCurrentDateProvider() {
+    static DateProvider provideCurrentDateProvider() {
         return new CurrentDateProvider();
     }
 
     @Provides
     @Named(DEFAULT_LIST_PAGE_SIZE)
-    public int provideDefaultListPageSize() {
+    static int provideDefaultListPageSize() {
         return Consts.LIST_PAGE_SIZE;
     }
 
     @Provides
     @Named(ENRICHED_ENTITY_ITEM_EMITTER)
-    public EntityItemEmitter provideEntichedEntityItemEmitter(EntityItemCreator entityItemCreator,
+    static EntityItemEmitter provideEntichedEntityItemEmitter(EntityItemCreator entityItemCreator,
                                                               LikesStateProvider likeStateProvider,
                                                               RepostsStateProvider repostsStateProvider,
                                                               PlaySessionStateProvider playSessionStateProvider,
@@ -431,17 +431,17 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    public GooglePlayServicesWrapper provideGooglePlayServicesWrapper() {
+    protected GooglePlayServicesWrapper provideGooglePlayServicesWrapper() {
         return new GooglePlayServicesWrapper();
     }
 
     @Provides
-    public SearchItemRenderer<DiscoveryCardViewModel> provideNewSearchItemRenderer() {
+    static SearchItemRenderer<DiscoveryCardViewModel> provideNewSearchItemRenderer() {
         return new SearchItemRenderer<>();
     }
 
     @Provides
-    public Random provideRandom() {
+    static Random provideRandom() {
         return new Random();
     }
 }

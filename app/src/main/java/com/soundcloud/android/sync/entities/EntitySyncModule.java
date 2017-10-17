@@ -14,28 +14,29 @@ import dagger.Provides;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class EntitySyncModule {
+public abstract class EntitySyncModule {
 
-    public static final String TRACKS_SYNC = "TracksSync";
-    public static final String PLAYLISTS_SYNC = "PlaylistsSync";
-    public static final String USERS_SYNC = "UsersSync";
+    static final String TRACKS_SYNC = "TracksSync";
+    static final String PLAYLISTS_SYNC = "PlaylistsSync";
+    static final String USERS_SYNC = "UsersSync";
 
     @Provides
     @Named(TRACKS_SYNC)
-    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, PublishTrackUpdateEventCommand publishTracksUpdateEvent) {
+    static EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, PublishTrackUpdateEventCommand publishTracksUpdateEvent) {
         return new EntitySyncJob(fetchTracks, storeTracks, publishTracksUpdateEvent);
     }
 
     @Provides
     @Named(PLAYLISTS_SYNC)
-    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEventCommand publishPlaylistUpdateEvent) {
+    static EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEventCommand publishPlaylistUpdateEvent) {
         return new EntitySyncJob(fetchPlaylists, storePlaylists, publishPlaylistUpdateEvent);
     }
 
     @Provides
     @Named(USERS_SYNC)
-    EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, PublishUserUpdateEventCommand publishUserUpdateEvent) {
+    static EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, PublishUserUpdateEventCommand publishUserUpdateEvent) {
         return new EntitySyncJob(fetchUsers, storeUsers, publishUserUpdateEvent);
     }
 }

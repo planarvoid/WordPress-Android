@@ -14,16 +14,17 @@ import android.os.Build;
 
 import javax.inject.Named;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class PlayerUIModule {
+public abstract class PlayerUIModule {
 
     @Provides
-    TrackPageView provideTrackPageView() {
+    static TrackPageView provideTrackPageView() {
         return new TrackPageView();
     }
 
     @Provides
-    PlayerArtworkLoader providePlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
+    static PlayerArtworkLoader providePlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
                                                    @Named(ApplicationModule.RX_LOW_PRIORITY) Scheduler graphicsScheduler) {
         // ScriptIntrinsicBlur is available in JB_MR1 but is very buggy
         if (Build.VERSION_CODES.JELLY_BEAN_MR1 < Build.VERSION.SDK_INT) {

@@ -10,13 +10,13 @@ import javax.inject.Singleton;
 @Module
 public class FacebookModule {
     @Provides
-    public CallbackManager providesCallbackManager() {
+    static CallbackManager providesCallbackManager() {
         return CallbackManager.Factory.create();
     }
 
     @Singleton
     @Provides
-    public LoginManager providesFacebookLoginManager() {
+    protected LoginManager providesFacebookLoginManager() {
         return LoginManager.getInstance();
     }
 }

@@ -8,15 +8,16 @@ import okhttp3.OkHttpClient;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class OfflineModule {
+public abstract class OfflineModule {
 
     static final String STRICT_SSL_CLIENT = "StrictSSLHttpClient";
 
     @Provides
     @Singleton
     @Named(STRICT_SSL_CLIENT)
-    OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
+    static OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
                                      OkHttpClient okHttpClient) {
         if (applicationProperties.isDevelopmentMode()) {
             return okHttpClient;
@@ -26,7 +27,7 @@ public class OfflineModule {
     }
 
     @Provides
-    IOfflinePropertiesProvider provideOfflinePropertiesProvider(OfflinePropertiesProvider offlinePropertiesProvider) {
+    static IOfflinePropertiesProvider provideOfflinePropertiesProvider(OfflinePropertiesProvider offlinePropertiesProvider) {
         return offlinePropertiesProvider;
     }
 }

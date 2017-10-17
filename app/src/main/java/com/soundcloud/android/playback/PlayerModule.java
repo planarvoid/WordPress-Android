@@ -24,8 +24,9 @@ import javax.inject.Named;
 import java.io.File;
 import java.nio.charset.Charset;
 
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // abstract to force @Provides methods to be static
 @Module
-public class PlayerModule {
+public abstract class PlayerModule {
     private static final String SKIPPY_CACHE_PREFERENCE_KEY = "skippy_cache";
     private static final String SKIPPY_CACHE_KEY = "SkippyCacheKey";
 
@@ -34,12 +35,12 @@ public class PlayerModule {
 
     @Named(SKIPPY_CACHE_KEY)
     @Provides
-    public byte[] provideSkippyCacheKey(CryptoOperations cryptoOperations) {
+    static byte[] provideSkippyCacheKey(CryptoOperations cryptoOperations) {
         return cryptoOperations.getKeyOrGenerateAndStore(SKIPPY_CACHE_PREFERENCE_KEY);
     }
 
     @Provides
-    public SkippyConfiguration provideSkippyConfiguration(Context context,
+    static SkippyConfiguration provideSkippyConfiguration(Context context,
                                                           TelphonyBasedCountryProvider countryProvider,
                                                           IOUtils ioUtils,
                                                           @Nullable @Named(SKIPPY_CACHE_KEY) byte[] cacheKey,
@@ -51,12 +52,12 @@ public class PlayerModule {
 
     @Named(FLIPPER_CACHE_KEY)
     @Provides
-    public String provideFlipperCacheKey(CryptoOperations cryptoOperations) {
+    static String provideFlipperCacheKey(CryptoOperations cryptoOperations) {
         return new String(cryptoOperations.getKeyOrGenerateAndStore(FLIPPER_CACHE_PREFERENCE_KEY), Charset.forName("UTF-8"));
     }
 
     @Provides
-    public FlipperConfiguration provideFlipperConfiguration(Context context,
+    static FlipperConfiguration provideFlipperConfiguration(Context context,
                                                             TelphonyBasedCountryProvider countryProvider,
                                                             IOUtils ioUtils,
                                                             @Nullable @Named(FLIPPER_CACHE_KEY) String cacheKey,
@@ -67,12 +68,12 @@ public class PlayerModule {
     }
 
     @Provides
-    public SkippyPerformanceReporter provideSkippyPerformanceReporter(EventBusV2 eventBus) {
+    static SkippyPerformanceReporter provideSkippyPerformanceReporter(EventBusV2 eventBus) {
         return new SkippyPerformanceReporter(eventBus);
     }
 
     @Provides
-    public FlipperPerformanceReporter provideFlipperPerformanceReporter(EventBusV2 eventBus) {
+    static FlipperPerformanceReporter provideFlipperPerformanceReporter(EventBusV2 eventBus) {
         return new FlipperPerformanceReporter(eventBus);
     }
 }
