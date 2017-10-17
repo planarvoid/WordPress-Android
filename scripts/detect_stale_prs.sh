@@ -81,26 +81,29 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     DATE=$(echo $line | sed 's/"//g')
     UNIXDATE=$(date -d $DATE +%s) # this command fails on macOS, try `date -j -u -f "%Y-%m-%dT%H:%M:%SZ" $DATE +%s` for debugging locally
 
+    PR_URL=$(cat prs.txt | jq ".[${I}].html_url")
+    PR_COMMENTS_URL=$(cat prs.txt | jq ".[${I}].comments_url")
+    PR_BRANCH=$(cat prs.txt | jq ".[${I}].head.ref")
+    PR_AUTHOR=$(cat prs.txt | jq ".[${I}].user.login")
+    PR_NUMBER=$(cat prs.txt | jq ".[${I}].number")
+
     if [ "${UNIXDATE}" -lt "${WARNING_THRESHOLD}" ]
     then
         ## PR is considered stale
-        PR_URL=$(cat prs.txt | jq ".[${I}].html_url")
-        PR_COMMENTS_URL=$(cat prs.txt | jq ".[${I}].comments_url")
-        PR_BRANCH=$(cat prs.txt | jq ".[${I}].head.ref")
-        PR_AUTHOR=$(cat prs.txt | jq ".[${I}].user.login")
-        PR_NUMBER=$(cat prs.txt | jq ".[${I}].number")
-
         ALREADY_WARNED=$(prContainsWarningComment $PR_COMMENTS_URL)
         if [ "$ALREADY_WARNED" = true ]
         then
             if [ "$UNIXDATE" -lt "$CLOSE_THRESHOLD" ]
             then
+                echo "PR #${PR_NUMBER} gets closed."
                 notifyAndClosePR "$PR_NUMBER" "$PR_AUTHOR" "$PR_BRANCH" "$PR_URL"
             fi
         else
+            echo "PR #${PR_NUMBER} gets a warning."
             notifyPR "$PR_NUMBER" "$PR_AUTHOR" "$PR_BRANCH" "$PR_URL"
         fi
-
+    else
+        echo "PR #${PR_NUMBER} is ok."
     fi
     I=$((I + 1))
 done < $FILE_PR_UPDATED_AT
