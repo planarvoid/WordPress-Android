@@ -24,6 +24,7 @@ import io.reactivex.disposables.Disposables;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -144,8 +145,13 @@ public class AddToPlaylistDialogFragment extends LoggingDialogFragment {
         @Override
         public void onSuccess(@NonNull Integer integer) {
             super.onSuccess(integer);
+
+            FragmentActivity activity = getActivity();
+            if (activity != null) {
+                Toast.makeText(activity, R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
+            }
+
             final Dialog toDismiss = getDialog();
-            Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
             if (toDismiss != null) {
                 toDismiss.dismiss();
             }
