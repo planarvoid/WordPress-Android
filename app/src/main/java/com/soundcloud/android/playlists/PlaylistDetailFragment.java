@@ -1,10 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static android.util.Log.INFO;
-
 import butterknife.ButterKnife;
-import com.soundcloud.android.model.AsyncLoadingState;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -15,7 +11,9 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.AsyncLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
@@ -28,7 +26,6 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.LightCycleLogger;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
@@ -73,8 +70,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
     public static final String EXTRA_AUTOPLAY = "autoplay";
 
-    private static final String TAG = "PlaylistDetailFragment";
-
     @Inject PlaylistDetailsPresenterFactory playlistPresenterFactory;
     @Inject PlaylistEngagementsRenderer playlistEngagementsRenderer;
     @Inject PlaylistCoverRenderer playlistCoverRenderer;
@@ -88,7 +83,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject FeedbackController feedbackController;
     @Inject Navigator navigator;
     @Inject ExpandPlayerObserver expandPlayerObserver;
-    @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
+    @Nullable @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
     // Chasing https://fabric.io/soundcloudandroid/android/apps/com.soundcloud.android/issues/594beedebe077a4dcc7a2de0?time=last-thirty-days
     @LightCycle SupportFragmentLightCycle<Fragment> logger = LightCycleLogger.forSupportFragment("PlaylistDetailFragment");
@@ -105,8 +100,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     private CollectionRenderer<PlaylistDetailItem, RecyclerView.ViewHolder> collectionRenderer;
     private PlaylistDetailsInputs inputs;
 
-    public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
-                                  PromotedSourceInfo promotedInfo, boolean autoplay) {
+    public static Fragment create(Urn playlistUrn,
+                                  Screen screen,
+                                  SearchQuerySourceInfo searchInfo,
+                                  PromotedSourceInfo promotedInfo,
+                                  boolean autoplay) {
         if (playlistUrn == null) {
             throw new IllegalArgumentException("Playlist URN may no be null. Params: screen = [" + screen + "], promotedInfo = [" + promotedInfo + "], searchInfo = [" + searchInfo + "]");
         }
@@ -270,9 +268,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        ErrorUtils.log(INFO, TAG, "[LIFE_CYCLE] onPrepareMenuOptions fragment = " + this.toString());
         super.onPrepareOptionsMenu(menu);
-        toolbarView.onPrepareOptionsMenu(menu);
+        if (null != toolbarView) {
+            toolbarView.onPrepareOptionsMenu(menu);
+        }
     }
 
     @Override
@@ -329,7 +328,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     }
 
     private void bindToolBar(PlaylistDetailsViewModel data) {
-        toolbarView.setPlaylist(data.metadata());
+        if (null != toolbarView) {
+            toolbarView.setPlaylist(data.metadata());
+        }
     }
 
     @Override
