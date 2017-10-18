@@ -100,7 +100,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PlaybackStateTransition> playbackStateTransitionCaptor;
     @Captor private ArgumentCaptor<AudioPerformanceEvent> audioPerformanceEventArgumentCaptor;
 
-    private Urn userUrn;
     private TestEventBusV2 eventBus = new TestEventBusV2();
     private Urn trackUrn = Urn.forTrack(123L);
     private Track track;
@@ -110,7 +109,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         track = ModelFixtures.baseTrackBuilder().urn(trackUrn).snippetDuration(345L).fullDuration(456L).snipped(false).build();
-        userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         when(skippyFactory.createPreloader()).thenReturn(skippyPreloader);
         dateProvider = new TestDateProvider();
@@ -699,8 +697,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void performanceMetricIsForwardedToReporter() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
         skippyAdapter.play(playbackItem);
 
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY,
@@ -710,16 +706,13 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        verify(performanceReporter).report(eq(playbackItem.getPlaybackType()), audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY), eq(userUrn), eq(ConnectionType.FOUR_G));
+        verify(performanceReporter).report(eq(playbackItem.getPlaybackType()), audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
         assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_PLAY);
         verifyNoMoreInteractions(performanceReporter);
     }
 
     @Test
     public void performanceMetricPublishesTimeToLoadEvent() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
-
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_LOAD_LIBRARY,
                                             1000L,
                                             STREAM_URL,
@@ -727,7 +720,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        verify(performanceReporter).reportTimeToLoadLibrary(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY), eq(userUrn), eq(ConnectionType.WIFI));
+        verify(performanceReporter).reportTimeToLoadLibrary(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
         assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_LOAD_LIBRARY);
         verifyNoMoreInteractions(performanceReporter);
     }

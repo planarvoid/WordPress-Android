@@ -242,15 +242,13 @@ public class MediaPlayerAdapter implements
         if (currentItem == null) {
             throw new IllegalStateException("MediaPlayer reported time to play without currentItem");
         }
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(currentItem.getPlaybackType())
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(timeToPlay)
-                                                                 .protocol(getPlaybackProtocol())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(connectionHelper.getCurrentConnectionType())
+                                                                 .playbackProtocol(getPlaybackProtocol().getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(streamUrl)
                                                                  .format(getCurrentFormat())
                                                                  .bitrate(getCurrentBitrate())
-                                                                 .userUrn(accountOperations.getLoggedInUserUrn())
                                                                  .build();
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
@@ -455,12 +453,7 @@ public class MediaPlayerAdapter implements
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
                                               connectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(currentItem,
-                                                      stateTransition,
-                                                      getPlaybackProtocol(),
-                                                      PlayerType.MEDIA_PLAYER,
-                                                      connectionHelper.getCurrentConnectionType()
-            );
+            bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.MEDIA_PLAYER);
         }
     }
 

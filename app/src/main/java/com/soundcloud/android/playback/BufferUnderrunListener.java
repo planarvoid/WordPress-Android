@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
@@ -36,11 +35,9 @@ public class BufferUnderrunListener {
         this.dateProvider = dateProvider;
     }
 
-    public void onPlaystateChanged(PlaybackItem playbackItem,
-                                   PlaybackStateTransition stateTransition,
+    public void onPlaystateChanged(PlaybackStateTransition stateTransition,
                                    PlaybackProtocol playbackProtocol,
-                                   PlayerType playerType,
-                                   ConnectionType currentConnectionType) {
+                                   PlayerType playerType) {
         Log.d(TAG, "PlaybackStateTransition: " + stateTransition);
         boolean isBufferUnderrun = detector.onStateTransitionEvent(stateTransition);
         if (stateTransition.isPlayerPlaying()) {
@@ -52,10 +49,8 @@ public class BufferUnderrunListener {
             uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
             if (isBufferUnderrun) {
                 checkForEmptyPlayerType(stateTransition);
-                emitUninterruptedPlaytimeEvent(playbackItem,
-                                               playbackProtocol,
+                emitUninterruptedPlaytimeEvent(playbackProtocol,
                                                playerType,
-                                               currentConnectionType,
                                                uninterruptedPlayTime,
                                                stateTransition.getFormat(),
                                                stateTransition.getBitrate());
@@ -70,20 +65,15 @@ public class BufferUnderrunListener {
         return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
     }
 
-    private void emitUninterruptedPlaytimeEvent(PlaybackItem item,
-                                                PlaybackProtocol playbackProtocol,
+    private void emitUninterruptedPlaytimeEvent(PlaybackProtocol playbackProtocol,
                                                 PlayerType playerType,
-                                                ConnectionType currentConnectionType,
                                                 long uninterruptedPlayTime,
                                                 String format,
                                                 int bitrate) {
-        PlaybackType playbackType = item.getPlaybackType();
-
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(playbackType)
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs()
                                                                        .metricValue(uninterruptedPlayTime)
-                                                                       .protocol(playbackProtocol)
-                                                                       .playerType(playerType)
-                                                                       .connectionType(currentConnectionType)
+                                                                       .playbackProtocol(playbackProtocol.getValue())
+                                                                       .playerType(playerType.getValue())
                                                                        .format(format)
                                                                        .bitrate(bitrate)
                                                                        .build();

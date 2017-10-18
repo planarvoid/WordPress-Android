@@ -147,7 +147,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         callbackThread {
             try {
                 currentPlaybackItem?.let {
-                    performanceReporter.report(it.playbackType, event, playerType, accountOperations.loggedInUserUrn, connectionHelper.currentConnectionType)
+                    performanceReporter.report(it.playbackType, event, playerType)
                 }
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)

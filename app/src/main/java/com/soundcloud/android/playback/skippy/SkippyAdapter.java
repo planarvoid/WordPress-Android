@@ -9,12 +9,10 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.HlsStreamUrlBuilder;
@@ -355,21 +353,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                                                 format.name(),
                                                                                 bitRate,
                                                                                 null);
-        final PlayerType playerType = getPlayerType();
-        final Urn userUrn = accountOperations.getLoggedInUserUrn();
-        final ConnectionType connectionType = connectionHelper.getCurrentConnectionType();
-
         if (metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY) {
-            performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent,
-                                                        playerType,
-                                                        userUrn,
-                                                        connectionType);
+            performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent, getPlayerType());
         } else {
-            performanceReporter.report(currentPlaybackItem.getPlaybackType(),
-                                       audioPerformanceEvent,
-                                       playerType,
-                                       userUrn,
-                                       connectionType);
+            performanceReporter.report(currentPlaybackItem.getPlaybackType(), audioPerformanceEvent, getPlayerType());
         }
     }
 
@@ -451,13 +438,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     public static class BufferUnderrunStateChangeHandler extends StateChangeHandler {
 
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
-        private final ConnectionHelper connectionHelper;
 
         @Inject
-        BufferUnderrunStateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper,
-                                         ConnectionHelper connectionHelper) {
+        BufferUnderrunStateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper) {
             super(looper);
-            this.connectionHelper = connectionHelper;
         }
 
         void setBufferUnderrunListener(@Nullable BufferUnderrunListener bufferUnderrunListener) {
@@ -470,11 +454,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final StateChangeMessage message = (StateChangeMessage) msg.obj;
             if (bufferUnderrunListener != null) {
-                bufferUnderrunListener.onPlaystateChanged(message.playbackItem,
-                                                          message.stateTransition,
-                                                          PlaybackProtocol.HLS,
-                                                          PlayerType.SKIPPY,
-                                                          connectionHelper.getCurrentConnectionType());
+                bufferUnderrunListener.onPlaystateChanged(message.stateTransition, PlaybackProtocol.HLS, PlayerType.SKIPPY);
             }
         }
     }

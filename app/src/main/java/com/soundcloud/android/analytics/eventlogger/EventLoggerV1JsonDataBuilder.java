@@ -40,7 +40,6 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
-import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -256,10 +255,10 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForPlaybackPerformance(PlaybackPerformanceEvent event) {
-        EventLoggerEventData eventLoggerEventData = buildBaseEvent(event.eventName().key(), event.timestamp())
+        EventLoggerEventData eventLoggerEventData = buildBaseEvent(PlaybackPerformanceEvent.EVENT_NAME, event.timestamp())
                 .latency(event.metricValue())
-                .protocol(event.protocol().getValue())
-                .playerType(event.playerType().getValue())
+                .protocol(event.playbackProtocol())
+                .playerType(event.playerType())
                 .type(getPerformanceEventType(event.metric()))
                 .host(event.cdnHost())
                 .format(event.format())
@@ -343,17 +342,6 @@ class EventLoggerV1JsonDataBuilder {
         return transform(data);
     }
 
-    String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
-        return transform(buildBaseEvent(event.eventName().key(), event.timestamp())
-                                 .mediaType(event.isVideoAd() ? "video" : "audio")
-                                 .protocol(event.protocol().getValue())
-                                 .playerType(event.playerType().getValue())
-                                 .format(getRichMediaFormatName(event.format()))
-                                 .bitrate(event.bitrate())
-                                 .metric(getRichMediaPerformanceEventType(event.metric()), event.metricValue())
-                                 .host(event.cdnHost()));
-    }
-
     String buildForScreenEvent(ScreenEvent event) {
         try {
             final EventLoggerEventData eventData = buildBaseEvent(ScreenEvent.EVENT_NAME, event)
@@ -395,26 +383,6 @@ class EventLoggerV1JsonDataBuilder {
             data.playerType(eventData.playerType().get());
         }
         return transform(data);
-    }
-
-    private String getRichMediaFormatName(String format) {
-        switch (format) {
-            case PlaybackConstants.MIME_TYPE_MP4:
-                return "mp4";
-            default:
-                return format;
-        }
-    }
-
-    private String getRichMediaPerformanceEventType(int metric) {
-        switch (metric) {
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
-                return "timeToPlayMs";
-            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
-                return "uninterruptedPlaytimeMs";
-            default:
-                throw new IllegalArgumentException("Unexpected metric type " + metric);
-        }
     }
 
     String buildForFacebookInvites(FacebookInvitesEvent event) {
@@ -856,14 +824,14 @@ class EventLoggerV1JsonDataBuilder {
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
         EventLoggerEventData eventData = new EventLoggerEventData(eventName,
-                                                                      BOOGALOO_VERSION,
-                                                                      appId,
-                                                                      getAnonymousId(),
-                                                                      getUserUrn(),
-                                                                      timestamp,
-                                                                      connectionHelper.getCurrentConnectionType()
-                                                                                      .getValue(),
-                                                                      String.valueOf(deviceHelper.getAppVersionCode()));
+                                                                  BOOGALOO_VERSION,
+                                                                  appId,
+                                                                  getAnonymousId(),
+                                                                  getUserUrn(),
+                                                                  timestamp,
+                                                                  connectionHelper.getCurrentConnectionType()
+                                                                                  .getValue(),
+                                                                  String.valueOf(deviceHelper.getAppVersionCode()));
         addExperiments(eventData);
         return eventData;
     }

@@ -2,11 +2,9 @@ package com.soundcloud.android.playback.flipper;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.playback.PlaybackMetric;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -20,14 +18,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class FlipperPerformanceReporterTest {
 
-    private static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
+    private static final String PROTOCOL = PlaybackProtocol.HLS.getValue();
     private static final PlayerType PLAYER_TYPE = PlayerType.FLIPPER;
-    private static final Urn USER_URN = Urn.forUser(1234567L);
     private static final Long LATENCY = 1000L;
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private static final String FORMAT = "opus";
     private static final int BITRATE = 128000;
-    private static final ConnectionType CONNECTION_TYPE = ConnectionType.FOUR_G;
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
@@ -41,7 +37,7 @@ public class FlipperPerformanceReporterTest {
     @Test
     public void doesNotReportAudioAdPerformance() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
-        performanceReporter.report(PlaybackType.AUDIO_AD, audioPerformanceEvent, PlayerType.FLIPPER, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_AD, audioPerformanceEvent, PlayerType.FLIPPER);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
@@ -49,7 +45,15 @@ public class FlipperPerformanceReporterTest {
     @Test
     public void doesNotReportVideoAdPerformance() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
-        performanceReporter.report(PlaybackType.VIDEO_AD, audioPerformanceEvent, PlayerType.FLIPPER, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.VIDEO_AD, audioPerformanceEvent, PlayerType.FLIPPER);
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNeverReportUninterruptedPlaytimeEvent() {
+        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.UNINTERRUPTED_PLAYTIME);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PlayerType.FLIPPER);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
@@ -58,7 +62,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToPlayEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
@@ -68,7 +72,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToSeekEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_SEEK);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
@@ -78,7 +82,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToPlaylistEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_GET_PLAYLIST);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
@@ -88,25 +92,23 @@ public class FlipperPerformanceReporterTest {
     public void reportsCacheUsagePercentage() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.CACHE_USAGE_PERCENT);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE, USER_URN, CONNECTION_TYPE);
+        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT);
     }
 
     private AudioPerformanceEvent createAudioPerformanceEventWithType(PlaybackMetric metric) {
-        return new AudioPerformanceEvent(metric, LATENCY, PROTOCOL.getValue(), CDN_HOST, FORMAT, BITRATE, null);
+        return new AudioPerformanceEvent(metric, LATENCY, PROTOCOL, CDN_HOST, FORMAT, BITRATE, null);
     }
 
     private void assertPerformanceEvent(PlaybackPerformanceEvent event, int metric) {
         assertThat(event.metric()).isEqualTo(metric);
         assertThat(event.metricValue()).isEqualTo(LATENCY);
-        assertThat(event.protocol()).isEqualTo(PROTOCOL);
-        assertThat(event.playerType()).isEqualTo(PLAYER_TYPE);
-        assertThat(event.connectionType()).isEqualTo(CONNECTION_TYPE);
+        assertThat(event.playbackProtocol()).isEqualTo(PROTOCOL);
+        assertThat(event.playerType()).isEqualTo(PLAYER_TYPE.getValue());
         assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
         assertThat(event.format()).isEqualTo(FORMAT);
         assertThat(event.bitrate()).isEqualTo(BITRATE);
-        assertThat(event.userUrn()).isEqualTo(USER_URN);
     }
 }

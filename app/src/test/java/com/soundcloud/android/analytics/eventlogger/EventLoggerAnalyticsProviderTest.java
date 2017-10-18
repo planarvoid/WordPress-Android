@@ -4,7 +4,6 @@ import static com.soundcloud.android.events.UIEvent.PlayerInterface.FULLSCREEN;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -27,7 +26,6 @@ import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.CollectionEvent;
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.GoOnboardingTooltipEvent;
@@ -51,7 +49,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -113,16 +110,13 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() {
-
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_DEFAULT)
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HLS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HLS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost("uri")
                                                                  .format(PlaybackConstants.MediaType.UNKNOWN)
                                                                  .bitrate(0)
-                                                                 .userUrn(userUrn)
                                                                  .build();
         when(dataBuilder.buildForPlaybackPerformance(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
@@ -131,31 +125,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.timestamp());
-    }
-
-    @Test
-    public void shouldTrackRichMediaPlaybackPerformanceEventAsEventLoggerEvent() {
-
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.VIDEO_AD)
-                                                                 .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HLS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
-                                                                 .cdnHost("uri")
-                                                                 .format("video/mp4")
-                                                                 .bitrate(200)
-                                                                 .userUrn(userUrn)
-                                                                 .build();
-        when(dataBuilder.buildForRichMediaPerformance(event)).thenReturn("url");
-
-        eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
-
-        verify(dataBuilder, never()).buildForPlaybackPerformance(event);
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTrackingManager).trackEvent(captor.capture());
-        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.timestamp());
-        assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 
     @Test
@@ -362,8 +331,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         VisualAdImpressionEvent event = VisualAdImpressionEvent.create(AdFixtures.getAudioAd(Urn.forTrack(123L)),
-                                                                    Urn.forUser(456L),
-                                                                    sourceInfo);
+                                                                       Urn.forUser(456L),
+                                                                       sourceInfo);
         when(dataBuilder.buildForVisualAdImpression(event)).thenReturn("ForVisualAdImpression");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -542,8 +511,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         videoAd.setEventReported(PlayableAdData.ReportingEvent.START);
         AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
-                                                                              TestPlayerTransitions.playing(),
-                                                                              "123");
+                                                              TestPlayerTransitions.playing(),
+                                                              "123");
         AdRichMediaSessionEvent adEvent = AdRichMediaSessionEvent.forPlay(videoAd, adArgs);
 
         when(dataBuilder.buildForRichMediaSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");

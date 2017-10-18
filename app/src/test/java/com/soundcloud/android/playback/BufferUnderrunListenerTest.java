@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
@@ -92,7 +91,6 @@ public class BufferUnderrunListenerTest {
         assertThat(event.metricValue()).isEqualTo(900L);
         assertThat(event.bitrate()).isEqualTo(1001000);
         assertThat(event.format()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
-        assertThat(event.isVideoAd()).isTrue();
     }
 
     @Test
@@ -208,7 +206,7 @@ public class BufferUnderrunListenerTest {
         stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
         when(dateProvider.getCurrentDate()).thenReturn(transitionTime);
-        listener.onPlaystateChanged(playbackItem, stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);
+        listener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, player);
     }
 
 }

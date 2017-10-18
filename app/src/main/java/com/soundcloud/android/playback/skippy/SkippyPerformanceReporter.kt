@@ -1,13 +1,11 @@
 package com.soundcloud.android.playback.skippy
 
-import com.soundcloud.android.events.ConnectionType
 import com.soundcloud.android.events.PlaybackPerformanceEvent
 import com.soundcloud.android.events.PlayerType
-import com.soundcloud.android.model.Urn
+import com.soundcloud.android.playback.AudioPerformanceEvent
 import com.soundcloud.android.playback.PerformanceReporter
 import com.soundcloud.android.playback.PlaybackMetric
 import com.soundcloud.android.playback.PlaybackType
-import com.soundcloud.android.playback.AudioPerformanceEvent
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.rx.eventbus.EventBusV2
 
@@ -23,11 +21,8 @@ class SkippyPerformanceReporter(eventBus: EventBusV2) : PerformanceReporter(even
                 || !isAd(playbackType)
     }
 
-    fun reportTimeToLoadLibrary(event: AudioPerformanceEvent,
-                                playerType: PlayerType,
-                                userUrn: Urn,
-                                connectionType: ConnectionType) {
-        val playbackPerformanceEvent = populatePlaybackPerformanceBuilder(PlaybackPerformanceEvent.timeToLoad(), event, playerType, userUrn, connectionType)
+    fun reportTimeToLoadLibrary(event: AudioPerformanceEvent, playerType: PlayerType) {
+        val playbackPerformanceEvent = populatePlaybackPerformanceBuilder(PlaybackPerformanceEvent.timeToLoad(), event, playerType)
         reportPerformanceEvent(playbackPerformanceEvent)
     }
 }

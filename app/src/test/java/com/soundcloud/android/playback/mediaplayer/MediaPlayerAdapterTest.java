@@ -216,10 +216,8 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.metricValue()).isEqualTo(1000L);
         assertThat(event.cdnHost()).isEqualTo(STREAM_URL);
-        assertThat(event.playerType()).isEqualTo(PlayerType.MEDIA_PLAYER);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HTTPS);
-        assertThat(event.connectionType()).isEqualTo(ConnectionType.TWO_G);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
+        assertThat(event.playerType()).isEqualTo(PlayerType.MEDIA_PLAYER.getValue());
+        assertThat(event.playbackProtocol()).isEqualTo(PlaybackProtocol.HTTPS.getValue());
     }
 
     @Test
@@ -235,10 +233,8 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.metricValue()).isEqualTo(1000L);
         assertThat(event.cdnHost()).isEqualTo("http://videourl.com/video.mp4");
-        assertThat(event.playerType()).isEqualTo(PlayerType.MEDIA_PLAYER);
-        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HTTPS);
-        assertThat(event.connectionType()).isEqualTo(ConnectionType.TWO_G);
-        assertThat(event.userUrn()).isEqualTo(userUrn);
+        assertThat(event.playerType()).isEqualTo(PlayerType.MEDIA_PLAYER.getValue());
+        assertThat(event.playbackProtocol()).isEqualTo(PlaybackProtocol.HTTPS.getValue());
         assertThat(event.format()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
         assertThat(event.bitrate()).isEqualTo(1001000);
     }

@@ -226,14 +226,12 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter).report(playbackItem.getPlaybackType(), audioPerformance, PlayerType.FLIPPER, LOGGED_IN_USER_URN, CONNECTION_TYPE);
+        verify(performanceReporter).report(playbackItem.getPlaybackType(), audioPerformance, PlayerType.FLIPPER);
     }
 
     @Test
     public void performanceEventNotBackedByPlaybackItemIsNotReported() {
         // Setting up things: connected to the internet + playing a track
-        ConnectionType connectionType = ConnectionType.WIFI;
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(connectionType);
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
 
@@ -245,7 +243,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter, never()).report(any(PlaybackType.class), any(AudioPerformanceEvent.class), any(PlayerType.class), any(Urn.class), any(ConnectionType.class));
+        verify(performanceReporter, never()).report(any(PlaybackType.class), any(AudioPerformanceEvent.class), any(PlayerType.class));
     }
 
     @Test

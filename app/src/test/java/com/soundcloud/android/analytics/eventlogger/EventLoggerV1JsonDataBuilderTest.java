@@ -70,9 +70,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
-import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -929,34 +927,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsJsonFromRichMediaPerformanceEvent() throws ApiMapperException {
-
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_AD)
-                                                                       .metricValue((long) 321)
-                                                                       .protocol(PlaybackProtocol.HTTPS)
-                                                                       .playerType(PlayerType.MEDIA_PLAYER)
-                                                                       .connectionType(ConnectionType.FOUR_G)
-                                                                       .cdnHost("host")
-                                                                       .format(PlaybackConstants.MIME_TYPE_MP4)
-                                                                       .bitrate(1001)
-                                                                       .userUrn(Urn.NOT_SET)
-                                                                       .build();
-
-        jsonDataBuilder.buildForRichMediaPerformance(event);
-
-        verify(jsonTransformer).toJson(getEventData("rich_media_stream_performance",
-                                                    BOOGALOO_VERSION,
-                                                    event.timestamp())
-                                               .metric("timeToPlayMs", 321)
-                                               .mediaType("audio")
-                                               .protocol("https")
-                                               .playerType("MediaPlayer")
-                                               .host("host")
-                                               .bitrate(1001)
-                                               .format("mp4"));
-    }
-
-    @Test
     public void createsJsonFromAdDeliveryEvent() throws ApiMapperException {
         final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Optional.of(TRACK_URN),
                                                                   AD_URN,
@@ -1065,16 +1035,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForPlayEvent() throws Exception {
-
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_DEFAULT)
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HTTPS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
-                                                                 .userUrn(LOGGED_IN_USER)
                                                                  .details(DETAILS_JSON)
                                                                  .build();
 
@@ -1087,13 +1054,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsPlaybackPerformanceJsonForBufferEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HTTPS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
-                                                                 .userUrn(LOGGED_IN_USER)
                                                                  .details(DETAILS_JSON)
                                                                  .build();
 
@@ -1106,13 +1071,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsPlaybackPerformanceJsonForPlaylistEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HTTPS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
-                                                                 .userUrn(LOGGED_IN_USER)
                                                                  .details(DETAILS_JSON)
                                                                  .build();
 
@@ -1126,13 +1089,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HTTPS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
-                                                                 .userUrn(LOGGED_IN_USER)
                                                                  .details(DETAILS_JSON)
                                                                  .build();
 
@@ -1145,13 +1106,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsPlaybackPerformanceJsonForFragmentDownloadRateEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate()
                                                                  .metricValue(1000L)
-                                                                 .protocol(PlaybackProtocol.HTTPS)
-                                                                 .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
-                                                                 .userUrn(LOGGED_IN_USER)
                                                                  .details(DETAILS_JSON)
                                                                  .build();
 
