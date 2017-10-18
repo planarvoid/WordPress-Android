@@ -9,6 +9,7 @@ import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.di.TestApplicationModule;
 import com.soundcloud.android.di.testimplementations.TestFacebookModule;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
@@ -38,6 +39,7 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     @Inject ConnectionHelper connectionHelper;
     @Inject LoginManager loginManager;
     @Inject GooglePlayServicesWrapper playServicesWrapper;
+    @Inject OfflineSettingsStorage offlineSettingsStorage;
 
     @Override
     public void onCreate() {
@@ -111,5 +113,9 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     public GooglePlayServicesWrapper getPlayServicesWrapper() {
         return playServicesWrapper;
+    }
+
+    public OfflineSettingsStorage getOfflineSettingsStorage() {
+        return offlineSettingsStorage;
     }
 }

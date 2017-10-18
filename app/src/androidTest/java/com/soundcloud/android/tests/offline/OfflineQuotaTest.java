@@ -12,21 +12,26 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.tests.SoundCloudTestApplication;
 import org.junit.Test;
 
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 
 public class OfflineQuotaTest extends ActivityTest<MainActivity> {
 
     private Context context;
 
     private final OfflineContentHelper offlineContentHelper;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     public OfflineQuotaTest() {
         super(MainActivity.class);
         offlineContentHelper = new OfflineContentHelper();
+        offlineSettingsStorage = SoundCloudTestApplication.fromContext(InstrumentationRegistry.getTargetContext()).getOfflineSettingsStorage();
     }
 
     @Override
@@ -42,6 +47,8 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         offlineContentHelper.clearOfflineContent(context);
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);
+        // Allow downloading on mobile network as Firebase emulators don't have WiFi
+        offlineSettingsStorage.setWifiOnlyEnabled(false);
     }
 
     @Test
