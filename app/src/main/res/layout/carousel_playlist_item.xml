@@ -14,14 +14,6 @@
         android:layout_height="@dimen/carousel_image_size"/>
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/track_count"
-        style="@style/Collections.SmallTrackCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/artwork"
-        tools:text="12" />
-
-    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title"
         style="@style/Carousel.ItemTitle"
         android:layout_width="match_parent"

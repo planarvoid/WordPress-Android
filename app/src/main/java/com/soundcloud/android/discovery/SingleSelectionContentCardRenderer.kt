@@ -32,7 +32,7 @@ constructor(private val imageOperations: ImageOperations, private val resources:
         val singleContentSelectionCard = list[position]
         bindText(view.single_card_title, singleContentSelectionCard.title)
         bindText(view.single_card_description, singleContentSelectionCard.description)
-        bindSelectionItem(view.single_card_artwork, view.single_card_track_count, singleContentSelectionCard.selectionItem)
+        bindSelectionItem(view.single_card_artwork, singleContentSelectionCard.selectionItem)
         bindSocialProof(view, singleContentSelectionCard)
         bindClickHandling(view, singleContentSelectionCard)
     }
@@ -48,7 +48,7 @@ constructor(private val imageOperations: ImageOperations, private val resources:
         }
     }
 
-    private fun bindSelectionItem(view: ImageView, countTextView: TextView, selectionItem: SelectionItemViewModel) {
+    private fun bindSelectionItem(view: ImageView, selectionItem: SelectionItemViewModel) {
         selectionItem.urn?.let {
             imageOperations.displayInAdapterView(
                     it,
@@ -58,7 +58,6 @@ constructor(private val imageOperations: ImageOperations, private val resources:
                     ImageOperations.DisplayType.DEFAULT)
 
         }
-        bindText(countTextView, selectionItem.count?.toString())
     }
 
     private fun bindSocialProof(socialProofView: View, singleContentSelectionCard: DiscoveryCardViewModel.SingleContentSelectionCard) {

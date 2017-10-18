@@ -31,7 +31,6 @@ constructor(private val imageOperations: ImageOperations) : CellRenderer<Playlis
             artwork.showWithoutPlaceholder(playlist.imageUrlTemplate, Optional.of(ImageStyle.SQUARE), playlist.urn, imageOperations)
 
             title.text = playlist.title()
-            track_count.text = playlist.trackCount().toString()
             secondary_text.text = playlist.creatorName()
 
             private_indicator.visibility = if (playlist.isPrivate) View.VISIBLE else View.GONE

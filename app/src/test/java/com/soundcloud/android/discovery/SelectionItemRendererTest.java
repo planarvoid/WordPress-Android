@@ -101,26 +101,6 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindsCountWhenPresent() {
-        final SelectionItemViewModel selectionItem = defaultSelectionItem();
-        TextView count = itemView.findViewById(R.id.track_count);
-
-        renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
-
-        assertThat(count).isVisible();
-    }
-
-    @Test
-    public void doesNotBindCountWhenNotPresent() {
-        final SelectionItemViewModel selectionItem = createSelectionItem(SHORT_TITLE, SHORT_SUBTITLE, null);
-        TextView count = itemView.findViewById(R.id.track_count);
-
-        renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
-
-        assertThat(count).isNotVisible();
-    }
-
-    @Test
     public void doesNotBindOverflowMenu() {
         final SelectionItemViewModel selectionItem = defaultSelectionItem();
         View overflowMenu = itemView.findViewById(R.id.overflow_button);

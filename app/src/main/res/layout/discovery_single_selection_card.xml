@@ -46,14 +46,6 @@
                 android:layout_height="164dp"
                 sc:foreground="@drawable/artwork_border" />
 
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/single_card_track_count"
-                style="@style/Collections.SmallTrackCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/single_card_artwork"
-                tools:text="12" />
-
         </RelativeLayout>
 
         <LinearLayout

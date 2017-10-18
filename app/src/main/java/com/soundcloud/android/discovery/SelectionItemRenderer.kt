@@ -27,7 +27,6 @@ class SelectionItemRenderer(private val imageOperations: ImageOperations,
         bindImage(view, selectionItem)
         bindText(view.title, selectionItem.shortTitle)
         bindText(view.secondary_text, selectionItem.shortSubtitle)
-        bindText(view.track_count, selectionItem.count?.toString())
         bindOverflowMenu(view)
         bindClickHandling(view, selectionItem)
     }

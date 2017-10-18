@@ -76,7 +76,6 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
         setImage(view, playlist);
         setTitle(view, playlist.getTitle());
-        setTrackCount(view, playlist);
         setType(view, playlist.isAlbum()
                       ? R.string.collections_recently_played_album
                       : R.string.collections_recently_played_playlist);
@@ -97,11 +96,6 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     private void setImage(View view, ImageResource imageResource) {
         final StyledImageView styledImageView = findById(view, R.id.artwork);
         styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), imageResource.getUrn(), imageOperations);
-    }
-
-    private void setTrackCount(View view, RecentlyPlayedPlayableItem playlist) {
-        final TextView trackCount = findById(view, R.id.track_count);
-        trackCount.setText(String.valueOf(playlist.getTrackCount()));
     }
 
     private View.OnClickListener goToPlaylist(final RecentlyPlayedPlayableItem playlist) {

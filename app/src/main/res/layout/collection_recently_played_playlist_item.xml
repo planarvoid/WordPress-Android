@@ -11,15 +11,7 @@
         android:id="@+id/artwork"
         android:layout_marginBottom="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/track_count"
-        style="@style/Collections.SmallTrackCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/artwork"
-        tools:text="12" />
+        android:layout_height="wrap_content" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title"
@@ -27,8 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/artwork"
-        android:layout_toLeftOf="@+id/indicator_views"
-        android:layout_marginRight="4dp"/>
+        android:layout_marginRight="4dp"
+        android:layout_toLeftOf="@+id/indicator_views" />
 
     <LinearLayout
         android:id="@+id/indicator_views"

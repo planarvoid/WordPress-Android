@@ -61,24 +61,12 @@
             sc:layout_constraintStart_toStartOf="parent"
             sc:layout_constraintTop_toTopOf="@id/top_border" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/single_card_track_count"
-            style="@style/Collections.SmallTrackCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/single_card_artwork"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            sc:layout_constraintBottom_toBottomOf="@+id/single_card_artwork"
-            sc:layout_constraintStart_toStartOf="@+id/single_card_artwork"
-            tools:text="12" />
-
         <LinearLayout
+            android:id="@+id/single_card_social_proof_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
             android:orientation="horizontal"
-            android:id="@+id/single_card_social_proof_container"
             sc:layout_constraintBottom_toTopOf="@+id/social_proof_line"
             sc:layout_constraintStart_toStartOf="@+id/guideline">
 

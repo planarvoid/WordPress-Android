@@ -61,14 +61,12 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         final ImageView artwork = view.findViewById(R.id.artwork);
         final TextView title = view.findViewById(R.id.title);
         final TextView creator = view.findViewById(R.id.creator);
-        final TextView trackCount = view.findViewById(R.id.track_count);
         final View container = view.findViewById(R.id.collections_playlist_item);
         final OverflowAnchorImageView overflowButton = view.findViewById(R.id.overflow_button);
 
         container.setOnClickListener(goToPlaylist(playlistItem));
         title.setText(playlistItem.title());
         creator.setText(playlistItem.creatorName());
-        trackCount.setText(String.valueOf(playlistItem.trackCount()));
         setupOverFlow(overflowButton, playlistItem);
         imageOperations.displayInAdapterView(playlistItem.getUrn(),
                                              playlistItem.getImageUrlTemplate(),

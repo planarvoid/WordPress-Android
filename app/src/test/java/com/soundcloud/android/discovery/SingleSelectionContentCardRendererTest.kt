@@ -79,41 +79,6 @@ class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
     }
 
     @Test
-    fun bindsSelectionItemCountWhenPresent() {
-        val cardWithCount = card.copy(selectionItem = card.selectionItem.copy(count = 1))
-        val count = itemView.findViewById<TextView>(R.id.single_card_track_count)
-        val imageView = itemView.findViewById<ImageView>(R.id.single_card_artwork)
-
-        renderer.bindItemView(0, itemView, listOf(cardWithCount))
-
-        assertThat(count).isVisible
-        verify(imageOperations).displayInAdapterView(
-                cardWithCount.selectionItem.urn!!,
-                fromNullable(cardWithCount.selectionItem.artworkUrlTemplate),
-                ApiImageSize.getFullImageSize(resources),
-                imageView,
-                ImageOperations.DisplayType.DEFAULT
-        )
-    }
-
-    @Test
-    fun doesNotBindSelectionItemCountWhenNotPresent() {
-        val cardWithoutCount = card.copy(selectionItem = card.selectionItem.copy(count = null))
-        val count = itemView.findViewById<TextView>(R.id.single_card_track_count)
-        val imageView = itemView.findViewById<ImageView>(R.id.single_card_artwork)
-
-        renderer.bindItemView(0, itemView, listOf(cardWithoutCount))
-
-        assertThat(count).isNotVisible
-        verify(imageOperations).displayInAdapterView(
-                cardWithoutCount.selectionItem.urn!!,
-                fromNullable(cardWithoutCount.selectionItem.artworkUrlTemplate),
-                ApiImageSize.getFullImageSize(resources),
-                imageView,
-                ImageOperations.DisplayType.DEFAULT)
-    }
-
-    @Test
     fun bindsSocialProofWhenPresent() {
         val cardWithSocialProofAvatars = card.copy(socialProof = "social_proof", socialProofAvatarUrlTemplates = listOf("link1", "link2"))
         `when`(resources.configuration).thenReturn(Configuration())
