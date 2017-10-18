@@ -17,7 +17,15 @@ public class TrackItemElement {
     }
 
     public DownloadImageViewElement downloadElement() {
+        return new DownloadImageViewElement(testDriver, wrapped.findElement(With.id(R.id.track_list_item_offline_state_image_view)));
+    }
+
+    public DownloadImageViewElement visibleDownloadElement() {
         return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.track_list_item_offline_state_image_view)));
+    }
+
+    public ViewElement noInternetElement() {
+        return wrapped.findElement(With.id(R.id.track_list_item_no_network_text));
     }
 
     public String getTitle() {

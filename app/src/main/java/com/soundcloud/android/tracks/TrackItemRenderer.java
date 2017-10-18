@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -47,7 +47,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final Navigator navigator;
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
 
     private Listener listener;
@@ -72,7 +72,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory,
                              OfflineSettingsOperations offlineSettingsOperations,
-                             NetworkConnectionHelper connectionHelper,
+                             ConnectionHelper connectionHelper,
                              TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -324,11 +324,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         } else {
             itemView.showRequested();
         }
-    }
-
-    private void showChartPosition(View itemView, int position) {
-        final TrackItemView trackItemView = (TrackItemView) itemView.getTag();
-        trackItemView.showPosition(position);
     }
 
     private void showPromoted(TrackItemView itemView, final TrackItem track) {

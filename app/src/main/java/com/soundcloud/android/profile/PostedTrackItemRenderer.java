@@ -11,7 +11,7 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -32,7 +32,7 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                             FeatureOperations featureOperations,
                             TrackItemView.Factory trackItemViewFactory,
                             OfflineSettingsOperations offlineSettingsOperations,
-                            NetworkConnectionHelper connectionHelper,
+                            ConnectionHelper connectionHelper,
                             TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
         super(imageOperations,
               numberFormatter,

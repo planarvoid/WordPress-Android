@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.offline;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static com.soundcloud.android.framework.TestUser.offlineEmptyUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
@@ -13,6 +12,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.StreamCardElement;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         final DownloadImageViewElement downloadElement = likesScreen
                 .tracks()
                 .get(0)
-                .downloadElement();
+                .visibleDownloadElement();
 
         assertTrue(downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
@@ -66,20 +66,22 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
         connectionHelper.setWifiConnected(false);
 
-        final DownloadImageViewElement downloadElement = likesScreen
+        final TrackItemElement trackItemElement = likesScreen
                 .toggleOfflineEnabled()
                 .clickKeepLikesSynced()
                 .tracks()
-                .get(0)
-                .downloadElement();
+                .get(0);
 
-        // we tried to download but it failed with connection error so its back to requested
-        assertTrue("Track should be requested", downloadElement.isRequested());
+        assertTrue("No internet element should be visible", trackItemElement.noInternetElement().hasVisibility());
+        
+        DownloadImageViewElement downloadImageElement = trackItemElement.downloadElement();
+        assertTrue("Download element should not be visible", !downloadImageElement.isVisible());
 
         connectionHelper.setWifiConnected(true);
 
         likesScreen.waitForLikesToStartDownloading();
-        assertTrue("Track should be downloading", downloadElement.isDownloading() || downloadElement.isDownloaded());
+        assertTrue("Download element should be visible", downloadImageElement.isVisible());
+        assertTrue("Track should be downloading", downloadImageElement.isDownloading() || downloadImageElement.isDownloaded());
     }
 
     private void likeFirstTrack() {
