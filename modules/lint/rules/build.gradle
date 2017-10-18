@@ -20,9 +20,6 @@ configurations {
   lintChecks
 }
 
-def libraries = rootProject.ext.libraries
-def unitTestLibraries = rootProject.ext.unitTestLibraries
-
 dependencies {
   apt libraries.mementoCompiler
   compileOnly libraries.mementoAnnotation

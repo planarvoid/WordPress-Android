@@ -45,7 +45,7 @@ private static int getRetryCount() {
 }
 
 private def extractFromManifest(String regex) {
-  def manifestText = file(rootProject.ext.manifestSrcFile).getText()
+  def manifestText = file(manifestSrcFile).getText()
   def matcher = Pattern.compile(regex).matcher(manifestText)
   matcher.find()
   matcher.group(1)
@@ -94,16 +94,16 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-allopen'
 
 android {
-  compileSdkVersion rootProject.ext.androidCompileSdkVersion
-  buildToolsVersion rootProject.ext.androidBuildToolsVersion
+  compileSdkVersion androidCompileSdkVersion
+  buildToolsVersion androidBuildToolsVersion
 
   defaultConfig {
-    targetSdkVersion rootProject.ext.androidTargetSdkVersion
+    targetSdkVersion androidTargetSdkVersion
     applicationId project.ext.rootPackage
     testApplicationId project.ext.testApplicationId
     testInstrumentationRunner project.ext.testInstrumentationRunner
 
-    buildConfigField "int", "ROBOELETRIC_SDK_VERSION", "$rootProject.ext.robolectricConfigSdkVersion"
+    buildConfigField "int", "ROBOELETRIC_SDK_VERSION", "$robolectricConfigSdkVersion"
     buildConfigField "int", 'TEST_RETRY_COUNT', "${getRetryCount()}"
   }
 
@@ -132,11 +132,11 @@ android {
 
   sourceSets {
     main {
-      manifest.srcFile rootProject.ext.manifestSrcFile
-      java.srcDirs rootProject.ext.javaSrcDirs
-      res.srcDirs rootProject.ext.resSrcDirs
-      assets.srcDirs rootProject.ext.assetsSrcDirs
-      aidl.srcDirs rootProject.ext.javaSrcDirs
+      manifest.srcFile manifestSrcFile
+      java.srcDirs javaSrcDirs
+      res.srcDirs resSrcDirs
+      assets.srcDirs assetsSrcDirs
+      aidl.srcDirs javaSrcDirs
     }
 
     androidTest {
@@ -187,9 +187,6 @@ allOpen {
 }
 
 dependencies {
-  def libraries = rootProject.ext.libraries
-  def acceptanceTestLibraries = rootProject.ext.acceptanceTestLibraries
-
   /* Compile/Dev Time */
   annotationProcessor libraries.daggerCompiler
   annotationProcessor libraries.lightCycleProcessor

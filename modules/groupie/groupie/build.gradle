@@ -17,8 +17,6 @@ configurations {
 }
 
 dependencies {
-  def libraries = rootProject.ext.libraries
-
   compile project(':modules:groupie:groupie-annotation')
   compile project(":modules:android-kit:core")
 

@@ -5,7 +5,6 @@ apply from: "${buildSrcDir}/tests.gradle"
 buildscript {
   apply from: "$rootProject.projectDir/buildsystem/repositories.gradle", to: buildscript
   apply from: "buildsystem/dependencies.gradle"
-  def gradlePlugins = rootProject.ext.gradlePlugins
 
   dependencies {
     classpath gradlePlugins.android

@@ -7,7 +7,6 @@ apply plugin: 'findbugs'
 apply plugin: 'pmd'
 apply plugin: "io.gitlab.arturbosch.detekt"
 
-def libraries = rootProject.ext.libraries
 def sourceSetMain = rootProject.extensions.getByName('ext').getAt('javaSrcDirs')
 def resourceSetMain = rootProject.extensions.getByName('ext').getAt('resSrcDirs')
 def reportDir = file("$buildDir/reports")

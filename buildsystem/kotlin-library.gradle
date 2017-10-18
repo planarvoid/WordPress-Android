@@ -8,6 +8,5 @@ test {
 }
 
 dependencies {
-  def libraries = rootProject.ext.libraries
   compile libraries.kotlinStdLib
 }
