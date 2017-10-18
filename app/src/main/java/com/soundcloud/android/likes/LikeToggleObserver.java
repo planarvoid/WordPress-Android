@@ -69,6 +69,7 @@ public class LikeToggleObserver extends DefaultCompletableObserver {
 
     @Override
     public void onError(Throwable e) {
+        super.onError(e);
         if (changeLikeToSaveExperiment.isEnabled()) {
             feedbackController.showFeedback(Feedback.create(R.string.add_error_snackbar_overflow_action));
         } else {

@@ -16,7 +16,6 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Observable;
@@ -125,7 +124,7 @@ public class TrackInfoFragment extends LoggingDialogFragment implements View.OnC
 
         @Override
         public void onError(Throwable e) {
-            Log.e(TAG, "Error when loading track", e);
+            super.onError(e);
             presenter.bindNoDescription(getView());
         }
     }

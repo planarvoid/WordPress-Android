@@ -8,6 +8,7 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -26,6 +27,10 @@ public class SearchResult implements Iterable<ListItem> {
         this.nextHref = nextHref;
         this.queryUrn = queryUrn;
         this.premiumContent = premiumContent;
+    }
+
+    static SearchResult empty() {
+        return new SearchResult(Collections.emptyList(), Optional.absent(), Optional.absent(), Optional.absent(), 0);
     }
 
     static SearchResult fromSearchableItems(List<ListItem> items, Optional<Link> nextHref, Urn queryUrn) {

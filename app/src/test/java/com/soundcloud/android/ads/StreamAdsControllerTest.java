@@ -11,6 +11,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackEvent;
@@ -61,6 +64,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Spy private TestEventBus eventBus;
 
     private StreamAdsController controller;
+    private ApiRequestException badRequestException;
 
     @Before
     public void setUp() {
@@ -85,6 +89,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
 
         controller.onViewCreated(recycler, adapter);
+
+        badRequestException = ApiRequestException.serverError(mock(ApiRequest.class), mock(ApiResponse.class));
     }
 
     @Test
@@ -246,7 +252,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsWillNotRequestMoreAdsBeforeBackoffDurationIfReceivedError() {
-        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(badRequestException));
         when(dateProvider.getCurrentTime()).thenReturn(0L, 30 * 1000L);
 
         controller.insertAds();
@@ -256,7 +262,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsWillRequestMoreAdsAfterBackoffDurationIfReceivedError() {
-        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(new IllegalStateException("400")));
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(Observable.error(badRequestException));
         when(dateProvider.getCurrentTime()).thenReturn(0L, 61 * 1000L);
 
         controller.insertAds();

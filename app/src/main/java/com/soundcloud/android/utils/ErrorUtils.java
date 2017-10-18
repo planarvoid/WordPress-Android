@@ -198,9 +198,8 @@ public final class ErrorUtils {
     public static synchronized void handleSilentException(Throwable e,
                                                           @Nullable String contextKey,
                                                           @Nullable String contextValue) {
-        e.printStackTrace();
+        Log.e(SoundCloudApplication.TAG, "Handling silent exception", e);
         if (Fabric.isInitialized()) {
-            Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
                 Crashlytics.setString(contextKey, contextValue);
             }

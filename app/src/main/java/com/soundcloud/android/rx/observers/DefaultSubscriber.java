@@ -4,6 +4,8 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 
+import android.support.annotation.CallSuper;
+
 /**
  * <p>Default subscriber base class to be used whenever you want default error handling
  * (cf. {@link com.soundcloud.android.utils.ErrorUtils#handleThrowable(Throwable, com.soundcloud.android.utils.CallsiteToken)}</p>
@@ -39,6 +41,7 @@ public class DefaultSubscriber<T> extends Subscriber<T> {
     }
 
     @Override
+    @CallSuper
     public void onError(Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }

@@ -145,6 +145,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             if (itemView.get() != null && listContainsInvitesItem()) {
                 setContent(itemView.get(), (StreamItem.FacebookListenerInvites) items.get(position));
             }

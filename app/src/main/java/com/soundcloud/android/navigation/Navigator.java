@@ -15,6 +15,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.CallSuper;
@@ -109,6 +110,7 @@ public class Navigator {
             }
         }
 
+        @SuppressLint("MissingSuperCall")
         @Override
         public final void onError(Throwable t) {
             throw new IllegalStateException("Complete in Navigation Subscription. This should never happen since navigation won\'t work in the app anymore. Thus we\'ll force close the app.", t);

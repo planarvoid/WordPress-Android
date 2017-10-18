@@ -2,6 +2,8 @@ package com.soundcloud.android.rx.observers;
 
 import io.reactivex.observers.ResourceObserver;
 
+import android.support.annotation.CallSuper;
+
 /**
  * Default {@link ResourceObserver} base class to be used whenever you want default error handling
  */
@@ -25,6 +27,7 @@ public class DefaultObserver<T> extends ResourceObserver<T> {
     }
 
     @Override
+    @CallSuper
     public void onError(Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }

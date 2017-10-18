@@ -163,6 +163,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             showErrorAndFinishActivity();
         }
     }
@@ -172,9 +173,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void showErrorAndFinishActivity() {
-        Toast.makeText(activity,
-                       R.string.product_choice_error_unavailable,
-                       Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity, R.string.product_choice_error_unavailable, Toast.LENGTH_SHORT).show();
         activity.finish();
     }
 }

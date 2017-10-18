@@ -226,7 +226,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
         @Override
         public void onError(Throwable e) {
-            e.printStackTrace();
+            super.onError(e);
             view.showRetryState();
         }
     }

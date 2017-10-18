@@ -271,6 +271,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             setLastEmptyResponseTime();
         }
 

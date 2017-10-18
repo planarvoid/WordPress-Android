@@ -5,12 +5,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -18,6 +19,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,7 +31,6 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,10 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
+
         when(activity.findViewById(R.id.progress)).thenReturn(new View(context()));
+        when(playbackInitiator.playTrackWithRecommendationsLegacy(any(), any())).thenReturn(Single.just(PlaybackResult.success()));
+
         presenter = new PlayFromVoiceSearchPresenter(searchOperations,
                                                      playbackInitiator,
                                                      random,
@@ -91,9 +95,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
-        searchResult = SearchResult.fromSearchableItems(new ArrayList(),
-                                                        Optional.absent(),
-                                                        Optional.absent());
+
+        searchResult = SearchResult.empty();
+
         when(searchOperations.searchResult(QUERY,
                                            Optional.absent(),
                                            SearchType.TRACKS)).thenReturn(Observable.just(searchResult));

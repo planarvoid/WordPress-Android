@@ -4,6 +4,8 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.ResourceMaybeObserver;
 import io.reactivex.observers.ResourceObserver;
 
+import android.support.annotation.CallSuper;
+
 /**
  * Default {@link ResourceObserver} base class to be used whenever you want default error handling
  */
@@ -22,6 +24,7 @@ public class DefaultMaybeObserver<T> extends ResourceMaybeObserver<T> {
     }
 
     @Override
+    @CallSuper
     public void onError(@NonNull Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }

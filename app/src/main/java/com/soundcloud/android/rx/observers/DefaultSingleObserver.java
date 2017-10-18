@@ -25,6 +25,7 @@ public class DefaultSingleObserver<T> extends ResourceSingleObserver<T> {
     }
 
     @Override
+    @CallSuper
     public void onError(@NonNull Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }

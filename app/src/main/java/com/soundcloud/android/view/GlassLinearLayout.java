@@ -206,6 +206,7 @@ public class GlassLinearLayout extends LinearLayout {
         @Override
         public void onError(Throwable error) {
             updating = false;
+            super.onError(error);
         }
     }
 

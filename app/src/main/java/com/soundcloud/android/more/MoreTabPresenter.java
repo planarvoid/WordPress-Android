@@ -232,6 +232,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             moreOpt = Optional.absent();
         }
     }
@@ -356,6 +357,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_error));
             setRestoreSubscriptionEnabled(true);
         }

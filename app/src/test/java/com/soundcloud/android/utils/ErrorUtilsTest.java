@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -47,13 +46,6 @@ public class ErrorUtilsTest {
             fail("Non Fatal exception was raised, but shouldn't be");
         }
         // Pass
-    }
-
-    @Test
-    public void handleThrowableShouldLogTheStackTrace() {
-        Throwable mockError = mock(Throwable.class);
-        ErrorUtils.handleThrowable(mockError, ErrorUtilsTest.class);
-        verify(mockError).printStackTrace();
     }
 
     @Test(expected = RuntimeException.class)

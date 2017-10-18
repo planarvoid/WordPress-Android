@@ -33,6 +33,7 @@ public class DefaultDisposableCompletableObserver extends DisposableCompletableO
     }
 
     @Override
+    @CallSuper
     public void onError(Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }

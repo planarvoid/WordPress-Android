@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -162,8 +161,8 @@ public class StartStationPresenter {
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             delayedLoadingDialogPresenter.onError(context);
-            ErrorUtils.handleSilentException(e);
         }
 
         @Override

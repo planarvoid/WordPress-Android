@@ -50,7 +50,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<ListItem> items = searchResult.getItems();
             if (items.isEmpty()) {
-                throw new IllegalStateException("There is no result for this search");
+                throw new NoResultsException();
             }
             return RxJava.toV1Observable(playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
                                                                                               new PlaySessionSource(Screen.VOICE_COMMAND)));
@@ -62,7 +62,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         public ListItem call(SearchResult searchResult) {
             List<ListItem> items = searchResult.getItems();
             if (items.isEmpty()) {
-                throw new IllegalStateException("There is no result for this search");
+                throw new NoResultsException();
             }
             return items.get(random.nextInt(items.size()));
         }
@@ -122,6 +122,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private void playTrackFromQuery(final String query) {
         searchOperations
                 .searchResult(query, Optional.absent(), SearchType.TRACKS)
+                .onErrorReturn(t -> SearchResult.empty())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(toPlayWithRecommendations)
                 .subscribe(new PlayFromQuerySubscriber(eventBus, playbackFeedbackHelper, query));
@@ -130,6 +131,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private void playPlaylist(final String query) {
         searchOperations
                 .searchResult(query, Optional.absent(), SearchType.PLAYLISTS)
+                .onErrorReturn(t -> SearchResult.empty())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(toRandomSearchResultItem)
                 .subscribe(new PlayFromPlaylistSubscriber(query));
@@ -155,7 +157,11 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
         @Override
         public void onError(Throwable e) {
-            fallbackToSearch(query);
+            if (e instanceof NoResultsException) {
+                fallbackToSearch(query);
+            } else {
+                super.onError(e);
+            }
         }
     }
 
@@ -175,8 +181,16 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
         @Override
         public void onError(Throwable e) {
-            fallbackToSearch(query);
+            if (e instanceof NoResultsException) {
+                fallbackToSearch(query);
+            } else {
+                super.onError(e);
+            }
         }
+    }
+
+    private static class NoResultsException extends RuntimeException {
+
     }
 }
 

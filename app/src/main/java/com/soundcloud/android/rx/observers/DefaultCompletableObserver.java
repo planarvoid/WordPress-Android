@@ -2,6 +2,8 @@ package com.soundcloud.android.rx.observers;
 
 import io.reactivex.observers.ResourceCompletableObserver;
 
+import android.support.annotation.CallSuper;
+
 public class DefaultCompletableObserver extends ResourceCompletableObserver {
 
     private final ErrorReporter errorReporter = new ErrorReporter();
@@ -17,6 +19,7 @@ public class DefaultCompletableObserver extends ResourceCompletableObserver {
     }
 
     @Override
+    @CallSuper
     public void onError(Throwable e) {
         errorReporter.handleOnError(e);
     }

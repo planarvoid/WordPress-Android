@@ -30,12 +30,15 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     @Mock private FacebookApi facebookApi;
     @Mock private ImageOperations imageOperations;
     @Mock private FacebookInvitesStorage invitesStorage;
+    @Mock private FacebookListenerInvitesItemRenderer.Listener listener;
 
     private View itemView;
 
     @Before
     public void setup() {
         renderer = new FacebookListenerInvitesItemRenderer(imageOperations, invitesStorage, facebookApi);
+        renderer.setListener(listener);
+
         itemView = LayoutInflater.from(context())
                                  .inflate(R.layout.facebook_invites_notification_card,
                                           new FrameLayout(context()),
@@ -57,7 +60,7 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     public void shouldHideFriendPictures() {
         StreamItem invitesItem = StreamItem.forFacebookListenerInvites();
         when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.emptyList()));
-        renderer.bindItemView(0, itemView, Collections.singletonList(invitesItem));
+        renderer.bindItemView(0, itemView, Lists.newArrayList(invitesItem));
 
         assertThat(getFriendsLayoutVisibility()).isEqualTo(View.GONE);
         assertThat(getIntroductionTextVisibility()).isEqualTo(View.VISIBLE);

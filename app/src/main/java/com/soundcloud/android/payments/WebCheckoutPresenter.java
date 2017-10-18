@@ -1,7 +1,5 @@
 package com.soundcloud.android.payments;
 
-import com.soundcloud.android.navigation.IntentFactory;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.PendingPlanOperations;
@@ -9,6 +7,8 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.navigation.IntentFactory;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -265,6 +265,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             setRetryState();
         }
     }
