@@ -20,6 +20,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.posts.DatabasePostRecord;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
@@ -183,6 +184,9 @@ public class Uploader implements Runnable {
     private void onUploadFinished(PublicApiTrack track) {
         if (track.getFullDuration() <= 0) {
             track.setDuration(recording.duration);
+        }
+        if (Strings.isBlank(track.getPolicy())) {
+            track.setPolicy("ALLOW");
         }
 
         storeTracksCommand.call(singletonList(track));

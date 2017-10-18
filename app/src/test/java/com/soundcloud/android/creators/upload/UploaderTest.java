@@ -27,6 +27,8 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.annotation.Config;
 
@@ -42,6 +44,7 @@ public class UploaderTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePostsCommand storePostsCommand;
+    @Captor private ArgumentCaptor<List<PublicApiTrack>> trackCaptor;
 
     @Before
     public void before() throws Exception {
@@ -153,5 +156,37 @@ public class UploaderTest extends AndroidUnitTest {
         uploader.cancel();
         uploader.run();
         assertThat(recording.isUploaded()).isFalse();
+    }
+
+    @Test
+    public void shouldUsePolicyFromPublicApiIfProvided() throws Exception {
+        PublicApiTrack publicApiTrack = ModelFixtures.create(PublicApiTrack.class);
+        publicApiTrack.setPolicy("BLOCK");
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
+                .thenReturn(publicApiTrack);
+
+        uploader(recording).run();
+
+        assertThat(recording.isUploaded()).isTrue();
+        verify(storeTracksCommand).call(trackCaptor.capture());
+        assertThat(trackCaptor.getValue()).hasSize(1);
+        assertThat(trackCaptor.getValue().get(0).getPolicy()).isEqualTo("BLOCK");
+    }
+
+    @Test
+    public void shouldUseAllowWhenMissingPolicyFromPublicApi() throws Exception {
+        PublicApiTrack publicApiTrack = ModelFixtures.create(PublicApiTrack.class);
+        publicApiTrack.setPolicy(null);
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
+                .thenReturn(publicApiTrack);
+
+        uploader(recording).run();
+
+        assertThat(recording.isUploaded()).isTrue();
+        verify(storeTracksCommand).call(trackCaptor.capture());
+        assertThat(trackCaptor.getValue()).hasSize(1);
+        assertThat(trackCaptor.getValue().get(0).getPolicy()).isEqualTo("ALLOW");
     }
 }

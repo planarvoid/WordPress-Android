@@ -33,6 +33,7 @@ import static com.soundcloud.android.storage.Tables.TrackView.TITLE;
 import static com.soundcloud.android.storage.Tables.TrackView.WAVEFORM_URL;
 import static com.soundcloud.java.collections.Lists.partition;
 import static com.soundcloud.java.collections.MoreCollections.transform;
+import static java.lang.String.format;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.TrackUrnMapperV2;
@@ -40,7 +41,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
@@ -101,6 +104,7 @@ public class TrackStorage {
     public Maybe<Track> loadTrack(Urn urn) {
         return propeller.queryResult(buildTrackQuery(urn))
                         .map(result -> result.toList(TrackStorage::trackFromCursorReader))
+                        .map(tracks -> Iterables.transform(Iterables.filter(tracks, Optional::isPresent), Optional::get))
                         .flatMap(Observable::fromIterable)
                         .firstElement();
     }
@@ -121,8 +125,8 @@ public class TrackStorage {
         final Map<Urn, Track> tracks = new HashMap<>(cursorReadersBatches.size() * MAX_TRACKS_BATCH);
         for (QueryResult cursorReaders : cursorReadersBatches) {
             for (CursorReader cursorReader : cursorReaders) {
-                final Track track = trackFromCursorReader(cursorReader);
-                tracks.put(track.urn(), track);
+                final Optional<Track> track = trackFromCursorReader(cursorReader);
+                track.ifPresent(it -> tracks.put(it.urn(), it));
             }
         }
         return tracks;
@@ -172,7 +176,7 @@ public class TrackStorage {
                     .limit(1);
     }
 
-    public static Track trackFromCursorReader(CursorReader cursorReader) {
+    public static Optional<Track> trackFromCursorReader(CursorReader cursorReader) {
         final Track.Builder builder = Track.builder();
         builder.urn(Urn.forTrack(cursorReader.getLong(ID.name())));
         builder.title(cursorReader.getString(TITLE.name()));
@@ -201,13 +205,6 @@ public class TrackStorage {
         builder.genre(Optional.fromNullable(cursorReader.getString(Tables.TrackView.GENRE.name())));
         builder.displayStatsEnabled(cursorReader.getBoolean(Tables.TrackView.DISPLAY_STATS_ENABLED.name()));
 
-        putOptionalFields(cursorReader, builder);
-        builder.description(Optional.absent());
-        return builder.build();
-    }
-
-    private static void putOptionalFields(CursorReader cursorReader, Track.Builder builder) {
-        builder.policy(Optional.of(cursorReader.getString(POLICY.name())).or(Strings.EMPTY));
         builder.policyLastUpdatedAt(getDateOr(cursorReader, POLICY_LAST_UPDATED_AT.name(), new Date(0)));
         builder.waveformUrl(Optional.fromNullable(cursorReader.getString(WAVEFORM_URL.name())).or(Strings.EMPTY));
 
@@ -215,6 +212,15 @@ public class TrackStorage {
         builder.creatorName(Optional.fromNullable(cursorReader.getString(CREATOR_NAME.name())).or(Strings.EMPTY));
         final long creatorId = cursorReader.getLong(CREATOR_ID.name());
         builder.creatorUrn(creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
+
+        builder.description(Optional.absent());
+        String policy = cursorReader.getString(POLICY.name());
+        if (policy == null) {
+            ErrorUtils.handleSilentException(new IllegalStateException(format("Track found without policy: %s", builder.policy("<missing>").build())));
+            return Optional.absent();
+        } else {
+            return Optional.of(builder.policy(policy).build());
+        }
     }
 
     private static Date getDateOr(CursorReader cursorReader, String columnName, Date defaultDate) {
