@@ -60,7 +60,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         isSeekPending = false
         progress = 0
 
-        if (isCurrentStreamUrl(hlsStreamUrlBuilder.buildStreamUrl(playbackItem))) {
+        if (isCurrentStream(playbackItem)) {
             seek(playbackItem.startPosition)
             startPlayback()
         } else {
@@ -90,11 +90,15 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         lastReportedPlaybackTransition?.let {
             if (!it.wasError() && currentPlaybackItem == null) {
                 RemoveParameterFromResume.handleException("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null, " +
-                                                                                      "lastReportedPlaybackTransition = ${lastReportedPlaybackTransition}")
+                                                                  "lastReportedPlaybackTransition = ${lastReportedPlaybackTransition}")
             }
         }
 
-        play(playbackItem)
+        if (isCurrentStream(playbackItem)) {
+            startPlayback()
+        } else {
+            play(playbackItem)
+        }
     }
 
     private fun startPlayback() = flipperWrapper.play()
@@ -154,6 +158,8 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
             }
         }
     }
+
+    private fun isCurrentStream(playbackItem: PlaybackItem) = isCurrentStreamUrl(hlsStreamUrlBuilder.buildStreamUrl(playbackItem))
 
     private fun isCurrentStreamUrl(uri: String) = uri == currentStreamUrl
 
