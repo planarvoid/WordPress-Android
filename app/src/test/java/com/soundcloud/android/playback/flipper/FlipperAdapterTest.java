@@ -398,6 +398,21 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void resumingKeepsPlaybackPositionByNotSeeking() {
+        AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
+        whenPlaying(playbackItem);
+        flipperAdapter.onStateChanged(stateChange(playbackItem.getUrn(), PlayerState.Playing, ErrorReason.Nothing, POSITION, DURATION));
+
+        flipperAdapter.pause();
+        flipperAdapter.onStateChanged(stateChange(playbackItem.getUrn(), PlayerState.Paused, ErrorReason.Nothing, POSITION, DURATION));
+
+        flipperAdapter.resume(playbackItem);
+
+        verify(flipperWrapper, never()).seek(anyLong());
+        verify(flipperWrapper, times(2)).play();
+    }
+
+    @Test
     public void resumingAfterErrorTransitionOpensAndPlaysTheStream() {
         // user is playing a track and for some reason flipper errors out
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
