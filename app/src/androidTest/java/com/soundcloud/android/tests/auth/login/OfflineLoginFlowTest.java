@@ -15,32 +15,18 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookAuthorizationException;
-import com.facebook.FacebookCallback;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
-import com.soundcloud.android.tests.SoundCloudTestApplication;
 import com.soundcloud.android.tests.auth.LoginTest;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.TestGplusRegistrationActivity;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,34 +35,18 @@ import java.io.IOException;
 
 public class OfflineLoginFlowTest extends LoginTest {
 
-    private LoginManager facebookLoginManager;
     private HomeScreen homeScreen;
     private GooglePlayServicesWrapper googleApi;
-    @Captor private ArgumentCaptor<FacebookCallback<LoginResult>> facebookCallbackArgumentCaptor;
 
     @Override
     public void setUp() throws Exception {
-        initMocks(this);
         super.setUp();
 
         homeScreen = new HomeScreen(solo);
-        final SoundCloudTestApplication application = fromContext(getInstrumentation().getTargetContext());
-        facebookLoginManager = application.getLoginManager();
-        doAnswer(invocationOnMock -> {
-            verify(facebookLoginManager).registerCallback(any(CallbackManager.class), facebookCallbackArgumentCaptor.capture());
-            facebookCallbackArgumentCaptor.getValue().onError(new FacebookAuthorizationException("net::ERR_INTERNET_DISCONNECTED"));
-            return null;
-        }).when(facebookLoginManager).logInWithReadPermissions(any(Activity.class), anyCollection());
-        googleApi = application.getPlayServicesWrapper();
+        googleApi = fromContext(getInstrumentation().getTargetContext()).getPlayServicesWrapper();
 
         connectionHelper.setNetworkConnected(false);
         stopWiremock(); // these depend on no connection
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        reset(facebookLoginManager);
     }
 
     @Override
@@ -109,18 +79,6 @@ public class OfflineLoginFlowTest extends LoginTest {
                 .clickSignInWithGoogleButton()
                 .assertTermsOfUseScreen()
                 .failToLogin();
-
-        assertThat(loginErrorScreen, is(visible()));
-        assertThat(loginErrorScreen.errorMessage(),
-                   is(solo.getString(authentication_error_no_connection_message)));
-    }
-
-    @Test
-    public void testLoginWithFacebookAccountWithoutNetworkConnection() throws Exception {
-        LoginErrorScreen loginErrorScreen = homeScreen
-                .clickLogInButton()
-                .clickOnFBSignInButton()
-                .failToLoginWithResult();
 
         assertThat(loginErrorScreen, is(visible()));
         assertThat(loginErrorScreen.errorMessage(),
