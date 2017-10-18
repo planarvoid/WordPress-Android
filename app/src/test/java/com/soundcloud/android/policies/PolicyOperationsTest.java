@@ -66,6 +66,17 @@ public class PolicyOperationsTest {
     }
 
     @Test
+    public void filtersMonetizableTracks() {
+        when(updatePoliciesCommand.toObservable(asList(TRACK_URN, TRACK_URN2)))
+                .thenReturn(just(createNotMonetizablePolicy(TRACK_URN2)));
+
+        operations.filterMonetizableTracks(asList(TRACK_URN, TRACK_URN2)).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(TRACK_URN2);
+    }
+
+    @Test
     public void updateTrackPoliciesFetchesAndStorePoliciesForLoadedTracks() throws Exception {
         List<Urn> tracks = asList(TRACK_URN, TRACK_URN2);
         Collection<ApiPolicyInfo> policies = asList(

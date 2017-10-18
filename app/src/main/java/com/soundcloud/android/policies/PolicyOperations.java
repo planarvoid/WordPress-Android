@@ -55,6 +55,14 @@ public class PolicyOperations {
         return fetchAndStorePolicies(urns);
     }
 
+    public Observable<List<Urn>> filterMonetizableTracks(Collection<Urn> urns) {
+        return fetchAndStorePolicies(urns)
+                .flatMap(Observable::from)
+                .filter(policy -> !policy.isMonetizable())
+                .map(ApiPolicyInfo::getUrn)
+                .toList();
+    }
+
     List<Urn> updateTrackPolicies() {
         try {
             final List<Urn> urns = policyStorage.loadTracksForPolicyUpdate();

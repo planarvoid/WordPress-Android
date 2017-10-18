@@ -11,8 +11,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.PropellerWriteException;
-import org.assertj.core.api.Java6Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,18 +77,5 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
                                   .whereEq(_ID, track.getId())
                                   .whereEq(DESCRIPTION, "description"))).counts(1);
 
-    }
-
-    @Test
-    public void failsToStoreTrackWithoutPolicy() {
-        ApiTrack track = create(ApiTrack.class);
-        track.setPolicy(null);
-        try {
-            command.call(singletonList(track));
-        } catch (PropellerWriteException exception) {
-            Java6Assertions.assertThat(exception.getCause().getMessage()).contains("Track policy should not be null");
-            return;
-        }
-        Java6Assertions.fail("Should have failed with an IllegalStateException");
     }
 }

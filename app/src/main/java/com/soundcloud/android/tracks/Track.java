@@ -89,7 +89,7 @@ public abstract class Track {
         return from(apiTrack, false, false);
     }
 
-    private static Track from(ApiTrack apiTrack, boolean isRepost, boolean isUserLike) {
+    public static Track from(ApiTrack apiTrack, boolean isRepost, boolean isUserLike) {
         final Optional<Boolean> subHighTier = apiTrack.isSubHighTier();
         final Optional<Boolean> subMidTier = apiTrack.isSubMidTier();
         final Builder builder = new AutoValue_Track.Builder()

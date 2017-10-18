@@ -10,9 +10,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackStorage;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 
@@ -29,10 +26,9 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<Track>> {
 
     @Override
     public List<Track> call(Urn playlistUrn) {
-        List<Optional<Track>> tracks = propeller
+        return propeller
                 .query(getPlaylistTracksQuery(playlistUrn))
                 .toList(TrackStorage::trackFromCursorReader);
-        return Lists.newArrayList(Iterables.transform(Iterables.filter(tracks, Optional::isPresent), Optional::get));
     }
 
     private Query getPlaylistTracksQuery(Urn playlistUrn) {

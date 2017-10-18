@@ -155,7 +155,7 @@ public interface Tables {
                 "syncable BOOLEAN DEFAULT 1," +
                 "sub_mid_tier BOOLEAN DEFAULT 0," +
                 "sub_high_tier BOOLEAN DEFAULT 0," +
-                "policy TEXT NOT NULL," +
+                "policy TEXT," +
                 "monetization_model TEXT," +
                 "last_updated INTEGER, " +
                 "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
