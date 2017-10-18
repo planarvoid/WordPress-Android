@@ -47,6 +47,9 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
     private BulkInsertValues buildPolicyBulkValues(final Iterable<ApiPolicyInfo> input) {
         BulkInsertValues.Builder builder = new BulkInsertValues.Builder(getColumns());
         for (ApiPolicyInfo policyEntry : input) {
+            if (policyEntry.getPolicy() == null) {
+                throw new IllegalStateException(String.format("ApiPolicyInfo policy should not be null: %s", policyEntry));
+            }
             Log.d(UpdatePoliciesCommand.TAG, "Writing policy: " + policyEntry);
             builder.addRow(
                     Arrays.asList(

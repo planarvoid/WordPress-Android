@@ -129,7 +129,7 @@ public abstract class PlaybackSessionEvent extends TrackingEvent {
                                                            .entityMetadata(entityMetadata)
                                                            .monetizationModel(args.getTrackData().monetizationModel())
                                                            .protocol(args.getProtocol())
-                                                           .policy(Optional.fromNullable(args.getTrackData().policy()))
+                                                           .policy(Optional.of(args.getTrackData().policy()))
                                                            .playerType(args.getPlayerType())
                                                            .trackSourceInfo(args.getTrackSourceInfo())
                                                            .progress(args.getProgress())

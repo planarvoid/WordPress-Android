@@ -90,7 +90,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
         );
     }
 
-    public static List<Object> buildTrackRow(TrackRecord trackRecord) {
+    private static List<Object> buildTrackRow(TrackRecord trackRecord) {
         return Arrays.asList(
                 trackRecord.getUrn().getNumericId(),
                 Tables.Sounds.TYPE_TRACK,
@@ -115,7 +115,10 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
         );
     }
 
-    public static List<Object> buildPolicyRow(TrackRecord trackRecord) {
+    private static List<Object> buildPolicyRow(TrackRecord trackRecord) {
+        if (trackRecord.getPolicy() == null) {
+            throw new IllegalStateException(String.format("Track policy should not be null: %s", trackRecord));
+        }
         return Arrays.asList(
                 trackRecord.getUrn().getNumericId(),
                 trackRecord.isMonetizable(),
