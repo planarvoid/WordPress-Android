@@ -21,6 +21,10 @@ public abstract class AsyncLoadingState {
 
     public abstract Builder toBuilder();
 
+    public static AsyncLoadingState empty() {
+        return builder().build();
+    }
+
     public static Builder builder() {
         return new AutoValue_AsyncLoadingState.Builder()
                 .nextPageError(Optional.absent())

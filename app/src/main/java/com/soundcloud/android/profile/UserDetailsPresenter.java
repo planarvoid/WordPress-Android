@@ -77,7 +77,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
             public void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem) {
-                navigator.navigateTo(NavigationTarget.forNavigation(socialMediaLinkItem.url(),
+                navigator.navigateTo(NavigationTarget.forNavigation(socialMediaLinkItem.getUrl(),
                                                                     Optional.absent(),
                                                                     screenProvider.getLastScreen(),
                                                                     Optional.of(DiscoverySource.RECOMMENDATIONS))); // TODO (REC-1302): Use correct one

@@ -45,7 +45,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
     fun attach(view: View, renderEmptyAtTop: Boolean, layoutManager: RecyclerView.LayoutManager) {
 
         if (recyclerView != null) {
-            throw IllegalStateException("Recycler View already atteched. Did you forget to detach?")
+            throw IllegalStateException("Recycler View already attached. Did you forget to detach?")
         }
         recyclerView = view.findViewById(R.id.ak_recycler_view)
         swipeRefreshLayout = view.findViewById(R.id.str_layout)

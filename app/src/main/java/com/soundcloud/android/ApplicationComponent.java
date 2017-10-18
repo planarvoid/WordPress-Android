@@ -101,6 +101,8 @@ import com.soundcloud.android.playlists.PlaylistDetailsPresenterFactory;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.profile.FollowersActivity;
 import com.soundcloud.android.profile.FollowingsActivity;
+import com.soundcloud.android.profile.NewUserDetailsFragment;
+import com.soundcloud.android.profile.NewUserDetailsPresenter;
 import com.soundcloud.android.profile.OldUserDetailsFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
@@ -264,6 +266,7 @@ public interface ApplicationComponent {
     void inject(UserSoundsFragment userSoundsFragment);
     void inject(OldUserDetailsFragment oldUserDetailsFragment);
     void inject(UserDetailsFragment userDetailsFragment);
+    void inject(NewUserDetailsFragment newUserDetailsFragment);
     void inject(VerifyAgeActivity verifyAgeActivity);
     void inject(UserRepostsActivity userRepostsActivity);
     void inject(UserRepostsFragment userRepostsFragment);
@@ -384,4 +387,5 @@ public interface ApplicationComponent {
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
     HomePresenter homePresenter();
+    NewUserDetailsPresenter newUserDetailsPresenter();
 }

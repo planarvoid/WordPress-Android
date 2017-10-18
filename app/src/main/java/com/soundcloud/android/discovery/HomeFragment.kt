@@ -130,8 +130,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
             errorShown.onNext(syncError)
         }
 
-        val newState = CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList()))
-        collectionRenderer.render(newState)
+        collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList())))
     }
 
     private fun showErrorMessage(syncError: DiscoveryViewError) {

@@ -1,0 +1,36 @@
+{
+  "social_media_links": {
+    "collection": [
+      {
+        "title": "foo",
+        "network": "mixcloud",
+        "url": "https://www.mixcloud.com/discover/tycho/"
+      }
+    ],
+    "_links": {}
+  },
+  "description": "I'm here to make friends",
+  "user": {
+    "urn": "soundcloud:users:123",
+    "permalink": "testo",
+    "username": "Testy McTestTest",
+    "first_name": "Testy",
+    "last_name": "McTestTest",
+    "avatar_url": "https://i1.sndcdn.com/avatars-000158207739-j29lav-large.jpg",
+    "city": "Berlin",
+    "country": "Germany",
+    "country_code": "DE",
+    "tracks_count": 12,
+    "followers_count": 121,
+    "followings_count": 340,
+    "verified": false,
+    "is_pro": false,
+    "description": "I'm here to make friends: https://soundcloud.com/here-to-make-friends and http://knowyourmeme.com/memes/supercut",
+    "avatar_url_template": "https://i1.sndcdn.com/avatars-000158207739-j29lav-{size}.jpg",
+    "station_urns": [
+      "soundcloud:artist-stations:123"
+    ],
+    "visual_url_template": "https://i1.sndcdn.com/visuals-000063408695-V10XJ3-{size}.jpg",
+    "created_at": "2013/10/24 10:38:00 +0000"
+  }
+}

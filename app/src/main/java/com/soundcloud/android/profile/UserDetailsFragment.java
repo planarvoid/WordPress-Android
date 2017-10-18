@@ -24,7 +24,6 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
         implements RefreshableScreen {
 
     @Inject LeakCanaryWrapper leakCanaryWrapper;
-    @Inject UserProfileOperations profileOperations;
     @Inject Navigator navigator;
     @Inject ScreenProvider screenProvider;
     @Inject @LightCycle UserDetailsPresenter userDetailsPresenter;

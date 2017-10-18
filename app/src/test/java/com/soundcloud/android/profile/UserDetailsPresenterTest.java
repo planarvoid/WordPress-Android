@@ -87,8 +87,8 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         Urns.writeToBundle(value, ProfileArguments.USER_URN_KEY, USER_URN);
         value.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         links = newArrayList(
-                SocialMediaLinkItem.create(Optional.of("firstTitle"), "firstNetwork", "http://www.first.com"),
-                SocialMediaLinkItem.create(Optional.of("secondTitle"), "secondNetwork", "http://www.second.com")
+                SocialMediaLinkItem.Companion.create(Optional.of("firstTitle"), "firstNetwork", "http://www.first.com"),
+                SocialMediaLinkItem.Companion.create(Optional.of("secondTitle"), "secondNetwork", "http://www.second.com")
         );
         fullUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(links), of(BIO), fullUser());
         emptyUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(newArrayList()), Optional.absent(), emptyUser());
@@ -219,7 +219,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingLinkNavigatesToThatLinkViaNavigator() {
         final String url = "soundcloud://foo";
-        when(socialMediaLink.url()).thenReturn(url);
+        when(socialMediaLink.getUrl()).thenReturn(url);
 
         presenter.onCreate(fragment, null);
         doNothing().when(userDetailsView).setListener(listenerCaptor.capture());

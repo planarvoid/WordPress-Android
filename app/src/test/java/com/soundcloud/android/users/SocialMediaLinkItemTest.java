@@ -4,12 +4,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.assertions.IntentAssert;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.DrawableRes;
 
 public class SocialMediaLinkItemTest extends AndroidUnitTest {
@@ -28,19 +25,19 @@ public class SocialMediaLinkItemTest extends AndroidUnitTest {
 
     @Test
     public void usesCustomDisplayNameWhenProvided() {
-        final SocialMediaLinkItem link = SocialMediaLinkItem.create(Optional.of("Custom"), "spotify", "spotify.com/famous");
+        final SocialMediaLinkItem link = SocialMediaLinkItem.Companion.create(Optional.of("Custom"), "spotify", "spotify.com/famous");
         assertThat(link.displayName()).isEqualTo("Custom");
     }
 
     @Test
     public void usesKnownNetworkAsDisplayNameWhenNoCustomDisplayNameProvided() {
-        final SocialMediaLinkItem link = SocialMediaLinkItem.create(Optional.absent(), "spotify", "spotify.com/famous");
+        final SocialMediaLinkItem link = SocialMediaLinkItem.Companion.create(Optional.absent(), "spotify", "spotify.com/famous");
         assertThat(link.displayName()).isEqualTo("Spotify");
     }
 
     @Test
     public void usesUrlForDisplayNameWhenNoCustomDisplayNameProvidedAnUnknownNetwork() {
-        final SocialMediaLinkItem link = SocialMediaLinkItem.create(Optional.absent(), "unknown", "unknown.com/famous");
+        final SocialMediaLinkItem link = SocialMediaLinkItem.Companion.create(Optional.absent(), "unknown", "unknown.com/famous");
         assertThat(link.displayName()).isEqualTo("unknown.com/famous");
     }
 
@@ -53,12 +50,12 @@ public class SocialMediaLinkItemTest extends AndroidUnitTest {
     }
 
     private boolean networkHasExpectedDrawable(String network, @DrawableRes int drawable) {
-        final SocialMediaLinkItem link = SocialMediaLinkItem.create(Optional.absent(), network, "some_url");
+        final SocialMediaLinkItem link = SocialMediaLinkItem.Companion.create(Optional.absent(), network, "some_url");
         return link.icon(context()).getConstantState().equals(context().getResources().getDrawable(drawable).getConstantState());
     }
 
 
     private String urlDisplayName(String url) {
-        return SocialMediaLinkItem.create(Optional.absent(), "unrecognized", url).displayName();
+        return SocialMediaLinkItem.Companion.create(Optional.absent(), "unrecognized", url).displayName();
     }
 }

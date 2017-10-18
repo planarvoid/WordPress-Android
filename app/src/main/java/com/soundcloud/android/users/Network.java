@@ -8,7 +8,7 @@ import android.support.annotation.DrawableRes;
 
 import java.util.Arrays;
 
-enum Network {
+public enum Network {
     APPLE_MUSIC("itunes_podcast", Optional.of("iTunes Podcast"), R.drawable.favicon_applemusic),
     BANDCAMP("bandcamp", Optional.of("Bandcamp"), R.drawable.favicon_bandcamp),
     BANDS_IN_TOWN("bandsintown", Optional.of("Bandsintown"), R.drawable.favicon_bandsintown),

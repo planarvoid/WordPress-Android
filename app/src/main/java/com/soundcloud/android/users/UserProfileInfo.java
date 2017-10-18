@@ -9,7 +9,7 @@ import com.soundcloud.java.optional.Optional;
 public abstract class UserProfileInfo {
     public static UserProfileInfo fromApiUserProfileInfo(ApiUserProfileInfo apiUserProfileInfo) {
         return create(
-                apiUserProfileInfo.getSocialMediaLinks().transform(SocialMediaLinkItem::from),
+                apiUserProfileInfo.getSocialMediaLinks().transform(SocialMediaLinkItem.Companion::from),
                 apiUserProfileInfo.getDescription(),
                 User.fromApiUser(apiUserProfileInfo.getUser())
         );
