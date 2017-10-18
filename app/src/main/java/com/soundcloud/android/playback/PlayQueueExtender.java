@@ -4,9 +4,8 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.utils.ErrorUtils;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
@@ -14,7 +13,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.HashMap;
 
 @Singleton
 public class PlayQueueExtender {
@@ -69,7 +67,7 @@ public class PlayQueueExtender {
                         .doOnSubscribe(__ -> isLoadingRecommendations = true)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(() -> isLoadingRecommendations = false)
-                        .subscribeWith(new UpcomingTracksObserver());
+                        .subscribeWith(LambdaSingleObserver.onSuccess(playQueueManager::appendPlayQueueItems));
             } else if (collectionUrn.isStation()) {
                 loadRecommendedDisposable = stationsOperations
                         .fetchUpcomingTracks(collectionUrn,
@@ -78,7 +76,7 @@ public class PlayQueueExtender {
                         .doOnSubscribe(__ -> isLoadingRecommendations = true)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(() -> isLoadingRecommendations = false)
-                        .subscribeWith(new UpcomingTracksObserver());
+                        .subscribeWith(LambdaSingleObserver.onSuccess(playQueueManager::appendPlayQueueItems));
             }
         }
     }
@@ -95,24 +93,4 @@ public class PlayQueueExtender {
         return !(currentPlaySessionSource.originatedFromDeeplink() ||
                 currentPlaySessionSource.originatedInSearchSuggestions());
     }
-
-    private class UpcomingTracksObserver extends DefaultSingleObserver<PlayQueue> {
-        @Override
-        public void onSuccess(PlayQueue playQueue) {
-            super.onSuccess(playQueue);
-            if (playQueueManager.isQueueEmpty()) {
-                // we should not need this, as we should never get this far with an empty queue.
-                // Just being defensive while we investigate
-                // https://github.com/soundcloud/android-listeners/issues/3938
-                // and chasing DROID-1831
-
-                final HashMap<String, String> valuePairs = new HashMap<>(2);
-                valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));
-                valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
-                ErrorUtils.handleSilentException(new IllegalArgumentException("Should not append to empty queue"), valuePairs);
-            }
-            playQueueManager.appendPlayQueueItems(playQueue);
-        }
-    }
-
 }
