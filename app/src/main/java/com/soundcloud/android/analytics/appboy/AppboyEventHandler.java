@@ -1,9 +1,7 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
-import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.GENRE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TITLE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TYPE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_URN;
@@ -15,7 +13,6 @@ import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.GoOnboardingTooltipEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -161,10 +158,6 @@ class AppboyEventHandler {
         return properties;
     }
 
-    void handleEvent(ScreenEvent event) {
-        tagEvent(AppboyEvents.EXPLORE, buildProperties(event));
-    }
-
     private AppboyProperties buildPlayableProperties(PlaybackSessionEvent event) {
         AppboyProperties properties = new AppboyProperties();
         properties.addProperty(CREATOR_DISPLAY_NAME.getAppBoyKey(), event.creatorName());
@@ -225,15 +218,6 @@ class AppboyEventHandler {
         return new AppboyProperties()
                 .addProperty(CONTEXT_PROPERTY, context)
                 .addProperty(ENABLED_PROPERTY, isEnabled);
-    }
-
-    private AppboyProperties buildProperties(ScreenEvent screenEvent) {
-        AppboyProperties properties = new AppboyProperties();
-        if (screenEvent.genre().isPresent()) {
-            properties.addProperty(GENRE.getAppBoyKey(), screenEvent.genre().get());
-        }
-        properties.addProperty(CATEGORY.getAppBoyKey(), screenEvent.screen());
-        return properties;
     }
 
     private void tagEvent(String eventName, AppboyProperties properties) {

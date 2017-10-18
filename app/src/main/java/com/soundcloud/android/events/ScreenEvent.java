@@ -17,8 +17,6 @@ public abstract class ScreenEvent extends TrackingEvent {
 
     public abstract String screen();
 
-    public abstract Optional<String> genre();
-
     public abstract Optional<Urn> queryUrn();
 
     public abstract Optional<Urn> pageUrn();
@@ -70,7 +68,6 @@ public abstract class ScreenEvent extends TrackingEvent {
                                                   .timestamp(defaultTimestamp())
                                                   .referringEvent(Optional.absent())
                                                   .screen(screen)
-                                                  .genre(Optional.absent())
                                                   .source(Optional.absent())
                                                   .queryUrn(Optional.absent())
                                                   .pageUrn(Optional.absent());
@@ -90,8 +87,6 @@ public abstract class ScreenEvent extends TrackingEvent {
         public abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
 
         public abstract Builder screen(String screen);
-
-        public abstract Builder genre(Optional<String> genre);
 
         public abstract Builder queryUrn(Optional<Urn> queryUrn);
 

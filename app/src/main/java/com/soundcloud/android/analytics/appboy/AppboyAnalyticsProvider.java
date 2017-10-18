@@ -6,11 +6,10 @@ import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.GoOnboardingTooltipEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
@@ -56,8 +55,6 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
             eventHandler.handleEvent((UIEvent) event);
         } else if (event instanceof PlaybackSessionEvent) {
             eventHandler.handleEvent((PlaybackSessionEvent) event);
-        } else if (event instanceof ScreenEvent) {
-            eventHandler.handleEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {
             eventHandler.handleEvent((SearchEvent) event);
         } else if (event instanceof AttributionEvent) {
