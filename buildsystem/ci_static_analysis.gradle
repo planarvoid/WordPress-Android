@@ -1,0 +1,43 @@
+import com.soundcloud.gradle.violations.ViolationCommentsTask
+
+if (System.env.containsKey('JENKINS_URL')) {
+  task violationCommentsToGitHub(type: ViolationCommentsTask) {
+    description "Finds report files from static code analysis and comment pull requests in GitHub with them."
+
+    repositoryOwner = "soundcloud"
+    repositoryName = "android-listeners"
+
+    pullRequestId = System.getenv('ghprbPullId')
+    oAuth2Token = System.getenv('GITHUB_ACCESS_TOKEN')
+    gitHubUrl = "https://api.github.com/"
+
+    violations = [
+            ["FINDBUGS",    "FindBugs",     "build/reports", ".*/findbugs-.*/.*\\.xml\$"],
+            ["PMD",         "PMD",          "build/reports", ".*/pmd-.*/.*\\.xml\$"],
+            ["CHECKSTYLE",  "Checkstyle",   "build/reports", ".*/checkstyle-.*/.*\\.xml\$"],
+            ["ANDROIDLINT", "Android Lint", "build/reports", ".*/lint-.*\\.xml\$"],
+            ["CHECKSTYLE",  "detekt",       "build/reports", ".*/detekt-.*/.*\\.xml\$"]
+    ]
+  }
+  violationCommentsToGitHub.mustRunAfter('allStaticAnalysisChangedTasks')
+
+  task runStaticAnalysisAndReportViolationsToGitHub(dependsOn: ['allStaticAnalysisChangedTasks', 'violationCommentsToGitHub']) {
+    description = 'Performs static analysis on a PR build and reports all issues to the PR via GitHub comments.'
+  }
+}
+
+
+task allStaticAnalysisChangedTasks
+subprojects { project ->
+  project.afterEvaluate {
+    // Ignore our modules folder (which is also a module for gradle...)
+    if (project.name == "modules") {
+      return
+    }
+
+    // Add all subtasks of `staticAnalysisChanged` as a dependency so that this works during configuration phase
+    if (project.tasks.findAll { it.name == "staticAnalysisChanged" }.any()) {
+      allStaticAnalysisChangedTasks.dependsOn("${project.path}:staticAnalysisChanged")
+    }
+  }
+}

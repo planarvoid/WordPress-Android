@@ -1,6 +1,3 @@
-import com.soundcloud.gradle.violations.ViolationCommentsTask
-import se.bjurr.violations.lib.model.SEVERITY
-
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
@@ -10,49 +7,6 @@ subprojects {
     } else if ('com.android.build.gradle.LibraryPlugin'.equals(plugin.class.name)) {
       project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
     }
-  }
-}
-
-task staticAnalysis(dependsOn: ['checkstyle',
-                                'findbugs',
-                                'pmd',
-                                "lintProd${project.('buildType').capitalize()}",
-                                'detektCheck']) {
-  description = 'Performs static analysis of code.'
-}
-
-task staticAnalysisChanged(dependsOn: ['checkstyleChanged',
-                                       'pmdChanged',
-                                       'findbugsChanged',
-                                       "lintProd${project.('buildType').capitalize()}",
-                                       'detektCheck']) {
-  description = 'Performs static analysis of changed code.'
-}
-
-if (System.env.containsKey('JENKINS_URL')) {
-  task violationCommentsToGitHub(type: ViolationCommentsTask) {
-    description "Finds report files from static code analysis and comment pull requests in GitHub with them."
-
-    repositoryOwner = "soundcloud"
-    repositoryName = "android-listeners"
-
-    pullRequestId = System.getenv('ghprbPullId')
-    oAuth2Token = System.getenv('GITHUB_ACCESS_TOKEN')
-    gitHubUrl = "https://api.github.com/"
-
-    minSeverity = SEVERITY.INFO // INFO, WARN, ERROR
-    violations = [
-            ["FINDBUGS",    "FindBugs",     "app/build/reports", ".*/findbugs/.*\\.xml\$"],
-            ["PMD",         "PMD",          "app/build/reports", ".*/pmd/.*\\.xml\$"],
-            ["CHECKSTYLE",  "Checkstyle",   "app/build/reports", ".*/checkstyle/.*\\.xml\$"],
-            ["ANDROIDLINT", "Android Lint", "app/build/reports", ".*/lint-.*\\.xml\$"],
-            ["CHECKSTYLE",  "detekt",       "app/build/reports", ".*/detekt/.*\\.xml\$"]
-    ]
-  }
-  violationCommentsToGitHub.mustRunAfter('staticAnalysisChanged')
-
-  task runStaticAnalysisAndReportViolationsToGitHub(dependsOn: ['staticAnalysisChanged', 'violationCommentsToGitHub']) {
-    description = 'Performs static analysis on a PR build and reports all issues to the PR via GitHub comments.'
   }
 }
 

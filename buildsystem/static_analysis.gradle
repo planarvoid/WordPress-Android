@@ -1,32 +1,67 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
-apply plugin: "io.gitlab.arturbosch.detekt"
+apply plugin: 'io.gitlab.arturbosch.detekt'
 
 def sourceSetMain = rootProject.extensions.getByName('ext').getAt('javaSrcDirs')
 def resourceSetMain = rootProject.extensions.getByName('ext').getAt('resSrcDirs')
-def reportDir = file("$buildDir/reports")
-def staticAnalysisDirPath = "${projectDir}/static-analysis"
+def reportDir = file("${rootProject.buildDir}/reports")
+def staticAnalysisDirPath = "${rootProject.projectDir}/buildsystem/static-analysis"
 
 def includeSrcPatternApplication = 'com/soundcloud/android/**/*.java'
 def includeSrcPatternApi = 'com/soundcloud/api/**/*.java'
 def excludeSrcPatternRClass = 'com/soundcloud/android/**/R.java'
 def excludeSrcPatternGeneratedFiles = '**/gen/**'
 
+
+clean.doFirst {
+  // Remove the reports dir when running `gradle clean`
+  delete reportDir
+}
+
+task noopLint() {
+  // This task does nothing ¯\_(ツ)_/¯
+  // It's only here to act as a "lint" task for modules that don't even have Android lint
+}
+
+///////////////////////////////////////////////////////////////
+// Base Static Analysis tasks that execute the entire suite
+///////////////////////////////////////////////////////////////
+task staticAnalysis(dependsOn: ["checkstyle",
+                                "pmd",
+                                "findbugs",
+                                "${lintTask()}",
+                                "detektCheck"]) {
+  description = "Performs static analysis of code."
+}
+
+task staticAnalysisChanged(dependsOn: ["checkstyleChanged",
+                                       "pmdChanged",
+                                       "findbugsChanged",
+                                       "${lintTask()}",
+                                       "detektCheck"]) {
+  description = "Performs static analysis of changed code."
+}
+
+///////////////////////////////////////////////////////////////
+// detekt
+///////////////////////////////////////////////////////////////
 detekt {
   profile("main") {
     version = "$detektVersion"
     input = "$sourceSetMain"
     config = "${staticAnalysisDirPath}/detekt/config.yml"
-    output = "$buildDir/reports/detekt/output.xml"
+    output = "$reportDir/detekt-${project.name}"
     filters = ".*test.*, .*/resources/.*"
   }
 }
 
+///////////////////////////////////////////////////////////////
+// Checkstyle
+///////////////////////////////////////////////////////////////
 tasks.withType(Checkstyle) {
   repositories {
     maven { url "http://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2" }
@@ -51,7 +86,7 @@ tasks.withType(Checkstyle) {
 
   reports {
     xml.enabled = true
-    xml.destination = file("$reportDir/checkstyle/checkstyle.xml")
+    xml.destination = file("$reportDir/checkstyle-${project.name}/checkstyle.xml")
     html.enabled = false
   }
 }
@@ -73,6 +108,9 @@ task checkstyleChanged(type: Checkstyle) {
   }
 }
 
+///////////////////////////////////////////////////////////////
+// Findbugs
+///////////////////////////////////////////////////////////////
 tasks.withType(FindBugs) {
   dependencies {
     findbugs libraries.findbugs
@@ -86,7 +124,7 @@ tasks.withType(FindBugs) {
   effort = 'max'
   reportLevel = 'high'
   excludeFilter = file("${staticAnalysisDirPath}/findbugs/suppressions.xml")
-  classes = files("$project.buildDir/intermediates/classes/")
+  classes = getClassesDir()
 
   source sourceSetMain
   exclude excludeSrcPatternRClass
@@ -96,19 +134,19 @@ tasks.withType(FindBugs) {
 
   reports {
     xml.enabled = true
-    xml.destination = file("$reportDir/findbugs/findbugs.xml")
+    xml.destination = file("$reportDir/findbugs-${project.name}/findbugs.xml")
     html.enabled = false
   }
 }
 
-task findbugs(type: FindBugs, dependsOn: "assembleProd${project.('buildType').capitalize()}") {
+task findbugs(type: FindBugs, dependsOn: "${assembleTask()}") {
   description 'Uses static analysis to look for bugs in Java code.'
 
   include includeSrcPatternApplication
   include includeSrcPatternApi
 }
 
-task findbugsChanged(type: FindBugs, dependsOn: "assembleProd${project.('buildType').capitalize()}") {
+task findbugsChanged(type: FindBugs, dependsOn: "${assembleTask()}") {
   description 'Uses static analysis to look for bugs in changed Java code.' +
           'The target branch to compare with can optionally be specified with build parameter \'branch\'.'
 
@@ -117,6 +155,9 @@ task findbugsChanged(type: FindBugs, dependsOn: "assembleProd${project.('buildTy
   }
 }
 
+///////////////////////////////////////////////////////////////
+// Pmd
+///////////////////////////////////////////////////////////////
 pmd {
   toolVersion rootProject.ext.pmdVersion
 }
@@ -131,7 +172,7 @@ tasks.withType(Pmd) {
 
   reports {
     xml.enabled = true
-    xml.destination = file("$reportDir/pmd/pmd.xml")
+    xml.destination = file("$reportDir/pmd-${project.name}/pmd.xml")
     html.enabled = false
   }
 }
@@ -153,10 +194,51 @@ task pmdChanged(type: Pmd) {
   }
 }
 
-android {
-  lintOptions {
-    abortOnError false
-    lintConfig file("${staticAnalysisDirPath}/lint/config.xml")
+///////////////////////////////////////////////////////////////
+// Lint
+///////////////////////////////////////////////////////////////
+if (isAndroidApplicationProject() || isAndroidLibraryProject()) {
+  android {
+    lintOptions {
+      abortOnError false
+      lintConfig file("${staticAnalysisDirPath}/lint/config.xml")
+      xmlOutput file("$reportDir/lint-${project.name}/lintoutput.xml")
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// Helper methods
+///////////////////////////////////////////////////////////////
+
+// Build source folder for class files
+def getClassesDir() {
+  if (isAndroidApplicationProject() || isAndroidLibraryProject()) {
+    return files("$project.buildDir/intermediates/classes/")
+  } else {
+    return files("$project.buildDir/classes/")
+  }
+}
+
+// The gradle task to invoke to assemble a module
+def assembleTask() {
+  if (isAndroidApplicationProject()) {
+    return "assembleProd${project.('buildType').capitalize()}"
+  } else if (isAndroidLibraryProject()) {
+    return "assembleDebug"
+  } else {
+    return "assemble"
+  }
+}
+
+// The lint task to invoke to run lint on a module
+def lintTask() {
+  if (isAndroidApplicationProject()) {
+    return "lintProd${project.('buildType').capitalize()}"
+  } else if (isAndroidLibraryProject()) {
+    return "lintDebug"
+  } else {
+    return "noopLint"
   }
 }
 
@@ -195,7 +277,7 @@ def getChangedFiles() {
   for (file in allFiles) {
     Matcher matcher = statusPattern.matcher(file)
     if (matcher.find()) {
-      files.add(matcher.group(2).replaceFirst("app/src/main/(java|res)/", ""))
+      files.add(matcher.group(2).replaceFirst("app/src/main/(kotlin|java|res)/", ""))
     }
   }
 
@@ -227,4 +309,12 @@ def getParentBranch() {
     println "Could not determine parent branch, compare to master"
     return "master"
   }
+}
+
+def isAndroidApplicationProject() {
+  return project.getPlugins().hasPlugin('com.android.application')
+}
+
+def isAndroidLibraryProject() {
+  return project.getPlugins().hasPlugin('com.android.library')
 }

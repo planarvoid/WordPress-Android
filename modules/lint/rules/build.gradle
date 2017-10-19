@@ -3,6 +3,7 @@ buildscript {
     classpath gradlePlugins.apt
     classpath gradlePlugins.memento
     classpath gradlePlugins.retrolambda
+    classpath gradlePlugins.detekt
   }
 }
 

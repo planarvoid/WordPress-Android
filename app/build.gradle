@@ -73,7 +73,7 @@ apply from: "${buildSrcDir}/feature_flags.gradle"
 apply from: "${buildSrcDir}/app_properties.gradle"
 apply from: "${buildSrcDir}/versionizer.gradle"
 apply from: "${buildSrcDir}/slackbot.gradle"
-apply from: "${buildSrcDir}/static_analysis.gradle"
+apply from: "../${buildSrcDir}/static_analysis.gradle"
 apply from: "${buildSrcDir}/apublisher.gradle"
 apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
@@ -335,5 +335,3 @@ dependencies {
 //https://firebase.google.com/docs/android/setup
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
-
-

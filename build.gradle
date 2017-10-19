@@ -1,7 +1,3 @@
-def buildSrcDir = 'buildsystem'
-apply from: "${buildSrcDir}/setup.gradle"
-apply from: "${buildSrcDir}/tests.gradle"
-
 buildscript {
   apply from: "$rootProject.projectDir/buildsystem/repositories.gradle", to: buildscript
   apply from: "buildsystem/dependencies.gradle"
@@ -12,6 +8,11 @@ buildscript {
     classpath gradlePlugins.kotlin
   }
 }
+
+def buildSrcDir = 'buildsystem'
+apply from: "${buildSrcDir}/setup.gradle"
+apply from: "${buildSrcDir}/tests.gradle"
+apply from: "${buildSrcDir}/ci_static_analysis.gradle"
 
 allprojects {
   // Share repositories to all modules
@@ -45,7 +46,6 @@ allprojects {
       options.compilerArgs << "-Xmaxerrs" << "1000"
     }
   }
-
 }
 
 task deployDevDebug(type: Exec, dependsOn: 'app:installDevDebug') {
@@ -82,6 +82,5 @@ task pullAlphaDb() {
 }
 
 def envOr(String key, String defaultValue) {
-  System.getenv(key)?:defaultValue
+  System.getenv(key) ?: defaultValue
 }
-

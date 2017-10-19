@@ -44,7 +44,7 @@ public class ViolationCommentsTask extends DefaultTask {
     private boolean createCommentWithAllSingleFileComments = false;
     private boolean createSingleFileComments = true;
     private boolean commentOnlyChangedContent = true;
-    private SEVERITY minSeverity;
+    private SEVERITY minSeverity = SEVERITY.INFO;
 
     public void setCreateCommentWithAllSingleFileComments(
             boolean createCommentWithAllSingleFileComments) {

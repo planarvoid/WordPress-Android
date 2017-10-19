@@ -1,3 +1,9 @@
+buildscript {
+  dependencies {
+    classpath gradlePlugins.detekt
+  }
+}
+
 apply from: "$rootProject.projectDir/buildsystem/java7-library.gradle"
 
 dependencies {
