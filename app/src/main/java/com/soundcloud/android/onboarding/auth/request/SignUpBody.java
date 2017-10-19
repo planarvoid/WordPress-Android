@@ -13,9 +13,17 @@ public abstract class SignUpBody {
     @JsonProperty("password") abstract String password();
     @JsonProperty("gender") @Nullable abstract String gender();
     @JsonProperty("dob") @Nullable abstract DateOfBirth dateOfBirth();
+    @JsonProperty("signature") abstract String signature();
 
-    public static SignUpBody create(String clientId, String clientSecret, String email, String password, @Nullable String gender, long year, long month) {
-        return new AutoValue_SignUpBody(clientId, clientSecret, email, password, gender, DateOfBirth.create(year, month));
+    public static SignUpBody create(String clientId,
+                                    String clientSecret,
+                                    String email,
+                                    String password,
+                                    @Nullable String gender,
+                                    long year,
+                                    long month,
+                                    String signature) {
+        return new AutoValue_SignUpBody(clientId, clientSecret, email, password, gender, DateOfBirth.create(year, month), signature);
     }
 
 }

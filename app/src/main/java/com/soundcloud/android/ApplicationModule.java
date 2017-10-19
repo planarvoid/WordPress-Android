@@ -22,6 +22,7 @@ import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.configuration.experiments.AppNavigationExperiment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.discovery.DiscoveryCardViewModel;
 import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.image.ImageModule;
@@ -44,6 +45,7 @@ import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.onboarding.SignupSignature;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -193,6 +195,11 @@ public class ApplicationModule {
     @Singleton
     protected ConnectionHelper provideConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager, EventBus eventBus) {
         return new NetworkConnectionHelper(connectivityManager, telephonyManager);
+    }
+
+    @Provides
+    protected SignupSignature provideSignupSignature(Obfuscator obfuscator) {
+        return new SignupSignature(obfuscator);
     }
 
     @Provides

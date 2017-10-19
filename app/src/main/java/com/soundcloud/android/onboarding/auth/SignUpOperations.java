@@ -11,6 +11,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.onboarding.SignupSignature;
 import com.soundcloud.android.onboarding.auth.request.SignUpBody;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -37,6 +38,7 @@ public class SignUpOperations {
     private final OAuth oAuth;
     private final SoundCloudApplication applicationContext;
     private final ConfigurationOperations configurationOperations;
+    private final SignupSignature signupSignature;
 
     @Inject
     public SignUpOperations(Context context,
@@ -44,13 +46,15 @@ public class SignUpOperations {
                             JsonTransformer jsonTransformer,
                             AuthResultMapper authResultMapper,
                             OAuth oAuth,
-                            ConfigurationOperations configurationOperations) {
+                            ConfigurationOperations configurationOperations,
+                            SignupSignature signupSignature) {
         applicationContext = (SoundCloudApplication) context.getApplicationContext();
         this.apiClient = apiClient;
         this.jsonTransformer = jsonTransformer;
         this.authResultMapper = authResultMapper;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
+        this.signupSignature = signupSignature;
     }
 
     public AuthTaskResult signUp(Bundle bundle) {
@@ -96,16 +100,18 @@ public class SignUpOperations {
     }
 
     private SignUpBody getSignUpBody(Bundle bundle) {
+        final String email = bundle.getString(KEY_USERNAME);
+        final String clientId = oAuth.getClientId();
         final BirthdayInfo birthday = (BirthdayInfo) bundle.getSerializable(KEY_BIRTHDAY);
-        return SignUpBody.create(oAuth.getClientId(),
+        return SignUpBody.create(clientId,
                                  oAuth.getClientSecret(),
-                                 bundle.getString(KEY_USERNAME),
+                                 email,
                                  bundle.getString(KEY_PASSWORD),
                                  bundle.getString(KEY_GENDER),
                                  birthday.getYear(),
-                                 birthday.getMonth());
+                                 birthday.getMonth(),
+                                 signupSignature.getSignature(email, clientId));
     }
-
 
     private class SignupError extends Throwable {
         public final AuthTaskResult result;
