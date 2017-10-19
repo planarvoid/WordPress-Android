@@ -45,10 +45,10 @@ public class StreamEntityToItemTransformer implements Function<List<StreamEntity
                                   final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
                                   if (trackMap.containsKey(urn)) {
                                       final TrackItem promotedTrackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
-                                      result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), avatarUrlTemplate));
+                                      result.add(TrackStreamItem.Companion.create(promotedTrackItem, streamEntity.createdAt(), avatarUrlTemplate));
                                   } else if (playlistMap.containsKey(urn)) {
-                                      final PlaylistItem promotedPlaylistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
-                                      result.add(PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), avatarUrlTemplate));
+                                      final PlaylistItem playlistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
+                                      result.add(new PlaylistStreamItem(playlistItem, playlistItem.isPromoted(), streamEntity.createdAt(), avatarUrlTemplate));
                                   }
                               }
                               return result;

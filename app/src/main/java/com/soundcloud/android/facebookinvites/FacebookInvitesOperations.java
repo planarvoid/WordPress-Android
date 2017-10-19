@@ -7,6 +7,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -33,8 +34,7 @@ public class FacebookInvitesOperations {
     private final Function<LastPostedTrack, Maybe<StreamItem>> toCreatorInvitesItem =
             track -> {
                 if (isPostRecentlyCreated(track)) {
-                    return Maybe.just(StreamItem.forFacebookCreatorInvites(track.urn(),
-                                                                           track.permalinkUrl()));
+                    return Maybe.just(new StreamItem.FacebookCreatorInvites(track.urn(), track.permalinkUrl()));
                 } else {
                     return Maybe.empty();
                 }
@@ -57,14 +57,14 @@ public class FacebookInvitesOperations {
         return canShowForCreators()
                 .filter(canShowForCreators -> canShowForCreators)
                 .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
-                                                           .flatMapMaybe(toCreatorInvitesItem)
-                                                           .onErrorResumeNext(Maybe.empty()));
+                                                 .flatMapMaybe(toCreatorInvitesItem)
+                                                 .onErrorResumeNext(Maybe.empty()));
     }
 
     public Maybe<StreamItem> listenerInvites() {
         return canShowForListeners()
                 .filter(canShowForListeners -> canShowForListeners)
-                .flatMap(o -> Maybe.just(StreamItem.forFacebookListenerInvites()));
+                .flatMap(o -> Maybe.just(new StreamItem.FacebookListenerInvites(Optional.absent())));
     }
 
     private Single<Boolean> canShowForCreators() {

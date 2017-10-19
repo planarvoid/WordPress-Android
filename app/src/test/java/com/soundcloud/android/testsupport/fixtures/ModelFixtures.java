@@ -696,9 +696,9 @@ public class ModelFixtures {
                                           .imageUrlTemplate(avatarUrlTemplate)
                                           .build();
         if (streamEntity.isPromoted()) {
-            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt(), avatarUrlTemplate);
+            return TrackStreamItem.Companion.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt(), avatarUrlTemplate);
         } else {
-            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt(), avatarUrlTemplate);
+            return TrackStreamItem.Companion.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt(), avatarUrlTemplate);
         }
     }
 

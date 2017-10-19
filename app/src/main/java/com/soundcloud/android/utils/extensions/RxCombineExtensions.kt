@@ -56,3 +56,7 @@ fun <T1, T2, T3, T4, R> Singles.zip(source1: SingleSource<out T1>,
                                     zipper: (T1, T2, T3, T4) -> R): Single<R> {
     return Single.zip(source1, source2, source3, source4, Function4 { t1, t2, t3, t4 -> zipper.invoke(t1, t2, t3, t4) })
 }
+
+fun <T1, T2, R> Single<T1>.zipWith(source: SingleSource<out T2>, zipper: (T1, T2) -> R): Single<R> {
+    return this.zipWith(source, io.reactivex.functions.BiFunction<T1, T2, R> { t1, t2 -> zipper.invoke(t1, t2) })
+}

@@ -36,7 +36,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
     private static final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private static final Date CURRENT_DATE = new Date();
     private static final List<AppInstallAd> APP_INSTALLS = AdFixtures.getAppInstalls();
-    private static final List<StreamItem> ITEMS = Lists.transform(APP_INSTALLS, StreamItem::forAppInstall);
+    private static final List<StreamItem> ITEMS = Lists.transform(APP_INSTALLS, StreamItem.AppInstall::new);
 
     @Mock private Resources resources;
     @Mock private ImageOperations imageOperations;

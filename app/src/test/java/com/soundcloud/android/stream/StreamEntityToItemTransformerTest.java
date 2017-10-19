@@ -54,7 +54,7 @@ public class StreamEntityToItemTransformerTest {
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Single.just(Collections.singletonMap(track.urn(), track)));
 
-        final TrackStreamItem trackStreamItem = TrackStreamItem.create(trackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
+        final TrackStreamItem trackStreamItem = TrackStreamItem.Companion.create(trackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(trackStreamItem);
 
         transformer.apply(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -67,7 +67,7 @@ public class StreamEntityToItemTransformerTest {
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Single.just(Collections.singletonMap(track.urn(), track)));
 
-        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
+        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.Companion.create(promotedTrackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedTrackStreamItem);
 
         transformer.apply(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -80,7 +80,7 @@ public class StreamEntityToItemTransformerTest {
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Single.just(Collections.singletonMap(playlist.urn(), playlist)));
 
-        final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
+        final PlaylistStreamItem playlistStreamItem = new PlaylistStreamItem(playlistItem, playlistItem.isPromoted(), streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(playlistStreamItem);
 
         transformer.apply(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -93,7 +93,7 @@ public class StreamEntityToItemTransformerTest {
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Single.just(Collections.singletonMap(playlist.urn(), playlist)));
 
-        final PlaylistStreamItem promotedPlaylistStreamItem = PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
+        final PlaylistStreamItem promotedPlaylistStreamItem = new PlaylistStreamItem(promotedPlaylistItem, streamEntity.isPromoted(), streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedPlaylistStreamItem);
 
         transformer.apply(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);

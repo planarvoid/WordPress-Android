@@ -11,7 +11,7 @@ import com.soundcloud.android.events.ScrollDepthEvent.Action;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class StreamDepthPublisherTest {
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock RecyclerView recyclerView;
 
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
     private StreamDepthPublisher publisher;
 
     @Before

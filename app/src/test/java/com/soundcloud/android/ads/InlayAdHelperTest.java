@@ -16,11 +16,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.stream.TrackStreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
@@ -50,20 +53,10 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private static final boolean DO_NOT_REBIND_VIDEO_VIEWS = false;
     private static final AppInstallAd APP_INSTALL = appInstall();
     private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(32L);
-    private static final StreamItem VIDEO_AD_ITEM = StreamItem.forVideoAd(VIDEO_AD);
-    private static final StreamItem APP_INSTALL_ITEM = StreamItem.forAppInstall(APP_INSTALL);
-    private static final StreamItem GO_UPSELL_ITEM = new StreamItem() {
-        @Override
-        public Kind kind() {
-            return Kind.STREAM_UPSELL;
-        }
-    };
-    private static final StreamItem TRACK_ITEM = new StreamItem() {
-        @Override
-        public Kind kind() {
-            return Kind.TRACK;
-        }
-    };
+    private static final StreamItem VIDEO_AD_ITEM = new StreamItem.Video(VIDEO_AD);
+    private static final StreamItem APP_INSTALL_ITEM = new StreamItem.AppInstall(APP_INSTALL);
+    private static final StreamItem GO_UPSELL_ITEM = StreamItem.Upsell.INSTANCE;
+    private static final StreamItem TRACK_ITEM = new TrackStreamItem(ModelFixtures.trackItem(), false, new Date(), Optional.absent());
 
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock StreamAdapter adapter;
@@ -245,8 +238,8 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(StreamItem.forAppInstall(tracked));
-        when(adapter.getItem(10)).thenReturn(StreamItem.forAppInstall(untracked));
+        when(adapter.getItem(8)).thenReturn(new StreamItem.AppInstall(tracked));
+        when(adapter.getItem(10)).thenReturn(new StreamItem.AppInstall(untracked));
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
@@ -293,7 +286,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     public void onScrollFiresOnScreenEventForFirstMostVisibleVideoAdOnScreenGreaterThan50PercentVisible() {
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(StreamItem.forVideoAd(AdFixtures.getInlayVideoAd(23L)));
+        when(adapter.getItem(8)).thenReturn(new StreamItem.Video(AdFixtures.getInlayVideoAd(23L)));
         when(adapter.getItem(9)).thenReturn(VIDEO_AD_ITEM);
         setVideoViewVisibility(8, 51);
         setVideoViewVisibility(9, 52);

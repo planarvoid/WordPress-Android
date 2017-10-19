@@ -43,7 +43,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final TrackItem postedTrack = ModelFixtures.trackItem();
-    private final TrackStreamItem postedTrackStreamItem = TrackStreamItem.create(postedTrack, postedTrack.getCreatedAt(), Optional.absent());
+    private final TrackStreamItem postedTrackStreamItem = TrackStreamItem.Companion.create(postedTrack, postedTrack.getCreatedAt(), Optional.absent());
 
     private StreamTrackItemRenderer renderer;
     private View itemView;
@@ -63,7 +63,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsHeaderViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
-        verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class), eq(postedTrackStreamItem.createdAt()), eq(Optional.absent()));
+        verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class), eq(postedTrackStreamItem.getCreatedAt()), eq(Optional.absent()));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void bindsNowPlaying() {
         final TrackItem updatedPostedTrack = postedTrack.withPlayingState(true);
-        final TrackStreamItem updatedPostedTrackStreamItem = TrackStreamItem.create(updatedPostedTrack, updatedPostedTrack.getCreatedAt(), Optional.absent());
+        final TrackStreamItem updatedPostedTrackStreamItem = TrackStreamItem.Companion.create(updatedPostedTrack, updatedPostedTrack.getCreatedAt(), Optional.absent());
 
         renderer.bindItemView(0, itemView, singletonList(updatedPostedTrackStreamItem));
 

@@ -37,7 +37,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     private static final VideoAd VIDEO_AD_2 = VideoAd.create(AdFixtures.getApiVideoAd("title", "custom cta"), 1L, AdData.MonetizationType.INLAY);
     private static final List<VideoAd> VIDEOS = Arrays.asList(VIDEO_AD_1, VIDEO_AD_2);
 
-    private static final List<StreamItem> ITEMS = Lists.transform(VIDEOS, StreamItem::forVideoAd);
+    private static final List<StreamItem> ITEMS = Lists.transform(VIDEOS, StreamItem.Video::new);
 
     @Mock private VideoAdItemRenderer.Listener listener;
     @Mock private CurrentDateProvider currentDateProvider;

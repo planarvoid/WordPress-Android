@@ -6,6 +6,7 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 
+import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
@@ -29,6 +30,16 @@ public class UpdatePlayableAdapterObserver extends DefaultObserver<CurrentPlayQu
                     adapter.notifyItemChanged(i);
                 }
             }
+        }
+    }
+
+    public static class Factory {
+        @Inject
+        public Factory() {
+        }
+
+        public UpdatePlayableAdapterObserver create(RecyclerItemAdapter adapter) {
+            return new UpdatePlayableAdapterObserver(adapter);
         }
     }
 }

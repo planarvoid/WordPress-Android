@@ -1,11 +1,5 @@
 package com.soundcloud.android.stream;
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.LayoutManager;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -14,41 +8,46 @@ import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.ScrollDepthEvent.Action;
 import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.disposables.Disposable;
 
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Subscription;
+public class StreamDepthPublisher extends RecyclerView.OnScrollListener {
 
-@AutoFactory(allowSubclasses = true)
-class StreamDepthPublisher extends RecyclerView.OnScrollListener {
-
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
 
     private final int[] spansArray;
     private final StaggeredGridLayoutManager layoutManager;
 
     private Optional<ReferringEvent> previousEvent = Optional.absent();
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private final Disposable disposable;
 
     private boolean hasFocus;
     private boolean playerExpanded;
 
     StreamDepthPublisher(StaggeredGridLayoutManager layoutManager,
                          boolean hasFocus,
-                         @Provided EventBus eventBus) {
+                         EventBusV2 eventBus) {
         this.layoutManager = layoutManager;
         this.eventBus = eventBus;
         this.hasFocus = hasFocus;
 
         spansArray = new int[layoutManager.getSpanCount()];
-        subscription = eventBus.queue(EventQueue.PLAYER_UI).subscribe(new PlayerUISubscriber());
+        disposable = eventBus.queue(EventQueue.PLAYER_UI).subscribeWith(LambdaObserver.onNext(event -> {
+            playerExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+            onStreamUIChange();
+        }));
 
         attemptTrackingStart();
     }
@@ -59,7 +58,7 @@ class StreamDepthPublisher extends RecyclerView.OnScrollListener {
     }
 
     private void attemptTrackingStart() {
-        if (streamVisible() && !previousEvent.isPresent() ) {
+        if (streamVisible() && !previousEvent.isPresent()) {
             trackScrollDepthState(Action.START);
         }
     }
@@ -141,14 +140,19 @@ class StreamDepthPublisher extends RecyclerView.OnScrollListener {
 
     void unsubscribe() {
         attemptTrackingEnd();
-        subscription.unsubscribe();
+        disposable.dispose();
     }
 
-    private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        @Override
-        public void onNext(PlayerUIEvent event) {
-            playerExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
-            onStreamUIChange();
+    public static class Factory {
+        private final EventBusV2 eventBusV2;
+
+        @Inject
+        Factory(EventBusV2 eventBusV2) {
+            this.eventBusV2 = eventBusV2;
+        }
+
+        StreamDepthPublisher create(StaggeredGridLayoutManager layoutManager, boolean hasFocus) {
+            return new StreamDepthPublisher(layoutManager, hasFocus, eventBusV2);
         }
     }
 }

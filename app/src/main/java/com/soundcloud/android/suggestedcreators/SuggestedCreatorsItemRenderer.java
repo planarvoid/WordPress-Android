@@ -89,6 +89,6 @@ public class SuggestedCreatorsItemRenderer implements CellRenderer<SuggestedCrea
         final RecyclerView recyclerView = findById(itemView, R.id.suggested_creators_carousel);
         final SuggestedCreatorsAdapter adapter = (SuggestedCreatorsAdapter) recyclerView.getAdapter();
         adapter.clear();
-        adapter.onNext(suggestedCreatorsNotificationItem.suggestedCreators());
+        adapter.onNext(suggestedCreatorsNotificationItem.getSuggestedCreators());
     }
 }

@@ -1,21 +1,15 @@
 package com.soundcloud.android.sync.timeline;
 
-import static com.soundcloud.android.rx.RxUtils.IS_VALID_TIMESTAMP;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func0;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,28 +27,6 @@ public abstract class TimelinePresenter<ItemT>
     private final NewItemsIndicator newItemsIndicator;
     private final TimelineOperations<?, ItemT> operations;
     private final PagingRecyclerItemAdapter<ItemT, ? extends RecyclerView.ViewHolder> adapter;
-
-    private final Action1<Integer> updateNewItemsIndicator = new Action1<Integer>() {
-        @Override
-        public void call(Integer newItems) {
-            newItemsIndicator.update(newItems);
-        }
-    };
-
-    private final Func1<Long, Observable<Integer>> newItemsCount = new Func1<Long, Observable<Integer>>() {
-        @Override
-        public Observable<Integer> call(Long time) {
-            return RxJava.toV1Observable(operations.newItemsSince(time));
-        }
-    };
-
-    private final Observable<Long> mostRecentTimestamp = Observable.defer(new Func0<Observable<Long>>() {
-        @Override
-        public Observable<Long> call() {
-            Optional<Date> date = operations.getFirstItemTimestamp(adapter.getItems());
-            return Observable.just(date.isPresent() ? date.get().getTime() : Consts.NOT_SET);
-        }
-    });
 
     public TimelinePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                              Options build,
@@ -92,14 +64,17 @@ public abstract class TimelinePresenter<ItemT>
     }
 
     protected Observable<Integer> updateIndicatorFromMostRecent() {
-        return mostRecentTimestamp
-                .filter(IS_VALID_TIMESTAMP)
-                .flatMap(newItemsCount)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(updateNewItemsIndicator);
+        return Observable.defer(() -> {
+            Optional<Date> date = operations.getFirstItemTimestamp(adapter.getItems());
+            return Observable.just(date.isPresent() ? date.get().getTime() : Consts.NOT_SET);
+        })
+                         .filter(ts -> ts != Consts.NOT_SET)
+                         .flatMap(operations::newItemsSince)
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .doOnNext(newItemsIndicator::update);
     }
 
     private void refreshAndUpdateIndicator() {
-        fireAndForget(RxJava.toV1Observable(operations.updatedTimelineItemsForStart().toObservable()).flatMap(o -> updateIndicatorFromMostRecent()));
+        operations.updatedTimelineItemsForStart().toObservable().flatMap(o -> updateIndicatorFromMostRecent()).subscribe(new DefaultObserver<>());
     }
 }

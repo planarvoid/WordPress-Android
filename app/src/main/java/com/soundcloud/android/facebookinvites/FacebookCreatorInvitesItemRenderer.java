@@ -51,7 +51,7 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<StreamIt
     @Override
     public void bindItemView(int position, View itemView, List<StreamItem.FacebookCreatorInvites> items) {
         ImageView artwork = itemView.findViewById(R.id.artwork);
-        Urn trackUrn = items.get(position).trackUrn();
+        Urn trackUrn = items.get(position).getTrackUrn();
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
         imageOperations.displayWithPlaceholder(

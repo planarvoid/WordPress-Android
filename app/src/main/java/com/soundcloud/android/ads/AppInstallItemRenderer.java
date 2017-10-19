@@ -56,7 +56,7 @@ public class AppInstallItemRenderer extends AdItemRenderer {
 
     @Override
     public void bindItemView(int position, View itemView, List<StreamItem> items) {
-        final AppInstallAd appInstall = ((AppInstall) items.get(position)).appInstall();
+        final AppInstallAd appInstall = ((AppInstall) items.get(position)).getAppInstallAd();
         final Holder holder = getHolder(itemView);
 
         imageOperations.displayAdImage(appInstall.adUrn(),

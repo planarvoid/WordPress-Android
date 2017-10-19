@@ -84,7 +84,7 @@ public class SuggestedCreatorsOperations {
     private Maybe<StreamItem> loadSuggestedCreators(List<Following> userAssociations) {
         return lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
                                  .filter(list -> !list.isEmpty())
-                                 .map(StreamItem::forSuggestedCreators);
+                                 .map(StreamItem.SuggestedCreators.Companion::create);
     }
 
     private Function<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<Following> followings) {

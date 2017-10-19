@@ -164,7 +164,7 @@ public class FacebookInvitesOperationsTest {
         final TestObserver<StreamItem> subscriber = operations.creatorInvites().test();
 
         final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.values().get(0);
-        assertThat(invitesItem.trackUrn()).isEqualTo(track.urn());
+        assertThat(invitesItem.getTrackUrn()).isEqualTo(track.urn());
     }
 
 }

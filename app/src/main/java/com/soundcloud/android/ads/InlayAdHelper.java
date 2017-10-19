@@ -83,9 +83,9 @@ class InlayAdHelper {
 
     private Optional<StreamItem> itemForAd(AdData ad) {
         if (ad instanceof AppInstallAd) {
-            return Optional.of(StreamItem.forAppInstall((AppInstallAd) ad));
+            return Optional.of(new StreamItem.AppInstall((AppInstallAd) ad));
         } else if (ad instanceof VideoAd) {
-            return Optional.of(StreamItem.forVideoAd((VideoAd) ad));
+            return Optional.of(new StreamItem.Video((VideoAd) ad));
         } else {
             return Optional.absent();
         }
@@ -305,7 +305,7 @@ class InlayAdHelper {
                 final StreamItem item = adapter.getItem(position);
                 if (item instanceof StreamItem.Video) {
                     final StreamItem.Video videoItem = (StreamItem.Video) item;
-                    return videoItem.video().equals(videoAd);
+                    return videoItem.getVideo().equals(videoAd);
                 }
             }
             return false;

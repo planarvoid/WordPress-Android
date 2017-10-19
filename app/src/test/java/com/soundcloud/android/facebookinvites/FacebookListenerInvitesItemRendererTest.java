@@ -10,6 +10,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.CircularBorderImageView;
+import com.soundcloud.java.optional.Optional;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetFriendPictures() {
-        StreamItem invitesItem = StreamItem.forFacebookListenerInvites();
+        StreamItem invitesItem = new StreamItem.FacebookListenerInvites(Optional.absent());
         when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.singletonList("url1")));
         renderer.bindItemView(0, itemView, Lists.newArrayList(invitesItem));
 
@@ -58,7 +59,7 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideFriendPictures() {
-        StreamItem invitesItem = StreamItem.forFacebookListenerInvites();
+        StreamItem invitesItem = new StreamItem.FacebookListenerInvites(Optional.absent());
         when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.emptyList()));
         renderer.bindItemView(0, itemView, Lists.newArrayList(invitesItem));
 

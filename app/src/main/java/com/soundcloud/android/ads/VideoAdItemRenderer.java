@@ -53,7 +53,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     @Override
     public void bindItemView(int position, View itemView, List<StreamItem> items) {
-        final VideoAd videoAd = ((Video) items.get(position)).video();
+        final VideoAd videoAd = ((Video) items.get(position)).getVideo();
         final Holder holder = getHolder(itemView);
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));

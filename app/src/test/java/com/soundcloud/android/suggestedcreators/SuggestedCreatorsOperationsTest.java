@@ -85,7 +85,7 @@ public class SuggestedCreatorsOperationsTest {
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem notificationItem = subscriber.values().get(0);
 
-        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+        assertThat(notificationItem.getKind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class SuggestedCreatorsOperationsTest {
         final TestObserver<StreamItem> subscriber = operations.suggestedCreators().test().assertValueCount(1);
         final StreamItem notificationItem = subscriber.values().get(0);
 
-        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+        assertThat(notificationItem.getKind()).isEqualTo(Kind.SUGGESTED_CREATORS);
     }
 
     @Test
@@ -117,9 +117,9 @@ public class SuggestedCreatorsOperationsTest {
                 .values()
                 .get(0);
 
-        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
-        assertThat(notificationItem.suggestedCreators().size()).isEqualTo(1);
-        assertThat(notificationItem.suggestedCreators()
+        assertThat(notificationItem.getKind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+        assertThat(notificationItem.getSuggestedCreators().size()).isEqualTo(1);
+        assertThat(notificationItem.getSuggestedCreators()
                                    .get(0)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
                 suggestedCreators.get(1)));
     }
@@ -142,9 +142,9 @@ public class SuggestedCreatorsOperationsTest {
                 .values()
                 .get(0);
 
-        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
-        assertThat(notificationItem.suggestedCreators().size()).isEqualTo(1);
-        assertThat(notificationItem.suggestedCreators()
+        assertThat(notificationItem.getKind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+        assertThat(notificationItem.getSuggestedCreators().size()).isEqualTo(1);
+        assertThat(notificationItem.getSuggestedCreators()
                                    .get(0)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
                 suggestedCreators.get(1)));
     }
@@ -168,11 +168,11 @@ public class SuggestedCreatorsOperationsTest {
                 .values()
                 .get(0);
 
-        assertThat(notificationItem.kind()).isEqualTo(Kind.SUGGESTED_CREATORS);
-        assertThat(notificationItem.suggestedCreators().size()).isEqualTo(2);
-        assertThat(notificationItem.suggestedCreators().get(0)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
+        assertThat(notificationItem.getKind()).isEqualTo(Kind.SUGGESTED_CREATORS);
+        assertThat(notificationItem.getSuggestedCreators().size()).isEqualTo(2);
+        assertThat(notificationItem.getSuggestedCreators().get(0)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
                 suggestedCreators.get(0)));
-        assertThat(notificationItem.suggestedCreators().get(1)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
+        assertThat(notificationItem.getSuggestedCreators().get(1)).isEqualTo(SuggestedCreatorItem.fromSuggestedCreator(
                 suggestedCreators.get(1)));
     }
 

@@ -18,7 +18,7 @@ import org.mockito.Mock;
 
 import java.util.List;
 
-public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
+public class UpdatePlayableAdapterObserverTest extends AndroidUnitTest {
 
     @Mock private RecyclerItemAdapter adapter;
     @Mock private PlayableViewItem<PlayableViewItem> playableViewItem;
@@ -27,14 +27,14 @@ public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
     @Mock private CurrentPlayQueueItemEvent eventWithTrackAndCollection;
     @Mock private PlayableViewItem<CurrentPlayQueueItemEvent> updatedPlayableViewItem;
 
-    private UpdatePlayableAdapterSubscriber subscriber;
+    private UpdatePlayableAdapterObserver subscriber;
     private List discoveryItems;
 
     @Before
     public void setUp() throws Exception {
         discoveryItems = Lists.newArrayList(playableViewItem, differentItem);
         when(adapter.getItems()).thenReturn(discoveryItems);
-        subscriber = new UpdatePlayableAdapterSubscriber(adapter);
+        subscriber = new UpdatePlayableAdapterObserver(adapter);
     }
 
     @Test

@@ -1,13 +1,12 @@
 package com.soundcloud.android.facebookinvites;
 
-import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.java.optional.Optional;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.LayoutInflater;
@@ -56,7 +55,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
 
-        if (item.friendPictureUrls().isPresent()) {
+        if (item.getFriendPictureUrls().isPresent()) {
             setContent(itemView, item);
         } else {
             setLoading(itemView);
@@ -76,7 +75,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
         itemView.findViewById(R.id.content).setVisibility(View.VISIBLE);
 
         if (item.hasPictures()) {
-            List<String> friendImageUrls = item.friendPictureUrls().get();
+            List<String> friendImageUrls = item.getFriendPictureUrls().get();
             itemView.findViewById(R.id.friends).setVisibility(View.VISIBLE);
             itemView.findViewById(R.id.facebook_invite_introduction_text).setVisibility(View.GONE);
             setFriendImage(itemView, R.id.friend_1, friendImageUrls, 0);
@@ -136,7 +135,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
         @Override
         public void onNext(List<String> friendPictureUrls) {
             if (itemView.get() != null && listContainsInvitesItem()) {
-                final StreamItem.FacebookListenerInvites item = forFacebookListenerInvites(friendPictureUrls);
+                final StreamItem.FacebookListenerInvites item = new StreamItem.FacebookListenerInvites(Optional.of(friendPictureUrls));
                 items.set(position, item);
                 listener.onListenerInvitesLoaded(item.hasPictures());
                 setContent(itemView.get(), item);
@@ -152,7 +151,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<StreamI
         }
 
         private boolean listContainsInvitesItem() {
-            return items.size() > position && items.get(position).kind() == StreamItem.Kind.FACEBOOK_LISTENER_INVITES;
+            return items.size() > position && items.get(position).getKind() == StreamItem.Kind.FACEBOOK_LISTENER_INVITES;
         }
     }
 }

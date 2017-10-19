@@ -55,7 +55,7 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     @Override
     public int getBasicItemViewType(int position) {
-        return getItem(position).kind().ordinal();
+        return getItem(position).getKind().ordinal();
     }
 
     void unsubscribe() {

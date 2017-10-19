@@ -42,7 +42,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     private final PlaylistItem playlistItem = ModelFixtures.playlistItem();
     private Date createdAt = new Date();
     private Optional<String> avatarUrlTemplate = Optional.of("avatarUrl");
-    private final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, createdAt, avatarUrlTemplate);
+    private final PlaylistStreamItem playlistStreamItem = new PlaylistStreamItem(playlistItem, playlistItem.isPromoted(), createdAt, avatarUrlTemplate);
 
     private StreamPlaylistItemRenderer renderer;
     private View itemView;
