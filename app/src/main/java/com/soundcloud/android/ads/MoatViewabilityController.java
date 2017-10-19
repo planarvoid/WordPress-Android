@@ -39,12 +39,12 @@ public class MoatViewabilityController {
     }
 
     void createTrackerForAd(Urn adUrn, long duration, String uuid, String monetizationType) {
-        final Optional<View> videoView = videoSurfaceProvider.getViewabilityView(uuid);
-        videoView.ifPresent(view -> {
+        final View videoView = videoSurfaceProvider.getViewabilityView(uuid);
+        if (videoView != null) {
             ReactiveVideoTracker tracker = getMoatFactory().get().createCustomTracker(videoPlugin);
-            tracker.trackVideoAd(getMoatSlicers(adUrn, monetizationType), Long.valueOf(duration).intValue(), view);
+            tracker.trackVideoAd(getMoatSlicers(adUrn, monetizationType), Long.valueOf(duration).intValue(), videoView);
             videoTrackers.put(uuid, tracker);
-        });
+        }
     }
 
     void onVideoStart(String uuid, long currentPosition) {

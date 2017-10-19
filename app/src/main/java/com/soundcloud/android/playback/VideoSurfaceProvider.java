@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 import android.view.Surface;
@@ -31,11 +30,11 @@ public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
         PRESTITIAL
     }
 
-    final private static int MAX_VIDEO_CONTAINERS = 5;
+    private static final int MAX_VIDEO_CONTAINERS = 5;
 
-    final private Map<String, VideoTextureContainer> textureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
+    private final Map<String, WeakReference<VideoTextureContainer>> textureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
 
-    final private VideoTextureContainer.Factory containerFactory;
+    private final VideoTextureContainer.Factory containerFactory;
 
     private List<WeakReference<Listener>> listeners = new LinkedList<>();
 
@@ -54,28 +53,24 @@ public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
     }
 
     public void setTextureView(String uuid, Origin origin, TextureView textureView, View viewabilityView) {
-        setTextureView(uuid, origin, textureView, Optional.of(viewabilityView));
-    }
-
-    void setTextureView(String uuid, Origin origin, TextureView textureView, Optional<View> viewabilityView) {
-        if (textureContainers.containsKey(uuid) && textureContainers.get(uuid).getOrigin() == origin) {
-            textureContainers.get(uuid).reattachSurfaceTexture(textureView, viewabilityView);
+        if (textureContainers.containsKey(uuid) && textureContainers.get(uuid).get() != null && textureContainers.get(uuid).get().getOrigin() == origin) {
+            textureContainers.get(uuid).get().reattachSurfaceTexture(textureView, viewabilityView);
             log(uuid, origin, "Reattached to existing container");
         } else {
             // If this texture view was used before (e.g view is recycled) release & remove any old containers referencing it
             removeContainers(container -> container.containsTextureView(textureView) || container.getUuid().equals(uuid));
-            textureContainers.put(uuid, containerFactory.build(uuid, origin, textureView, viewabilityView, this));
+            textureContainers.put(uuid, new WeakReference<>(containerFactory.build(uuid, origin, textureView, viewabilityView, this)));
             log(uuid, origin, "Created container");
         }
 
-        viewabilityView.ifPresent(view -> updateListeners(listener -> listener.onViewabilityViewUpdate(uuid, view)));
+        updateListeners(listener -> listener.onViewabilityViewUpdate(uuid, viewabilityView));
     }
 
     private void removeContainers(Predicate<VideoTextureContainer> predicate) {
-        Iterator<Map.Entry<String, VideoTextureContainer>> entryIterator = textureContainers.entrySet().iterator();
+        Iterator<Map.Entry<String, WeakReference<VideoTextureContainer>>> entryIterator = textureContainers.entrySet().iterator();
         while (entryIterator.hasNext()) {
-            final VideoTextureContainer container = entryIterator.next().getValue();
-            if (predicate.apply(container)) {
+            final VideoTextureContainer container = entryIterator.next().getValue().get();
+            if (container != null && predicate.apply(container)) {
                 log(container.getUuid(), container.getOrigin(), "Removing container");
                 container.release();
                 entryIterator.remove();
@@ -85,8 +80,9 @@ public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
 
     // Only clear the TextureViews since we maintain TextureSurfaces on configuration change
     public void onConfigurationChange(Origin origin) {
-        for (VideoTextureContainer container : textureContainers.values()) {
-            if (container.getOrigin() == origin) {
+        for (WeakReference<VideoTextureContainer> containerRef : textureContainers.values()) {
+            VideoTextureContainer container = containerRef.get();
+            if (container != null && container.getOrigin() == origin) {
                 container.releaseTextureView();
                 log(container.getUuid(), origin, "Unbinded TextureView from container");
             }
@@ -110,21 +106,32 @@ public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
     }
 
     public void onDestroy(Origin origin) {
-        removeContainers(input -> input.getOrigin() == origin);
+        removeContainers(input -> input != null && input.getOrigin() == origin);
     }
 
     @Nullable
     public Surface getSurface(String uuid) {
-        return textureContainers.containsKey(uuid) ? textureContainers.get(uuid).getSurface() : null;
+        if (textureContainers.containsKey(uuid)) {
+            VideoTextureContainer videoTextureContainer = textureContainers.get(uuid).get();
+            if (videoTextureContainer != null) {
+                return videoTextureContainer.getSurface();
+            }
+        }
+        return null;
     }
 
-    public Optional<View> getViewabilityView(String uuid) {
-        return textureContainers.containsKey(uuid) ? textureContainers.get(uuid).getViewabilityView() : Optional.absent();
+    public View getViewabilityView(String uuid) {
+        if (textureContainers.containsKey(uuid)) {
+            VideoTextureContainer videoTextureContainer = textureContainers.get(uuid).get();
+            if (videoTextureContainer != null) {
+                return videoTextureContainer.getViewabilityView();
+            }
+        }
+        return null;
     }
 
     public interface Listener {
         void attemptToSetSurface(String uuid);
-
         void onViewabilityViewUpdate(String uuid, View viewabilityView);
     }
 }

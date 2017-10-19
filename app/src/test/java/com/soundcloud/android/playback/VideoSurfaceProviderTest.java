@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,63 +43,63 @@ public class VideoSurfaceProviderTest {
         videoSurfaceProvider.addListener(listener);
         videoSurfaceProvider.addListener(listener2);
 
-        when(containerFactory.build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider)).thenReturn(textureContainer);
+        when(containerFactory.build(UUID, ORIGIN, textureView, null, videoSurfaceProvider)).thenReturn(textureContainer);
         when(textureContainer.getOrigin()).thenReturn(ORIGIN);
         when(textureContainer.getUuid()).thenReturn(UUID);
     }
 
     @Test
     public void createsNewTextureViewContainerIfNewVideoUrn() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, null, videoSurfaceProvider);
     }
 
     @Test
     public void createsNewTextureViewContainerWithViewabilityViewIfNewVideoUrn() {
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, view);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.of(view), videoSurfaceProvider);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, view, videoSurfaceProvider);
     }
 
     @Test
     public void reusesTextureViewContainerIfContainerForUrnExists() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
-        verify(textureContainer).reattachSurfaceTexture(textureView, Optional.absent());
+        verify(containerFactory).build(UUID, ORIGIN, textureView, null, videoSurfaceProvider);
+        verify(textureContainer).reattachSurfaceTexture(textureView, null);
     }
 
     @Test
     public void reusesTextureViewContainerWithUpdatedViewabilityViewIfContainerForUrnExists() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, view);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
-        verify(textureContainer).reattachSurfaceTexture(textureView, Optional.of(view));
+        verify(containerFactory).build(UUID, ORIGIN, textureView, null, videoSurfaceProvider);
+        verify(textureContainer).reattachSurfaceTexture(textureView, view);
     }
 
     @Test
     public void releasesExistingContainerBeforeBuildingNewContainerIfRecyclingTextureView() {
         when(textureContainer.containsTextureView(textureView)).thenReturn(true);
 
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
-        videoSurfaceProvider.setTextureView(UUID2, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
+        videoSurfaceProvider.setTextureView(UUID2, ORIGIN, textureView, null);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, null, videoSurfaceProvider);
         verify(textureContainer).release();
-        verify(containerFactory).build(UUID2, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
+        verify(containerFactory).build(UUID2, ORIGIN, textureView, null, videoSurfaceProvider);
     }
 
     @Test
     public void releasesExistingContainerBeforeBuildingNewContainerIfNewOriginForExistingVideo() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN2, textureView2, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN2, textureView2, null);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent(), videoSurfaceProvider);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, null, videoSurfaceProvider);
         verify(textureContainer).release();
-        verify(containerFactory).build(UUID, ORIGIN2, textureView2, Optional.absent(), videoSurfaceProvider);
+        verify(containerFactory).build(UUID, ORIGIN2, textureView2, null, videoSurfaceProvider);
     }
 
     @Test
@@ -121,7 +120,7 @@ public class VideoSurfaceProviderTest {
 
     @Test
     public void onConfigurationChangeReleasesTextureViewReferenceFromContainerForORIGIN() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
         videoSurfaceProvider.onConfigurationChange(ORIGIN);
 
         verify(textureContainer).releaseTextureView();
@@ -129,7 +128,7 @@ public class VideoSurfaceProviderTest {
 
     @Test
     public void onConfigurationChangeDoesntReleasesTextureViewReferenceForOtherORIGINs() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
         videoSurfaceProvider.onConfigurationChange(ORIGIN2);
 
         verify(textureContainer, never()).releaseTextureView();
@@ -137,7 +136,7 @@ public class VideoSurfaceProviderTest {
 
     @Test
     public void onDestroyReleasesAllContainersForORIGIN() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
         videoSurfaceProvider.onDestroy(ORIGIN);
 
         verify(textureContainer).release();
@@ -145,7 +144,7 @@ public class VideoSurfaceProviderTest {
 
     @Test
     public void onDestroyDoesntReleaseContainerForOtherORIGINs() {
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
         videoSurfaceProvider.onDestroy(ORIGIN2);
 
         verify(textureContainer, never()).release();
@@ -155,7 +154,7 @@ public class VideoSurfaceProviderTest {
     public void getSurfaceReturnsSurfaceIfContainerForUrnExists() {
         when(textureContainer.getSurface()).thenReturn(surface);
 
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, Optional.absent());
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, null);
 
         assertThat(videoSurfaceProvider.getSurface(UUID)).isEqualTo(surface);
     }
@@ -167,16 +166,16 @@ public class VideoSurfaceProviderTest {
 
     @Test
     public void getViewabilityViewViewReturnsViewIfContainerForUrnExists() {
-        when(containerFactory.build(UUID, ORIGIN, textureView, Optional.of(view), videoSurfaceProvider)).thenReturn(textureContainer);
-        when(textureContainer.getViewabilityView()).thenReturn(Optional.of(view));
+        when(containerFactory.build(UUID, ORIGIN, textureView, view, videoSurfaceProvider)).thenReturn(textureContainer);
+        when(textureContainer.getViewabilityView()).thenReturn(view);
 
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView, view);
 
-        assertThat(videoSurfaceProvider.getViewabilityView(UUID)).isEqualTo(Optional.of(view));
+        assertThat(videoSurfaceProvider.getViewabilityView(UUID)).isEqualTo(view);
     }
 
     @Test
     public void getViewabilityViewReturnsAbsentIfContainerDoesNotExist() {
-        assertThat(videoSurfaceProvider.getViewabilityView(UUID)).isEqualTo(Optional.absent());
+        assertThat(videoSurfaceProvider.getViewabilityView(UUID)).isEqualTo(null);
     }
 }

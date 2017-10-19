@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
-import com.soundcloud.java.optional.Optional;
 
 import android.graphics.SurfaceTexture;
 import android.support.annotation.Nullable;
@@ -10,15 +9,16 @@ import android.view.TextureView;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
 // Inspired by: github.com/google/grafika/blob/master/src/com/android/grafika/DoubleDecodeActivity.java
 class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
-    final private String uuid;
-    final private Listener listener;
-    final private Origin origin;
+    private final String uuid;
+    private final Listener listener;
+    private final Origin origin;
 
-    private Optional<View> viewabilityView;
+    private WeakReference<View> viewabilityView;
 
     @Nullable private Surface surface;
     @Nullable private SurfaceTexture surfaceTexture;
@@ -31,17 +31,17 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
     VideoTextureContainer(String videoUuid,
                           Origin origin,
                           TextureView textureView,
-                          Optional<View> viewabilityView,
+                          View viewabilityView,
                           Listener listener) {
         this.uuid = videoUuid;
         this.origin = origin;
         this.listener = listener;
-        this.viewabilityView = viewabilityView;
+        this.viewabilityView = new WeakReference<>(viewabilityView);
         setTextureView(textureView);
     }
 
-    void reattachSurfaceTexture(TextureView textureView, Optional<View> viewabilityView) {
-        this.viewabilityView = viewabilityView;
+    void reattachSurfaceTexture(TextureView textureView, View viewabilityView) {
+        this.viewabilityView = new WeakReference<>(viewabilityView);
         setTextureView(textureView);
         if (surfaceTexture != null && !surfaceTextureAlreadyAttached(textureView)) {
             textureView.setSurfaceTexture(surfaceTexture);
@@ -62,8 +62,8 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
         return textureView.equals(currentTextureView);
     }
 
-    Optional<View> getViewabilityView() {
-        return viewabilityView;
+    View getViewabilityView() {
+        return viewabilityView.get();
     }
 
     @Nullable
@@ -80,7 +80,7 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
     }
 
     void releaseTextureView() {
-        viewabilityView = Optional.absent();
+        viewabilityView = null;
         currentTextureView = null;
     }
 
@@ -89,7 +89,7 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
             surface.release();
         }
         surface = null;
-        viewabilityView = Optional.absent();
+        viewabilityView = null;
         currentTextureView = null;
         surfaceTexture = null;
     }
@@ -126,7 +126,7 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
         VideoTextureContainer build(String uuid,
                                     Origin origin,
                                     TextureView textureView,
-                                    Optional<View> viewabilityView,
+                                    View viewabilityView,
                                     Listener listener) {
             return new VideoTextureContainer(uuid, origin, textureView, viewabilityView, listener);
         }

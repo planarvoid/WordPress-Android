@@ -6,7 +6,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +33,7 @@ public class VideoTextureContainerTest {
 
     @Before
     public void setUp() {
-        textureContainer = new VideoTextureContainer(UUID, ORIGIN, textureView, Optional.absent(), textureContainerListener);
+        textureContainer = new VideoTextureContainer(UUID, ORIGIN, textureView, null, textureContainerListener);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class VideoTextureContainerTest {
         when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.reattachSurfaceTexture(textureView, Optional.absent());
+        textureContainer.reattachSurfaceTexture(textureView, null);
 
         verify(textureView, never()).setSurfaceTexture(surfaceTexture);
     }
@@ -65,7 +64,7 @@ public class VideoTextureContainerTest {
     public void surfaceTextureWillBeSetToNewTextureView() {
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.reattachSurfaceTexture(textureView2, Optional.absent());
+        textureContainer.reattachSurfaceTexture(textureView2, null);
 
         verify(textureView2).setSurfaceTexture(surfaceTexture);
     }
@@ -73,13 +72,12 @@ public class VideoTextureContainerTest {
     @Test
     public void surfaceTextureWithViewabilityViewWillBeSetToNewTextureView() {
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
-        final Optional<View> viewabilityView = Optional.of(view);
 
-        textureContainer.reattachSurfaceTexture(textureView2, viewabilityView);
+        textureContainer.reattachSurfaceTexture(textureView2, view);
 
         verify(textureView2).setSurfaceTexture(surfaceTexture);
-        assertThat(textureContainer.getViewabilityView().isPresent()).isTrue();
-        assertThat(textureContainer.getViewabilityView()).isEqualTo(viewabilityView);
+        assertThat(textureContainer.getViewabilityView()).isNotNull();
+        assertThat(textureContainer.getViewabilityView()).isEqualTo(view);
     }
 
     @Test
