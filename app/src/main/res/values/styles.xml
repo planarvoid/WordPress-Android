@@ -322,12 +322,15 @@
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/view_all_height</item>
+        <item name="android:paddingLeft">@dimen/card_padding_horizontal</item>
+        <item name="android:paddingRight">@dimen/card_padding_horizontal</item>
     </style>
 
     <style name="ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
         <item name="android:singleLine">true</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textColor">@color/view_all_text_color</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:layout_width">wrap_content</item>
