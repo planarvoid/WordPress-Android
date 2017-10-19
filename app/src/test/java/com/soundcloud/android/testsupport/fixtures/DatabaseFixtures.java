@@ -104,20 +104,6 @@ public class DatabaseFixtures {
         return trackUrns;
     }
 
-    public void insertFollowing(Urn followedUrn) {
-        insertFollowing(followedUrn, System.currentTimeMillis());
-    }
-
-    public void insertFollowing(Urn followedUrn, long follwedAt) {
-        ContentValuesBuilder cv = ContentValuesBuilder.values();
-        cv.put(Tables.UserAssociations.ASSOCIATION_TYPE, Tables.UserAssociations.TYPE_FOLLOWING);
-        cv.put(Tables.UserAssociations.RESOURCE_TYPE, Tables.UserAssociations.TYPE_RESOURCE_USER);
-        cv.put(Tables.UserAssociations.TARGET_ID, followedUrn.getNumericId());
-        cv.put(Tables.UserAssociations.CREATED_AT, follwedAt);
-        cv.put(Tables.UserAssociations.POSITION, 0);
-        insertInto(Tables.UserAssociations.TABLE, cv.get());
-    }
-
     public void insertRecentlyPlayedStationAtPosition(Urn stationUrn, long position) {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(StationsCollections.STATION_URN, stationUrn.toString());
@@ -866,9 +852,13 @@ public class DatabaseFixtures {
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {
-        final long rowId = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        return insertInto(table.name(), cv);
+    }
+
+    public long insertInto(String table, ContentValues cv) {
+        final long rowId = database.insertWithOnConflict(table, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         if (rowId == -1) {
-            throw new AssertionError("Failed inserting record into table " + table.name());
+            throw new AssertionError("Failed inserting record into table " + table);
         }
         return rowId;
     }

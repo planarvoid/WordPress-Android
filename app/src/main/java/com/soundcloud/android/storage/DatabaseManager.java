@@ -4,7 +4,6 @@ import static com.soundcloud.android.events.DatabaseMigrationEvent.forSuccessful
 import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
-import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.lang.String.format;
@@ -29,7 +28,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 122;
+    public static final int DATABASE_VERSION = 123;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -321,6 +320,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 122:
                             success = upgradeTo122(db, oldVersion);
                             break;
+                        case 123:
+                            success = upgradeTo123(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -370,13 +372,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Added unavailable_at column to TrackDownloads table
      */
     private boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.TrackDownloads.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 36);
-        }
-        return false;
+        // removed table, now this is a no-op
+        return true;
     }
 
     /**
@@ -410,7 +407,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo39(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(Tables.OfflineContent.TABLE.getCreateSQL());
+            // removed offline content migration as it is no longer stored here
             db.execSQL(Tables.TrackPolicies.TABLE.getCreateSQL());
             migratePolicies(db);
 
@@ -487,7 +484,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo47(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Tables.PlayQueue.TABLE.name(), Tables.PlayQueue.SQL, db);
+            alterColumns(LegacyTables.PlayQueue.TABLE.name(), LegacyTables.PlayQueue.SQL, db);
             return true;
 
         } catch (SQLException exception) {
@@ -501,7 +498,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.recreateTable(Tables.PlayQueue.TABLE, db);
+            SchemaMigrationHelper.recreateTable(LegacyTables.PlayQueue.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -543,7 +540,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo51(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.recreateTable(Tables.PlayQueue.TABLE, db);
+            SchemaMigrationHelper.recreateTable(LegacyTables.PlayQueue.TABLE, db);
             return true;
 
         } catch (SQLException exception) {
@@ -666,9 +663,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(LegacyTables.PlayQueue.TABLE.name(), db);
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
-            db.execSQL(Tables.PlayQueue.SQL);
+            db.execSQL(LegacyTables.PlayQueue.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
             return true;
         } catch (SQLException exception) {
@@ -722,8 +719,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo66(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayQueue.TABLE.name(), db);
-            db.execSQL(Tables.PlayQueue.SQL);
+            dropTable(LegacyTables.PlayQueue.TABLE.name(), db);
+            db.execSQL(LegacyTables.PlayQueue.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 66);
@@ -763,13 +760,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Remove Owner from User associations
      */
     private boolean upgradeTo69(SQLiteDatabase db, int oldVersion) {
-        try {
-            SchemaMigrationHelper.recreateTable(Tables.UserAssociations.TABLE, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 69);
-        }
-        return false;
+        // removed, as we moved followings to a different table
+        return true;
     }
 
     /*
@@ -789,13 +781,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Made Uri the primary key of Collections
      */
     private boolean upgradeTo71(SQLiteDatabase db, int oldVersion) {
-        try {
-            recreate(Table.Collections, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 71);
-        }
-        return false;
+        // removed legacy table migration of Collections
+        return true;
     }
 
     /*
@@ -842,7 +829,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(Tables.PlayHistory.SQL);
+            db.execSQL(LegacyTables.PlayHistory.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 77);
@@ -922,9 +909,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo86(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(Tables.RecentlyPlayed.SQL);
+            db.execSQL(LegacyTables.RecentlyPlayed.SQL);
             tryMigratePlayHistory(db);
-            alterColumns(Tables.PlayHistory.TABLE.name(), Tables.PlayHistory.SQL, db);
+            alterColumns(LegacyTables.PlayHistory.TABLE.name(), LegacyTables.PlayHistory.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 86);
@@ -987,7 +974,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo94(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Tables.PlayQueue.TABLE.name(), Tables.PlayQueue.SQL, db);
+            alterColumns(LegacyTables.PlayQueue.TABLE.name(), LegacyTables.PlayQueue.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 94);
@@ -1026,7 +1013,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo104(SQLiteDatabase db, int oldVersion) {
         try {
-            alterColumns(Tables.PlayQueue.TABLE.name(), Tables.PlayQueue.SQL, db);
+            alterColumns(LegacyTables.PlayQueue.TABLE.name(), LegacyTables.PlayQueue.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 104);
@@ -1075,7 +1062,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private boolean upgradeTo113(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayHistory.TABLE.name(), db);
+            dropTable(LegacyTables.PlayHistory.TABLE.name(), db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 113);
@@ -1085,7 +1072,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private boolean upgradeTo114(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.RecentlyPlayed.TABLE.name(), db);
+            dropTable(LegacyTables.RecentlyPlayed.TABLE.name(), db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 114);
@@ -1142,7 +1129,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private boolean upgradeTo121(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(LegacyTables.PlayQueue.TABLE.name(), db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 121);
@@ -1160,9 +1147,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    private boolean upgradeTo123(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("TrackDownloads", db);
+            dropTable("OfflineContent", db);
+            dropTable("UserAssociations", db);
+            dropTable("Collections", db);
+            dropView("PlaylistTracksView", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 123);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
-            db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
+            db.execSQL(LegacyTables.RecentlyPlayed.MIGRATE_SQL);
         } catch (SQLException exception) {
             // ignore migration errors when already on new table schema
         }
@@ -1215,12 +1216,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 Tables.TrackPolicies.TABLE,
                 Tables.Likes.TABLE,
                 Tables.Posts.TABLE,
-                Tables.UserAssociations.TABLE,
                 Tables.Stations.TABLE,
                 Tables.StationsPlayQueues.TABLE,
                 Tables.StationsCollections.TABLE,
-                Tables.TrackDownloads.TABLE,
-                Tables.OfflineContent.TABLE,
                 Tables.Comments.TABLE,
                 Tables.SuggestedCreators.TABLE
         );
@@ -1228,7 +1226,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private List<SCBaseTable> allViews() {
         return asList(
-                Tables.OfflinePlaylistTracks.TABLE,
                 Tables.PlaylistView.TABLE,
                 Tables.TrackView.TABLE
         );

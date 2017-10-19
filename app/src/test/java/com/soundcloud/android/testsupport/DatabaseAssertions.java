@@ -65,12 +65,6 @@ import static com.soundcloud.android.storage.Tables.TrackPolicies.SNIPPED;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.SUB_HIGH_TIER;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.SUB_MID_TIER;
 import static com.soundcloud.android.storage.Tables.TrackPolicies.SYNCABLE;
-import static com.soundcloud.android.storage.Tables.UserAssociations.ADDED_AT;
-import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
-import static com.soundcloud.android.storage.Tables.UserAssociations.RESOURCE_TYPE;
-import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
-import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_FOLLOWING;
-import static com.soundcloud.android.storage.Tables.UserAssociations.TYPE_RESOURCE_USER;
 import static com.soundcloud.android.storage.Tables.Users.ARTIST_STATION;
 import static com.soundcloud.android.storage.Tables.Users.AVATAR_URL;
 import static com.soundcloud.android.storage.Tables.Users.COUNTRY;
@@ -92,7 +86,6 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.ApiStationMetadata;
@@ -110,7 +103,6 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.SuggestedCreators;
 import com.soundcloud.android.storage.Tables.TrackPolicies;
-import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
@@ -183,13 +175,6 @@ public class DatabaseAssertions {
         assertPolicyNotInserted(trackUrn);
     }
 
-    public void assertTrackIsUnavailable(Urn trackUrn, long time) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    public void assertDownloadIsAvailable(Urn track) {
-        throw new IllegalStateException("not implemented");    }
-
     public void assertPlaylistTrackForAddition(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
                                   .whereEq(PLAYLIST_ID, playlist.getNumericId())
@@ -210,31 +195,6 @@ public class DatabaseAssertions {
                                   .whereEq(TRACK_ID, track.getNumericId())
                                   .whereNotNull(TableColumns.PlaylistTracks.REMOVED_AT))).counts(1);
     }
-
-    public void assertUserFollowingsPending(Urn targetUrn, boolean following) {
-        Query query = from(UserAssociations.TABLE)
-                .whereEq(TARGET_ID, targetUrn.getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(RESOURCE_TYPE, TYPE_RESOURCE_USER)
-                .whereNotNull(Tables.UserAssociations.CREATED_AT);
-
-        if (following) {
-            query.whereNotNull(ADDED_AT)
-                 .whereNull(Tables.UserAssociations.REMOVED_AT);
-        } else {
-            query.whereNull(ADDED_AT)
-                 .whereNotNull(Tables.UserAssociations.REMOVED_AT);
-        }
-
-        assertThat(select(query)).counts(1);
-    }
-
-    public void assertUserFollowersCount(Urn targetUrn, int numberOfFollowers) {
-        assertThat(select(from(Users.TABLE)
-                                  .whereEq(_ID, targetUrn.getNumericId())
-                                  .whereEq(FOLLOWERS_COUNT, numberOfFollowers))).counts(1);
-    }
-
 
     public void assertStationMetadataInserted(ApiStationMetadata station, int lastPlayedTrackPosition) {
         assertThat(select(
@@ -762,26 +722,6 @@ public class DatabaseAssertions {
         } else {
             query.whereNull(column);
         }
-    }
-
-    public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    public void assertDownloadPendingRemoval(Urn trackUrn) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    public void assertDownloadResultsInserted(DownloadState result) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    public void assertNotDownloaded(Urn trackUrn) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
-        throw new IllegalStateException("not implemented");
     }
 
     protected QueryBinding select(Query query) {

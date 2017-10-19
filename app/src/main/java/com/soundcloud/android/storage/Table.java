@@ -16,14 +16,10 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
             TableColumns.PlaylistTracks.POSITION,
             TableColumns.PlaylistTracks.PLAYLIST_ID),
                    false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
-
-    Collections(PrimaryKey.of(TableColumns.Collections.URI), false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
-
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
     SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),
-    ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
-    PlaylistTracksView(true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
+    ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW);
 
 
     public final PrimaryKey primaryKey;

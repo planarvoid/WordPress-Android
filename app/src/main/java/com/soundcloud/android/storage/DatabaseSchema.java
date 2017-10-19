@@ -123,9 +123,6 @@ final class DatabaseSchema {
 
             " FROM Sounds" +
             " LEFT JOIN Users ON( " + Tables.Sounds.USER_ID.qualifiedName() + " = " + Tables.Users._ID + ")" +
-            " LEFT OUTER JOIN TrackDownloads " +
-            "   ON (" + Tables.Sounds._ID.qualifiedName() + " = " + Tables.TrackDownloads._ID + " AND " +
-            "   " + Tables.Sounds._TYPE.qualifiedName() + " = " + Tables.Sounds.TYPE_TRACK + ")" +
             " LEFT OUTER JOIN TrackPolicies ON(" +
             "   " + Tables.Sounds._ID.qualifiedName() + " = " + Tables.TrackPolicies.TRACK_ID.qualifiedName() + ")" +
             " WHERE " + Tables.Sounds.REMOVED_AT.qualifiedName() + " IS NULL" +

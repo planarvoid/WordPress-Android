@@ -4,8 +4,6 @@ import android.content.ContentValues
 import com.nhaarman.mockito_kotlin.verify
 import com.soundcloud.android.api.model.ApiPlaylist
 import com.soundcloud.android.model.Urn
-import com.soundcloud.android.storage.Tables.OfflineContent
-import com.soundcloud.android.storage.Tables.TrackDownloads
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.utils.CurrentDateProvider
 import com.soundcloud.propeller.ContentValuesBuilder
@@ -25,6 +23,21 @@ class OfflineContentMigrationTest : StorageIntegrationTest() {
     private val trackDownloadsStorage = TrackDownloadsStorage(CurrentDateProvider(),
                                                               OfflineDatabase(OfflineDatabaseOpenHelper(RuntimeEnvironment.application), Schedulers.trampoline()))
 
+    private val createOfflineContent = "CREATE TABLE IF NOT EXISTS OfflineContent (" +
+            "_id INTEGER," +
+            "_type INTEGER," +
+            "PRIMARY KEY (_id, _type)," +
+            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
+            ");"
+
+    private val createTrackDownloadsContent = "CREATE TABLE IF NOT EXISTS TrackDownloads (" +
+            "_id INTEGER PRIMARY KEY," +
+            "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
+            "downloaded_at INTEGER DEFAULT NULL," +
+            "removed_at INTEGER DEFAULT NULL," +
+            "unavailable_at INTEGER DEFAULT NULL" +
+            ");"
+
     private lateinit var migration: OfflineContentMigration;
 
     @Before
@@ -33,7 +46,14 @@ class OfflineContentMigrationTest : StorageIntegrationTest() {
     }
 
     @Test
+    fun handlesNotHavingOfflineTablesToMigrate() {
+        migration.applyMigration()
+    }
+
+    @Test
     fun keepsOfflineContentAfterMigration() {
+        createTables()
+
         insertLikesMarkedForOfflineSync()
         val playlist = insertPlaylistMarkedForOfflineSync()
 
@@ -45,6 +65,8 @@ class OfflineContentMigrationTest : StorageIntegrationTest() {
 
     @Test
     fun keepsTracksAfterMigration() {
+        createTables()
+
         val pendingDownloadTrack = Urn.forTrack(1)
         insertTrackPendingDownload(pendingDownloadTrack, 1)
 
@@ -73,6 +95,8 @@ class OfflineContentMigrationTest : StorageIntegrationTest() {
 
     @Test
     fun startsSyncServiceAfterMigration() {
+        createTables()
+
         insertLikesMarkedForOfflineSync()
         insertPlaylistMarkedForOfflineSync()
 
@@ -81,60 +105,60 @@ class OfflineContentMigrationTest : StorageIntegrationTest() {
         verify(offlineServiceInitiator).start()
     }
 
-    fun insertPlaylistMarkedForOfflineSync(): ApiPlaylist {
+    private fun createTables() {
+        database().execSQL(createOfflineContent)
+        database().execSQL(createTrackDownloadsContent)
+    }
+
+    private fun insertPlaylistMarkedForOfflineSync(): ApiPlaylist {
         val apiPlaylist = testFixtures().insertPlaylist()
         insertPlaylistMarkedForOfflineSync(apiPlaylist)
         return apiPlaylist
     }
 
-    fun insertPlaylistMarkedForOfflineSync(playlist: ApiPlaylist) {
+    private fun insertPlaylistMarkedForOfflineSync(playlist: ApiPlaylist) {
         val cv = ContentValuesBuilder.values()
-        cv.put(OfflineContent._ID, playlist.urn.numericId)
-        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
-        testFixtures().insertInto(OfflineContent.TABLE, cv.get())
+        cv.put("_id", playlist.urn.numericId)
+        cv.put("_type", 1)
+        testFixtures().insertInto("OfflineContent", cv.get())
     }
 
-    fun insertLikesMarkedForOfflineSync() {
+    private fun insertLikesMarkedForOfflineSync() {
         val cv = ContentValuesBuilder.values()
-        cv.put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
-        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION)
-        testFixtures().insertInto(OfflineContent.TABLE, cv.get())
+        cv.put("_id", 0)
+        cv.put("_type", 2)
+        testFixtures().insertInto("OfflineContent", cv.get())
     }
 
-    fun insertTrackPendingDownload(trackUrn: Urn, requestedAt: Long) {
+    private fun insertTrackPendingDownload(trackUrn: Urn, requestedAt: Long) {
         val cv = ContentValues()
-        cv.put(TrackDownloads._ID.name(), trackUrn.numericId)
-        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAt)
-        testFixtures().insertInto(TrackDownloads.TABLE, cv)
+        cv.put("_id", trackUrn.numericId)
+        cv.put("requested_at", requestedAt)
+        testFixtures().insertInto("TrackDownloads", cv)
     }
 
-    fun insertCompletedTrackDownload(trackUrn: Urn, requestedAtTimestamp: Long, completedTimestamp: Long) {
+    private fun insertCompletedTrackDownload(trackUrn: Urn, requestedAtTimestamp: Long, completedTimestamp: Long) {
         val cv = ContentValuesBuilder.values()
-        cv.put(TrackDownloads._ID, trackUrn.numericId)
-        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp)
-        cv.put(TrackDownloads.DOWNLOADED_AT, completedTimestamp)
-        testFixtures().insertInto(TrackDownloads.TABLE, cv.get())
+        cv.put("_id", trackUrn.numericId)
+        cv.put("requested_at", requestedAtTimestamp)
+        cv.put("downloaded_at", completedTimestamp)
+        testFixtures().insertInto("TrackDownloads", cv.get())
     }
 
-    fun insertUnavailableTrackDownload(trackUrn: Urn, unavailableTimestamp: Long) {
+    private fun insertUnavailableTrackDownload(trackUrn: Urn, unavailableTimestamp: Long) {
         val cv = ContentValuesBuilder.values()
-        cv.put(TrackDownloads._ID, trackUrn.numericId)
-        cv.put(TrackDownloads.REQUESTED_AT, unavailableTimestamp - 1)
-        cv.put(TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp)
-        testFixtures().insertInto(TrackDownloads.TABLE, cv.get())
+        cv.put("_id", trackUrn.numericId)
+        cv.put("requested_at", unavailableTimestamp - 1)
+        cv.put("unavailable_at", unavailableTimestamp)
+        testFixtures().insertInto("TrackDownloads", cv.get())
     }
 
-    fun insertTrackDownloadPendingRemoval(trackUrn: Urn, removedAtTimestamp: Long) {
-        insertTrackDownloadPendingRemoval(trackUrn, 0, removedAtTimestamp)
-    }
-
-    fun insertTrackDownloadPendingRemoval(trackUrn: Urn, requestedAtTimestamp: Long, removedAtTimestamp: Long) {
+    private fun insertTrackDownloadPendingRemoval(trackUrn: Urn, requestedAtTimestamp: Long, removedAtTimestamp: Long) {
         val cv = ContentValuesBuilder.values()
-        cv.put(TrackDownloads._ID, trackUrn.numericId)
-        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp)
-        cv.put(TrackDownloads.DOWNLOADED_AT, requestedAtTimestamp)
-        cv.put(TrackDownloads.REMOVED_AT, removedAtTimestamp)
-        testFixtures().insertInto(TrackDownloads.TABLE, cv.get())
+        cv.put("_id", trackUrn.numericId)
+        cv.put("requested_at", requestedAtTimestamp)
+        cv.put("downloaded_at", requestedAtTimestamp)
+        cv.put("removed_at", removedAtTimestamp)
+        testFixtures().insertInto("TrackDownloads", cv.get())
     }
-
 }

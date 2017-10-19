@@ -6,13 +6,11 @@ import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
-import static com.soundcloud.android.storage.Tables.Sounds.TYPE_TRACK;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -258,47 +256,6 @@ public interface Tables {
         }
     }
 
-    class UserAssociations extends SCBaseTable {
-
-        public static final UserAssociations TABLE = new UserAssociations();
-
-        public static final Column TARGET_ID = Column.create(TABLE, "target_id", Long.class);// the target user of the association
-        public static final Column ASSOCIATION_TYPE = Column.create(TABLE, "association_type", Long.class); // the type of association (e.g. Following, Follower)
-        @Deprecated // we only store followings now
-        public static final Column RESOURCE_TYPE = Column.create(TABLE, "resource_type", Long.class); // the type of resource (e.g. Folloiwng / follower)
-        public static final Column POSITION = Column.create(TABLE, "position", Long.class); // as returned from the api
-        @Deprecated public static final Column CREATED_AT = Column.create(TABLE, "created_at", Long.class); // indicates when this was created on the api
-        public static final Column ADDED_AT = Column.create(TABLE, "added_at", Long.class); // when was this added locally (pre-api sync)
-        public static final Column REMOVED_AT = Column.create(TABLE, "removed_at", Long.class); // when was this removed locally (pre-api sync)
-        @Deprecated public static final Column TOKEN = Column.create(TABLE, "token", String.class);
-
-        public static final int TYPE_FOLLOWING = 2; // inlined from ScContentProvider
-        public static final int TYPE_FOLLOWER = 3; // inlined from ScContentProvider
-
-        public static final int TYPE_RESOURCE_USER = 0;
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS UserAssociations (" +
-                "target_id INTEGER," +                  // the target user of the association
-                "association_type INTEGER, " +          // the type of association (e.g. Following, Follower)
-                "resource_type INTEGER DEFAULT 0, " +   // currently unused, but if we add groups...
-                "position INTEGER, " +                  // as returned from the api
-                "created_at INTEGER, " +                // indicates when this was created on the api
-                "added_at INTEGER, " +                  // when was this added locally (pre-api sync)
-                "removed_at INTEGER, " +                // when was this removed locally (pre-api sync)
-                "token VARCHAR(150), " +                // whitelist token to avoid spam flagging. comes from API
-                "PRIMARY KEY(target_id, association_type, resource_type) ON CONFLICT REPLACE" +
-                ");";
-
-        UserAssociations() {
-            super("UserAssociations", PrimaryKey.of("target_id", "association_type", "resource_type"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     class Posts extends SCBaseTable {
 
         public static final Posts TABLE = new Posts();
@@ -358,53 +315,6 @@ public interface Tables {
 
         Likes() {
             super("Likes", PrimaryKey.of("_id", "_type"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    /**
-     * @deprecated Play queue moved to its own storage {@link com.soundcloud.android.playback.PlayQueueStorage}
-     */
-    @Deprecated
-    class PlayQueue extends SCBaseTable {
-
-        public static final PlayQueue TABLE = new PlayQueue();
-
-        public static final Column ENTITY_ID = Column.create(TABLE, "entity_id", Long.class);
-        public static final Column ENTITY_TYPE = Column.create(TABLE, "entity_type", Long.class);
-        public static final Column REPOSTER_ID = Column.create(TABLE, "reposter_id", Long.class);
-        public static final Column RELATED_ENTITY = Column.create(TABLE, "related_entity", String.class);
-        public static final Column SOURCE = Column.create(TABLE, "source", String.class);
-        public static final Column SOURCE_VERSION = Column.create(TABLE, "source_version", String.class);
-        public static final Column SOURCE_URN = Column.create(TABLE, "source_urn", String.class);
-        public static final Column QUERY_URN = Column.create(TABLE, "query_urn", String.class);
-        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type", String.class);
-        public static final Column CONTEXT_URN = Column.create(TABLE, "context_urn", String.class);
-        public static final Column CONTEXT_QUERY = Column.create(TABLE, "context_query", String.class);
-        public static final Column PLAYED = Column.create(TABLE, "played", Boolean.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS PlayQueue (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "entity_id INTEGER," +
-                "entity_type INTEGER," +
-                "reposter_id INTEGER," +
-                "related_entity TEXT," +
-                "source TEXT," +
-                "source_version TEXT," +
-                "source_urn TEXT," +
-                "query_urn TEXT," +
-                "context_type TEXT," +
-                "context_urn TEXT," +
-                "context_query TEXT," +
-                "played BOOLEAN default 1" +
-                ");";
-
-        PlayQueue() {
-            super("PlayQueue", PrimaryKey.of(_ID));
         }
 
         @Override
@@ -501,63 +411,6 @@ public interface Tables {
         }
     }
 
-    class TrackDownloads extends SCBaseTable {
-
-        public static final TrackDownloads TABLE = new TrackDownloads();
-
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column REMOVED_AT = Column.create(TABLE, "removed_at", Long.class);
-        public static final Column REQUESTED_AT = Column.create(TABLE, "requested_at", Long.class);
-        public static final Column DOWNLOADED_AT = Column.create(TABLE, "downloaded_at", Long.class);
-        public static final Column UNAVAILABLE_AT = Column.create(TABLE, "unavailable_at", Long.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS TrackDownloads (" +
-                "_id INTEGER PRIMARY KEY," +
-                "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
-                "downloaded_at INTEGER DEFAULT NULL," +
-                "removed_at INTEGER DEFAULT NULL," + // track marked for deletion
-                "unavailable_at INTEGER DEFAULT NULL" +
-                ");";
-
-        TrackDownloads() {
-            super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    class OfflineContent extends SCBaseTable {
-
-        public static final OfflineContent TABLE = new OfflineContent();
-
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column _TYPE = Column.create(TABLE, "_type", Long.class);
-
-        public static final int TYPE_PLAYLIST = Sounds.TYPE_PLAYLIST;
-        public static final int TYPE_COLLECTION = Sounds.TYPE_COLLECTION;
-
-        public static final int ID_OFFLINE_LIKES = 0;
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS OfflineContent (" +
-                "_id INTEGER," +
-                "_type INTEGER," +
-                "PRIMARY KEY (_id, _type)," +
-                "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
-                ");";
-
-        OfflineContent() {
-            super("OfflineContent", PrimaryKey.of(BaseColumns._ID, "_type"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     class Comments extends SCBaseTable {
 
         public static final Comments TABLE = new Comments();
@@ -582,69 +435,6 @@ public interface Tables {
 
         Comments() {
             super("Comments", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    /**
-     * @deprecated Play history moved to its own storage {@link PlayHistoryStorage}
-     */
-    @Deprecated
-    class PlayHistory extends SCBaseTable {
-        public static final PlayHistory TABLE = new PlayHistory();
-
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id", Long.class);
-        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp", Long.class);
-        public static final Column SYNCED = Column.create(TABLE, "synced", Boolean.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS PlayHistory (" +
-                "timestamp INTEGER NOT NULL," +
-                "track_id INTEGER NOT NULL," +
-                "synced BOOLEAN DEFAULT 0," +
-                "PRIMARY KEY (timestamp, track_id)" +
-                ");";
-
-        PlayHistory() {
-            super("PlayHistory", PrimaryKey.of("timestamp", "track_id"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
-    /**
-     * @deprecated RecentlyPlayed moved to its own storage {@link com.soundcloud.android.collection.DbModel.RecentlyPlayed}
-     */
-    @Deprecated
-    class RecentlyPlayed extends SCBaseTable {
-        public static final RecentlyPlayed TABLE = new RecentlyPlayed();
-
-        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp", Long.class);
-        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type", Long.class);
-        public static final Column CONTEXT_ID = Column.create(TABLE, "context_id", Long.class);
-        public static final Column SYNCED = Column.create(TABLE, "synced", Boolean.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentlyPlayed (" +
-                "timestamp INTEGER NOT NULL," +
-                "context_type INTEGER NOT NULL," +
-                "context_id INTEGER NOT NULL," +
-                "synced BOOLEAN DEFAULT 0," +
-                "PRIMARY KEY (timestamp, context_type, context_id)" +
-                ");";
-
-        static final String MIGRATE_SQL = "INSERT OR IGNORE INTO RecentlyPlayed " +
-                "(timestamp, context_type, context_id) " +
-                "SELECT timestamp, context_type, context_id " +
-                "FROM PlayHistory WHERE context_type != 0;";
-
-        RecentlyPlayed() {
-            super("RecentlyPlayed", PrimaryKey.of("timestamp", "context_type", "context_id"));
         }
 
         @Override
@@ -683,60 +473,6 @@ public interface Tables {
     }
 
     // Views
-
-    class OfflinePlaylistTracks extends SCBaseTable {
-
-        public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
-
-        public static final Column _ID = Column.create(TABLE, BaseColumns._ID, Long.class);
-        public static final Column _TYPE = Column.create(TABLE, "_type", Long.class);
-        public static final Column USER_ID = Column.create(TABLE, "user_id", Long.class);
-        public static final Column DURATION = Column.create(TABLE, "duration", Long.class);
-        public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url", String.class);
-        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url", String.class);
-        public static final Column SYNCABLE = Column.create(TABLE, "syncable", Boolean.class);
-        public static final Column SNIPPED = Column.create(TABLE, "snipped", Boolean.class);
-        public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update", Long.class);
-        public static final Column CREATED_AT = Column.create(TABLE, "created_at", Long.class);
-        public static final Column POSITION = Column.create(TABLE, "position", Long.class);
-
-        static final String SQL = "CREATE VIEW IF NOT EXISTS OfflinePlaylistTracks AS " +
-                "SELECT " +
-                "Sounds._id as _id," +
-                "Sounds._type as _type, " +
-                "Sounds.user_id as user_id, " +
-                "Sounds.full_duration as duration, " +
-                "Sounds.waveform_url as waveform_url, " +
-                "Sounds.artwork_url as artwork_url, " +
-                "TrackPolicies.syncable as syncable, " +
-                "TrackPolicies.snipped as snipped, " +
-                "TrackPolicies.last_updated as last_policy_update, " +
-                "PlaylistTracks.position as position, " +
-                "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +
-                // ^ The timestamp used to sort
-                "FROM Sounds " +
-                "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
-                // ^ Add PlaylistTracks to tracks
-                "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + Sounds.TYPE_PLAYLIST + ") " +
-                // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
-                "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + Sounds.TYPE_PLAYLIST + ")" +
-                // ^ Add the playlist creation date
-                "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TYPE_TRACK + " " +
-                // ^ Keep only offline tracks
-                "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
-                // ^ Keep only tracks with policies
-                "WHERE (PlaylistTracks.removed_at IS NULL) ";
-
-        OfflinePlaylistTracks() {
-            super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     class PlaylistView extends SCBaseTable {
 
         public static final PlaylistView TABLE = new PlaylistView();

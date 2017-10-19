@@ -2,7 +2,6 @@ package com.soundcloud.android.offline
 
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.offline.TrackDownloadsDbModel.FACTORY
-import com.soundcloud.android.storage.Tables
 import com.soundcloud.android.utils.CurrentDateProvider
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.extensions.partition
@@ -10,7 +9,6 @@ import com.soundcloud.android.utils.extensions.toDate
 import com.soundcloud.java.collections.Lists
 import com.soundcloud.propeller.CursorReader
 import com.soundcloud.propeller.QueryResult
-import com.soundcloud.propeller.schema.Column
 import com.squareup.sqlbrite2.BriteDatabase
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -29,20 +27,20 @@ constructor(private val dateProvider: CurrentDateProvider, private val offlineDa
             val insert = TrackDownloadsModel.InsertRow(offlineDatabase.writableDatabase(), TrackDownloadsDbModel.FACTORY)
             for (cursorReader in queryResult.iterator()) {
                 insert.bind(
-                        Urn.forTrack(cursorReader.getLong(Tables.TrackDownloads._ID)),
-                        nullOrLong(cursorReader, Tables.TrackDownloads.REQUESTED_AT),
-                        nullOrLong(cursorReader, Tables.TrackDownloads.DOWNLOADED_AT),
-                        nullOrLong(cursorReader, Tables.TrackDownloads.REMOVED_AT),
-                        nullOrLong(cursorReader, Tables.TrackDownloads.UNAVAILABLE_AT)
+                        Urn.forTrack(cursorReader.getLong(0)),
+                        nullOrLong(cursorReader, 1),
+                        nullOrLong(cursorReader, 2),
+                        nullOrLong(cursorReader, 3),
+                        nullOrLong(cursorReader, 4)
                 )
                 offlineDatabase.insert(TrackDownloadsModel.TABLE_NAME, insert.program)
             }
         }
     }
 
-    fun nullOrLong(cursorReader: CursorReader, column: Column): Long? {
-        return if (cursorReader.isNotNull(column)) {
-            cursorReader.getLong(column)
+    fun nullOrLong(cursorReader: CursorReader, columnIndex: Int): Long? {
+        return if (cursorReader.isNotNull(columnIndex)) {
+            cursorReader.getLong(columnIndex)
         } else {
             null
         }

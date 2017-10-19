@@ -69,30 +69,6 @@ class UserStorageTest : StorageIntegrationTest() {
     }
 
     @Test
-    fun loadsFollowedUser() {
-        val apiUser = testFixtures().insertUser()
-        testFixtures().insertFollowing(apiUser.urn)
-
-        val expectedUser = getApiUserBuilder(apiUser)
-                .build()
-
-        storage.loadUser(apiUser.urn)
-                .test()
-                .assertValue(expectedUser)
-    }
-
-    @Test
-    fun loadsUnfollowedUserPending() {
-        val apiUser = testFixtures().insertUser()
-
-        val expectedUser = getApiUserBuilder(apiUser).build()
-
-        storage.loadUser(apiUser.urn)
-                .test()
-                .assertValue(expectedUser)
-    }
-
-    @Test
     fun loadUserWithArtistStation() {
         val artistStation = Urn.forArtistStation(123)
         val apiUser = ModelFixtures.create(ApiUser::class.java)

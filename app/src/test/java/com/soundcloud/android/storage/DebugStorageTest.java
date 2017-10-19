@@ -31,19 +31,15 @@ public class DebugStorageTest extends StorageIntegrationTest {
                 Pair.of("TrackPolicies", 1),
                 Pair.of("Likes", 0),
                 Pair.of("Posts", 0),
-                Pair.of("UserAssociations", 0),
                 Pair.of("Stations", 0),
                 Pair.of("StationsPlayQueues", 0),
                 Pair.of("StationsCollections", 0),
-                Pair.of("TrackDownloads", 0),
-                Pair.of("OfflineContent", 0),
                 Pair.of("Comments", 0),
                 Pair.of("SuggestedCreators", 0),
                 Pair.of("SoundStream", 0),
                 Pair.of("PromotedTracks", 0),
                 Pair.of("Activities", 0),
-                Pair.of("PlaylistTracks", 0),
-                Pair.of("Collections", 0)
+                Pair.of("PlaylistTracks", 0)
         );
     }
 }
