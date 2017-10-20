@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.offline;
 
-import static com.soundcloud.android.framework.TestUser.likesUser;
+import static com.soundcloud.android.framework.TestUser.unubscribedlikesUser;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyCheckTime;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static java.lang.System.currentTimeMillis;
@@ -36,7 +36,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return likesUser;
+        return unubscribedlikesUser;
     }
 
     @Test

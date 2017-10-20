@@ -13,7 +13,7 @@ expected_events:
     click_name: shuffle:on
     click_category: playback
     page_name: collection:likes
-    user: soundcloud:users:135116976
+    user: soundcloud:users:[0-9]+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click

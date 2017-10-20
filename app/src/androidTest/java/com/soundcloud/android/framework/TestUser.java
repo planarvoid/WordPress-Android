@@ -133,7 +133,21 @@ public class TestUser {
             "1-21686-122411702-cccdf2735af1f8",
             122411702,
             true);
+    public static final TestUser oldLikesUser = new TestUser(
+            "sctestlike",
+            "soundcloudtestlike@gmail.com",
+            "passwordyeah77",
+            "1-21686-135116976-bec8398cf46615",
+            135116976,
+            true);
     public static final TestUser likesUser = new TestUser(
+            "playlist-likes-user",
+            "playlist-likes-user@soundcloud.com",
+            "passwordyeah",
+            "1-21686-151205360-cbe46d4f5819e0",
+            151205360,
+            true);
+    public static final TestUser unubscribedlikesUser = new TestUser(
             "sctestlike",
             "soundcloudtestlike@gmail.com",
             "passwordyeah77",
@@ -196,13 +210,6 @@ public class TestUser {
             "1-21686-150380114-b3af250571e838",
             150380114,
             true); // 13 years in 2015
-    public static final TestUser playlistLikesUser = new TestUser(
-            "playlist-likes-user",
-            "playlist-likes-user@soundcloud.com",
-            "passwordyeah",
-            "1-21686-151205360-cbe46d4f5819e0",
-            151205360,
-            true);
     public static final TestUser createAndDeletePlaylistUser = new TestUser(
             "CreateAndDeletePlaylistUser",
             "soundcloud.Android.CreateAndDeletePlaylistUser@tests.soundcloud",
