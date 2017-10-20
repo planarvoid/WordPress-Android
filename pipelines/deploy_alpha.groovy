@@ -4,15 +4,16 @@ timestamps {
       node('android') {
         checkout([$class: 'GitSCM', branches: [[name: 'green_master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
 
-        def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
-        env.PIPELINE_VERSION = BUILD_NUMBER + '-' + gitCommit
+        def alphaCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
+        env.PIPELINE_VERSION = BUILD_NUMBER + '-' + alphaCommit
         currentBuild.displayName = env.PIPELINE_VERSION
         stash name: 'repository'
 
         sh "git checkout master"
+        sh "git pull"
         def masterCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
-        if (gitCommit != masterCommit) {
-          sh "./scripts/post_to_slack.sh \"#android-build-status\" \"Android Alpha Build\" \"There are newer commits on \\`master\\` that are not on \\`green_master\\`. The new Alpha is based off of SHA: \\`${masterCommit}\\`.\" \":watchout:\""
+        if (alphaCommit != masterCommit) {
+          sh "./scripts/post_to_slack.sh \"#android-build-status\" \"Android Alpha Build\" \"There are newer commits on \\`master\\` that are not on \\`green_master\\`. The new Alpha is based off of SHA: \\`${alphaCommit}\\`.\" \":watchout:\""
         }
       }
     }
