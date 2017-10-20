@@ -12,6 +12,8 @@ import com.soundcloud.android.main.Screen
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.utils.Supplier
 import com.soundcloud.android.utils.collection.AsyncLoaderState
+import com.soundcloud.android.view.ViewError
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.contains
@@ -34,7 +36,7 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
 
         val testView = TestView()
 
-        testView.assertState(empty<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>>())
+        testView.assertState(empty<AsyncLoaderState<List<DiscoveryCardViewModel>>>())
     }
 
     @Test
@@ -74,7 +76,6 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
         testView.initialLoadSignal.onNext(RxSignal.SIGNAL)
 
         testView.assertLastState({ it.hasData() }, equalTo(true))
-        testView.assertLastState({ it.hasViewError() }, equalTo(false))
         testView.assertLastState({ it.cardsCount() }, equalTo(3))
         testView.assertLastState({ it.card(0) }, equalTo<DiscoveryCardViewModel>(DiscoveryCardViewModel.SearchCard))
         testView.assertLastState({ it.card(1) }, instanceOf(DiscoveryCardViewModel.SingleContentSelectionCard::class.java))
@@ -110,20 +111,19 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
         testView.assertLastState({ it.hasData() }, equalTo(true))
         testView.assertLastState({ it.cardsCount() }, equalTo(3))
 
-        val lastState = testView.lastState<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>>()
+        val lastState = testView.lastState<AsyncLoaderState<List<DiscoveryCardViewModel>>>()
 
         testView.selectionItemClick.onNext((lastState.data.get()[1] as DiscoveryCardViewModel.SingleContentSelectionCard).selectionItem)
 
         mrLocalLocal.verify(HOME_PAGEVIEW_AND_CARD_CLICK_SPECS)
     }
 
-    private fun AsyncLoaderState<*, *>.hasData(): Boolean = data.isPresent
-    private fun AsyncLoaderState<*, *>.hasViewError(): Boolean = action.isPresent
-    private fun AsyncLoaderState<List<DiscoveryCardViewModel>, *>.cardsCount(): Int = if (data.isPresent) data.get().size else 0
-    private fun AsyncLoaderState<List<DiscoveryCardViewModel>, *>.card(position: Int): DiscoveryCardViewModel? =
+    private fun AsyncLoaderState<*>.hasData(): Boolean = data.isPresent
+    private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.cardsCount(): Int = if (data.isPresent) data.get().size else 0
+    private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.card(position: Int): DiscoveryCardViewModel? =
             if (data.isPresent && data.get().size > position) data.get()[position] else null
 
-    private fun AsyncLoaderState<List<DiscoveryCardViewModel>, *>.exception(position: Int): ApiRequestException? {
+    private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.exception(position: Int): ApiRequestException? {
         val card = if (data.isPresent && data.get().size > position) data.get()[position] else null
         if (card is DiscoveryCardViewModel.EmptyCard) {
             return card.throwable?.let { it as ApiRequestException }
@@ -131,23 +131,23 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
         return null
     }
 
-    private fun loadingState(): AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError> =
+    private fun loadingState(): AsyncLoaderState<List<DiscoveryCardViewModel>> =
             AsyncLoaderState.loadingNextPage()
 
     internal class TestView
-    internal constructor(val models: MutableList<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>> = mutableListOf(),
+    internal constructor(val models: MutableList<AsyncLoaderState<List<DiscoveryCardViewModel>>> = mutableListOf(),
                          override val selectionItemClick: PublishSubject<SelectionItemViewModel> = PublishSubject.create<SelectionItemViewModel>(),
                          override val searchClick: PublishSubject<RxSignal> = PublishSubject.create<RxSignal>(),
                          val initialLoadSignal: PublishSubject<RxSignal> = PublishSubject.create<RxSignal>(),
                          override val enterScreenTimestamp: PublishSubject<Pair<Long, Screen>> = PublishSubject.create(),
-                         homePresenter: HomePresenter = SoundCloudApplication.getObjectGraph().homePresenter()) : TestAsyncState<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>>(), HomeView {
+                         homePresenter: HomePresenter = SoundCloudApplication.getObjectGraph().homePresenter()) : TestAsyncState<AsyncLoaderState<List<DiscoveryCardViewModel>>>(), HomeView {
         init {
             homePresenter.attachView(this)
         }
 
         override fun states() = Supplier { models }
 
-        override fun accept(viewModel: AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>) {
+        override fun accept(viewModel: AsyncLoaderState<List<DiscoveryCardViewModel>>) {
             models.add(viewModel)
         }
 

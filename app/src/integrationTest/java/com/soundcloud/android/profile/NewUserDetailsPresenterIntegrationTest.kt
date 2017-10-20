@@ -9,7 +9,6 @@ import com.soundcloud.android.api.ApiEndpoints
 import com.soundcloud.android.framework.TestUser
 import com.soundcloud.android.hamcrest.TestAsyncState
 import com.soundcloud.android.model.Urn
-import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.users.Network
 import com.soundcloud.android.users.SocialMediaLinkItem
 import com.soundcloud.android.utils.Supplier
@@ -35,7 +34,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
 
         val testView = NewUserDetailsPresenterIntegrationTest.TestView()
 
-        testView.assertState(Matchers.empty<AsyncLoaderState<List<UserDetailItem>, RxSignal>>())
+        testView.assertState(Matchers.empty<AsyncLoaderState<List<UserDetailItem>>>())
     }
 
     @Test
@@ -78,13 +77,14 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
         testView.assertLastState({ it.data.get()[2] }, Matchers.equalTo<UserDetailItem>(UserLinksItem(listOf(socialMediaLinkItem))))
     }
 
-    private fun loadingState(): AsyncLoaderState<List<UserDetailItem>, RxSignal> =
+    private fun loadingState(): AsyncLoaderState<List<UserDetailItem>> =
             AsyncLoaderState.loadingNextPage()
 
-    internal class TestView : TestAsyncState<AsyncLoaderState<List<UserDetailItem>, RxSignal>>(), NewUserDetailsView {
+    internal class TestView : TestAsyncState<AsyncLoaderState<List<UserDetailItem>>>(), NewUserDetailsView {
+
 
         val presenter: NewUserDetailsPresenter = SoundCloudApplication.getObjectGraph().newUserDetailsPresenter()
-        val models: MutableList<AsyncLoaderState<List<UserDetailItem>, RxSignal>> = mutableListOf()
+        val models: MutableList<AsyncLoaderState<List<UserDetailItem>>> = mutableListOf()
         val initialLoadSignal = PublishSubject.create<UserDetailsParams>()
         override val linkClickListener = PublishSubject.create<String>()
         override val followersClickListener = PublishSubject.create<UserFollowsItem>()
@@ -92,7 +92,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
 
         override fun requestContent() = initialLoadSignal
         override fun states() = Supplier { models }
-        override fun accept(model: AsyncLoaderState<List<UserDetailItem>, RxSignal>) {
+        override fun accept(model: AsyncLoaderState<List<UserDetailItem>>) {
             models.add(model)
         }
 

@@ -27,12 +27,12 @@ import com.soundcloud.java.optional.Optional
 import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchItemRenderer.SearchListener {
-
     @Inject internal lateinit var presenterLazy: Lazy<HomePresenter>
     @Inject internal lateinit var adapterFactory: DiscoveryAdapter.Factory
     @Inject internal lateinit var feedbackController: FeedbackController
@@ -51,9 +51,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
         }
     }
 
-    private val errorShown = PublishSubject.create<DiscoveryViewError>()
     private val resume = BehaviorSubject.create<Optional<Long>>()
-
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -118,26 +116,19 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
 
     override fun refreshSignal(): PublishSubject<RxSignal> = collectionRenderer.onRefresh()
 
-    override fun actionPerformedSignal(): PublishSubject<DiscoveryViewError> = errorShown
+    override fun createPresenter(): HomePresenter = presenterLazy.get()
 
-    override fun createPresenter(): HomePresenter {
-        return presenterLazy.get()
-    }
-
-    override fun accept(viewModel: AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>) {
-        viewModel.action.ifPresent { syncError ->
-            showErrorMessage(syncError)
-            errorShown.onNext(syncError)
-        }
-
+    override fun accept(viewModel: AsyncLoaderState<List<DiscoveryCardViewModel>>) {
         collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList())))
     }
 
-    private fun showErrorMessage(syncError: DiscoveryViewError) {
-        when (syncError.viewError) {
-            ViewError.CONNECTION_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_offline, Feedback.LENGTH_LONG))
-            ViewError.SERVER_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_failed_to_load,
-                                                                                      R.string.discovery_error_retry_button) { swipeRefreshAttacher.forceRefresh() })
+    override fun refreshErrorConsumer(): Consumer<ViewError> {
+        return Consumer {
+            when (it) {
+                ViewError.CONNECTION_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_offline, Feedback.LENGTH_LONG))
+                ViewError.SERVER_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_failed_to_load,
+                                                                                          R.string.discovery_error_retry_button) { swipeRefreshAttacher.forceRefresh() })
+            }
         }
     }
 

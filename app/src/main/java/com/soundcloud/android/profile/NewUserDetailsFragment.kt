@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo
 import com.soundcloud.android.model.AsyncLoadingState
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.presentation.RecyclerItemAdapter
-import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.utils.Urns
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.view.BaseFragment
@@ -65,7 +64,7 @@ class NewUserDetailsFragment : BaseFragment<NewUserDetailsPresenter>(), NewUserD
         )
     }
 
-    override fun accept(loaderState: AsyncLoaderState<List<UserDetailItem>, RxSignal>) = with(loaderState) {
+    override fun accept(loaderState: AsyncLoaderState<List<UserDetailItem>>) = with(loaderState) {
         val alwaysShowFollows = data.or(UserDetailItem.Companion.empty(userDetailsParams())) + listOf(UserLoadingItem).filter { asyncLoadingState.isLoadingNextPage }
         collectionRenderer.render(CollectionRendererState(AsyncLoadingState.empty(), alwaysShowFollows))
     }

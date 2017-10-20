@@ -16,9 +16,11 @@ import com.soundcloud.android.playback.DiscoverySource
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.collection.AsyncLoaderState
+import com.soundcloud.android.view.ViewError
 import com.soundcloud.java.optional.Optional
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.SingleSubject
 import org.junit.Before
@@ -32,11 +34,11 @@ class HomePresenterTest : AndroidUnitTest() {
     @Mock private lateinit var navigator: Navigator
     @Mock private lateinit var eventTracker: EventTracker
     @Mock private lateinit var referringEventProvider: ReferringEventProvider
+    @Mock private lateinit var errorConsumer: Consumer<ViewError>
 
     private lateinit var newHomePresenter: HomePresenter
     private val refreshSignalSubject = PublishSubject.create<RxSignal>()
     private val searchSignalSubject = PublishSubject.create<RxSignal>()
-    private val actionPerformedSignal = PublishSubject.create<DiscoveryViewError>()
     private val selectionItemClickSubject = PublishSubject.create<SelectionItemViewModel>()
     private val enterScreenTimestamp = PublishSubject.create<Pair<Long, Screen>>()
 
@@ -58,14 +60,14 @@ class HomePresenterTest : AndroidUnitTest() {
 
         source.onSuccess(DiscoveryResult())
 
-        verify(view).accept(AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>(data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = Optional.of(emptyList)))
 
         newHomePresenter.detachView()
 
         val newView = initView()
         newHomePresenter.attachView(newView)
 
-        verify(newView).accept(AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>(data = Optional.of(emptyList)))
+        verify(newView).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = Optional.of(emptyList)))
     }
 
     @Test
@@ -85,6 +87,22 @@ class HomePresenterTest : AndroidUnitTest() {
         verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).build(), data = Optional.of(emptyList)))
         verify(view, times(2)).accept(AsyncLoaderState(data = Optional.of(emptyList)))
         verify(view).accept(AsyncLoaderState(data = Optional.of(toViewModel(discoveryResult))))
+    }
+
+    @Test
+    fun `emits view error on pull to refresh error`() {
+        whenever(discoveryOperations.discoveryCards()).thenReturn(Single.just(DiscoveryResult()))
+        whenever(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.error { com.soundcloud.android.sync.SyncFailedException()})
+
+        val view: HomeView = initView()
+        newHomePresenter.attachView(view)
+        verify(view).accept(AsyncLoaderState.loadingNextPage())
+        verify(view).accept(AsyncLoaderState(data = Optional.of(emptyList)))
+
+        refreshSignalSubject.onNext(RxSignal.SIGNAL)
+
+        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).build(), data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).build(), data = Optional.of(emptyList)))
     }
 
     @Test
@@ -124,7 +142,7 @@ class HomePresenterTest : AndroidUnitTest() {
         val view: HomeView = mock()
         whenever(view.requestContent()).thenReturn(Observable.just(RxSignal.SIGNAL))
         whenever(view.refreshSignal()).thenReturn(refreshSignalSubject)
-        whenever(view.actionPerformedSignal()).thenReturn(actionPerformedSignal)
+        whenever(view.refreshErrorConsumer()).thenReturn(errorConsumer)
         whenever(view.searchClick).thenReturn(searchSignalSubject)
         whenever(view.selectionItemClick).thenReturn(selectionItemClickSubject)
         whenever(view.enterScreenTimestamp).thenReturn(enterScreenTimestamp)

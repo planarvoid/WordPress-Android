@@ -11,10 +11,12 @@ import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.history.SearchHistoryAdapter.ViewHolder
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.view.BaseFragment
+import com.soundcloud.android.view.ViewError
 import com.soundcloud.android.view.collection.CollectionRenderer
 import com.soundcloud.android.view.collection.CollectionRendererState
 import dagger.Lazy
 import io.reactivex.Observable
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -42,7 +44,7 @@ class SearchHistoryFragment : BaseFragment<SearchHistoryPresenter>(), SearchHist
                                                 parallaxImageScrolling = false)
     }
 
-    override fun accept(loaderState: AsyncLoaderState<List<SearchHistoryItem>, RxSignal>) = with(loaderState) {
+    override fun accept(loaderState: AsyncLoaderState<List<SearchHistoryItem>>) = with(loaderState) {
         collectionRenderer.render(CollectionRendererState(asyncLoadingState, data.or(emptyList())))
     }
 

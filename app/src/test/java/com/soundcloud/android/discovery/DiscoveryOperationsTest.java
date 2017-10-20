@@ -119,26 +119,14 @@ public class DiscoveryOperationsTest {
     }
 
     @Test
-    public void refreshDiscoveryCardsReturnsCardsFromStorageAfterSyncFailure() throws Exception {
-        final SyncFailedException throwable = new SyncFailedException();
-        setUpRefreshDiscoveryCards(SyncResult.error(throwable), Maybe.just(discoveryCards));
-
-        discoveryOperations.refreshDiscoveryCards()
-                           .test()
-                           .assertNoErrors()
-                           .assertValue(new DiscoveryResult(discoveryCards, Optional.of(ViewError.CONNECTION_ERROR)));
-    }
-
-    @Test
-    public void refreshDiscoveryCardsReturnsEmptyCardWithErrorAfterSyncFailureAndStorageIsEmpty() throws Exception {
+    public void refreshDiscoveryCardsThrowsSyncException() throws Exception {
         final SyncFailedException throwable = new SyncFailedException();
         SyncResult syncResult = SyncResult.error(throwable);
         setUpRefreshDiscoveryCards(syncResult, Maybe.empty());
 
         discoveryOperations.refreshDiscoveryCards()
                            .test()
-                           .assertNoErrors()
-                           .assertValue(new DiscoveryResult(Lists.newArrayList(new DiscoveryCard.EmptyCard(Optional.of(throwable))), Optional.of(ViewError.CONNECTION_ERROR)));
+                           .assertError(throwable);
     }
 
     private void setUpDiscoveryCards(SyncResult syncResult, Maybe<List<DiscoveryCard>> storageResult) {

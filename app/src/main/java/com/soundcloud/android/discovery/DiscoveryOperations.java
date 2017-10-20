@@ -37,6 +37,7 @@ class DiscoveryOperations {
 
     Single<DiscoveryResult> refreshDiscoveryCards() {
         return syncOperations.sync(Syncable.DISCOVERY_CARDS)
+                             .flatMap(syncResult -> syncResult.isError() ? Single.error(syncResult.throwable().get()) : Single.just(syncResult))
                              .flatMap(this::cardsFromStorage)
                              .subscribeOn(scheduler);
     }

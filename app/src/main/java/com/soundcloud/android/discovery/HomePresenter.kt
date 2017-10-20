@@ -26,7 +26,7 @@ constructor(private val discoveryOperations: DiscoveryOperations,
             private val navigator: Navigator,
             private val eventTracker: EventTracker,
             private val referringEventProvider: ReferringEventProvider)
-    : BasePresenter<List<DiscoveryCardViewModel>, DiscoveryViewError, RxSignal, HomeView>() {
+    : BasePresenter<List<DiscoveryCardViewModel>, RxSignal, HomeView>() {
 
     override fun attachView(view: HomeView) {
         super.attachView(view)
@@ -44,12 +44,12 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                                    }
                                            ),
                                    Observables.combineLatest(view.enterScreenTimestamp
-                                                                      .filter { it.second == Screen.DISCOVER }
-                                                                      .map { it.first },
+                                                                     .filter { it.second == Screen.DISCOVER }
+                                                                     .map { it.first },
                                                              loader.map { it.data }.filter { it.isPresent }.map { it.get() },
                                                              { first, second ->
-                                                                  Pair(first, Optional.fromNullable(second.responseQueryUrn()))
-                                                              })
+                                                                 Pair(first, Optional.fromNullable(second.responseQueryUrn()))
+                                                             })
                                            .distinctUntilChanged { (first) -> first }
                                            .subscribeWith(LambdaObserver.onNext { pair -> this.trackPageView(pair.second) }))
     }
@@ -65,9 +65,9 @@ constructor(private val discoveryOperations: DiscoveryOperations,
     override fun refreshFunc(pageParams: RxSignal) =
             discoveryOperations.refreshDiscoveryCards().toViewModelObservable()
 
-    private fun Single<DiscoveryResult>.toViewModelObservable(): Observable<AsyncLoader.PageResult<List<DiscoveryCardViewModel>, DiscoveryViewError>> {
+    private fun Single<DiscoveryResult>.toViewModelObservable(): Observable<AsyncLoader.PageResult<List<DiscoveryCardViewModel>>> {
         return this.map {
-            AsyncLoader.PageResult(data = toViewModel(it), action = it.syncError.transform { DiscoveryViewError(it) })
+            AsyncLoader.PageResult(data = toViewModel(it))
         }.toObservable()
     }
 
@@ -101,7 +101,7 @@ internal fun toViewModel(discoveryResult: DiscoveryResult): List<DiscoveryCardVi
     return result
 }
 
-internal interface HomeView : BaseView<AsyncLoaderState<List<DiscoveryCardViewModel>, DiscoveryViewError>, DiscoveryViewError, RxSignal> {
+internal interface HomeView : BaseView<AsyncLoaderState<List<DiscoveryCardViewModel>>, RxSignal> {
     val selectionItemClick: Observable<SelectionItemViewModel>
     val searchClick: Observable<RxSignal>
     val enterScreenTimestamp: Observable<Pair<Long, Screen>>

@@ -23,10 +23,8 @@ import javax.inject.Provider
 @Suppress("IllegalIdentifier")
 class AsyncLoaderTest : AndroidUnitTest() {
 
-    open internal class TestProvider(val v: Observable<PageResult<List<Int>, ViewAction>>) : Provider<Observable<PageResult<List<Int>, ViewAction>>> {
-        override fun get(): Observable<PageResult<List<Int>, ViewAction>> {
-            return v
-        }
+    open internal class TestProvider(val v: Observable<PageResult<List<Int>>>) : Provider<Observable<PageResult<List<Int>>>> {
+        override fun get(): Observable<PageResult<List<Int>>> = v
     }
 
     private val networkError = ApiRequestException.networkError(null, null)
@@ -37,28 +35,25 @@ class AsyncLoaderTest : AndroidUnitTest() {
     private val secondPageData = Arrays.asList(4, 5, 6)
     private val thirdPageData = Arrays.asList(5, 6, 7)
 
-    private val firstPageSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
-    private val secondPageSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
-    private val thirdPageSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
+    private val firstPageSubject = PublishSubject.create<PageResult<List<Int>>>()
+    private val secondPageSubject = PublishSubject.create<PageResult<List<Int>>>()
+    private val thirdPageSubject = PublishSubject.create<PageResult<List<Int>>>()
 
-    @Mock internal lateinit var firstPageFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
-    @Mock internal lateinit var refreshFunc: Function<String, Observable<PageResult<List<Int>, ViewAction>>>
+    @Mock internal lateinit var firstPageFunc: Function<String, Observable<PageResult<List<Int>>>>
+    @Mock internal lateinit var refreshFunc: Function<String, Observable<PageResult<List<Int>>>>
     @Mock internal lateinit var nextPageprovider: TestProvider
 
     private val loadFirstPage = PublishSubject.create<String>()
     private val loadNextPage = PublishSubject.create<Any>()
     private val refreshRequested = PublishSubject.create<String>()
-    private val actionPerformed = PublishSubject.create<ViewAction>()
 
-    private lateinit var asyncLoader: AsyncLoader<List<Int>, ViewAction, String>
-    private val refreshSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
+    private lateinit var asyncLoader: AsyncLoader<List<Int>, String>
+    private val refreshSubject = PublishSubject.create<PageResult<List<Int>>>()
 
-    private val firstResult = PageResult<List<Int>, ViewAction>(data = firstPageData, nextPage = of(TestProvider(secondPageSubject)))
-    private val firstUpdatedResult = PageResult<List<Int>, ViewAction>(firstPageUpdatedData, nextPage = of(TestProvider(secondPageSubject)))
-    private val secondResult = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
-    private val thirdResult = PageResult<List<Int>, ViewAction>(thirdPageData)
-    private val viewAction = ViewAction(1)
-    private val resultWithViewAction = PageResult<List<Int>, ViewAction>(data = firstPageData, nextPage = of(TestProvider(secondPageSubject)), action = of(viewAction))
+    private val firstResult = PageResult<List<Int>>(data = firstPageData, nextPage = of(TestProvider(secondPageSubject)))
+    private val firstUpdatedResult = PageResult<List<Int>>(firstPageUpdatedData, nextPage = of(TestProvider(secondPageSubject)))
+    private val secondResult = PageResult<List<Int>>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
+    private val thirdResult = PageResult<List<Int>>(thirdPageData)
 
     @Before
     fun setUp() {
@@ -76,8 +71,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
                                 items.addAll(integers1)
                                 items.addAll(integers2)
                                 items
-                            }),
-                actionPerformed
+                            })
         )
     }
 
@@ -90,7 +84,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
         firstPageSubject.onNext(firstResult)
 
         subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>(),
+                AsyncLoaderState.loadingNextPage<List<Int>>(),
                 firstPageLoaded()
         )
     }
@@ -102,7 +96,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
         loadFirstPage.onNext(firstPageParams)
 
         subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>()
+                AsyncLoaderState.loadingNextPage<List<Int>>()
         )
 
         subscriber.dispose()
@@ -117,7 +111,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
         firstPageSubject.onError(networkError)
 
-        val loadingNextPage = AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>()
+        val loadingNextPage = AsyncLoaderState.loadingNextPage<List<Int>>()
         subscriber.assertValues(
                 loadingNextPage,
                 loadingNextPage.toNextPageError(networkError)
@@ -126,7 +120,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Test
     fun `first Page Recovers`() {
-        whenever<Observable<PageResult<List<Int>, ViewAction>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.error<PageResult<List<Int>, ViewAction>>(networkError), firstPageSubject)
+        whenever<Observable<PageResult<List<Int>>>>(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.error<PageResult<List<Int>>>(networkError), firstPageSubject)
 
         val subscriber = asyncLoader.test()
 
@@ -137,9 +131,9 @@ class AsyncLoaderTest : AndroidUnitTest() {
         firstPageSubject.onNext(firstResult)
 
         subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>(),
+                AsyncLoaderState.loadingNextPage<List<Int>>(),
                 AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().nextPageError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>(),
+                AsyncLoaderState.loadingNextPage<List<Int>>(),
                 firstPageLoaded()
         )
     }
@@ -157,7 +151,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
         secondPageSubject.onNext(secondResult)
 
         subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage<List<Int>, ViewAction>(),
+                AsyncLoaderState.loadingNextPage<List<Int>>(),
                 firstPageLoaded(),
                 AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
                 AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
@@ -207,9 +201,9 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Test
     fun `second Page Errors And Recovers`() {
-        val secondPageErrorSubject = PublishSubject.create<PageResult<List<Int>, ViewAction>>()
+        val secondPageErrorSubject = PublishSubject.create<PageResult<List<Int>>>()
 
-        whenever(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>, ViewAction>>(PageResult<List<Int>, ViewAction>(
+        whenever(firstPageFunc.apply(firstPageParams)).thenReturn(Observable.just<PageResult<List<Int>>>(PageResult<List<Int>>(
                 firstPageData,
                 nextPage = of(nextPageprovider))))
         whenever(nextPageprovider.get()).thenReturn(secondPageErrorSubject, secondPageSubject)
@@ -323,7 +317,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Test
     fun `refresh Wipes Out Old State`() {
-        val refreshResult = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
+        val refreshResult = PageResult<List<Int>>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
 
         val subscriber = asyncLoader.test()
 
@@ -355,7 +349,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
     @Test
     fun `unsubscribes From Source After Refreshing`() {
-        val refreshResult = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
+        val refreshResult = PageResult<List<Int>>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)))
 
         val subscriber = asyncLoader.test()
 
@@ -411,58 +405,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
         )
     }
 
-    @Test
-    fun `action is removed after it's performed for the first time`() {
-        val subscriber = asyncLoader.test()
-
-        loadFirstPage.onNext(firstPageParams)
-
-        firstPageSubject.onNext(resultWithViewAction)
-
-        actionPerformed.onNext(viewAction)
-
-        subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build(), action = of(viewAction)),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
-        )
-    }
-
-    @Test
-    fun `refresh action is removed after it's performed for the first time`() {
-        val refreshResultWithViewAction = PageResult<List<Int>, ViewAction>(secondPageData, nextPage = of(TestProvider(thirdPageSubject)), action = of(viewAction))
-
-        val subscriber = asyncLoader.test()
-
-        loadFirstPage.onNext(firstPageParams)
-
-        firstPageSubject.onNext(firstResult)
-
-        refreshRequested.onNext(firstPageParams)
-
-        refreshSubject.onNext(refreshResultWithViewAction)
-
-        actionPerformed.onNext(viewAction)
-
-        subscriber.assertValues(
-                AsyncLoaderState.loadingNextPage(),
-                firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(secondPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).requestMoreOnScroll(true).build(), action = of(viewAction)),
-                AsyncLoaderState(data = of(secondPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).requestMoreOnScroll(true).build())
-
-        )
-    }
-
-    private fun firstPageLoaded(): AsyncLoaderState<List<Int>, ViewAction> {
-        return AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
-    }
+    private fun firstPageLoaded(): AsyncLoaderState<List<Int>> =
+            AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
 
     companion object {
 
         private const val SIGNAL = 0
     }
 }
-
-data class ViewAction(val timestamp: Long)

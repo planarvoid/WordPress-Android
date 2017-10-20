@@ -13,7 +13,7 @@ import javax.inject.Inject
 class SearchHistoryPresenter
 @Inject
 internal constructor(private val searchHistoryStorage: SearchHistoryStorage)
-    : BasePresenter<List<SearchHistoryItem>, RxSignal, RxSignal, SearchHistoryView>() {
+    : BasePresenter<List<SearchHistoryItem>, RxSignal, SearchHistoryView>() {
 
     var itemClickListener: PublishSubject<SearchHistoryItem> = PublishSubject.create()
     var autocompleteArrowClickListener: PublishSubject<SearchHistoryItem> = PublishSubject.create()
@@ -24,17 +24,18 @@ internal constructor(private val searchHistoryStorage: SearchHistoryStorage)
         compositeDisposable += view.autocompleteArrowClickListener.subscribe { autocompleteArrowClickListener.onNext(it) }
     }
 
-    override fun firstPageFunc(pageParams: RxSignal): Observable<PageResult<List<SearchHistoryItem>, RxSignal>> =
+    override fun firstPageFunc(pageParams: RxSignal): Observable<PageResult<List<SearchHistoryItem>>> =
             searchHistoryStorage.getSearchHistory()
                     .doOnNext { searchHistoryStorage.truncate(MAX_HISTORY_ITEMS) }
-                    .map { PageResult<List<SearchHistoryItem>, RxSignal>(it) }
+                    .map { PageResult<List<SearchHistoryItem>>(it) }
 
     companion object {
         private const val MAX_HISTORY_ITEMS = 5
     }
+
 }
 
-interface SearchHistoryView : BaseView<AsyncLoaderState<List<SearchHistoryItem>, RxSignal>, RxSignal, RxSignal> {
+interface SearchHistoryView : BaseView<AsyncLoaderState<List<SearchHistoryItem>>, RxSignal> {
     val itemClickListener: Observable<SearchHistoryItem>
     val autocompleteArrowClickListener: Observable<SearchHistoryItem>
 }

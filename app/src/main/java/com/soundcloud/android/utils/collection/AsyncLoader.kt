@@ -13,62 +13,42 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Provider
 
-class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructor(private val firstPageRequested: Observable<FirstPageParamsType>,
-                                                                                  private val paramsToFirstPage: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>,
+class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private val firstPageRequested: Observable<FirstPageParamsType>,
+                                                                                  private val paramsToFirstPage: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
                                                                                   private val refreshRequested: Observable<FirstPageParamsType>,
-                                                                                  private val paramsToRefresh: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>,
+                                                                                  private val paramsToRefresh: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
                                                                                   private val nextPageRequested: Observable<Any>,
-                                                                                  private val pageCombiner: Optional<(PageData, PageData) -> PageData>,
-                                                                                  private val actionPerformedSignal: Observable<ActionType>)
-    : Observable<AsyncLoaderState<PageData, ActionType>>() {
+                                                                                  private val pageCombiner: Optional<(PageData, PageData) -> PageData>)
+    : Observable<AsyncLoaderState<PageData>>() {
 
     private val compositeDisposable = CompositeDisposable()
-    private val nextPage = BehaviorSubject.create<Optional<Provider<Observable<PageResult<PageData, ActionType>>>>>()
+    private val nextPage = BehaviorSubject.create<Optional<Provider<Observable<PageResult<PageData>>>>>()
     private val refreshStateSubject = BehaviorSubject.createDefault(RefreshState(false, Optional.absent<Throwable>()))
-    private val actionPerformedSubject = BehaviorSubject.createDefault(Optional.absent<ActionType>())
 
-    class PageResult<PageData, ActionType> internal constructor(internal var data: PageData,
-                                                                internal var action: Optional<ActionType> = Optional.absent(),
-                                                                internal var nextPage: Optional<Provider<Observable<PageResult<PageData, ActionType>>>> = Optional.absent()) {
+    class PageResult<PageData> internal constructor(internal var data: PageData,
+                                                                internal var nextPage: Optional<Provider<Observable<PageResult<PageData>>>> = Optional.absent()) {
         companion object {
 
-            fun <PageData, ActionType> from(data: PageData, nextPage: Provider<Observable<PageResult<PageData, ActionType>>>): PageResult<PageData, ActionType> {
-                return PageResult(data, nextPage = Optional.of(nextPage))
-            }
+            fun <PageData> from(data: PageData, nextPage: Provider<Observable<PageResult<PageData>>>): PageResult<PageData> = PageResult(data, nextPage = Optional.of(nextPage))
 
-            fun <PageData, ActionType> from(data: PageData): PageResult<PageData, ActionType> {
-                return PageResult(data)
-            }
+            fun <PageData> from(data: PageData): PageResult<PageData> = PageResult(data)
 
-            fun <PageData, ActionType> from(data: PageData, nextPage: Optional<Provider<Observable<PageResult<PageData, ActionType>>>>): PageResult<PageData, ActionType> {
-                return PageResult(data, nextPage = nextPage)
-            }
+            fun <PageData> from(data: PageData, nextPage: Optional<Provider<Observable<PageResult<PageData>>>>): PageResult<PageData> = PageResult(data, nextPage = nextPage)
         }
     }
 
     private data class RefreshState internal constructor(internal val loading: Boolean, internal val error: Optional<Throwable> = Optional.absent())
 
     private inner class PageState internal constructor(internal val data: Optional<PageData> = Optional.absent(),
-                                                       internal val action: Optional<ActionType> = Optional.absent(),
                                                        internal val loading: Boolean = false,
                                                        internal val error: Optional<Throwable> = Optional.absent())
 
-    override fun subscribeActual(observer: Observer<in AsyncLoaderState<PageData, ActionType>>) {
-        compositeDisposable.add(actionPerformedSignal.subscribe { actionPerformedSubject.onNext(Optional.of(it)) })
+    override fun subscribeActual(observer: Observer<in AsyncLoaderState<PageData>>) {
         val sequenceStarters = refreshes().startWith(initialLoad())
 
         Observables.combineLatest(sequenceStarters.switchMap { createSequenceState(it) },
                                        refreshStateSubject,
-                                       actionPerformedSubject,
-                                       { pageDataAsyncLoaderState, refreshState, action ->
-                                       val updateWithRefresh = updateWithRefresh(pageDataAsyncLoaderState, refreshState)
-                                       if (updateWithRefresh.action.isPresent && action.isPresent && updateWithRefresh.action.get() == action.get()) {
-                                           updateWithRefresh.stripAction()
-                                       } else {
-                                           updateWithRefresh
-                                       }
-
-                                   })
+                                       { pageDataAsyncLoaderState, refreshState -> updateWithRefresh(pageDataAsyncLoaderState, refreshState)})
                 .doOnDispose { compositeDisposable.clear() }
                 .subscribe(observer)
     }
@@ -91,15 +71,14 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
                 }
     }
 
-    private fun createSequenceState(firstPage: Observable<PageState>): Observable<AsyncLoaderState<PageData, ActionType>> {
+    private fun createSequenceState(firstPage: Observable<PageState>): Observable<AsyncLoaderState<PageData>> {
         return pageEmitter().startWith(firstPage)
                 .scan(mutableListOf<Observable<PageState>>(), { observables, partialStateObservable -> this.addNewPage(observables, partialStateObservable) })
                 .switchMap { this.stateFromPages(it) }
     }
 
-    private fun updateWithRefresh(pageDataAsyncLoaderState: AsyncLoaderState<PageData, ActionType>, refreshState: RefreshState): AsyncLoaderState<PageData, ActionType> {
-        return pageDataAsyncLoaderState.updateWithRefreshState(refreshState.loading, refreshState.error)
-    }
+    private fun updateWithRefresh(pageDataAsyncLoaderState: AsyncLoaderState<PageData>, refreshState: RefreshState): AsyncLoaderState<PageData> =
+            pageDataAsyncLoaderState.updateWithRefreshState(refreshState.loading, refreshState.error)
 
     private fun addNewPage(observables: MutableList<Observable<PageState>>, partialStateObservable: Observable<PageState>): MutableList<Observable<PageState>> {
         observables.add(replayLastAndConnect(partialStateObservable))
@@ -112,12 +91,10 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
         return replay
     }
 
-    private fun stateFromPages(arr: List<Observable<PageState>>): Observable<AsyncLoaderState<PageData, ActionType>> {
-        return Observable.combineLatest(arr) { this.combinePages(it) }
-    }
+    private fun stateFromPages(arr: List<Observable<PageState>>): Observable<AsyncLoaderState<PageData>> = Observable.combineLatest(arr) { this.combinePages(it) }
 
     @Throws(Exception::class)
-    private fun combinePages(objects: Array<Any>): AsyncLoaderState<PageData, ActionType> {
+    private fun combinePages(objects: Array<Any>): AsyncLoaderState<PageData> {
         val combinedData = combinePageData(objects)
         val lastPageState = toPageState(objects.last())
         val loadingState = AsyncLoadingState.builder()
@@ -127,10 +104,8 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
                 .build()
 
         return if (combinedData != null) AsyncLoaderState(data = Optional.of(combinedData),
-                                                          action = lastPageState.action,
                                                           asyncLoadingState = loadingState)
-        else AsyncLoaderState(asyncLoadingState = loadingState,
-                              action = lastPageState.action)
+        else AsyncLoaderState(asyncLoadingState = loadingState)
     }
 
     @Throws(Exception::class)
@@ -146,10 +121,8 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun toPageState(any: Any): PageState {
-        return any as AsyncLoader<PageData, ActionType, FirstPageParamsType>.PageState
-    }
+    @Suppress("UNCHECKED_CAST", "UnsafeCast")
+    private fun toPageState(any: Any): PageState = any as AsyncLoader<PageData, FirstPageParamsType>.PageState
 
     private fun pageEmitter(): Observable<Observable<PageState>> {
         return nextPageRequested.flatMap { nextPage.take(1) }
@@ -161,76 +134,61 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
     private fun initialLoad(): Observable<PageState> {
         return firstPageRequested.flatMap { params ->
             paramsToFirstPage(params)
-                    .lift(doOnFirst<PageResult<PageData, ActionType>>(this::keepNextPageObservable))
+                    .lift(doOnFirst<PageResult<PageData>>(this::keepNextPageObservable))
                     .map { this.loadedPageState(it) }
                     .onErrorReturn { this.errorPageState(it) }
                     .startWith(loadingPageState())
         }
     }
 
-    private fun errorPageState(t: Throwable): PageState {
-        return PageState(error = Optional.of(t))
-    }
+    private fun errorPageState(t: Throwable): PageState = PageState(error = Optional.of(t))
 
-    private fun nextPageObservable(nextPage: Observable<PageResult<PageData, ActionType>>): Observable<PageState> {
-        return nextPage.lift(doOnFirst<PageResult<PageData, ActionType>>(this::keepNextPageObservable))
+    private fun nextPageObservable(nextPage: Observable<PageResult<PageData>>): Observable<PageState> {
+        return nextPage.lift(doOnFirst<PageResult<PageData>>(this::keepNextPageObservable))
                 .map { this.loadedPageState(it) }
                 .onErrorReturn { this.errorPageState(it) }
                 .startWith(loadingPageState())
     }
 
-    private fun loadingPageState(): PageState {
-        return PageState(loading = true)
-    }
+    private fun loadingPageState(): PageState = PageState(loading = true)
 
-    private fun loadedPageState(result: PageResult<PageData, ActionType>): PageState {
-        return PageState(data = Optional.of(result.data), action = result.action)
-    }
+    private fun loadedPageState(result: PageResult<PageData>): PageState = PageState(data = Optional.of(result.data))
 
-    private fun keepNextPageObservable(datas: PageResult<PageData, ActionType>) {
+    private fun keepNextPageObservable(datas: PageResult<PageData>) {
         nextPage.onNext(datas.nextPage)
     }
 
-    private fun hasMorePages(): Boolean {
-        return nextPage.hasValue() && nextPage.value.isPresent
-    }
+    private fun hasMorePages(): Boolean = nextPage.hasValue() && nextPage.value.isPresent
 
-    class Builder<PageData, ActionType, FirstPageParamsType>(private val firstPageRequested: Observable<FirstPageParamsType>,
-                                                             private val firstPage: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>) {
+    class Builder<PageData, FirstPageParamsType>(private val firstPageRequested: Observable<FirstPageParamsType>,
+                                                             private val firstPage: (FirstPageParamsType) -> Observable<PageResult<PageData>>) {
         private var refreshRequested = Observable.never<FirstPageParamsType>()
-        private var refreshWith: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>> = { empty() }
+        private var refreshWith: (FirstPageParamsType) -> Observable<PageResult<PageData>> = { empty() }
         private var nextPageRequested = Observable.never<Any>()
         private var combinerOpt = Optional.absent<(PageData, PageData) -> PageData>()
-        private var actionPerformed: Observable<ActionType> = Observable.empty()
 
         fun withRefresh(refreshSignal: Observable<FirstPageParamsType>,
-                        paramsToRefreshOp: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>): Builder<PageData, ActionType, FirstPageParamsType> {
+                        paramsToRefreshOp: (FirstPageParamsType) -> Observable<PageResult<PageData>>): Builder<PageData, FirstPageParamsType> {
             this.refreshRequested = refreshSignal
             this.refreshWith = paramsToRefreshOp
             return this
         }
 
         fun withPaging(nextPageSignal: Observable<Any>,
-                       pageCombiner: (PageData, PageData) -> PageData): Builder<PageData, ActionType, FirstPageParamsType> {
+                       pageCombiner: (PageData, PageData) -> PageData): Builder<PageData, FirstPageParamsType> {
             this.nextPageRequested = nextPageSignal
             this.combinerOpt = Optional.of(pageCombiner)
             return this
         }
 
-        fun withAction(actionPerformed: Observable<ActionType>): Builder<PageData, ActionType, FirstPageParamsType> {
-            this.actionPerformed = actionPerformed
-            return this
-        }
-
-        fun build(): AsyncLoader<PageData, ActionType, FirstPageParamsType> {
+        fun build(): AsyncLoader<PageData, FirstPageParamsType> {
             return AsyncLoader(
                     firstPageRequested,
                     firstPage,
                     refreshRequested,
                     refreshWith,
                     nextPageRequested,
-                    combinerOpt,
-                    actionPerformed
+                    combinerOpt
             )
         }
     }
@@ -238,10 +196,8 @@ class AsyncLoader<PageData, ActionType, FirstPageParamsType> internal constructo
     companion object {
 
         @JvmStatic
-        fun <PageData, ActionType, FirstPageParamsType> startWith(initialLoadSignal: Observable<FirstPageParamsType>,
-                                                                  loadInitialPageWith: (FirstPageParamsType) -> Observable<PageResult<PageData, ActionType>>):
-                Builder<PageData, ActionType, FirstPageParamsType> {
-            return Builder(initialLoadSignal, loadInitialPageWith)
-        }
+        fun <PageData, FirstPageParamsType> startWith(initialLoadSignal: Observable<FirstPageParamsType>,
+                                                                  loadInitialPageWith: (FirstPageParamsType) -> Observable<PageResult<PageData>>):
+                Builder<PageData, FirstPageParamsType> = Builder(initialLoadSignal, loadInitialPageWith)
     }
 }

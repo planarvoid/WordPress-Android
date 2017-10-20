@@ -7,11 +7,10 @@ import com.soundcloud.java.optional.Optional
 import com.soundcloud.java.optional.Optional.absent
 import com.soundcloud.java.optional.Optional.of
 
-data class AsyncLoaderState<ItemType, ActionType>(val asyncLoadingState: AsyncLoadingState = AsyncLoadingState.builder().build(),
-                                                  val data: Optional<ItemType> = absent(),
-                                                  val action: Optional<ActionType> = absent()) {
+data class AsyncLoaderState<ItemType>(val asyncLoadingState: AsyncLoadingState = AsyncLoadingState.builder().build(),
+                                                  val data: Optional<ItemType> = absent()) {
 
-    internal fun updateWithRefreshState(isRefreshing: Boolean, refreshError: Optional<Throwable>): AsyncLoaderState<ItemType, ActionType> {
+    internal fun updateWithRefreshState(isRefreshing: Boolean, refreshError: Optional<Throwable>): AsyncLoaderState<ItemType> {
         return if (isRefreshing) {
             if (asyncLoadingState.isRefreshing) {
                 this
@@ -25,11 +24,9 @@ data class AsyncLoaderState<ItemType, ActionType>(val asyncLoadingState: AsyncLo
         }
     }
 
-    fun stripAction() = copy(action = absent())
+    fun update(updateFunction: Function<ItemType, ItemType>): AsyncLoaderState<ItemType> = copy(data = data.transform(updateFunction))
 
-    fun update(updateFunction: Function<ItemType, ItemType>): AsyncLoaderState<ItemType, ActionType> = copy(data = data.transform(updateFunction))
-
-    fun toNextPageError(throwable: Throwable): AsyncLoaderState<ItemType, ActionType> {
+    fun toNextPageError(throwable: Throwable): AsyncLoaderState<ItemType> {
         val loadingState = asyncLoadingState.toBuilder()
                 .isLoadingNextPage(false)
                 .nextPageError(of(ViewError.from(throwable)))
@@ -39,19 +36,11 @@ data class AsyncLoaderState<ItemType, ActionType>(val asyncLoadingState: AsyncLo
 
     companion object {
 
-        fun <ItemType, ActionType> loadingNextPage(): AsyncLoaderState<ItemType, ActionType> {
+        fun <ItemType> loadingNextPage(): AsyncLoaderState<ItemType> {
             val loadingState = AsyncLoadingState.builder()
                     .isLoadingNextPage(true)
                     .build()
             return AsyncLoaderState(asyncLoadingState = loadingState)
-        }
-
-        fun <ItemType, ActionType> firstPageError(throwable: Throwable): AsyncLoaderState<ItemType, ActionType> {
-            val errorState = AsyncLoadingState.builder()
-                    .isLoadingNextPage(false)
-                    .nextPageError(Optional.of(ViewError.from(throwable)))
-                    .build()
-            return AsyncLoaderState(asyncLoadingState = errorState)
         }
     }
 }

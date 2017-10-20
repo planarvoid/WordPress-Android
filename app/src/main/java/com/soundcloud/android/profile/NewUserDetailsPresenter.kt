@@ -7,7 +7,6 @@ import com.soundcloud.android.navigation.NavigationTarget
 import com.soundcloud.android.navigation.Navigator
 import com.soundcloud.android.playback.DiscoverySource
 import com.soundcloud.android.rx.RxJava
-import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.users.SocialMediaLinkItem
 import com.soundcloud.android.users.UserProfileInfo
 import com.soundcloud.android.utils.collection.AsyncLoader
@@ -23,12 +22,12 @@ class NewUserDetailsPresenter
 @Inject
 internal constructor(val profileOperations: UserProfileOperations,
                      val navigator: Navigator,
-                     val screenProvider: ScreenProvider) : BasePresenter<List<UserDetailItem>, RxSignal, UserDetailsParams, NewUserDetailsView>() {
+                     val screenProvider: ScreenProvider) : BasePresenter<List<UserDetailItem>, UserDetailsParams, NewUserDetailsView>() {
 
-    override fun firstPageFunc(pageParams: UserDetailsParams): Observable<AsyncLoader.PageResult<List<UserDetailItem>, RxSignal>> {
+    override fun firstPageFunc(pageParams: UserDetailsParams): Observable<AsyncLoader.PageResult<List<UserDetailItem>>> {
         return RxJava.toV2Observable(profileOperations.userProfileInfo(pageParams.userUrn))
                 .map { UserDetailItem.from(it, pageParams.searchQuerySourceInfo) }
-                .map { AsyncLoader.PageResult<List<UserDetailItem>, RxSignal>(it) }
+                .map { AsyncLoader.PageResult<List<UserDetailItem>>(it) }
     }
 
     override fun refreshFunc(pageParams: UserDetailsParams) = firstPageFunc(pageParams)
@@ -43,7 +42,7 @@ internal constructor(val profileOperations: UserProfileOperations,
     }
 }
 
-interface NewUserDetailsView : BaseView<AsyncLoaderState<List<UserDetailItem>, RxSignal>, RxSignal, UserDetailsParams> {
+interface NewUserDetailsView : BaseView<AsyncLoaderState<List<UserDetailItem>>, UserDetailsParams> {
     val linkClickListener: Observable<String>
     val followersClickListener: Observable<UserFollowsItem>
     val followingsClickListener: Observable<UserFollowsItem>
