@@ -63,6 +63,11 @@ class LibraryIntegrationSpec extends IntegrationSpec {
                 }
             }
             
+            ext {
+              javaSrcDirs = getProjectDir()
+              resSrcDirs = getProjectDir()
+            }
+            
             repositories {
                 mavenLocal()
                 maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }

@@ -180,7 +180,7 @@ def unitTestStage() {
   unstash 'repository'
   try {
     updateGitHub(Builds.UNIT_TESTS, Status.RUNNING)
-    gradle 'clean runUnitTests'
+    gradle 'clean runUnitTests --no-build-cache'
     updateGitHub(Builds.UNIT_TESTS, Status.SUCCESS)
   } catch (e) {
     updateGitHub(Builds.UNIT_TESTS, Status.ERROR)
