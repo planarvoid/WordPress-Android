@@ -16,11 +16,9 @@ import com.soundcloud.android.playback.DiscoverySource
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.collection.AsyncLoaderState
-import com.soundcloud.android.view.ViewError
 import com.soundcloud.java.optional.Optional
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.SingleSubject
 import org.junit.Before
@@ -34,7 +32,6 @@ class HomePresenterTest : AndroidUnitTest() {
     @Mock private lateinit var navigator: Navigator
     @Mock private lateinit var eventTracker: EventTracker
     @Mock private lateinit var referringEventProvider: ReferringEventProvider
-    @Mock private lateinit var errorConsumer: Consumer<ViewError>
 
     private lateinit var newHomePresenter: HomePresenter
     private val refreshSignalSubject = PublishSubject.create<RxSignal>()
@@ -142,7 +139,6 @@ class HomePresenterTest : AndroidUnitTest() {
         val view: HomeView = mock()
         whenever(view.requestContent()).thenReturn(Observable.just(RxSignal.SIGNAL))
         whenever(view.refreshSignal()).thenReturn(refreshSignalSubject)
-        whenever(view.refreshErrorConsumer()).thenReturn(errorConsumer)
         whenever(view.searchClick).thenReturn(searchSignalSubject)
         whenever(view.selectionItemClick).thenReturn(selectionItemClickSubject)
         whenever(view.enterScreenTimestamp).thenReturn(enterScreenTimestamp)

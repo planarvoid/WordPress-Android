@@ -111,7 +111,7 @@ public abstract class TimelineOperations<StorageModel, ViewModel> {
         }
     }
 
-    private Single<List<ViewModel>> pagedTimelineItems(final long timestamp, final boolean syncCompleted) {
+    protected Single<List<ViewModel>> pagedTimelineItems(final long timestamp, final boolean syncCompleted) {
         return storage
                 .timelineItemsBefore(timestamp, PAGE_SIZE)
                 .toList()

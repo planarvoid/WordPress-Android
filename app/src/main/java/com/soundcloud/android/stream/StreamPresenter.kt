@@ -10,7 +10,7 @@ import android.view.View
 import com.soundcloud.android.Actions
 import com.soundcloud.android.R
 import com.soundcloud.android.ads.AdData
-import com.soundcloud.android.ads.AdItemRenderer
+import com.soundcloud.android.ads.AdItemResult
 import com.soundcloud.android.ads.AppInstallAd
 import com.soundcloud.android.ads.StreamAdsController
 import com.soundcloud.android.ads.VideoAd
@@ -28,9 +28,8 @@ import com.soundcloud.android.events.PromotedTrackingEvent
 import com.soundcloud.android.events.TrackingEvent
 import com.soundcloud.android.events.UIEvent
 import com.soundcloud.android.events.UpgradeFunnelEvent
-import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter
-import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer
+import com.soundcloud.android.facebookinvites.FacebookLoadingResult
 import com.soundcloud.android.image.ImagePauseOnScrollListener
 import com.soundcloud.android.main.Screen
 import com.soundcloud.android.model.Urn
@@ -54,7 +53,7 @@ import com.soundcloud.android.stream.perf.StreamMeasurements
 import com.soundcloud.android.stream.perf.StreamMeasurementsFactory
 import com.soundcloud.android.sync.timeline.TimelinePresenter
 import com.soundcloud.android.tracks.UpdatePlayableAdapterObserver
-import com.soundcloud.android.upsell.UpsellItemRenderer
+import com.soundcloud.android.upsell.UpsellLoadingResult
 import com.soundcloud.android.utils.ErrorUtils
 import com.soundcloud.android.view.EmptyView
 import com.soundcloud.android.view.NewItemsIndicator
@@ -92,10 +91,6 @@ constructor(private val streamOperations: StreamOperations,
                                                                                                   newItemsIndicator,
                                                                                                   streamOperations,
                                                                                                   adapter),
-                                                                    FacebookListenerInvitesItemRenderer.Listener,
-                                                                    FacebookCreatorInvitesItemRenderer.Listener,
-                                                                    UpsellItemRenderer.Listener<StreamItem>,
-                                                                    AdItemRenderer.Listener,
                                                                     NewItemsIndicator.Listener {
     private val itemClickListener: MixedItemClickListener = itemClickListenerFactory.create(Screen.STREAM, null)
     private val streamMeasurements: StreamMeasurements = streamMeasurementsFactory.create()
@@ -104,14 +99,6 @@ constructor(private val streamOperations: StreamOperations,
     private val viewLifeCycleDisposable = CompositeDisposable()
     private var fragment: Fragment? = null
     private var hasFocus: Boolean = false
-
-    init {
-        adapter.setOnFacebookInvitesClickListener(this)
-        adapter.setOnFacebookCreatorInvitesClickListener(this)
-        adapter.setOnUpsellClickListener(this)
-        adapter.setOnAppInstallClickListener(this)
-        adapter.setOnVideoAdClickListener(this)
-    }
 
     override fun onCreate(fragment: Fragment, bundle: Bundle?) {
         super.onCreate(fragment, bundle)
@@ -167,7 +154,43 @@ constructor(private val streamOperations: StreamOperations,
                         .filter { it.isStreamRefreshed }
                         .flatMap { updateIndicatorFromMostRecent() }.subscribeWith(DefaultObserver()),
                 followingOperations.onUserFollowed().subscribeWith(LambdaObserver.onNext { swipeRefreshAttacher.forceRefresh() }),
-                followingOperations.onUserUnfollowed().subscribeWith(LambdaObserver.onNext { swipeRefreshAttacher.forceRefresh() })
+                followingOperations.onUserUnfollowed().subscribeWith(LambdaObserver.onNext { swipeRefreshAttacher.forceRefresh() }),
+                adapter.facebookListenerInvitesLoadingResult().subscribeWith(LambdaObserver.onNext {
+                    when (it) {
+                        is FacebookLoadingResult.Click -> onListenerInvitesClicked(it.position)
+                        is FacebookLoadingResult.Dismiss -> onListenerInvitesDismiss(it.position)
+                        is FacebookLoadingResult.Load -> onListenerInvitesLoaded(it.hasPictures)
+                    }
+                }),
+                adapter.facebookCreatorInvitesLoadingResult().subscribeWith(LambdaObserver.onNext {
+                    when (it) {
+                        is FacebookLoadingResult.Click -> onCreatorInvitesClicked(it.position)
+                        is FacebookLoadingResult.Dismiss -> onCreatorInvitesDismiss(it.position)
+                    }
+                }),
+                adapter.upsellLoadingResult().subscribeWith(LambdaObserver.onNext {
+                    when (it) {
+                        is UpsellLoadingResult.Click -> onUpsellItemClicked(it.context)
+                        is UpsellLoadingResult.Dismiss -> onUpsellItemDismissed(it.position)
+                        is UpsellLoadingResult.Create -> onUpsellItemCreated()
+                    }
+                }),
+                adapter.videoAdItemClick().subscribeWith(LambdaObserver.onNext {
+                    when (it) {
+                        is AdItemResult.AdItemClick -> onAdItemClicked(it.adData)
+                        is AdItemResult.WhyAdsClicked -> onWhyAdsClicked(it.context)
+                        is AdItemResult.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
+                        is AdItemResult.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
+                    }
+                }),
+                adapter.appInstallClick().subscribeWith(LambdaObserver.onNext {
+                    when (it) {
+                        is AdItemResult.AdItemClick -> onAdItemClicked(it.adData)
+                        is AdItemResult.WhyAdsClicked -> onWhyAdsClicked(it.context)
+                        is AdItemResult.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
+                        is AdItemResult.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
+                    }
+                })
         )
     }
 
@@ -256,7 +279,7 @@ constructor(private val streamOperations: StreamOperations,
         eventBus.publish<TrackingEvent>(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.STREAM.get()))
     }
 
-    override fun onListenerInvitesClicked(position: Int) {
+    private fun onListenerInvitesClicked(position: Int) {
         val item = adapter.getItem(position)
         if (item is FacebookListenerInvites) {
             trackInvitesEvent(forListenerClick(item.hasPictures()))
@@ -267,7 +290,7 @@ constructor(private val streamOperations: StreamOperations,
         }
     }
 
-    override fun onListenerInvitesDismiss(position: Int) {
+    private fun onListenerInvitesDismiss(position: Int) {
         val item = adapter.getItem(position)
         if (item is FacebookListenerInvites) {
             trackInvitesEvent(forListenerDismiss(item.hasPictures()))
@@ -275,11 +298,11 @@ constructor(private val streamOperations: StreamOperations,
         }
     }
 
-    override fun onListenerInvitesLoaded(hasPictures: Boolean) {
+    private fun onListenerInvitesLoaded(hasPictures: Boolean) {
         trackInvitesEvent(forListenerShown(hasPictures))
     }
 
-    override fun onCreatorInvitesClicked(position: Int) {
+    private fun onCreatorInvitesClicked(position: Int) {
         val item = adapter.getItem(position)
         if (item is StreamItem.FacebookCreatorInvites) {
             if (Urn.NOT_SET != item.trackUrn) {
@@ -292,24 +315,24 @@ constructor(private val streamOperations: StreamOperations,
         }
     }
 
-    override fun onCreatorInvitesDismiss(position: Int) {
+    private fun onCreatorInvitesDismiss(position: Int) {
         if (adapter.getItem(position) is StreamItem.FacebookCreatorInvites) {
             trackInvitesEvent(forCreatorDismiss())
             removeItem(position)
         }
     }
 
-    override fun onUpsellItemDismissed(position: Int, item: StreamItem) {
+    private fun onUpsellItemDismissed(position: Int) {
         streamOperations.disableUpsell()
         removeItem(position)
     }
 
-    override fun onUpsellItemClicked(context: Context, position: Int, item: StreamItem) {
+    private fun onUpsellItemClicked(context: Context) {
         navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT)
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick())
     }
 
-    override fun onUpsellItemCreated() {
+    private fun onUpsellItemCreated() {
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamImpression())
     }
 
@@ -324,7 +347,7 @@ constructor(private val streamOperations: StreamOperations,
 
     override fun getNewItemsTextResourceId() = R.plurals.stream_new_posts
 
-    override fun onAdItemClicked(adData: AdData) {
+    fun onAdItemClicked(adData: AdData) {
         when (adData) {
             is AppInstallAd -> UIEvent.fromAppInstallAdClickThrough(adData) to adData.clickThroughUrl()
             is VideoAd -> UIEvent.fromPlayableClickThrough(adData, TrackSourceInfo(Screen.STREAM.get(), true)) to adData.clickThroughUrl()
@@ -335,17 +358,17 @@ constructor(private val streamOperations: StreamOperations,
         }
     }
 
-    override fun onWhyAdsClicked(context: Context) {
+    fun onWhyAdsClicked(context: Context) {
         whyAdsDialogPresenter.show(context)
     }
 
-    override fun onVideoTextureBind(textureView: TextureView, viewabilityLayer: View, videoAd: VideoAd) {
+    fun onVideoTextureBind(textureView: TextureView, viewabilityLayer: View, videoAd: VideoAd) {
         if (!streamAdsController.isInFullscreen) {
             videoSurfaceProvider.setTextureView(videoAd.uuid(), Origin.STREAM, textureView, viewabilityLayer)
         }
     }
 
-    override fun onVideoFullscreenClicked(videoAd: VideoAd) {
+    fun onVideoFullscreenClicked(videoAd: VideoAd) {
         streamAdsController.setFullscreenEnabled()
         navigator.navigateTo(NavigationTarget.forFullscreenVideoAd(videoAd.adUrn()))
     }

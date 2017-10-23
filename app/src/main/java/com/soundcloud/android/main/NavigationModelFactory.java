@@ -28,13 +28,13 @@ public class NavigationModelFactory {
         if (defaultHomeScreenConfiguration.isDiscoveryHome()) {
             return new NavigationModel(
                     new DiscoveryNavigationTarget(featureFlags),
-                    new StreamNavigationTarget(false),
+                    new StreamNavigationTarget(featureFlags, false),
                     changeLikeToSaveExperiment.navigationTarget(),
                     new MoreNavigationTarget());
         }
 
         return new NavigationModel(
-                new StreamNavigationTarget(true),
+                new StreamNavigationTarget(featureFlags, true),
                 new DiscoveryNavigationTarget(featureFlags),
                 changeLikeToSaveExperiment.navigationTarget(),
                 new MoreNavigationTarget());

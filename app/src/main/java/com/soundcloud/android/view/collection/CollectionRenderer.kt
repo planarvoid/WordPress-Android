@@ -42,7 +42,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         adapter.setOnErrorRetryListener { _ -> onNextPage.onNext(RxSignal.SIGNAL) }
     }
 
-    fun attach(view: View, renderEmptyAtTop: Boolean, layoutManager: RecyclerView.LayoutManager) {
+    fun attach(view: View, renderEmptyAtTop: Boolean = false, layoutManager: RecyclerView.LayoutManager) {
 
         if (recyclerView != null) {
             throw IllegalStateException("Recycler View already attached. Did you forget to detach?")

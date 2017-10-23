@@ -1,5 +1,6 @@
 package com.soundcloud.android.view
 
+import com.soundcloud.android.rx.observers.LambdaObserver
 import com.soundcloud.android.utils.collection.AsyncLoader
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.utils.extensions.plusAssign
@@ -7,7 +8,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -33,10 +33,10 @@ abstract class BasePresenter<ViewModel, PageParams, in View : BaseView<AsyncLoad
     }
 
     open fun attachView(view: View) {
-        compositeDisposable.addAll(loader.subscribe(view),
+        compositeDisposable.addAll(loader.subscribeWith(LambdaObserver.onNext(view::accept)),
                                    view.requestContent().subscribeWithSubject(requestContentSignal),
                                    view.refreshSignal().subscribeWithSubject(refreshSignal),
-                                   refreshError.subscribe(view.refreshErrorConsumer()))
+                                   refreshError.subscribeWith(LambdaObserver.onNext(view::refreshErrorConsumer)))
     }
 
     open fun detachView() {
@@ -47,10 +47,11 @@ abstract class BasePresenter<ViewModel, PageParams, in View : BaseView<AsyncLoad
     open fun refreshFunc(pageParams: PageParams): Observable<AsyncLoader.PageResult<ViewModel>> = Observable.empty()
 }
 
-interface BaseView<ViewModel, PageParams> : Consumer<ViewModel> {
+interface BaseView<in ViewModel, PageParams> {
+    fun accept(viewModel: ViewModel)
     fun requestContent(): Observable<PageParams>
     fun refreshSignal(): Observable<PageParams> = Observable.empty<PageParams>()
-    fun refreshErrorConsumer(): Consumer<ViewError> = Consumer {  }
+    fun refreshErrorConsumer(viewError: ViewError) {}
 
 }
 

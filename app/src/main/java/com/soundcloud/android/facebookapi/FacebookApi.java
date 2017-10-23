@@ -1,13 +1,13 @@
 package com.soundcloud.android.facebookapi;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,7 +21,7 @@ public class FacebookApi {
     private final Scheduler scheduler;
 
     @Inject
-    public FacebookApi(FacebookApiHelper facebookApiHelper, @Named(HIGH_PRIORITY) Scheduler scheduler) {
+    public FacebookApi(FacebookApiHelper facebookApiHelper, @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.facebookApiHelper = facebookApiHelper;
         this.scheduler = scheduler;
     }

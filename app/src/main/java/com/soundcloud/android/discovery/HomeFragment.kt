@@ -27,7 +27,6 @@ import com.soundcloud.java.optional.Optional
 import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -95,7 +94,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
             inflater.inflate(R.layout.recyclerview_with_refresh_without_empty, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        collectionRenderer.attach(view, false, LinearLayoutManager(view.context))
+        collectionRenderer.attach(view, layoutManager = LinearLayoutManager(view.context))
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -122,13 +121,11 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
         collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList())))
     }
 
-    override fun refreshErrorConsumer(): Consumer<ViewError> {
-        return Consumer {
-            when (it) {
-                ViewError.CONNECTION_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_offline, Feedback.LENGTH_LONG))
-                ViewError.SERVER_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_failed_to_load,
-                                                                                          R.string.discovery_error_retry_button) { swipeRefreshAttacher.forceRefresh() })
-            }
+    override fun refreshErrorConsumer(viewError: ViewError) {
+        when (viewError) {
+            ViewError.CONNECTION_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_offline, Feedback.LENGTH_LONG))
+            ViewError.SERVER_ERROR -> feedbackController.showFeedback(Feedback.create(R.string.discovery_error_failed_to_load,
+                                                                                      R.string.discovery_error_retry_button) { swipeRefreshAttacher.forceRefresh() })
         }
     }
 

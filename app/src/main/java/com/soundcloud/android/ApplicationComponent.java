@@ -145,6 +145,7 @@ import com.soundcloud.android.stations.StationInfoFragment;
 import com.soundcloud.android.storage.DatabaseCleanupService;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamFragment;
+import com.soundcloud.android.stream.StreamUniflowFragment;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -279,6 +280,7 @@ public interface ApplicationComponent {
 
     //StreamModule
     void inject(StreamFragment streamFragment);
+    void inject(StreamUniflowFragment streamFragment);
 
     //TrackModule
     void inject(TrackInfoFragment trackInfoFragment);

@@ -1,17 +1,20 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdItemResult;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.VideoAdItemRenderer;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
+import com.soundcloud.android.facebookinvites.FacebookLoadingResult;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsItemRenderer;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
-import com.soundcloud.android.upsell.UpsellItemRenderer;
+import com.soundcloud.android.upsell.UpsellLoadingResult;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -102,23 +105,23 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
     }
 
-    void setOnFacebookInvitesClickListener(FacebookListenerInvitesItemRenderer.Listener clickListener) {
-        this.facebookListenerInvitesItemRenderer.setListener(clickListener);
+    Observable<FacebookLoadingResult> facebookListenerInvitesLoadingResult() {
+        return facebookListenerInvitesItemRenderer.getLoadingResult();
     }
 
-    void setOnFacebookCreatorInvitesClickListener(FacebookCreatorInvitesItemRenderer.Listener clickListener) {
-        this.facebookCreatorInvitesItemRenderer.setOnFacebookInvitesClickListener(clickListener);
+    Observable<FacebookLoadingResult> facebookCreatorInvitesLoadingResult() {
+        return facebookCreatorInvitesItemRenderer.getLoadingResult();
     }
 
-    void setOnUpsellClickListener(UpsellItemRenderer.Listener listener) {
-        this.upsellItemRenderer.setListener(listener);
+    Observable<UpsellLoadingResult> upsellLoadingResult() {
+        return upsellItemRenderer.getLoadingResult();
     }
 
-    void setOnAppInstallClickListener(AppInstallItemRenderer.Listener listener) {
-        this.appInstallItemRenderer.setListener(listener);
+    Observable<AdItemResult> videoAdItemClick() {
+        return videoAdItemRenderer.getAdItemClick();
     }
 
-    void setOnVideoAdClickListener(VideoAdItemRenderer.Listener listener) {
-        this.videoAdItemRenderer.setListener(listener);
+    Observable<AdItemResult> appInstallClick() {
+        return appInstallItemRenderer.getAdItemClick();
     }
 }

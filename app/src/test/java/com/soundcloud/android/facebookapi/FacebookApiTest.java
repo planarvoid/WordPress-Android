@@ -6,29 +6,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class FacebookApiTest extends AndroidUnitTest {
 
     private FacebookApi facebookApi;
-    private TestSubscriber<List<String>> picturesSubscriber;
 
     @Mock private FacebookApiHelper facebookApiHelper;
 
     @Before
     public void setUp() throws Exception {
-        facebookApi = new FacebookApi(facebookApiHelper, Schedulers.immediate());
-        picturesSubscriber = new TestSubscriber<>();
+        facebookApi = new FacebookApi(facebookApiHelper, Schedulers.trampoline());
         when(facebookApiHelper.hasAccessToken()).thenReturn(true);
     }
 
@@ -36,39 +33,38 @@ public class FacebookApiTest extends AndroidUnitTest {
     public void shouldParseFriendsResponse() throws Exception {
         when(facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES)).thenReturn(validGraphResponse());
 
-        facebookApi.friendPictureUrls().subscribe(picturesSubscriber);
-        picturesSubscriber.assertReceivedOnNext(Collections.singletonList(
-                Arrays.asList("url1", "url3", "url4")));
+        final TestObserver<List<String>> picturesSubscriber = facebookApi.friendPictureUrls().test();
+        picturesSubscriber.assertValue(Arrays.asList("url1", "url3", "url4"));
     }
 
     @Test
     public void shouldHandleInvalidJsonGracefully() throws Exception {
         when(facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES)).thenReturn(unexpectedGraphResponse());
-        facebookApi.friendPictureUrls().subscribe(picturesSubscriber);
+        final TestObserver<List<String>> picturesSubscriber = facebookApi.friendPictureUrls().test();
 
-        expectEmptyPictureUrlsList();
+        expectEmptyPictureUrlsList(picturesSubscriber);
     }
 
     @Test
     public void shouldHandleSessionsWithoutFacebookAccessToken() throws Exception {
         when(facebookApiHelper.hasAccessToken()).thenReturn(false);
-        facebookApi.friendPictureUrls().subscribe(picturesSubscriber);
+        final TestObserver<List<String>> picturesSubscriber = facebookApi.friendPictureUrls().test();
 
-        expectEmptyPictureUrlsList();
+        expectEmptyPictureUrlsList(picturesSubscriber);
 
         verify(facebookApiHelper, never()).graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
     }
 
-    private void expectEmptyPictureUrlsList() {
-        assertThat(picturesSubscriber.getOnNextEvents().get(0)).isEmpty();
+    private void expectEmptyPictureUrlsList(TestObserver<List<String>> picturesSubscriber) {
+        assertThat(picturesSubscriber.values().get(0)).isEmpty();
     }
 
     @Test
     public void shouldHandleResponseErrorsGracefully() throws Exception {
         when(facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES)).thenReturn(errorGraphResponse());
-        facebookApi.friendPictureUrls().subscribe(picturesSubscriber);
+        final TestObserver<List<String>> picturesSubscriber = facebookApi.friendPictureUrls().test();
 
-        expectEmptyPictureUrlsList();
+        expectEmptyPictureUrlsList(picturesSubscriber);
     }
 
     private FacebookApiResponse validGraphResponse() throws JSONException {

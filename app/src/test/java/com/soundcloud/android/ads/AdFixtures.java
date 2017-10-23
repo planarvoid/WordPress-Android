@@ -353,6 +353,10 @@ public class AdFixtures {
        return getApiAppInstall(forAd("dfp", "111"));
     }
 
+    public static AppInstallAd getApiAppInstallAd() {
+       return AppInstallAd.create(getApiAppInstall(forAd("dfp", "111")));
+    }
+
     private static AppInstallAd.ApiModel getApiAppInstall(Urn urn) {
         return AppInstallAd.ApiModel.create(urn, 60, "App Name", "Download",
                                             "http://clickthrough.com",

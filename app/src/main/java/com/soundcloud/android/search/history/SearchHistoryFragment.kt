@@ -44,7 +44,7 @@ class SearchHistoryFragment : BaseFragment<SearchHistoryPresenter>(), SearchHist
                                                 parallaxImageScrolling = false)
     }
 
-    override fun accept(loaderState: AsyncLoaderState<List<SearchHistoryItem>>) = with(loaderState) {
+    override fun accept(viewModel: AsyncLoaderState<List<SearchHistoryItem>>) = with(viewModel) {
         collectionRenderer.render(CollectionRendererState(asyncLoadingState, data.or(emptyList())))
     }
 

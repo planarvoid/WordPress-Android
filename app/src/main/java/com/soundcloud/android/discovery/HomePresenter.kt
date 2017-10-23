@@ -54,11 +54,6 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                            .subscribeWith(LambdaObserver.onNext { pair -> this.trackPageView(pair.second) }))
     }
 
-    override fun detachView() {
-        super.detachView()
-        compositeDisposable.clear()
-    }
-
     override fun firstPageFunc(pageParams: RxSignal) =
             discoveryOperations.discoveryCards().toViewModelObservable()
 

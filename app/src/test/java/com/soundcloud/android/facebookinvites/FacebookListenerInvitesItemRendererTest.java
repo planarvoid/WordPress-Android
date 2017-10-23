@@ -15,7 +15,7 @@ import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
+import io.reactivex.Observable;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,14 +31,12 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     @Mock private FacebookApi facebookApi;
     @Mock private ImageOperations imageOperations;
     @Mock private FacebookInvitesStorage invitesStorage;
-    @Mock private FacebookListenerInvitesItemRenderer.Listener listener;
 
     private View itemView;
 
     @Before
     public void setup() {
         renderer = new FacebookListenerInvitesItemRenderer(imageOperations, invitesStorage, facebookApi);
-        renderer.setListener(listener);
 
         itemView = LayoutInflater.from(context())
                                  .inflate(R.layout.facebook_invites_notification_card,

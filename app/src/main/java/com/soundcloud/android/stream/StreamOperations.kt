@@ -22,6 +22,7 @@ import com.soundcloud.android.utils.extensions.zipWith
 import com.soundcloud.java.collections.Lists.newArrayList
 import com.soundcloud.java.optional.Optional
 import com.soundcloud.rx.eventbus.EventBusV2
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -70,6 +71,16 @@ internal constructor(private val streamStorage: StreamStorage,
                 // logic to the presenter
                 .observeOn(mainThread())
                 .doOnSuccess { streamAdsController.insertAds() }
+    }
+
+    fun nextPageItems(currentPage: List<StreamItem>): Optional<Observable<List<StreamItem>>> {
+        val lastTimestamp = getLastItemTimestamp(currentPage)
+        return if (lastTimestamp.isPresent) {
+            val nextTimestamp = lastTimestamp.get().time
+            Optional.of(pagedTimelineItems(nextTimestamp, false).toObservable())
+        } else {
+            Optional.absent()
+        }
     }
 
     private fun addUpsellableItem(streamItems: MutableList<StreamItem>): List<StreamItem> {
@@ -141,7 +152,7 @@ internal constructor(private val streamStorage: StreamStorage,
         return streamItems.firstOrNull { it is TrackStreamItem && isHighTierPreview(it.trackItem) }
     }
 
-    override fun getLastItemTimestamp(items: List<StreamItem>): Optional<Date>? {
+    override fun getLastItemTimestamp(items: List<StreamItem>): Optional<Date> {
         return Optional.fromNullable(items.lastOrNull { hasCreatedAt(it) }?.getCreatedAt())
     }
 

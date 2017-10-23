@@ -50,6 +50,8 @@ sealed class StreamItem(val kind: Kind) {
     val isUpsell: Boolean
         get() = this is Upsell
 
+    abstract fun identityEquals(streamItem: StreamItem): Boolean
+
     enum class Kind {
         TRACK,
         PLAYLIST,
@@ -61,15 +63,21 @@ sealed class StreamItem(val kind: Kind) {
         VIDEO_AD
     }
 
-    data class FacebookCreatorInvites(val trackUrn: Urn, val trackUrl: String) : StreamItem(Kind.FACEBOOK_CREATORS)
+    data class FacebookCreatorInvites(val trackUrn: Urn, val trackUrl: String) : StreamItem(Kind.FACEBOOK_CREATORS) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem is FacebookCreatorInvites
+    }
 
     data class FacebookListenerInvites(val friendPictureUrls: Optional<List<String>> = Optional.absent()) : StreamItem(Kind.FACEBOOK_LISTENER_INVITES) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem is FacebookListenerInvites
+
         fun hasPictures(): Boolean {
             return friendPictureUrls.isPresent && !friendPictureUrls.get().isEmpty()
         }
     }
 
     data class SuggestedCreators(val suggestedCreators: List<SuggestedCreatorItem>) : StreamItem(Kind.SUGGESTED_CREATORS) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem is SuggestedCreators
+
         companion object {
 
             fun create(suggestedCreators: List<SuggestedCreator>): SuggestedCreators {
@@ -78,11 +86,17 @@ sealed class StreamItem(val kind: Kind) {
         }
     }
 
-    data class AppInstall(val appInstallAd: AppInstallAd) : StreamItem(Kind.APP_INSTALL)
+    data class AppInstall(val appInstallAd: AppInstallAd) : StreamItem(Kind.APP_INSTALL) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem == this
+    }
 
-    data class Video(val video: VideoAd) : StreamItem(Kind.VIDEO_AD)
+    data class Video(val video: VideoAd) : StreamItem(Kind.VIDEO_AD) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem == this
+    }
 
-    object Upsell : StreamItem(Kind.STREAM_UPSELL)
+    object Upsell : StreamItem(Kind.STREAM_UPSELL) {
+        override fun identityEquals(streamItem: StreamItem) = streamItem is Upsell
+    }
 }
 
 data class TrackStreamItem(val trackItem: TrackItem, val promoted: Boolean, val createdAt: Date, val avatarUrlTemplate: Optional<String>) : StreamItem(Kind.TRACK),
@@ -90,6 +104,7 @@ data class TrackStreamItem(val trackItem: TrackItem, val promoted: Boolean, val 
                                                                                                                                             UpdatableTrackItem,
                                                                                                                                             LikeableItem,
                                                                                                                                             RepostableItem {
+    override fun identityEquals(streamItem: StreamItem) = streamItem is TrackStreamItem && streamItem.urn == urn
 
     override val urn: Urn
         get() = trackItem.urn
@@ -123,6 +138,7 @@ data class PlaylistStreamItem(val playlistItem: PlaylistItem, val promoted: Bool
                                                                                                                                                      LikeableItem,
                                                                                                                                                      RepostableItem,
                                                                                                                                                      UpdatablePlaylistItem {
+    override fun identityEquals(streamItem: StreamItem) = streamItem is PlaylistStreamItem && streamItem.urn == urn
 
     override val urn: Urn
         get() = playlistItem.urn

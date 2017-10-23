@@ -13,6 +13,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.R
 import com.soundcloud.android.ads.AdFixtures
+import com.soundcloud.android.ads.AdItemResult
 import com.soundcloud.android.ads.AppInstallAd
 import com.soundcloud.android.ads.StreamAdsController
 import com.soundcloud.android.ads.WhyAdsDialogPresenter
@@ -22,6 +23,7 @@ import com.soundcloud.android.events.StreamEvent
 import com.soundcloud.android.events.TrackingEvent
 import com.soundcloud.android.events.UIEvent
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter
+import com.soundcloud.android.facebookinvites.FacebookLoadingResult
 import com.soundcloud.android.helpers.NavigationTargetMatcher.matchesNavigationTarget
 import com.soundcloud.android.image.ImagePauseOnScrollListener
 import com.soundcloud.android.main.Screen
@@ -43,6 +45,7 @@ import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedLike
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedTrackForListItem
 import com.soundcloud.android.tracks.UpdatePlayableAdapterObserver
+import com.soundcloud.android.upsell.UpsellLoadingResult
 import com.soundcloud.android.utils.DateProvider
 import com.soundcloud.android.view.NewItemsIndicator
 import com.soundcloud.android.view.adapters.MixedItemClickListener
@@ -107,6 +110,12 @@ class StreamPresenterTest : AndroidUnitTest() {
     private val DATE = Date(123L)
     private lateinit var presenter: StreamPresenter
 
+    private val appInstallClick = PublishSubject.create<AdItemResult>()
+    private val facebookCreatorInvitesLoadingResult = PublishSubject.create<FacebookLoadingResult>()
+    private val facebookListenerInvitesLoadingResult = PublishSubject.create<FacebookLoadingResult>()
+    private val upsellLoadingResult = PublishSubject.create<UpsellLoadingResult>()
+    private val videoAdItemClick = PublishSubject.create<AdItemResult>()
+
     @Before
     @Throws(Exception::class)
     fun setUp() {
@@ -144,6 +153,11 @@ class StreamPresenterTest : AndroidUnitTest() {
         whenever(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject)
         whenever(streamDepthPublisherFactory.create(any(), any())).thenReturn(streamDepthPublisher)
         whenever(streamAdsController.isInFullscreen).thenReturn(false)
+        whenever(adapter.appInstallClick()).thenReturn(appInstallClick)
+        whenever(adapter.facebookCreatorInvitesLoadingResult()).thenReturn(facebookCreatorInvitesLoadingResult)
+        whenever(adapter.facebookListenerInvitesLoadingResult()).thenReturn(facebookListenerInvitesLoadingResult)
+        whenever(adapter.upsellLoadingResult()).thenReturn(upsellLoadingResult)
+        whenever(adapter.videoAdItemClick()).thenReturn(videoAdItemClick)
     }
 
     @Test
