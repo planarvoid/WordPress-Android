@@ -8,7 +8,6 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.playback.AudioPerformanceEvent;
 import com.soundcloud.android.playback.PlaybackMetric;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,26 +33,10 @@ public class FlipperPerformanceReporterTest {
         performanceReporter = new FlipperPerformanceReporter(eventBus);
     }
 
-    @Test
-    public void doesNotReportAudioAdPerformance() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
-        performanceReporter.report(PlaybackType.AUDIO_AD, audioPerformanceEvent, PlayerType.FLIPPER);
-
-        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
-    }
-
-    @Test
-    public void doesNotReportVideoAdPerformance() {
-        AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
-        performanceReporter.report(PlaybackType.VIDEO_AD, audioPerformanceEvent, PlayerType.FLIPPER);
-
-        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldNeverReportUninterruptedPlaytimeEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.UNINTERRUPTED_PLAYTIME);
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PlayerType.FLIPPER);
+        performanceReporter.report(audioPerformanceEvent, PlayerType.FLIPPER);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
@@ -62,7 +45,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToPlayEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
@@ -72,7 +55,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToSeekEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_SEEK);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
@@ -82,7 +65,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsTimeToPlaylistEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_GET_PLAYLIST);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
@@ -92,7 +75,7 @@ public class FlipperPerformanceReporterTest {
     public void reportsCacheUsagePercentage() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.CACHE_USAGE_PERCENT);
 
-        performanceReporter.report(PlaybackType.AUDIO_DEFAULT, audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT);

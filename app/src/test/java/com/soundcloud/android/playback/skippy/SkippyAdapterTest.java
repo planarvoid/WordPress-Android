@@ -706,7 +706,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        verify(performanceReporter).report(eq(playbackItem.getPlaybackType()), audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
+        verify(performanceReporter).report(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
         assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_PLAY);
         verifyNoMoreInteractions(performanceReporter);
     }

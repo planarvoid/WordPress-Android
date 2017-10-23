@@ -150,9 +150,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun onPerformanceEvent(event: AudioPerformanceEvent) {
         callbackThread {
             try {
-                currentPlaybackItem?.let {
-                    performanceReporter.report(it.playbackType, event, playerType)
-                }
+                performanceReporter.report(event, playerType)
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }

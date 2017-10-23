@@ -30,7 +30,6 @@ import com.soundcloud.android.playback.PlaybackMetric;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -226,11 +225,11 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter).report(playbackItem.getPlaybackType(), audioPerformance, PlayerType.FLIPPER);
+        verify(performanceReporter).report(audioPerformance, PlayerType.FLIPPER);
     }
 
     @Test
-    public void performanceEventNotBackedByPlaybackItemIsNotReported() {
+    public void performanceEventIsReportedEvenAfterPlaybackItemIsClearedInStoppedState() {
         // Setting up things: connected to the internet + playing a track
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
@@ -240,10 +239,10 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         flipperAdapter.onStateChanged(stateChange);
 
         // Suppose a second thread posts a performance event after the playback item is disposed
-        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.CACHE_USAGE_PERCENT, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter, never()).report(any(PlaybackType.class), any(AudioPerformanceEvent.class), any(PlayerType.class));
+        verify(performanceReporter).report(audioPerformance, PlayerType.FLIPPER);
     }
 
     @Test

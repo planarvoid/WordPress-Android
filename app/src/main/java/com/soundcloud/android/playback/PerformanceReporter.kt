@@ -11,15 +11,13 @@ import com.soundcloud.rx.eventbus.EventBusV2
 abstract class PerformanceReporter
 constructor(private val eventBus: EventBusV2) {
 
-    fun report(playbackType: PlaybackType, audioPerformanceEvent: AudioPerformanceEvent, playerType: PlayerType) {
-        if (shouldReportPerformanceFor(playbackType, audioPerformanceEvent.metric)) {
+    fun report(audioPerformanceEvent: AudioPerformanceEvent, playerType: PlayerType) {
+        if (shouldReportPerformanceFor(audioPerformanceEvent.metric)) {
             reportPerformanceEvent(createPlaybackPerformanceEvent(audioPerformanceEvent, playerType))
         }
     }
 
-    abstract fun shouldReportPerformanceFor(playbackType: PlaybackType, metric: PlaybackMetric): Boolean
-
-    protected fun isAd(playbackType: PlaybackType) = playbackType == PlaybackType.AUDIO_AD || playbackType == PlaybackType.VIDEO_AD
+    abstract fun shouldReportPerformanceFor(metric: PlaybackMetric): Boolean
 
     private fun createPlaybackPerformanceEvent(event: AudioPerformanceEvent, playerType: PlayerType): PlaybackPerformanceEvent {
         val builder: PlaybackPerformanceEvent.Builder = when (event.metric) {

@@ -356,7 +356,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         if (metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY) {
             performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent, getPlayerType());
         } else {
-            performanceReporter.report(currentPlaybackItem.getPlaybackType(), audioPerformanceEvent, getPlayerType());
+            performanceReporter.report(audioPerformanceEvent, getPlayerType());
         }
     }
 
