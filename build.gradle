@@ -11,7 +11,7 @@ buildscript {
 
 def buildSrcDir = 'buildsystem'
 apply from: "${buildSrcDir}/setup.gradle"
-apply from: "${buildSrcDir}/tests.gradle"
+apply from: "${buildSrcDir}/ci_tests.gradle"
 apply from: "${buildSrcDir}/ci_static_analysis.gradle"
 
 allprojects {

@@ -164,11 +164,3 @@ task runAcceptanceTestsOnFirebase(type: Exec ) {
   commandLine './scripts/flank_test.sh'
 }
 runAcceptanceTestsOnFirebase.mustRunAfter('assembleAppApkForFirebase', 'assembleTestApkForFirebase')
-
-// *********************************************************************************************************************
-// UNIT TESTS
-// *********************************************************************************************************************
-
-task runUnitTests(dependsOn: [':app:cleanTestDevDebugUnitTest', ':app:testDevDebugUnitTest']) {
-  description = 'Run aplication unit tests'
-}

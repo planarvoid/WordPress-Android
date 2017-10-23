@@ -1,0 +1,36 @@
+task runUnitTests
+subprojects { project ->
+  project.afterEvaluate {
+    // Ignore our module folders (which is also a module for gradle...)
+    if (!project.getSubprojects().isEmpty()) {
+      return
+    }
+
+    if (isAndroidApplicationProject(project)) {
+      runUnitTests.dependsOn("${project.path}:testDevDebugUnitTest")
+      return
+    }
+
+    if (isAndroidLibraryProject(project)) {
+      runUnitTests.dependsOn("${project.path}:testDebugUnitTest")
+      return
+    }
+
+    if (hasIntegrationTestTask(project)) {
+      runUnitTests.dependsOn("${project.path}:integrationTest")
+    }
+    runUnitTests.dependsOn("${project.path}:test")
+  }
+}
+
+def hasIntegrationTestTask(Project project) {
+  return project.tasks.findAll { it.name == "integrationTest" }.any()
+}
+
+def isAndroidApplicationProject(Project project) {
+  return project.getPlugins().hasPlugin('com.android.application')
+}
+
+def isAndroidLibraryProject(Project project) {
+  return project.getPlugins().hasPlugin('com.android.library')
+}

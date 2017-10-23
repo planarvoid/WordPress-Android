@@ -30,8 +30,8 @@ if (System.env.containsKey('JENKINS_URL')) {
 task allStaticAnalysisChangedTasks
 subprojects { project ->
   project.afterEvaluate {
-    // Ignore our modules folder (which is also a module for gradle...)
-    if (project.name == "modules") {
+    /// Ignore our module folders (which is also a module for gradle...)
+    if (!project.getSubprojects().isEmpty()) {
       return
     }
 
