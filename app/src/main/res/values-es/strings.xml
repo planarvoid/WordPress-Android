@@ -569,7 +569,7 @@
   <string name="collections_play_history_empty">Aquí encontrarás todas las pistas que has escuchado.</string>
   <string name="collections_recently_played_header">Escuchadas recientemente</string>
   <string name="collections_view_all_tracks">Ver todo el historial de reproducción</string>
-  <string name="collections_view_all_recently_played">Ver todas las pistas escuchadas recientemente</string>
+  <string name="collections_view_all_recently_played">Pistas escuchadas recientemente</string>
   <string name="dialog_playlist_delete_title">¿Eliminar lista?</string>
   <string name="dialog_playlist_delete_message">Esto borrará la lista permanentemente. ¿Seguro que deseas continuar?</string>
   <string name="collections_recently_played_track_station">emisora de la pista</string>
