@@ -9,12 +9,15 @@ inline fun <T> SharedPreferences.put(key: String, value: T) {
     }
 }
 
-inline fun <T> SharedPreferences.Editor.putValue(key: String, value: T) {
-    when(value) {
+inline fun <T> SharedPreferences.commit(key: String, value: T) = edit().putValue(key, value).commit()
+
+inline fun <T> SharedPreferences.Editor.putValue(key: String, value: T): SharedPreferences.Editor {
+    when (value) {
         is String -> putString(key, value)
         is Long -> putLong(key, value)
         is Float -> putFloat(key, value)
         is Boolean -> putBoolean(key, value)
         else -> throw IllegalArgumentException("Can't handle type of key $key")
     }
+    return this
 }

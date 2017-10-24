@@ -8,4 +8,6 @@ interface PlayerCache<out Key> {
     fun size(): Long
     fun minFreeSpaceAvailablePercentage(): Byte
     fun remainingSpace(): Long
+    fun clearCache(): Boolean
+    fun isEmpty(): Boolean
 }

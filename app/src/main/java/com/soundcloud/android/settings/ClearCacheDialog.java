@@ -65,21 +65,12 @@ public class ClearCacheDialog extends DialogFragment {
     }
 
     private Completable clearCache() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) {
-                waveformOperations.clearWaveforms();
-                imageOperations.clearDiskCache();
-                clear(skippyConfig.getCache().directory());
-                clear(flipperConfig.getCache().directory());
-                emitter.onComplete();
-            }
-
-            private void clear(File directory) {
-                if (directory != null) {
-                    IOUtils.cleanDirs(directory);
-                }
-            }
+        return Completable.create(emitter -> {
+            waveformOperations.clearWaveforms();
+            imageOperations.clearDiskCache();
+            skippyConfig.getCache().clearCache();
+            flipperConfig.getCache().clearCache();
+            emitter.onComplete();
         });
     }
 

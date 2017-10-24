@@ -213,6 +213,28 @@ public class IOUtilsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isEmptyDirReturnsTrueIsDirectoryIsEmpty() throws IOException {
+        File folder = tempFolder.newFolder("folder");
+
+        assertThat(IOUtils.isEmptyDir(folder)).isTrue();
+    }
+
+    @Test
+    public void isEmptyDirReturnsFalseIsDirectoryIsNotEmpty() throws IOException {
+        File folder = tempFolder.newFolder("folder");
+        tempFolder.newFile("folder/file.text");
+
+        assertThat(IOUtils.isEmptyDir(folder)).isFalse();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void isEmptyDirThrowsAnExceptionIfParamIsNotADirectory() throws IOException {
+        File file = tempFolder.newFile("file.text");
+
+        IOUtils.isEmptyDir(file);
+    }
+
+    @Test
     public void cleanDirShouldEmptyTheDirectory() throws IOException {
         tempFolder.newFile("file.txt");
         tempFolder.newFolder("folder1");
@@ -227,17 +249,11 @@ public class IOUtilsTest extends AndroidUnitTest {
         assertThat(tempFolder.getRoot().list().length).isEqualTo(0);
     }
 
-    @Test
-    public void cleanDirsShouldEmptyEachDir() throws IOException {
-        File dir1 = tempFolder.newFolder("folder1");
-        File dir2 = tempFolder.newFolder("folder2");
-        tempFolder.newFile("folder1/file.txt");
-        tempFolder.newFile("folder2/file.txt");
+    @Test(expected = IllegalArgumentException.class)
+    public void cleanDirThrowsAnExceptionIfParamIsNotADirectory() throws IOException {
+        File file = tempFolder.newFile("file.txt");
 
-        IOUtils.cleanDirs(dir1, dir2);
-
-        assertThat(dir1.list().length).isEqualTo(0);
-        assertThat(dir2.list().length).isEqualTo(0);
+        IOUtils.cleanDir(file);
     }
 
     @Test

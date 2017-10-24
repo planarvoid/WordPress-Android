@@ -304,27 +304,30 @@ public class IOUtils {
         return false;
     }
 
-    public static void cleanDir(@NotNull File dir) {
+    public static boolean isEmptyDir(@NotNull File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
-            if (files != null && files.length > 0) {
-                for (File aFile : files) {
-                    if (aFile.isDirectory()) {
-                        deleteDir(aFile);
-                    } else {
-                        deleteFile(aFile);
-                    }
-                }
-            }
+            return files == null || files.length == 0;
         }
+        throw new IllegalArgumentException("Argument " + dir.toString() + " is not a directory");
     }
 
-    public static void cleanDirs(File... dirs) {
-        for (File d : dirs) {
-            if (d != null) {
-                cleanDir(d);
+    public static boolean cleanDir(@NotNull File dir) {
+        boolean result = true;
+        if (dir.isDirectory()) {
+            if (isEmptyDir(dir)) {
+                return true;
             }
+            for (File aFile : dir.listFiles()) {
+                if (aFile.isDirectory()) {
+                    result = result && deleteDir(aFile);
+                } else {
+                    result = result && deleteFile(aFile);
+                }
+            }
+            return result;
         }
+        throw new IllegalArgumentException("Argument " + dir.toString() + " is not a directory");
     }
 
     public static boolean renameCaseSensitive(File oldFile, File newFile) {

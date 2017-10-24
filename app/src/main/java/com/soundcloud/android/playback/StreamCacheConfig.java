@@ -47,6 +47,10 @@ public class StreamCacheConfig<Key> implements PlayerCache<Key> {
     @Nullable
     @Override
     public File directory() {
+        return lazilyCreateCacheDirectory();
+    }
+
+    private File lazilyCreateCacheDirectory() {
         if (cacheDir != null && !cacheDir.exists()) {
             IOUtils.createCacheDirs(context, cacheDir);
         }
@@ -84,6 +88,18 @@ public class StreamCacheConfig<Key> implements PlayerCache<Key> {
             final long spaceRemainingUnderSizeCeiling = size() - ioUtils.dirSize(cacheDir);
             return Math.max(0, Math.min(spaceRemainingUnderPercentCeiling, spaceRemainingUnderSizeCeiling));
         }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return cacheDir != null && IOUtils.isEmptyDir(cacheDir);
+    }
+
+    @Override
+    public boolean clearCache() {
+        boolean result = cacheDir != null && IOUtils.cleanDir(cacheDir);
+        lazilyCreateCacheDirectory();
+        return result;
     }
 
     static class SkippyConfig extends StreamCacheConfig<byte[]> implements SkippyCache {

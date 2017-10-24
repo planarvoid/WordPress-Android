@@ -42,6 +42,7 @@ import com.soundcloud.android.playback.PlaySessionControllerProxy;
 import com.soundcloud.android.playback.PlaybackMeter;
 import com.soundcloud.android.playback.PlaylistExploderProxy;
 import com.soundcloud.android.playback.StreamPreloader;
+import com.soundcloud.android.playback.flipper.FlipperCacheCleaner;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetControllerProxy;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
@@ -136,6 +137,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlaybackMeter playbackMeter;
     @Inject OfflineStorageOperations offlineStorageOperations;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject FlipperCacheCleaner flipperCacheCleaner;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -255,6 +257,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         dailyUpdateScheduler.schedule();
         databaseCleanupScheduler.schedule();
         streamPreloader.subscribe();
+
+        flipperCacheCleaner.clearCacheIfNecessary();
 
         configurationFeatureController.subscribe();
         likesStateProvider.subscribe();
