@@ -39,7 +39,7 @@ class ProfilePagerAdapter extends UserProfilePagerAdapter {
                        ? UserSoundsFragment.createForCurrentUser(userUrn, Screen.YOUR_MAIN, searchQuerySourceInfo)
                        : UserSoundsFragment.create(userUrn, Screen.USER_MAIN, searchQuerySourceInfo);
             case TAB_INFO:
-                return NewUserDetailsFragment.Companion.create(userUrn, searchQuerySourceInfo);
+                return UserDetailsFragment.Companion.create(userUrn, searchQuerySourceInfo);
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);
         }

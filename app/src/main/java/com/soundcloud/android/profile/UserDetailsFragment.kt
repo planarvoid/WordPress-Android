@@ -21,14 +21,14 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-class NewUserDetailsFragment : BaseFragment<NewUserDetailsPresenter>(), NewUserDetailsView {
+class UserDetailsFragment : BaseFragment<UserDetailsPresenter>(), UserDetailsView {
 
     override val linkClickListener: PublishSubject<String> = PublishSubject.create()
     override val followersClickListener: PublishSubject<UserFollowsItem> = PublishSubject.create()
     override val followingsClickListener: PublishSubject<UserFollowsItem> = PublishSubject.create()
 
-    @Inject lateinit var presenterLazy: Lazy<NewUserDetailsPresenter>
-    @Inject lateinit var adapterFactory: NewUserDetailAdapter.Factory
+    @Inject lateinit var presenterLazy: Lazy<UserDetailsPresenter>
+    @Inject lateinit var adapterFactory: UserDetailAdapter.Factory
 
     private lateinit var collectionRenderer: CollectionRenderer<UserDetailItem, RecyclerItemAdapter.ViewHolder>
 
@@ -69,9 +69,9 @@ class NewUserDetailsFragment : BaseFragment<NewUserDetailsPresenter>(), NewUserD
         collectionRenderer.render(CollectionRendererState(AsyncLoadingState.empty(), alwaysShowFollows))
     }
 
-    override fun disconnectPresenter(presenter: NewUserDetailsPresenter) = presenter.detachView()
+    override fun disconnectPresenter(presenter: UserDetailsPresenter) = presenter.detachView()
 
-    override fun connectPresenter(presenter: NewUserDetailsPresenter) = presenter.attachView(this)
+    override fun connectPresenter(presenter: UserDetailsPresenter) = presenter.attachView(this)
 
     override fun createPresenter() = presenterLazy.get()
 
@@ -81,8 +81,8 @@ class NewUserDetailsFragment : BaseFragment<NewUserDetailsPresenter>(), NewUserD
             inflater.inflate(R.layout.recyclerview_with_refresh_without_empty, container, false)
 
     companion object {
-        fun create(userUrn: Urn, searchQuerySourceInfo: SearchQuerySourceInfo?): NewUserDetailsFragment {
-            return NewUserDetailsFragment().apply {
+        fun create(userUrn: Urn, searchQuerySourceInfo: SearchQuerySourceInfo?): UserDetailsFragment {
+            return UserDetailsFragment().apply {
                 arguments = Bundle().apply {
                     Urns.writeToBundle(this, ProfileArguments.USER_URN_KEY, userUrn)
                     putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo)

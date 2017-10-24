@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
+class UserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
     val userUrn = Urn.forUser(123)
     val searchQuerySourceInfo = SearchQuerySourceInfo(Urn("soundcloud:queries:456"), "queryString")
     val userDetailsParams = UserDetailsParams(userUrn, searchQuerySourceInfo)
@@ -32,7 +32,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
     fun presenterDoesNotEmitWhenNotConnected() {
         noNetwork()
 
-        val testView = NewUserDetailsPresenterIntegrationTest.TestView()
+        val testView = UserDetailsPresenterIntegrationTest.TestView()
 
         testView.assertState(Matchers.empty<AsyncLoaderState<List<UserDetailItem>>>())
     }
@@ -41,7 +41,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
     fun presenterEmitsLoadingStateWhenConnected() {
         unrespondingNetwork()
 
-        val testView = NewUserDetailsPresenterIntegrationTest.TestView()
+        val testView = UserDetailsPresenterIntegrationTest.TestView()
 
         testView.initialLoadSignal.onNext(userDetailsParams)
 
@@ -52,7 +52,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
     fun presenterShowsNetworkError() {
         noNetwork()
 
-        val testView = NewUserDetailsPresenterIntegrationTest.TestView()
+        val testView = UserDetailsPresenterIntegrationTest.TestView()
 
         testView.initialLoadSignal.onNext(userDetailsParams)
 
@@ -65,7 +65,7 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
     fun presenterShowsUserInfo() {
         addMockedResponse(ApiEndpoints.PROFILE_INFO.path(userUrn), "user-info.json")
 
-        val testView = NewUserDetailsPresenterIntegrationTest.TestView()
+        val testView = UserDetailsPresenterIntegrationTest.TestView()
 
         testView.initialLoadSignal.onNext(userDetailsParams)
 
@@ -80,10 +80,9 @@ class NewUserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.test
     private fun loadingState(): AsyncLoaderState<List<UserDetailItem>> =
             AsyncLoaderState.loadingNextPage()
 
-    internal class TestView : TestAsyncState<AsyncLoaderState<List<UserDetailItem>>>(), NewUserDetailsView {
+    internal class TestView : TestAsyncState<AsyncLoaderState<List<UserDetailItem>>>(), UserDetailsView {
 
-
-        val presenter: NewUserDetailsPresenter = SoundCloudApplication.getObjectGraph().newUserDetailsPresenter()
+        val presenter: UserDetailsPresenter = SoundCloudApplication.getObjectGraph().newUserDetailsPresenter()
         val models: MutableList<AsyncLoaderState<List<UserDetailItem>>> = mutableListOf()
         val initialLoadSignal = PublishSubject.create<UserDetailsParams>()
         override val linkClickListener = PublishSubject.create<String>()

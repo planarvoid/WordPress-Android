@@ -101,13 +101,12 @@ import com.soundcloud.android.playlists.PlaylistDetailsPresenterFactory;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.profile.FollowersActivity;
 import com.soundcloud.android.profile.FollowingsActivity;
-import com.soundcloud.android.profile.NewUserDetailsFragment;
-import com.soundcloud.android.profile.NewUserDetailsPresenter;
 import com.soundcloud.android.profile.OldUserDetailsFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserAlbumsFragment;
 import com.soundcloud.android.profile.UserDetailsFragment;
+import com.soundcloud.android.profile.UserDetailsPresenter;
 import com.soundcloud.android.profile.UserFollowersFragment;
 import com.soundcloud.android.profile.UserFollowingsFragment;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -266,8 +265,8 @@ public interface ApplicationComponent {
     void inject(UserFollowersFragment userFollowersFragment);
     void inject(UserSoundsFragment userSoundsFragment);
     void inject(OldUserDetailsFragment oldUserDetailsFragment);
+
     void inject(UserDetailsFragment userDetailsFragment);
-    void inject(NewUserDetailsFragment newUserDetailsFragment);
     void inject(VerifyAgeActivity verifyAgeActivity);
     void inject(UserRepostsActivity userRepostsActivity);
     void inject(UserRepostsFragment userRepostsFragment);
@@ -389,5 +388,6 @@ public interface ApplicationComponent {
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
     HomePresenter homePresenter();
-    NewUserDetailsPresenter newUserDetailsPresenter();
+
+    UserDetailsPresenter newUserDetailsPresenter();
 }

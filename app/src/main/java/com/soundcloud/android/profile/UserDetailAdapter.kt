@@ -7,7 +7,7 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-class NewUserDetailAdapter
+class UserDetailAdapter
 @Inject constructor(userFollowsRenderer: UserFollowRenderer,
                     userBioRenderer: UserBioRenderer,
                     userLinksRenderer: UserLinksRenderer,
@@ -39,11 +39,11 @@ class NewUserDetailAdapter
                         val userLoadingRenderer: UserLoadingRenderer) {
         fun create(followersClickListener: PublishSubject<UserFollowsItem>,
                    followingsClickListener: PublishSubject<UserFollowsItem>,
-                   linkClickListener: PublishSubject<String>): NewUserDetailAdapter {
-            return NewUserDetailAdapter(userFollowsRendererFactory.create(followersClickListener, followingsClickListener),
-                                        userBioRenderer,
-                                        userLinksRendererFactory.create(linkClickListener),
-                                        userLoadingRenderer)
+                   linkClickListener: PublishSubject<String>): UserDetailAdapter {
+            return UserDetailAdapter(userFollowsRendererFactory.create(followersClickListener, followingsClickListener),
+                                     userBioRenderer,
+                                     userLinksRendererFactory.create(linkClickListener),
+                                     userLoadingRenderer)
         }
     }
 }

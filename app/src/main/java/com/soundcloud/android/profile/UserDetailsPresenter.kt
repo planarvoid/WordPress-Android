@@ -18,11 +18,11 @@ import com.soundcloud.java.optional.Optional
 import io.reactivex.Observable
 import javax.inject.Inject
 
-class NewUserDetailsPresenter
+class UserDetailsPresenter
 @Inject
 internal constructor(val profileOperations: UserProfileOperations,
                      val navigator: Navigator,
-                     val screenProvider: ScreenProvider) : BasePresenter<List<UserDetailItem>, UserDetailsParams, NewUserDetailsView>() {
+                     val screenProvider: ScreenProvider) : BasePresenter<List<UserDetailItem>, UserDetailsParams, UserDetailsView>() {
 
     override fun firstPageFunc(pageParams: UserDetailsParams): Observable<AsyncLoader.PageResult<List<UserDetailItem>>> {
         return RxJava.toV2Observable(profileOperations.userProfileInfo(pageParams.userUrn))
@@ -32,7 +32,7 @@ internal constructor(val profileOperations: UserProfileOperations,
 
     override fun refreshFunc(pageParams: UserDetailsParams) = firstPageFunc(pageParams)
 
-    override fun attachView(view: NewUserDetailsView) {
+    override fun attachView(view: UserDetailsView) {
         super.attachView(view)
         compositeDisposable += view.followersClickListener.subscribe { navigator.navigateTo(NavigationTarget.forFollowers(it.userUrn, Optional.fromNullable(it.searchQuerySourceInfo))) }
         compositeDisposable += view.followingsClickListener.subscribe { navigator.navigateTo(NavigationTarget.forFollowings(it.userUrn, Optional.fromNullable(it.searchQuerySourceInfo))) }
@@ -42,7 +42,7 @@ internal constructor(val profileOperations: UserProfileOperations,
     }
 }
 
-interface NewUserDetailsView : BaseView<AsyncLoaderState<List<UserDetailItem>>, UserDetailsParams> {
+interface UserDetailsView : BaseView<AsyncLoaderState<List<UserDetailItem>>, UserDetailsParams> {
     val linkClickListener: Observable<String>
     val followersClickListener: Observable<UserFollowsItem>
     val followingsClickListener: Observable<UserFollowsItem>
