@@ -44,9 +44,9 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                                    }
                                            ),
                                    Observables.combineLatest(view.enterScreenTimestamp
-                                                                     .filter { it.second == Screen.DISCOVER }
-                                                                     .map { it.first },
-                                                             loader.map { it.data }.filter { it.isPresent }.map { it.get() },
+                                                                      .filter { it.second == Screen.DISCOVER }
+                                                                      .map { it.first },
+                                                             loader.filter { it.data != null }.map { it.data ?: emptyList() },
                                                              { first, second ->
                                                                  Pair(first, Optional.fromNullable(second.responseQueryUrn()))
                                                              })

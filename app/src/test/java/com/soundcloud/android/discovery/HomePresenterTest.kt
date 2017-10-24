@@ -57,14 +57,14 @@ class HomePresenterTest : AndroidUnitTest() {
 
         source.onSuccess(DiscoveryResult())
 
-        verify(view).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = emptyList))
 
         newHomePresenter.detachView()
 
         val newView = initView()
         newHomePresenter.attachView(newView)
 
-        verify(newView).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = Optional.of(emptyList)))
+        verify(newView).accept(AsyncLoaderState<List<DiscoveryCardViewModel>>(data = emptyList))
     }
 
     @Test
@@ -77,13 +77,13 @@ class HomePresenterTest : AndroidUnitTest() {
         val view: HomeView = initView()
         newHomePresenter.attachView(view)
         verify(view).accept(AsyncLoaderState.loadingNextPage())
-        verify(view).accept(AsyncLoaderState(data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState(data = emptyList))
 
         refreshSignalSubject.onNext(RxSignal.SIGNAL)
 
-        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).build(), data = Optional.of(emptyList)))
-        verify(view, times(2)).accept(AsyncLoaderState(data = Optional.of(emptyList)))
-        verify(view).accept(AsyncLoaderState(data = Optional.of(toViewModel(discoveryResult))))
+        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState(isRefreshing = true), data = emptyList))
+        verify(view, times(2)).accept(AsyncLoaderState(data = emptyList))
+        verify(view).accept(AsyncLoaderState(data = toViewModel(discoveryResult)))
     }
 
     @Test
@@ -94,12 +94,12 @@ class HomePresenterTest : AndroidUnitTest() {
         val view: HomeView = initView()
         newHomePresenter.attachView(view)
         verify(view).accept(AsyncLoaderState.loadingNextPage())
-        verify(view).accept(AsyncLoaderState(data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState(data = emptyList))
 
         refreshSignalSubject.onNext(RxSignal.SIGNAL)
 
-        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).build(), data = Optional.of(emptyList)))
-        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).build(), data = Optional.of(emptyList)))
+        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState(isRefreshing = true), data = emptyList))
+        verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState(isRefreshing = false), data = emptyList))
     }
 
     @Test

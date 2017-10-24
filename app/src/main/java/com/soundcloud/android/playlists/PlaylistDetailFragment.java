@@ -434,12 +434,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         }
 
         static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, PlaylistAsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-            final AsyncLoadingState loadingState = AsyncLoadingState
-                    .builder()
-                    .nextPageError(asyncViewModel.error())
-                    .isRefreshing(asyncViewModel.isRefreshing())
-                    .requestMoreOnScroll(false)
-                    .build();
+            final AsyncLoadingState loadingState = new AsyncLoadingState(false, asyncViewModel.isRefreshing(), asyncViewModel.error().orNull(), null, false);
             List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
             return new CollectionRendererState<>(loadingState, items);
         }

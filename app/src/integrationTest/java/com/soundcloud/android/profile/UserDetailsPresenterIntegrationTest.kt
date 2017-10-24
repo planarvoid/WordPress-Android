@@ -57,8 +57,8 @@ class UserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.testUse
         testView.initialLoadSignal.onNext(userDetailsParams)
 
         testView.assertState(Matchers.contains(loadingState()))
-        testView.assertLastState({ it.data.isPresent() }, Matchers.equalTo(false))
-        testView.assertLastState({ it.asyncLoadingState.nextPageError() }, Matchers.equalTo(Optional.of(CONNECTION_ERROR)))
+        testView.assertLastState({ it.data }, Matchers.nullValue())
+        testView.assertLastState({ it.asyncLoadingState.nextPageError }, Matchers.equalTo(CONNECTION_ERROR))
     }
 
     @Test
@@ -70,11 +70,11 @@ class UserDetailsPresenterIntegrationTest : BaseIntegrationTest(TestUser.testUse
         testView.initialLoadSignal.onNext(userDetailsParams)
 
         println(testView.states().get())
-        testView.assertLastState({ it.data.isPresent() }, Matchers.equalTo(true))
-        testView.assertLastState({ it.data.get().size }, Matchers.equalTo(3))
-        testView.assertLastState({ it.data.get()[0] }, Matchers.equalTo<UserDetailItem>(UserFollowsItem(userUrn, searchQuerySourceInfo, 121, 340)))
-        testView.assertLastState({ it.data.get()[1] }, Matchers.equalTo<UserDetailItem>(UserBioItem("I'm here to make friends")))
-        testView.assertLastState({ it.data.get()[2] }, Matchers.equalTo<UserDetailItem>(UserLinksItem(listOf(socialMediaLinkItem))))
+        testView.assertLastState({ it.data }, Matchers.notNullValue())
+        testView.assertLastState({ it.data?.size }, Matchers.equalTo(3))
+        testView.assertLastState({ it.data?.get(0) }, Matchers.equalTo<UserDetailItem>(UserFollowsItem(userUrn, searchQuerySourceInfo, 121, 340)))
+        testView.assertLastState({ it.data?.get(1) }, Matchers.equalTo<UserDetailItem>(UserBioItem("I'm here to make friends")))
+        testView.assertLastState({ it.data?.get(2) }, Matchers.equalTo<UserDetailItem>(UserLinksItem(listOf(socialMediaLinkItem))))
     }
 
     private fun loadingState(): AsyncLoaderState<List<UserDetailItem>> =

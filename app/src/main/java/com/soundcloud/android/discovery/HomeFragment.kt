@@ -118,7 +118,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
     override fun createPresenter(): HomePresenter = presenterLazy.get()
 
     override fun accept(viewModel: AsyncLoaderState<List<DiscoveryCardViewModel>>) {
-        collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList())))
+        collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data ?: emptyList()))
     }
 
     override fun refreshErrorConsumer(viewError: ViewError) {

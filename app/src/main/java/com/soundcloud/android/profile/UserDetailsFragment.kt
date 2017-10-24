@@ -65,8 +65,8 @@ class UserDetailsFragment : BaseFragment<UserDetailsPresenter>(), UserDetailsVie
     }
 
     override fun accept(loaderState: AsyncLoaderState<List<UserDetailItem>>) = with(loaderState) {
-        val alwaysShowFollows = data.or(UserDetailItem.Companion.empty(userDetailsParams())) + listOf(UserLoadingItem).filter { asyncLoadingState.isLoadingNextPage }
-        collectionRenderer.render(CollectionRendererState(AsyncLoadingState.empty(), alwaysShowFollows))
+        val alwaysShowFollows = (data ?: UserDetailItem.Companion.empty(userDetailsParams())) + listOf(UserLoadingItem).filter { asyncLoadingState.isLoadingNextPage }
+        collectionRenderer.render(CollectionRendererState(AsyncLoadingState(), alwaysShowFollows))
     }
 
     override fun disconnectPresenter(presenter: UserDetailsPresenter) = presenter.detachView()

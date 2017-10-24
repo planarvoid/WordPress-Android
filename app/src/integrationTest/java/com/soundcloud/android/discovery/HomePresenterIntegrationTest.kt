@@ -12,8 +12,6 @@ import com.soundcloud.android.main.Screen
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.utils.Supplier
 import com.soundcloud.android.utils.collection.AsyncLoaderState
-import com.soundcloud.android.view.ViewError
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.contains
@@ -113,18 +111,18 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
 
         val lastState = testView.lastState<AsyncLoaderState<List<DiscoveryCardViewModel>>>()
 
-        testView.selectionItemClick.onNext((lastState.data.get()[1] as DiscoveryCardViewModel.SingleContentSelectionCard).selectionItem)
+        testView.selectionItemClick.onNext((lastState.data?.get(1) as DiscoveryCardViewModel.SingleContentSelectionCard).selectionItem)
 
         mrLocalLocal.verify(HOME_PAGEVIEW_AND_CARD_CLICK_SPECS)
     }
 
-    private fun AsyncLoaderState<*>.hasData(): Boolean = data.isPresent
-    private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.cardsCount(): Int = if (data.isPresent) data.get().size else 0
+    private fun AsyncLoaderState<*>.hasData(): Boolean = data != null
+    private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.cardsCount(): Int = data?.size ?: 0
     private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.card(position: Int): DiscoveryCardViewModel? =
-            if (data.isPresent && data.get().size > position) data.get()[position] else null
+            data?.let { if (it.size > position) it[position] else null }
 
     private fun AsyncLoaderState<List<DiscoveryCardViewModel>>.exception(position: Int): ApiRequestException? {
-        val card = if (data.isPresent && data.get().size > position) data.get()[position] else null
+        val card = data?.let { if (it.size > position) it[position] else null }
         if (card is DiscoveryCardViewModel.EmptyCard) {
             return card.throwable?.let { it as ApiRequestException }
         }

@@ -132,7 +132,7 @@ class AsyncLoaderTest : AndroidUnitTest() {
 
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage<List<Int>>(),
-                AsyncLoaderState(asyncLoadingState = AsyncLoadingState.builder().nextPageError(of(ViewError.from(networkError))).build()),
+                AsyncLoaderState(asyncLoadingState = AsyncLoadingState(nextPageError = ViewError.from(networkError))),
                 AsyncLoaderState.loadingNextPage<List<Int>>(),
                 firstPageLoaded()
         )
@@ -153,8 +153,8 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage<List<Int>>(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true))
         )
     }
 
@@ -194,8 +194,8 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(false).nextPageError(of(ViewError.from(networkError))).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = false, nextPageError = ViewError.from(networkError)))
         )
     }
 
@@ -223,10 +223,10 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(false).nextPageError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = false, nextPageError = ViewError.from(networkError))),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true))
         )
     }
 
@@ -249,10 +249,10 @@ class AsyncLoaderTest : AndroidUnitTest() {
         testSubscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData + thirdPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(false).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData + thirdPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = false))
         )
     }
 
@@ -277,11 +277,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
         testSubscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageUpdatedData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageUpdatedData + secondPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageUpdatedData + secondPageData + thirdPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(false).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData + secondPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageUpdatedData + secondPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageUpdatedData + secondPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageUpdatedData + secondPageData + thirdPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = false))
         )
     }
 
@@ -305,11 +305,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().refreshError(of(ViewError.from(networkError))).requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).refreshError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState(data = of(firstPageData + secondPageData),
-                                 asyncLoadingState = AsyncLoadingState.builder().refreshError(of(ViewError.from(networkError))).requestMoreOnScroll(true).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(refreshError = ViewError.from(networkError), requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true, refreshError = ViewError.from(networkError))),
+                AsyncLoaderState(data = firstPageData + secondPageData,
+                                 asyncLoadingState = AsyncLoadingState(refreshError = ViewError.from(networkError), requestMoreOnScroll = true))
         )
 
         subscriber.assertNoErrors()
@@ -336,12 +336,11 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isLoadingNextPage(true).isRefreshing(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).nextPageError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().nextPageError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState(data = of(secondPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(false).requestMoreOnScroll(true).build())
-
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isLoadingNextPage = true, isRefreshing = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, nextPageError = ViewError.from(networkError))),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(nextPageError = ViewError.from(networkError))),
+                AsyncLoaderState(data = secondPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = false, requestMoreOnScroll = true))
         )
 
         subscriber.assertNoErrors()
@@ -396,17 +395,16 @@ class AsyncLoaderTest : AndroidUnitTest() {
         subscriber.assertValues(
                 AsyncLoaderState.loadingNextPage(),
                 firstPageLoaded(),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).requestMoreOnScroll(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).isLoadingNextPage(true).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().isRefreshing(true).nextPageError(of(ViewError.from(networkError))).build()),
-                AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().nextPageError(of(ViewError.from(networkError)))
-                        .isRefreshing(false)
-                        .refreshError(of(ViewError.from(networkError))).build())
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, requestMoreOnScroll = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, isLoadingNextPage = true)),
+                AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(isRefreshing = true, nextPageError = ViewError.from(networkError))),
+                AsyncLoaderState(data = firstPageData,
+                                 asyncLoadingState = AsyncLoadingState(nextPageError = ViewError.from(networkError), isRefreshing = false, refreshError = ViewError.from(networkError)))
         )
     }
 
     private fun firstPageLoaded(): AsyncLoaderState<List<Int>> =
-            AsyncLoaderState(data = of(firstPageData), asyncLoadingState = AsyncLoadingState.builder().requestMoreOnScroll(true).build())
+            AsyncLoaderState(data = firstPageData, asyncLoadingState = AsyncLoadingState(requestMoreOnScroll = true))
 
     companion object {
 

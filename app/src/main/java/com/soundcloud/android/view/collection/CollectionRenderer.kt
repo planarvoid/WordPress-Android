@@ -17,6 +17,7 @@ import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.view.EmptyStatus
 import com.soundcloud.android.view.MultiSwipeRefreshLayout
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer
+import com.soundcloud.java.optional.Optional
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
@@ -90,7 +91,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
 
     fun render(state: CollectionRendererState<ItemT>) {
 
-        requestMoreOnScroll = state.collectionLoadingState.requestMoreOnScroll()
+        requestMoreOnScroll = state.collectionLoadingState.requestMoreOnScroll
 
         adapter.setNewAppendState(getAppendState(state.collectionLoadingState))
 
@@ -116,7 +117,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
     private fun getAppendState(asyncLoadingState: AsyncLoadingState): PagingRecyclerItemAdapter.AppendState {
         return when {
             asyncLoadingState.isLoadingNextPage -> PagingRecyclerItemAdapter.AppendState.LOADING
-            asyncLoadingState.nextPageError().isPresent -> PagingRecyclerItemAdapter.AppendState.ERROR
+            asyncLoadingState.nextPageError != null -> PagingRecyclerItemAdapter.AppendState.ERROR
             else -> PagingRecyclerItemAdapter.AppendState.IDLE
         }
     }
@@ -149,9 +150,8 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
     }
 
     private fun updateEmptyView(state: CollectionRendererState<ItemT>) {
-        val viewErrorOptional = state.collectionLoadingState.nextPageError()
         emptyAdapter?.apply {
-            setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.collectionLoadingState.isLoadingNextPage))
+            setEmptyStatus(EmptyStatus.fromErrorAndLoading(Optional.fromNullable(state.collectionLoadingState.nextPageError), state.collectionLoadingState.isLoadingNextPage))
             notifyDataSetChanged()
         }
     }

@@ -14,11 +14,11 @@ import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Provider
 
 class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private val firstPageRequested: Observable<FirstPageParamsType>,
-                                                                                  private val paramsToFirstPage: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
-                                                                                  private val refreshRequested: Observable<FirstPageParamsType>,
-                                                                                  private val paramsToRefresh: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
-                                                                                  private val nextPageRequested: Observable<Any>,
-                                                                                  private val pageCombiner: Optional<(PageData, PageData) -> PageData>)
+                                                                      private val paramsToFirstPage: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
+                                                                      private val refreshRequested: Observable<FirstPageParamsType>,
+                                                                      private val paramsToRefresh: (FirstPageParamsType) -> Observable<PageResult<PageData>>,
+                                                                      private val nextPageRequested: Observable<Any>,
+                                                                      private val pageCombiner: Optional<(PageData, PageData) -> PageData>)
     : Observable<AsyncLoaderState<PageData>>() {
 
     private val compositeDisposable = CompositeDisposable()
@@ -26,7 +26,7 @@ class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private va
     private val refreshStateSubject = BehaviorSubject.createDefault(RefreshState(false, Optional.absent<Throwable>()))
 
     class PageResult<PageData> internal constructor(internal var data: PageData,
-                                                                internal var nextPage: Optional<Provider<Observable<PageResult<PageData>>>> = Optional.absent()) {
+                                                    internal var nextPage: Optional<Provider<Observable<PageResult<PageData>>>> = Optional.absent()) {
         companion object {
 
             fun <PageData> from(data: PageData, nextPage: Provider<Observable<PageResult<PageData>>>): PageResult<PageData> = PageResult(data, nextPage = Optional.of(nextPage))
@@ -97,15 +97,11 @@ class AsyncLoader<PageData, FirstPageParamsType> internal constructor(private va
     private fun combinePages(objects: Array<Any>): AsyncLoaderState<PageData> {
         val combinedData = combinePageData(objects)
         val lastPageState = toPageState(objects.last())
-        val loadingState = AsyncLoadingState.builder()
-                .isLoadingNextPage(lastPageState.loading)
-                .requestMoreOnScroll(!lastPageState.loading && !lastPageState.error.isPresent && hasMorePages())
-                .nextPageError(lastPageState.error.transform { ViewError.from(it) })
-                .build()
+        val loadingState = AsyncLoadingState(isLoadingNextPage = lastPageState.loading,
+                                             requestMoreOnScroll = !lastPageState.loading && !lastPageState.error.isPresent && hasMorePages(),
+                                             nextPageError = lastPageState.error.transform { ViewError.from(it) }.orNull())
 
-        return if (combinedData != null) AsyncLoaderState(data = Optional.of(combinedData),
-                                                          asyncLoadingState = loadingState)
-        else AsyncLoaderState(asyncLoadingState = loadingState)
+        return AsyncLoaderState(data = combinedData, asyncLoadingState = loadingState)
     }
 
     @Throws(Exception::class)

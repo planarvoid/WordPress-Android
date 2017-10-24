@@ -11,12 +11,10 @@ import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.history.SearchHistoryAdapter.ViewHolder
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.view.BaseFragment
-import com.soundcloud.android.view.ViewError
 import com.soundcloud.android.view.collection.CollectionRenderer
 import com.soundcloud.android.view.collection.CollectionRendererState
 import dagger.Lazy
 import io.reactivex.Observable
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -45,7 +43,7 @@ class SearchHistoryFragment : BaseFragment<SearchHistoryPresenter>(), SearchHist
     }
 
     override fun accept(viewModel: AsyncLoaderState<List<SearchHistoryItem>>) = with(viewModel) {
-        collectionRenderer.render(CollectionRendererState(asyncLoadingState, data.or(emptyList())))
+        collectionRenderer.render(CollectionRendererState(asyncLoadingState, data ?: emptyList()))
     }
 
     override fun disconnectPresenter(presenter: SearchHistoryPresenter) = presenter.detachView()

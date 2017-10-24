@@ -66,7 +66,7 @@ internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), S
     override fun refreshSignal(): Observable<RxSignal> = collectionRenderer.onRefresh()
 
     override fun accept(viewModel: AsyncLoaderState<List<StreamItem>>) {
-        collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data.or(emptyList())))
+        collectionRenderer.render(CollectionRendererState(viewModel.asyncLoadingState, viewModel.data ?: emptyList()))
     }
 
     override fun resetScroll() {
