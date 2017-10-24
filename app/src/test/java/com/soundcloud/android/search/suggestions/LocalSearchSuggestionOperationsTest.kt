@@ -8,6 +8,7 @@ import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.testsupport.StorageIntegrationTest
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
@@ -59,9 +60,9 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
                                                                     followingStorage,
                                                                     userRepository)
 
-        followingUser = ModelFixtures.userBuilder().username("Random account").signupDate(Optional.of(Date(500L))).build()
-        loggedInUser = ModelFixtures.userBuilder().username("Myself").build()
-        creator = ModelFixtures.userBuilder().username("Prolific artist").build()
+        followingUser = UserFixtures.userBuilder().username("Random account").signupDate(Optional.of(Date(500L))).build()
+        loggedInUser = UserFixtures.userBuilder().username("Myself").build()
+        creator = UserFixtures.userBuilder().username("Prolific artist").build()
 
         likedTrack = ModelFixtures.baseTrackBuilder().creatorName(creator.username()).title("A tune I enjoy").urn(Urn.forTrack(123)).createdAt(Date(100L)).build()
         likedTrackSearchSuggestion = buildSearchSuggestionFromTrack(likedTrack)
@@ -253,7 +254,7 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
 
     @Test
     fun returnsMultipleMatchesForFollowingUserSortedByMostRecentlyFollowed() {
-        val mostRecentFollowingUser = ModelFixtures.userBuilder()
+        val mostRecentFollowingUser = UserFixtures.userBuilder()
                 .username(followingUser.username())
                 .signupDate(Optional.of(Date(501L)))
                 .build()

@@ -4,7 +4,12 @@ import android.app.Activity
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import com.soundcloud.android.events.*
+import com.soundcloud.android.events.ActivityLifeCycleEvent
+import com.soundcloud.android.events.AdOverlayEvent
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent
+import com.soundcloud.android.events.EventQueue
+import com.soundcloud.android.events.PlayQueueEvent
+import com.soundcloud.android.events.PlayerUIEvent
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem

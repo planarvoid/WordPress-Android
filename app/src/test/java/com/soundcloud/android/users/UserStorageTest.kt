@@ -3,8 +3,8 @@ package com.soundcloud.android.users
 import com.soundcloud.android.api.model.ApiUser
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.StorageIntegrationTest
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
-import com.soundcloud.java.optional.Optional.absent
 import com.soundcloud.java.optional.Optional.fromNullable
 import com.soundcloud.java.optional.Optional.of
 import org.assertj.core.api.Assertions
@@ -33,23 +33,6 @@ class UserStorageTest : StorageIntegrationTest() {
         val apiUser = testFixtures().insertUser()
 
         val expectedUser = getApiUserBuilder(apiUser).build()
-
-        storage.loadUser(apiUser.urn)
-                .test()
-                .assertValue(expectedUser)
-    }
-
-    @Test
-    fun loadsUserWithoutCountryOrCity() {
-        val apiUser = ModelFixtures.create(ApiUser::class.java)
-        apiUser.country = null
-        apiUser.city = null
-        testFixtures().insertUser(apiUser)
-
-        val expectedUser = getBaseUserBuilder(apiUser)
-                .city(absent<String>())
-                .country(absent<String>())
-                .build()
 
         storage.loadUser(apiUser.urn)
                 .test()
@@ -144,7 +127,7 @@ class UserStorageTest : StorageIntegrationTest() {
 
     @Test
     fun updatesUsersFollowingCount() {
-        val user = ModelFixtures.apiUser()
+        val user = UserFixtures.apiUser()
         testFixtures().insertUser(user)
 
         val previousFollowersCount = user.followersCount
@@ -175,7 +158,7 @@ class UserStorageTest : StorageIntegrationTest() {
     }
 
     private fun getBaseUserBuilder(apiUser: ApiUser): User.Builder {
-        return ModelFixtures.userBuilder()
+        return UserFixtures.userBuilder()
                 .urn(apiUser.urn)
                 .username(apiUser.username)
                 .signupDate(apiUser.createdAt)

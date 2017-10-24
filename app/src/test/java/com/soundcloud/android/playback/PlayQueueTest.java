@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlayQueue.fromPlayableList;
-import static com.soundcloud.android.playback.PlayQueue.fromRecommendations;
 import static com.soundcloud.android.playback.PlayQueue.fromTrackUrnList;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.android.playback.PlaybackContext.create;
@@ -9,15 +8,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationTrack;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;

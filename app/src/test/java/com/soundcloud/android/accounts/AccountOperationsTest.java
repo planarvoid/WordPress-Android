@@ -23,7 +23,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
@@ -34,7 +34,6 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.accounts.Account;
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.content.Intent;
 
@@ -75,7 +74,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
                                                   io.reactivex.schedulers.Schedulers.trampoline(),
                                                   sessionProvider);
 
-        user = ModelFixtures.create(ApiUser.class);
+        user = UserFixtures.apiUser();
     }
 
     @Test

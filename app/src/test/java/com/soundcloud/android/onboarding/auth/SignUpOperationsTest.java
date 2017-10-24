@@ -30,6 +30,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
     @Mock SignupSignature signupSignature;
 
     private final Token token = Token.EMPTY;
-    private final ApiUser user = ModelFixtures.apiUser();
+    private final ApiUser user = UserFixtures.apiUser();
     private final Configuration configuration = ModelFixtures.configuration();
     private Bundle bundle;
     private SignUpOperations operations;

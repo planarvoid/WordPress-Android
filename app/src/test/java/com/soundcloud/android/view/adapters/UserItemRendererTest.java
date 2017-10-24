@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.userBuilder;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.userItem;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -11,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -44,7 +43,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
     public void setup() {
         renderer = new UserItemRenderer(imageOperations, numberFormatter);
 
-        userItem = ModelFixtures.userItem();
+        userItem = UserFixtures.userItem();
 
         itemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, new FrameLayout(context()), false);
     }
@@ -65,7 +64,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindProBadgeIfUserIsPro() {
-        userItem = ModelFixtures.userItem(ModelFixtures.proUser());
+        userItem = UserFixtures.userItem(ModelFixtures.proUser());
         renderer.bindItemView(0, itemView, singletonList(userItem));
 
         assertThat(imageView(R.id.pro_badge).getVisibility()).isEqualTo(View.VISIBLE);
@@ -87,7 +86,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotBindFollowersCountToViewIfNotSet() {
-        final UserItem userItemWithNoFollowers = userItem(userBuilder().followersCount(Consts.NOT_SET).build());
+        final UserItem userItemWithNoFollowers = UserFixtures.userItem(UserFixtures.userBuilder().followersCount(Consts.NOT_SET).build());
         renderer.bindItemView(0, itemView, singletonList(userItemWithNoFollowers));
 
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
@@ -95,7 +94,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldFallBackToEmptyStringIfUserCountryNotSet() {
-        final UserItem homelessUser = userItem(userBuilder().country(Optional.absent()).build());
+        final UserItem homelessUser = UserFixtures.userItem(UserFixtures.userBuilder().country(Optional.absent()).build());
         renderer.bindItemView(0, itemView, singletonList(homelessUser));
         assertThat(textView(R.id.list_item_subheader).getText()).isEqualTo("");
     }

@@ -26,6 +26,7 @@ import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
@@ -296,30 +297,33 @@ public class DatabaseFixtures {
     }
 
     public ApiUser insertUser() {
-        final ApiUser user = ModelFixtures.create(ApiUser.class);
+        final ApiUser user = UserFixtures.apiUser();
         insertUser(user);
         return user;
     }
 
     public ApiUser insertUser(String username) {
-        final ApiUser user = ModelFixtures.create(ApiUser.class);
-        user.setUsername(username);
+        final ApiUser user = UserFixtures.apiUserBuilder()
+                                         .username(username)
+                                         .build();
         insertUser(user);
         return user;
     }
 
     public ApiUser insertProUser(String username) {
-        final ApiUser user = ModelFixtures.create(ApiUser.class);
-        user.setUsername(username);
-        user.setIsPro(true);
+        final ApiUser user = UserFixtures.apiUserBuilder()
+                                         .username(username)
+                                         .pro(true)
+                                         .build();
         insertUser(user);
         return user;
     }
 
     public ApiUser insertUser(String username, long createdAt) {
-        final ApiUser user = ModelFixtures.create(ApiUser.class);
-        user.setUsername(username);
-        user.setCreatedAt(new Date(createdAt));
+        final ApiUser user = UserFixtures.apiUserBuilder()
+                                         .username(username)
+                                         .createdAt(new Date(createdAt))
+                                         .build();
         insertUser(user);
         return user;
     }
@@ -716,7 +720,7 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertPromotedStreamTrack(long timestamp) {
-        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiUser promoter = UserFixtures.apiUser();
         return insertPromotedStreamTrack(promoter, timestamp);
     }
 
@@ -738,7 +742,7 @@ public class DatabaseFixtures {
     }
 
     public void insertPromotedTrackMetadata(long promotedId, long timestamp) {
-        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiUser promoter = UserFixtures.apiUser();
         insertPromotedTrackMetadata(promoter, promotedId, timestamp);
     }
 

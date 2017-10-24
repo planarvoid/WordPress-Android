@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
@@ -24,7 +24,7 @@ import android.view.View;
 
 public class UserMenuPresenterTest extends AndroidUnitTest {
     private static final EventContextMetadata EVENT_CONTEXT_METADATA = EventContextMetadata.builder().build();
-    private static final UserItem USER = ModelFixtures.userItem();
+    private static final UserItem USER = UserFixtures.userItem();
 
     @Mock private UserItemRepository userItemRepository;
     @Mock private FollowingOperations followingOperations;

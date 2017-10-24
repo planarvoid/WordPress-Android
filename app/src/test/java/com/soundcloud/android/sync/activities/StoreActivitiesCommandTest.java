@@ -22,6 +22,7 @@ import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRecord;
 import org.junit.Before;
@@ -100,7 +101,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTrackCommentActivity() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        ApiUser commenter = ModelFixtures.create(ApiUser.class);
+        ApiUser commenter = UserFixtures.apiUser();
         ApiComment comment = apiComment(Urn.forComment(123), track.getUrn(), commenter);
         ApiActivityItem activity = apiActivityWithTrackComment(comment, track);
         ApiTrackCommentActivity commentActivity = activity.trackComment();
@@ -120,7 +121,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreUserFollowActivity() {
-        ApiUser follower = ModelFixtures.create(ApiUser.class);
+        ApiUser follower = UserFixtures.apiUser();
         ApiActivityItem activity = apiActivityWithUserFollow(follower);
         ApiUserFollowActivity follow = activity.userFollow();
 

@@ -3,22 +3,18 @@ package com.soundcloud.android.discovery
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.R
-import com.soundcloud.android.image.ApiImageSize
 import com.soundcloud.android.image.ImageOperations
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.DisplayMetricsStub
-import com.soundcloud.java.optional.Optional.fromNullable
 import org.assertj.android.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 class SingleSelectionContentCardRendererTest : AndroidUnitTest() {
 

@@ -2,8 +2,8 @@ package com.soundcloud.android.configuration;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;

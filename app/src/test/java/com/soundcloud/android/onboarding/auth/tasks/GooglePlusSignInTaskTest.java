@@ -27,6 +27,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Mock private SignInOperations signInOperations;
 
     private final Bundle bundle = new Bundle();
-    private ApiUser user = ModelFixtures.create(ApiUser.class);
+    private ApiUser user = UserFixtures.apiUser();
     private Configuration configuration = ModelFixtures.create(Configuration.class);
 
     private GooglePlusSignInTask task;

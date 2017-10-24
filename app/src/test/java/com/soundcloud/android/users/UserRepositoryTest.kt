@@ -7,7 +7,7 @@ import com.soundcloud.android.storage.RepositoryMissedSyncEvent
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.sync.SyncJobResult
 import com.soundcloud.android.sync.Syncable
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.rx.eventbus.TestEventBusV2
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -27,16 +27,16 @@ import org.mockito.junit.MockitoJUnitRunner
 class UserRepositoryTest {
 
     private val userUrn = Urn.forUser(123L)
-    private val user = ModelFixtures.userBuilder()
+    private val user = UserFixtures.userBuilder()
             .urn(Urn.forUser(123L)).build()
 
-    private val updatedUser = ModelFixtures.userBuilder()
+    private val updatedUser = UserFixtures.userBuilder()
             .urn(Urn.forUser(123L))
             .username("updated-name")
             .build()
 
     private val otherUserUrn = Urn.forUser(124L)
-    private val otherUser = ModelFixtures.userBuilder()
+    private val otherUser = UserFixtures.userBuilder()
             .urn(Urn.forUser(124L))
             .build();
 

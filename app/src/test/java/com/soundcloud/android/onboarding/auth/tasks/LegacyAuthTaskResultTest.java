@@ -7,7 +7,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ public class LegacyAuthTaskResultTest {
 
     @Test
     public void shouldCreateSuccessResult() throws CreateModelException {
-        ApiUser user = ModelFixtures.create(ApiUser.class);
+        ApiUser user = UserFixtures.apiUser();
         SignupVia signupVia = SignupVia.NONE;
 
         LegacyAuthTaskResult result = LegacyAuthTaskResult.success(user, signupVia);

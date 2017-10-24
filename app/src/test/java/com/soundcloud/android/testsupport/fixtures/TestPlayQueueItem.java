@@ -4,8 +4,8 @@ import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;

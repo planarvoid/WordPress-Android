@@ -4,7 +4,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -16,25 +16,25 @@ public class ApiUserTest {
 
     @Test
     public void shouldDefineEqualityBasedOnUrn() {
-        ApiUser apiUser1 = ModelFixtures.apiUser();
-        ApiUser apiUser2 = ModelFixtures.apiUser(apiUser1.getUrn());
+        ApiUser apiUser1 = UserFixtures.apiUser();
+        ApiUser apiUser2 = UserFixtures.apiUser(apiUser1.getUrn());
 
         assertThat(apiUser1).isEqualTo(apiUser2);
     }
 
     @Test
     public void shouldDefineHashCodeBasedOnUrn() {
-        ApiUser apiUser1 = ModelFixtures.apiUser();
-        ApiUser apiUser2 = ModelFixtures.apiUser(apiUser1.getUrn());
+        ApiUser apiUser1 = UserFixtures.apiUser();
+        ApiUser apiUser2 = UserFixtures.apiUser(apiUser1.getUrn());
 
         assertThat(apiUser1.hashCode()).isEqualTo(apiUser2.hashCode());
     }
 
     @Test
     public void shouldConvertToUserItem() {
-        ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        ApiUser apiUser = UserFixtures.apiUser();
 
-        UserItem userItem = ModelFixtures.userItem(apiUser);
+        UserItem userItem = UserFixtures.userItem(apiUser);
         assertThat(userItem.getUrn()).isEqualTo(apiUser.getUrn());
         assertThat(userItem.name()).isEqualTo(apiUser.getUsername());
         assertThat(userItem.country().get()).isEqualTo(apiUser.getCountry());

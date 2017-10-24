@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 

@@ -2,7 +2,12 @@ package com.soundcloud.android.playback.widget
 
 import com.nhaarman.mockito_kotlin.verify
 import com.soundcloud.android.api.model.ApiTrack
-import com.soundcloud.android.events.*
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent
+import com.soundcloud.android.events.CurrentUserChangedEvent
+import com.soundcloud.android.events.EventQueue
+import com.soundcloud.android.events.LikesStatusEvent
+import com.soundcloud.android.events.RepostsStatusEvent
+import com.soundcloud.android.events.TrackChangedEvent
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem

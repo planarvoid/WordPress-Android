@@ -15,6 +15,7 @@ import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -27,7 +28,7 @@ public abstract class PlayableFixtures {
     public static final String MONETIZATION_MODEL = "monetization-model";
 
     public static ApiUser user() {
-        return ModelFixtures.apiUser();
+        return UserFixtures.apiUser();
     }
 
     public static TrackItem.Builder baseTrackBuilder() {

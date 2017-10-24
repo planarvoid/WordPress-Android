@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestUserRecord;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,12 +36,14 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreUsersUsingUpsert() throws Exception {
-        final ApiUser user = testFixtures().insertUser();
-        user.setUsername("new username");
-        user.setFirstName("new");
-        user.setLastName("cloud");
-        user.setCreatedAt(new Date(1476350197));
-        user.setIsPro(true);
+        final ApiUser user = testFixtures().insertUser()
+                                           .toBuilder()
+                                           .username("new username")
+                                           .firstName(Optional.of("new"))
+                                           .lastName(Optional.of("cloud"))
+                                           .createdAt(new Date(1476350197))
+                                           .pro(true)
+                                           .build();
 
         command.call(singletonList(user));
 

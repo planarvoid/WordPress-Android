@@ -26,6 +26,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -44,7 +45,7 @@ public class SignInOperationsTest extends AndroidUnitTest {
 
     private static final String USERNAME = "user";
     private static final String PASSWORD = "pass";
-    private final ApiUser user = ModelFixtures.create(ApiUser.class);
+    private final ApiUser user = UserFixtures.apiUser();
     private final Configuration configuration = ModelFixtures.create(Configuration.class);
     private final Me me = Me.create(user, configuration, false);
     @Mock SoundCloudApplication application;

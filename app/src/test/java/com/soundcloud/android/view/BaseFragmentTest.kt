@@ -1,7 +1,11 @@
 package com.soundcloud.android.view
 
 import android.os.Bundle
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

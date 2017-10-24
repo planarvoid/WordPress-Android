@@ -15,6 +15,7 @@ import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class LoginTaskTest {
     @Mock private AccountOperations accountOperations;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private SignInOperations signInOperations;
-    private ApiUser user = ModelFixtures.create(ApiUser.class);
+    private ApiUser user = UserFixtures.apiUser();
     private Configuration configuration = ModelFixtures.create(Configuration.class);
     private Bundle bundle;
 

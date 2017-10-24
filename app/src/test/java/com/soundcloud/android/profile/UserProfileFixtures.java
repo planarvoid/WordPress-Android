@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -19,7 +20,7 @@ public class UserProfileFixtures {
     }
 
     static class Builder {
-        private UserItem user = ModelFixtures.userItem();
+        private UserItem user = UserFixtures.userItem();
         private ModelCollection<PlayableItem> spotlight = emptyModelCollection();
         private ModelCollection<TrackItem> tracks = emptyModelCollection();
         private ModelCollection<PlaylistItem> albums = emptyModelCollection();

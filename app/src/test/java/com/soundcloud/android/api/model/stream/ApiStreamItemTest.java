@@ -3,6 +3,7 @@ package com.soundcloud.android.api.model.stream;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
 import com.soundcloud.java.optional.Optional;
@@ -110,7 +111,7 @@ public class ApiStreamItemTest {
 
     @Test
     public void getPromoterWithPromotedTrackReturnsValidPromoter() throws Exception {
-        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser apiUser = UserFixtures.apiUser();
         final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithPromoter(apiUser);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
         assertThat(streamItem.getPromoter().get()).isEqualTo(apiUser);
@@ -118,7 +119,7 @@ public class ApiStreamItemTest {
 
     @Test
     public void getPromoterWithPromotedPlaylistReturnsValidPromoter() throws Exception {
-        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser apiUser = UserFixtures.apiUser();
         final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithPromoter(apiUser);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
         assertThat(streamItem.getPromoter().get()).isEqualTo(apiUser);

@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -195,7 +196,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
             } else if (urn.isPlaylist()) {
                 searchableItems.add(ModelFixtures.playlistItem(urn));
             } else if (urn.isUser()) {
-                searchableItems.add(ModelFixtures.userItem(urn));
+                searchableItems.add(UserFixtures.userItem(urn));
             }
         }
         return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.absent(), urns.length));

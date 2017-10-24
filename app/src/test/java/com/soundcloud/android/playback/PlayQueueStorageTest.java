@@ -8,9 +8,7 @@ import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQ
 import static com.soundcloud.java.optional.Optional.of;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.optional.Optional;

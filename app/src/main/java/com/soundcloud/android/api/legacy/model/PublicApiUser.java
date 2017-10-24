@@ -290,19 +290,23 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     }
 
     public ApiUser toApiMobileUser() {
-        final ApiUser apiUser = new ApiUser(getUrn());
-        apiUser.setPermalink(getPermalink());
-        apiUser.setAvatarUrlTemplate(imageUrlToTemplate(avatar_url).orNull());
-        apiUser.setCountry(country);
-        apiUser.setCity(city);
-        apiUser.setFollowersCount(followers_count);
-        apiUser.setUsername(username);
-        apiUser.setDescription(description);
-        apiUser.setWebsiteUrl(website);
-        apiUser.setWebsiteTitle(website_title);
-        apiUser.setMyspaceName(myspace_name);
-        apiUser.setDiscogsName(discogs_name);
-        return apiUser;
+        return ApiUser.builder(getUrn())
+                      .permalink(getPermalink())
+                      .imageUrlTemplate(imageUrlToTemplate(avatar_url))
+                      .country(country)
+                      .city(city)
+                      .followersCount(followers_count)
+                      .followingsCount(followings_count)
+                      .username(username)
+                      .description(getDescription())
+                      .websiteUrl(getWebsiteUrl())
+                      .websiteName(getWebsiteName())
+                      .myspaceName(getMyspaceName())
+                      .discogsName(getDiscogsName())
+                      .trackCount(track_count)
+                      .verified(false)
+                      .pro(false)
+                      .build();
     }
 
     public void setWebsite(String website) {

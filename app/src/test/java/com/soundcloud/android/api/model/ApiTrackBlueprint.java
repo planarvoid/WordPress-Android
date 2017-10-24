@@ -1,7 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -58,7 +58,7 @@ public class ApiTrackBlueprint {
         @Override
         public ApiTrack afterCreate(ApiTrack model) {
             if (model.getUser() == null) {
-                model.setUser(ModelFixtures.create(ApiUser.class));
+                model.setUser(UserFixtures.apiUser());
             }
             model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-" + runningId + "-{size}.jpg");
             model.setMonetizationModel("MONETIZABLE");

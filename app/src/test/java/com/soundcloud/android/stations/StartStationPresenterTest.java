@@ -19,12 +19,11 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import io.reactivex.Maybe;
 
 import android.content.Context;
 import android.content.DialogInterface;

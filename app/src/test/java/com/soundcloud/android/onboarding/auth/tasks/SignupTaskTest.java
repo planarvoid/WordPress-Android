@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.Me;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.Configuration;
@@ -16,6 +15,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class SignupTaskTest {
     @Test
     public void forwardToOperationsWhenFeatureFlagEnabled() throws Exception {
         Token token = Token.EMPTY;
-        Me me = Me.create(ModelFixtures.create(ApiUser.class), ModelFixtures.create(Configuration.class), false);
+        Me me = Me.create(UserFixtures.apiUser(), ModelFixtures.create(Configuration.class), false);
         Bundle bundle = getParamsBundle();
 
         when(signUpOperations.signUp(bundle)).thenReturn(AuthTaskResult.success(new AuthResponse(token, me), SignupVia.API));

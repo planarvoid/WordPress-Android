@@ -17,11 +17,11 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.support.v4.app.FragmentManager;

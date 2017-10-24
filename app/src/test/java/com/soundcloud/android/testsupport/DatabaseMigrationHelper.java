@@ -2,8 +2,8 @@ package com.soundcloud.android.testsupport;
 
 import static com.soundcloud.android.testsupport.AndroidUnitTest.activity;
 import static com.soundcloud.android.testsupport.AndroidUnitTest.resources;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
-import com.soundcloud.android.discovery.DiscoveryNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.properties.FeatureFlags;
 import org.junit.Before;

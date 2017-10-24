@@ -10,9 +10,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -115,7 +115,7 @@ public class SearchResultsAdapterTest {
     }
 
     private UserItem dummyUserItem() {
-        return (UserItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class), null, null));
+        return (UserItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(UserFixtures.apiUser(), null, null));
     }
 
     private TrackItem dummyTrackItem() {

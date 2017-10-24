@@ -58,10 +58,10 @@ import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -74,8 +74,6 @@ import java.util.Date;
 import java.util.List;
 
 public class ModelFixtures {
-
-    private static long runningUserId = 1L;
 
     private static final ModelFactory modelFactory = new ModelFactory();
 
@@ -141,26 +139,6 @@ public class ModelFixtures {
 
     public static List<ApiTrack> apiTracks(int count) {
         return create(ApiTrack.class, count);
-    }
-
-    public static ApiUser apiUser() {
-        return apiUser(Urn.forUser(ModelFixtures.runningUserId++));
-    }
-
-    public static ApiUser apiUser(Urn urn) {
-        final ApiUser apiUser = new ApiUser(urn);
-        apiUser.setFollowersCount(100);
-        apiUser.setFollowingsCount(200);
-        apiUser.setAvatarUrlTemplate("https://i1.sndcdn.com/avatars-" + ModelFixtures.runningUserId + "-{size}.jpg");
-        apiUser.setVisualUrlTemplate("https://i1.sndcdn.com/visuals-" + ModelFixtures.runningUserId + "-{size}.jpg");
-        apiUser.setFirstName("sound");
-        apiUser.setLastName("cloud");
-        apiUser.setCreatedAt(new Date(1476342997));
-        apiUser.setPermalink("user-permalink" + apiUser.getId());
-        apiUser.setUsername("user" + apiUser.getId());
-        apiUser.setCountry("Country");
-        apiUser.setCity("City");
-        return apiUser;
     }
 
     public static Configuration configuration() {
@@ -249,70 +227,13 @@ public class ModelFixtures {
     }
 
     public static User user() {
-        return userBuilder()
-                .build();
+        return UserFixtures.userBuilder()
+                                    .build();
     }
 
     public static User proUser() {
-        return userBuilder().isPro(true)
-                            .build();
-    }
-
-    public static User user(Urn urn) {
-        return userBuilder().urn(urn).build();
-    }
-
-    public static UserItem userItem() {
-        return userItem(apiUser());
-    }
-
-    public static UserItem userItem(boolean isFollowing) {
-        return userItem(apiUser(), isFollowing);
-    }
-
-    public static UserItem userItem(ApiUser user) {
-        return userItem(user(user));
-    }
-
-    public static UserItem userItem(ApiUser user, boolean isFollowing) {
-        return userItem(user(user), isFollowing);
-    }
-
-    public static User user(ApiUser user) {
-        return User.fromApiUser(user);
-    }
-
-    public static UserItem userItem(User user, boolean isFollowing) {
-        return UserItem.from(user, isFollowing);
-    }
-
-    public static UserItem userItem(User user) {
-        return userItem(user, false);
-    }
-
-    public static UserItem userItem(Urn urn, boolean isFollowing) {
-        return UserItem.from(user(urn), isFollowing);
-    }
-
-    public static UserItem userItem(Urn urn) {
-        return userItem(urn, false);
-    }
-
-    public static List<UserItem> userItems(List<ApiUser> apiUsers) {
-        return Lists.transform(apiUsers, ModelFixtures::userItem);
-    }
-
-    public static User.Builder userBuilder() {
-        return User.builder()
-                   .urn(Urn.forUser(runningUserId++))
-                   .username("avieciie")
-                   .country(of("country"))
-                   .city(of("city"))
-                   .followersCount(2)
-                   .followingsCount(6)
-                   .avatarUrl(of("avatar-url"))
-                   .visualUrl(of("visual-url"))
-                   .isPro(false);
+        return UserFixtures.userBuilder().isPro(true)
+                                    .build();
     }
 
     public static ApiLike apiTrackLike() {
@@ -540,8 +461,7 @@ public class ModelFixtures {
     }
 
     public static ApiTrackLikeActivity apiTrackLikeActivity(ApiTrack track, Date createdAt) {
-        final ApiUser user = create(ApiUser.class);
-        return new ApiTrackLikeActivity(track, user, createdAt);
+        return new ApiTrackLikeActivity(track, UserFixtures.apiUser(), createdAt);
     }
 
     public static ApiTrackLikeActivity apiTrackLikeActivity(Date createdAt) {
@@ -555,24 +475,20 @@ public class ModelFixtures {
     }
 
     public static ApiUserFollowActivity apiUserFollowActivity(Date createdAt) {
-        final ApiUser user = create(ApiUser.class);
-        return new ApiUserFollowActivity(user, createdAt);
+        return new ApiUserFollowActivity( UserFixtures.apiUser(), createdAt);
     }
 
     public static ApiPlaylistRepostActivity apiPlaylistRepostActivity(ApiPlaylist playlist) {
-        final ApiUser user = create(ApiUser.class);
-        return new ApiPlaylistRepostActivity(playlist, user, new Date());
+        return new ApiPlaylistRepostActivity(playlist,  UserFixtures.apiUser(), new Date());
     }
 
     public static ApiActivityItem apiActivityWithRepostedTrack(ApiTrack track) {
-        final ApiUser reposter = create(ApiUser.class);
-        final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track, reposter, new Date());
+        final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track,  UserFixtures.apiUser(), new Date());
         return ApiActivityItem.builder().trackRepost(trackRepost).build();
     }
 
     public static ApiActivityItem apiActivityWithLikedPlaylist(ApiPlaylist playlist) {
-        final ApiUser user = create(ApiUser.class);
-        final ApiPlaylistLikeActivity playlistLike = new ApiPlaylistLikeActivity(playlist, user, new Date());
+        final ApiPlaylistLikeActivity playlistLike = new ApiPlaylistLikeActivity(playlist,  UserFixtures.apiUser(), new Date());
         return ApiActivityItem.builder().playlistLike(playlistLike).build();
     }
 
@@ -597,7 +513,7 @@ public class ModelFixtures {
     }
 
     public static ApiComment apiComment(Urn urn) {
-        return apiComment(urn, create(ApiTrack.class).getUrn(), create(ApiUser.class));
+        return apiComment(urn, create(ApiTrack.class).getUrn(), UserFixtures.apiUser());
     }
 
     public static ApiComment apiComment(Urn commentUrn, Urn trackUrn, ApiUser byUser) {

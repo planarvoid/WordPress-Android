@@ -11,6 +11,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemRepository;
@@ -51,8 +52,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<Iterable<ApiEntityHolder>> userCaptor;
 
-    private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
-    private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
+    private final ApiUser apiUser1 = UserFixtures.apiUser();
+    private final ApiUser apiUser2 = UserFixtures.apiUser();
     private final TestObserver<PagedRemoteCollection<UserItem>> observer = new TestObserver<>();
 
     final ModelCollection<ApiUser> page = new ModelCollection<>(
@@ -62,7 +63,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
             ),
             NEXT_HREF);
 
-    final List<UserItem> userItems = Arrays.asList(ModelFixtures.userItem(apiUser1), ModelFixtures.userItem(apiUser2));
+    final List<UserItem> userItems = Arrays.asList(UserFixtures.userItem(apiUser1), UserFixtures.userItem(apiUser2));
 
     @Before
     public void setUp() {
@@ -170,7 +171,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     }
 
     private void assertAllItemsEmitted() {
-        assertAllItemsEmitted(ModelFixtures.userItem(apiUser1), ModelFixtures.userItem(apiUser2));
+        assertAllItemsEmitted(UserFixtures.userItem(apiUser1), UserFixtures.userItem(apiUser2));
     }
 
     private void assertAllItemsEmitted(UserItem... userItems) {

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.Urns;
@@ -262,20 +263,20 @@ public class OldUserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private User userWithBlankDescription() {
-        return ModelFixtures.userBuilder().description(of("")).build();
+        return UserFixtures.userBuilder().description(of("")).build();
     }
 
     private User userWithDescription() {
-        return ModelFixtures.userBuilder().description(of(DESCRIPTION)).build();
+        return UserFixtures.userBuilder().description(of(DESCRIPTION)).build();
     }
 
     private User userWithFullDetails() {
-        return ModelFixtures.userBuilder()
-                            .description(of(DESCRIPTION))
-                            .websiteName(WEBSITE_NAME)
-                            .websiteUrl(of(WEBSITE_URL))
-                            .discogsName(of(DISCOGS_NAME))
-                            .mySpaceName(of(MYSPACE_NAME))
-                            .build();
+        return UserFixtures.userBuilder()
+                                    .description(of(DESCRIPTION))
+                                    .websiteName(WEBSITE_NAME)
+                                    .websiteUrl(of(WEBSITE_URL))
+                                    .discogsName(of(DISCOGS_NAME))
+                                    .mySpaceName(of(MYSPACE_NAME))
+                                    .build();
     }
 }

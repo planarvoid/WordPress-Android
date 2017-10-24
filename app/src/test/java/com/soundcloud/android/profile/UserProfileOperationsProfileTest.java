@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItemRepository;
@@ -96,7 +97,7 @@ public class UserProfileOperationsProfileTest {
 
         userUrn = profile.getUser().getUrn();
         when(profileApi.userProfile(userUrn)).thenReturn(Observable.just(profile));
-        when(userItemRepository.userItem(profile.getUser())).thenReturn(Single.just(ModelFixtures.userItem(profile.getUser())));
+        when(userItemRepository.userItem(profile.getUser())).thenReturn(Single.just(UserFixtures.userItem(profile.getUser())));
     }
 
     @Test

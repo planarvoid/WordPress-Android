@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;

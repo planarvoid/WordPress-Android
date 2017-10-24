@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -42,7 +43,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingInitialStreamItemsIncludesPromotedTrack() {
-        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiUser promoter = UserFixtures.apiUser();
         ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
 
         storage.timelineItems(50).subscribe(observer);
@@ -54,7 +55,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void promotedTrackIsNotDeduplicatedWithSameTrack() {
-        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiUser promoter = UserFixtures.apiUser();
         ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
@@ -94,8 +95,9 @@ public class StreamStorageTest extends StorageIntegrationTest {
     }
 
     private ApiUser insertReposter() {
-        final ApiUser reposter = ModelFixtures.create(ApiUser.class);
-        reposter.setAvatarUrlTemplate("reposter-avatar"); // to distinguish from creator avatar
+        final ApiUser reposter = UserFixtures.apiUserBuilder()
+                                             .imageUrlTemplate(Optional.of("reposter-avatar"))
+                                             .build();
         testFixtures().insertUser(reposter);
         return reposter;
     }
@@ -267,7 +269,10 @@ public class StreamStorageTest extends StorageIntegrationTest {
     }
 
     private StreamEntity createFromImageResourceWithReposter(ImageResource track, ApiUser reposter, Date createdAt) {
-        return StreamEntity.builder(track.getUrn(), createdAt).avatarUrlTemplate(reposter.getImageUrlTemplate()).repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn())).build();
+        return StreamEntity.builder(track.getUrn(), createdAt)
+                           .avatarUrlTemplate(reposter.getImageUrlTemplate())
+                           .repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn()))
+                           .build();
     }
 
     private StreamEntity createPromotedDataItem(ApiTrack track, ApiUser promoter, Date createdAt) {

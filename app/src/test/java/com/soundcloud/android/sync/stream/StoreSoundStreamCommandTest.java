@@ -22,8 +22,8 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Test
     public void storesPromotionMetadataFromApiPromotedTrackWithPromoter() {
-        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser apiUser = UserFixtures.apiUser();
         final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithPromoter(apiUser);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
         command.call(Arrays.asList(streamItem));
@@ -102,7 +102,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Test
     public void storesPromotionMetadataFromApiPromotedPlaylistWithPromoter() {
-        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser apiUser = UserFixtures.apiUser();
         final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithPromoter(apiUser);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
         command.call(Arrays.asList(streamItem));

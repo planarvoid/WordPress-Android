@@ -1,14 +1,11 @@
 package com.soundcloud.android.tracks
 
 import com.nhaarman.mockito_kotlin.whenever
-import org.assertj.core.api.Assertions.*
-import org.mockito.Mockito.`when`
-
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.events.LikesStatusEvent
 import com.soundcloud.android.model.Urn
-import com.soundcloud.android.presentation.PlayableItem
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

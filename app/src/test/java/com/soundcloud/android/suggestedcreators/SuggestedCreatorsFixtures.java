@@ -4,7 +4,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreatorItem;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreators;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 
@@ -19,8 +19,8 @@ class SuggestedCreatorsFixtures {
     }
 
     static ApiSuggestedCreator createApiSuggestedCreator() {
-        final ApiUser seedUser = ModelFixtures.create(ApiUser.class);
-        final ApiUser suggestedUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser seedUser = UserFixtures.apiUser();
+        final ApiUser suggestedUser = UserFixtures.apiUser();
         return ApiSuggestedCreator.create(seedUser, suggestedUser, "liked");
     }
 
@@ -35,7 +35,7 @@ class SuggestedCreatorsFixtures {
     static List<SuggestedCreator> createSuggestedCreators(int count, SuggestedCreatorRelation relation, Date followedAt) {
         final ArrayList<SuggestedCreator> result = Lists.newArrayList();
         for (int i = 0; i < count; i++) {
-            result.add(SuggestedCreator.create(ModelFixtures.userItem(), relation, Optional.fromNullable(followedAt)));
+            result.add(SuggestedCreator.create(UserFixtures.userItem(), relation, Optional.fromNullable(followedAt)));
         }
         return result;
     }

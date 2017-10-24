@@ -88,7 +88,7 @@ public abstract class User {
                 .followersCount(apiUser.getFollowersCount())
                 .followingsCount(apiUser.getFollowingsCount())
                 .description(apiUser.getDescription())
-                .avatarUrl(apiUser.getAvatarUrlTemplate())
+                .avatarUrl(apiUser.getImageUrlTemplate())
                 .visualUrl(apiUser.getVisualUrlTemplate())
                 .websiteUrl(apiUser.getWebsiteUrl())
                 .websiteName(apiUser.getWebsiteName())

@@ -43,7 +43,7 @@ public class TestEntityItemEmitter implements EntityItemEmitter {
 
     @Override
     public Observable<List<UserItem>> userItems(List<ApiUser> apiUsers) {
-        return Observable.just(ModelFixtures.userItems(apiUsers));
+        return Observable.just(UserFixtures.userItems(apiUsers));
     }
 
     @Override

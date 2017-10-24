@@ -34,6 +34,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -96,7 +97,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 track1,
                 ModelFixtures.playlistItem(),
                 track2,
-                ModelFixtures.userItem()
+                UserFixtures.userItem()
         );
 
         final List<Urn> trackList = Arrays.asList(track1.getUrn(), track2.getUrn());
@@ -141,7 +142,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 ModelFixtures.trackItem(),
                 playlistItem,
                 ModelFixtures.trackItem(),
-                ModelFixtures.userItem()
+                UserFixtures.userItem()
         );
 
         listener.onItemClick(items, view.getContext(), 2);
@@ -197,7 +198,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.userItem();
+        final UserItem userItem = UserFixtures.userItem();
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.playlistItem(),
                 ModelFixtures.trackItem(),
@@ -253,7 +254,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.userItem();
+        final UserItem userItem = UserFixtures.userItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L),
                                         Urn.forPlaylist(123L),
                                         userItem.getUrn());
@@ -332,7 +333,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.userItem();
+        final UserItem userItem = UserFixtures.userItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
                                                          createPlayable(Urn.forPlaylist(123L)),
                                                          createPlayable(userItem.getUrn()));

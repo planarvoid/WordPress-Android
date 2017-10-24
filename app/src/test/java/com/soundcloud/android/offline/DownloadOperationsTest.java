@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import edu.emory.mathcs.backport.java.util.Collections;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +29,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import io.reactivex.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;

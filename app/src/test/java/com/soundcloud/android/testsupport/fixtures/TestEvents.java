@@ -1,9 +1,9 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;

@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -119,16 +120,16 @@ public class EnrichedEntitiesTest extends AndroidUnitTest {
 
     @Test
     public void userReemitsAfterFollowing() throws Exception {
-        ApiUser apiUser1 = ModelFixtures.apiUser();
-        ApiUser apiUser2 = ModelFixtures.apiUser();
+        ApiUser apiUser1 = UserFixtures.apiUser();
+        ApiUser apiUser2 = UserFixtures.apiUser();
 
         TestObserver<List<UserItem>> testObserver = enrichedEntities.userItems(asList(apiUser1, apiUser2)).test();
 
         followingsStatusPublisher.onNext(FollowingStatuses.create(singleton(apiUser1.getUrn())));
 
         testObserver.assertValues(
-                asList(ModelFixtures.userItem(apiUser1), ModelFixtures.userItem(apiUser2)),
-                asList(ModelFixtures.userItem(apiUser1).copyWithFollowing(true), ModelFixtures.userItem(apiUser2))
+                asList(UserFixtures.userItem(apiUser1), UserFixtures.userItem(apiUser2)),
+                asList(UserFixtures.userItem(apiUser1).copyWithFollowing(true), UserFixtures.userItem(apiUser2))
         );
     }
 }

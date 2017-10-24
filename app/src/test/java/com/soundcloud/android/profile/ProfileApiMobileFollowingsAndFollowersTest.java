@@ -15,7 +15,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +29,8 @@ public class ProfileApiMobileFollowingsAndFollowersTest extends AndroidUnitTest 
 
     private static final String NEXT_HREF = "next-href";
     private final TestSubscriber<ModelCollection<ApiUser>> testSubscriber = new TestSubscriber<>();
-    private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
-    private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
+    private final ApiUser apiUser1 = UserFixtures.apiUser();
+    private final ApiUser apiUser2 = UserFixtures.apiUser();
     private final ModelCollection<ApiUser> apiCollection = new ModelCollection<>(
             Arrays.asList(
                     apiUser1,

@@ -139,9 +139,14 @@ android {
       aidl.srcDirs javaSrcDirs
     }
 
+    final String SHARED_TEST_DIR = 'src/sharedTest/java'
+    test {
+      java.srcDirs += SHARED_TEST_DIR
+    }
     androidTest {
       assets.srcDirs 'src/integrationTest/assets'
-      java.srcDirs 'src/integrationTest/java'
+      java.srcDirs += 'src/integrationTest/java'
+      java.srcDirs += SHARED_TEST_DIR
     }
   }
 

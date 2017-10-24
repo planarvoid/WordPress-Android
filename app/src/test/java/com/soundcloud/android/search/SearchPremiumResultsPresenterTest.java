@@ -10,12 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;

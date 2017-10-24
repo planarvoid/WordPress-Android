@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class PublishUserUpdateEventCommandTest {
 
     @Test
     public void sendsConvertedPlaylistItem() throws Exception {
-        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiUser apiUser = UserFixtures.apiUser();
 
         publishUserUpdateEventCommand.call(Collections.singletonList(apiUser));
 

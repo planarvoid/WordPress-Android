@@ -2,6 +2,7 @@ package com.soundcloud.android.users
 
 import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -26,7 +27,7 @@ class UserItemRepositoryTest {
 
     @Test
     fun `loads followed local user item`() {
-        whenever(userRepository.localUserInfo(userUrn)).thenReturn(Maybe.just(ModelFixtures.user(userUrn)))
+        whenever(userRepository.localUserInfo(userUrn)).thenReturn(Maybe.just(UserFixtures.user(userUrn)))
         whenever(followingStorage.isFollowing(userUrn)).thenReturn(Single.just(true))
 
         val observer = userItemRepository.localUserItem(userUrn).test()
@@ -47,7 +48,7 @@ class UserItemRepositoryTest {
 
     @Test
     fun `loads followed user item`() {
-        whenever(userRepository.userInfo(userUrn)).thenReturn(Maybe.just(ModelFixtures.user(userUrn)))
+        whenever(userRepository.userInfo(userUrn)).thenReturn(Maybe.just(UserFixtures.user(userUrn)))
         whenever(followingStorage.isFollowing(userUrn)).thenReturn(Single.just(true))
 
         val observer = userItemRepository.userItem(userUrn).test()
@@ -68,7 +69,7 @@ class UserItemRepositoryTest {
 
     @Test
     fun `converts followed api user to user item`() {
-        val apiUser = ModelFixtures.apiUser()
+        val apiUser = UserFixtures.apiUser()
         whenever(followingStorage.isFollowing(apiUser.urn)).thenReturn(Single.just(true))
 
         val observer = userItemRepository.userItem(apiUser).test()
@@ -79,7 +80,7 @@ class UserItemRepositoryTest {
 
     @Test
     fun `converts not followed api user to user item`() {
-        val apiUser = ModelFixtures.apiUser()
+        val apiUser = UserFixtures.apiUser()
         whenever(followingStorage.isFollowing(apiUser.urn)).thenReturn(Single.just(false))
 
         val observer = userItemRepository.userItem(apiUser).test()
@@ -90,8 +91,8 @@ class UserItemRepositoryTest {
 
     @Test
     fun `converts list of api users to user items`() {
-        val followedApiUser = ModelFixtures.apiUser()
-        val notFollowedApiUser = ModelFixtures.apiUser()
+        val followedApiUser = UserFixtures.apiUser()
+        val notFollowedApiUser = UserFixtures.apiUser()
 
         whenever(followingStorage.loadFollowings()).thenReturn(Single.just(listOf(Following(followedApiUser.urn, 0))))
 

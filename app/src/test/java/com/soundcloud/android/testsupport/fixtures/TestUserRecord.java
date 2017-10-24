@@ -2,6 +2,7 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 
@@ -22,7 +23,7 @@ public class TestUserRecord implements UserRecord {
     private final ApiUser apiUser;
 
     public TestUserRecord() {
-        apiUser = ModelFixtures.create(ApiUser.class);
+        apiUser = UserFixtures.apiUser();
     }
 
     @Override

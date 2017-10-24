@@ -9,7 +9,7 @@ import com.soundcloud.android.events.FollowingStatusEvent
 import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.SyncResult
 import com.soundcloud.android.sync.Syncable
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.users.FollowingStorage
 import com.soundcloud.android.users.User
 import com.soundcloud.android.users.UserItemRepository
@@ -36,7 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class FollowingOperationsTest {
 
-    private val followerCount = 2
+    private val followerCount = UserFixtures.FOLLOWERS_COUNT
 
     private lateinit var operations: FollowingOperations
 
@@ -52,7 +52,7 @@ class FollowingOperationsTest {
 
     private val eventBus = TestEventBusV2()
     private val scheduler = Schedulers.trampoline()
-    private val userBuilder = ModelFixtures.userBuilder()
+    private val userBuilder = UserFixtures.userBuilder()
     private val targetUrn = userBuilder.build().urn()
 
     @Before
@@ -96,7 +96,7 @@ class FollowingOperationsTest {
         val testObserver = operations.populatedOnUserFollowed().test()
 
         val event = FollowingStatusEvent.createFollowed(targetUrn, followerCount)
-        val following = ModelFixtures.userItem()
+        val following = UserFixtures.userItem()
         whenever(userItemRepository.userItem(targetUrn)).thenReturn(Maybe.just(following))
 
         eventBus.publish(EventQueue.FOLLOWING_CHANGED, event)

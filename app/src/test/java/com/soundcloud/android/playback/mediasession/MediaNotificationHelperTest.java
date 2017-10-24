@@ -3,8 +3,8 @@ package com.soundcloud.android.playback.mediasession;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;

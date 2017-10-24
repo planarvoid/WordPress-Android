@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+
 import org.junit.Test;
 
 public class PlaybackProtocolTest {

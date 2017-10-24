@@ -31,6 +31,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
@@ -88,7 +89,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         subscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
         playlist = ModelFixtures.create(ApiPlaylist.class);
-        user = ModelFixtures.create(ApiUser.class);
+        user = UserFixtures.apiUser();
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
         operations = new SearchOperations(new SearchStrategyFactory(apiClientRx,
@@ -393,7 +394,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldBackFillFollowingsForUsersInUniversalSearchResult() {
-        final ApiUser user2 = ModelFixtures.create(ApiUser.class);
+        final ApiUser user2 = UserFixtures.apiUser();
         final List<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 forUser(user),
                 forTrack(track),
@@ -413,7 +414,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         assertThat(followedUser.isFollowedByMe()).isTrue();
 
         final UserItem nonFollowedUserItem = (UserItem) searchResult.getItems().get(2);
-        assertThat(nonFollowedUserItem).isEqualTo(ModelFixtures.userItem(user2));
+        assertThat(nonFollowedUserItem).isEqualTo(UserFixtures.userItem(user2));
     }
 
     @Test

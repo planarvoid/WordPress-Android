@@ -10,6 +10,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class AuthTaskResultTest {
     @Test
     public void shouldCreateSuccessResult() throws CreateModelException {
         Token token = Token.EMPTY;
-        ApiUser user = ModelFixtures.create(ApiUser.class);
+        ApiUser user = UserFixtures.apiUser();
         Configuration configuration = ModelFixtures.create(Configuration.class);
         SignupVia signupVia = SignupVia.NONE;
 

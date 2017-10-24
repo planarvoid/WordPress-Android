@@ -11,6 +11,7 @@ import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.SyncResult
 import com.soundcloud.android.sync.Syncable
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.users.UserRepository
 import com.soundcloud.java.optional.Optional
@@ -49,7 +50,7 @@ class RecentlyPlayedOperationsTest {
     private val trackStationPlayHistoryRecord = PlayHistoryRecord.forRecentlyPlayed(300, trackStationUrn)
     private val playlistPlayHistoryRecord = PlayHistoryRecord.forRecentlyPlayed(400, playlistUrn)
 
-    private val user = ModelFixtures.userBuilder()
+    private val user = UserFixtures.userBuilder()
             .urn(userUrn)
             .username("username")
             .avatarUrl(Optional.absent())

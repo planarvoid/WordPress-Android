@@ -13,7 +13,6 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.MainActivity;

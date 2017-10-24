@@ -6,7 +6,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.Date
 
 class PostsCleanupHelperTest : StorageIntegrationTest() {
 

@@ -156,7 +156,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         subject.onNext(user);
 
-        verifyUserBound();
+        verifyUserBound(user);
         verify(moreView).showProBadge(true);
     }
 
@@ -377,6 +377,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     }
 
     private void verifyUserBound() {
-        verify(moreView).setUsername(USER.username());
+        verifyUserBound(USER);
+    }
+
+    private void verifyUserBound(User user) {
+        verify(moreView).setUsername(user.username());
     }
 }

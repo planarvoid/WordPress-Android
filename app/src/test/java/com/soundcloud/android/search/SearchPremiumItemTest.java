@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -56,7 +57,7 @@ public class SearchPremiumItemTest {
 
     @Test
     public void shouldBuildUserAsFirstItem() {
-        final UserItem userItem = ModelFixtures.userItem(USER_URN);
+        final UserItem userItem = UserFixtures.userItem(USER_URN);
         searchPremiumItem = buildWithTrackItem(userItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(UserItem.class);

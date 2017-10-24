@@ -1,11 +1,8 @@
 package com.soundcloud.android.discovery.systemplaylist;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -15,8 +12,6 @@ import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import android.content.res.Resources;
 
 import java.util.ArrayList;
 import java.util.Date;

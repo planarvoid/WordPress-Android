@@ -1,7 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.android.R.id.position;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;

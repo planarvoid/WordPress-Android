@@ -15,7 +15,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -24,6 +23,7 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsStorage;
 import com.soundcloud.android.stations.StoreStationCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserStorage;
@@ -430,7 +430,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     }
 
     private ApiResolvedResource resolvedUser() {
-        return new ApiResolvedResource(null, null, ModelFixtures.create(ApiUser.class), null);
+        return new ApiResolvedResource(null, null, UserFixtures.apiUser(), null);
     }
 
     private ApiResolvedResource resolvedStation() {

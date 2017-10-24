@@ -16,7 +16,7 @@ import com.soundcloud.android.associations.FollowingOperations
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.navigation.NavigationExecutor
 import com.soundcloud.android.testsupport.AndroidUnitTest
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo
 import com.soundcloud.android.users.Following
 import com.soundcloud.android.users.FollowingStorage
@@ -80,8 +80,8 @@ class MyFollowingsSyncerTest : AndroidUnitTest() {
     @Throws(Exception::class)
     fun pushesFollowings() {
         whenever(followingStorage.hasStaleFollowings()).thenReturn(true)
-        val user1 = ModelFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
-        val user2 = ModelFixtures.userBuilder().urn(USER_2).username(USERNAME_2).build()
+        val user1 = UserFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
+        val user2 = UserFixtures.userBuilder().urn(USER_2).username(USERNAME_2).build()
         whenever(userStorage.loadUser(USER_1)).thenReturn(Maybe.just(user1))
         whenever(userStorage.loadUser(USER_2)).thenReturn(Maybe.just(user2))
         whenever(followingStorage.loadStaleFollowings()).thenReturn(
@@ -143,7 +143,7 @@ class MyFollowingsSyncerTest : AndroidUnitTest() {
     @Throws(Exception::class)
     fun pushFollowingsThrowsExceptionOn500() {
         whenever(followingStorage.hasStaleFollowings()).thenReturn(true)
-        val user = ModelFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
+        val user = UserFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
         whenever(userStorage.loadUser(USER_1)).thenReturn(Maybe.just(user))
         whenever(followingStorage.loadStaleFollowings()).thenReturn(
                 listOf(getNewFollowingAddition(USER_1))
@@ -249,7 +249,7 @@ class MyFollowingsSyncerTest : AndroidUnitTest() {
         whenever(followingStorage.loadFollowedUserIds()).thenReturn(emptySet())
         whenever(followingStorage.hasStaleFollowings()).thenReturn(true)
 
-        val user = ModelFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
+        val user = UserFixtures.userBuilder().urn(USER_1).username(USERNAME_1).build()
         whenever(userStorage.loadUser(USER_1)).thenReturn(Maybe.just(user))
         whenever(followingStorage.loadStaleFollowings()).thenReturn(
                 listOf(getNewFollowingAddition(USER_1))
