@@ -51,7 +51,8 @@ class MoreView implements MainPagerAdapter.ScrollContent {
 
     private void setAppVersionString(Resources resources) {
         final String appVersionString = resources.getString(R.string.more_app_version, BuildConfig.VERSION_NAME);
-        versionText.setText(appVersionString);
+        final String flipperVersionString = resources.getString(R.string.more_flipper_version, BuildConfig.FLIPPER_VERSION);
+        versionText.setText(appVersionString + "\n" + flipperVersionString);
     }
 
     public void unbind() {

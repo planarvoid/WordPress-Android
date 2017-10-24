@@ -668,6 +668,7 @@
     <string name="more_sign_out">Sign out</string>
     <string name="more_view_public_profile">View public profile</string>
     <string name="more_app_version">App version %s</string>
+    <string name="more_flipper_version">Flipper version %s</string>
     <string name="more_subscription">Subscription</string>
     <string name="more_subscription_check">Already subscribed? Check now</string>
     <string name="more_subscription_check_not_subscribed">You are not subscribed</string>

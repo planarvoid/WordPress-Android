@@ -33,6 +33,8 @@ android {
       variant.buildConfigField "String", "ACCOUNT_AUTHORITY", "\"$accountAuthority\""
       variant.buildConfigField "String", "FILE_PROVIDER_AUTHORITY", "\"$fileProviderAuthority\""
 
+      variant.buildConfigField "String", "FLIPPER_VERSION", "\"$flipperVersion\""
+
       variant.resValue "string", "app_id", appId
       variant.resValue "string", "account_type", "${appId}.account"
       variant.resValue "string", "account_authority", accountAuthority
