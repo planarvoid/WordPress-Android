@@ -4,10 +4,8 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.Track;
 
-import android.os.Parcelable;
-
 @AutoValue
-public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
+public abstract class AudioPlaybackItem implements PlaybackItem {
 
     private static AudioPlaybackItem create(Track track, long startPosition, PlaybackType playbackType) {
         return new AutoValue_AudioPlaybackItem(track.urn().getContent(),

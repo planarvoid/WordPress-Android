@@ -6,12 +6,10 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.model.Urn;
 
-import android.os.Parcelable;
-
 import java.util.List;
 
 @AutoValue
-public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
+public abstract class AudioAdPlaybackItem implements PlaybackItem {
 
     private static final long POSITION_START = 0L;
 

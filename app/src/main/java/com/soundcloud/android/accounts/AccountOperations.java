@@ -4,6 +4,7 @@ import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
@@ -14,7 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
-import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.java.optional.Optional;
@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
@@ -53,6 +52,7 @@ public class AccountOperations {
 
     private final GooglePlayServicesWrapper googlePlayServicesWrapper;
     private final PlaySessionStateStorage playSessionStateStorage;
+    private final PlaybackServiceController playbackServiceController;
     private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
     private final Lazy<ClearOfflineContentCommand> clearOfflineContentCommand;
@@ -64,6 +64,7 @@ public class AccountOperations {
                       SoundCloudTokenOperations tokenOperations,
                       EventBusV2 eventBus,
                       PlaySessionStateStorage playSessionStateStorage,
+                      PlaybackServiceController playbackServiceController,
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearOfflineContentCommand> clearOfflineContentCommand,
@@ -76,6 +77,7 @@ public class AccountOperations {
         this.tokenOperations = tokenOperations;
         this.eventBus = eventBus;
         this.playSessionStateStorage = playSessionStateStorage;
+        this.playbackServiceController = playbackServiceController;
         this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
         this.clearOfflineContentCommand = clearOfflineContentCommand;
@@ -176,20 +178,13 @@ public class AccountOperations {
             clearFacebookStorage();
             clearLoggedInUser();
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-            resetPlaybackService();
+            playbackServiceController.resetPlaybackService();
             playSessionStateStorage.clear();
         }).subscribeOn(scheduler);
     }
 
     private void clearFacebookStorage() {
         facebookLoginManager.get().logOut();
-    }
-
-    // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency
-    private void resetPlaybackService() {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(PlaybackService.Action.RESET_ALL);
-        context.startService(intent);
     }
 
     public Token getSoundCloudToken() {

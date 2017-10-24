@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.facebook.login.LoginManager;
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -18,10 +19,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
-import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
@@ -35,7 +34,6 @@ import rx.Observable;
 
 import android.accounts.Account;
 import android.app.Activity;
-import android.content.Intent;
 
 @SuppressWarnings("MissingPermission")
 public class AccountOperationsTest extends AndroidUnitTest {
@@ -55,6 +53,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private ClearOfflineContentCommand clearOfflineContentCommand;
     @Mock private LoginManager facebookLoginManager;
     @Mock private PlaySessionStateStorage playSessionStateStorage;
+    @Mock private PlaybackServiceController playbackServiceController;
     @Mock private GooglePlayServicesWrapper googlePlayServicesWrapper;
 
     private ApiUser user;
@@ -66,6 +65,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
                                                   eventBus,
                                                   playSessionStateStorage,
+                                                  playbackServiceController,
                                                   InjectionSupport.lazyOf(configurationOperations),
                                                   InjectionSupport.lazyOf(accountCleanupAction),
                                                   InjectionSupport.lazyOf(clearOfflineContentCommand),
@@ -296,9 +296,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
         accountOperations.purgeUserData().test();
 
-        Intent nextService = getNextStartedService();
-
-        Assertions.assertThat(nextService).containsAction(PlaybackService.Action.RESET_ALL);
+        verify(playbackServiceController).resetPlaybackService();
     }
 
     @Test

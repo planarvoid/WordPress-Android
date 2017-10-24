@@ -6,14 +6,12 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.model.Urn;
 
-import android.os.Parcelable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @AutoValue
-public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
+public abstract class VideoAdPlaybackItem implements PlaybackItem {
 
     private static final float INITIAL_VOLUME = 1.0f;
 

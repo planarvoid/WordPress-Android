@@ -2,7 +2,9 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
 
-public interface PlaybackItem {
+import android.os.Parcelable;
+
+public interface PlaybackItem extends Parcelable {
 
     Urn getUrn();
 
