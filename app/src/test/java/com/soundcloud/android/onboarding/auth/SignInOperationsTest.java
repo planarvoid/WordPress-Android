@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
+import com.soundcloud.android.onboarding.AuthSignature;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -58,6 +60,7 @@ public class SignInOperationsTest extends AndroidUnitTest {
     @Mock Token token;
     @Mock JsonTransformer jsonTransformer;
     @Mock LocaleFormatter localeFormatter;
+    @Mock AuthSignature authSignature;
 
     private Bundle bundle;
     private SignInOperations operations;
@@ -68,13 +71,14 @@ public class SignInOperationsTest extends AndroidUnitTest {
         when(oAuth.getClientId()).thenReturn("clientId");
         when(oAuth.getClientSecret()).thenReturn("clientSecret");
         when(localeFormatter.getLocale()).thenReturn(Optional.of("en-GB"));
+        when(authSignature.getSignature(anyString(), anyString())).thenReturn("signinSignature");
 
         Token token = mock(Token.class);
         when(token.getAccessToken()).thenReturn("user_access_token");
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
 
         bundle = new Bundle();
-        operations = new SignInOperations(context, apiClient, oAuth, configurationOperations, eventBus, accountOperations, localeFormatter);
+        operations = new SignInOperations(context, apiClient, oAuth, configurationOperations, eventBus, accountOperations, localeFormatter, authSignature);
     }
 
     @Test

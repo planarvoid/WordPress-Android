@@ -18,6 +18,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.onboarding.AuthSignature;
 import com.soundcloud.android.onboarding.auth.request.SignInBody;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -52,6 +53,7 @@ public class SignInOperations {
     private final Context context;
     private final ApiClient apiClient;
     private final OAuth oAuth;
+    private final AuthSignature authSignature;
 
     @Inject
     public SignInOperations(Context context,
@@ -60,7 +62,8 @@ public class SignInOperations {
                             ConfigurationOperations configurationOperations,
                             EventBus eventBus,
                             AccountOperations accountOperations,
-                            LocaleFormatter localeFormatter) {
+                            LocaleFormatter localeFormatter,
+                            AuthSignature authSignature) {
         this.context = context;
         this.apiClient = apiClient;
         this.oAuth = oAuth;
@@ -68,6 +71,7 @@ public class SignInOperations {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.localeFormatter = localeFormatter;
+        this.authSignature = authSignature;
     }
 
     public AuthTaskResult signIn(Bundle data) {
@@ -151,12 +155,14 @@ public class SignInOperations {
     }
 
     private SignInBody getSignInBody(Bundle bundle) {
+        String clientId = oAuth.getClientId();
         if (isFromUserCredentials(bundle)) {
-            return SignInBody.withUserCredentials(getUsername(bundle), getPassword(bundle), oAuth.getClientId(), oAuth.getClientSecret());
+            String username = getUsername(bundle);
+            return SignInBody.withUserCredentials(username, getPassword(bundle), clientId, oAuth.getClientSecret(), authSignature.getSignature(username, clientId));
         } else if (isFromFacebook(bundle)) {
-            return SignInBody.withFacebookToken(bundle.getString(FACEBOOK_TOKEN_EXTRA), oAuth.getClientId(), oAuth.getClientSecret());
+            return SignInBody.withFacebookToken(bundle.getString(FACEBOOK_TOKEN_EXTRA), clientId, oAuth.getClientSecret());
         } else if (isFromGoogle(bundle)) {
-            return SignInBody.withGoogleToken(bundle.getString(GOOGLE_TOKEN_EXTRA), oAuth.getClientId(), oAuth.getClientSecret());
+            return SignInBody.withGoogleToken(bundle.getString(GOOGLE_TOKEN_EXTRA), clientId, oAuth.getClientSecret());
         } else {
             throw new IllegalArgumentException("invalid param " + bundle);
         }

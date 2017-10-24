@@ -10,17 +10,17 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 
 @SuppressWarnings("IllegalIdentifier")
-class SignupSignatureTest : AndroidUnitTest() {
+class AuthSignatureTest : AndroidUnitTest() {
 
     private val secret = "this_will_be_a_constant_secret"
 
     @Mock internal lateinit var obfuscator: Obfuscator
 
-    private lateinit var signature: SignupSignature
+    private lateinit var signature: AuthSignature
 
     @Before
     fun setUp() {
-        signature = SignupSignature(obfuscator)
+        signature = AuthSignature(obfuscator)
 
         whenever(obfuscator.deobfuscateString(ArgumentMatchers.anyString())).thenReturn(secret)
     }

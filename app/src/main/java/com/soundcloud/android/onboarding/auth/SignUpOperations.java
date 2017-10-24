@@ -11,7 +11,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
-import com.soundcloud.android.onboarding.SignupSignature;
+import com.soundcloud.android.onboarding.AuthSignature;
 import com.soundcloud.android.onboarding.auth.request.SignUpBody;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -38,7 +38,7 @@ public class SignUpOperations {
     private final OAuth oAuth;
     private final SoundCloudApplication applicationContext;
     private final ConfigurationOperations configurationOperations;
-    private final SignupSignature signupSignature;
+    private final AuthSignature authSignature;
 
     @Inject
     public SignUpOperations(Context context,
@@ -47,14 +47,14 @@ public class SignUpOperations {
                             AuthResultMapper authResultMapper,
                             OAuth oAuth,
                             ConfigurationOperations configurationOperations,
-                            SignupSignature signupSignature) {
+                            AuthSignature authSignature) {
         applicationContext = (SoundCloudApplication) context.getApplicationContext();
         this.apiClient = apiClient;
         this.jsonTransformer = jsonTransformer;
         this.authResultMapper = authResultMapper;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
-        this.signupSignature = signupSignature;
+        this.authSignature = authSignature;
     }
 
     public AuthTaskResult signUp(Bundle bundle) {
@@ -110,7 +110,7 @@ public class SignUpOperations {
                                  bundle.getString(KEY_GENDER),
                                  birthday.getYear(),
                                  birthday.getMonth(),
-                                 signupSignature.getSignature(email, clientId));
+                                 authSignature.getSignature(email, clientId));
     }
 
     private class SignupError extends Throwable {

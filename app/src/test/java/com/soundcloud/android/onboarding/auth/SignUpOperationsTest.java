@@ -24,7 +24,7 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
-import com.soundcloud.android.onboarding.SignupSignature;
+import com.soundcloud.android.onboarding.AuthSignature;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
@@ -51,7 +51,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
     @Mock JsonTransformer jsonTransformer;
     @Mock ConfigurationOperations configurationOperations;
     @Mock AuthResultMapper authResultMapper;
-    @Mock SignupSignature signupSignature;
+    @Mock AuthSignature authSignature;
 
     private final Token token = Token.EMPTY;
     private final ApiUser user = UserFixtures.apiUser();
@@ -67,7 +67,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         when(oAuth.getClientSecret()).thenReturn("clientSecret");
         bundle = new Bundle();
 
-        operations = new SignUpOperations(context, apiClient, jsonTransformer, authResultMapper, oAuth, configurationOperations, signupSignature);
+        operations = new SignUpOperations(context, apiClient, jsonTransformer, authResultMapper, oAuth, configurationOperations, authSignature);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         bundle.putString(KEY_GENDER, gender);
         bundle.putSerializable(KEY_BIRTHDAY, BirthdayInfo.buildFrom(25));
 
-        when(signupSignature.getSignature(anyString(), anyString())).thenReturn("signupSignature");
+        when(authSignature.getSignature(anyString(), anyString())).thenReturn("signupSignature");
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(setupApiRequest(), 200, ""));
         when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.create(user, configuration, false)));
     }
@@ -162,7 +162,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         bundle.putString(KEY_GENDER, GenderOption.NO_PREF.name());
         bundle.putSerializable(KEY_BIRTHDAY, BirthdayInfo.buildFrom(25));
 
-        when(signupSignature.getSignature(anyString(), anyString())).thenReturn("signupSignature");
+        when(authSignature.getSignature(anyString(), anyString())).thenReturn("signupSignature");
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenThrow(throwable);
     }
 

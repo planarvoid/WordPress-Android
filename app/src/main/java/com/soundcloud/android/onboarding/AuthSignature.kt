@@ -5,14 +5,14 @@ import com.soundcloud.android.utils.OpenForTesting
 import javax.inject.Inject
 
 @OpenForTesting
-class SignupSignature
+class AuthSignature
 @Inject
 constructor(val obfuscator: Obfuscator) {
     private val version: Int = 1
     private val secret = "MFx5XmsCEHtBCjMNFVV6AGUhUBVHWxYIBTU3AGxaXzg="
 
-    fun getSignature(email: String, clientId: String): String {
-        val payload = listOf(email, clientId, obfuscator.deobfuscateString(secret), version).joinToString(":")
+    fun getSignature(userIdentifier: String, clientId: String): String {
+        val payload = listOf(userIdentifier, clientId, obfuscator.deobfuscateString(secret), version).joinToString(":")
         val bytes = payload.toByteArray()
 
         val mod: Int = 55439
