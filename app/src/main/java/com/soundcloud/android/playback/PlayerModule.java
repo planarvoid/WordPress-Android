@@ -4,9 +4,9 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.flipper.FlipperCache;
 import com.soundcloud.android.playback.flipper.FlipperConfiguration;
 import com.soundcloud.android.playback.flipper.FlipperPerformanceReporter;
-import com.soundcloud.android.playback.skippy.SkippyPerformanceReporter;
 import com.soundcloud.android.playback.skippy.SkippyCache;
 import com.soundcloud.android.playback.skippy.SkippyConfiguration;
+import com.soundcloud.android.playback.skippy.SkippyPerformanceReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -64,7 +64,7 @@ public abstract class PlayerModule {
                                                             @Nullable @Named(StorageModule.STREAM_CACHE_DIRECTORY_FLIPPER) File streamCacheDirectory,
                                                             FeatureFlags featureFlags) {
         FlipperCache cache = new StreamCacheConfig.FlipperConfig(context, countryProvider, ioUtils, cacheKey, streamCacheDirectory);
-        return new FlipperConfiguration(cache, featureFlags.isEnabled(Flag.ENCRYPTED_HLS));
+        return new FlipperConfiguration(cache, featureFlags.isEnabled(Flag.ENCRYPTED_HLS), featureFlags.isEnabled(Flag.FLIPPER_CRASH_ON_HANG));
     }
 
     @Provides

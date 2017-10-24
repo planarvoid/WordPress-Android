@@ -24,7 +24,8 @@ enum Feature {
   UNIFLOW_NEW_HOME,
   UNIFLOW_STREAM,
   BOTTOM_NAVIGATION,
-  LOCAL_SEARCH_HISTORY;
+  LOCAL_SEARCH_HISTORY,
+  FLIPPER_CRASH_ON_HANG
 }
 
 android {
@@ -46,6 +47,7 @@ android {
     buildConfigField FLAG, Feature.UNIFLOW_STREAM.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.BOTTOM_NAVIGATION.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -61,6 +63,7 @@ android {
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -77,6 +80,7 @@ android {
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -91,6 +95,7 @@ android {
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), DEFAULT_SHOW
     }
 
     release {
