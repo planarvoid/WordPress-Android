@@ -81,3 +81,4 @@ release.properties
 version_database.properties
 c2dm.credentials
 reg_ids.yaml
+production_client_secrets.json

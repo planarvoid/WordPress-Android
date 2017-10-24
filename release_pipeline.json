@@ -133,7 +133,7 @@
       "jobs": [
         {
           "deploy_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nBUILD_TYPE=beta ./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
+            "cmd": "curl -T production_client_secrets.json.enc http://shibboleth/decrypt > production_client_secrets.json\nBUILD_TYPE=beta ./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -144,7 +144,7 @@
         },
         {
           "rollout_release_1_percent_and_followup_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nBUILD_TYPE=release ./gradlew deployReleaseOnePercent deployFollowUpBeta",
+            "cmd": "curl -T production_client_secrets.json.enc http://shibboleth/decrypt > production_client_secrets.json\nBUILD_TYPE=release ./gradlew deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -155,7 +155,7 @@
         },
         {
           "rollout_release_20_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nBUILD_TYPE=release ./gradlew deployReleaseTwentyPercent",
+            "cmd": "curl -T production_client_secrets.json.enc http://shibboleth/decrypt > production_client_secrets.json\nBUILD_TYPE=release ./gradlew deployReleaseTwentyPercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -166,7 +166,7 @@
         },
         {
           "rollout_release_100_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nBUILD_TYPE=release ./gradlew deployReleaseRolloutFull",
+            "cmd": "curl -T production_client_secrets.json.enc http://shibboleth/decrypt > production_client_secrets.json\nBUILD_TYPE=release ./gradlew deployReleaseRolloutFull",
             "manual": true,
             "localBranch": true
           }

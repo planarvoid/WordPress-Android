@@ -1,84 +1,46 @@
+import com.soundcloud.playpublisher.*
+
+buildscript {
+  repositories {
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+  }
+  dependencies {
+    classpath 'com.soundcloud:play-publisher:1.0.0'
+  }
+}
+
 apply from: "${project.('ext').buildSrcDir}/apk_finder.gradle"
 
-task clearBeta {
-  description = "Clears any uploaded app from Google Play Store Beta track"
+def productionAppConfiguration =  new PublishConfiguration(file("$rootProject.projectDir/production_client_secrets.json"), project(':app').applicationId)
 
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-t', 'beta', '--fraction', '0'],
-            "Clear app from Google Play Store Beta Track failed"
-    )
-  }
-}
-
-task uploadBeta {
+task uploadBeta(type: BetaPublishTask) {
   description = 'Uploads app to Google Play Store Beta track.'
-
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-a', findApkPath("beta", project.('betaVersionCode')), '-t', 'beta'],
-            "Upload app to Google Play Store Beta Track failed"
-    )
-  }
+  publishConfiguration = productionAppConfiguration
+  apkFileProvider = { findApkPath("beta", project.('betaVersionCode')) }
 }
 
-task uploadFollowUpBeta {
+task uploadFollowUpBeta(type: BetaPublishTask) {
   description = 'Uploads app to Google Play Store Beta track following Production rollout.'
-
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-a', findApkPath("beta", project.('followUpBetaVersionCode')), '-t', 'beta'],
-            "Upload app to Google Play Store Beta Track failed"
-    )
-  }
+  publishConfiguration = productionAppConfiguration
+  apkFileProvider = { findApkPath("beta", project.('followUpBetaVersionCode')) }
 }
 
-task rolloutOnePercent(dependsOn: ['clearBeta']) {
+task rolloutOnePercent(type: RolloutPublishTask) {
   description = 'Uploads app to Google Play Store Staged Rollout track and rolls the app out to 1% of user base.'
-
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout'],
-            "Rollout to 1% failed"
-    )
-  }
+  publishConfiguration = productionAppConfiguration
+  apkFileProvider = { findApkPath("release", project.('releaseVersionCode')) }
+  userFraction = UserFraction.ONE_PERCENT
 }
 
-task rolloutTwentyPercent {
+task rolloutTwentyPercent(type: UpdateRolloutTask) {
   description = 'Rolls the app out to 20% of user base.'
-
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-v', project.('releaseVersionCode'), '-t', 'rollout',
-             '--fraction', '0.20'],
-            "Rollout to 20% failed"
-    )
-  }
+  publishConfiguration = productionAppConfiguration
+  versionCode = project.('releaseVersionCode')
+  userFraction = UserFraction.TWENTY_PERCENT
 }
 
-task rolloutFull {
+task rolloutFull(type: ProductionRolloutTask) {
   description = 'Rolls the app out to 100% of user base.'
-
-  doLast {
-    executeCmd(
-            ['apublisher', '-n', project(':app').applicationId, '-v', project.('releaseVersionCode'), '-t', 'rollout',
-             '--fraction', '1'],
-            "Rollout to 100% failed"
-    )
-  }
-}
-
-def executeCmd(cmd, errorMessage) {
-  def p = cmd.execute()
-  OutputStream standardOut = new ByteArrayOutputStream()
-  OutputStream standardError = new ByteArrayOutputStream()
-  p.waitForProcessOutput(standardOut, standardError)
-
-  def exitValue = p.exitValue()
-  if (exitValue != 0) {
-    System.err.println(new String(standardError.toByteArray()))
-    throw new Exception("$errorMessage: ($cmd) exitValue: $exitValue")
-  }
-
-  System.out.println(new String(standardOut.toByteArray()))
+  publishConfiguration = productionAppConfiguration
+  versionCode = project.('releaseVersionCode')
 }
