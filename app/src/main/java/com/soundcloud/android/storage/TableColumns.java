@@ -125,6 +125,7 @@ public final class TableColumns {
 
         public static final String USER_AVATAR_URL = "sound_user_avatar_url";
         public static final String DISPLAY_STATS_ENABLED = "display_stats_enabled";
+        public static final String SECRET_TOKEN = "secret_token";
     }
 
     public static final class SoundStreamView extends SoundStream {

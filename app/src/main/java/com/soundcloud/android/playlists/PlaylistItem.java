@@ -182,6 +182,11 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         return playlist().duration();
     }
 
+    @Override
+    public Optional<String> secretToken() {
+        return Optional.absent();
+    }
+
     public String getReleaseDate() {
         return releaseDate();
     }

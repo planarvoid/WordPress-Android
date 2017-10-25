@@ -204,6 +204,7 @@ public class TrackStorage {
 
         builder.genre(Optional.fromNullable(cursorReader.getString(Tables.TrackView.GENRE.name())));
         builder.displayStatsEnabled(cursorReader.getBoolean(Tables.TrackView.DISPLAY_STATS_ENABLED.name()));
+        builder.secretToken(Optional.fromNullable(cursorReader.getString(Tables.TrackView.SECRET_TOKEN.name())));
 
         builder.policyLastUpdatedAt(getDateOr(cursorReader, POLICY_LAST_UPDATED_AT.name(), new Date(0)));
         builder.waveformUrl(Optional.fromNullable(cursorReader.getString(WAVEFORM_URL.name())).or(Strings.EMPTY));

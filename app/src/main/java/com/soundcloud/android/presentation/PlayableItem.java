@@ -39,6 +39,8 @@ public abstract class PlayableItem implements OfflineItem, LikeableItem, Reposta
 
     abstract public long getDuration();
 
+    public abstract Optional<String> secretToken();
+
     public abstract Optional<RepostedProperties> repostedProperties();
 
     public abstract Optional<PromotedProperties> promotedProperties();

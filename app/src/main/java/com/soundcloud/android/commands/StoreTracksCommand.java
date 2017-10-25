@@ -71,7 +71,8 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 Tables.Sounds.REPOSTS_COUNT,
                 Tables.Sounds.USER_ID,
                 Tables.Sounds.DESCRIPTION,
-                Tables.Sounds.DISPLAY_STATS_ENABLED
+                Tables.Sounds.DISPLAY_STATS_ENABLED,
+                Tables.Sounds.SECRET_TOKEN
         );
     }
 
@@ -111,7 +112,8 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 trackRecord.getRepostsCount(),
                 trackRecord.getUser().getUrn().getNumericId(),
                 trackRecord.getDescription().orNull(),
-                trackRecord.isDisplayStatsEnabled()
+                trackRecord.isDisplayStatsEnabled(),
+                trackRecord.getSecretToken().orNull()
         );
     }
 

@@ -482,6 +482,12 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
+    @JsonIgnore
+    public Optional<String> getSecretToken() {
+        return Optional.fromNullable(secret_token);
+    }
+
+    @Override
     public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
     }

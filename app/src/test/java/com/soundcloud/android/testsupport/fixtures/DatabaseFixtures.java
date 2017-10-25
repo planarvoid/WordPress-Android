@@ -90,6 +90,7 @@ public class DatabaseFixtures {
         cv.put(Tables.Sounds.DESCRIPTION, track.getDescription().orNull());
         cv.put(Tables.Sounds.GENRE, track.getGenre());
         cv.put(Tables.Sounds.DISPLAY_STATS_ENABLED, track.isDisplayStatsEnabled());
+        cv.put(Tables.Sounds.SECRET_TOKEN, track.getSecretToken().orNull());
 
         insertInto(Tables.Sounds.TABLE, cv.get());
         insertPolicy(track);

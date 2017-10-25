@@ -68,6 +68,7 @@ public interface Tables {
         public static final Column SET_TYPE = Column.create(TABLE, "set_type", String.class);
         public static final Column RELEASE_DATE = Column.create(TABLE, "release_date", String.class);
         public static final Column DISPLAY_STATS_ENABLED = Column.create(TABLE, "display_stats_enabled", Boolean.class);
+        public static final Column SECRET_TOKEN = Column.create(TABLE, "secret_token", String.class);
 
         public static final int TYPE_TRACK = 0;
         public static final int TYPE_PLAYLIST = 1;
@@ -117,6 +118,7 @@ public interface Tables {
                 "set_type VARCHAR(255)," +
                 "release_date VARCHAR(255)," +
                 "display_stats_enabled BOOLEAN DEFAULT 1," +
+                "secret_token VARCHAR(255)," +
                 "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
                 ");";
 
@@ -618,6 +620,7 @@ public interface Tables {
         public static final Column IS_USER_LIKE = Column.create(TABLE, "tv_is_user_like", String.class);
         public static final Column IS_USER_REPOST = Column.create(TABLE, "tv_is_user_repost", String.class);
         public static final Column DISPLAY_STATS_ENABLED = Column.create(TABLE, "tv_display_stats_enabled", Boolean.class);
+        public static final Column SECRET_TOKEN = Column.create(TABLE, "tv_secret_token", String.class);
 
         @Override
         String getCreateSQL() {
@@ -658,6 +661,7 @@ public interface Tables {
                              field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(SUB_MID_TIER.name()),
 
                              field(SoundView.field(TableColumns.SoundView.DISPLAY_STATS_ENABLED)).as(DISPLAY_STATS_ENABLED.name()),
+                             field(SoundView.field(TableColumns.SoundView.SECRET_TOKEN)).as(SECRET_TOKEN.name()),
 
                              field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(ARTWORK_URL.name()),
 

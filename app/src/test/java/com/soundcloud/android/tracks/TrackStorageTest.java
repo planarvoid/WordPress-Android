@@ -61,6 +61,28 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsTrackWithSecretToken() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setSecretToken(Optional.of("secret_token"));
+        testFixtures().insertTrack(apiTrack);
+
+        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
+
+        assertThat(track.secretToken()).isEqualTo(Optional.of("secret_token"));
+    }
+
+    @Test
+    public void loadsTrackMissingSecretToken() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setSecretToken(Optional.absent());
+        testFixtures().insertTrack(apiTrack);
+
+        Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
+
+        assertThat(track.secretToken()).isEqualTo(Optional.absent());
+    }
+
+    @Test
     public void loadsBlockedTrack() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setBlocked(true);

@@ -43,6 +43,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     private Optional<String> monetizationModel = Optional.absent();
     private Optional<Boolean> subMidTier = Optional.absent();
     private Optional<Boolean> subHighTier = Optional.absent();
+    private Optional<String> secretToken = Optional.absent();
 
     public ApiTrack() { /* for Deserialization */ }
 
@@ -303,6 +304,16 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     @JsonProperty("display_stats")
     public void setDisplayStatsEnabled(boolean displayStats) {
         this.displayStatsEnabled = displayStats;
+    }
+
+    @Override
+    public Optional<String> getSecretToken() {
+        return secretToken;
+    }
+
+    @JsonProperty("secret_token")
+    public void setSecretToken(Optional<String> secretToken) {
+        this.secretToken = secretToken;
     }
 
     @Override

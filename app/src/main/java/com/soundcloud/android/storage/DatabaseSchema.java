@@ -106,6 +106,7 @@ final class DatabaseSchema {
             "," + Tables.Sounds.SET_TYPE.qualifiedName() + " as " + TableColumns.SoundView.SET_TYPE +
             "," + Tables.Sounds.RELEASE_DATE.qualifiedName() + " as " + TableColumns.SoundView.RELEASE_DATE +
             "," + Tables.Sounds.DISPLAY_STATS_ENABLED.qualifiedName() + " as " + TableColumns.SoundView.DISPLAY_STATS_ENABLED +
+            "," + Tables.Sounds.SECRET_TOKEN.qualifiedName() + " as " + TableColumns.SoundView.SECRET_TOKEN +
             "," + Tables.TrackPolicies.MONETIZABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             "," + Tables.TrackPolicies.BLOCKED.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
             "," + Tables.TrackPolicies.SYNCABLE.qualifiedName() + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +

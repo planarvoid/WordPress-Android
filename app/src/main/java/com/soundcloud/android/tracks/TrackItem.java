@@ -158,6 +158,11 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().waveformUrl();
     }
 
+    @Override
+    public Optional<String> secretToken() {
+        return track().secretToken();
+    }
+
     public Optional<String> description() {
         return track().description();
     }

@@ -60,4 +60,7 @@ public interface TrackRecord extends ImageResource {
     boolean isDisplayStatsEnabled();
 
     Optional<String> getDescription();
+
+    Optional<String> getSecretToken();
+
 }

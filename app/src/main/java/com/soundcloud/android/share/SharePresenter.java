@@ -13,6 +13,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ShareDialog;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -42,19 +43,34 @@ public class SharePresenter {
 
     public void share(Context context, PlayableItem playable, EventContextMetadata contextMetadata,
                       PromotedSourceInfo promotedSourceInfo) {
-        if (!playable.isPrivate()) {
+        if (canShare(playable)) {
             share(context,
                   playable.permalinkUrl(),
+                  playable.secretToken(),
                   contextMetadata, promotedSourceInfo,
                   EntityMetadata.from(playable));
         }
     }
 
+    private boolean canShare(PlayableItem playable) {
+        return !playable.isPrivate() || playable.secretToken().isPresent();
+    }
+
     public void share(final Context context,
-                      final String permalink,
+                      final String permalinkUrl,
                       final EventContextMetadata contextMetadata,
                       final PromotedSourceInfo promotedSourceInfo,
                       final EntityMetadata entityMetadata) {
+        share(context, permalinkUrl, Optional.absent(), contextMetadata, promotedSourceInfo, entityMetadata);
+    }
+
+    private void share(final Context context,
+                      final String permalinkUrl,
+                      final Optional<String> secretToken,
+                      final EventContextMetadata contextMetadata,
+                      final PromotedSourceInfo promotedSourceInfo,
+                      final EntityMetadata entityMetadata) {
+        final String permalink = permalinkUrl + secretToken.transform(token -> "/" + token).or("");
         eventTracker.trackEngagement(UIEvent.fromShareRequest(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
 
         if (dynamicLinkSharingConfig.isEnabled()) {
@@ -100,7 +116,7 @@ public class SharePresenter {
     }
 
     public void share(Context context, ShareOptions shareOptions) {
-        share(context, shareOptions.permalinkUrl(), shareOptions.eventContextMetadata(), shareOptions.promotedSourceInfo(), shareOptions.entityMetadata());
+        share(context, shareOptions.permalinkUrl(), Optional.absent(), shareOptions.eventContextMetadata(), shareOptions.promotedSourceInfo(), shareOptions.entityMetadata());
     }
 
     private void startShareActivity(Context context,

@@ -75,6 +75,8 @@ public abstract class Track {
 
     public abstract Optional<String> genre();
 
+    public abstract Optional<String> secretToken();
+
     public abstract Builder toBuilder();
 
     public static Builder builder() {
@@ -123,8 +125,8 @@ public abstract class Track {
                 .commentable(apiTrack.isCommentable())
                 .userLike(isUserLike)
                 .userRepost(isRepost)
-                .description(Optional.absent());
-
+                .description(Optional.absent())
+                .secretToken(apiTrack.getSecretToken());
 
         return builder.build();
     }
@@ -193,6 +195,8 @@ public abstract class Track {
         public abstract Builder description(Optional<String> creatorUrn);
 
         public abstract Builder genre(Optional<String> creatorUrn);
+
+        public abstract Builder secretToken(Optional<String> secretToken);
 
         public abstract Track build();
     }

@@ -22,7 +22,9 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,6 +113,22 @@ public class SharePresenterTest extends AndroidUnitTest {
 
         Assertions.assertThat(activityContext).hasNoNextStartedIntent();
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldSharePrivateTracksWithSecretTokens() throws Exception {
+        Track privateSecretTokenTrack = PRIVATE_TRACK.track().toBuilder().secretToken(Optional.of("secret_token")).build();
+        TrackItem privateSecretTokenTrackItem = PRIVATE_TRACK.toBuilder().track(privateSecretTokenTrack).build();
+        operations.share(activityContext, privateSecretTokenTrackItem, eventContext(), PROMOTED_SOURCE_INFO);
+
+        assertShareActivityStarted(privateSecretTokenTrackItem, "http://permalink.url/secret_token");
+
+        verify(tracker, atLeastOnce()).trackEngagement(uiEventCaptor.capture());
+        final UIEvent shareRequestEvent = uiEventCaptor.getAllValues().get(0);
+        assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
+        assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
+        assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
+        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
     }
 
     @Test
