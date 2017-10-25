@@ -78,6 +78,7 @@ htmlTemplates
 # Credentials
 client_secrets.json
 release.properties
+soundcloud.ks
 version_database.properties
 c2dm.credentials
 reg_ids.yaml
