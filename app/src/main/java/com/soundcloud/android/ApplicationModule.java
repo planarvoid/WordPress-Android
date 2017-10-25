@@ -198,7 +198,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    protected AuthSignature provideSignupSignature(Obfuscator obfuscator) {
+    protected AuthSignature provideAuthSignature(Obfuscator obfuscator) {
         return new AuthSignature(obfuscator);
     }
 
