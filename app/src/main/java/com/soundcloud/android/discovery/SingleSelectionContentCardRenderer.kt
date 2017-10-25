@@ -55,7 +55,7 @@ constructor(private val imageOperations: ImageOperations, private val resources:
                     fromNullable(selectionItem.artworkUrlTemplate),
                     ApiImageSize.getFullImageSize(resources),
                     view,
-                    ImageOperations.DisplayType.DEFAULT)
+                    false)
 
         }
     }

@@ -122,7 +122,7 @@ class StreamCardViewPresenter {
                                              playableItem.getImageUrlTemplate(),
                                              ApiImageSize.getFullImageSize(resources),
                                              itemView.getImage(),
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
     }
 
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
@@ -178,7 +178,7 @@ class StreamCardViewPresenter {
         imageOperations.displayInAdapterView(avatar.getUrn(),
                                              avatar.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(resources),
-                                             itemView.getUserImage(), ImageOperations.DisplayType.CIRCULAR);
+                                             itemView.getUserImage(), true);
     }
 
     private class ProfileClickViewListener implements View.OnClickListener {

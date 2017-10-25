@@ -62,7 +62,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
                                              activityItem.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(resources),
                                              itemView.findViewById(R.id.image),
-                                             ImageOperations.DisplayType.CIRCULAR);
+                                             true);
     }
 
     private void setMainText(View itemView, ActivityItem activityItem) {

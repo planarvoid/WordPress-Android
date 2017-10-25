@@ -15,14 +15,14 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class UserAgentImageDownloader extends BaseImageDownloader {
+public final class UniversalImageDownloader extends BaseImageDownloader {
 
     private final OkHttpClient okHttpClient;
     private final String userAgent;
 
-    UserAgentImageDownloader(Context context,
-                                     OkHttpClient okHttpClient,
-                                     DeviceHelper deviceHelper) {
+    UniversalImageDownloader(Context context,
+                             OkHttpClient okHttpClient,
+                             DeviceHelper deviceHelper) {
         super(context);
         this.okHttpClient = okHttpClient;
         this.userAgent = deviceHelper.getUserAgent();
@@ -52,7 +52,7 @@ public final class UserAgentImageDownloader extends BaseImageDownloader {
 
         @Nullable
         public ImageDownloader create(@NotNull Context context) {
-            return new UserAgentImageDownloader(context, okHttpClient, deviceHelper);
+            return new UniversalImageDownloader(context, okHttpClient, deviceHelper);
         }
     }
 }

@@ -37,6 +37,6 @@ class PlaylistSuggestionItemRenderer extends SuggestionItemRenderer {
                                              imageResource.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(resources),
                                              icon,
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
     }
 }

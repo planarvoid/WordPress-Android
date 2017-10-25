@@ -90,11 +90,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle<Fragmen
         absListView = view.findViewById(android.R.id.list);
         absListView.setEmptyView(emptyViewController.getEmptyView());
 
-        if (scrollListener == null) {
-            scrollListener = imageOperations.createScrollPauseListener(false, true, null);
-        } else {
-            scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
-        }
+        scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         if (pager != null) {
             scrollListener = new PagingScrollListener(pager, (PagingListItemAdapter) adapter, scrollListener);
         }

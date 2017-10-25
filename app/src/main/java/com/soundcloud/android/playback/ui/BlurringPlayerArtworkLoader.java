@@ -43,10 +43,11 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     @Override
     public Observable<Bitmap> loadAdBackgroundImage(final Urn trackUrn) {
         return RxJava.toV1Observable(imageOperations.blurredArtwork(resources,
-                                                     toImageResource(trackUrn),
-                                                     Optional.absent(),
-                                                     graphicsScheduler,
-                                                     observeOnScheduler));
+                                                                    trackUrn,
+                                                                    Optional.absent(),
+                                                                    Optional.absent(),
+                                                                    graphicsScheduler,
+                                                                    observeOnScheduler));
     }
 
     @Override
@@ -61,12 +62,13 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
                                       Optional<ViewVisibilityProvider> viewVisibilityProvider) {
         blurSubscription.unsubscribe();
         blurSubscription = RxJava.toV1Observable(imageOperations.blurredArtwork(resources,
-                                                          imageResource,
-                                                          Optional.absent(),
-                                                          graphicsScheduler,
-                                                          observeOnScheduler))
-                                          .subscribe(new BlurredOverlaySubscriber(imageOverlay,
-                                                                                  viewVisibilityProvider));
+                                                                                imageResource.getUrn(),
+                                                                                imageResource.getImageUrlTemplate(),
+                                                                                Optional.absent(),
+                                                                                graphicsScheduler,
+                                                                                observeOnScheduler))
+                                 .subscribe(new BlurredOverlaySubscriber(imageOverlay,
+                                                                         viewVisibilityProvider));
     }
 
     private class BlurredOverlaySubscriber extends DefaultSubscriber<Bitmap> {

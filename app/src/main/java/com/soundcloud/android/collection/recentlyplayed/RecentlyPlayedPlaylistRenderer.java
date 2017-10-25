@@ -95,7 +95,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private void setImage(View view, ImageResource imageResource) {
         final StyledImageView styledImageView = findById(view, R.id.artwork);
-        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), imageResource.getUrn(), imageOperations);
+        styledImageView.showWithPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), Optional.of(imageResource.getUrn()), imageOperations);
     }
 
     private View.OnClickListener goToPlaylist(final RecentlyPlayedPlayableItem playlist) {

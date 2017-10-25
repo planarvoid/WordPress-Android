@@ -9,7 +9,6 @@ import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -81,28 +80,27 @@ class MetadataOperations {
 
     private Function<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
         return trackItem -> {
-            final SimpleImageResource imageResource = SimpleImageResource.create(trackItem);
-            final Bitmap cachedBitmap = getCachedBitmap(imageResource);
+            final Bitmap cachedBitmap = getCachedBitmap(trackItem.getUrn(), trackItem.getImageUrlTemplate());
 
             if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
                 return Observable.just(new TrackAndBitmap(trackItem, Optional.of(cachedBitmap)));
             } else {
                 return Single.concat(Single.just(new TrackAndBitmap(trackItem, getCurrentBitmap(existingMetadata))),
-                                     loadArtwork(trackItem, imageResource)).toObservable();
+                                     loadArtwork(trackItem)).toObservable();
             }
         };
     }
 
     @Nullable
-    private Bitmap getCachedBitmap(SimpleImageResource imageResource) {
+    private Bitmap getCachedBitmap(Urn urn, Optional<String> imageUrlTemplate) {
         final int targetSize = getTargetImageSize();
-        return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);
+        return imageOperations.getCachedBitmap(urn, imageUrlTemplate, getImageSize(), targetSize, targetSize);
     }
 
-    private Single<TrackAndBitmap> loadArtwork(final TrackItem trackItem, final SimpleImageResource imageResource) {
+    private Single<TrackAndBitmap> loadArtwork(final TrackItem trackItem) {
         final int targetSize = getTargetImageSize();
 
-        return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
+        return imageOperations.artwork(trackItem.getUrn(), trackItem.getImageUrlTemplate(), getImageSize(), targetSize, targetSize)
                               .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
     }
 

@@ -7,7 +7,9 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.disposables.CompositeDisposable;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +21,8 @@ class SponsoredSessionCardView extends PrestitialView {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
+    @SuppressLint("sc.MissingCompositeDisposableRecycle")
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @BindView(R.id.ad_image_view) ImageView imageView;
     @BindView(R.id.opt_in_text) TextView descriptionView;
@@ -37,12 +41,12 @@ class SponsoredSessionCardView extends PrestitialView {
                                  PrestitialPage prestitialPage) {
         ButterKnife.bind(this, cardView);
 
-        imageOperations.displayAdImage(ad.adUrn(), ad.optInCard().imageUrl(), imageView,
-                                       new PrestitialImageCompanionListener(ad, listener, Optional.of(prestitialPage)));
+        compositeDisposable.add(imageOperations.displayAdImage(ad.adUrn(), ad.optInCard().imageUrl(), imageView)
+                                               .subscribeWith(PrestitialView.observer(ad, listener, Optional.of(prestitialPage))));
 
         imageView.setOnClickListener(view -> listener.onImageClick(view.getContext(), ad, Optional.of(prestitialPage)));
         optionOneView.setText(prestitialPage.optionOne);
-        optionOneView.setOnClickListener(buttonView-> listener.onOptionOneClick(prestitialPage, ad, buttonView.getContext()));
+        optionOneView.setOnClickListener(buttonView -> listener.onOptionOneClick(prestitialPage, ad, buttonView.getContext()));
         optionTwoView.setText(prestitialPage.optionTwo);
         optionTwoView.setOnClickListener(ignored -> listener.onOptionTwoClick(prestitialPage, ad));
 

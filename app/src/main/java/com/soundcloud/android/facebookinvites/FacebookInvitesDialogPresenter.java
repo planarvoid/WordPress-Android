@@ -5,7 +5,6 @@ import com.facebook.share.widget.AppInviteDialog;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
 
@@ -28,7 +27,7 @@ public class FacebookInvitesDialogPresenter {
     }
 
     public void showForCreators(final Activity activity, String url, Urn urn) {
-        show(activity, url, imageOperations.getImageUrl(Optional.absent(), urn, ApiImageSize.T500));
+        show(activity, url, imageOperations.getImageUrl(urn, ApiImageSize.T500));
     }
 
     private void show(final Activity activity, String url, String imageUrl) {

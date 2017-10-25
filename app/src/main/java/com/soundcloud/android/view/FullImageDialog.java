@@ -8,18 +8,19 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.LoadingState;
 import com.soundcloud.android.image.SimpleImageResource;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -48,6 +49,8 @@ public class FullImageDialog extends LoggingDialogFragment {
     @BindView(R.id.image) ImageView image;
     @BindView(R.id.progress) ProgressBar progress;
     private Unbinder unbinder;
+
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public static void show(FragmentManager fragmentManager, ImageResource imageResource) {
         Bundle args = new Bundle();
@@ -99,36 +102,32 @@ public class FullImageDialog extends LoggingDialogFragment {
 
     @Override
     public void onDestroyView() {
+        compositeDisposable.clear();
         unbinder.unbind();
         super.onDestroyView();
     }
 
     private void displayImage(ImageResource imageResource) {
-        imageOperations.displayInFullDialogView(imageResource, ApiImageSize.T500, image, new ImageListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                progress.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onLoadingFailed(String s, View view, Throwable cause) {
-                if (isAdded()) {
-                    handleLoadingError();
-                }
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                if (isAdded()) {
-                    if (loadedImage == null) {
-                        handleLoadingError();
-                    } else {
-                        image.setVisibility(View.VISIBLE);
-                        progress.setVisibility(View.INVISIBLE);
+        compositeDisposable.add(imageOperations.displayInFullDialogView(imageResource.getUrn(), imageResource.getImageUrlTemplate(), ApiImageSize.T500, image).subscribeWith(
+                LambdaObserver.onNext(state -> {
+                    if (state instanceof LoadingState.Start) {
+                        progress.setVisibility(View.VISIBLE);
+                    } else if (state instanceof LoadingState.Fail) {
+                        if (isAdded()) {
+                            handleLoadingError();
+                        }
+                    } else if (state instanceof LoadingState.Complete) {
+                        if (isAdded()) {
+                            if (((LoadingState.Complete) state).getLoadedImage() == null) {
+                                handleLoadingError();
+                            } else {
+                                image.setVisibility(View.VISIBLE);
+                                progress.setVisibility(View.INVISIBLE);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                })
+        ));
     }
 
     private void handleLoadingError() {

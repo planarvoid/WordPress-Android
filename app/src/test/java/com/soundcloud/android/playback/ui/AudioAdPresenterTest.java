@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.LoadType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -47,7 +48,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.never());
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.never());
 
         presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, artworkLoader);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
@@ -202,7 +203,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.never());
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.never());
         bindSkippableAd();
 
         assertCenteredLayoutInvisible();
@@ -211,7 +212,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredLayoutSetOnIABSizedAdImage() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.just(buildBitmap(300, 250)));
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.just(buildBitmap(300, 250)));
         bindSkippableAd();
 
         assertCenteredLayoutVisible();
@@ -220,7 +221,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredLayoutSetOn2xIABSizedAdImage() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.just(buildBitmap(600, 500)));
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.just(buildBitmap(600, 500)));
         bindSkippableAd();
 
         assertCenteredLayoutVisible();
@@ -229,7 +230,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredAdWithoutClickthroughIsNotClickable() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.just(buildBitmap(300, 250)));
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.just(buildBitmap(300, 250)));
         bindNonClickableAd();
 
         assertThat((View) adView.findViewById(R.id.centered_ad_clickable_overlay)).isGone();
@@ -239,7 +240,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fullbleedAdWithoutClickthroughDoesNotShowCallToAction() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.just(buildBitmap(601, 501)));
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.just(buildBitmap(601, 501)));
         bindNonClickableAd();
 
         assertCenteredLayoutInvisible();
@@ -249,7 +250,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Single.just(buildBitmap(601, 501)));
+        when(imageOperations.bitmap(any(Uri.class), any())).thenReturn(Single.just(buildBitmap(601, 501)));
         bindSkippableAd();
 
         assertCenteredLayoutInvisible();

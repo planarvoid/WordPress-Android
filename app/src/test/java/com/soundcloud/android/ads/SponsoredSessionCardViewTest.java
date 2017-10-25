@@ -2,13 +2,17 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,6 +20,7 @@ import org.mockito.Mock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SponsoredSessionCardViewTest extends AndroidUnitTest {
@@ -32,6 +37,7 @@ public class SponsoredSessionCardViewTest extends AndroidUnitTest {
     public void setUp() {
         view = LayoutInflater.from(context()).inflate(R.layout.sponsored_session_action_page, new FrameLayout(context()));
         cardView = spy(new SponsoredSessionCardView(imageOperations, resources()));
+        when(imageOperations.displayAdImage(any(Urn.class), any(String.class), any(ImageView.class))).thenReturn(Observable.empty());
     }
 
     @Test

@@ -10,7 +10,6 @@ import com.soundcloud.android.image.ApiImageSize
 import com.soundcloud.android.image.ImageOperations
 import com.soundcloud.android.presentation.CellRenderer
 import com.soundcloud.android.utils.ScTextUtils
-import com.soundcloud.java.optional.Optional
 import kotlinx.android.synthetic.main.engagement_list_item.view.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -31,7 +30,7 @@ constructor(private val resources: Resources, private val imageOperations: Image
                     imageUrlTemplate,
                     ApiImageSize.getListItemImageSize(resources),
                     view.image,
-                    ImageOperations.DisplayType.CIRCULAR
+                    circular = true
             )
             view.date.text = ScTextUtils.formatTimeElapsedSince(resources, date.time, true)
         }

@@ -2,15 +2,14 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.LoadingState;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.disposables.CompositeDisposable;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -23,24 +22,7 @@ public abstract class AdOverlayPresenter {
     private final View leaveBehindHeader;
     protected final ImageOperations imageOperations;
     protected final EventBus eventBus;
-
-    private final ImageListener imageListener = new ImageListener() {
-
-        @Override
-        public void onLoadingStarted(String imageUri, View view) {
-            // no-op
-        }
-
-        @Override
-        public void onLoadingFailed(String imageUri, View view, @Nullable Throwable cause) {
-            // no-op
-        }
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            listener.onAdImageLoaded();
-        }
-    };
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public abstract boolean shouldDisplayOverlay(VisualAdData data,
                                                  boolean isExpanded,
@@ -66,6 +48,7 @@ public abstract class AdOverlayPresenter {
     }
 
     public void clear() {
+        compositeDisposable.clear();
         adImage.setImageDrawable(null);
         onAdNotVisible();
     }
@@ -73,7 +56,10 @@ public abstract class AdOverlayPresenter {
     public abstract boolean isFullScreen();
 
     public void bind(VisualAdData data) {
-        imageOperations.displayLeaveBehind(Uri.parse(data.imageUrl()), getImageView(), imageListener);
+        compositeDisposable.add(imageOperations
+                                        .displayLeaveBehind(data.imageUrl(), getImageView())
+                                        .filter(it -> it instanceof LoadingState.Complete)
+                                        .subscribeWith(LambdaObserver.onNext(state -> listener.onAdImageLoaded())));
     }
 
     public interface Listener {

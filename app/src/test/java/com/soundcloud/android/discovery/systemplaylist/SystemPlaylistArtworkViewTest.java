@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery.systemplaylist;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,7 +10,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,12 +53,13 @@ public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
 
     @Test
     public void bindViewCreatesImageView() {
-        final ImageResource track1 = mock(ImageResource.class);
-        final ImageResource track2 = mock(ImageResource.class);
-        final ImageResource track3 = mock(ImageResource.class);
+        final SimpleImageResource track1 = SimpleImageResource.create(Urn.forTrack(1L), Optional.absent());
+        final SimpleImageResource track2 = SimpleImageResource.create(Urn.forTrack(2L), Optional.absent());
+        final SimpleImageResource track3 = SimpleImageResource.create(Urn.forTrack(3L), Optional.absent());
+
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3);
         final Single<Bitmap> empty = Single.never();
-        when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(empty);
+        when(imageOperations.displayWithPlaceholderObservable(any(Urn.class), eq(Optional.absent()), any(ApiImageSize.class), any(ImageView.class))).thenReturn(empty);
 
         view.bindWithAnimation(imageOperations, entities);
 
@@ -64,11 +69,13 @@ public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
     @Test
     public void bindViewStartsAnimatingWhenAllImagesHaveLoaded() {
         final ImageResource track1 = mock(ImageResource.class);
+        when(track1.getUrn()).thenReturn(Urn.forTrack(1L));
+        when(track1.getImageUrlTemplate()).thenReturn(Optional.absent());
         final List<ImageResource> entities = Collections.singletonList(track1);
 
         final Single<Bitmap> observable = Single.just(mock(Bitmap.class));
 
-        when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(observable);
+        when(imageOperations.displayWithPlaceholderObservable(any(Urn.class), eq(Optional.absent()), any(ApiImageSize.class), any(ImageView.class))).thenReturn(observable);
 
         view.bindWithAnimation(imageOperations, entities);
 

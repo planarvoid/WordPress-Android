@@ -62,7 +62,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
                                              station.getImageUrlTemplate(),
                                              ApiImageSize.getFullImageSize(resources),
                                              artwork,
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
     }
 
     private View.OnClickListener startStation(final StationRecord station) {

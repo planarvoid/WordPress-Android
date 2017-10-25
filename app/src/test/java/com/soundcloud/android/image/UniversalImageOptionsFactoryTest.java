@@ -24,8 +24,9 @@ import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImageOptionsFactoryTest {
+public class UniversalImageOptionsFactoryTest {
 
+    private UniversalImageOptionsFactory imageOptionsFactory;
     ImageViewAware imageAware;
 
     @Mock Bitmap bitmap;
@@ -36,18 +37,19 @@ public class ImageOptionsFactoryTest {
     @Before
     public void setUp() throws Exception {
         imageAware = new ImageViewAware(imageView);
+        imageOptionsFactory = new UniversalImageOptionsFactory();
     }
 
     @Test
     public void shouldCreatePrefetchOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.prefetch();
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.prefetch();
         assertThat(displayImageOptions.isCacheInMemory()).isFalse();
         assertThat(displayImageOptions.isCacheOnDisk()).isTrue();
     }
 
     @Test
     public void shouldCreateCacheOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.cache();
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.cache();
         assertThat(displayImageOptions.isCacheInMemory()).isTrue();
         assertThat(displayImageOptions.isCacheOnDisk()).isTrue();
     }
@@ -56,19 +58,19 @@ public class ImageOptionsFactoryTest {
     public void shouldCreateAdapterViewOptions() throws Exception {
         Resources resources = mock(Resources.class);
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, null, deviceHelper);
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.adapterView(drawable, null, deviceHelper);
         assertThat(displayImageOptions.isCacheInMemory()).isTrue();
         assertThat(displayImageOptions.isCacheOnDisk()).isTrue();
         assertThat(displayImageOptions.getImageForEmptyUri(resources)).isSameAs(drawable);
         assertThat(displayImageOptions.getImageOnFail(resources)).isSameAs(drawable);
         assertThat(displayImageOptions.getImageOnLoading(resources)).isSameAs(drawable);
-        assertThat(displayImageOptions.getDisplayer()).isInstanceOf(ImageOptionsFactory.PlaceholderTransitionDisplayer.class);
+        assertThat(displayImageOptions.getDisplayer()).isInstanceOf(UniversalImageOptionsFactory.PlaceholderTransitionDisplayer.class);
     }
 
     @Test
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForSmallImageSize() {
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T47, deviceHelper);
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.adapterView(drawable, ApiImageSize.T47, deviceHelper);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }
 
@@ -76,38 +78,38 @@ public class ImageOptionsFactoryTest {
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForLowMemoryDevices() {
         Drawable drawable = mock(Drawable.class);
         when(deviceHelper.isLowMemoryDevice()).thenReturn(true);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }
 
     @Test
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForTablets() {
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
+        DisplayImageOptions displayImageOptions = imageOptionsFactory.adapterView(drawable, ApiImageSize.T500, deviceHelper);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }
 
     @Test
     public void shouldNotTransitionIfLoadedViaMemory() throws Exception {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.MEMORY_CACHE);
+        new UniversalImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.MEMORY_CACHE);
         verify(imageView).setImageBitmap(bitmap);
     }
 
     @Test
     public void shouldTransitionIfLoadedFromDisc() throws Exception {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.DISC_CACHE);
+        new UniversalImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.DISC_CACHE);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
     }
 
     @Test
     public void shouldTransitionIfLoadedFromNetwork() throws Exception {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
+        new UniversalImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
     }
 
     @Test
     public void shouldUDrawableWithPlaceholderTransition() throws Exception {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
+        new UniversalImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).getDrawable();
         verify(imageView, never()).getBackground();
     }

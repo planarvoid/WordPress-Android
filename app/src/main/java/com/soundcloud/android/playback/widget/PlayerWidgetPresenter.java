@@ -5,13 +5,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,7 @@ class PlayerWidgetPresenter {
     }
 
     private void updateAndLoadArtwork(Context context) {
-        Bitmap cachedArtwork = getCachedBitmap(context, widgetItem);
+        Bitmap cachedArtwork = getCachedBitmap(context, widgetItem.getUrn(), widgetItem.getImageUrlTemplate());
         updateRemoveViews(context, cachedArtwork);
         if (cachedArtwork == null) {
             loadArtwork(context);
@@ -86,12 +87,13 @@ class PlayerWidgetPresenter {
     }
 
     private void loadArtwork(Context context) {
-        artworkDisposable = imageOperations.artwork(widgetItem,
+        artworkDisposable = imageOperations.artwork(widgetItem.getUrn(),
+                                                    widgetItem.getImageUrlTemplate(),
                                                     getApiImageSize(context.getResources()),
                                                     context.getResources()
-                                                             .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
+                                                           .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                                                     context.getResources()
-                                                             .getDimensionPixelSize(R.dimen.widget_image_estimated_height))
+                                                           .getDimensionPixelSize(R.dimen.widget_image_estimated_height))
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .subscribeWith(getArtworkSubscriber(context));
     }
@@ -147,8 +149,8 @@ class PlayerWidgetPresenter {
     }
 
     @Nullable
-    private Bitmap getCachedBitmap(Context context, final ImageResource imageResource) {
-        return imageOperations.getCachedBitmap(imageResource, getApiImageSize(context.getResources()),
+    private Bitmap getCachedBitmap(Context context, Urn urn, Optional<String> imageUrlTemplate) {
+        return imageOperations.getCachedBitmap(urn, imageUrlTemplate, getApiImageSize(context.getResources()),
                                                context.getResources()
                                                       .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                                                context.getResources()

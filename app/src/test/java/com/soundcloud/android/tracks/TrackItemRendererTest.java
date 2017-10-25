@@ -293,7 +293,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                                      trackItem.getImageUrlTemplate(),
                                                      ApiImageSize.getListItemImageSize(itemView.getResources()),
                                                      imageView,
-                                                     ImageOperations.DisplayType.DEFAULT);
+                                                     false);
     }
 
     @Test

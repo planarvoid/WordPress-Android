@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.LoadType;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -13,7 +14,6 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-
 import rx.Subscription;
 
 import android.content.res.Resources;
@@ -173,7 +173,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     private void setupAdVisual(AudioPlayerAd playerAd, final Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         if (playerAd.hasCompanion()) {
-            holder.adImageSubscription = RxJava.toV1Observable(imageOperations.bitmap(playerAd.getImage().get()))
+            holder.adImageSubscription = RxJava.toV1Observable(imageOperations.bitmap(playerAd.getImage().get(), LoadType.AD))
                                                .subscribe(new AdImageSubscriber(holder, playerAd));
         } else {
             // Companionless audio ads use blurred artwork of monetizable track for background

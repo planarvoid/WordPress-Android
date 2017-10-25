@@ -2,11 +2,11 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 
-import com.soundcloud.android.image.DefaultImageListener;
+import com.soundcloud.android.image.LoadingState;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.TextureView;
 import android.view.View;
 
@@ -25,21 +25,12 @@ abstract class PrestitialView {
         void onContinueClick();
     }
 
-    final class PrestitialImageCompanionListener extends DefaultImageListener {
-
-        private final AdData ad;
-        private final Listener listener;
-        private final Optional<PrestitialPage> page;
-
-        PrestitialImageCompanionListener(AdData ad, Listener listener, Optional<PrestitialPage> page) {
-            this.ad = ad;
-            this.listener = listener;
-            this.page = page;
-        }
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            listener.onImageLoadComplete(ad, view, page);
-        }
+    static LambdaObserver<LoadingState> observer(AdData ad, Listener listener, Optional<PrestitialPage> page) {
+        return LambdaObserver.onNext(state -> {
+            if (state instanceof LoadingState.Complete) {
+                listener.onImageLoadComplete(ad, ((LoadingState.Complete) state).getView(), page);
+            }
+        });
     }
+
 }

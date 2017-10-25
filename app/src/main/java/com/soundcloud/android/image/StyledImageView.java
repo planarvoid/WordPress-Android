@@ -68,7 +68,7 @@ public class StyledImageView extends FrameLayout {
         if (usePlaceholder) {
             imageOperations.displayCircularWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork);
         } else {
-            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork, ImageOperations.DisplayType.CIRCULAR);
+            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), circularArtwork, true);
         }
     }
 
@@ -76,7 +76,7 @@ public class StyledImageView extends FrameLayout {
         if (usePlaceholder) {
             imageOperations.displayWithPlaceholder(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork);
         } else {
-            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork, ImageOperations.DisplayType.DEFAULT);
+            imageOperations.displayInAdapterView(urn, imageUrlTemplate, ApiImageSize.getFullImageSize(getContext().getResources()), squareArtwork, false);
         }
     }
 }

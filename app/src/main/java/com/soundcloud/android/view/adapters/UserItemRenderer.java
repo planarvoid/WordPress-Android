@@ -72,7 +72,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         imageOperations.displayInAdapterView(user.getUrn(),
                                              user.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
-                                             itemView.findViewById(R.id.image), ImageOperations.DisplayType.CIRCULAR);
+                                             itemView.findViewById(R.id.image), true);
     }
 
     private void setProBadge(View itemView, UserItem user) {

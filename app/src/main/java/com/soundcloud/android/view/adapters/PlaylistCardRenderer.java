@@ -127,7 +127,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                                              playableItem.getImageUrlTemplate(),
                                              ApiImageSize.getFullImageSize(resources),
                                              itemView.image,
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
     }
 
     @VisibleForTesting

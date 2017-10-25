@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -54,7 +53,8 @@ public class MetadataOperationsTest extends AndroidUnitTest {
                                             imageOperations, Schedulers.trampoline());
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
-        when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
+        when(imageOperations.artwork(eq(TRACK.getUrn()),
+                                     eq(TRACK.getImageUrlTemplate()),
                                      any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Single.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
                 .thenReturn(adBitmap);
@@ -156,7 +156,8 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void preloadWarmsUpTheCache() {
         operations.preload(TRACK_URN);
 
-        verify(imageOperations).artwork(eq(SimpleImageResource.create(TRACK)),
+        verify(imageOperations).artwork(eq(TRACK.getUrn()),
+                                        eq(TRACK.getImageUrlTemplate()),
                                         any(ApiImageSize.class), anyInt(), anyInt());
     }
 
@@ -166,12 +167,14 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
         operations.preload(TRACK_URN);
 
-        verify(imageOperations, never()).artwork(eq(SimpleImageResource.create(TRACK)),
+        verify(imageOperations, never()).artwork(eq(TRACK.getUrn()),
+                                                 eq(TRACK.getImageUrlTemplate()),
                                                  any(ApiImageSize.class), anyInt(), anyInt());
     }
 
     private void setCachedBitmap(TrackItem track, Bitmap bitmap) {
-        when(imageOperations.getCachedBitmap(eq(SimpleImageResource.create(track)),
+        when(imageOperations.getCachedBitmap(eq(track.getUrn()),
+                                             eq(track.getImageUrlTemplate()),
                                              any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
     }
 

@@ -64,10 +64,12 @@ public class SystemPlaylistArtworkView extends FrameLayout {
         for (int i = 0; i < imageResources.size(); i++) {
             inflater.inflate(artworkLayout, artworkAnimator);
             final ImageView imageView = (ImageView) artworkAnimator.getChildAt(i);
-            completables.add(imageOperations.displayWithPlaceholderObservable(imageResources.get(i),
-                                                                             ApiImageSize.getFullImageSize(imageView.getResources()),
-                                                                             imageView)
-                                           .toCompletable());
+            final ImageResource imageResource = imageResources.get(i);
+            completables.add(imageOperations.displayWithPlaceholderObservable(imageResource.getUrn(),
+                                                                              imageResource.getImageUrlTemplate(),
+                                                                              ApiImageSize.getFullImageSize(imageView.getResources()),
+                                                                              imageView)
+                                            .toCompletable());
         }
 
 

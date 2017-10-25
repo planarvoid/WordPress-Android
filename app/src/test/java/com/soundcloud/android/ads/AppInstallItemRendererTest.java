@@ -3,13 +3,16 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.LoadingState;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -18,6 +21,7 @@ import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -52,6 +56,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         renderer = new AppInstallItemRenderer(resources(), numberFormatter, imageOperations, dateProvider, eventBus);
         renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
+        when(imageOperations.displayAdImage(any(Urn.class), any(String.class), any(ImageView.class))).thenReturn(Observable.just(new LoadingState.Complete(null, null, null)));
     }
 
     @Test
@@ -91,24 +96,18 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         verify(imageOperations).displayAdImage(
                 eq(ad.adUrn()),
                 eq(ad.imageUrl()),
-                eq(imageView),
-                any(AppInstallItemRenderer.ImageLoadTimeListener.class));
+                eq(imageView)
+        );
     }
 
     @Test
     public void imageLoadTimeListenerSetsImageLoadTimeAndPublishesImageLoadedEvent() {
-        final AppInstallAd ad = AdFixtures.getAppInstalls().get(0);
-
-        new RunnableRenderer(resources(), numberFormatter, imageOperations, dateProvider, eventBus) {
-            @Override
-            public void run() {
-                ImageLoadTimeListener listener = new ImageLoadTimeListener(42, ad);
-                listener.onLoadingComplete(null, null, null);
-            }
-        }.run();
+        renderer.bindItemView(0, adView, ITEMS);
+        final AppInstallAd ad = APP_INSTALLS.get(0);
 
         assertThat(ad.imageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
-        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(42, ad, CURRENT_DATE));
+
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(0, ad, CURRENT_DATE));
     }
 
     abstract class RunnableRenderer extends AppInstallItemRenderer implements Runnable {

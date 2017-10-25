@@ -19,23 +19,29 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView;
 
-final class ImageOptionsFactory {
+import javax.inject.Inject;
+
+public class UniversalImageOptionsFactory {
 
     static final int DELAY_BEFORE_LOADING = 500;
 
-    static DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable,
+    @Inject
+    UniversalImageOptionsFactory() {
+    }
+
+    DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable,
                                                    ApiImageSize apiImageSize,
                                                    DeviceHelper deviceHelper) {
         return adapterView(placeholderDrawable, apiImageSize, new CircularTransitionDisplayer(), deviceHelper);
     }
 
-    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
+    DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
                                            ApiImageSize apiImageSize,
                                            DeviceHelper deviceHelper) {
         return adapterView(placeholderDrawable, apiImageSize, new PlaceholderTransitionDisplayer(), deviceHelper);
     }
 
-    private static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
+    private DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
                                                    ApiImageSize apiImageSize,
                                                    PlaceholderTransitionDisplayer displayer,
                                                    DeviceHelper deviceHelper) {
@@ -56,11 +62,11 @@ final class ImageOptionsFactory {
         return options.build();
     }
 
-    private static boolean isBeforeLollipop() {
+    private boolean isBeforeLollipop() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     }
 
-    public static DisplayImageOptions fullImageDialog() {
+    public DisplayImageOptions fullImageDialog() {
         return new DisplayImageOptions.Builder()
                 .cacheOnDisk(true)
                 .delayBeforeLoading(DELAY_BEFORE_LOADING)
@@ -68,7 +74,7 @@ final class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions placeholder(@Nullable Drawable placeholderDrawable) {
+    public DisplayImageOptions placeholder(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
@@ -76,7 +82,7 @@ final class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions placeholderCircular(@Nullable Drawable placeholderDrawable) {
+    public DisplayImageOptions placeholderCircular(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
@@ -85,7 +91,7 @@ final class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable, boolean isHighPriority) {
+    public DisplayImageOptions player(@Nullable Drawable placeholderDrawable, boolean isHighPriority) {
         DisplayImageOptions.Builder options = fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
@@ -98,14 +104,14 @@ final class ImageOptionsFactory {
         return options.build();
     }
 
-    public static DisplayImageOptions adImage() {
+    public DisplayImageOptions adImage() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(false)
                 .build();
     }
 
-    public static DisplayImageOptions streamAdImage(Drawable placeholderDrawable, DeviceHelper deviceHelper) {
+    public DisplayImageOptions streamAdImage(Drawable placeholderDrawable, DeviceHelper deviceHelper) {
         final PlaceholderTransitionDisplayer displayer = new PlaceholderTransitionDisplayer();
         final DisplayImageOptions.Builder options = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
@@ -125,7 +131,7 @@ final class ImageOptionsFactory {
         return options.build();
     }
 
-    public static DisplayImageOptions prefetch() {
+    public DisplayImageOptions prefetch() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)
                 .cacheOnDisk(true)
@@ -145,19 +151,21 @@ final class ImageOptionsFactory {
 
     @VisibleForTesting
     static class CircularTransitionDisplayer extends PlaceholderTransitionDisplayer {
+
         @Override
         protected Drawable createBitmapDrawable(Bitmap bitmap, Resources resources) {
             return ImageUtils.createCircularDrawable(bitmap, resources);
         }
-
         @Override
         protected void setBitmapImage(ImageAware imageAware, Bitmap bitmap) {
             imageAware.setImageDrawable(createBitmapDrawable(bitmap, imageAware.getWrappedView().getResources()));
         }
+
     }
 
     @VisibleForTesting
     static class PlaceholderTransitionDisplayer extends BitmapTransitionDisplayer {
+
         @Override
         protected Drawable getTransitionFromDrawable(ImageView imageView) {
             return imageView.getDrawable();
@@ -167,11 +175,11 @@ final class ImageOptionsFactory {
         protected Drawable createBitmapDrawable(Bitmap bitmap, Resources resources) {
             return new BitmapDrawable(resources, bitmap);
         }
-
         @Override
         protected void setBitmapImage(ImageAware imageAware, Bitmap bitmap) {
             imageAware.setImageBitmap(bitmap);
         }
+
     }
 
     @VisibleForTesting
@@ -194,7 +202,6 @@ final class ImageOptionsFactory {
         }
 
         protected abstract void setBitmapImage(ImageAware imageAware, Bitmap bitmap);
-
         protected void performDrawableTransition(Bitmap bitmap, final ImageView imageView) {
             final Drawable from = getTransitionFromDrawable(imageView);
             final Drawable to = createBitmapDrawable(bitmap, imageView.getResources());
@@ -217,8 +224,6 @@ final class ImageOptionsFactory {
             tDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
             imageView.setImageDrawable(tDrawable);
         }
-    }
 
-    private ImageOptionsFactory() {
     }
 }

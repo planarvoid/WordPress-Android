@@ -7,7 +7,10 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,9 +25,10 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
     @Mock ViewVisibilityProvider viewVisibilityProvider;
-    @Mock ImageResource imageResource;
 
     private PlayerArtworkLoader playerArtworkLoader;
+    private Urn urn = Urn.forTrack(1L);
+    private ImageResource imageResource = SimpleImageResource.create(urn, Optional.absent());
 
     @Before
     public void setUp() throws Exception {
@@ -34,7 +38,7 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() {
         final Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-        when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
+        when(imageOperations.getCachedListItemBitmap(resources(), urn, Optional.absent())).thenReturn(cachedBitmap);
 
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
@@ -42,7 +46,6 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
                                         true,
                                         viewVisibilityProvider);
 
-        verify(imageOperations).displayInPlayer(imageResource, ApiImageSize.getFullImageSize(resources()),
-                                                wrappedImageView, cachedBitmap, true);
+        verify(imageOperations).displayInPlayer(urn, Optional.absent(), ApiImageSize.getFullImageSize(resources()), wrappedImageView, cachedBitmap, true);
     }
 }

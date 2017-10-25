@@ -44,6 +44,6 @@ class UserSuggestionItemRenderer extends SuggestionItemRenderer {
                 imageResource.getImageUrlTemplate(),
                 ApiImageSize.getListItemImageSize(resources),
                 icon,
-                ImageOperations.DisplayType.CIRCULAR);
+                true);
     }
 }

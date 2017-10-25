@@ -60,7 +60,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
                                              imageResource.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              imageView,
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
         setGoIndicator(goIndicator, item);
         statusPlaceHolder.removeAllViews();
         setListener(itemView, position);

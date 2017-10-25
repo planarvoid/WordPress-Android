@@ -1,13 +1,13 @@
 package com.soundcloud.android.image;
 
-import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
-import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.cache.Cache;
 import dagger.Module;
 import dagger.Provides;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.TransitionDrawable;
 
@@ -21,8 +21,23 @@ public abstract class ImageModule {
     static final String BLURRED_IMAGE_CACHE = "BlurredImageCache";
 
     @Provides
-    static ImageLoader provideImageLoader() {
-        return ImageLoader.getInstance();
+    static ImageLoader provideImageLoader(ImageCache imageCache,
+                                          PlaceholderGenerator placeholderGenerator,
+                                          CircularPlaceholderGenerator circularPlaceholderGenerator,
+                                          DeviceHelper deviceHelper,
+                                          UniversalImageOptionsFactory imageOptionsFactory,
+                                          Context context,
+                                          ApplicationProperties properties,
+                                          UniversalImageDownloader.Factory imageDownloaderFactory) {
+        return new UniversalImageLoader(com.nostra13.universalimageloader.core.ImageLoader.getInstance(),
+                                        imageCache,
+                                        placeholderGenerator,
+                                        circularPlaceholderGenerator,
+                                        imageOptionsFactory,
+                                        deviceHelper,
+                                        context,
+                                        properties,
+                                        imageDownloaderFactory);
     }
 
     @Provides
@@ -35,11 +50,6 @@ public abstract class ImageModule {
     @Named(BLURRED_IMAGE_CACHE)
     static Cache<Urn, Bitmap> provideBlurredImageCache() {
         return Cache.withSoftValues(10);
-    }
-
-    @Provides
-    static FileNameGenerator provideHashCodeFileNameGenerator() {
-        return new HashCodeFileNameGenerator();
     }
 
 }

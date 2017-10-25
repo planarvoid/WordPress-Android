@@ -100,7 +100,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
                                              track.getImageUrlTemplate(),
                                              ApiImageSize.getFullImageSize(view.getResources()),
                                              view.findViewById(R.id.recommendation_artwork),
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
     }
 
 }

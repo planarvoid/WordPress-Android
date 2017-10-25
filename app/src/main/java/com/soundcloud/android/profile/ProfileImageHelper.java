@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.PlaceholderGenerator;
-import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxSignal;
@@ -86,15 +85,12 @@ public class ProfileImageHelper {
             return Single.just(RxSignal.SIGNAL);
         } else {
             final Optional<Palette> palette = suggestedCreatorItem.getPalette();
-            return imageOperations.displayInAdapterView(
-                    SimpleImageResource.create(
-                            creatorUrn,
-                            suggestedCreatorItem.getVisualUrl()
-                    ),
-                    ApiImageSize.getFullBannerSize(resources),
-                    imageView,
-                    generateFallbackDrawable(palette, creatorUrn),
-                    ImageOperations.DisplayType.DEFAULT
+            return imageOperations.displayInAdapterViewSingle(creatorUrn,
+                                                              suggestedCreatorItem.getVisualUrl(),
+                                                              ApiImageSize.getFullBannerSize(resources),
+                                                              imageView,
+                                                              generateFallbackDrawable(palette, creatorUrn),
+                                                              false
             ).map(ignore -> RxSignal.SIGNAL);
         }
     }
@@ -114,11 +110,10 @@ public class ProfileImageHelper {
 
     private Observable<Palette> bindAvatar(final ImageView imageView,
                                            final UserImageSource suggestedCreatorItem) {
-        return RxJava.toV1Observable(imageOperations.displayCircularInAdapterViewAndGeneratePalette(
-                SimpleImageResource.create(suggestedCreatorItem.getCreatorUrn(),
-                                           suggestedCreatorItem.getAvatarUrl()),
-                ApiImageSize.getFullImageSize(resources),
-                imageView));
+        return RxJava.toV1Observable(imageOperations.displayCircularInAdapterViewAndGeneratePalette(suggestedCreatorItem.getCreatorUrn(),
+                                                                                                    suggestedCreatorItem.getAvatarUrl(),
+                                                                                                    ApiImageSize.getFullImageSize(resources),
+                                                                                                    imageView));
     }
 
     private static class BackgroundAnimator {

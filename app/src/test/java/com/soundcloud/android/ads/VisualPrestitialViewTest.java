@@ -3,13 +3,14 @@ package com.soundcloud.android.ads;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.DefaultImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,6 +33,7 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
         activity.setContentView(R.layout.visual_prestitial);
         view = new VisualPrestitialView(imageOperations);
         ad = AdFixtures.visualPrestitialAd();
+        when(imageOperations.displayAdImage(any(Urn.class), any(String.class), any(ImageView.class))).thenReturn(Observable.empty());
     }
 
     @Test
@@ -42,12 +44,11 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
 
         verify(imageOperations).displayAdImage(eq(adUrn),
                                                eq(imageUrl),
-                                               any(ImageView.class),
-                                               any(DefaultImageListener.class));
+                                               any(ImageView.class));
     }
 
     @Test
-    public void finishesActivityOnClickOfContinueButton(){
+    public void finishesActivityOnClickOfContinueButton() {
         view.setupContentView(activity, ad, listener);
 
         view.continueButton.performClick();
@@ -56,7 +57,7 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
     }
 
     @Test
-    public void notifiesListenerOfClickThrough(){
+    public void notifiesListenerOfClickThrough() {
         view.setupContentView(activity, ad, listener);
 
         final ImageView imageView = view.imageView;

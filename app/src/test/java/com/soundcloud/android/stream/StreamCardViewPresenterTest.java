@@ -183,7 +183,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = repostedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations).displayInAdapterView(eq(playlistItem.reposterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
+        verify(imageOperations).displayInAdapterView(eq(playlistItem.reposterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(true));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                                                      eq(playlistItem.getImageUrlTemplate()),
                                                      ArgumentMatchers.any(ApiImageSize.class),
                                                      ArgumentMatchers.eq(imageView),
-                                                     ArgumentMatchers.eq(ImageOperations.DisplayType.DEFAULT));
+                                                     ArgumentMatchers.eq(false));
 
         verify(itemView).setTitle(playlistItem.title());
         verify(itemView).setArtist(playlistItem.creatorName());
@@ -206,7 +206,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations).displayInAdapterView(eq(playlistItem.creatorUrn()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
+        verify(imageOperations).displayInAdapterView(eq(playlistItem.creatorUrn()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(true));
     }
 
     @Test
@@ -214,7 +214,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem promotedItem = promotedPlaylistItem();
         presenter.bind(itemView, promotedItem, EventContextMetadata.builder(), CREATED_AT_STREAM, avatarUrlTemplate);
 
-        verify(imageOperations).displayInAdapterView(eq(promotedItem.promoterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(ImageOperations.DisplayType.CIRCULAR));
+        verify(imageOperations).displayInAdapterView(eq(promotedItem.promoterUrn().get()), eq(avatarUrlTemplate), any(ApiImageSize.class), eq(imageView), eq(true));
     }
 
     @Test
@@ -226,7 +226,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                                                               any(Optional.class),
                                                               any(ApiImageSize.class),
                                                               any(ImageView.class),
-                                                              eq(ImageOperations.DisplayType.CIRCULAR));
+                                                              eq(true));
     }
 
     @Test

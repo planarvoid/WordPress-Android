@@ -44,7 +44,7 @@ public class OfflineTrackAssetDownloaderTest extends AndroidUnitTest {
 
         loader.fetchTrackArtwork(imageResource);
 
-        verify(imageOperations).precacheArtwork(imageResource, size);
+        verify(imageOperations).precacheArtwork(track, Optional.absent(), size);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class OfflineTrackAssetDownloaderTest extends AndroidUnitTest {
 
         loader.fetchTrackArtwork(imageResource);
 
-        verify(imageOperations).precacheArtwork(imageResource, size);
+        verify(imageOperations).precacheArtwork(track, Optional.absent(), size);
     }
 
     @Test

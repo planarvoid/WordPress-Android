@@ -5,32 +5,22 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.support.v7.graphics.Palette
-import android.view.View
 import android.widget.AbsListView
 import android.widget.ImageView
-import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.assist.ImageSize
-import com.nostra13.universalimageloader.core.assist.ViewScaleType
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware
-import com.nostra13.universalimageloader.core.imageaware.NonViewAware
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils
 import com.soundcloud.android.R
-import com.soundcloud.android.image.ImageOperations.DisplayType.CIRCULAR
-import com.soundcloud.android.image.ImageOperations.DisplayType.DEFAULT
 import com.soundcloud.android.model.Urn
-import com.soundcloud.android.utils.DeviceHelper
+import com.soundcloud.android.rx.observers.LambdaObserver
 import com.soundcloud.android.utils.OpenForTesting
 import com.soundcloud.android.utils.images.ImageUtils
 import com.soundcloud.java.optional.Optional
+import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
+import io.reactivex.disposables.CompositeDisposable
 import java.io.IOException
 import java.util.HashSet
 import javax.inject.Inject
@@ -43,70 +33,45 @@ class ImageOperations
 constructor(
         private val imageLoader: ImageLoader,
         private val imageUrlBuilder: ImageUrlBuilder,
-        private val adapterFactory: FallbackBitmapLoadingAdapter.Factory,
-        private val bitmapAdapterFactory: BitmapLoadingAdapter.Factory,
         private val imageProcessor: ImageProcessor,
-        private val deviceHelper: DeviceHelper,
         private val placeholderGenerator: PlaceholderGenerator,
-        private val circularPlaceholderGenerator: CircularPlaceholderGenerator,
         private val imageCache: ImageCache) {
     private val notFoundUris = HashSet<String>()
-    private val notFoundListener = FallbackImageListener(notFoundUris)
-
-    enum class DisplayType {
-        DEFAULT, CIRCULAR
-    }
-
-    init {
-        this.imageLoader.init(imageCache.getImageLoaderConfiguration())
-    }
+    private val notFoundConsumer = FallbackImageConsumer(notFoundUris = notFoundUris)
+    private val compositeDisposable = CompositeDisposable()
 
     fun clearDiskCache() {
         imageLoader.clearDiskCache()
     }
 
-    fun displayInAdapterView(urn: Urn, imageUrlTemplate: Optional<String> = Optional.absent(), apiImageSize: ApiImageSize, imageView: ImageView, displayType: DisplayType) {
-        displayInAdapterView(apiImageSize = apiImageSize,
-                             imageView = imageView,
-                             imageUrl = getImageUrl(imageUrlTemplate, urn, apiImageSize),
-                             displayType = displayType)
+    fun displayInAdapterView(urn: Urn, imageUrlTemplate: Optional<String> = Optional.absent(), apiImageSize: ApiImageSize, imageView: ImageView, circular: Boolean) {
+        compositeDisposable.add(imageLoader.displayImage(toImageUrl(urn = urn, imageUrlTemplate = imageUrlTemplate.orNull(), apiImageSize = apiImageSize),
+                                                         imageView = imageView,
+                                                         circular = circular,
+                                                         apiImageSize = apiImageSize)
+                                        .subscribeWith(LambdaObserver.onNext { notFoundConsumer }))
     }
 
-    fun displayInAdapterView(imageResource: ImageResource,
-                             apiImageSize: ApiImageSize,
-                             imageView: ImageView,
-                             fallbackDrawable: Optional<Drawable> = Optional.absent(),
-                             displayType: DisplayType): Single<Bitmap> {
-        return Single.create { subscriber ->
-            displayInAdapterView(apiImageSize,
-                                 imageView,
-                                 getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                                 buildFallbackImageListener(fromBitmapSubscriber(subscriber)),
-                                 fallbackDrawable.orNull(),
-                                 displayType)
-        }
+    fun displayInAdapterViewSingle(urn: Urn,
+                                   imageUrlTemplate: Optional<String> = Optional.absent(),
+                                   apiImageSize: ApiImageSize,
+                                   imageView: ImageView,
+                                   fallbackDrawable: Optional<Drawable> = Optional.absent(),
+                                   circular: Boolean): Single<Bitmap> {
+        return imageLoader.displayImage(toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize),
+                                        imageView,
+                                        circular = circular,
+                                        placeholderDrawable = fallbackDrawable.orNull(),
+                                        apiImageSize = apiImageSize)
+                .compose(this::toBitmap)
+                .firstOrError()
     }
 
-    private fun displayInAdapterView(apiImageSize: ApiImageSize,
-                                     imageView: ImageView,
-                                     imageUrl: String? = null,
-                                     imageListener: FallbackImageListener = notFoundListener,
-                                     placeholderDrawable: Drawable? = null,
-                                     displayType: DisplayType) {
-        val imageAware = ImageViewAware(imageView, false)
-        val drawable = placeholderDrawable ?: getPlaceholderDrawable(imageUrl, imageAware.width, imageAware.height, displayType)
-
-        val options = when (displayType) {
-            CIRCULAR -> ImageOptionsFactory.adapterViewCircular(drawable, apiImageSize, deviceHelper)
-            DEFAULT -> ImageOptionsFactory.adapterView(drawable, apiImageSize, deviceHelper)
-        }
-        imageLoader.displayImage(imageUrl, imageAware, options, imageListener)
-    }
-
-    fun displayCircularInAdapterViewAndGeneratePalette(imageResource: ImageResource,
+    fun displayCircularInAdapterViewAndGeneratePalette(urn: Urn,
+                                                       imageUrlTemplate: Optional<String>,
                                                        apiImageSize: ApiImageSize,
                                                        imageView: ImageView): Single<Palette> {
-        return displayInAdapterView(imageResource, apiImageSize, imageView, Optional.absent(), DisplayType.CIRCULAR)
+        return displayInAdapterViewSingle(urn, imageUrlTemplate, apiImageSize, imageView, circular = true)
                 .flatMap { bitmap: Bitmap ->
                     Single.create { subscriber: SingleEmitter<Palette> ->
                         Palette.from(bitmap).generate { palette -> subscriber.onSuccess(palette) }
@@ -115,153 +80,150 @@ constructor(
     }
 
     fun displayDefaultPlaceholder(imageView: ImageView) {
-        displayWithPlaceholder(imageView)
+        compositeDisposable.add(displayWithPlaceholder(imageView)
+                                        .subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
     }
 
     fun displayWithPlaceholder(urn: Urn, imageUrlTemplate: Optional<String>, apiImageSize: ApiImageSize, imageView: ImageView) {
-        displayWithPlaceholder(imageView, getImageUrl(imageUrlTemplate, urn, apiImageSize))
+        compositeDisposable.add(displayWithPlaceholder(imageView, toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize), apiImageSize = apiImageSize)
+                                        .subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
     }
 
-    private fun displayWithPlaceholder(imageView: ImageView, imageUrl: String? = null, imageListener: ImageLoadingListener = notFoundListener) {
-        val imageAware = ImageViewAware(imageView, false)
-        imageLoader.displayImage(
-                imageUrl,
-                imageAware,
-                ImageOptionsFactory.placeholder(getPlaceholderDrawable(imageUrl, imageAware.width, imageAware.height, DisplayType.DEFAULT)),
-                imageListener)
+    private fun displayWithPlaceholder(imageView: ImageView, imageUrl: String? = null, apiImageSize: ApiImageSize = ApiImageSize.Unknown): Observable<LoadingState> {
+        return imageLoader.displayImage(imageUrl,
+                                        imageView,
+                                        displayType = DisplayType.PLACEHOLDER,
+                                        apiImageSize = apiImageSize)
     }
 
-    fun displayWithPlaceholderObservable(imageResource: ImageResource, apiImageSize: ApiImageSize, imageView: ImageView): Single<Bitmap> {
-        return Single.create { subscriber ->
-            displayWithPlaceholder(imageView,
-                                   getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                                   buildFallbackImageListener(bitmapAdapterFactory.create(subscriber)))
-        }
+    fun displayWithPlaceholderObservable(urn: Urn, imageUrlTemplate: Optional<String> = Optional.absent(), apiImageSize: ApiImageSize, imageView: ImageView): Single<Bitmap> {
+        return displayWithPlaceholder(imageView,
+                                      toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize),
+                                      apiImageSize = apiImageSize)
+                .compose(this::toBitmap)
+                .firstOrError()
+    }
+
+    private fun toBitmap(input: Observable<LoadingState>): Observable<Bitmap> {
+        return input.doOnNext { notFoundConsumer }
+                .doOnNext(this::throwErrorOnMissingBitmap)
+                .ofType(LoadingState.Complete::class.java)
+                .map { it.loadedImage }
     }
 
     fun displayCircular(imageUrl: String, imageView: ImageView) {
-        imageLoader.displayImage(imageUrl, ImageViewAware(imageView, false),
-                                 ImageOptionsFactory.placeholderCircular(imageView.resources
-                                                                                 .getDrawable(R.drawable.circular_placeholder)))
+        compositeDisposable.add(imageLoader.displayImage(imageUrl, imageView, circular = true, apiImageSize = ApiImageSize.T120).subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
     }
 
-    fun displayCircularWithPlaceholder(urn: Urn, imageUrlTemplate: Optional<String>,
+    fun displayCircularWithPlaceholder(urn: Urn,
+                                       imageUrlTemplate: Optional<String>,
                                        apiImageSize: ApiImageSize,
                                        imageView: ImageView) {
-        val imageUrl = getImageUrl(imageUrlTemplate.orNull(), urn, apiImageSize)
-        val imageAware = ImageViewAware(imageView, false)
-        val options = ImageOptionsFactory.placeholderCircular(
-                imageCache.getPlaceholderDrawable(imageUrl, imageAware.width, imageAware.height, circularPlaceholderGenerator))
-        imageLoader.displayImage(
-                imageUrl,
-                imageAware,
-                options,
-                notFoundListener)
+        compositeDisposable.add(imageLoader.displayImage(toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize),
+                                                         imageView,
+                                                         circular = true,
+                                                         apiImageSize = apiImageSize)
+                                        .subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
     }
 
-    fun displayInPlayer(imageResource: ImageResource,
+    fun displayInPlayer(urn: Urn,
+                        imageUrlTemplate: Optional<String> = Optional.absent(),
                         apiImageSize: ApiImageSize,
                         imageView: ImageView,
                         placeholder: Bitmap?,
                         isHighPriority: Boolean) {
-        val imageAware = ImageViewAware(imageView, false)
-        val placeholderDrawable = if (placeholder != null)
-            BitmapDrawable(placeholder)
-        else
-            getPlaceholderDrawable(imageResource.urn.toString(), imageAware.width, imageAware.height, DisplayType.DEFAULT)
-
-        imageLoader.displayImage(
-                getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                imageAware,
-                ImageOptionsFactory.player(placeholderDrawable, isHighPriority),
-                notFoundListener)
+        compositeDisposable.add(imageLoader.displayImage(toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize),
+                                                         imageView,
+                                                         placeholderDrawable = placeholder?.let { BitmapDrawable(imageView.resources, it) },
+                                                         displayType = DisplayType.PLAYER,
+                                                         apiImageSize = apiImageSize,
+                                                         isHighPriority = isHighPriority)
+                                        .subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
     }
 
-    fun displayAdImage(urn: Urn, imageUri: String, imageView: ImageView, listener: ImageListener) {
-        displayAdImage(urn, imageUri, imageView, ImageListenerUILAdapter(listener))
+    fun displayLeaveBehind(uri: String, imageView: ImageView): Observable<LoadingState> {
+        return imageLoader.displayImage(uri, imageView, displayType = DisplayType.AD)
     }
 
-    fun displayLeaveBehind(uri: Uri, imageView: ImageView, imageListener: ImageListener) {
-        val imageAware = ImageViewAware(imageView, false)
-        imageLoader.displayImage(
-                uri.toString(),
-                imageAware,
-                ImageOptionsFactory.adImage(),
-                ImageListenerUILAdapter(imageListener))
-    }
-
-    fun displayInFullDialogView(imageResource: ImageResource,
+    fun displayInFullDialogView(urn: Urn,
+                                imageUrlTemplate: Optional<String>,
                                 apiImageSize: ApiImageSize,
-                                imageView: ImageView,
-                                imageListener: ImageListener) {
-        imageLoader.displayImage(
-                getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                ImageViewAware(imageView, false),
-                ImageOptionsFactory.fullImageDialog(),
-                ImageListenerUILAdapter(imageListener))
+                                imageView: ImageView): Observable<LoadingState> {
+        return imageLoader.displayImage(toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize),
+                                        imageView,
+                                        displayType = DisplayType.FULL_IMAGE_DIALOG,
+                                        apiImageSize = apiImageSize)
     }
 
-    fun bitmap(uri: Uri): Single<Bitmap> {
-        return Single.create { subscriber ->
-            // We pass NonViewAware to circumvent ImageLoader cancelling requests (https://github.com/nostra13/Android-Universal-Image-Loader/issues/681)
-            imageLoader.displayImage(uri.toString(),
-                                     NonViewAware(ImageSize(0, 0), ViewScaleType.CROP),
-                                     ImageOptionsFactory.adImage(),
-                                     ImageListenerUILAdapter(bitmapAdapterFactory.create(subscriber)))
+    fun bitmap(uri: Uri, loadType: LoadType): Single<Bitmap> = imageLoader.loadImage(uri.toString(), loadType = loadType).compose(this::toBitmap).firstOrError()
+
+    fun bitmap(urn: Urn, apiImageSize: ApiImageSize, loadType: LoadType): Maybe<Bitmap> {
+        val imageUrl = toImageUrl(urn = urn, apiImageSize = apiImageSize)
+
+        imageUrl?.let {
+            return imageLoader.loadImage(it, loadType = loadType).compose(this::toBitmap).firstOrError().toMaybe()
+        }
+
+        return Maybe.empty()
+    }
+
+    fun artwork(urn: Urn, imageUrlTemplate: Optional<String>, apiImageSize: ApiImageSize): Maybe<Bitmap> {
+        val imageUrl = toImageUrl(urn = urn, imageUrlTemplate = imageUrlTemplate.orNull(), apiImageSize = apiImageSize)
+
+        imageUrl?.let {
+            return imageLoader.loadImage(it).compose { toFallback(it, { createFallbackBitmap(urn, apiImageSize.width, apiImageSize.height) }) }.firstElement()
+        }
+
+        return Maybe.empty()
+    }
+
+    private fun toFallback(input: Observable<LoadingState>, createFallbackBitmap: () -> Bitmap): Observable<Bitmap> {
+        return input.flatMapMaybe {
+            when (it) {
+                is LoadingState.Complete -> Maybe.just(it.loadedImage ?: createFallbackBitmap())
+                is LoadingState.Start -> Maybe.empty()
+                is LoadingState.Cancel -> Maybe.empty()
+                is LoadingState.Fail -> Maybe.just(createFallbackBitmap())
+            }
         }
     }
 
-    fun artwork(imageResource: ImageResource, apiImageSize: ApiImageSize): Single<Bitmap> {
-        return Single.create { subscriber ->
-            val fallback = createFallbackBitmap(imageResource.urn, apiImageSize)
-            imageLoader.loadImage(
-                    getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                    ImageListenerUILAdapter(adapterFactory.create(subscriber, fallback)))
-        }
-    }
-
-    fun artwork(imageResource: ImageResource,
+    fun artwork(urn: Urn,
+                imageUrlTemplate: Optional<String>,
                 apiImageSize: ApiImageSize,
                 targetWidth: Int,
                 targetHeight: Int): Single<Bitmap> {
-        return Single.create { subscriber ->
-            val fallbackDrawable = generateDrawable(imageResource)
-            val fallback = ImageUtils.toBitmap(fallbackDrawable, targetWidth, targetHeight)
-            load(imageResource,
-                 apiImageSize,
-                 targetWidth,
-                 targetHeight,
-                 adapterFactory.create(subscriber, fallback))
+        return load(urn, imageUrlTemplate.orNull(), apiImageSize, targetWidth, targetHeight).compose { toFallback(it, { createFallbackBitmap(urn, targetWidth, targetHeight) }) }.firstOrError()
+    }
+
+    fun precacheArtwork(urn: Urn,
+                        imageUrlTemplate: Optional<String>,
+                        apiImageSize: ApiImageSize) {
+        toImageUrl(urn, imageUrlTemplate.orNull(), apiImageSize)?.let {
+            imageLoader.loadImage(it, loadType = LoadType.PREFETCH)
+        }?.let {
+            compositeDisposable.add(it.subscribeWith(LambdaObserver.onNext(notFoundConsumer)))
         }
     }
 
-    fun precacheArtwork(imageResource: ImageResource, apiImageSize: ApiImageSize) {
-        val url = getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize)
-        imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null)
-    }
-
-    fun getCachedListItemBitmap(resources: Resources, imageResource: ImageResource): Bitmap? {
-        return getCachedBitmap(imageResource, ApiImageSize.getListItemImageSize(resources),
+    fun getCachedListItemBitmap(resources: Resources, urn: Urn, imageUrlTemplate: Optional<String>): Bitmap? {
+        return getCachedBitmap(urn, imageUrlTemplate, ApiImageSize.getListItemImageSize(resources),
                                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
                                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension))
     }
 
-    fun getCachedBitmap(imageResource: ImageResource,
+    fun getCachedBitmap(urn: Urn,
+                        imageUrlTemplate: Optional<String>,
                         apiImageSize: ApiImageSize,
                         targetWidth: Int,
                         targetHeight: Int): Bitmap? {
-        val imageUrl = imageUrlBuilder.buildUrl(imageResource.imageUrlTemplate.orNull(), imageResource.urn, apiImageSize)
-        if (imageUrl != null) {
-            val key = MemoryCacheUtils.generateKey(imageUrl, ImageSize(targetWidth, targetHeight))
-            return imageLoader.memoryCache.get(key)
-        } else {
-            return null
-        }
+
+        val imageUrl = imageUrlBuilder.buildUrl(imageUrlTemplate.orNull(), urn, apiImageSize)
+        return imageUrl?.let { imageLoader.getCachedBitmap(it, targetWidth, targetHeight) }
     }
 
-    fun createScrollPauseListener(pauseOnScroll: Boolean, pauseOnFling: Boolean, customListener: AbsListView.OnScrollListener?): PauseOnScrollListener {
-        return PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener)
-    }
+    fun createScrollPauseListener(pauseOnScroll: Boolean, pauseOnFling: Boolean, customListener: AbsListView.OnScrollListener?): AbsListView.OnScrollListener? =
+            imageLoader.createScrollPauseListener(pauseOnScroll, pauseOnFling, customListener)
 
     fun decodeResource(resources: Resources, resId: Int): Bitmap? {
         try {
@@ -273,49 +235,31 @@ constructor(
 
     }
 
-    private fun fromBitmapSubscriber(subscriber: SingleEmitter<in Bitmap>): DefaultImageListener {
-        return object : DefaultImageListener() {
-            override fun onLoadingFailed(imageUri: String,
-                                         view: View,
-                                         cause: Throwable?) {
-                if (!subscriber.isDisposed) {
-                    subscriber.onError(cause ?: IOException("Failed to load bitmap for Unknown reason"))
+    private fun throwErrorOnMissingBitmap(loadingState: LoadingState) {
+        when (loadingState) {
+            is LoadingState.Fail -> throw BitmapLoadingAdapter.BitmapLoadingException(loadingState.cause)
+            is LoadingState.Complete -> {
+                if (loadingState.loadedImage == null) {
+                    throw BitmapLoadingAdapter.BitmapLoadingException(IOException("Image loading failed."))
                 }
-            }
-
-            override fun onLoadingComplete(imageUri: String?,
-                                           view: View,
-                                           loadedImage: Bitmap?) {
-                if (loadedImage == null) {
-                    subscriber.onError(IOException("Image loading failed."))
-                    return
-                }
-                subscriber.onSuccess(loadedImage)
             }
         }
     }
 
-    private fun displayAdImage(urn: Urn, imageUri: String, imageView: ImageView, listener: ImageLoadingListener) {
-        val imageAware = ImageViewAware(imageView, false)
-        val drawable = getPlaceholderDrawable(urn.toString(), imageAware.width, imageAware.height, DisplayType.DEFAULT)
-        val options = ImageOptionsFactory.streamAdImage(drawable, deviceHelper)
-
-        imageLoader.displayImage(imageUri, imageAware, options, listener)
+    fun displayAdImage(urn: Urn, imageUri: String, imageView: ImageView): Observable<LoadingState> {
+        return imageLoader.displayImage(imageUri, imageView, displayType = DisplayType.STREAM_AD_IMAGE)
     }
 
-    private fun load(imageResource: ImageResource,
+    private fun load(urn: Urn,
+                     imageUrlTemplate: String?,
                      apiImageSize: ApiImageSize,
                      targetWidth: Int,
-                     targetHeight: Int,
-                     imageListener: ImageListener) {
-        val targetSize = ImageSize(targetWidth, targetHeight)
-        val imageAware = NonViewAware(targetSize, ViewScaleType.CROP)
-        imageLoader.displayImage(getImageUrl(imageResource.imageUrlTemplate, imageResource.urn, apiImageSize),
-                                 imageAware,
-                                 ImageListenerUILAdapter(imageListener))
+                     targetHeight: Int): Observable<LoadingState> {
+        val observable = toImageUrl(urn, imageUrlTemplate, apiImageSize)?.let {
+            imageLoader.loadImage(it)
+        }
+        return observable ?: Observable.empty<LoadingState>()
     }
-
-    private fun blurBitmap(blurRadius: Optional<Float>) = { bitmap: Bitmap -> imageProcessor.blurBitmap(bitmap, blurRadius) }
 
     private fun blurBitmap(original: Bitmap, blurRadius: Optional<Float>): Single<Bitmap> {
         return Single.create { subscriber ->
@@ -323,52 +267,40 @@ constructor(
         }
     }
 
-    fun getImageUrl(imageUrlTemplate: Optional<String>, urn: Urn, apiImageSize: ApiImageSize) = getImageUrl(imageUrlTemplate.orNull(), urn, apiImageSize)
+    fun getImageUrl(urn: Urn, apiImageSize: ApiImageSize) = toImageUrl(urn = urn, apiImageSize = apiImageSize)
 
-    private fun getImageUrl(imageUrlTemplate: String? = null, urn: Urn, apiImageSize: ApiImageSize): String? {
+    private fun toImageUrl(urn: Urn, imageUrlTemplate: String? = null, apiImageSize: ApiImageSize): String? {
         val imageUrl = imageUrlBuilder.buildUrl(imageUrlTemplate, urn, apiImageSize)
         return if (notFoundUris.contains(imageUrl)) null else imageUrl
     }
 
-    private fun buildFallbackImageListener(imageListener: ImageListener) = FallbackImageListener(imageListener, notFoundUris)
-
     fun blurredArtwork(resources: Resources,
-                       imageResource: ImageResource,
+                       urn: Urn,
+                       imageUrlTemplate: Optional<String>,
                        blurRadius: Optional<Float>,
                        scheduleOn: Scheduler, observeOn: Scheduler): Single<Bitmap> {
-        val cachedBlurImage = imageCache.getBlurredImage(imageResource.urn)
+        val cachedBlurImage = imageCache.getBlurredImage(urn)
         if (cachedBlurImage != null) {
             return Single.just(cachedBlurImage)
         } else {
-            val cached = getCachedListItemBitmap(resources, imageResource)
+            val cached = getCachedListItemBitmap(resources, urn, imageUrlTemplate)
             return if (cached == null) {
-                artwork(imageResource, ApiImageSize.getListItemImageSize(resources))
-                        .map(blurBitmap(blurRadius))
+                artwork(urn, imageUrlTemplate, ApiImageSize.getListItemImageSize(resources))
+                        .map { imageProcessor.blurBitmap(it, blurRadius) }
                         .subscribeOn(scheduleOn)
                         .observeOn(observeOn)
-                        .doOnSuccess(imageCache.cacheBlurredBitmap(imageResource.urn))
+                        .doOnSuccess(imageCache.cacheBlurredBitmap(urn))
+                        .toSingle()
             } else {
                 blurBitmap(cached, blurRadius)
                         .subscribeOn(scheduleOn)
                         .observeOn(observeOn)
-                        .doOnSuccess(imageCache.cacheBlurredBitmap(imageResource.urn))
+                        .doOnSuccess(imageCache.cacheBlurredBitmap(urn))
             }
         }
     }
 
-    private fun generateDrawable(imageResource: ImageResource): GradientDrawable {
-        return placeholderGenerator.generateDrawable(imageResource.urn.toString())
-    }
-
-    private fun getPlaceholderDrawable(imageUrl: String?, width: Int, height: Int, displayType: ImageOperations.DisplayType): TransitionDrawable? {
-        val placeholderGenerator = if (displayType == CIRCULAR) this.circularPlaceholderGenerator else this.placeholderGenerator
-        return imageCache.getPlaceholderDrawable(imageUrl,
-                                                 width,
-                                                 height,
-                                                 placeholderGenerator)
-    }
-
-    private fun createFallbackBitmap(resourceUrn: Urn, apiImageSize: ApiImageSize): Bitmap {
+    private fun createFallbackBitmap(resourceUrn: Urn, width: Int, height: Int): Bitmap {
         // This bitmap is only used by the current track for the components that can't use
         // drawables (i.e. the notification and the remote client for the lock screen)
         //
@@ -378,7 +310,7 @@ constructor(
         // Also, we don't cache bitmap in the /ImageOperations/ since it does not worth it. A cache
         // may have a impact on the memory usage and without the performance seems pretty good, though.
         val fallbackDrawable = placeholderGenerator.generateDrawable(resourceUrn.toString())
-        return ImageUtils.toBitmap(fallbackDrawable, apiImageSize.width, apiImageSize.height)
+        return ImageUtils.toBitmap(fallbackDrawable, width, height)
     }
 
     fun resume() {
@@ -388,5 +320,4 @@ constructor(
     fun pause() {
         imageLoader.pause()
     }
-
 }

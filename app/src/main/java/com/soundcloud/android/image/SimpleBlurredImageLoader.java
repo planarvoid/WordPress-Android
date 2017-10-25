@@ -30,7 +30,8 @@ public class SimpleBlurredImageLoader {
 
     public void displayBlurredArtwork(ImageResource info, final ImageView blurredArtworkView) {
         imageOperations.blurredArtwork(resources,
-                                       info,
+                                       info.getUrn(),
+                                       info.getImageUrlTemplate(),
                                        Optional.of(BLUR_RADIUS),
                                        scheduler,
                                        AndroidSchedulers.mainThread())

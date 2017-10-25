@@ -268,7 +268,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                              track.getImageUrlTemplate(),
                                              ApiImageSize.getListItemImageSize(itemView.getResources()),
                                              itemView.getImage(),
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
         if (isFullHighTierTrack(track) || isHighTierPreview(track)) {
             itemView.showGoLabel();
         }

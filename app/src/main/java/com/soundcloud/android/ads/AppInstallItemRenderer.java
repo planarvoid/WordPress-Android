@@ -6,16 +6,18 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.LoadingState;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.AppInstall;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.disposables.CompositeDisposable;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,8 @@ public class AppInstallItemRenderer extends AdItemRenderer {
     private final ImageOperations imageOperations;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
+    @SuppressLint("sc.MissingCompositeDisposableRecycle")
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     public AppInstallItemRenderer(Resources resources,
@@ -59,16 +63,22 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         final AppInstallAd appInstall = ((AppInstall) items.get(position)).getAppInstallAd();
         final Holder holder = getHolder(itemView);
 
-        imageOperations.displayAdImage(appInstall.adUrn(),
-                                       appInstall.imageUrl(),
-                                       holder.image,
-                                       new ImageLoadTimeListener(position, appInstall));
+        compositeDisposable.add(imageOperations.displayAdImage(appInstall.adUrn(),
+                                                               appInstall.imageUrl(),
+                                                               holder.image)
+                                               .subscribeWith(LambdaObserver.onNext(state -> {
+                                                   if (state instanceof LoadingState.Complete) {
+                                                       final Date now = dateProvider.getCurrentDate();
+                                                       appInstall.setImageLoadTimeOnce(now);
+                                                       eventBus.publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(position, appInstall, now));
+                                                   }
+                                               })));
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_app)));
         holder.appNameText.setText(appInstall.name());
         holder.ratingsCount.setText(resources.getQuantityString(R.plurals.ads_app_ratings,
-                                                       appInstall.ratersCount(),
-                                                       numberFormatter.format(appInstall.ratersCount())));
+                                                                appInstall.ratersCount(),
+                                                                numberFormatter.format(appInstall.ratersCount())));
         holder.callToAction.setText(appInstall.ctaButtonText());
         holder.ratingBar.setRating(appInstall.rating());
 
@@ -100,23 +110,4 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         }
     }
 
-    class ImageLoadTimeListener implements ImageListener {
-        private final int position;
-        private final AppInstallAd ad;
-
-        ImageLoadTimeListener(int position, AppInstallAd ad) {
-            this.position = position;
-            this.ad = ad;
-        }
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            final Date now = dateProvider.getCurrentDate();
-            ad.setImageLoadTimeOnce(now);
-            eventBus.publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(position, ad, now));
-        }
-
-        @Override public void onLoadingStarted(String imageUri, View view) {}
-        @Override public void onLoadingFailed(String imageUri, View view, Throwable cause) {}
-    }
 }

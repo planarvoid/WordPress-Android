@@ -72,7 +72,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
                                              playlistItem.getImageUrlTemplate(),
                                              ApiImageSize.getFullImageSize(resources),
                                              artwork,
-                                             ImageOperations.DisplayType.DEFAULT);
+                                             false);
 
         playlistItemIndicatorsView.setupView(view, playlistItem.isPrivate(), playlistItem.isUserLike(),
                                              featureOperations.isOfflineContentEnabled()

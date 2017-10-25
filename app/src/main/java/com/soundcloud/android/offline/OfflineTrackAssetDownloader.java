@@ -34,10 +34,10 @@ class OfflineTrackAssetDownloader {
     void fetchTrackArtwork(ImageResource imageResource) {
         Log.d(OfflineContentService.TAG, "Prefetch artwork called for: " + imageResource);
         final ApiImageSize playerSize = ApiImageSize.getFullImageSize(resources);
-        imageOperations.precacheArtwork(imageResource, playerSize);
+        imageOperations.precacheArtwork(imageResource.getUrn(), imageResource.getImageUrlTemplate(), playerSize);
 
         final ApiImageSize listItemSize = ApiImageSize.getListItemImageSize(resources);
-        imageOperations.precacheArtwork(imageResource, listItemSize);
+        imageOperations.precacheArtwork(imageResource.getUrn(), imageResource.getImageUrlTemplate(), listItemSize);
     }
 
     void fetchTrackWaveform(Urn trackUrn, String waveformUrl) {
