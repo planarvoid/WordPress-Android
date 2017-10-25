@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -42,6 +43,8 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         stubFor(post(urlPathEqualTo("/likes/tracks")).willReturn(aResponse().withStatus(500)));
     }
 
+    @Ignore // https://soundcloud.atlassian.net/browse/DROID-1949
+    @org.junit.Ignore
     @Test
     public void testLikesScreen() throws Exception {
         likesScreen = mainNavHelper.goToTrackLikes();
