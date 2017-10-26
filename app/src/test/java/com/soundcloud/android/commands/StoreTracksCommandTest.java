@@ -2,7 +2,6 @@ package com.soundcloud.android.commands;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Tables.Sounds.DESCRIPTION;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Collections.singletonList;
@@ -10,9 +9,8 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.PropellerWriteException;
-import org.assertj.core.api.Java6Assertions;
+import com.soundcloud.android.testsupport.TrackFixtures;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +27,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldPersistTracksWithCreatorsInDatabase() throws Exception {
-        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<ApiTrack> tracks = TrackFixtures.apiTracks(2);
         command.call(tracks);
         databaseAssertions().assertTrackWithUserInserted(tracks.get(0));
         databaseAssertions().assertTrackWithUserInserted(tracks.get(1));
@@ -37,41 +35,38 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTracksUsingUpsert() throws Exception {
-        final ApiTrack track = testFixtures().insertTrack();
-        track.setTitle("new title");
+        ApiTrack updatedTrack = testFixtures().insertTrack().toBuilder().title("new title").build();
 
-        command.call(singletonList(track));
+        command.call(singletonList(updatedTrack));
 
         assertThat(select(from(Sounds.TABLE))).counts(1);
-        databaseAssertions().assertTrackInserted(track);
+        databaseAssertions().assertTrackInserted(updatedTrack);
     }
 
     @Test
     public void shouldStoreBlockedTrack() throws Exception {
-        final ApiTrack track = testFixtures().insertTrack();
-        track.setBlocked(true);
+        ApiTrack updatedTrack = testFixtures().insertTrack().toBuilder().blocked(true).build();
 
-        command.call(singletonList(track));
+        command.call(singletonList(updatedTrack));
 
         assertThat(select(from(Sounds.TABLE))).counts(1);
-        databaseAssertions().assertTrackInserted(track);
+        databaseAssertions().assertTrackInserted(updatedTrack);
     }
 
     @Test
     public void shouldStoreSnippedTrack() {
-        final ApiTrack track = testFixtures().insertTrack();
-        track.setSnipped(true);
+        final ApiTrack originalTrack = testFixtures().insertTrack();
+        ApiTrack updatedTrack = originalTrack.toBuilder().snipped(true).build();
 
-        command.call(singletonList(track));
+        command.call(singletonList(updatedTrack));
 
         assertThat(select(from(Sounds.TABLE))).counts(1);
-        databaseAssertions().assertTrackInserted(track);
+        databaseAssertions().assertTrackInserted(updatedTrack);
     }
 
     @Test
     public void shouldPersistTrackWithDescription() {
-        ApiTrack track = create(ApiTrack.class);
-        track.setDescription("description");
+        ApiTrack track = TrackFixtures.apiTrackBuilder().description(Optional.of("description")).build();
 
         command.call(singletonList(track));
 
@@ -79,18 +74,5 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
                                   .whereEq(_ID, track.getId())
                                   .whereEq(DESCRIPTION, "description"))).counts(1);
 
-    }
-
-    @Test
-    public void failsToStoreTrackWithoutPolicy() {
-        ApiTrack track = create(ApiTrack.class);
-        track.setPolicy(null);
-        try {
-            command.call(singletonList(track));
-        } catch (PropellerWriteException exception) {
-            Java6Assertions.assertThat(exception.getCause().getMessage()).contains("Track policy should not be null");
-            return;
-        }
-        Java6Assertions.fail("Should have failed with an IllegalStateException");
     }
 }

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ public class SearchModelCollectionTest {
     @Test
     public void premiumContentShouldNotBePresent() {
         final SearchModelCollection<ApiTrack> searchResultTracks =
-                new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
+                new SearchModelCollection<>(TrackFixtures.apiTracks(2),
                                             Collections.emptyMap());
         final SearchModelCollection<ApiPlaylist> searchResultPlaylists =
                 new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2),
@@ -40,10 +41,10 @@ public class SearchModelCollectionTest {
     @Test
     public void premiumContentShouldBePresent() {
         final SearchModelCollection<ApiTrack> searchResultPremiumTracks =
-                new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
+                new SearchModelCollection<>(TrackFixtures.apiTracks(2),
                                             Collections.emptyMap());
         final SearchModelCollection<ApiTrack> searchResultTracks =
-                new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
+                new SearchModelCollection<>(TrackFixtures.apiTracks(2),
                                             Collections.emptyMap(), "queryUrn", searchResultPremiumTracks,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
 

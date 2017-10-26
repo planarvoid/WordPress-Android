@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -28,7 +29,7 @@ public class SearchPremiumItemTest {
 
     @Before
     public void setUp() {
-        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
+        final PlayableItem playableItem = TrackFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
     }
 
@@ -39,7 +40,7 @@ public class SearchPremiumItemTest {
 
     @Test
     public void shouldBuildTrackAsFirstItem() {
-        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
+        final PlayableItem playableItem = TrackFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(TrackItem.class);
@@ -66,7 +67,7 @@ public class SearchPremiumItemTest {
 
     @Test
     public void shouldSetTrackPlayingIfFirstItemIsTrack() {
-        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
+        final PlayableItem playableItem = TrackFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(firstItem().isPlaying()).isFalse();
@@ -81,7 +82,7 @@ public class SearchPremiumItemTest {
 
     @Test
     public void shouldNotSetTrackPlayingWithIncorrectUrn() {
-        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
+        final PlayableItem playableItem = TrackFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = firstItem();

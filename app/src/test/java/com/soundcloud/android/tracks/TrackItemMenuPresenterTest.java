@@ -36,7 +36,7 @@ import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
@@ -88,8 +88,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
-    private Track track = ModelFixtures.trackBuilder().creatorUrn(Urn.forUser(1)).build();
-    private TrackItem trackItem = ModelFixtures.trackItem(track);
+    private Track track = TrackFixtures.trackBuilder().creatorUrn(Urn.forUser(1)).build();
+    private TrackItem trackItem = TrackFixtures.trackItem(track);
 
     private TrackItemMenuPresenter presenter;
 
@@ -251,7 +251,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        final TrackItem blockedTrackItem = ModelFixtures.trackItem(track.toBuilder().blocked(true).build());
+        final TrackItem blockedTrackItem = TrackFixtures.trackItem(track.toBuilder().blocked(true).build());
 
         presenter.show(activity, view, blockedTrackItem, 0);
 

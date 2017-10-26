@@ -17,6 +17,7 @@ import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -37,7 +38,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
 
     private ProfileApiMobile api;
     private final TestSubscriber<ModelCollection<ApiPostSource>> subscriber = new TestSubscriber<>();
-    private final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+    private final ApiTrack apiTrack = TrackFixtures.apiTrack();
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     private final ModelCollection<ApiPostSource> apiMobileHolder = new ModelCollection<>(
             Arrays.asList(

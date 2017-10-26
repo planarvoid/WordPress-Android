@@ -20,6 +20,7 @@ import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.TrackItem;
@@ -76,7 +77,7 @@ public class TrackLikeOperationsTest {
         );
         when(syncInitiatorBridge.syncTrackLikes()).thenReturn(syncSubject);
 
-        tracks = ModelFixtures.trackItems(2);
+        tracks = TrackFixtures.trackItems(2);
 
         likes = asList(
                 new Association(tracks.get(0).getUrn(), new Date(100)),

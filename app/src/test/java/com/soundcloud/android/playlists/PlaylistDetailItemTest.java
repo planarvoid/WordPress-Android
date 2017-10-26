@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -13,11 +13,11 @@ public class PlaylistDetailItemTest {
     @Test
     public void tracksWithDifferentUrnsAreNotTheSameItem() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem())
+                PlaylistDetailTrackItem.builder().trackItem(TrackFixtures.trackItem())
                                        .playlistUrn(Urn.forPlaylist(123L))
                                        .playlistOwnerUrn(Urn.forUser(123L))
                                        .build(),
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem())
+                PlaylistDetailTrackItem.builder().trackItem(TrackFixtures.trackItem())
                                        .playlistUrn(Urn.forPlaylist(123L))
                                        .playlistOwnerUrn(Urn.forUser(123L))
                                        .build()
@@ -27,11 +27,11 @@ public class PlaylistDetailItemTest {
     @Test
     public void tracksWithTheSameUrnsAreTheSameItem() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1)))
+                PlaylistDetailTrackItem.builder().trackItem(TrackFixtures.trackItem(Urn.forTrack(1)))
                                        .playlistUrn(Urn.forPlaylist(123L))
                                        .playlistOwnerUrn(Urn.forUser(123L))
                                        .build(),
-                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1)))
+                PlaylistDetailTrackItem.builder().trackItem(TrackFixtures.trackItem(Urn.forTrack(1)))
                                        .playlistUrn(Urn.forPlaylist(123L))
                                        .playlistOwnerUrn(Urn.forUser(123L))
                                        .build()
@@ -50,7 +50,7 @@ public class PlaylistDetailItemTest {
     public void otherItemsWithTheDifferentKindsAreNotTheSame() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
                 new PlaylistDetailOtherPlaylistsItem("creatorName", Collections.emptyList(), false),
-                new PlaylistDetailUpsellItem(ModelFixtures.trackItem())
+                new PlaylistDetailUpsellItem(TrackFixtures.trackItem())
         )).isFalse();
     }
 }

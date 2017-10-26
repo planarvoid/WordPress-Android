@@ -2,6 +2,7 @@ package com.soundcloud.android.stream
 
 import com.soundcloud.android.ads.AdFixtures
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.java.optional.Optional
 import org.assertj.core.api.Assertions.assertThat
@@ -14,7 +15,7 @@ import java.util.Date
 class StreamItemTest {
     @Test
     fun `two track items have the same identity and different equality`() {
-        val trackItem = ModelFixtures.trackItem()
+        val trackItem = TrackFixtures.trackItem()
         val trackStreamItem1 = TrackStreamItem(trackItem, true, Date(), Optional.absent())
         val trackStreamItem2 = TrackStreamItem(trackItem, false, Date(), Optional.absent())
 
@@ -24,7 +25,7 @@ class StreamItemTest {
 
     @Test
     fun `track item and other item have have different identity`() {
-        val trackItem = ModelFixtures.trackItem()
+        val trackItem = TrackFixtures.trackItem()
         val trackStreamItem = TrackStreamItem(trackItem, true, Date(), Optional.absent())
         val upsellItem = StreamItem.Upsell
 

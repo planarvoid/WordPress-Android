@@ -92,8 +92,8 @@ public abstract class Track {
     }
 
     private static Track from(ApiTrack apiTrack, boolean isRepost, boolean isUserLike) {
-        final Optional<Boolean> subHighTier = apiTrack.isSubHighTier();
-        final Optional<Boolean> subMidTier = apiTrack.isSubMidTier();
+        final Optional<Boolean> subHighTier = apiTrack.getIsSubHighTier();
+        final Optional<Boolean> subMidTier = apiTrack.getIsSubMidTier();
         final Builder builder = new AutoValue_Track.Builder()
                 .urn(apiTrack.getUrn())
                 .title(apiTrack.getTitle())

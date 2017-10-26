@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
@@ -51,7 +51,7 @@ public class PlaybackProgressRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void putForPositionOnlyWillGetDurationFromDatabaseToCacheIt() throws Exception {
-        final Track track = ModelFixtures.trackBuilder().build();
+        final Track track = TrackFixtures.trackBuilder().build();
         when(trackRepo.track(URN)).thenReturn(Maybe.just(track));
 
         playbackProgressRepository.put(URN, POSITION);

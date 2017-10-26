@@ -21,7 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
@@ -110,7 +110,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final TrackItem trackItem = track();
+        final TrackItem trackItem = track(trackUrn);
         when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.resume();
@@ -139,7 +139,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final TrackItem trackItem = track();
+        final TrackItem trackItem = track(trackUrn);
         when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.togglePlayback();
@@ -151,7 +151,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysNormalTrackSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final TrackItem trackItem = track();
+        final TrackItem trackItem = track(trackUrn);
         when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         defaultPlaybackStrategy.playCurrent().test().assertComplete();
@@ -161,7 +161,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysOfflineTrackSuccessfully() {
-        final TrackItem offlineTrack = track();
+        final TrackItem offlineTrack = track(trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack.track().urn())).thenReturn(true);
@@ -175,7 +175,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentFallsBackToNormalTrackWhenOfflineContentIsNotAccessible() {
-        final TrackItem offlineTrack = track();
+        final TrackItem offlineTrack = track(trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack.track().urn())).thenReturn(true);
@@ -218,7 +218,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final Track.Builder builder = trackBuilder();
         builder.blocked(true);
-        TrackItem trackItem = ModelFixtures.trackItem(builder.build());
+        TrackItem trackItem = TrackFixtures.trackItem(builder.build());
         when(trackItemRepository.track(trackUrn)).thenReturn(Maybe.just(trackItem));
 
         TestObserver<Void> testObserver = defaultPlaybackStrategy.playCurrent().test();
@@ -252,18 +252,18 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         verify(serviceInitiator).play(VideoAdPlaybackItem.create(videoAd, 0));
     }
 
-    private TrackItem track() {
-        return ModelFixtures.trackItem(trackBuilder().build());
+    private TrackItem track(Urn urn) {
+        return TrackFixtures.trackItem(urn);
     }
 
     private Track.Builder trackBuilder() {
-        return ModelFixtures.trackBuilder().urn(trackUrn).snippetDuration(123L).fullDuration(456L).snipped(false);
+        return TrackFixtures.trackBuilder().urn(trackUrn).snippetDuration(123L).fullDuration(456L).snipped(false);
     }
 
     private TrackItem snippedTrack() {
         final Track.Builder builder = trackBuilder();
         builder.snipped(true);
-        return ModelFixtures.trackItem(builder.build());
+        return TrackFixtures.trackItem(builder.build());
     }
 
     @Test

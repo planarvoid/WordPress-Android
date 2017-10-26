@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -36,7 +36,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
+        trackItem = TrackFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
         presenter = new TrackInfoPresenter(resources(), numberFormatter, changeLikeToSaveExperiment, trackStatsDisplayPolicy);
         view = presenter.create(LayoutInflater.from(context()), new FrameLayout(context()));
     }
@@ -181,7 +181,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShouldShowNoDescriptionWhenDescriptionIsEmpty() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("")).build());
+        TrackItem trackItem = TrackFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("")).build());
 
         presenter.bindDescription(view, trackItem);
 
@@ -191,7 +191,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test // fixes #2863
     public void bindViewsShouldHideNoDescriptionWhenDescriptionIsNotEmpty() throws Exception {
-        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("some desc")).build());
+        TrackItem trackItem = TrackFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("some desc")).build());
 
         presenter.bindDescription(view, trackItem);
 

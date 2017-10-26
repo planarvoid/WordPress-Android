@@ -17,6 +17,7 @@ import com.soundcloud.android.discovery.DiscoveryReadableStorage;
 import com.soundcloud.android.discovery.DiscoveryWritableStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -60,7 +61,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
             Optional.absent()
     );
 
-    private final List<Track> tracks = Collections.singletonList(ModelFixtures.trackBuilder().urn(TRACK_URN).build());
+    private final List<Track> tracks = Collections.singletonList(TrackFixtures.trackBuilder().urn(TRACK_URN).build());
 
     private final SystemPlaylist systemPlaylist = SystemPlaylistMapper.map(systemPlaylistEntity, tracks);
 

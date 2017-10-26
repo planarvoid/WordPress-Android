@@ -22,7 +22,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
@@ -66,7 +66,7 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        List<TrackItem> trackItems = ModelFixtures.trackItems(LISTENING_HISTORY_SIZE);
+        List<TrackItem> trackItems = TrackFixtures.trackItems(LISTENING_HISTORY_SIZE);
         when(playHistoryOperations.playHistory()).thenReturn(Single.just(trackItems));
 
         playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations,

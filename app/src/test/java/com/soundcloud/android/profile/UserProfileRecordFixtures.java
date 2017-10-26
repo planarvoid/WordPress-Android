@@ -6,10 +6,10 @@ import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.testsupport.TrackFixtures;
 
 import java.util.Collections;
 
@@ -72,7 +72,7 @@ class UserProfileRecordFixtures {
 
         Builder populateAllCollections() {
             spotlight = new ModelCollection<>(singletonList(apiTrackHolder()));
-            tracks = new ModelCollection<>(singletonList(new ApiTrackPost(create(ApiTrack.class))));
+            tracks = new ModelCollection<>(singletonList(new ApiTrackPost(TrackFixtures.apiTrack())));
             albums = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
             playlists = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
             reposts = new ModelCollection<>(singletonList(apiTrackHolder()));

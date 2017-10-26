@@ -47,7 +47,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -75,7 +75,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private static final int PLAY_DURATION = 20000;
     private static final int FULL_DURATION = 30000;
-    private static final Urn TRACK_URN = Urn.forTrack(123L);
     public static final PlaybackProgress EMPTY_PROGRESS = PlaybackProgress.empty();
 
     @Mock private WaveformOperations waveformOperations;
@@ -170,8 +169,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindItemViewSetsUrnOnErrorViewController() {
-        populateTrackPage();
-        verify(errorViewController).setUrn(TRACK_URN);
+        TrackItem trackItem = populateTrackPage();
+        verify(errorViewController).setUrn(trackItem.getUrn());
     }
 
     @Test
@@ -206,13 +205,25 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewSetsInitialProgress() {
-        PlaybackProgress progress = new PlaybackProgress(123, 456, TRACK_URN);
+    public void bindItemViewSetsInitialProgressOnWaveform() {
+        TrackItem trackItem = populateTrackPage(123, 456);
 
-        populateTrackPage(progress);
+        ArgumentCaptor<PlaybackProgress> captor = ArgumentCaptor.forClass(PlaybackProgress.class);
 
-        verify(waveformViewController).setProgress(progress);
-        verify(artworkController).setProgress(progress);
+        verify(waveformViewController).setProgress(captor.capture());
+        assertThat(captor.getValue().getPosition()).isEqualTo(123);
+        assertThat(captor.getValue().getDuration()).isEqualTo(456);
+    }
+
+    @Test
+    public void bindItemViewSetsInitialProgressOnArtwork() {
+        TrackItem trackItem = populateTrackPage(123, 456);
+
+        ArgumentCaptor<PlaybackProgress> captor = ArgumentCaptor.forClass(PlaybackProgress.class);
+
+        verify(artworkController).setProgress(captor.capture());
+        assertThat(captor.getValue().getPosition()).isEqualTo(123);
+        assertThat(captor.getValue().getDuration()).isEqualTo(456);
     }
 
     @Test
@@ -440,9 +451,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
-        populateTrackPage();
+        TrackItem trackItem = populateTrackPage();
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 1);
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(trackItem.getUrn(), true, 1);
 
         presenter.onPlayableLiked(trackView, likeStatus);
 
@@ -454,23 +465,23 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggleWithoutDisplayCounter() {
         when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
-        populateTrackPage();
+        TrackItem trackItem = populateTrackPage();
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 1);
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(trackItem.getUrn(), true, 1);
 
         presenter.onPlayableLiked(trackView, likeStatus);
 
         assertThat(getHolder(trackView).likeToggle).isChecked();
         verify(likeButtonPresenter, times(2)).setLikeCount(getHolder(trackView).likeToggle, 0,
-                                                 R.drawable.ic_player_liked, R.drawable.ic_player_like); // one time during the setup and another after the change
+                                                           R.drawable.ic_player_liked, R.drawable.ic_player_like); // one time during the setup and another after the change
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
         when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
 
-        populateTrackPage();
-        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, 9999);
+        TrackItem trackItem = populateTrackPage();
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(trackItem.getUrn(), true, 9999);
 
         presenter.onPlayableLiked(trackView, likeStatus);
 
@@ -480,8 +491,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotDisplayUnknownLikeCounts() {
-        populateTrackPage();
-        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(TRACK_URN, true, -1);
+        TrackItem trackItem = populateTrackPage();
+        final LikesStatusEvent.LikeStatus likeStatus = LikesStatusEvent.LikeStatus.create(trackItem.getUrn(), true, -1);
 
         presenter.onPlayableLiked(trackView, likeStatus);
 
@@ -490,8 +501,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        populateTrackPage();
-        final RepostStatus repostStatus = RepostStatus.createReposted(TRACK_URN);
+        TrackItem trackItem = populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createReposted(trackItem.getUrn());
 
         presenter.onPlayableReposted(trackView, repostStatus);
 
@@ -500,8 +511,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        populateTrackPage();
-        final RepostStatus repostStatus = RepostStatus.createReposted(TRACK_URN);
+        TrackItem trackItem = populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createReposted(trackItem.getUrn());
 
         presenter.onPlayableReposted(trackView, repostStatus);
 
@@ -510,8 +521,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        populateTrackPage();
-        final RepostStatus repostStatus = RepostStatus.createUnposted(TRACK_URN);
+        TrackItem trackItem = populateTrackPage();
+        final RepostStatus repostStatus = RepostStatus.createUnposted(trackItem.getUrn());
 
         presenter.onPlayableReposted(trackView, repostStatus);
 
@@ -520,11 +531,11 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeOnTrackCallsListenerWithLikeStatus() {
-        populateTrackPage();
+        TrackItem trackItem = populateTrackPage();
 
         getHolder(trackView).likeToggle.performClick();
 
-        verify(listener).onToggleLike(false, TRACK_URN);
+        verify(listener).onToggleLike(false, trackItem.getUrn());
     }
 
     @Test
@@ -922,20 +933,20 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem populateTrackPage() {
-        return populateTrackPage(EMPTY_PROGRESS);
+        return populateTrackPage(0, 0);
     }
 
-    private TrackItem populateTrackPage(PlaybackProgress initialProgress) {
-        return populateTrackPage(false, initialProgress);
+    private TrackItem populateTrackPage(int position, int duration) {
+        return populateTrackPage(false, position, duration);
     }
 
     private TrackItem populateTrackPageForProUser() {
-        return populateTrackPage(true, EMPTY_PROGRESS);
+        return populateTrackPage(true, 0, 1);
     }
 
-    private TrackItem populateTrackPage(boolean creatorIsPro, PlaybackProgress initialProgress) {
-        final TrackItem source = ModelFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).creatorIsPro(creatorIsPro).build());
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, initialProgress));
+    private TrackItem populateTrackPage(boolean creatorIsPro, int position, int duration) {
+        final TrackItem source = TrackFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).creatorIsPro(creatorIsPro).build());
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, new PlaybackProgress(position, duration, source.getUrn())));
         return source;
     }
 

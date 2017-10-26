@@ -13,8 +13,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observer;
@@ -247,7 +247,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
-        final TrackItem trackItem = ModelFixtures.trackItem(trackTwo).toBuilder().repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn())).build();
+        final TrackItem trackItem = TrackFixtures.trackItem(trackTwo).toBuilder().repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn())).build();
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);

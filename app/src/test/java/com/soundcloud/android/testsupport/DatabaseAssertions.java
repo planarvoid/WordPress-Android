@@ -43,7 +43,6 @@ import static com.soundcloud.android.storage.Tables.Sounds.REPOSTS_COUNT;
 import static com.soundcloud.android.storage.Tables.Sounds.SET_TYPE;
 import static com.soundcloud.android.storage.Tables.Sounds.SHARING;
 import static com.soundcloud.android.storage.Tables.Sounds.SNIPPET_DURATION;
-import static com.soundcloud.android.storage.Tables.Sounds.STREAM_URL;
 import static com.soundcloud.android.storage.Tables.Sounds.TAG_LIST;
 import static com.soundcloud.android.storage.Tables.Sounds.TITLE;
 import static com.soundcloud.android.storage.Tables.Sounds.TRACK_COUNT;
@@ -147,7 +146,6 @@ public class DatabaseAssertions {
                 .whereEq(SNIPPET_DURATION, track.getSnippetDuration())
                 .whereEq(FULL_DURATION, track.getFullDuration())
                 .whereEq(WAVEFORM_URL, track.getWaveformUrl())
-                .whereEq(STREAM_URL, track.getStreamUrl())
                 .whereEq(PERMALINK_URL, track.getPermalinkUrl())
                 .whereEq(ARTWORK_URL, track.getImageUrlTemplate().orNull())
                 .whereEq(CREATED_AT, track.getCreatedAt().getTime())
@@ -160,7 +158,7 @@ public class DatabaseAssertions {
                 .whereEq(PLAYBACK_COUNT, track.getPlaybackCount())
                 .whereEq(COMMENT_COUNT, track.getCommentsCount());
         if (track.getDescription().isPresent()) {
-            query.whereEq(DESCRIPTION, track.getDescription().get());
+            query.whereEq(Sounds.DESCRIPTION, track.getDescription().get());
         }
         assertThat(select(query)).counts(1);
         assertTrackPolicyInserted(track);
@@ -349,11 +347,11 @@ public class DatabaseAssertions {
         if (track.getMonetizationModel().isPresent()) {
             query.whereEq(MONETIZATION_MODEL, track.getMonetizationModel().get());
         }
-        if (track.isSubMidTier().isPresent()) {
-            query.whereEq(SUB_MID_TIER, track.isSubMidTier().get());
+        if (track.getIsSubMidTier().isPresent()) {
+            query.whereEq(SUB_MID_TIER, track.getIsSubMidTier().get());
         }
-        if (track.isSubHighTier().isPresent()) {
-            query.whereEq(SUB_HIGH_TIER, track.isSubHighTier().get());
+        if (track.getIsSubHighTier().isPresent()) {
+            query.whereEq(SUB_HIGH_TIER, track.getIsSubHighTier().get());
         }
         assertThat(select(query)).counts(1);
     }

@@ -15,7 +15,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -182,8 +182,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
-        ApiTrack suggestion1 = ModelFixtures.create(ApiTrack.class);
-        ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
+        ApiTrack suggestion1 = TrackFixtures.apiTrack();
+        ApiTrack suggestion2 = TrackFixtures.apiTrack();
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
@@ -209,7 +209,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
-        RecommendedTracksCollection collection = createCollection(ModelFixtures.create(ApiTrack.class));
+        RecommendedTracksCollection collection = createCollection(TrackFixtures.apiTrack());
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class))).thenReturn(Single.just(collection));
 
         playQueueOperations.relatedTracks(Urn.forTrack(1), false).test();

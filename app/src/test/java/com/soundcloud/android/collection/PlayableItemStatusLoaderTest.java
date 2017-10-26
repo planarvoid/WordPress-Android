@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
@@ -35,7 +36,7 @@ public class PlayableItemStatusLoaderTest {
         subject = new PlayableItemStatusLoader(loadLikedStatuses, loadRepostStatuses);
 
         playlistItem = ModelFixtures.playlistItem();
-        trackItem = ModelFixtures.trackItem();
+        trackItem = TrackFixtures.trackItem();
         statusMap = new HashMap<>();
     }
 

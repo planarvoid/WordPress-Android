@@ -22,6 +22,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.collections.ListMultiMap;
@@ -57,6 +58,7 @@ public class ApiClientTest extends AndroidUnitTest {
     private static final String MULTIPLE_VARIANT_IDS = "456,101";
     private static final String CLIENT_ID = "testClientId";
     private static final String OAUTH_TOKEN = "OAuth 12345";
+    private final ApiTrack apiTrack = TrackFixtures.apiTrack();
 
     private ApiClient apiClient;
 
@@ -338,10 +340,10 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakePostRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
-        when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
+        when(jsonTransformer.toJson(apiTrack)).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.post(URL)
                                        .forPrivateApi()
-                                       .withContent(new ApiTrack())
+                                       .withContent(apiTrack)
                                        .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
 
@@ -355,7 +357,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakePostRequestToApiMobileWithoutContent() throws Exception {
-        when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
+        when(jsonTransformer.toJson(apiTrack)).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.post(URL)
                                        .forPrivateApi()
                                        .build();
@@ -371,10 +373,10 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
-        when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
+        when(jsonTransformer.toJson(apiTrack)).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.put(URL)
                                        .forPrivateApi()
-                                       .withContent(new ApiTrack())
+                                       .withContent(apiTrack)
                                        .build();
         mockSuccessfulResponseFor(request);
 
@@ -388,10 +390,10 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldFailPostRequestAsMalformedIfContentSerializationFails() throws Exception {
-        when(jsonTransformer.toJson(new ApiTrack())).thenThrow(new ApiMapperException("fail"));
+        when(jsonTransformer.toJson(apiTrack)).thenThrow(new ApiMapperException("fail"));
         ApiRequest request = ApiRequest.post(URL)
                                        .forPublicApi()
-                                       .withContent(new ApiTrack())
+                                       .withContent(apiTrack)
                                        .build();
         mockSuccessfulResponseFor(request);
 
@@ -447,7 +449,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldFetchResourcesMappedToTypeSpecifiedInRequest() throws Exception {
-        final ApiTrack mappedTrack = new ApiTrack();
+        final ApiTrack mappedTrack = apiTrack;
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(mappedTrack);
         ApiRequest request = ApiRequest.get(URL)
                                        .forPrivateApi()

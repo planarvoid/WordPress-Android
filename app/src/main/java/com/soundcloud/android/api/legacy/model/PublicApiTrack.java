@@ -435,32 +435,27 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     public ApiTrack toApiMobileTrack() {
-        ApiTrack apiTrack = new ApiTrack();
-        apiTrack.setUrn(getUrn());
-        apiTrack.setCreatedAt(created_at);
-        apiTrack.setCommentable(commentable);
-        apiTrack.setSnippetDuration(duration);
-        apiTrack.setFullDuration(duration);
-        apiTrack.setGenre(genre);
-        apiTrack.setMonetizable(isMonetizable());
-        apiTrack.setPermalinkUrl(permalink_url);
-        apiTrack.setPolicy(policy);
-        apiTrack.setSharing(sharing);
-        apiTrack.setStreamUrl(stream_url);
-        apiTrack.setSyncable(isSyncable());
-        apiTrack.setUserTags(humanTags());
-        apiTrack.setTitle(title);
-        apiTrack.setWaveformUrl(waveform_url);
-        apiTrack.setUser(getUser().toApiMobileUser());
-
-        final ApiTrackStats stats = new ApiTrackStats();
-        stats.setCommentsCount(comment_count);
-        stats.setPlaybackCount(playback_count);
-        stats.setLikesCount(likes_count);
-        stats.setRepostsCount(reposts_count);
-        apiTrack.setStats(stats);
-
-        return apiTrack;
+        return ApiTrack.builder(getUrn())
+                .createdAt(getCreatedAt())
+                .commentable(isCommentable())
+                .snippetDuration(getSnippetDuration())
+                .fullDuration(getFullDuration())
+                .genre(getGenre())
+                .monetizable(isMonetizable())
+                .permalinkUrl(getPermalinkUrl())
+                .policy(getPolicy())
+                .sharing(getSharing())
+                .syncable(isSyncable())
+                .userTags(humanTags())
+                .title(getTitle())
+                .waveformUrl(getWaveformUrl())
+                .user(getUser().toApiMobileUser())
+                .stats(ApiTrackStats.create(
+                        getPlaybackCount(),
+                        getCommentsCount(),
+                        getRepostsCount(),
+                        getLikesCount()))
+                .build();
     }
 
     @Override
@@ -470,13 +465,13 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
-    public Optional<Boolean> isSubMidTier() {
+    public Optional<Boolean> getIsSubMidTier() {
         // not implemented in Public Api
         return Optional.absent();
     }
 
     @Override
-    public Optional<Boolean> isSubHighTier() {
+    public Optional<Boolean> getIsSubHighTier() {
         // not implemented in Public Api
         return Optional.absent();
     }

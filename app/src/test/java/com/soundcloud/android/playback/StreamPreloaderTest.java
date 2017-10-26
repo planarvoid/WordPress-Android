@@ -18,7 +18,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.skippy.SkippyCache;
 import com.soundcloud.android.playback.skippy.SkippyConfiguration;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackItem;
@@ -56,7 +56,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
                                         serviceInitiator,
                                         skippyConfiguration);
         preloader.subscribe();
-        track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build());
+        track = TrackFixtures.trackItem(TrackFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build());
         when(trackRepository.track(nextTrackUrn)).thenReturn(Maybe.just(track));
         when(castConnectionHelper.isCasting()).thenReturn(false);
     }

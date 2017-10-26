@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -13,6 +12,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -35,7 +35,7 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayHistoryOperationsTest {
 
-    private static final List<Track> TRACKS = ModelFixtures.tracks(10);
+    private static final List<Track> TRACKS = TrackFixtures.tracks(10);
     private static final List<Urn> TRACK_URNS = Lists.transform(TRACKS, Track::urn);
     private static final List<Urn> AVAILABLE_TRACK_URNS = TRACK_URNS.subList(0, 5);
     private static final Screen screen = Screen.DISCOVER;
@@ -60,7 +60,7 @@ public class PlayHistoryOperationsTest {
         when(trackRepository.trackListFromUrns(urns)).thenReturn(Single.just(TRACKS));
         trackItems = new ArrayList<>(TRACKS.size());
         for (Track track : TRACKS) {
-            trackItems.add(trackItem(track));
+            trackItems.add(TrackFixtures.trackItem(track));
         }
 
         operations = new PlayHistoryOperations(playbackInitiator,

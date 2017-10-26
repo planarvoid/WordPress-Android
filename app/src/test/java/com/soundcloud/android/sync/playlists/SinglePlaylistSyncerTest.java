@@ -30,6 +30,7 @@ import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -93,7 +94,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void syncsPlaylistThatDoesNotExistLocally() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
         withoutLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn());
 
@@ -107,7 +108,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void sendsPlaylistChangedEventAfterSyncingPlaylistThatDoesNotExistLocally() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
         withoutLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn());
 
@@ -118,7 +119,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void syncsPlaylistWithNoChanges() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
 
         withoutLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn());
@@ -143,7 +144,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void syncPlaylistWithLocalRemovalCommon(Optional<LocalPlaylistChange> playlistFromStorage) throws Exception {
-        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack localRemoval = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(localRemoval);
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
@@ -170,7 +171,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void syncsPlaylistWithLocalAdditionCommon(Optional<LocalPlaylistChange> playlistFromStorage) throws Exception {
-        final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack localAddition = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(ModelFixtures.apiPlaylistWithNoTracks());
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
@@ -196,7 +197,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void syncEditedPlaylistWithLocalRemovals() throws Exception {
-        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack localRemoval = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks();
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), Optional.absent());
@@ -211,9 +212,9 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void syncsPlaylistWithLocalAdditionAndRemovalCommon(Optional<LocalPlaylistChange> playlistFromStorage) throws Exception {
-        final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack noChange = TrackFixtures.apiTrack();
+        final ApiTrack localAddition = TrackFixtures.apiTrack();
+        final ApiTrack localRemoval = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval);
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
@@ -232,11 +233,11 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void syncsPlaylistWithLocalAndRemoteAdditionsAndRemovals() throws Exception {
-        final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack noChange = TrackFixtures.apiTrack();
+        final ApiTrack localRemoval = TrackFixtures.apiTrack();
+        final ApiTrack localAddition = TrackFixtures.apiTrack();
+        final ApiTrack remoteAddition = TrackFixtures.apiTrack();
+        final ApiTrack remoteRemoval = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange,
                                                                                        localRemoval,
                                                                                        remoteAddition);
@@ -262,11 +263,11 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     @Test
     public void syncsEditedPlaylistWithLocalAndRemoteAdditionsAndRemovals() throws Exception {
         LocalPlaylistChange playlistFromStorage = modifiedPlaylistFromStorage();
-        final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
-        final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack noChange = TrackFixtures.apiTrack();
+        final ApiTrack localRemoval = TrackFixtures.apiTrack();
+        final ApiTrack localAddition = TrackFixtures.apiTrack();
+        final ApiTrack remoteAddition = TrackFixtures.apiTrack();
+        final ApiTrack remoteRemoval = TrackFixtures.apiTrack();
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange,
                                                                                        localRemoval,
                                                                                        remoteAddition);

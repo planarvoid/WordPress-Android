@@ -5,7 +5,7 @@ import com.soundcloud.android.model.Association
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.sync.SyncInitiatorBridge
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
@@ -121,7 +121,7 @@ class MyProfileOperationsTest {
                 .assertValue { it.permalinkUrl() == availableTrack.permalinkUrl() }
     }
 
-    private fun trackFromUrn(urn: Urn, private: Boolean = false) = ModelFixtures.trackBuilder().urn(urn).isPrivate(private).build()
+    private fun trackFromUrn(urn: Urn, private: Boolean = false) = TrackFixtures.trackBuilder().urn(urn).isPrivate(private).build()
 
     @Test
     fun returnsListOfFollowingsUrns() {

@@ -5,7 +5,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class StationFixtures {
     }
 
     static ApiStation getApiStation(Urn station, int size) {
-        return getApiStation(station, ModelFixtures.create(ApiTrack.class, size));
+        return getApiStation(station, TrackFixtures.apiTracks(size));
     }
 
     static ApiStation getApiStation(Urn station, List<ApiTrack> tracks) {
@@ -56,7 +56,7 @@ public class StationFixtures {
 
     static StationWithTracks getStationWithTracks(Urn station) {
         final ApiStation apiStation = getApiStation(station);
-        final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), input -> StationInfoTrack.from(ModelFixtures.trackItem(input)));
+        final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), input -> StationInfoTrack.from(TrackFixtures.trackItem(input)));
         return getStationWithTracks(apiStation, tracks, Stations.NEVER_PLAYED);
     }
 
@@ -126,7 +126,7 @@ public class StationFixtures {
     }
 
     static StationInfoTrack createStationInfoTrack(int playCount, String artistName) {
-        final TrackItem trackItem = ModelFixtures.trackItem(ModelFixtures.trackBuilder().playCount(playCount).creatorName(artistName).build());
+        final TrackItem trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder().playCount(playCount).creatorName(artistName).build());
         return StationInfoTrack.from(trackItem);
     }
 

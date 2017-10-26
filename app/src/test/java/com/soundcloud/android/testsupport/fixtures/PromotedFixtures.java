@@ -1,10 +1,10 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
+import com.soundcloud.android.testsupport.TrackFixtures;
 
 import java.util.Arrays;
 
@@ -16,7 +16,7 @@ public class PromotedFixtures {
 
     public static ApiPromotedTrack promotedTrackItemWithPromoter(ApiUser promoter) {
         return new ApiPromotedTrack(
-                ModelFixtures.create(ApiTrack.class),
+                TrackFixtures.apiTrack(),
                 promoter,
                 "dfp:ads:123-4567",
                 Arrays.asList("http://tracking_track_clicked_url_1", "http://tracking_track_clicked_url_2"),

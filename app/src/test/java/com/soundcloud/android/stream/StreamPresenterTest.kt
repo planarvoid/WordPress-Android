@@ -40,7 +40,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.testsupport.FragmentRule
 import com.soundcloud.android.testsupport.RefreshableFragmentRule
 import com.soundcloud.android.testsupport.TestPager
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedLikedPlaylistForPlaylistsScreen
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedTrackForListItem
@@ -236,7 +236,7 @@ class StreamPresenterTest : AndroidUnitTest() {
 
     @Test
     fun forwardsTrackClicksToClickListener() {
-        val clickedTrack = ModelFixtures.trackItem()
+        val clickedTrack = TrackFixtures.trackItem()
         val streamTracks = Single.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.urn), PlayableWithReposter.from(Urn.forTrack(634L))))
 
         whenever(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.createdAt, Optional.absent()))

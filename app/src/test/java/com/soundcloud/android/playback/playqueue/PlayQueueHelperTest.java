@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -78,7 +79,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
 
     @Test
     public void shouldInsertIntoPlayQueue() {
-        final List<Track> tracks = ModelFixtures.tracks(2);
+        final List<Track> tracks = TrackFixtures.tracks(2);
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Single.just(tracks));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);

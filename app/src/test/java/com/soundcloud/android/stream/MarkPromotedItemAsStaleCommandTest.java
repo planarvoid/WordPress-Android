@@ -7,7 +7,7 @@ import static java.util.Collections.emptyList;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -33,9 +33,9 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
 
         final PromotedProperties promotedProperties = PromotedProperties.create(adUrn, emptyList(), emptyList(), emptyList(), emptyList(), Optional.absent(), Optional.absent());
 
-        final Track track = ModelFixtures.track();
+        final Track track = TrackFixtures.track();
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), track.createdAt()).promotedProperties(Optional.of(promotedProperties)).build();
-        TrackItem promotedItem = ModelFixtures.trackItem(track, streamEntity);
+        TrackItem promotedItem = TrackFixtures.trackItem(track, streamEntity);
 
         command.call(promotedItem.adUrn());
 

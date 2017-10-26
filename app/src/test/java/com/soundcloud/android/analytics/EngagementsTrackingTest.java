@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -28,7 +29,7 @@ public class EngagementsTrackingTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn USER_URN = Urn.forUser(33L);
     private static final TrackItem PROMOTED_TRACK = expectedPromotedTrack();
-    private static final Track TRACK = ModelFixtures.trackBuilder().build();
+    private static final Track TRACK = TrackFixtures.trackBuilder().build();
     private static final User FOLLOWED_USER = ModelFixtures.user();
 
     private EngagementsTracking engagementsTracking;

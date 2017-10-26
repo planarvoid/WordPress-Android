@@ -8,6 +8,7 @@ import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.posts.PostsStorage
 import com.soundcloud.android.testsupport.StorageIntegrationTest
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.tracks.Track
@@ -64,11 +65,11 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
         loggedInUser = UserFixtures.userBuilder().username("Myself").build()
         creator = UserFixtures.userBuilder().username("Prolific artist").build()
 
-        likedTrack = ModelFixtures.baseTrackBuilder().creatorName(creator.username()).title("A tune I enjoy").urn(Urn.forTrack(123)).createdAt(Date(100L)).build()
+        likedTrack = TrackFixtures.trackBuilder().creatorName(creator.username()).title("A tune I enjoy").urn(Urn.forTrack(123)).createdAt(Date(100L)).build()
         likedTrackSearchSuggestion = buildSearchSuggestionFromTrack(likedTrack)
         likedTrackArtistUsernameSearchSuggestion = buildSearchSuggestionFromTrackCreatorName(likedTrack)
 
-        postedTrack = ModelFixtures.baseTrackBuilder().creatorName(loggedInUser.username()).title("Awesome song that I created").urn(Urn.forTrack(456)).createdAt(Date(100L)).build()
+        postedTrack = TrackFixtures.trackBuilder().creatorName(loggedInUser.username()).title("Awesome song that I created").urn(Urn.forTrack(456)).createdAt(Date(100L)).build()
         postedTrackSearchSuggestion = buildSearchSuggestionFromTrack(postedTrack, DatabaseSearchSuggestion.Kind.Post)
 
         likedPlaylist = ModelFixtures.playlistBuilder().creatorName(creator.username()).title("Liked playlist").createdAt(Date(0L)).build()
@@ -104,7 +105,7 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
 
     @Test
     fun returnsMultipleMatchesForLikedTrackByMostRecentlyLiked() {
-        val secondLikedTrack = ModelFixtures.baseTrackBuilder().creatorName(creator.username()).title(likedTrack.title()).urn(Urn.forTrack(789)).createdAt(Date(500L)).build()
+        val secondLikedTrack = TrackFixtures.trackBuilder().creatorName(creator.username()).title(likedTrack.title()).urn(Urn.forTrack(789)).createdAt(Date(500L)).build()
         val secondLikedTrackSearchSuggestion = buildSearchSuggestionFromTrack(secondLikedTrack)
         configureStorageAndRepositoryResponses(likedTracks = listOf(likedTrack, postedTrack, secondLikedTrack))
 
@@ -135,7 +136,7 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
 
     @Test
     fun returnsMultipleMatchesForPostedTrackOrderedByMostRecentlyPosted() {
-        val recentlyPostedTrack = ModelFixtures.baseTrackBuilder().creatorName(loggedInUser.username()).title(postedTrack.title()).urn(Urn.forTrack(789)).createdAt(Date(500L)).build()
+        val recentlyPostedTrack = TrackFixtures.trackBuilder().creatorName(loggedInUser.username()).title(postedTrack.title()).urn(Urn.forTrack(789)).createdAt(Date(500L)).build()
         val recentlyPostedTrackSearchSuggestion = buildSearchSuggestionFromTrack(recentlyPostedTrack, DatabaseSearchSuggestion.Kind.Post)
 
         configureStorageAndRepositoryResponses(postedTracks = listOf(likedTrack, postedTrack, recentlyPostedTrack))
@@ -207,7 +208,7 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
 
     @Test
     fun removesDuplicateWhenUserSearchesByCreatorNameAndLikedTrackWithTitleContainingArtistName() {
-        val likedTrackWithArtistName = ModelFixtures.baseTrackBuilder()
+        val likedTrackWithArtistName = TrackFixtures.trackBuilder()
                 .creatorName(creator.username())
                 .title("Great song by " + creator.username())
                 .urn(Urn.forTrack(789))

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackChangedEvent;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class PublishTrackUpdateEventCommandTest {
 
     @Test
     public void sendsConvertedPlaylistItem() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
 
         publishTrackUpdateEventCommand.call(Collections.singletonList(apiTrack));
 

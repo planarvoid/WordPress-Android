@@ -86,7 +86,7 @@ public class SharePresenterTest extends AndroidUnitTest {
         assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
         assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
         assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
-        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
+        assertThat(shareRequestEvent.clickObjectUrn().get()).isEqualTo(TRACK.getUrn());
     }
 
     @Test

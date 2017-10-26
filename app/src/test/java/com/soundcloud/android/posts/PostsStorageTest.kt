@@ -14,6 +14,7 @@ import com.soundcloud.android.storage.Table
 import com.soundcloud.android.storage.TableColumns
 import com.soundcloud.android.storage.Tables
 import com.soundcloud.android.testsupport.StorageIntegrationTest
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.utils.TestDateProvider
 import com.soundcloud.propeller.query.Query.from
@@ -192,8 +193,7 @@ class PostsStorageTest : StorageIntegrationTest() {
     }
 
     private fun createTrackPostWithId(trackId: Long) {
-        val apiTrack = ModelFixtures.create(ApiTrack::class.java)
-        apiTrack.setUrn(Urn.forTrack(trackId))
+        val apiTrack = TrackFixtures.apiTrack(Urn.forTrack(trackId))
         testFixtures().insertTrack(apiTrack)
         testFixtures().insertTrackPost(apiTrack.id, apiTrack.createdAt.time, false)
     }

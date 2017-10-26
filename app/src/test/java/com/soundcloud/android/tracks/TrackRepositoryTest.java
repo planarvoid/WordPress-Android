@@ -23,7 +23,7 @@ import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
@@ -58,8 +58,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     private Track track;
     private TrackItem trackItem;
 
-    private Track track1 = ModelFixtures.trackBuilder().build();
-    private Track track2 = ModelFixtures.trackBuilder().build();
+    private Track track1 = TrackFixtures.trackBuilder().build();
+    private Track track2 = TrackFixtures.trackBuilder().build();
 
     @Mock private TrackStorage trackStorage;
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
@@ -78,8 +78,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.trampoline(), entitySyncStateStorage, currentTimeProvider, eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
-        track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
-        trackItem = ModelFixtures.trackItem(track);
+        track = TrackFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
+        trackItem = TrackFixtures.trackItem(track);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void tracksSyncsMissingTracks() {
         final List<Urn> requestedTracks = singletonList(trackUrn);
         final List<Urn> availableTracks = emptyList();
-        final Track syncedTrack = ModelFixtures.trackBuilder().build();
+        final Track syncedTrack = TrackFixtures.trackBuilder().build();
         final Map<Urn, Track> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));

@@ -44,6 +44,7 @@ public interface Tables {
         public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url", String.class);
         static final Column DOWNLOADABLE = Column.create(TABLE, "downloadable", Boolean.class);
         static final Column DOWNLOAD_URL = Column.create(TABLE, "download_url", String.class);
+        @Deprecated // unused now
         public static final Column STREAM_URL = Column.create(TABLE, "stream_url", String.class);
         static final Column STREAMABLE = Column.create(TABLE, "streamable", Boolean.class);
         public static final Column COMMENTABLE = Column.create(TABLE, "commentable", Boolean.class);

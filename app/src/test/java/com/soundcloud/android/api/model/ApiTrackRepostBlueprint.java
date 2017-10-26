@@ -1,8 +1,8 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.model.stream.ApiStreamTrackRepost;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
@@ -14,7 +14,7 @@ public class ApiTrackRepostBlueprint {
         @Override
         public Object createInstance() {
             return new ApiStreamTrackRepost(
-                    ModelFixtures.create(ApiTrack.class),
+                    TrackFixtures.apiTrack(),
                     UserFixtures.apiUser(),
                     new Date()
             );

@@ -9,9 +9,9 @@ import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_USER;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -119,7 +119,7 @@ public class SearchResultsAdapterTest {
     }
 
     private TrackItem dummyTrackItem() {
-        return (TrackItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(null, null, ModelFixtures.create(ApiTrack.class)));
+        return (TrackItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(null, null, TrackFixtures.apiTrack()));
     }
 
     private PlaylistItem dummyPlaylistItem() {
@@ -127,7 +127,7 @@ public class SearchResultsAdapterTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        final TrackItem trackItem = ModelFixtures.trackItem(Urn.forTrack(123L));
+        final TrackItem trackItem = TrackFixtures.trackItem(Urn.forTrack(123L));
         return new SearchPremiumItem(Collections.singletonList(trackItem),
                                      Optional.absent(),
                                      SEARCH_RESULTS_COUNT);

@@ -12,6 +12,7 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -33,7 +34,7 @@ public class StreamEntityToItemTransformerTest {
 
     private static final Date CREATED_AT = new Date();
     private final User promoter = ModelFixtures.user();
-    private final Track track = ModelFixtures.track();
+    private final Track track = TrackFixtures.track();
     private final Playlist playlist = ModelFixtures.playlist();
 
     @Mock private TrackRepository trackRepository;
@@ -49,7 +50,7 @@ public class StreamEntityToItemTransformerTest {
 
     @Test
     public void enrichesTrackStreamItem() throws Exception {
-        final TrackItem trackItem = ModelFixtures.trackItem(track);
+        final TrackItem trackItem = TrackFixtures.trackItem(track);
         final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, trackItem.getUrn(), trackItem).build();
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Single.just(Collections.singletonMap(track.urn(), track)));

@@ -9,6 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -23,10 +24,10 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
 
     private final Playlist playlist = ModelFixtures.playlist();
-    private final Track track1 = ModelFixtures.trackBuilder().build();
-    private final Track track2 = ModelFixtures.trackBuilder().build();
-    private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
-    private final TrackItem trackItem2 = ModelFixtures.trackItem(track2);
+    private final Track track1 = TrackFixtures.track();
+    private final Track track2 = TrackFixtures.track();
+    private final TrackItem trackItem1 = TrackFixtures.trackItem(track1);
+    private final TrackItem trackItem2 = TrackFixtures.trackItem(track2);
 
     @Test
     public void shouldCreatePlaylistDetailsViewModelWithOfflineOptionsAvailable() {
@@ -81,7 +82,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     @Test
     public void returnsTrackCountFromTracklistIfTracksAreThere() {
         Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();
-        List<TrackItem> tracks = ModelFixtures.trackItems(2);
+        List<TrackItem> tracks = TrackFixtures.trackItems(2);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist, tracks)
@@ -127,7 +128,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     public void returnsDurationFromTracklistIfTracksAreThere() {
         Playlist playlist = ModelFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
-                                                                    .with(resources(), featureOperations, accountOperations, playlist, ModelFixtures.trackItems(2))
+                                                                    .with(resources(), featureOperations, accountOperations, playlist, TrackFixtures.trackItems(2))
                                                                     .with(OfflineState.NOT_OFFLINE)
                                                                     .isRepostedByUser(false)
                                                                     .isLikedByUser(true)
@@ -237,7 +238,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     public void cannotShuffleWithOneTrack() throws Exception {
         Playlist playlist1 = ModelFixtures.playlist();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
-                                                                    .with(resources(), featureOperations, accountOperations, playlist1, ModelFixtures.trackItems(1))
+                                                                    .with(resources(), featureOperations, accountOperations, playlist1, TrackFixtures.trackItems(1))
                                                                     .with(OfflineState.NOT_OFFLINE)
                                                                     .isRepostedByUser(false)
                                                                     .isLikedByUser(false)
@@ -251,7 +252,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     public void canShuffleWithMoreThanOneTrack() throws Exception {
         Playlist playlist1 = ModelFixtures.playlist();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
-                                                                    .with(resources(), featureOperations, accountOperations, playlist1, ModelFixtures.trackItems(2))
+                                                                    .with(resources(), featureOperations, accountOperations, playlist1, TrackFixtures.trackItems(2))
                                                                     .with(OfflineState.NOT_OFFLINE)
                                                                     .isRepostedByUser(false)
                                                                     .isLikedByUser(false)

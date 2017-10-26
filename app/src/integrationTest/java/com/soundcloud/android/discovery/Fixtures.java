@@ -1,11 +1,11 @@
 package com.soundcloud.android.discovery;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
+import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
@@ -109,5 +109,5 @@ class Fixtures {
                                                                               Optional.of("description"),
                                                                               Optional.of("http://fancy.jpg"),
                                                                               Optional.of("The Upload"),
-                                                                              new ModelCollection<>(Collections.singletonList(new ApiTrack(Urn.forTrack(123L)))));
+                                                                              new ModelCollection<>(Collections.singletonList(TrackFixtures.apiTrack(Urn.forTrack(123L)))));
 }

@@ -16,6 +16,7 @@ import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
@@ -106,8 +107,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void entityChangedEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
-        TrackItem track1 = ModelFixtures.trackItem();
-        TrackItem track2 = ModelFixtures.trackItem();
+        TrackItem track1 = TrackFixtures.trackItem();
+        TrackItem track2 = TrackFixtures.trackItem();
         List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
         final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 
@@ -122,8 +123,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void entityChangedEventDoesNotUpdateItemAfterOnDestroy() throws Exception {
-        TrackItem track1 = ModelFixtures.trackItem();
-        TrackItem track2 = ModelFixtures.trackItem();
+        TrackItem track1 = TrackFixtures.trackItem();
+        TrackItem track2 = TrackFixtures.trackItem();
         List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
         final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 
@@ -140,9 +141,9 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     @Test
     public void entityChangedEventDoesNotNotifyWithNoMatchingUrns() throws Exception {
 
-        TrackItem track1 = ModelFixtures.trackItem();
-        TrackItem track2 = ModelFixtures.trackItem();
-        Track changeSet = ModelFixtures.track();
+        TrackItem track1 = TrackFixtures.trackItem();
+        TrackItem track2 = TrackFixtures.trackItem();
+        Track changeSet = TrackFixtures.track();
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
@@ -227,11 +228,11 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     }
 
     private TrackItem initTrackForLike() {
-        return ModelFixtures.trackItemBuilder().likesCount(0).isUserLike(false).build();
+        return TrackFixtures.trackItemBuilder().likesCount(0).isUserLike(false).build();
     }
 
     private TrackChangedEvent getTrackChangedEvent(Urn updatedItemUrn, List<PlayableItem> trackItems) {
-        final Track.Builder updatedTrack = ModelFixtures.trackBuilder();
+        final Track.Builder updatedTrack = TrackFixtures.trackBuilder();
         updatedTrack.urn(updatedItemUrn);
         updatedTrack.creatorName(UPDATED_CREATOR);
         when(adapter.getItems()).thenReturn(trackItems);

@@ -18,6 +18,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItemRepository;
@@ -62,9 +63,9 @@ public class UserProfileOperationsRepostsTest {
 
     @Before
     public void setUp() {
-        ApiTrack apiTrack = create(ApiTrack.class);
+        ApiTrack apiTrack = TrackFixtures.apiTrack();
         ApiPlayableSource apiTrackPlayableSource = ApiPlayableSource.create(apiTrack, null);
-        trackItem = ModelFixtures.trackItem(apiTrack);
+        trackItem = TrackFixtures.trackItem(apiTrack);
         apiPlaylist = create(ApiPlaylist.class);
         ApiPlayableSource apiPlaylistPlayableSource = ApiPlayableSource.create(null, apiPlaylist);
         playlistItem = ModelFixtures.playlistItem(apiPlaylist);

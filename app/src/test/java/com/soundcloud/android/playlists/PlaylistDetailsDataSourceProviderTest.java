@@ -26,6 +26,7 @@ import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
@@ -78,8 +79,8 @@ public class PlaylistDetailsDataSourceProviderTest {
     private final ModelCollection<ApiPlaylistPost> userPlaylistCollectionWithExtraAlbum = new ModelCollection<>(newArrayList(albumPost, playlistPost), "next-href");
     private final ModelCollection<ApiPlaylistPost> userAlbumsCollection = new ModelCollection<>(newArrayList(albumPost), "next-href");
 
-    private Track track1 = ModelFixtures.track();
-    private Track track2 = ModelFixtures.track();
+    private Track track1 = TrackFixtures.track();
+    private Track track2 = TrackFixtures.track();
     private List<Track> trackItems = singletonList(track1);
     private List<Track> updatedTrackItems = asList(track1, track2);
     //

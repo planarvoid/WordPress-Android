@@ -28,7 +28,7 @@ import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationMetadata;
 import com.soundcloud.android.stations.StationsRepository;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
@@ -65,8 +65,8 @@ public class PlayQueueOperationsTest extends StorageIntegrationTest {
     @Mock private PlayQueueStorage storage;
     @Captor private ArgumentCaptor<Predicate<PlayQueueItem>> predicateCaptor;
 
-    private final TrackItem trackItem1 = ModelFixtures.trackItem();
-    private final TrackItem trackItem2 = ModelFixtures.trackItem();
+    private final TrackItem trackItem1 = TrackFixtures.trackItem();
+    private final TrackItem trackItem2 = TrackFixtures.trackItem();
     private final Urn track1Urn = trackItem1.getUrn();
     private final Urn track2Urn = trackItem2.getUrn();
     private final TrackQueueItem trackQueueItem1 = trackQueueItem(track1Urn);

@@ -10,7 +10,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.Track;
@@ -66,7 +66,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
-        final Track track = ModelFixtures.trackBuilder().build();
+        final Track track = TrackFixtures.trackBuilder().build();
         final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 
@@ -96,7 +96,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyWithAnEmptyArtistName() {
-        final Track track = ModelFixtures.trackBuilder().creatorName(Strings.EMPTY).build();
+        final Track track = TrackFixtures.trackBuilder().creatorName(Strings.EMPTY).build();
         final Urn trackUrn = track.urn();
         when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 

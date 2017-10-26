@@ -21,8 +21,6 @@ public interface TrackRecord extends ImageResource {
 
     String getWaveformUrl();
 
-    String getStreamUrl();
-
     String getPermalinkUrl();
 
     Date getCreatedAt();
@@ -43,9 +41,9 @@ public interface TrackRecord extends ImageResource {
 
     Optional<String> getMonetizationModel();
 
-    Optional<Boolean> isSubMidTier();
+    Optional<Boolean> getIsSubMidTier();
 
-    Optional<Boolean> isSubHighTier();
+    Optional<Boolean> getIsSubHighTier();
 
     boolean isSyncable();
 

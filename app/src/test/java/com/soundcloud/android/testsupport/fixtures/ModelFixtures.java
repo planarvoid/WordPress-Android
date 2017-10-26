@@ -1,5 +1,9 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static com.soundcloud.android.testsupport.TrackFixtures.apiTrack;
+import static com.soundcloud.android.testsupport.TrackFixtures.trackBuilder;
+import static com.soundcloud.android.testsupport.TrackFixtures.trackItem;
+import static com.soundcloud.android.testsupport.TrackFixtures.trackItemBuilder;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -15,7 +19,6 @@ import com.soundcloud.android.api.model.ApiPlaylistBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylistPostBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylistRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiTrackBlueprint;
 import com.soundcloud.android.api.model.ApiTrackPostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
@@ -58,6 +61,7 @@ import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -93,7 +97,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiUserBlueprint.class);
             modelFactory.registerBlueprint(PublicApiTrackBlueprint.class);
             modelFactory.registerBlueprint(RecordingBlueprint.class);
-            modelFactory.registerBlueprint(ApiTrackBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackStatsBlueprint.class);
             modelFactory.registerBlueprint(PlaybackSessionEventBlueprint.class);
@@ -133,14 +136,6 @@ public class ModelFixtures {
         return models;
     }
 
-    public static ApiTrack apiTrack() {
-        return create(ApiTrack.class);
-    }
-
-    public static List<ApiTrack> apiTracks(int count) {
-        return create(ApiTrack.class, count);
-    }
-
     public static Configuration configuration() {
         return create(Configuration.class);
     }
@@ -153,7 +148,7 @@ public class ModelFixtures {
                                         Optional.of("description"),
                                         Optional.of("http://fancy.jpg"),
                                         Optional.of("The Upload"),
-                                        new ModelCollection<>(apiTracks(1)));
+                                        new ModelCollection<>(TrackFixtures.apiTracks(1)));
     }
 
     public static ApiPlaylist apiPlaylist() {
@@ -237,7 +232,7 @@ public class ModelFixtures {
     }
 
     public static ApiLike apiTrackLike() {
-        return apiTrackLike(ModelFixtures.create(ApiTrack.class));
+        return apiTrackLike(apiTrack());
     }
 
     public static ApiLike apiTrackLike(ApiTrack apiTrack) {
@@ -253,7 +248,7 @@ public class ModelFixtures {
     }
 
     public static ApiPlayableSource apiTrackHolder() {
-        return ApiPlayableSource.create(ModelFixtures.create(ApiTrack.class), null);
+        return ApiPlayableSource.create(apiTrack(), null);
     }
 
     public static ApiPlayableSource apiPlaylistHolder() {
@@ -275,63 +270,11 @@ public class ModelFixtures {
     }
 
     public static ApiPostItem apiTrackPostItem() {
-        return new ApiPostItem(apiTrackPost(ModelFixtures.create(ApiTrack.class)), null, null, null);
+        return new ApiPostItem(apiTrackPost(apiTrack()), null, null, null);
     }
 
     public static ApiPost apiTrackPost(ApiTrack apiTrack) {
         return ApiPost.create(apiTrack.getUrn(), new Date());
-    }
-
-    public static TrackItem trackItem(ApiTrack track) {
-        return trackItem(Track.from(track));
-    }
-
-    public static TrackItem trackItem(Track track) {
-        return entityItemCreator().trackItem(track);
-    }
-
-    public static TrackItem trackItem(Track track, StreamEntity streamEntity) {
-        return entityItemCreator().trackItem(track, streamEntity);
-    }
-
-    public static TrackItem trackItem() {
-        return TrackItem.builder(track(), new OfflineProperties()).build();
-    }
-
-    public static List<TrackItem> trackItems(List<ApiTrack> apiTracks) {
-        return Lists.transform(apiTracks, ModelFixtures::trackItem);
-    }
-
-    public static TrackItem.Builder trackItemBuilder() {
-        return ModelFixtures.trackItem().toBuilder();
-    }
-
-    public static TrackItem.Builder trackItemBuilder(Urn urn) {
-        return ModelFixtures.entityItemCreator().trackItem(trackBuilder().urn(urn).build()).toBuilder();
-    }
-
-    public static TrackItem.Builder trackItemBuilder(ApiTrack apiTrack) {
-        return ModelFixtures.entityItemCreator().trackItem(trackBuilder(apiTrack).build()).toBuilder();
-    }
-
-    public static TrackItem trackItem(Urn urn) {
-        return ModelFixtures.entityItemCreator().trackItem(trackBuilder().urn(urn).build());
-    }
-
-    public static Track track() {
-        return Track.from(ModelFixtures.create(ApiTrack.class));
-    }
-
-    public static List<TrackItem> trackItems(int count) {
-        return Lists.transform(create(ApiTrack.class, count), ModelFixtures::trackItem);
-    }
-
-    public static List<Track> tracks(int count) {
-        final List<Track> result = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            result.add(Track.from(ModelFixtures.create(ApiTrack.class)));
-        }
-        return result;
     }
 
     public static List<PlaylistItem> playlistItem(int count) {
@@ -465,12 +408,12 @@ public class ModelFixtures {
     }
 
     public static ApiTrackLikeActivity apiTrackLikeActivity(Date createdAt) {
-        return apiTrackLikeActivity(create(ApiTrack.class), createdAt);
+        return apiTrackLikeActivity(apiTrack(), createdAt);
     }
 
     public static ApiTrackCommentActivity apiTrackCommentActivity(Date createdAt) {
         final ApiComment comment = apiComment(Urn.forComment(213));
-        final ApiTrack track = create(ApiTrack.class);
+        final ApiTrack track = apiTrack();
         return new ApiTrackCommentActivity(comment.getUrn().toString(), track, comment, createdAt);
     }
 
@@ -513,7 +456,7 @@ public class ModelFixtures {
     }
 
     public static ApiComment apiComment(Urn urn) {
-        return apiComment(urn, create(ApiTrack.class).getUrn(), UserFixtures.apiUser());
+        return apiComment(urn, apiTrack().getUrn(), UserFixtures.apiUser());
     }
 
     public static ApiComment apiComment(Urn commentUrn, Urn trackUrn, ApiUser byUser) {
@@ -528,36 +471,15 @@ public class ModelFixtures {
     }
 
     public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
-        final TrackItem.Builder builder = ModelFixtures.trackItemBuilder(trackUrn);
+        final TrackItem.Builder builder = trackItemBuilder(trackUrn);
         builder.offlineState(state);
         return builder.build();
     }
 
     public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
-        final TrackItem.Builder builder = ModelFixtures.trackItemBuilder(apiTrack);
+        final TrackItem.Builder builder = trackItemBuilder(apiTrack);
         builder.offlineState(state);
         return builder.build();
-    }
-
-    public static Track.Builder trackBuilder() {
-        return Track.from(create(ApiTrack.class)).toBuilder();
-    }
-
-    public static Track.Builder baseTrackBuilder() {
-        return trackBuilder().urn(Urn.forTrack(123L))
-                             .snippetDuration(10L)
-                             .fullDuration(1000L)
-                             .title("someone's favorite song")
-                             .creatorName("someone's favorite band")
-                             .creatorUrn(Urn.forUser(123L))
-                             .userLike(false)
-                             .userRepost(false)
-                             .likesCount(0)
-                             .permalinkUrl("http://soundcloud.com/artist/track_permalink");
-    }
-
-    public static Track.Builder trackBuilder(ApiTrack apiTrack) {
-        return Track.from(apiTrack).toBuilder();
     }
 
     public static Track trackWithUrnAndMonetizable(Urn currentTrackUrn, boolean monetizable) {

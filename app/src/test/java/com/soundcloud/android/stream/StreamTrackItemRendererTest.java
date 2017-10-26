@@ -15,7 +15,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -42,7 +42,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
-    private final TrackItem postedTrack = ModelFixtures.trackItem();
+    private final TrackItem postedTrack = TrackFixtures.trackItem();
     private final TrackStreamItem postedTrackStreamItem = TrackStreamItem.Companion.create(postedTrack, postedTrack.getCreatedAt(), Optional.absent());
 
     private StreamTrackItemRenderer renderer;

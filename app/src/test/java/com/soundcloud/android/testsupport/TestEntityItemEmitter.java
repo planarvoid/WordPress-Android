@@ -23,7 +23,7 @@ public class TestEntityItemEmitter implements EntityItemEmitter {
 
     @Override
     public Observable<List<TrackItem>> trackItems(List<ApiTrack> apiTracks) {
-        return Observable.just(ModelFixtures.trackItems(apiTracks));
+        return Observable.just(TrackFixtures.trackItems(apiTracks));
     }
 
     @Override

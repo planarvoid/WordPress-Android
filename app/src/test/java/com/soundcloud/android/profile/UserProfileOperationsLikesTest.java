@@ -15,6 +15,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserRepository;
@@ -59,7 +60,7 @@ public class UserProfileOperationsLikesTest {
 
     @Before
     public void setUp() {
-        apiTrack = create(ApiTrack.class);
+        apiTrack = TrackFixtures.apiTrack();
         apiPlaylist = create(ApiPlaylist.class);
         page = new ModelCollection<>(
                 asList(ApiPlayableSource.create(apiTrack, null), ApiPlayableSource.create(null, apiPlaylist)),
@@ -129,14 +130,14 @@ public class UserProfileOperationsLikesTest {
 
     private void assertAllItemsEmitted() {
         assertAllItemsEmitted(
-                ModelFixtures.trackItem(apiTrack),
+                TrackFixtures.trackItem(apiTrack),
                 ModelFixtures.playlistItem(apiPlaylist)
         );
     }
 
     private void assertAllItemsEmittedWithLike() {
         assertAllItemsEmitted(
-                ModelFixtures.trackItem(apiTrack),
+                TrackFixtures.trackItem(apiTrack),
                 ModelFixtures.playlistItem(apiPlaylist));
     }
 

@@ -15,6 +15,7 @@ import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -32,12 +33,12 @@ public abstract class PlayableFixtures {
     }
 
     public static TrackItem.Builder baseTrackBuilder() {
-        final Track track = ModelFixtures.baseTrackBuilder().build();
+        final Track track = TrackFixtures.track();
         return ModelFixtures.entityItemCreator().trackItem(track).toBuilder();
     }
 
     public static TrackItem expectedTrackForWidget() {
-        return ModelFixtures.entityItemCreator().trackItem(ModelFixtures.baseTrackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build());
+        return ModelFixtures.entityItemCreator().trackItem(TrackFixtures.trackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build());
     }
 
     public static TrackItem upsellableTrackForPlayer() {
@@ -65,7 +66,7 @@ public abstract class PlayableFixtures {
     }
 
     public static Track.Builder expectedTrackBuilderForPlayer() {
-        return ModelFixtures.baseTrackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg"))
+        return TrackFixtures.trackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg"))
                             .playCount(1)
                             .commentsCount(1)
                             .commentable(true)
@@ -86,7 +87,7 @@ public abstract class PlayableFixtures {
     }
 
     public static TrackItem expectedPrivateTrackForPlayer() {
-        final Track.Builder builder = ModelFixtures.baseTrackBuilder();
+        final Track.Builder builder = TrackFixtures.trackBuilder();
         return ModelFixtures.entityItemCreator().trackItem(builder.urn(Urn.forTrack(123L))
                                                                  .isPrivate(true)
                                                                  .title("dubstep anthem")
@@ -97,7 +98,7 @@ public abstract class PlayableFixtures {
     }
 
     public static TrackItem expectedTrackForListItem(Urn urn) {
-        final Track.Builder builder = ModelFixtures.baseTrackBuilder().urn(urn)
+        final Track.Builder builder = TrackFixtures.trackBuilder().urn(urn)
                                                    .title("Title " + urn)
                                                    .creatorName("Creator " + urn)
                                                    .permalinkUrl("http://permalink.url")
@@ -133,7 +134,7 @@ public abstract class PlayableFixtures {
     }
 
     private static TrackItem.Builder basePromotedTrack(Urn urn) {
-        final Track track = ModelFixtures.baseTrackBuilder()
+        final Track track = TrackFixtures.trackBuilder()
                                          .urn(urn)
                                          .title("Title " + urn)
                                          .creatorName("Creator " + urn)
@@ -233,7 +234,8 @@ public abstract class PlayableFixtures {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static TrackItem expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
-        final Track track = ModelFixtures.baseTrackBuilder().urn(trackUrn)
+        final Track track = TrackFixtures.trackBuilder()
+                                         .urn(trackUrn)
                                          .creatorUrn(creatorUrn)
                                          .policy(policy)
                                          .monetizationModel(MONETIZATION_MODEL)
@@ -249,11 +251,11 @@ public abstract class PlayableFixtures {
     }
 
     public static TrackItem fromApiTrack() {
-        return fromApiTrack(ModelFixtures.create(ApiTrack.class));
+        return fromApiTrack(TrackFixtures.apiTrack());
     }
 
     public static TrackItem fromApiTrackWithReposter(String reposter, Urn reposterUrn) {
-        return builderFromApiTrack(ModelFixtures.create(ApiTrack.class)).repostedProperties(RepostedProperties.create(reposter, reposterUrn)).build();
+        return builderFromApiTrack(TrackFixtures.apiTrack()).repostedProperties(RepostedProperties.create(reposter, reposterUrn)).build();
     }
 
     public static TrackItem fromApiTrack(ApiTrack apiTrack) {
@@ -291,7 +293,7 @@ public abstract class PlayableFixtures {
     }
 
     public static StreamEntity timelineItem(Date createdAt) {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final Urn urn = apiTrack.getUrn();
         return StreamEntity.builder(urn, createdAt).build();
     }
@@ -345,7 +347,7 @@ public abstract class PlayableFixtures {
     }
 
     public static Track.Builder highTierTrackBuilder() {
-        return ModelFixtures.trackBuilder().subHighTier(true);
+        return TrackFixtures.trackBuilder().subHighTier(true);
     }
 
     public static TrackItem upsellableTrack() {

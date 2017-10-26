@@ -20,7 +20,7 @@ import com.soundcloud.android.configuration.experiments.LocalizedAutocompletions
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -206,7 +206,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     @NonNull
     private List<SearchSuggestion> getLocalSuggestions() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         return newArrayList(DatabaseSearchSuggestion.create(apiTrack.getUrn(), SEARCH_QUERY, apiTrack.getImageUrlTemplate(), false, DatabaseSearchSuggestion.Kind.Like));
     }
 

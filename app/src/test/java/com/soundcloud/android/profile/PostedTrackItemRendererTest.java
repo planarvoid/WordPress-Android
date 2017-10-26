@@ -15,7 +15,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemView;
@@ -55,7 +55,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        track = ModelFixtures.trackBuilder()
+        track = TrackFixtures.trackBuilder()
                              .title("title")
                              .creatorName("creator")
                              .snippetDuration(227000L)
@@ -63,7 +63,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                              .snipped(true)
                              .urn(Urn.forTrack(123))
                              .playCount(870).build();
-        trackItem = ModelFixtures.trackItem(track);
+        trackItem = TrackFixtures.trackItem(track);
 
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getResources()).thenReturn(resources());
@@ -88,7 +88,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindReposterIfAny() {
         final String reposter = "reposter";
-        final TrackItem reposterTrack = ModelFixtures.trackItem(track,
+        final TrackItem reposterTrack = TrackFixtures.trackItem(track,
                                                                 StreamEntity.builder(track.urn(), new Date())
                                                                             .repostedProperties(RepostedProperties.create(reposter, Urn.NOT_SET))
                                                                             .build());

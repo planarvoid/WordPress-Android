@@ -19,6 +19,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -271,7 +272,7 @@ public class LikesSyncerTest {
     public void shouldResolveNewlyLikedResourceUrnsToFullResourcesAndStoreThemLocally() throws Exception {
         withLocalTrackLikes();
         withRemoteTrackLikes(trackLike);
-        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<ApiTrack> tracks = TrackFixtures.apiTracks(2);
         when(fetchLikedResources.call()).thenReturn(tracks);
 
         assertThat(syncer.call()).isTrue();

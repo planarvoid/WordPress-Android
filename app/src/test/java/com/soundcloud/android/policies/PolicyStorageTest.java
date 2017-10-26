@@ -5,7 +5,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class PolicyStorageTest extends StorageIntegrationTest {
         storage = new PolicyStorage(propeller());
 
         final ApiTrack blockedTrack = testFixtures().insertBlockedTrack();
-        final ApiTrack uninsertedTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack uninsertedTrack = TrackFixtures.apiTrack();
 
         Map<Urn, Boolean> blockedStatuses = storage.loadBlockedStatuses(
                 Arrays.asList(blockedTrack.getUrn(), uninsertedTrack.getUrn())

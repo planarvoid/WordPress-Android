@@ -12,17 +12,17 @@ object UserFixtures {
 
     private var runningUserId = 1L
 
-    val VISUAL_URL_TEMPLATE = "https://i1.sndcdn.com/visuals-${runningUserId}-{size}.jpg"
-    val AVATAR_URL_TEMPLATE = "https://i1.sndcdn.com/avatars-${runningUserId}-{size}.jpg"
-    val FOLLOWERS_COUNT = 100
-    val FOLLOWINGS_COUNT = 200
-    val CREATED_AT = Date(1476342997)
-    val FIRST_NAME = "sound"
-    val LAST_NAME = "cloud"
-    val COUNTRY = "Country"
-    val COUNTRY_CODE = "CountryCode"
-    val CITY = "City"
-    val TRACK_COUNT = 3
+    @JvmField val VISUAL_URL_TEMPLATE = "https://i1.sndcdn.com/visuals-${runningUserId}-{size}.jpg"
+    @JvmField val AVATAR_URL_TEMPLATE = "https://i1.sndcdn.com/avatars-${runningUserId}-{size}.jpg"
+    @JvmField val FOLLOWERS_COUNT = 100
+    @JvmField val FOLLOWINGS_COUNT = 200
+    @JvmField val CREATED_AT = Date(1476342997)
+    @JvmField val FIRST_NAME = "sound"
+    @JvmField val LAST_NAME = "cloud"
+    @JvmField val COUNTRY = "Country"
+    @JvmField val COUNTRY_CODE = "CountryCode"
+    @JvmField val CITY = "City"
+    @JvmField val TRACK_COUNT = 3
 
     private val nextUserUrn: Urn get() = Urn.forUser(runningUserId++)
 

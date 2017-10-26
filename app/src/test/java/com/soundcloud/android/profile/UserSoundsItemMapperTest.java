@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class UserSoundsItemMapperTest {
     @Test
     public void shouldMapEntityHolder() throws Exception {
         final UserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
-        final TrackItem trackPost = ModelFixtures.trackItem();
+        final TrackItem trackPost = TrackFixtures.trackItem();
         final PlaylistItem playlistPost = ModelFixtures.playlistItem();
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
@@ -78,7 +79,7 @@ public class UserSoundsItemMapperTest {
     @Test
     public void shouldMapEntityHolderWithNextLink() throws Exception {
         final UserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
-        final TrackItem trackItem = ModelFixtures.trackItem();
+        final TrackItem trackItem = TrackFixtures.trackItem();
         final Map<String, Link> links = new HashMap<>();
         links.put(ModelCollection.NEXT_LINK_REL, new Link("some://link"));
 

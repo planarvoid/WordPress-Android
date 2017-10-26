@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -183,7 +184,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     private List<SearchPremiumItem> buildSearchPremiumItemWithManyResults(int itemCount) {
         final List<ListItem> searchableItems = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
-            searchableItems.add(ModelFixtures.trackItem(Urn.forTrack(i)));
+            searchableItems.add(TrackFixtures.trackItem(Urn.forTrack(i)));
         }
         return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.absent(), itemCount));
     }
@@ -192,7 +193,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         final List<ListItem> searchableItems = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
             if (urn.isTrack()) {
-                searchableItems.add(ModelFixtures.trackItem(urn));
+                searchableItems.add(TrackFixtures.trackItem(urn));
             } else if (urn.isPlaylist()) {
                 searchableItems.add(ModelFixtures.playlistItem(urn));
             } else if (urn.isUser()) {

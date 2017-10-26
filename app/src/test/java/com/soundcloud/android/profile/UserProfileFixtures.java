@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -64,12 +65,12 @@ public class UserProfileFixtures {
         }
 
         Builder populateAllCollections() {
-            spotlight = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
-            tracks = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
+            spotlight = new ModelCollection<>(singletonList(TrackFixtures.trackItem()));
+            tracks = new ModelCollection<>(singletonList(TrackFixtures.trackItem()));
             albums = new ModelCollection<>(singletonList(ModelFixtures.playlistItem(create(ApiPlaylist.class))));
             playlists = new ModelCollection<>(singletonList(ModelFixtures.playlistItem(create(ApiPlaylist.class))));
-            reposts = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
-            likes = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
+            reposts = new ModelCollection<>(singletonList(TrackFixtures.trackItem()));
+            likes = new ModelCollection<>(singletonList(TrackFixtures.trackItem()));
 
             return this;
         }

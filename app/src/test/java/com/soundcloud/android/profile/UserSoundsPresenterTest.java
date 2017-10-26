@@ -32,6 +32,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -169,7 +170,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldDelegateClickEventsToClickListener() {
-        final TrackItem trackItem = ModelFixtures.trackItem();
+        final TrackItem trackItem = TrackFixtures.trackItem();
         final UserSoundsItem userSoundsItem = fromTrackItem(Urn.NOT_SET, trackItem, TRACKS);
 
         when(adapter.getItem(0)).thenReturn(userSoundsItem);

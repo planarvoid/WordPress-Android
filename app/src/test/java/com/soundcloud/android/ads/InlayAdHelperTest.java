@@ -18,7 +18,7 @@ import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.TrackStreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -56,7 +56,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private static final StreamItem VIDEO_AD_ITEM = new StreamItem.Video(VIDEO_AD);
     private static final StreamItem APP_INSTALL_ITEM = new StreamItem.AppInstall(APP_INSTALL);
     private static final StreamItem GO_UPSELL_ITEM = StreamItem.Upsell.INSTANCE;
-    private static final StreamItem TRACK_ITEM = new TrackStreamItem(ModelFixtures.trackItem(), false, new Date(), Optional.absent());
+    private static final StreamItem TRACK_ITEM = new TrackStreamItem(TrackFixtures.trackItem(), false, new Date(), Optional.absent());
 
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock StreamAdapter adapter;

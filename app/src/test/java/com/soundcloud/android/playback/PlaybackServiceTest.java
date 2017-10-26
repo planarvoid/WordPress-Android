@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.mediasession.MediaSessionController;
 import com.soundcloud.android.playback.mediasession.MediaSessionControllerFactory;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -47,7 +47,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     private static final Track UPSELLABLE_TRACK = PlayableFixtures.upsellableTrackBuilder().build();
 
     private PlaybackService playbackService;
-    private PlaybackItem playbackItem = AudioPlaybackItem.create(ModelFixtures.track(), START_POSITION);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(TrackFixtures.track(), START_POSITION);
     private PlaybackItem snippetPlaybackItem = AudioPlaybackItem.forSnippet(UPSELLABLE_TRACK, START_POSITION);
     private Urn track = playbackItem.getUrn();
     private TestEventBus eventBus = new TestEventBus();

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -22,6 +21,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -273,10 +273,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem postedTrack() {
-        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setCreatedAt(ITEM_CREATED_AT);
-
-        return ModelFixtures.trackItem(track);
+        return TrackFixtures.trackItem(TrackFixtures.apiTrackBuilder().createdAt(ITEM_CREATED_AT).build());
     }
 
     private TrackItem repostedTrack() {
@@ -284,11 +281,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem upsellableTrack() {
-        return ModelFixtures.trackItem(PlayableFixtures.upsellableTrackBuilder().createdAt(ITEM_CREATED_AT).build());
+        return TrackFixtures.trackItem(PlayableFixtures.upsellableTrackBuilder().createdAt(ITEM_CREATED_AT).build());
     }
 
     private TrackItem highTierTrack() {
-        return ModelFixtures.trackItem(PlayableFixtures.highTierTrackBuilder().createdAt(ITEM_CREATED_AT).build());
+        return TrackFixtures.trackItem(PlayableFixtures.highTierTrackBuilder().createdAt(ITEM_CREATED_AT).build());
     }
 
     private String repostedString() {

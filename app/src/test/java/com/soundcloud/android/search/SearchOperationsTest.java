@@ -31,6 +31,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -87,7 +88,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         subscriber = new TestSubscriber<>();
-        track = ModelFixtures.create(ApiTrack.class);
+        track = TrackFixtures.apiTrack();
         playlist = ModelFixtures.create(ApiPlaylist.class);
         user = UserFixtures.apiUser();
 
@@ -297,8 +298,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCacheTrackSearchResult() {
-        final SearchModelCollection<ApiTrack> tracks = new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class,
-                                                                                                        2));
+        final SearchModelCollection<ApiTrack> tracks = new SearchModelCollection<>(TrackFixtures.apiTracks(2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(tracks));
 
@@ -309,7 +309,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCachePremiumTracksSearchResult() {
-        final List<ApiTrack> apiTracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<ApiTrack> apiTracks = TrackFixtures.apiTracks(2);
         final SearchModelCollection<ApiTrack> premiumTracks = new SearchModelCollection<>(apiTracks);
         final SearchModelCollection<ApiTrack> tracks = new SearchModelCollection<>(apiTracks,
                                                                                    Collections.emptyMap(),
@@ -709,8 +709,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldNotBeIncludedInPaginatedContentWhenAbsent() {
-        final TrackItem trackOne = ModelFixtures.trackItem(TRACK_ONE_URN);
-        final TrackItem trackTwo = ModelFixtures.trackItem(TRACK_TWO_URN);
+        final TrackItem trackOne = TrackFixtures.trackItem(TRACK_ONE_URN);
+        final TrackItem trackTwo = TrackFixtures.trackItem(TRACK_TWO_URN);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);
@@ -723,10 +723,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldBeIncludedInPaginatedContent() {
-        final TrackItem premiumTrack = ModelFixtures.trackItem(PREMIUM_TRACK_URN);
+        final TrackItem premiumTrack = TrackFixtures.trackItem(PREMIUM_TRACK_URN);
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(singletonList(premiumTrack),
                                                                                   Optional.absent(), Urn.NOT_SET);
-        final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(ModelFixtures.trackItem(track)),
+        final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(TrackFixtures.trackItem(track)),
                                                                            Optional.absent(),
                                                                            Optional.absent(),
                                                                            Optional.of(premiumSearchResult),
@@ -741,8 +741,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void contentUpsellUrnShouldNotBeIncludedInPaginatedContent() {
         final UpsellSearchableItem upsellItem = UpsellSearchableItem.forUpsell();
-        final TrackItem trackOne = ModelFixtures.trackItem(TRACK_ONE_URN);
-        final TrackItem trackTwo = ModelFixtures.trackItem(TRACK_TWO_URN);
+        final TrackItem trackOne = TrackFixtures.trackItem(TRACK_ONE_URN);
+        final TrackItem trackTwo = TrackFixtures.trackItem(TRACK_TWO_URN);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(upsellItem, trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);

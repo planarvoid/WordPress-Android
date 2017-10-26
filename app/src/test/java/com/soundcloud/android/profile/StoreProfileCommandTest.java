@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
@@ -10,6 +9,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTheUsersTracks() {
-        final ApiTrackPost trackPost = new ApiTrackPost(ModelFixtures.create(ApiTrack.class));
+        final ApiTrackPost trackPost = new ApiTrackPost(TrackFixtures.apiTrack());
         final ModelCollection<ApiTrackPost> tracks = new ModelCollection<>(Collections.singletonList(trackPost));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().tracks(tracks).build();
 

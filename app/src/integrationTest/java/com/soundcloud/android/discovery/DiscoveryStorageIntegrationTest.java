@@ -11,6 +11,7 @@ import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.java.optional.Optional;
 import org.junit.After;
 import org.junit.Test;
@@ -76,7 +77,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
                                                                      Optional.of("updated description"),
                                                                      playlist.artworkUrlTemplate(),
                                                                      playlist.trackingFeatureName(),
-                                                                     new ModelCollection<>(Collections.singletonList(new ApiTrack(Urn.forTrack(456L)))));
+                                                                     new ModelCollection<>(Collections.singletonList(TrackFixtures.apiTrack(Urn.forTrack(456L)))));
         discoveryWritableStorage.storeSystemPlaylist(playlist);
         discoveryWritableStorage.storeSystemPlaylist(updatedPlaylist);
         final SystemPlaylistEntity systemPlaylistEntity = discoveryReadableStorage.systemPlaylistEntity(playlist.urn()).test().assertValueCount(1).values().get(0);

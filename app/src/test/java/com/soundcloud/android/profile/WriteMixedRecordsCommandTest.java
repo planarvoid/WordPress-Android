@@ -12,6 +12,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.ApiEntityHolder;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.InsertResult;
@@ -42,7 +43,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void writesTracksSuccessfully() {
-        final List<ApiTrack> apiTracks = Arrays.asList(ModelFixtures.create(ApiTrack.class));
+        final List<ApiTrack> apiTracks = Arrays.asList(TrackFixtures.apiTrack());
         when(storeTracksCommand.call(apiTracks)).thenReturn(new InsertResult(1));
 
         assertThat(command.call(new ModelCollection<>(apiTracks))).isTrue();
@@ -73,7 +74,7 @@ public class WriteMixedRecordsCommandTest {
     @Test
     public void writesMixedCollectionSuccessfully() {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiUser apiUser = UserFixtures.apiUser();
         final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);
 
@@ -90,7 +91,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void returnsFalseIftrackFailsToWrite() {
-        final List<ApiTrack> apiTracks = Arrays.asList(ModelFixtures.create(ApiTrack.class));
+        final List<ApiTrack> apiTracks = Arrays.asList(TrackFixtures.apiTrack());
         when(storeTracksCommand.call(apiTracks)).thenReturn(unsuccessfulResult);
 
         assertThat(command.call(new ModelCollection<>(apiTracks))).isFalse();
@@ -115,7 +116,7 @@ public class WriteMixedRecordsCommandTest {
     @Test
     public void returnsFalseIfMixedCollectionFailsToWriteOneType() {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiUser apiUser = UserFixtures.apiUser();
         final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);
 

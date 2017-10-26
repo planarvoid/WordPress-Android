@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
@@ -111,7 +112,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
-        final TrackItem apiTrack = ModelFixtures.trackItem();
+        final TrackItem apiTrack = TrackFixtures.trackItem();
         searchResult = SearchResult.fromSearchableItems(Collections.singletonList(apiTrack), Optional.absent(),
                                                         Optional.absent());
         when(searchOperations.searchResult(QUERY,

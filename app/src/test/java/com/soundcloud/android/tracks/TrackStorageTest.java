@@ -7,7 +7,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
@@ -40,8 +40,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsTrackWithHiddenStats() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setDisplayStatsEnabled(false);
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().displayStatsEnabled(false).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -51,8 +50,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsTrackWithVisibleStats() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setDisplayStatsEnabled(true);
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().displayStatsEnabled(true).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -62,8 +60,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsTrackWithSecretToken() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setSecretToken(Optional.of("secret_token"));
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().secretToken(Optional.of("secret_token")).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -73,8 +70,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsTrackMissingSecretToken() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setSecretToken(Optional.absent());
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().secretToken(Optional.absent()).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -84,8 +80,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsBlockedTrack() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setBlocked(true);
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().blocked(true).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -95,10 +90,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsSnippedTrack() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setSnipped(true);
-        apiTrack.setSyncable(false);
-        apiTrack.setGenre(null);
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().snipped(true).syncable(false).genre(null).build();
         testFixtures().insertTrack(apiTrack);
 
         Track track = storage.loadTrack(apiTrack.getUrn()).blockingGet();
@@ -108,8 +100,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void doesntCrashOnNullWaveforms() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setWaveformUrl(null);
+        final ApiTrack apiTrack = TrackFixtures.apiTrackBuilder().waveformUrl(null).build();
         testFixtures().insertTrack(apiTrack);
 
         storage.loadTrack(apiTrack.getUrn());

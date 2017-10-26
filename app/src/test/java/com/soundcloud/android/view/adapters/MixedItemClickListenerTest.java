@@ -34,6 +34,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -90,8 +91,8 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnTrackStartsPlaybackWithJustTracks() {
-        final TrackItem track1 = ModelFixtures.trackItem();
-        final TrackItem track2 = ModelFixtures.trackItem();
+        final TrackItem track1 = TrackFixtures.trackItem();
+        final TrackItem track2 = TrackFixtures.trackItem();
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.playlistItem(),
                 track1,
@@ -139,9 +140,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.playlistItem(),
-                ModelFixtures.trackItem(),
+                TrackFixtures.trackItem(),
                 playlistItem,
-                ModelFixtures.trackItem(),
+                TrackFixtures.trackItem(),
                 UserFixtures.userItem()
         );
 
@@ -201,10 +202,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final UserItem userItem = UserFixtures.userItem();
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.playlistItem(),
-                ModelFixtures.trackItem(),
+                TrackFixtures.trackItem(),
                 userItem,
                 ModelFixtures.playlistItem(),
-                ModelFixtures.trackItem()
+                TrackFixtures.trackItem()
         );
 
         listener.onItemClick(items, activity, 2);
@@ -217,7 +218,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
-        final TrackItem track1 = ModelFixtures.trackItem();
+        final TrackItem track1 = TrackFixtures.trackItem();
         final Observable<List<Urn>> tracklist = Observable.just(Collections.emptyList());
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playTracks(any(Single.class),
@@ -269,7 +270,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
-        final TrackItem track1 = ModelFixtures.trackItem();
+        final TrackItem track1 = TrackFixtures.trackItem();
         final Observable<List<PlayableWithReposter>> tracklist = Observable.just(Collections.emptyList());
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playPosts(any(Single.class),

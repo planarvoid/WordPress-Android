@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.events.LikesStatusEvent
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -29,7 +30,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayPlayCountReturnsTrueWhenPlayCountIsGreaterThanZero() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .playCount(1)
                                                         .build())
 
@@ -40,7 +41,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayPlayCountReturnsFalseWhenPlayCountIsZero() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .playCount(0)
                                                         .build())
 
@@ -51,7 +52,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayPlayCountReturnsFalseWhenDisplayStatsIsDisabled() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .playCount(1)
                                                         .creatorUrn(anotherUserUrn)
                                                         .displayStatsEnabled(false)
@@ -64,7 +65,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayPlayCountReturnsTrueWhenDisplayStatsIsDisabledButTrackIsOwnedByCurrentLoggedUser() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .playCount(1)
                                                         .creatorUrn(loggedInUserUrn)
                                                         .displayStatsEnabled(false)
@@ -77,7 +78,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayCommentsCountReturnsTrueWhenDisplayStatsIsDisabledButTrackIsOwnedByCurrentLoggedUser() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .commentsCount(1)
                                                         .commentable(true)
                                                         .creatorUrn(loggedInUserUrn)
@@ -91,7 +92,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayCommentsCountReturnsFalseWhenDisplayStatsIsDisabled() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .commentsCount(1)
                                                         .commentable(true)
                                                         .creatorUrn(anotherUserUrn)
@@ -105,7 +106,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayCommentsCountReturnsFalseWhenTrackIsNotCommentable() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .commentsCount(1)
                                                         .commentable(false)
                                                         .creatorUrn(anotherUserUrn)
@@ -129,7 +130,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayLikesCountReturnsFalseWhenDisplayStatusIsDisabled() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .likesCount(10)
                                                         .creatorUrn(anotherUserUrn)
                                                         .displayStatsEnabled(false)
@@ -142,7 +143,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayLikesCountReturnsTrueWhenDisplayStatusIsDisabledButTrackIsOwnedByCurrentLoggedUser() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .likesCount(10)
                                                         .creatorUrn(loggedInUserUrn)
                                                         .displayStatsEnabled(false)
@@ -155,7 +156,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayRepostsCountReturnsFalseWhenDisplayStatusIsDisabled() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .repostsCount(10)
                                                         .creatorUrn(anotherUserUrn)
                                                         .displayStatsEnabled(false)
@@ -168,7 +169,7 @@ class TrackStatsDisplayPolicyTest {
 
     @Test
     fun displayRepostsCountReturnsTrueWhenDisplayStatusIsDisabledButTrackIsOwnedByCurrentLoggedUser() {
-        val trackItem = ModelFixtures.trackItem(ModelFixtures.baseTrackBuilder()
+        val trackItem = TrackFixtures.trackItem(TrackFixtures.trackBuilder()
                                                         .repostsCount(10)
                                                         .creatorUrn(loggedInUserUrn)
                                                         .displayStatsEnabled(false)

@@ -8,7 +8,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class PlayHistorySyncerTest {
     @Test
     public void shouldPreloadNewPlayHistory() throws Exception {
         List<Urn> trackUrns = singletonList(MISSING.trackUrn());
-        List<ApiTrack> tracks = singletonList(ModelFixtures.create(ApiTrack.class));
+        List<ApiTrack> tracks = singletonList(TrackFixtures.apiTrack());
         when(fetchTracksCommand.call()).thenReturn(tracks);
 
         syncer.call();

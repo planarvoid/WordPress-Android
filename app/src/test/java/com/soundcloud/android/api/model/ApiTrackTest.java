@@ -2,34 +2,16 @@ package com.soundcloud.android.api.model;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
 public class ApiTrackTest {
 
     @Test
-    public void shouldDefineEqualityBasedOnUrn() {
-        ApiTrack apiTrack1 = ModelFixtures.create(ApiTrack.class);
-        ApiTrack apiTrack2 = ModelFixtures.create(ApiTrack.class);
-        apiTrack2.setUrn(apiTrack1.getUrn());
-
-        assertThat(apiTrack1).isEqualTo(apiTrack2);
-    }
-
-    @Test
-    public void shouldDefineHashCodeBasedOnUrn() {
-        ApiTrack apiTrack1 = ModelFixtures.create(ApiTrack.class);
-        ApiTrack apiTrack2 = ModelFixtures.create(ApiTrack.class);
-        apiTrack2.setUrn(apiTrack1.getUrn());
-
-        assertThat(apiTrack1.hashCode()).isEqualTo(apiTrack2.hashCode());
-    }
-
-    @Test
     public void shouldConvertToTrackItem() {
-        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        TrackItem trackItem = ModelFixtures.trackItem(apiTrack);
+        ApiTrack apiTrack = TrackFixtures.apiTrack();
+        TrackItem trackItem = TrackFixtures.trackItem(apiTrack);
 
         assertThat(trackItem.getUrn()).isEqualTo(apiTrack.getUrn());
         assertThat(trackItem.title()).isEqualTo(apiTrack.getTitle());
@@ -44,8 +26,8 @@ public class ApiTrackTest {
         assertThat(trackItem.commentsCount()).isEqualTo(apiTrack.getStats().getCommentsCount());
         assertThat(trackItem.likesCount()).isEqualTo(apiTrack.getStats().getLikesCount());
         assertThat(trackItem.repostsCount()).isEqualTo(apiTrack.getStats().getRepostsCount());
-        assertThat(trackItem.isSubMidTier()).isEqualTo(apiTrack.isSubMidTier().get());
-        assertThat(trackItem.isSubHighTier()).isEqualTo(apiTrack.isSubHighTier().get());
+        assertThat(trackItem.isSubMidTier()).isEqualTo(apiTrack.getIsSubMidTier().get());
+        assertThat(trackItem.isSubHighTier()).isEqualTo(apiTrack.getIsSubHighTier().get());
         assertThat(trackItem.monetizationModel()).isEqualTo(apiTrack.getMonetizationModel().get());
         assertThat(trackItem.getImageUrlTemplate()).isEqualTo(apiTrack.getImageUrlTemplate());
         assertThat(trackItem.creatorName()).isEqualTo(apiTrack.getUserName());

@@ -25,7 +25,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -81,7 +81,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          connectionHelper,
                                          trackStatsDisplayPolicy);
 
-        trackBuilder = ModelFixtures.baseTrackBuilder()
+        trackBuilder = TrackFixtures.trackBuilder()
                                     .urn(Urn.forTrack(123))
                                     .title("title")
                                     .creatorName("creator")
@@ -98,7 +98,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                     .playCount(870);
 
         trackItemBuilder = TrackItem.builder(trackBuilder.build(), new OfflineProperties());
-        trackItem = ModelFixtures.trackItem(trackBuilder.build());
+        trackItem = TrackFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
         when(trackItemView.getImage()).thenReturn(imageView);
@@ -120,7 +120,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindDurationToViewAndHideOtherLabelsIfTrackIsNeitherSnippedNorPrivate() {
-        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.snipped(false).isPrivate(false).build());
+        final TrackItem updatedTrackItem = TrackFixtures.trackItem(trackBuilder.snipped(false).isPrivate(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -159,7 +159,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrivateLabelAndHideOtherLabelsIfTrackIsPrivate() {
-        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.isPrivate(true).build());
+        final TrackItem updatedTrackItem = TrackFixtures.trackItem(trackBuilder.isPrivate(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -269,7 +269,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackGeoBlockedLabel() {
-        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).build());
+        final TrackItem updatedTrackItem = TrackFixtures.trackItem(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).showGeoBlocked();
@@ -330,7 +330,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisableClicksForBlockedTracks() {
-        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).build());
+        final TrackItem updatedTrackItem = TrackFixtures.trackItem(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(false);
@@ -338,7 +338,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldEnableClicksForNonBlockedTracks() {
-        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(false).build());
+        final TrackItem updatedTrackItem = TrackFixtures.trackItem(trackBuilder.blocked(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);

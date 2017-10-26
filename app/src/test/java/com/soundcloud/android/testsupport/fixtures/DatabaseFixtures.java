@@ -26,8 +26,10 @@ import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -48,21 +50,19 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         insertTrack(track);
         return track;
     }
 
     public ApiTrack insertTrack(Urn urn) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setUrn(urn);
+        ApiTrack track = TrackFixtures.apiTrack(urn);
         insertTrack(track);
         return track;
     }
 
     public ApiTrack insertBlockedTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setBlocked(true);
+        ApiTrack track = TrackFixtures.apiTrackBuilder().blocked(true).build();
         insertTrack(track);
         return track;
     }
@@ -78,7 +78,6 @@ public class DatabaseFixtures {
         cv.put(Tables.Sounds.FULL_DURATION, track.getFullDuration());
         cv.put(Tables.Sounds.WAVEFORM_URL, track.getWaveformUrl());
         cv.put(Tables.Sounds.ARTWORK_URL, track.getImageUrlTemplate().orNull());
-        cv.put(Tables.Sounds.STREAM_URL, track.getStreamUrl());
         cv.put(Tables.Sounds.COMMENTABLE, track.isCommentable());
         cv.put(Tables.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(Tables.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount());
@@ -99,7 +98,7 @@ public class DatabaseFixtures {
     public List<Urn> insertTracks(int count) {
         List<Urn> trackUrns = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+            final ApiTrack apiTrack = TrackFixtures.apiTrack();
             insertTrack(apiTrack);
             trackUrns.add(apiTrack.getUrn());
         }
@@ -150,8 +149,8 @@ public class DatabaseFixtures {
         cv.put(Tables.TrackPolicies.BLOCKED, track.isBlocked());
         cv.put(Tables.TrackPolicies.SNIPPED, track.isSnipped());
         cv.put(Tables.TrackPolicies.SYNCABLE, track.isSyncable());
-        cv.put(Tables.TrackPolicies.SUB_HIGH_TIER, track.isSubHighTier().get());
-        cv.put(Tables.TrackPolicies.SUB_MID_TIER, track.isSubMidTier().get());
+        cv.put(Tables.TrackPolicies.SUB_HIGH_TIER, track.getIsSubHighTier().get());
+        cv.put(Tables.TrackPolicies.SUB_MID_TIER, track.getIsSubMidTier().get());
         cv.put(Tables.TrackPolicies.MONETIZATION_MODEL, track.getMonetizationModel().get());
         cv.put(Tables.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
@@ -229,14 +228,14 @@ public class DatabaseFixtures {
         cv.put(Tables.TrackPolicies.SYNCABLE, false);
         insertInto(Tables.TrackPolicies.TABLE, cv.get());
 
-        apiTrack.setPolicy("SNIP");
-        apiTrack.setMonetizable(true);
-        apiTrack.setMonetizationModel("SUB_HIGH_TIER");
-        apiTrack.setSubMidTier(false);
-        apiTrack.setSubHighTier(true);
-        apiTrack.setSyncable(false);
-
-        return apiTrack;
+        return apiTrack.toBuilder()
+                       .policy("SNIP")
+                       .monetizable(true)
+                       .monetizationModel(Optional.of("SUB_HIGH_TIER"))
+                       .isSubHighTier(Optional.of(false))
+                       .isSubMidTier(Optional.of(true))
+                       .syncable(false)
+                       .build();
     }
 
     public void clearTrackPolicy(ApiTrack apiTrack) {
@@ -290,9 +289,10 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertTrackWithCreationDate(ApiUser user, Date createdAtDate) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setCreatedAt(createdAtDate);
-        track.setUser(user);
+        ApiTrack track = TrackFixtures.apiTrackBuilder()
+                                      .createdAt(createdAtDate)
+                                      .user(user)
+                                      .build();
         insertTrack(track);
         return track;
     }
@@ -511,7 +511,7 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertLikedTrack(Date likedDate) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         return insertLikedTrack(likedDate, track);
     }
 
@@ -533,7 +533,7 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertLikedTrackPendingRemoval(Date likedDate, Date unlikedDate) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         insertLikedTrack(likedDate, track);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
                                  + " WHERE _id=" + track.getUrn().getNumericId()
@@ -542,7 +542,7 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertLikedTrackPendingAddition(Date likedDate) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         insertLikedTrack(likedDate, track);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
                                  + " WHERE _id=" + track.getUrn().getNumericId()

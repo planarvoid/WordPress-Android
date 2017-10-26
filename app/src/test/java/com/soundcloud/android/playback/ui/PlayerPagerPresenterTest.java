@@ -43,7 +43,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector.SwipeDirection;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackItem;
@@ -167,13 +167,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.setCurrentPlayQueue(playQueue, 0);
 
 
-        track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build());
+        track = TrackFixtures.trackItem(TrackFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build());
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Maybe.just(
-                ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build())));
+                TrackFixtures.trackItem(TrackFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build())));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Maybe.just(
-                ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build())));
+                TrackFixtures.trackItem(TrackFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build())));
     }
 
     @Test

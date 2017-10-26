@@ -6,10 +6,11 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,19 +38,19 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
-        databaseAssertions().assertLikesCount(targetUrn, 34);
+        databaseAssertions().assertLikesCount(targetUrn, TrackFixtures.LIKE_COUNT);
 
         final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
 
-        assertThat(newLikesCount).isEqualTo(35);
-        databaseAssertions().assertLikesCount(targetUrn, 35);
+        assertThat(newLikesCount).isEqualTo(TrackFixtures.LIKE_COUNT + 1);
+        databaseAssertions().assertLikesCount(targetUrn, TrackFixtures.LIKE_COUNT + 1);
     }
 
     @Test
     public void doesNotUpdatesUnknownLikesCountInSoundsWhenLiked() throws Exception {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.getStats().setLikesCount(Consts.NOT_SET);
-        testFixtures().insertTrack(track);
+        ApiTrack track = TrackFixtures.apiTrack();
+        ApiTrackStats updatedStats = track.getStats().toBuilder().likesCount(Consts.NOT_SET).build();
+        testFixtures().insertTrack(track.toBuilder().stats(updatedStats).build());
         targetUrn = track.getUrn();
 
         databaseAssertions().assertLikesCount(targetUrn, -1);

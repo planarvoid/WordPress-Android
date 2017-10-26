@@ -58,6 +58,7 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
@@ -106,12 +107,12 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
-    private final Track track1 = ModelFixtures.track();
-    private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
-    private final Track track2 = ModelFixtures.track();
-    private final TrackItem trackItem2 = ModelFixtures.trackItem(track2);
-    private final Track track3 = ModelFixtures.track();
-    private final TrackItem trackItem3 = ModelFixtures.trackItem(track3);
+    private final Track track1 = TrackFixtures.track();
+    private final TrackItem trackItem1 = TrackFixtures.trackItem(track1);
+    private final Track track2 = TrackFixtures.track();
+    private final TrackItem trackItem2 = TrackFixtures.trackItem(track2);
+    private final Track track3 = TrackFixtures.track();
+    private final TrackItem trackItem3 = TrackFixtures.trackItem(track3);
 
     private final List<TrackItem> trackItems = asList(trackItem1, trackItem2);
     private final List<TrackItem> updatedTrackItems = asList(trackItem1, trackItem2, trackItem3);

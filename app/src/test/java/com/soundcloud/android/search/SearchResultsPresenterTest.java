@@ -28,7 +28,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
@@ -90,7 +90,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         setupFragmentArguments(true, SEARCH_TAB, false);
-        final List<ListItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
+        final List<ListItem> trackItems = Collections.singletonList(TrackFixtures.trackItem(TRACK_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
                                                                            Optional.absent(),
                                                                            Optional.of(QUERY_URN), RESULT_COUNT);
@@ -233,8 +233,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupAdapterWithPremiumContent();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        final ListItem premiumTrackItemOne = ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE);
-        final ListItem premiumTrackItemTwo = ModelFixtures.trackItem(PREMIUM_TRACK_URN_TWO);
+        final ListItem premiumTrackItemOne = TrackFixtures.trackItem(PREMIUM_TRACK_URN_ONE);
+        final ListItem premiumTrackItemTwo = TrackFixtures.trackItem(PREMIUM_TRACK_URN_TWO);
         final List<ListItem> premiumItems = Arrays.asList(premiumTrackItemOne, premiumTrackItemTwo);
 
         presenter.onBuildBinding(bundle);
@@ -320,7 +320,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     private List<ListItem> setupAdapter() {
-        final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
+        final TrackItem trackItem = TrackFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Collections.singletonList(trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
@@ -343,10 +343,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                performanceMetricsEngine);
 
 
-        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE)),
+        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(TrackFixtures.trackItem(PREMIUM_TRACK_URN_ONE)),
                                                            Optional.absent(),
                                                            1);
-        final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
+        final TrackItem trackItem = TrackFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
 
         when(adapter.getItem(0)).thenReturn(premiumItem);

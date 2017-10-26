@@ -1,28 +1,50 @@
 package com.soundcloud.android.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.api.legacy.model.PlayableStats;
+import com.google.auto.value.AutoValue;
 
-public class ApiTrackStats extends PlayableStats {
+@AutoValue
+public abstract class ApiTrackStats {
 
-    private int playbackCount;
-    private int commentsCount;
+    public abstract int getPlaybackCount();
 
-    public int getPlaybackCount() {
-        return playbackCount;
+    public abstract int getCommentsCount();
+
+    public abstract int getRepostsCount();
+
+    public abstract int getLikesCount();
+
+    @JsonCreator
+    public static ApiTrackStats create(
+            @JsonProperty("playback_count") int newPlaybackCount,
+            @JsonProperty("comments_count") int newCommentsCount,
+            @JsonProperty("reposts_count") int newRepostsCount,
+            @JsonProperty("likes_count") int newLikesCount) {
+        return builder()
+                .playbackCount(newPlaybackCount)
+                .commentsCount(newCommentsCount)
+                .repostsCount(newRepostsCount)
+                .likesCount(newLikesCount)
+                .build();
     }
 
-    @JsonProperty("playback_count")
-    public void setPlaybackCount(int playbackCount) {
-        this.playbackCount = playbackCount;
+    public abstract Builder toBuilder();
+
+    public static Builder builder() {
+        return new AutoValue_ApiTrackStats.Builder();
     }
 
-    public int getCommentsCount() {
-        return commentsCount;
-    }
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder playbackCount(int newPlaybackCount);
 
-    @JsonProperty("comments_count")
-    public void setCommentsCount(int commentsCount) {
-        this.commentsCount = commentsCount;
+        public abstract Builder commentsCount(int newCommentsCount);
+
+        public abstract Builder repostsCount(int newRepostsCount);
+
+        public abstract Builder likesCount(int newLikesCount);
+
+        public abstract ApiTrackStats build();
     }
 }

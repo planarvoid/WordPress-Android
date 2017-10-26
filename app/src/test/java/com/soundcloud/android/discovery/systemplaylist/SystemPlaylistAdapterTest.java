@@ -4,7 +4,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -20,10 +20,10 @@ import java.util.List;
 public class SystemPlaylistAdapterTest extends AndroidUnitTest {
     private static final Optional<Urn> QUERY_URN = Optional.of(new Urn("my:fake:systemPlaylistUrn"));
     private static final Optional<Date> DATE = Optional.of(new TestDateProvider().getCurrentDate());
-    private static final List<Track> TRACKS = ModelFixtures.tracks(3);
-    private static final TrackItem FIRST_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(0));
-    private static final TrackItem SECOND_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(1));
-    private static final TrackItem THIRD_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(2));
+    private static final List<Track> TRACKS = TrackFixtures.tracks(3);
+    private static final TrackItem FIRST_TRACK_ITEM = TrackFixtures.trackItem(TRACKS.get(0));
+    private static final TrackItem SECOND_TRACK_ITEM = TrackFixtures.trackItem(TRACKS.get(1));
+    private static final TrackItem THIRD_TRACK_ITEM = TrackFixtures.trackItem(TRACKS.get(2));
     private static final Urn URN = Urn.forSystemPlaylist("123");
     private static final Optional<String> TITLE = Optional.of("Title");
     private static final Optional<String> DESCRIPTION = Optional.of("Description");

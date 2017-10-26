@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -60,31 +61,31 @@ public class EnrichedEntitiesTest extends AndroidUnitTest {
 
     @Test
     public void trackReemitsAfterLike() throws Exception {
-        ApiTrack apiTrack1 = ModelFixtures.apiTrack();
-        ApiTrack apiTrack2 = ModelFixtures.apiTrack();
+        ApiTrack apiTrack1 = TrackFixtures.apiTrack();
+        ApiTrack apiTrack2 = TrackFixtures.apiTrack();
 
         TestObserver<List<TrackItem>> testObserver = enrichedEntities.trackItems(asList(apiTrack1, apiTrack2)).test();
 
         likesStatusPublisher.onNext(LikedStatuses.create(singleton(apiTrack1.getUrn())));
 
         testObserver.assertValues(
-                asList(ModelFixtures.trackItem(apiTrack1), ModelFixtures.trackItem(apiTrack2)),
-                asList(ModelFixtures.trackItem(apiTrack1).updateLikeState(true), ModelFixtures.trackItem(apiTrack2))
+                asList(TrackFixtures.trackItem(apiTrack1), TrackFixtures.trackItem(apiTrack2)),
+                asList(TrackFixtures.trackItem(apiTrack1).updateLikeState(true), TrackFixtures.trackItem(apiTrack2))
         );
     }
 
     @Test
     public void trackReemitsAfterNowPlayingChange() throws Exception {
-        ApiTrack apiTrack1 = ModelFixtures.apiTrack();
-        ApiTrack apiTrack2 = ModelFixtures.apiTrack();
+        ApiTrack apiTrack1 = TrackFixtures.apiTrack();
+        ApiTrack apiTrack2 = TrackFixtures.apiTrack();
 
         TestObserver<List<TrackItem>> testObserver = enrichedEntities.trackItems(asList(apiTrack1, apiTrack2)).test();
 
         nowPlayingUrnPublisher.onNext(apiTrack1.getUrn());
 
         testObserver.assertValues(
-                asList(ModelFixtures.trackItem(apiTrack1), ModelFixtures.trackItem(apiTrack2)),
-                asList(ModelFixtures.trackItem(apiTrack1).updateNowPlaying(apiTrack1.getUrn()), ModelFixtures.trackItem(apiTrack2))
+                asList(TrackFixtures.trackItem(apiTrack1), TrackFixtures.trackItem(apiTrack2)),
+                asList(TrackFixtures.trackItem(apiTrack1).updateNowPlaying(apiTrack1.getUrn()), TrackFixtures.trackItem(apiTrack2))
         );
     }
 

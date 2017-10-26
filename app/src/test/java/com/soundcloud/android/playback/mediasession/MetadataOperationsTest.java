@@ -15,7 +15,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
@@ -34,7 +34,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123);
     private static final Urn VIDEO_URN = Urn.forAd("dfp", "video");
-    private static final TrackItem TRACK = ModelFixtures.trackItem();
+    private static final TrackItem TRACK = TrackFixtures.trackItem();
     private static final Optional<MediaMetadataCompat> EMPTY_METADATA = Optional.absent();
     private static final String ADVERTISING_TITLE = "Advertisement";
     private static final String OLD_TITLE = "old title";

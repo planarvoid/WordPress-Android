@@ -23,6 +23,7 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
@@ -64,8 +65,8 @@ public class CollectionOperationsTest {
     );
 
     private List<TrackItem> playHistory = Arrays.asList(
-            ModelFixtures.trackItem(),
-            ModelFixtures.trackItem()
+            TrackFixtures.trackItem(),
+            TrackFixtures.trackItem()
     );
 
     private List<RecentlyPlayedPlayableItem> recentlyPlayed = Arrays.asList(

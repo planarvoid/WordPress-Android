@@ -22,6 +22,7 @@ import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRecord;
@@ -44,7 +45,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreLikeActivityWithDependenciesFromLikedTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         ApiActivityItem activity = apiActivityWithLikedTrack(track);
         ApiEngagementActivity like = activity.getLike().get();
         UserRecord liker = activity.getUser().get();
@@ -72,7 +73,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreRepostActivityFromRepostedTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         ApiActivityItem activity = apiActivityWithRepostedTrack(track);
         ApiEngagementActivity repost = activity.getRepost().get();
         UserRecord reposter = activity.getUser().get();
@@ -100,7 +101,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTrackCommentActivity() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiTrack track = TrackFixtures.apiTrack();
         ApiUser commenter = UserFixtures.apiUser();
         ApiComment comment = apiComment(Urn.forComment(123), track.getUrn(), commenter);
         ApiActivityItem activity = apiActivityWithTrackComment(comment, track);

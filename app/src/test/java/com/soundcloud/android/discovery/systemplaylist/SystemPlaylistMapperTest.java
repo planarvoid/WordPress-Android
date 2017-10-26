@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
@@ -27,11 +27,9 @@ public class SystemPlaylistMapperTest {
     private static final Optional<String> DESCRIPTION = Optional.of("Desc");
     private static final Optional<String> ARTWORK_URL_TEMPLATE = Optional.of("hht://test.com");
     private static final Optional<String> TRACKING_FEATURE_NAME = Optional.of("The Upload");
-    private static final List<ApiTrack> API_TRACKS = ModelFixtures.apiTracks(TRACK_COUNT.get());
+    private static final List<ApiTrack> API_TRACKS = TrackFixtures.apiTracks(TRACK_COUNT.get());
     private static final ModelCollection<ApiTrack> API_TRACK_MODEL_COLLECTION = new ModelCollection<>(API_TRACKS);
-    private static final List<Track> TRACKS = ModelFixtures.tracks(TRACK_COUNT.get());
-    private static final Optional<String> NEW_FOR_YOU_TITLE = Optional.of("The Upload");
-    private static final Optional<String> NEW_FOR_YOU_DESCRIPTION = Optional.of("Some awesome tracks");
+    private static final List<Track> TRACKS = TrackFixtures.tracks(TRACK_COUNT.get());
 
     @Test
     public void map() throws Exception {

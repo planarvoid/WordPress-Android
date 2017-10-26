@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.PlayableItemStatusLoader;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ public class SpotlightItemStatusLoaderTest {
     @Test
     public void shouldUpdateSpotlightItems() throws Exception {
         ModelCollection<PlayableItem> spotlight = new ModelCollection<>(
-                singletonList(ModelFixtures.trackItem()));
+                singletonList(TrackFixtures.trackItem()));
         UserProfile userProfile = new UserProfileFixtures.Builder().spotlight(spotlight).build();
         subject.call(userProfile);
 

@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,7 +23,7 @@ public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
 
     @Mock private RecyclerItemAdapter<ListItem, ?> adapter;
 
-    private final List<ListItem> items = singletonList(ModelFixtures.trackItem(TRACK_URN));
+    private final List<ListItem> items = singletonList(TrackFixtures.trackItem(TRACK_URN));
     private PublishSubject<Urn> observable;
 
     @Before

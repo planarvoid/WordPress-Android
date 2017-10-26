@@ -58,7 +58,6 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 Tables.Sounds.FULL_DURATION,
                 Tables.Sounds.SNIPPET_DURATION,
                 Tables.Sounds.WAVEFORM_URL,
-                Tables.Sounds.STREAM_URL,
                 Tables.Sounds.PERMALINK_URL,
                 Tables.Sounds.ARTWORK_URL,
                 Tables.Sounds.CREATED_AT,
@@ -99,7 +98,6 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 trackRecord.getFullDuration(),
                 trackRecord.getSnippetDuration(),
                 trackRecord.getWaveformUrl(),
-                trackRecord.getStreamUrl(),
                 trackRecord.getPermalinkUrl(),
                 trackRecord.getImageUrlTemplate().orNull(),
                 trackRecord.getCreatedAt().getTime(),
@@ -130,8 +128,8 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 trackRecord.isSyncable(),
                 System.currentTimeMillis(),
                 trackRecord.getMonetizationModel().orNull(),
-                trackRecord.isSubMidTier().or(false),
-                trackRecord.isSubHighTier().or(false)
+                trackRecord.getIsSubMidTier().or(false),
+                trackRecord.getIsSubHighTier().or(false)
         );
     }
 }

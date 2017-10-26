@@ -14,6 +14,7 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
@@ -46,7 +47,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldDelegateTrackClicksToMixedItemClickListener() throws Exception {
-        TrackItem trackItem = ModelFixtures.trackItem();
+        TrackItem trackItem = TrackFixtures.trackItem();
         subject.onItemClick(null,
                             view,
                             0,

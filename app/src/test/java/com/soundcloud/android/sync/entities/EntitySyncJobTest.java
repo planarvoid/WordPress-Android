@@ -12,7 +12,7 @@ import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.PublishUpdateEventCommand;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.TrackFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ public class EntitySyncJobTest {
 
     @Test
     public void resolvesUrnsToFullTracksAndStoresThemLocally() throws Exception {
-        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<ApiTrack> tracks = TrackFixtures.apiTracks(2);
         when(fetchResources.call()).thenReturn(tracks);
 
         entitySyncJob.setUrns(singletonList(Urn.forTrack(123L)));
@@ -53,7 +53,7 @@ public class EntitySyncJobTest {
 
     @Test
     public void resolvesUrnsToFullTracksAndReturnsThemAsUpdated() throws Exception {
-        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<ApiTrack> tracks = TrackFixtures.apiTracks(2);
         when(fetchResources.call()).thenReturn(tracks);
 
         entitySyncJob.setUrns(singletonList(Urn.forTrack(123L)));
