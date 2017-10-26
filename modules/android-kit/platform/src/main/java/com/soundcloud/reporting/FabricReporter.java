@@ -3,14 +3,26 @@ package com.soundcloud.reporting;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
+import com.soundcloud.java.collections.Lists;
 import io.fabric.sdk.android.Fabric;
 
+import java.util.Iterator;
+import java.util.List;
+
 public class FabricReporter implements ReportingBackend {
+    private final List<CustomEvent> eventQueue = Lists.newArrayList();
 
     @Override
     public void post(Metric metric) {
-        if (Fabric.isInitialized()) {
-            Answers.getInstance().logCustom(buildCustomEvent(metric));
+        synchronized (eventQueue) {
+            eventQueue.add(buildCustomEvent(metric));
+            if (Fabric.isInitialized()) {
+                Iterator<CustomEvent> iterator = eventQueue.iterator();
+                while (iterator.hasNext()) {
+                    Answers.getInstance().logCustom(iterator.next());
+                    iterator.remove();
+                }
+            }
         }
     }
 
