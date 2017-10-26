@@ -7,8 +7,8 @@ import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.events.MetricEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.reporting.DatabaseReporting;
@@ -71,14 +71,11 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        // this can theoretically happen before Fabric is initialized, so keep this check
-        if (fabricProvider.isInitialized()) {
-            if (shouldIncludeInCrashlyticsLogs(event)) {
-                logWithCrashlytics(event);
-            }
-            if (event instanceof MetricEvent) {
-                fabricReporter.post(((MetricEvent) event).toMetric());
-            }
+        if (shouldIncludeInCrashlyticsLogs(event)) {
+            logWithCrashlytics(event);
+        }
+        if (event instanceof MetricEvent) {
+            fabricReporter.post(((MetricEvent) event).toMetric());
         }
     }
 

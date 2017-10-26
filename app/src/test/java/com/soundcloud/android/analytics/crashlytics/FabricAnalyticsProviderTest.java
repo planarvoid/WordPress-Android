@@ -116,7 +116,6 @@ public class FabricAnalyticsProviderTest {
     @Test
     public void shouldPostFileAccessEvent() {
         final FileAccessEvent fileAccessEvent = FileAccessEvent.create(true, true, false);
-        when(fabricProvider.isInitialized()).thenReturn(true);
 
         provider.handleTrackingEvent(fileAccessEvent);
 
