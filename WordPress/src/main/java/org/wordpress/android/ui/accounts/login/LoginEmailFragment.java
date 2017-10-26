@@ -181,6 +181,18 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
         return loginGoogleFragment;
     }
 
+    private void removeGoogleFragment() {
+        FragmentManager fragmentManager = getChildFragmentManager();
+        LoginGoogleFragment loginGoogleFragment =
+                (LoginGoogleFragment) fragmentManager.findFragmentByTag(LoginGoogleFragment.TAG);
+
+        if (loginGoogleFragment != null) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(loginGoogleFragment);
+            fragmentTransaction.commitNow();
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -307,6 +319,10 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
 
     public void setGoogleEmail(String email) {
         mGoogleEmail = email;
+    }
+
+    public void cleanupGoogleLogin() {
+        removeGoogleFragment();
     }
 
     public void finishLogin() {

@@ -479,9 +479,17 @@ public class LoginActivity extends AppCompatActivity implements ConnectionCallba
     }
 
     @Override
+    public void onGoogleLoginCleanup() {
+        LoginEmailFragment loginEmailFragment =
+                (LoginEmailFragment) getSupportFragmentManager().findFragmentByTag(LoginEmailFragment.TAG);
+        loginEmailFragment.cleanupGoogleLogin();
+    }
+
+    @Override
     public void onGoogleLoginFinished() {
         LoginEmailFragment loginEmailFragment =
                 (LoginEmailFragment) getSupportFragmentManager().findFragmentByTag(LoginEmailFragment.TAG);
         loginEmailFragment.finishLogin();
+        loginEmailFragment.cleanupGoogleLogin();
     }
 }

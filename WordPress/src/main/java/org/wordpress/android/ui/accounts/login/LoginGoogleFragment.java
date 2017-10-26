@@ -1,6 +1,7 @@
 package org.wordpress.android.ui.accounts.login;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -59,6 +60,7 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
 
     public interface GoogleLoginListener {
         void onGoogleEmailSelected(String email);
+        void onGoogleLoginCleanup();
         void onGoogleLoginFinished();
     }
 
@@ -66,6 +68,8 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WordPress) getActivity().getApplication()).component().inject(this);
+
+        setRetainInstance(true);
 
         // Restore state of error resolving.
         isResolvingError = savedInstanceState != null && savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
@@ -86,7 +90,7 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        if (!isResolvingError) {
+        if (savedInstanceState == null) {
             connectGoogleClient();
         }
     }
@@ -156,6 +160,7 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
                 isResolvingError = false;
                 AppLog.e(T.NUX, GoogleApiAvailability.getInstance().getErrorString(connectionResult.getErrorCode()));
                 showErrorDialog(getString(R.string.login_error_generic));
+                mGoogleLoginListener.onGoogleLoginCleanup();
             }
         }
     }
@@ -200,6 +205,12 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
         AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.LoginTheme))
                 .setMessage(message)
                 .setPositiveButton(R.string.login_error_button, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mGoogleLoginListener.onGoogleLoginCleanup();
+                    }
+                })
                 .create();
         dialog.show();
     }
@@ -280,6 +291,7 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
                     }
                 } else if (result == RESULT_CANCELED) {
                     AppLog.e(T.NUX, "Google Sign-in Failed: cancelled by user.");
+                    mGoogleLoginListener.onGoogleLoginCleanup();
                 } else {
                     AppLog.e(T.NUX, "Google Sign-in Failed: result was not OK or CANCELED.");
                     showErrorDialog(getString(R.string.login_error_generic));
@@ -336,6 +348,7 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
         } else if (event.requiresTwoStepAuth) {
             mLoginListener.needs2faSocial(mGoogleEmail, event.userId, event.nonceAuthenticator, event.nonceBackup,
                     event.nonceSms);
+            mGoogleLoginListener.onGoogleLoginCleanup();
         } else {
             mGoogleLoginListener.onGoogleLoginFinished();
         }
