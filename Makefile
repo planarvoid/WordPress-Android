@@ -4,7 +4,7 @@ unit-test:
 	crun android-dev-compile -- ./gradlew clean runUnitTests --no-build-cache
 
 debug-apk:
-	crun android-dev-compile -- ./gradlew assembleApksForFirebase
+	crun android-dev-compile -- ./gradlew buildDebugPR
 
 static-analysis:
 	crun android-dev-compile -- ./gradlew staticAnalysis
