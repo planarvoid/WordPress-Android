@@ -42,6 +42,8 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -108,6 +110,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
     @Mock private TrackPageView trackPageView;
     @Mock private TrackStatsDisplayPolicy trackStatsDisplayPolicy;
+    @Mock private FeatureFlags featureFlags;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -142,7 +145,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            changeLikeToSaveExperiment,
                                            playerInteractionsTracker,
                                            trackPageView,
-                                           trackStatsDisplayPolicy);
+                                           trackStatsDisplayPolicy,
+                                           featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -889,6 +893,28 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         bindEmptyTrack();
 
         verify(emptyViewController).show();
+    }
+
+    @Test
+    public void onClickLikeButtonLikesTrack() {
+        when(featureFlags.isEnabled(Flag.MINI_PLAYER)).thenReturn(true);
+        final TrackItem trackItem = populateTrackPage();
+        final View view = getHolder(trackView).footerLikeToggle;
+
+        assertThat(view.getVisibility()).isEqualTo(View.VISIBLE);
+
+        view.performClick();
+
+        verify(listener).onToggleLike(!trackItem.isUserLike(), trackItem.getUrn());
+    }
+
+    @Test
+    public void likeButtonHiddenWhenFlagTurnedOff() {
+        when(featureFlags.isEnabled(Flag.MINI_PLAYER)).thenReturn(false);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).footerLikeToggle.getVisibility()).isEqualTo(View.GONE);
     }
 
     private TrackPageHolder getHolder(View trackView) {

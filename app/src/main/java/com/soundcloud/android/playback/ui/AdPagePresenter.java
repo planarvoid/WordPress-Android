@@ -27,6 +27,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
 abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresenter<T> {
 
     @Override
@@ -84,11 +85,6 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
 
     @Override
     public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
-        // default no-op
-    }
-
-    @Override
-    public void onItemAdded(View view) {
         // default no-op
     }
 

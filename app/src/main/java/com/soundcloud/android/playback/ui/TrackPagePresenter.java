@@ -35,11 +35,12 @@ import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.AnimUtils;
-import com.soundcloud.android.view.DefaultAnimationListener;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.Iterables;
@@ -49,16 +50,15 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -71,7 +71,6 @@ import java.util.List;
 class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.OnClickListener {
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
-    private static final long ANIMATION_DURATION = 600;
 
     private final WaveformOperations waveformOperations;
     private final FeatureOperations featureOperations;
@@ -94,6 +93,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerInteractionsTracker playerInteractionsTracker;
     private final TrackStatsDisplayPolicy trackStatsDisplayPolicy;
     private final TrackPageView trackPageView;
+    private final FeatureFlags featureFlags;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -118,7 +118,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                        PlayerInteractionsTracker playerInteractionsTracker,
                        TrackPageView trackPageView,
-                       TrackStatsDisplayPolicy trackStatsDisplayPolicy) {
+                       TrackStatsDisplayPolicy trackStatsDisplayPolicy,
+                       FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -140,6 +141,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.playerInteractionsTracker = playerInteractionsTracker;
         this.trackPageView = trackPageView;
         this.trackStatsDisplayPolicy = trackStatsDisplayPolicy;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -164,6 +166,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 break;
             case R.id.play_queue_button:
                 listener.onPlayQueue();
+                break;
+            case R.id.footer_like_button:
+                onLikeContainerClick((ImageButton) view);
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
@@ -220,6 +225,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(R.id.track_urn, urn);
+
+        holder.footerLikeToggle.setSelected(trackState.isUserLike());
+        holder.footerLikeToggle.setTag(R.id.track_urn, urn);
+        holder.footerLikeToggle.setVisibility(featureFlags.isEnabled(Flag.MINI_PLAYER) ? View.VISIBLE : View.GONE);
 
         holder.shareButton.setTag(urn);
 
@@ -383,31 +392,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    @Override
-    public void onItemAdded(View view) {
-        final View footerQueueButton = getViewHolder(view).footerQueueButton;
-        Animator alphaAnimator = ObjectAnimator.ofFloat(footerQueueButton, View.ALPHA, 0f, 1f, 0f);
-        alphaAnimator.setDuration(ANIMATION_DURATION);
-        alphaAnimator.addListener(new DefaultAnimationListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                footerQueueButton.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                footerQueueButton.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                footerQueueButton.setVisibility(View.GONE);
-            }
-        });
-        alphaAnimator.setInterpolator(new FastOutSlowInInterpolator());
-        alphaAnimator.start();
-    }
-
     void setAdOverlay(View view, VisualAdData adData) {
         getViewHolder(view).adOverlayController.initialize(adData);
     }
@@ -438,6 +422,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.footerUser.setText(Strings.EMPTY);
         holder.footerTitle.setText(Strings.EMPTY);
+        holder.footerLikeToggle.setSelected(false);
+        holder.footerLikeToggle.setVisibility(View.GONE);
 
         holder.timestamp.setPreview(false);
         holder.timestamp.setVisibility(View.GONE);
@@ -500,6 +486,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         if (likeStatus.likeCount().isPresent()) {
             updateLikeCount(holder.likeToggle, likeStatus.likeCount().get());
         }
+        holder.footerLikeToggle.setSelected(likeStatus.isUserLike());
     }
 
     void onPositionSet(View trackPage, int position, int size) {
@@ -541,11 +528,19 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void updateLikeStatus(View likeToggle) {
-        final Urn trackUrn = (Urn) likeToggle.getTag(R.id.track_urn);
+        updateLikeStatus((Urn) likeToggle.getTag(R.id.track_urn), isLiked(likeToggle));
+    }
 
+    private void updateLikeStatus(Urn trackUrn, boolean isLiked) {
         if (trackUrn != null) {
-            listener.onToggleLike(isLiked(likeToggle), trackUrn);
+            listener.onToggleLike(isLiked, trackUrn);
         }
+    }
+
+    private void onLikeContainerClick(ImageButton likeButton) {
+        final boolean isLiked = !likeButton.isSelected();
+        likeButton.setSelected(isLiked);
+        this.updateLikeStatus((Urn) likeButton.getTag(R.id.track_urn), isLiked);
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, PlayStateEvent state, boolean isCurrentTrack) {
@@ -744,7 +739,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerPlayToggle = trackView.findViewById(R.id.footer_toggle);
         holder.footerTitle = trackView.findViewById(R.id.footer_title);
         holder.footerUser = trackView.findViewById(R.id.footer_user);
-        holder.footerQueueButton = trackView.findViewById(R.id.footer_play_queue_button);
+        holder.footerLikeToggle = trackView.findViewById(R.id.footer_like_button);
 
         holder.adOverlayController = adOverlayControllerFactory.create(trackView, createAdOverlayListener(holder));
 
@@ -873,7 +868,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
-        View footerQueueButton;
+        ImageButton footerLikeToggle;
 
         // View sets
         Iterable<View> fullScreenViews;
@@ -912,7 +907,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   footer,
                                                   footerPlayToggle,
                                                   upsellView.getUpsellButton(),
-                                                  playQueueButton);
+                                                  playQueueButton,
+                                                  footerLikeToggle);
             List<View> trackViews = Arrays.asList(close,
                                                   more,
                                                   likeToggle,

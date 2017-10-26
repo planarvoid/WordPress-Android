@@ -46,8 +46,6 @@ interface PlayerPagePresenter<T extends PlayerItem> {
 
     void onViewSelected(View view, PlayQueueItem value, boolean isExpanded);
 
-    void onItemAdded(View view);
-
     void showIntroductoryOverlayForPlayQueue(View view);
 
     void updatePlayQueueButton(View view);

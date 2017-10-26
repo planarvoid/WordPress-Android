@@ -74,4 +74,14 @@
         <item name="android:src">@drawable/btn_player_previous</item>
     </style>
 
+    <style name="PlayerFooterLike" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:src">@drawable/btn_player_mini_like</item>
+        <item name="android:background">@drawable/circular_ripple</item>
+        <item name="android:layout_width">@dimen/player_footer_like_width_height</item>
+        <item name="android:layout_height">@dimen/player_footer_like_width_height</item>
+        <item name="android:padding">@dimen/player_footer_like_padding</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_centerInParent">true</item>
+    </style>
+
 </resources>

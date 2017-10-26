@@ -16,6 +16,8 @@
     <dimen name="player_fast_forward_rewind_margin">-20dp</dimen>
     <dimen name="player_upsell_height">57dp</dimen>
     <dimen name="player_upsell_anim_translation_y">100dp</dimen>
+    <dimen name="player_footer_like_width_height">48dp</dimen>
+    <dimen name="player_footer_like_padding">12dp</dimen>
 
     <!-- bottom bar buttons margins -->
     <dimen name="player_like_margin_right">-12dp</dimen>

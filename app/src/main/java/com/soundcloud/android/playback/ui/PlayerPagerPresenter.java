@@ -18,7 +18,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -59,7 +58,6 @@ import android.os.Bundle;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -246,12 +244,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         setupTrackRepostChangedSubscriber();
         setupTrackLikeChangedSubscriber();
         setupClearAdOverlaySubscriber();
-        setupTextResizeSubscriber();
-    }
-
-    private void setupTextResizeSubscriber() {
-        backgroundSubscription.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                           .subscribe(new PlayNextSubscriber()));
     }
 
     private void setupClearAdOverlaySubscriber() {
@@ -660,16 +652,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    private final class PlayNextSubscriber extends DefaultSubscriber<PlayQueueEvent> {
-
-        @Override
-        public void onNext(PlayQueueEvent playQueueEvent) {
-            if (playQueueEvent.itemAdded()) {
-                onItemAdded();
-            }
-        }
-    }
-
     private final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
         public void onNext(PlayStateEvent playStateEvent) {
@@ -785,17 +767,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
         if (isForeground && isCurrentPagerPage(playQueueItem) && !castConnectionHelper.isCasting()) {
             pagePresenter(playQueueItem).showIntroductoryOverlayForPlayQueue(view);
-        }
-    }
-
-    private void onItemAdded() {
-        for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
-            final View view = entry.getKey();
-            final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
-            if (isCurrentPagerPage(playQueueItem)) {
-                presenter.onItemAdded(view);
-            }
         }
     }
 
