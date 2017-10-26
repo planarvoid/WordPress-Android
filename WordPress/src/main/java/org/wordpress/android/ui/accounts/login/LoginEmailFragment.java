@@ -172,14 +172,13 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         loginGoogleFragment = (LoginGoogleFragment) fragmentManager.findFragmentByTag(LoginGoogleFragment.TAG);
 
-        if (loginGoogleFragment != null) {
-            fragmentTransaction.remove(loginGoogleFragment);
+        if (loginGoogleFragment == null) {
+            loginGoogleFragment = new LoginGoogleFragment();
+            fragmentTransaction.add(loginGoogleFragment, LoginGoogleFragment.TAG);
+            fragmentTransaction.commitNow();
         }
 
-        loginGoogleFragment = new LoginGoogleFragment();
-        loginGoogleFragment.setRetainInstance(true);
-        fragmentTransaction.add(loginGoogleFragment, LoginGoogleFragment.TAG);
-        fragmentTransaction.commit();
+        loginGoogleFragment.startGoogleLogin();
     }
 
     @Override

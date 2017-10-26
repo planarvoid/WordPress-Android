@@ -85,7 +85,9 @@ public class LoginGoogleFragment extends Fragment implements ConnectionCallbacks
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+    }
 
+    public void startGoogleLogin() {
         if (!isResolvingError) {
             connectGoogleClient();
         }
