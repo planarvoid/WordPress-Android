@@ -6,6 +6,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +35,12 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
-        databaseAssertions().assertLikesCount(targetUrn, 10);
+        databaseAssertions().assertLikesCount(targetUrn, PlaylistFixtures.LIKES_COUNT);
 
         final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
 
-        assertThat(newLikesCount).isEqualTo(11);
-        databaseAssertions().assertLikesCount(targetUrn, 11);
+        assertThat(newLikesCount).isEqualTo(PlaylistFixtures.LIKES_COUNT + 1);
+        databaseAssertions().assertLikesCount(targetUrn, PlaylistFixtures.LIKES_COUNT + 1);
     }
 
     @Test

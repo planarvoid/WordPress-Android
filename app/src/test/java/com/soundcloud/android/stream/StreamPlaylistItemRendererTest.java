@@ -16,7 +16,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
-    private final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+    private final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
     private Date createdAt = new Date();
     private Optional<String> avatarUrlTemplate = Optional.of("avatarUrl");
     private final PlaylistStreamItem playlistStreamItem = new PlaylistStreamItem(playlistItem, playlistItem.isPromoted(), createdAt, avatarUrlTemplate);

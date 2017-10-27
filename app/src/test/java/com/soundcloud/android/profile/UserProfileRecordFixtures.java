@@ -1,15 +1,15 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackHolder;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 
 import java.util.Collections;
 
@@ -27,7 +27,7 @@ class UserProfileRecordFixtures {
     }
 
     static class Builder {
-        private ApiUser user = create(ApiUser.class);
+        private ApiUser user = UserFixtures.apiUser();
         private ModelCollection<ApiPlayableSource> spotlight = emptyPlayableSources();
         private ModelCollection<ApiTrackPost> tracks = emptyTrackPosts();
         private ModelCollection<ApiPlaylistPost> albums = emptyPlaylistPosts();
@@ -73,8 +73,8 @@ class UserProfileRecordFixtures {
         Builder populateAllCollections() {
             spotlight = new ModelCollection<>(singletonList(apiTrackHolder()));
             tracks = new ModelCollection<>(singletonList(new ApiTrackPost(TrackFixtures.apiTrack())));
-            albums = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
-            playlists = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
+            albums = new ModelCollection<>(singletonList(new ApiPlaylistPost(PlaylistFixtures.apiPlaylist())));
+            playlists = new ModelCollection<>(singletonList(new ApiPlaylistPost(PlaylistFixtures.apiPlaylist())));
             reposts = new ModelCollection<>(singletonList(apiTrackHolder()));
             likes = new ModelCollection<>(singletonList(apiTrackHolder()));
 

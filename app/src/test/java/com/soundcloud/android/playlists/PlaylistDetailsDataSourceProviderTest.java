@@ -26,8 +26,8 @@ import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.rx.RxSignal;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -63,14 +63,15 @@ public class PlaylistDetailsDataSourceProviderTest {
 
     private TestEventBusV2 eventBus = new TestEventBusV2();
 
-    private Playlist playlist = ModelFixtures.playlist();
-    private Playlist album = ModelFixtures.album();
+    private Playlist playlist = PlaylistFixtures.playlist();
+    private Playlist album = PlaylistFixtures.playlistBuilder().isAlbum(true).build();
     private PublishSubject<RxSignal> refreshSubject = PublishSubject.create();
 
     private Playlist updatedPlaylist = playlist.toBuilder().title("new-title").build();
-    private Playlist pushedPlaylist = ModelFixtures.playlist(); // new urn
-    private final ApiPlaylist otherApiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-    private final ApiPlaylist otherApiAlbum = ModelFixtures.apiAlbum();
+    private Playlist pushedPlaylist = PlaylistFixtures.playlist(); // new urn
+
+    private final ApiPlaylist otherApiPlaylist = PlaylistFixtures.apiPlaylist();
+    private final ApiPlaylist otherApiAlbum = PlaylistFixtures.apiPlaylistBuilder().album(true).build();
     private final Playlist otherPlaylist = Playlist.from(otherApiPlaylist);
     private final Playlist otherAlbum = Playlist.from(otherApiAlbum);
     private final ApiPlaylistPost playlistPost = new ApiPlaylistPost(otherApiPlaylist);

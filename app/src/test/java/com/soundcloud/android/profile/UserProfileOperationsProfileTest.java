@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -15,6 +14,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -82,8 +82,8 @@ public class UserProfileOperationsProfileTest {
 
         spotlight = new ModelCollection<>(Collections.singletonList(ModelFixtures.apiPlaylistHolder()));
         tracks = new ModelCollection<>(Collections.singletonList(new ApiTrackPost(TrackFixtures.apiTrack())));
-        albums = new ModelCollection<>(Collections.singletonList(new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class))));
-        playlists = new ModelCollection<>(Collections.singletonList(new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class))));
+        albums = new ModelCollection<>(Collections.singletonList(new ApiPlaylistPost(PlaylistFixtures.apiPlaylist())));
+        playlists = new ModelCollection<>(Collections.singletonList(new ApiPlaylistPost(PlaylistFixtures.apiPlaylist())));
         reposts = new ModelCollection<>(Collections.singletonList(ModelFixtures.apiTrackHolder()));
         likes = new ModelCollection<>(Collections.singletonList(ModelFixtures.apiTrackHolder()));
         profile = new UserProfileRecordFixtures.Builder()

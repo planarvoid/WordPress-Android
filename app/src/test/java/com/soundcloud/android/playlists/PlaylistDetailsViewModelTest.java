@@ -5,7 +5,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.UpsellListItem;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class PlaylistDetailsViewModelTest extends AndroidUnitTest {
 
-    private final Playlist playlist = ModelFixtures.playlist();
+    private final Playlist playlist = PlaylistFixtures.playlist();
     private final TrackItem upsellableTrack = PlayableFixtures.upsellableTrack();
     private final TrackItem defaultTrack = PlayableFixtures.expectedTrackForListItem(Urn.forTrack(987L));
     private final List<TrackItem> trackItems = asList(defaultTrack, upsellableTrack);

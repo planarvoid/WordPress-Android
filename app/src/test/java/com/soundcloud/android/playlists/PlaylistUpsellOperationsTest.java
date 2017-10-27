@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
@@ -26,7 +26,7 @@ public class PlaylistUpsellOperationsTest {
     private final List<TrackItem> defaultTracks = Arrays.asList(
             PlayableFixtures.expectedTrackForListItem(Urn.forTrack(425L)),
             PlayableFixtures.expectedTrackForListItem(Urn.forTrack(752L)));
-    private final Playlist.Builder playlistBuilder = ModelFixtures.playlistBuilder();
+    private final Playlist.Builder playlistBuilder = PlaylistFixtures.playlistBuilder();
     @Mock private AccountOperations accountOperations;
     @Mock private InlineUpsellOperations upsellOperations;
 

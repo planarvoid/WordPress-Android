@@ -26,6 +26,7 @@ import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.UserRecord;
@@ -166,45 +167,42 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertPlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
     }
 
     public ApiPlaylist insertPlaylist(Urn playlistUrn) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setUrn(playlistUrn);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist(playlistUrn);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
     }
 
     public ApiPlaylist insertEmptyPlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setTrackCount(0);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylistBuilder().trackCount(0).build();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
     }
 
     public ApiPlaylist insertPlaylistWithCreatedAt(Date createdAt) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setCreatedAt(createdAt);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylistBuilder().createdAt(createdAt).build();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
     }
 
     public ApiPlaylist insertLocalPlaylist() {
-        return insertLocalPlaylist(ModelFixtures.create(ApiPlaylist.class));
+        return insertLocalPlaylist(PlaylistFixtures.apiPlaylist());
     }
 
     public ApiPlaylist insertLocalPlaylist(ApiPlaylist playlist) {
-        playlist.setUrn(Urn.forPlaylist(-(1000 + playlist.getId())));
-        insertUser(playlist.getUser());
-        insertPlaylist(playlist);
-        return playlist;
+        ApiPlaylist localPlaylist = playlist.toBuilder().urn(Urn.forPlaylist(-(1000 + playlist.getId()))).build();
+        insertUser(localPlaylist.getUser());
+        insertPlaylist(localPlaylist);
+        return localPlaylist;
     }
 
     public void insertPlaylist(ApiPlaylist playlist) {
@@ -281,9 +279,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertPlaylistWithCreationDate(ApiUser user, Date createdAtDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setCreatedAt(createdAtDate);
-        playlist.setUser(user);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylistBuilder().createdAt(createdAtDate).user(user).build();
         insertPlaylist(playlist);
         return playlist;
     }
@@ -551,7 +547,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertModifiedPlaylist(Date modifiedDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         database.execSQL("UPDATE Sounds SET " + Tables.Sounds.MODIFIED_AT.name() + " = " + modifiedDate.getTime()
@@ -612,7 +608,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLikedPlaylistPendingRemoval(Date likedDate, Date unlikedDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         insertLike(playlist.getId(), Tables.Sounds.TYPE_PLAYLIST, likedDate);
@@ -623,7 +619,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLikedPlaylistPendingAddition(Date likedDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         insertLike(playlist.getId(), Tables.Sounds.TYPE_PLAYLIST, likedDate);

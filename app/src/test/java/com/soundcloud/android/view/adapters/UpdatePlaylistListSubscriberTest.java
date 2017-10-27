@@ -13,7 +13,7 @@ import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,8 +37,8 @@ public class UpdatePlaylistListSubscriberTest  extends AndroidUnitTest {
 
     @Test
     public void updatesItemWithTheSameUrnAndNotifies() {
-        PlaylistItem playlists1 = ModelFixtures.playlistItemBuilder().trackCount(5).build();
-        PlaylistItem playlists2 = ModelFixtures.playlistItem();
+        PlaylistItem playlists1 = PlaylistFixtures.playlistItemBuilder().trackCount(5).build();
+        PlaylistItem playlists2 = PlaylistFixtures.playlistItem();
 
         final List<PlaylistItem> items = Arrays.asList(playlists1, playlists2);
         when(adapter.getItems()).thenReturn(items);
@@ -54,10 +54,10 @@ public class UpdatePlaylistListSubscriberTest  extends AndroidUnitTest {
 
     @Test
     public void doesNotNotifyWithNoMatchingUrns() {
-        PlaylistItem playlists1 = ModelFixtures.playlistItem();
-        PlaylistItem playlists2 = ModelFixtures.playlistItem();
+        PlaylistItem playlists1 = PlaylistFixtures.playlistItem();
+        PlaylistItem playlists2 = PlaylistFixtures.playlistItem();
 
-        ApiPlaylist changeSet = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist changeSet = PlaylistFixtures.apiPlaylist();
 
         when(adapter.getItems()).thenReturn(newArrayList(playlists1, playlists2));
 

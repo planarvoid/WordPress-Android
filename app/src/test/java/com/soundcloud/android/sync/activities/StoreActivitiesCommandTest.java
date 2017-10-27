@@ -21,10 +21,10 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Comments;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRecord;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreLikeActivityFromLikedPlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         ApiActivityItem activity = apiActivityWithLikedPlaylist(playlist);
         ApiEngagementActivity like = activity.getLike().get();
         UserRecord liker = activity.getUser().get();
@@ -87,7 +87,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreRepostActivityFromRepostedPlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         ApiActivityItem activity = apiActivityWithRepostedPlaylist(playlist);
         ApiEngagementActivity repost = activity.getRepost().get();
         UserRecord reposter = activity.getUser().get();

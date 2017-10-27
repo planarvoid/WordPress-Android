@@ -4,8 +4,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.soundcloud.android.accounts.AccountOperations
 import com.soundcloud.android.events.LikesStatusEvent
 import com.soundcloud.android.model.Urn
+import com.soundcloud.android.testsupport.PlaylistFixtures
 import com.soundcloud.android.testsupport.TrackFixtures
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -121,7 +121,7 @@ class TrackStatsDisplayPolicyTest {
     @Test
     fun displayLikesCountReturnsTrueWhenPlayableItemIsNotATrack() {
         val likeStatus = LikesStatusEvent.LikeStatus.create(Urn.NOT_SET, false, 10)
-        val playableItem = ModelFixtures.playlistItem().updatedWithLike(likeStatus)
+        val playableItem = PlaylistFixtures.playlistItem().updatedWithLike(likeStatus)
 
         val displayLikesCount = trackStatsDisplayPolicy.displayLikesCount(playableItem)
 
@@ -183,7 +183,7 @@ class TrackStatsDisplayPolicyTest {
     @Test
     fun displayRepostsCountReturnsTrueWhenPlayableItemIsNotATrack() {
         val likeStatus = LikesStatusEvent.LikeStatus.create(Urn.NOT_SET, false, 10)
-        val playableItem = ModelFixtures.playlistItem().updatedWithLike(likeStatus)
+        val playableItem = PlaylistFixtures.playlistItem().updatedWithLike(likeStatus)
 
         val displayRepostsCount = trackStatsDisplayPolicy.displayRepostsCount(playableItem)
 

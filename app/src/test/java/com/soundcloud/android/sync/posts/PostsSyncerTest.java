@@ -15,7 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -162,7 +162,7 @@ public class PostsSyncerTest {
         withLocalPlaylistPosts(post1);
         withRemotePlaylistPosts(post1, post2);
 
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<ApiPlaylist> playlists = PlaylistFixtures.apiPlaylists(2);
         when(fetchPostResources.call()).thenReturn(playlists);
 
         assertThat(syncer.call()).isTrue();

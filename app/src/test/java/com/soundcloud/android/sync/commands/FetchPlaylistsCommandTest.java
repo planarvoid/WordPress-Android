@@ -13,7 +13,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class FetchPlaylistsCommandTest extends AndroidUnitTest {
 
     @Test
     public void shouldResolveUrnsToFullPlaylistsViaApiMobile() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<ApiPlaylist> playlists = PlaylistFixtures.apiPlaylists(2);
         final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(), playlists.get(1).getUrn());
 
         setupRequest(urns, playlists);
@@ -51,7 +51,7 @@ public class FetchPlaylistsCommandTest extends AndroidUnitTest {
 
     @Test
     public void shouldResolveUrnsToFullPlaylistsViaApiMobileInPages() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 3);
+        final List<ApiPlaylist> playlists = PlaylistFixtures.apiPlaylists(3);
         final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(),
                                              playlists.get(1).getUrn(),
                                              playlists.get(2).getUrn());
@@ -65,7 +65,7 @@ public class FetchPlaylistsCommandTest extends AndroidUnitTest {
 
     @Test
     public void shouldIgnoreUrnsWithNegativeId() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 1);
+        final List<ApiPlaylist> playlists = PlaylistFixtures.apiPlaylists(1);
         final List<Urn> urns = Collections.singletonList(playlists.get(0).getUrn());
 
         setupRequest(urns, playlists);

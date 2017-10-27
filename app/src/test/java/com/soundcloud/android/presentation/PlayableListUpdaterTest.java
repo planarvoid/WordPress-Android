@@ -16,8 +16,8 @@ import com.soundcloud.android.events.TrackChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -156,8 +156,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void playlistChangedEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
-        PlaylistItem playlist1 = ModelFixtures.playlistItemBuilder().trackCount(DEFAULT_TRACK_COUNT).build();
-        PlaylistItem playlist2 = ModelFixtures.playlistItem();
+        PlaylistItem playlist1 = PlaylistFixtures.playlistItemBuilder().trackCount(DEFAULT_TRACK_COUNT).build();
+        PlaylistItem playlist2 = PlaylistFixtures.playlistItem();
         final List<PlayableItem> items = Arrays.asList(playlist1, playlist2);
         when(adapter.getItems()).thenReturn(items);
         final PlaylistChangedEvent playlistChangedEvent = PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlist1.getUrn(), UPDATED_TRACK_COUNT);

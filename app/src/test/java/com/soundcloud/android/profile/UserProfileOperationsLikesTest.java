@@ -1,7 +1,6 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.StoreProfileCommand.TO_RECORD_HOLDERS;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -15,6 +14,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItemRepository;
@@ -61,7 +61,7 @@ public class UserProfileOperationsLikesTest {
     @Before
     public void setUp() {
         apiTrack = TrackFixtures.apiTrack();
-        apiPlaylist = create(ApiPlaylist.class);
+        apiPlaylist = PlaylistFixtures.apiPlaylist();
         page = new ModelCollection<>(
                 asList(ApiPlayableSource.create(apiTrack, null), ApiPlayableSource.create(null, apiPlaylist)),
                 NEXT_HREF);
@@ -131,14 +131,14 @@ public class UserProfileOperationsLikesTest {
     private void assertAllItemsEmitted() {
         assertAllItemsEmitted(
                 TrackFixtures.trackItem(apiTrack),
-                ModelFixtures.playlistItem(apiPlaylist)
+                PlaylistFixtures.playlistItem(apiPlaylist)
         );
     }
 
     private void assertAllItemsEmittedWithLike() {
         assertAllItemsEmitted(
                 TrackFixtures.trackItem(apiTrack),
-                ModelFixtures.playlistItem(apiPlaylist));
+                PlaylistFixtures.playlistItem(apiPlaylist));
     }
 
     private void assertAllItemsEmitted(PlayableItem... playableItems) {

@@ -33,6 +33,9 @@ object UserFixtures {
     fun apiUser(urn: Urn): ApiUser = apiUserBuilder(urn).build()
 
     @JvmStatic
+    fun apiUsers(count: Int): List<ApiUser> = List(count, { apiUser() })
+
+    @JvmStatic
     fun apiUserBuilder(): ApiUser.Builder = apiUserBuilder(nextUserUrn)
 
     @JvmStatic
@@ -55,6 +58,9 @@ object UserFixtures {
                 .pro(false)
 
     }
+
+    @JvmStatic
+    fun user(): User = UserFixtures.userBuilder().build()
 
     @JvmStatic
     fun userBuilder(): User.Builder = User.fromApiUser(apiUser()).toBuilder()

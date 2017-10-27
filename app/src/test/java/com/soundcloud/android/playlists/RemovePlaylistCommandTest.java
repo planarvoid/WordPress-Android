@@ -15,6 +15,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.query.Query;
@@ -53,7 +54,7 @@ public class RemovePlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void removedActivitiesAssociatedWithRemovedPlaylist() {
-        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         final ApiPlaylistRepostActivity apiActivityItem = ModelFixtures.apiPlaylistRepostActivity(playlist);
         testFixtures().insertPlaylistRepostActivity(apiActivityItem);
         whenever(offlineContentStorage.removePlaylistsFromOffline(playlist.getUrn())).thenReturn(Completable.complete());
@@ -69,7 +70,7 @@ public class RemovePlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void removedSoundStreamEntryAssociatedWithRemovedPlaylist() {
-        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         testFixtures().insertStreamPlaylistPost(playlist.getId(), 123L);
         whenever(offlineContentStorage.removePlaylistsFromOffline(playlist.getUrn())).thenReturn(Completable.complete());
 

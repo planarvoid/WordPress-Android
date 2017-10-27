@@ -16,6 +16,7 @@ import com.soundcloud.android.sync.Syncable
 import com.soundcloud.android.sync.timeline.TimelineOperations
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest
 import com.soundcloud.android.testsupport.TrackFixtures
+import com.soundcloud.android.testsupport.UserFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithChange
@@ -63,7 +64,7 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
 
     private val eventBus = TestEventBusV2()
 
-    private val promoter = ModelFixtures.user()
+    private val promoter = UserFixtures.user()
     private val promotedTrack = TrackFixtures.track()
     private val promotedTrackItem = ModelFixtures.promotedTrackItem(promotedTrack, promoter)
     private val promotedStreamTrack = fromPromotedTrackItem(Date(), promotedTrackItem)

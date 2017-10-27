@@ -28,6 +28,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
@@ -37,6 +38,7 @@ import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -91,8 +93,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     private View button;
     private PlaylistItemMenuPresenter presenter;
     private final TestEventBus eventBus = new TestEventBus();
-    private final Playlist playlist = ModelFixtures.playlist();
-    private PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist);
+    private final Playlist playlist = PlaylistFixtures.playlist();
+    private PlaylistItem playlistItem = PlaylistFixtures.playlistItemBuilder(playlist, new OfflineProperties()).build();
 
     @Before
     public void setUp() throws Exception {
@@ -334,7 +336,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnUnlikeNotOwnedPlaylistRemovesItFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
-        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist1 = PlaylistFixtures.apiPlaylist();
 
         playlistItem = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
         presenter.show(button, playlistItem);
@@ -349,7 +351,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnUnlikeOwnPlaylistDoesNotRemoveItFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
-        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist1 = PlaylistFixtures.apiPlaylist();
         playlistItem = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
 
         when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);

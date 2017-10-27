@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -8,6 +7,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.playlists.PlaylistRecord;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -79,7 +79,7 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTheUsersAlbums() {
-        final ApiPlaylistPost album = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
+        final ApiPlaylistPost album = new ApiPlaylistPost(PlaylistFixtures.apiPlaylist());
         final ModelCollection<ApiPlaylistPost> albums = new ModelCollection<>(Collections.singletonList(album));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().albums(albums).build();
 
@@ -90,7 +90,7 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTheUsersPlaylists() {
-        final ApiPlaylistPost playlist = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
+        final ApiPlaylistPost playlist = new ApiPlaylistPost(PlaylistFixtures.apiPlaylist());
         final ModelCollection<ApiPlaylistPost> playlists = new ModelCollection<>(Collections.singletonList(playlist));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().playlists(playlists).build();
 

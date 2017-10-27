@@ -5,8 +5,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,15 +24,13 @@ public class LoadLocalPlaylistsCommandTest extends StorageIntegrationTest {
     @Test
     public void loadsLocalPlaylists() throws Exception {
         ApiPlaylist playlist = testFixtures().insertLocalPlaylist();
-        final ApiPlaylist privatePlaylist = ModelFixtures.create(ApiPlaylist.class);
-        privatePlaylist.setSharing(Sharing.PRIVATE);
-        testFixtures().insertLocalPlaylist(privatePlaylist);
+        ApiPlaylist privatePlaylist = testFixtures().insertLocalPlaylist(PlaylistFixtures.apiPlaylistBuilder().sharing(Sharing.PRIVATE).build());
         testFixtures().insertPlaylist();
         testFixtures().insertTrack();
 
         final List<LocalPlaylistChange> call = command.call();
-        assertPlaylistContainsLocalFields(call.get(0), ModelFixtures.playlistItem(privatePlaylist));
-        assertPlaylistContainsLocalFields(call.get(1), ModelFixtures.playlistItem(playlist));
+        assertPlaylistContainsLocalFields(call.get(0), PlaylistFixtures.playlistItem(privatePlaylist));
+        assertPlaylistContainsLocalFields(call.get(1), PlaylistFixtures.playlistItem(playlist));
     }
 
     private void assertPlaylistContainsLocalFields(LocalPlaylistChange local, PlaylistItem expected) {

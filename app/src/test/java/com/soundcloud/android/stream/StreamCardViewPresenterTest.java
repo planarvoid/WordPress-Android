@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -21,8 +20,8 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -262,10 +261,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistItem postedPlaylist() {
-        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setCreatedAt(ITEM_CREATED_AT);
-
-        return ModelFixtures.playlistItem(playlist);
+        return PlaylistFixtures.playlistItem(PlaylistFixtures.apiPlaylistBuilder().createdAt(ITEM_CREATED_AT).build());
     }
 
     private PlaylistItem repostedPlaylist() {

@@ -1,7 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.model.stream.ApiStreamPlaylistPost;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
@@ -13,7 +13,7 @@ public class ApiPlaylistPostBlueprint {
         @Override
         public Object createInstance() {
             return new ApiStreamPlaylistPost(
-                    ModelFixtures.create(ApiPlaylist.class),
+                    PlaylistFixtures.apiPlaylist(),
                     new Date()
             );
         }

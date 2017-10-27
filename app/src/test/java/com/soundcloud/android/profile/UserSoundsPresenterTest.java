@@ -32,9 +32,9 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.Urns;
@@ -157,8 +157,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        when(adapter.getItems()).thenReturn(Lists.newArrayList(fromPlaylistItem(Urn.NOT_SET, ModelFixtures.playlistItem(playlist), UserSoundsTypes.SPOTLIGHT)));
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
+        when(adapter.getItems()).thenReturn(Lists.newArrayList(fromPlaylistItem(Urn.NOT_SET, PlaylistFixtures.playlistItem(playlist), UserSoundsTypes.SPOTLIGHT)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);

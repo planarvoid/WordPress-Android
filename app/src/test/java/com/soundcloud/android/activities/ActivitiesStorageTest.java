@@ -10,6 +10,7 @@ import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -158,7 +159,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     @Test
     @Issue(ref = "https://github.com/soundcloud/android-listeners/issues/4673")
     public void shouldNotReturnActivityWithoutAssociatedSound() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
         testFixtures().insertPlaylistRepostActivityWithoutPlaylist(playlistRepostActivity);
 

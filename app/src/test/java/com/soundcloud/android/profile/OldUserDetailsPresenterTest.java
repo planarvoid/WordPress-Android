@@ -12,7 +12,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.android.view.EmptyView;
@@ -259,7 +258,7 @@ public class OldUserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private User emptyUser() {
-        return ModelFixtures.user();
+        return UserFixtures.user();
     }
 
     private User userWithBlankDescription() {

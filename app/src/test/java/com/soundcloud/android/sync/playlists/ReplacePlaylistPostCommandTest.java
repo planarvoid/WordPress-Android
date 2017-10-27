@@ -7,8 +7,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.WriteResult;
 import io.reactivex.Completable;
 import io.reactivex.subjects.CompletableSubject;
@@ -34,7 +34,7 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
     public void setUp() throws Exception {
         command = new ReplacePlaylistPostCommand(propeller(), offlineContentOperations);
         oldPlaylist = testFixtures().insertLocalPlaylist();
-        newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        newPlaylist = PlaylistFixtures.apiPlaylist();
 
         when(offlineContentOperations.replaceOfflinePlaylist(oldPlaylist.getUrn(), newPlaylist.getUrn())).thenReturn(Completable.complete());
     }
@@ -73,13 +73,13 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldUpdatePostsTableWithNewPlaylistId() throws Exception {
         Date createdAt = new Date(456L);
-        newPlaylist.setCreatedAt(createdAt);
+        ApiPlaylist updatedPlaylist = newPlaylist.toBuilder().createdAt(createdAt).build();
         testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
 
-        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
+        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), updatedPlaylist)).call();
         assertThat(result.success()).isTrue();
 
-        databaseAssertions().assertPlaylistPostInsertedFor(newPlaylist, createdAt);
+        databaseAssertions().assertPlaylistPostInsertedFor(updatedPlaylist, createdAt);
     }
 
     @Test

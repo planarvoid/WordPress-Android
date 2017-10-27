@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import org.junit.Before;
@@ -44,7 +45,7 @@ public class CacheUniversalSearchCommandTest {
 
     @Test
     public void shouldCachePlaylistIfResultItemIsPlaylist() throws Exception {
-        final ApiPlaylist playlist = new ApiPlaylist();
+        final ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         command.call(singletonList(new ApiUniversalSearchItem(null, playlist, null)));
 
         verify(storePlaylistsCommand).call(singletonList(playlist));

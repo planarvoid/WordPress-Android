@@ -18,7 +18,7 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
@@ -163,7 +163,7 @@ public class OfflineContentControllerTest {
     @Test
     public void startsOfflineSyncWhenPlaylistMarkedAsAvailableOfflineIsEdited() {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Single.just(true));
-        Playlist editedPlaylist = ModelFixtures.playlistBuilder().urn(PLAYLIST).build();
+        Playlist editedPlaylist = PlaylistFixtures.playlistBuilder().urn(PLAYLIST).build();
 
         controller.subscribe();
 

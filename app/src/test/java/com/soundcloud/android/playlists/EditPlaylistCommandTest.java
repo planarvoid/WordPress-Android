@@ -95,11 +95,9 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         assertThat(command.call(getInput(apiPlaylist.getUrn(), Collections.emptyList()))).isEqualTo(0);
 
-        apiPlaylist.setTitle(NEW_TITLE);
-        apiPlaylist.setSharing(Sharing.PRIVATE);
-        apiPlaylist.setTrackCount(0);
+        ApiPlaylist updatedPlaylist = apiPlaylist.toBuilder().title(NEW_TITLE).sharing(Sharing.PRIVATE).trackCount(0).build();
 
-        databaseAssertions().assertPlaylistInserted(apiPlaylist);
+        databaseAssertions().assertPlaylistInserted(updatedPlaylist);
     }
 
     @Test
@@ -112,13 +110,11 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
         assertThat(command.call(getInput(apiPlaylist.getUrn(), newTrackList))).isEqualTo(2);
 
-        apiPlaylist.setTitle(NEW_TITLE);
-        apiPlaylist.setSharing(Sharing.PRIVATE);
-        apiPlaylist.setTrackCount(newTrackList.size());
+        ApiPlaylist updatedPlaylist = apiPlaylist.toBuilder().title(NEW_TITLE).sharing(Sharing.PRIVATE).trackCount(newTrackList.size()).build();
 
-        databaseAssertions().assertPlaylistInserted(apiPlaylist);
-        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);
-        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getUrn(), apiTrack1.getUrn());
+        databaseAssertions().assertPlaylistInserted(updatedPlaylist);
+        databaseAssertions().assertPlaylistTracklist(updatedPlaylist.getUrn().getNumericId(), newTrackList);
+        databaseAssertions().assertPlaylistTrackForRemoval(updatedPlaylist.getUrn(), apiTrack1.getUrn());
     }
 
     @Test

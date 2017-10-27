@@ -6,7 +6,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemEmitter;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Maps;
@@ -33,7 +32,7 @@ public class TestEntityItemEmitter implements EntityItemEmitter {
 
     @Override
     public Observable<List<PlaylistItem>> playlistItems(List<ApiPlaylist> apiPlaylists) {
-        return Observable.just(ModelFixtures.playlistItems(apiPlaylists));
+        return Observable.just(PlaylistFixtures.playlistItems(apiPlaylists));
     }
 
     @Override

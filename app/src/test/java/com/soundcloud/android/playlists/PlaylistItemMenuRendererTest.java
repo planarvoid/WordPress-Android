@@ -13,7 +13,7 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.ItemMenuOptions;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     private ItemMenuOptions itemMenuOptions;
 
-    private PlaylistItem playlist = ModelFixtures.playlistItem();
+    private PlaylistItem playlist = PlaylistFixtures.playlistItem();
     private PlaylistItemMenuRenderer renderer;
 
     @Before
@@ -155,11 +155,11 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     private PlaylistItem buildPlaylistWithMarkedForOffline(boolean markedForOffline) {
-        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(markedForOffline).build();
+        return PlaylistFixtures.playlistItemBuilder().isMarkedForOffline(markedForOffline).build();
     }
 
     private PlaylistItem buildPlaylistWithUserLike(boolean userLike) {
-        return ModelFixtures.playlistItemBuilder().isUserLike(userLike).build();
+        return PlaylistFixtures.playlistItemBuilder().isUserLike(userLike).build();
     }
 
 }

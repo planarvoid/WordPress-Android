@@ -33,7 +33,7 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
@@ -56,7 +56,7 @@ import java.io.IOException;
 
 public class MoreTabPresenterTest extends AndroidUnitTest {
 
-    private static final User USER = ModelFixtures.user();
+    private static final User USER = UserFixtures.user();
     private static final Urn USER_URN = USER.urn();
 
     private MoreTabPresenter presenter;
@@ -129,7 +129,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedShowsProBadgeWhenUserIsPro() {
-        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(ModelFixtures.proUser()));
+        when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(UserFixtures.userBuilder().isPro(true).build()));
 
         initFragment();
 
@@ -149,7 +149,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedShowsProBadgeWhenUserIsProWhenLoadedAfterViewCreated() {
-        final User user = ModelFixtures.proUser();
+        final User user = UserFixtures.userBuilder().isPro(true).build();
         when(userRepository.userInfo(USER_URN)).thenReturn(Maybe.just(user));
         final PublishSubject<User> subject = PublishSubject.create();
         initFragment();

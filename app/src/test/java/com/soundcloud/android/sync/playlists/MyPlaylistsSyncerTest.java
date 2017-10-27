@@ -35,7 +35,7 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Single;
@@ -117,8 +117,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final List<LocalPlaylistChange> playlists = createLocalPlaylists(2);
         final List<Urn> playlist1Tracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final List<Urn> playlist2Tracks = Arrays.asList(Urn.forTrack(3), Urn.forTrack(4));
-        final ApiPlaylist newPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
-        final ApiPlaylist newPlaylist2 = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist newPlaylist1 = PlaylistFixtures.apiPlaylist();
+        final ApiPlaylist newPlaylist2 = PlaylistFixtures.apiPlaylist();
 
         when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call(playlists.get(0).urn())).thenReturn(playlist1Tracks);
@@ -301,7 +301,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final List<LocalPlaylistChange> playlists = createLocalPlaylists(1);
         localPlaylistUrn = playlists.get(0).urn();
         final List<Urn> playlistTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
-        final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist newPlaylist = PlaylistFixtures.apiPlaylist();
 
         when(loadLocalPlaylists.call()).thenReturn(playlists);
         when(loadPlaylistTrackUrns.call(eq(localPlaylistUrn))).thenReturn(playlistTracks);
@@ -324,7 +324,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     private List<LocalPlaylistChange> createLocalPlaylists(int count) {
-        return Lists.transform(ModelFixtures.playlistItem(count), playlist ->
+
+        return Lists.transform(PlaylistFixtures.playlistItems(count), playlist ->
                 LocalPlaylistChange.create(playlist.getUrn(), playlist.title(), playlist.isPrivate()));
     }
 }

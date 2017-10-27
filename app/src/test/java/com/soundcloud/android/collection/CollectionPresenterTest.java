@@ -33,7 +33,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Observable;
@@ -55,7 +55,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
     private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.emptyList());
 
-    private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.playlistItem(2);
+    private static final List<PlaylistItem> PLAYLISTS = PlaylistFixtures.playlistItems(2);
     private static final List<StationRecord> STATIONS = singletonList(mock(StationRecord.class));
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
     private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(

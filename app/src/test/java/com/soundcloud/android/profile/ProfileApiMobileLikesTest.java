@@ -14,8 +14,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class ProfileApiMobileLikesTest extends AndroidUnitTest {
     private ProfileApiMobile api;
     private final TestSubscriber<ModelCollection<ApiPlayableSource>> subscriber = new TestSubscriber<>();
     private final ApiTrack apiTrack = TrackFixtures.apiTrack();
-    private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+    private final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
     private ModelCollection<ApiPlayableSource> apiLikesHolder = new ModelCollection<>(
             newArrayList(
                     ApiPlayableSource.create(apiTrack, null),

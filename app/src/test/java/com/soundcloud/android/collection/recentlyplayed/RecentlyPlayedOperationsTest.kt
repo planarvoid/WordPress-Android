@@ -10,9 +10,9 @@ import com.soundcloud.android.stations.StationsRepository
 import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.SyncResult
 import com.soundcloud.android.sync.Syncable
+import com.soundcloud.android.testsupport.PlaylistFixtures
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider
 import com.soundcloud.android.testsupport.UserFixtures
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.users.UserRepository
 import com.soundcloud.java.optional.Optional
 import io.reactivex.Single
@@ -69,7 +69,7 @@ class RecentlyPlayedOperationsTest {
             .type("track")
             .imageUrlTemplate(Optional.absent())
             .build()
-    private val playlist = ModelFixtures.playlistBuilder()
+    private val playlist = PlaylistFixtures.playlistBuilder()
             .urn(playlistUrn)
             .title("playlist-title")
             .imageUrlTemplate(Optional.absent())

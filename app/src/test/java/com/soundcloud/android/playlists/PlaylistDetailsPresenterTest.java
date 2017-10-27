@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.playlistItem;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
@@ -58,6 +57,7 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
@@ -117,7 +117,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final List<TrackItem> trackItems = asList(trackItem1, trackItem2);
     private final List<TrackItem> updatedTrackItems = asList(trackItem1, trackItem2, trackItem3);
 
-    private final Playlist initialPlaylist = ModelFixtures.playlistBuilder().build();
+    private final Playlist initialPlaylist = PlaylistFixtures.playlistBuilder().build();
     private final Playlist updatedPlaylist = initialPlaylist.toBuilder().urn(initialPlaylist.urn()).title("new-title").build();
 
     private final String screen = Screen.PLAYLIST_DETAILS.get();
@@ -135,7 +135,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), false);
     private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, of(asList(track1, track2, track3)), false);
-    private final Playlist otherPlaylistByUser = ModelFixtures.playlist();
+    private final Playlist otherPlaylistByUser = PlaylistFixtures.playlist();
     private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(otherPlaylistByUser), false);
 
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
@@ -210,7 +210,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect(initialPlaylistWithAllExtras);
 
         PlaylistDetailOtherPlaylistsItem otherPlaylistsItem = new PlaylistDetailOtherPlaylistsItem(initialPlaylist.creatorName(),
-                                                                                                   singletonList(playlistItem(otherPlaylistByUser)),
+                                                                                                   singletonList(PlaylistFixtures.playlistItemBuilder(otherPlaylistByUser, new OfflineProperties())
+                                                                                                                                 .build()),
                                                                                                    initialPlaylist.isAlbum());
 
         newPlaylistPresenter.viewModel()

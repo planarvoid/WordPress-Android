@@ -12,11 +12,12 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -54,14 +55,14 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistBuilder = ModelFixtures.playlistBuilder()
-                                       .isLikedByCurrentUser(false)
-                                       .urn(Urn.forPlaylist(123))
-                                       .title("title")
-                                       .creatorName("creator")
-                                       .likesCount(5)
-                                       .trackCount(11);
-        builder = ModelFixtures.playlistItemBuilder(playlistBuilder.build());
+        playlistBuilder = PlaylistFixtures.playlistBuilder()
+                                          .isLikedByCurrentUser(false)
+                                          .urn(Urn.forPlaylist(123))
+                                          .title("title")
+                                          .creatorName("creator")
+                                          .likesCount(5)
+                                          .trackCount(11);
+        builder = PlaylistFixtures.playlistItemBuilder(playlistBuilder.build());
         playlistItem = builder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
@@ -129,7 +130,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
         final Playlist playlist = playlistBuilder.isPrivate(true).build();
-        renderer.bindItemView(0, itemView, singletonList(ModelFixtures.playlistItem(playlist)));
+        renderer.bindItemView(0, itemView, singletonList(PlaylistFixtures.playlistItemBuilder(playlist, new OfflineProperties()).build()));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
@@ -138,7 +139,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
         final Playlist playlist = playlistBuilder.isPrivate(false).build();
-        renderer.bindItemView(0, itemView, singletonList(ModelFixtures.playlistItem(playlist)));
+        renderer.bindItemView(0, itemView, singletonList(PlaylistFixtures.playlistItemBuilder(playlist, new OfflineProperties()).build()));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
@@ -193,7 +194,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
-        PlaylistItem item = ModelFixtures.playlistItem(playlistBuilder.isAlbum(true).build());
+        PlaylistItem item = PlaylistFixtures.playlistItemBuilder(playlistBuilder.isAlbum(true).build(), new OfflineProperties()).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -204,7 +205,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisplayAlbumTitleForAlbums() {
-        PlaylistItem item = ModelFixtures.playlistItem(playlistBuilder.isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build());
+        PlaylistItem item = PlaylistFixtures.playlistItemBuilder(playlistBuilder.isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build(), new OfflineProperties()).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 

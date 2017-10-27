@@ -3,35 +3,17 @@ package com.soundcloud.android.api.model;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 public class ApiPlaylistTest {
 
     @Test
-    public void shouldDefineEqualityBasedOnUrn() {
-        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
-        playlist2.setUrn(playlist1.getUrn());
-
-        assertThat(playlist1).isEqualTo(playlist2);
-    }
-
-    @Test
-    public void shouldDefineHashCodeBasedOnUrn() {
-        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
-        playlist2.setUrn(playlist1.getUrn());
-
-        assertThat(playlist1.hashCode()).isEqualTo(playlist2.hashCode());
-    }
-
-    @Test
     public void shouldConvertToPlaylistItem() {
-        ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
 
-        PlaylistItem playlistItem = ModelFixtures.playlistItem(apiPlaylist);
+        PlaylistItem playlistItem = PlaylistFixtures.playlistItem(apiPlaylist);
 
         assertThat(playlistItem.getUrn()).isEqualTo(apiPlaylist.getUrn());
         assertThat(playlistItem.title()).isEqualTo(apiPlaylist.getTitle());

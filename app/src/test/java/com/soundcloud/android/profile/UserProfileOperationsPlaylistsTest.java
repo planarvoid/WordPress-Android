@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -15,6 +14,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.android.users.UserRepository;
@@ -50,10 +50,10 @@ public class UserProfileOperationsPlaylistsTest {
     @Mock private EventBus eventBus;
 
     final TestSubscriber<PagedRemoteCollection<PlaylistItem>> subscriber = new TestSubscriber<>();
-    final ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
+    final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
     final ApiPlaylistPost apiPlaylistPost = new ApiPlaylistPost(apiPlaylist);
-    final PlaylistItem playlistItem = ModelFixtures.playlistItem(apiPlaylist);
-    final PlaylistItem playlistItemWithoutRepost = ModelFixtures.playlistItem(apiPlaylist);
+    final PlaylistItem playlistItem = PlaylistFixtures.playlistItem(apiPlaylist);
+    final PlaylistItem playlistItemWithoutRepost = PlaylistFixtures.playlistItem(apiPlaylist);
 
     final ModelCollection<ApiPlaylistPost> page = new ModelCollection<>(singletonList(apiPlaylistPost), NEXT_HREF);
 

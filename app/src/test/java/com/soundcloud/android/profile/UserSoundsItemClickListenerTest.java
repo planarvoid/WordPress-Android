@@ -14,8 +14,8 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.optional.Optional;
@@ -61,7 +61,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldDelegatePlaylistClicksToMixedItemClickListener() throws Exception {
-        PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         subject.onItemClick(null,
                             view,
                             0,
@@ -145,7 +145,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenPlaylist() throws Exception {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         final UserSoundsItem item = UserSoundsItem.fromPlaylistItem(Urn.NOT_SET, playlistItem, UserSoundsTypes.PLAYLISTS);
         final Module module = Module.create(Module.USER_PLAYLISTS, 1);

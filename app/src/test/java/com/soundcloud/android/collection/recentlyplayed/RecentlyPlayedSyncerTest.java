@@ -16,8 +16,8 @@ import com.soundcloud.android.stations.StationsRepository;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -71,7 +71,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldPreloadNewPlaylists() throws Exception {
         Urn playlistUrn = Urn.forPlaylist(123L);
-        List<ApiPlaylist> playlists = singletonList(ModelFixtures.create(ApiPlaylist.class));
+        List<ApiPlaylist> playlists = singletonList(PlaylistFixtures.apiPlaylist());
         when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.emptyList());
         when(fetchRecentlyPlayedCommand.call()).thenReturn(singletonList(contextFor(playlistUrn)));
         when(fetchPlaylistsCommand.call()).thenReturn(playlists);

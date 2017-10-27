@@ -15,7 +15,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.view.adapters.PlaylistCardRenderer.PlaylistViewHolder;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindItemView() {
-        PlaylistItem playlistItem = ModelFixtures.playlistItem().toBuilder().trackCount(2).build();
+        PlaylistItem playlistItem = PlaylistFixtures.playlistItem().toBuilder().trackCount(2).build();
 
         View itemView = renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, itemView, singletonList(playlistItem));

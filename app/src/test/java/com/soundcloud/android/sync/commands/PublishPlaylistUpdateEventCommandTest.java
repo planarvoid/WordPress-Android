@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PublishPlaylistUpdateEventCommandTest {
 
     @Test
     public void sendsConvertedPlaylistItem() throws Exception {
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
 
         publishPlaylistUpdateEventCommand.call(Collections.singletonList(apiPlaylist));
 

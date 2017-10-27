@@ -9,8 +9,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private AccountOperations accountOperations;
 
-    private final Playlist playlist = ModelFixtures.playlist();
+    private final Playlist playlist = PlaylistFixtures.playlist();
     private final Track track1 = TrackFixtures.track();
     private final Track track2 = TrackFixtures.track();
     private final TrackItem trackItem1 = TrackFixtures.trackItem(track1);
@@ -81,7 +81,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsTrackCountFromTracklistIfTracksAreThere() {
-        Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().trackCount(1).build();
         List<TrackItem> tracks = TrackFixtures.trackItems(2);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
@@ -97,7 +97,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsTrackCountFromPlaylistMetadataIfTracksMissing() {
-        Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().trackCount(1).build();
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist, emptyList())
@@ -112,7 +112,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsDurationFromPlaylistMetadataIfTracksMissing() {
-        Playlist playlist = ModelFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist, emptyList())
                                                                     .with(OfflineState.NOT_OFFLINE)
@@ -126,7 +126,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsDurationFromTracklistIfTracksAreThere() {
-        Playlist playlist = ModelFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist, TrackFixtures.trackItems(2))
                                                                     .with(OfflineState.NOT_OFFLINE)
@@ -140,7 +140,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsOfflineAvailableNoneByDefault() throws Exception {
-        Playlist playlist = ModelFixtures.playlist();
+        Playlist playlist = PlaylistFixtures.playlist();
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist, emptyList())
@@ -155,7 +155,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsOfflineAvailableForMyPlaylist() throws Exception {
-        Playlist playlist = ModelFixtures.playlist();
+        Playlist playlist = PlaylistFixtures.playlist();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
@@ -172,7 +172,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsOfflineAvailableForLikedPlaylist() throws Exception {
-        Playlist playlist = ModelFixtures.playlistBuilder().isLikedByCurrentUser(true).build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().isLikedByCurrentUser(true).build();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
@@ -188,7 +188,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void returnsOfflineUpsell() throws Exception {
-        Playlist playlist = ModelFixtures.playlistBuilder().build();
+        Playlist playlist = PlaylistFixtures.playlistBuilder().build();
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
@@ -204,7 +204,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowOwnerOptionsForNotMyPlaylist() throws Exception {
-        Playlist playlist = ModelFixtures.playlist();
+        Playlist playlist = PlaylistFixtures.playlist();
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(false);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
@@ -220,7 +220,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void showOwnerOptionsForMyPlaylist() throws Exception {
-        Playlist playlist = ModelFixtures.playlist();
+        Playlist playlist = PlaylistFixtures.playlist();
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
@@ -236,7 +236,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void cannotShuffleWithOneTrack() throws Exception {
-        Playlist playlist1 = ModelFixtures.playlist();
+        Playlist playlist1 = PlaylistFixtures.playlist();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist1, TrackFixtures.trackItems(1))
                                                                     .with(OfflineState.NOT_OFFLINE)
@@ -250,7 +250,7 @@ public class PlaylistDetailsMetadataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void canShuffleWithMoreThanOneTrack() throws Exception {
-        Playlist playlist1 = ModelFixtures.playlist();
+        Playlist playlist1 = PlaylistFixtures.playlist();
         final PlaylistDetailsMetadata item = PlaylistDetailsMetadata.builder()
                                                                     .with(resources(), featureOperations, accountOperations, playlist1, TrackFixtures.trackItems(2))
                                                                     .with(OfflineState.NOT_OFFLINE)

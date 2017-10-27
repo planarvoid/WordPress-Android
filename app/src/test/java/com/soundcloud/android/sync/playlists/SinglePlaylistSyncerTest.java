@@ -30,6 +30,7 @@ import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
@@ -65,7 +66,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        updatedPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        updatedPlaylist = PlaylistFixtures.apiPlaylist();
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
                                                         apiClient, storeTracksCommand,
                                                         storePlaylistCommand, replacePlaylistTracks, playlistStorage, eventBus,

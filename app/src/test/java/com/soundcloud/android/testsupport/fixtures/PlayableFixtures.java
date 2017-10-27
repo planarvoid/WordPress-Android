@@ -15,6 +15,7 @@ import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.tracks.Track;
@@ -172,15 +173,15 @@ public abstract class PlayableFixtures {
     }
 
     public static PlaylistItem expectedLikedPlaylistForPlaylistsScreen() {
-        final Playlist playlist = ModelFixtures.playlistBuilder()
-                                               .urn(Urn.forPlaylist(123L))
-                                               .title("squirlex galore")
-                                               .creatorName("avieciie")
-                                               .trackCount(4)
-                                               .likesCount(2)
-                                               .createdAt(new Date())
-                                               .isPrivate(false).build();
-        return ModelFixtures.playlistItemBuilder(playlist).build();
+        final Playlist playlist = PlaylistFixtures.playlistBuilder()
+                                                  .urn(Urn.forPlaylist(123L))
+                                                  .title("squirlex galore")
+                                                  .creatorName("avieciie")
+                                                  .trackCount(4)
+                                                  .likesCount(2)
+                                                  .createdAt(new Date())
+                                                  .isPrivate(false).build();
+        return PlaylistFixtures.playlistItemBuilder(playlist).build();
     }
 
     public static PlaylistItem expectedPostedPlaylistsForPostedPlaylistsScreen() {
@@ -188,16 +189,16 @@ public abstract class PlayableFixtures {
     }
 
     private static PlaylistItem.Builder postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
-        final Playlist playlist = ModelFixtures.playlistBuilder()
-                                               .urn(playlistUrn)
-                                               .title("squirlex galore")
-                                               .creatorName("avieciie")
-                                               .trackCount(4)
-                                               .likesCount(2)
-                                               .createdAt(new Date())
-                                               .isPrivate(false)
-                                               .permalinkUrl("http://permalink.url").build();
-        return ModelFixtures.playlistItemBuilder(playlist);
+        final Playlist playlist = PlaylistFixtures.playlistBuilder()
+                                                  .urn(playlistUrn)
+                                                  .title("squirlex galore")
+                                                  .creatorName("avieciie")
+                                                  .trackCount(4)
+                                                  .likesCount(2)
+                                                  .createdAt(new Date())
+                                                  .isPrivate(false)
+                                                  .permalinkUrl("http://permalink.url").build();
+        return PlaylistFixtures.playlistItemBuilder(playlist);
     }
 
     public static PlaylistItem expectedPostedPlaylistForPostsScreen() {
@@ -209,16 +210,16 @@ public abstract class PlayableFixtures {
     }
 
     private static PlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {
-        final Playlist playlist = ModelFixtures.playlistBuilder()
-                                               .urn(Urn.forPlaylist(123L))
-                                               .title("squirlex galore")
-                                               .creatorName("avieciie")
-                                               .trackCount(4)
-                                               .likesCount(2)
-                                               .createdAt(new Date())
-                                               .isPrivate(false)
-                                               .permalinkUrl("http://permalink.url").build();
-        return ModelFixtures.playlistItemBuilder(playlist).promotedProperties(promotedProperties);
+        final Playlist playlist = PlaylistFixtures.playlistBuilder()
+                                                  .urn(Urn.forPlaylist(123L))
+                                                  .title("squirlex galore")
+                                                  .creatorName("avieciie")
+                                                  .trackCount(4)
+                                                  .likesCount(2)
+                                                  .createdAt(new Date())
+                                                  .isPrivate(false)
+                                                  .permalinkUrl("http://permalink.url").build();
+        return PlaylistFixtures.playlistItemBuilder(playlist).promotedProperties(promotedProperties);
     }
 
     public static PlaylistItem expectedPromotedPlaylist() {
@@ -276,7 +277,7 @@ public abstract class PlayableFixtures {
 
     public static PlaylistItem fromApiPlaylistWithReposter(String reposter, Urn reposterUrn) {
         final RepostedProperties repostedProperties = RepostedProperties.create(reposter, reposterUrn);
-        return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false, Optional.of(repostedProperties));
+        return fromApiPlaylist(PlaylistFixtures.apiPlaylist(), false, false, false, Optional.of(repostedProperties));
     }
 
     public static PlaylistItem fromApiPlaylist(ApiPlaylist apiPlaylist,
@@ -284,7 +285,7 @@ public abstract class PlayableFixtures {
                                                boolean isReposted,
                                                boolean markedForOffline,
                                                Optional<RepostedProperties> repostedProperties) {
-        final PlaylistItem.Builder playlistItem = ModelFixtures.playlistItem(apiPlaylist).toBuilder();
+        final PlaylistItem.Builder playlistItem = PlaylistFixtures.playlistItem(apiPlaylist).toBuilder();
         playlistItem.isUserLike(isLiked);
         playlistItem.isUserRepost(isReposted);
         playlistItem.isMarkedForOffline(markedForOffline);

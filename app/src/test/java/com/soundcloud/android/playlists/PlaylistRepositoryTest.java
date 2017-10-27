@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.RepositoryMissedSyncEvent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
@@ -52,7 +52,7 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnLoadsPlaylistFromStorage() {
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());
         final List<Playlist> playlists = singletonList(playlist);
 
@@ -67,7 +67,7 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnBackfillsFromApi() {
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());
         final List<Playlist> playlists = singletonList(playlist);
 
@@ -86,7 +86,7 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnEmitsErrorForSyncError() {
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
@@ -103,7 +103,7 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnEmitsEmptyObservableForUnavailablePlaylist() {
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());
 
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
@@ -121,7 +121,7 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnsLoadsPlaylistFromStorage() {
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
         final List<Urn> urns = singletonList(playlist.urn());
         final List<Playlist> playlists = singletonList(playlist);
 
@@ -136,8 +136,8 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnsBackfillMissingPlaylists() {
-        final Playlist playlistPresent = ModelFixtures.playlist();
-        final Playlist playlistToFetch = ModelFixtures.playlist();
+        final Playlist playlistPresent = PlaylistFixtures.playlist();
+        final Playlist playlistToFetch = PlaylistFixtures.playlist();
         final List<Urn> urns = asList(playlistPresent.urn(), playlistToFetch.urn());
         final List<Playlist> expectedPlaylists = asList(playlistPresent, playlistToFetch);
 
@@ -157,8 +157,8 @@ public class PlaylistRepositoryTest {
 
     @Test
     public void withUrnsReturnsAvailablePlaylistForSyncError() {
-        final Playlist playlistPresent = ModelFixtures.playlist();
-        final Playlist playlistToFetch = ModelFixtures.playlist();
+        final Playlist playlistPresent = PlaylistFixtures.playlist();
+        final Playlist playlistToFetch = PlaylistFixtures.playlist();
         final List<Urn> urns = asList(playlistPresent.urn(), playlistToFetch.urn());
         final List<Playlist> expectedPlaylists = asList(playlistPresent);
 

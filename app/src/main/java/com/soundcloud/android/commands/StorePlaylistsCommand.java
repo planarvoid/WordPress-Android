@@ -2,7 +2,9 @@ package com.soundcloud.android.commands;
 
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -31,7 +33,7 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(storeUsersCommand.write(propeller, Iterables.transform(input, PlaylistRecord.TO_USER_RECORD)));
+                step(storeUsersCommand.write(propeller, Iterables.transform(input, (Function<PlaylistRecord, UserRecord>) PlaylistRecord::getUser)));
                 step(propeller.bulkInsert(Tables.Sounds.TABLE, getPlaylistBulkValues(input)));
             }
         });

@@ -31,6 +31,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -89,7 +90,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void setUp() {
         subscriber = new TestSubscriber<>();
         track = TrackFixtures.apiTrack();
-        playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist = PlaylistFixtures.apiPlaylist();
         user = UserFixtures.apiUser();
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
@@ -198,8 +199,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCacheUserSearchResult() {
-        final SearchModelCollection<ApiUser> users = new SearchModelCollection<>(ModelFixtures.create(ApiUser.class,
-                                                                                                      2));
+        final SearchModelCollection<ApiUser> users = new SearchModelCollection<>(UserFixtures.apiUsers(2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(users));
 
@@ -210,7 +210,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCachePremiumUserSearchResult() {
-        final List<ApiUser> apiUsers = ModelFixtures.create(ApiUser.class, 2);
+        final List<ApiUser> apiUsers = UserFixtures.apiUsers(2);
         final SearchModelCollection<ApiUser> premiumUsers = new SearchModelCollection<>(apiUsers);
         final SearchModelCollection<ApiUser> users = new SearchModelCollection<>(apiUsers,
                                                                                  Collections.emptyMap(),
@@ -231,9 +231,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCachePlaylistSearchResult() {
-        final SearchModelCollection<ApiPlaylist> playlists = new SearchModelCollection<>(ModelFixtures.create(
-                ApiPlaylist.class,
-                2));
+        final SearchModelCollection<ApiPlaylist> playlists = new SearchModelCollection<>(PlaylistFixtures.apiPlaylists(2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(
                 playlists));
 
@@ -244,8 +242,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCacheAlbumSearchResult() {
-        final SearchModelCollection<ApiPlaylist> albums = new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class,
-                                                                                                           2));
+        final SearchModelCollection<ApiPlaylist> albums = new SearchModelCollection<>(PlaylistFixtures.apiPlaylists(2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(albums));
 
@@ -256,7 +253,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCachePremiumPlaylistSearchResult() {
-        final List<ApiPlaylist> apiPlaylists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<ApiPlaylist> apiPlaylists = PlaylistFixtures.apiPlaylists(2);
         final SearchModelCollection<ApiPlaylist> premiumPlaylists = new SearchModelCollection<>(apiPlaylists);
         final SearchModelCollection<ApiPlaylist> playlists = new SearchModelCollection<>(apiPlaylists,
                                                                                          Collections.emptyMap(),
@@ -277,7 +274,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCachePremiumAlbumSearchResult() {
-        final List<ApiPlaylist> apiAlbums = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<ApiPlaylist> apiAlbums = PlaylistFixtures.apiPlaylists(2);
         final SearchModelCollection<ApiPlaylist> premiumAlbums = new SearchModelCollection<>(apiAlbums);
         final SearchModelCollection<ApiPlaylist> albums = new SearchModelCollection<>(apiAlbums,
                                                                                       Collections.emptyMap(),
@@ -419,7 +416,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() {
-        final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist2 = PlaylistFixtures.apiPlaylist();
         final List<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 forPlaylist(playlist), // should be enriched with like status
                 forUser(user),

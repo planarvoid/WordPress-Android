@@ -24,7 +24,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Completable;
@@ -68,7 +68,7 @@ public class PlaylistOperationsTest {
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<EditPlaylistCommandParams> editPlaylistCommandParamsCaptor;
 
-    private final Playlist playlist = ModelFixtures.playlist();
+    private final Playlist playlist = PlaylistFixtures.playlist();
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final List<Urn> newTrackList = asList(trackUrn);

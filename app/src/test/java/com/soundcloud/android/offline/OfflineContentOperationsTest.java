@@ -25,7 +25,7 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -388,6 +388,6 @@ public class OfflineContentOperationsTest {
     }
 
     public Playlist createPlaylistItem(Urn urn) {
-        return ModelFixtures.playlistBuilder().urn(urn).build();
+        return PlaylistFixtures.playlistBuilder().urn(urn).build();
     }
 }

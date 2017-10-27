@@ -8,14 +8,12 @@ import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
 import com.soundcloud.android.api.legacy.model.RecordingBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylistPostBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylistRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -23,7 +21,6 @@ import com.soundcloud.android.api.model.ApiTrackPostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.Configuration;
@@ -60,6 +57,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
@@ -94,10 +92,8 @@ public class ModelFixtures {
         try {
             modelFactory.registerBlueprint(PublicApiUserBlueprint.class);
             modelFactory.registerBlueprint(UserUrnBlueprint.class);
-            modelFactory.registerBlueprint(ApiUserBlueprint.class);
             modelFactory.registerBlueprint(PublicApiTrackBlueprint.class);
             modelFactory.registerBlueprint(RecordingBlueprint.class);
-            modelFactory.registerBlueprint(ApiPlaylistBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackStatsBlueprint.class);
             modelFactory.registerBlueprint(PlaybackSessionEventBlueprint.class);
             modelFactory.registerBlueprint(AssignmentBlueprint.class);
@@ -151,86 +147,6 @@ public class ModelFixtures {
                                         new ModelCollection<>(TrackFixtures.apiTracks(1)));
     }
 
-    public static ApiPlaylist apiPlaylist() {
-        return create(ApiPlaylist.class);
-    }
-
-    public static ApiPlaylist apiAlbum() {
-        final ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
-
-        apiPlaylist.setIsAlbum(true);
-
-        return apiPlaylist;
-    }
-
-    public static Playlist playlist() {
-        return playlistBuilder().trackCount(0).build();
-    }
-
-    public static Playlist playlist(Urn urn) {
-        return playlistBuilder().urn(urn).build();
-    }
-
-    public static Playlist album() {
-        return playlistBuilder().isAlbum(true).build();
-    }
-
-    public static Playlist.Builder playlistBuilder() {
-        return playlistBuilder(ModelFixtures.create(ApiPlaylist.class));
-    }
-
-    public static Playlist.Builder playlistBuilder(ApiPlaylist apiPlaylist) {
-        return Playlist.builder()
-                       .permalinkUrl(Optional.of(apiPlaylist.getPermalinkUrl()))
-                       .repostCount(apiPlaylist.getRepostsCount())
-                       .likesCount(apiPlaylist.getLikesCount())
-                       .creatorName(apiPlaylist.getUsername())
-                       .creatorUrn(apiPlaylist.getUser().getUrn())
-                       .creatorIsPro(apiPlaylist.getUser().isPro())
-                       .duration(apiPlaylist.getDuration())
-                       .imageUrlTemplate(apiPlaylist.getImageUrlTemplate())
-                       .isPrivate(apiPlaylist.getSharing().isPrivate())
-                       .title(apiPlaylist.getTitle())
-                       .trackCount(apiPlaylist.getTrackCount())
-                       .urn(apiPlaylist.getUrn())
-                       .createdAt(apiPlaylist.getCreatedAt())
-                       .isAlbum(apiPlaylist.isAlbum())
-                       .setType(apiPlaylist.getSetType())
-                       .genre(apiPlaylist.getGenre())
-                       .releaseDate(apiPlaylist.getReleaseDate());
-    }
-
-    public static Playlist.Builder playlistBuilder(Playlist apiPlaylist) {
-        return Playlist.builder()
-                       .permalinkUrl(apiPlaylist.permalinkUrl())
-                       .repostCount(apiPlaylist.repostCount())
-                       .likesCount(apiPlaylist.likesCount())
-                       .creatorName(apiPlaylist.creatorName())
-                       .creatorUrn(apiPlaylist.creatorUrn())
-                       .creatorIsPro(apiPlaylist.creatorIsPro())
-                       .duration(apiPlaylist.duration())
-                       .imageUrlTemplate(apiPlaylist.imageUrlTemplate())
-                       .isPrivate(apiPlaylist.isPrivate())
-                       .title(apiPlaylist.title())
-                       .trackCount(apiPlaylist.trackCount())
-                       .urn(apiPlaylist.urn())
-                       .createdAt(apiPlaylist.createdAt())
-                       .isAlbum(apiPlaylist.isAlbum())
-                       .setType(apiPlaylist.setType())
-                       .genre(apiPlaylist.genre())
-                       .releaseDate(apiPlaylist.releaseDate());
-    }
-
-    public static User user() {
-        return UserFixtures.userBuilder()
-                                    .build();
-    }
-
-    public static User proUser() {
-        return UserFixtures.userBuilder().isPro(true)
-                                    .build();
-    }
-
     public static ApiLike apiTrackLike() {
         return apiTrackLike(apiTrack());
     }
@@ -240,7 +156,7 @@ public class ModelFixtures {
     }
 
     public static ApiLike apiPlaylistLike() {
-        return apiPlaylistLike(ModelFixtures.create(ApiPlaylist.class));
+        return apiPlaylistLike(PlaylistFixtures.apiPlaylist());
     }
 
     public static ApiLike apiPlaylistLike(ApiPlaylist apiPlaylist) {
@@ -252,19 +168,19 @@ public class ModelFixtures {
     }
 
     public static ApiPlayableSource apiPlaylistHolder() {
-        return ApiPlayableSource.create(null, ModelFixtures.create(ApiPlaylist.class));
+        return ApiPlayableSource.create(null, PlaylistFixtures.apiPlaylist());
     }
 
     public static ApiPlaylistWithTracks apiPlaylistWithNoTracks() {
         return new ApiPlaylistWithTracks(
-                ModelFixtures.create(ApiPlaylist.class),
+                PlaylistFixtures.apiPlaylist(),
                 new ModelCollection<>()
         );
     }
 
     public static ApiPlaylistWithTracks apiPlaylistWithTracks(List<ApiTrack> tracks) {
         return new ApiPlaylistWithTracks(
-                ModelFixtures.create(ApiPlaylist.class),
+                PlaylistFixtures.apiPlaylist(),
                 new ModelCollection<>(tracks)
         );
     }
@@ -275,46 +191,6 @@ public class ModelFixtures {
 
     public static ApiPost apiTrackPost(ApiTrack apiTrack) {
         return ApiPost.create(apiTrack.getUrn(), new Date());
-    }
-
-    public static List<PlaylistItem> playlistItem(int count) {
-        final List<PlaylistItem> list = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            list.add(playlistItem());
-        }
-        return list;
-    }
-
-    public static List<PlaylistItem> playlistItems(List<ApiPlaylist> apiPlaylists) {
-        return Lists.transform(apiPlaylists, ModelFixtures::playlistItem);
-    }
-
-    public static PlaylistItem playlistItem() {
-        return playlistItem(playlist());
-    }
-
-    public static PlaylistItem.Builder playlistItemBuilder() {
-        return playlistItemBuilder(playlist());
-    }
-
-    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist) {
-        return PlaylistItem.builder(playlist, new OfflineProperties());
-    }
-
-    public static PlaylistItem playlistItem(ApiPlaylist apilaylist) {
-        return playlistItem(Playlist.from(apilaylist));
-    }
-
-    public static PlaylistItem playlistItem(Playlist playlist) {
-        return playlistItemBuilder(playlist, new OfflineProperties()).build();
-    }
-
-    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist, OfflineProperties offlineProperties) {
-        return PlaylistItem.builder(playlist, offlineProperties);
-    }
-
-    public static PlaylistItem playlistItem(Urn urn) {
-        return playlistItem(playlist(urn));
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {

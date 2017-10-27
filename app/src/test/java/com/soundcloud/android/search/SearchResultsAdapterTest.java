@@ -8,9 +8,9 @@ import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_UPSEL
 import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_USER;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -123,7 +123,7 @@ public class SearchResultsAdapterTest {
     }
 
     private PlaylistItem dummyPlaylistItem() {
-        return (PlaylistItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(null, ModelFixtures.create(ApiPlaylist.class), null));
+        return (PlaylistItem) ModelFixtures.listItemFromSearchItem(new ApiUniversalSearchItem(null, PlaylistFixtures.apiPlaylist(), null));
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {

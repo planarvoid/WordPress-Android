@@ -6,8 +6,8 @@ import static java.util.Arrays.asList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldPersistPlaylistsWithCreatorsInDatabase() throws Exception {
-        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<ApiPlaylist> playlists = PlaylistFixtures.apiPlaylists(2);
 
         command.call(playlists);
 
@@ -34,12 +34,11 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStorePlaylistsUsingUpsert() throws Exception {
-        final ApiPlaylist playlist = testFixtures().insertPlaylist();
-        playlist.setTitle("new title");
+        ApiPlaylist updatedPlaylist = testFixtures().insertPlaylist().toBuilder().title("new title").build();
 
-        command.call(asList(playlist));
+        command.call(asList(updatedPlaylist));
 
         assertThat(select(from(Tables.Sounds.TABLE))).counts(1);
-        databaseAssertions().assertPlaylistInserted(playlist);
+        databaseAssertions().assertPlaylistInserted(updatedPlaylist);
     }
 }

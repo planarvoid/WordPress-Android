@@ -13,7 +13,6 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -22,9 +21,9 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsStorage;
 import com.soundcloud.android.stations.StoreStationCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserStorage;
 import io.reactivex.Completable;
@@ -426,7 +425,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     }
 
     private ApiResolvedResource resolvedPlaylist() {
-        return new ApiResolvedResource(null, ModelFixtures.create(ApiPlaylist.class), null, null);
+        return new ApiResolvedResource(null, PlaylistFixtures.apiPlaylist(), null, null);
     }
 
     private ApiResolvedResource resolvedUser() {

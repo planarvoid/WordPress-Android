@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -91,31 +92,31 @@ public class EnrichedEntitiesTest extends AndroidUnitTest {
 
     @Test
     public void playlistReemitsAfterLike() throws Exception {
-        ApiPlaylist apiPlaylist1 = ModelFixtures.apiPlaylist();
-        ApiPlaylist apiPlaylist2 = ModelFixtures.apiPlaylist();
+        ApiPlaylist apiPlaylist1 = PlaylistFixtures.apiPlaylist();
+        ApiPlaylist apiPlaylist2 = PlaylistFixtures.apiPlaylist();
 
         TestObserver<List<PlaylistItem>> testObserver = enrichedEntities.playlistItems(asList(apiPlaylist1, apiPlaylist2)).test();
 
         likesStatusPublisher.onNext(LikedStatuses.create(singleton(apiPlaylist1.getUrn())));
 
         testObserver.assertValues(
-                asList(ModelFixtures.playlistItem(apiPlaylist1), ModelFixtures.playlistItem(apiPlaylist2)),
-                asList(ModelFixtures.playlistItem(apiPlaylist1).updateLikeState(true), ModelFixtures.playlistItem(apiPlaylist2))
+                asList(PlaylistFixtures.playlistItem(apiPlaylist1), PlaylistFixtures.playlistItem(apiPlaylist2)),
+                asList(PlaylistFixtures.playlistItem(apiPlaylist1).updateLikeState(true), PlaylistFixtures.playlistItem(apiPlaylist2))
         );
     }
 
     @Test
     public void playlistReemitsAfterRepost() throws Exception {
-        ApiPlaylist apiPlaylist1 = ModelFixtures.apiPlaylist();
-        ApiPlaylist apiPlaylist2 = ModelFixtures.apiPlaylist();
+        ApiPlaylist apiPlaylist1 = PlaylistFixtures.apiPlaylist();
+        ApiPlaylist apiPlaylist2 = PlaylistFixtures.apiPlaylist();
 
         TestObserver<List<PlaylistItem>> testObserver = enrichedEntities.playlistItems(asList(apiPlaylist1, apiPlaylist2)).test();
 
         repostsStatusPublisher.onNext(RepostStatuses.create(singleton(apiPlaylist1.getUrn())));
 
         testObserver.assertValues(
-                asList(ModelFixtures.playlistItem(apiPlaylist1), ModelFixtures.playlistItem(apiPlaylist2)),
-                asList(ModelFixtures.playlistItem(apiPlaylist1).updatedWithLikeAndRepostStatus(false, true), ModelFixtures.playlistItem(apiPlaylist2))
+                asList(PlaylistFixtures.playlistItem(apiPlaylist1), PlaylistFixtures.playlistItem(apiPlaylist2)),
+                asList(PlaylistFixtures.playlistItem(apiPlaylist1).updatedWithLikeAndRepostStatus(false, true), PlaylistFixtures.playlistItem(apiPlaylist2))
         );
     }
 

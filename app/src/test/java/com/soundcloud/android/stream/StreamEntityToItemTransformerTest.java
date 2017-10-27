@@ -12,7 +12,9 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -33,9 +35,9 @@ import java.util.Date;
 public class StreamEntityToItemTransformerTest {
 
     private static final Date CREATED_AT = new Date();
-    private final User promoter = ModelFixtures.user();
+    private final User promoter = UserFixtures.user();
     private final Track track = TrackFixtures.track();
-    private final Playlist playlist = ModelFixtures.playlist();
+    private final Playlist playlist = PlaylistFixtures.playlist();
 
     @Mock private TrackRepository trackRepository;
     @Mock private PlaylistRepository playlistRepository;

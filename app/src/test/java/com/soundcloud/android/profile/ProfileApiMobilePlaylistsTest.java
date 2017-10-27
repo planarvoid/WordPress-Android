@@ -7,12 +7,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class ProfileApiMobilePlaylistsTest extends AndroidUnitTest {
 
     private ProfileApiMobile api;
     private final TestSubscriber<ModelCollection<ApiPlaylistPost>> subscriber = new TestSubscriber<>();
-    private final ApiPlaylistPost playlistPost = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
+    private final ApiPlaylistPost playlistPost = new ApiPlaylistPost(PlaylistFixtures.apiPlaylist());
     private final ModelCollection<ApiPlaylistPost> collection = new ModelCollection<>(
             newArrayList(playlistPost),
             NEXT_HREF);

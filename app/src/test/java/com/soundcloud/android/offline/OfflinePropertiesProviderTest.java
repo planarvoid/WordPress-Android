@@ -16,7 +16,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -79,7 +79,7 @@ public class OfflinePropertiesProviderTest {
     @Test
     public void loadInitialStatesWhenSubscribing() {
         final Urn track = Urn.forTrack(1L);
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
 
         storageEmitsOfflineTracks(track, REQUESTED);
         storageEmitsOfflinePlaylist(playlist, OfflineState.DOWNLOADED);
@@ -122,7 +122,7 @@ public class OfflinePropertiesProviderTest {
     @Test
     public void resetStatesWhenNewUserLogsIn() {
         final Urn track = Urn.forTrack(124L);
-        final Playlist playlist = ModelFixtures.playlist();
+        final Playlist playlist = PlaylistFixtures.playlist();
 
         storageEmitsOfflineTracks(track, REQUESTED);
         storageEmitsOfflinePlaylist(playlist, OfflineState.DOWNLOADED);

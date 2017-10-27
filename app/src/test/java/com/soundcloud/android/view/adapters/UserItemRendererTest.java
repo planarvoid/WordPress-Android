@@ -10,7 +10,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -64,7 +63,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindProBadgeIfUserIsPro() {
-        userItem = UserFixtures.userItem(ModelFixtures.proUser());
+        userItem = UserFixtures.userItem(UserFixtures.userBuilder().isPro(true).build());
         renderer.bindItemView(0, itemView, singletonList(userItem));
 
         assertThat(imageView(R.id.pro_badge).getVisibility()).isEqualTo(View.VISIBLE);

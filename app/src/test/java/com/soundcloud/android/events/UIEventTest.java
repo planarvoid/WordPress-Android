@@ -19,7 +19,7 @@ import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
@@ -1098,7 +1098,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromCreatePlaylist() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         UIEvent event = UIEvent.fromCreatePlaylist(EntityMetadata.from(playlist));
 
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.CREATE_PLAYLIST);

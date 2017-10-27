@@ -6,7 +6,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +53,7 @@ public class MyPlaylistLikesStateProviderTest {
     }
 
     private List<LikeRecord> buildPlaylist() {
-        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist = PlaylistFixtures.apiPlaylist();
         return singletonList(DatabaseLikeRecord.create(playlist.getUrn(), playlist.getCreatedAt()));
     }
 }

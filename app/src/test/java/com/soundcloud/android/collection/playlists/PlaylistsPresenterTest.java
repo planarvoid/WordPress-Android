@@ -20,6 +20,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Maybe;
@@ -44,12 +45,12 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     private static final int ZERO_PLAYLIST_COUNT = 0;
 
     private static final List<Playlist> PLAYLISTS = Arrays.asList(
-            ModelFixtures.playlist(),
-            ModelFixtures.playlist().toBuilder().isAlbum(true).build(),
-            ModelFixtures.playlist()
+            PlaylistFixtures.playlist(),
+            PlaylistFixtures.playlist().toBuilder().isAlbum(true).build(),
+            PlaylistFixtures.playlist()
     );
 
-    private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, ModelFixtures::playlistItem);
+    private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, PlaylistFixtures::playlistItem);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
 

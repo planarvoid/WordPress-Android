@@ -15,8 +15,8 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -157,9 +157,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsPlaylistActivityWithRandomPlaylistWithAutoplayIfGenreSearchReturnsAnyResults() throws Exception {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
 
-        List<PlaylistItem> playlistResults = Arrays.asList(ModelFixtures.playlistItem(), playlistItem);
+        List<PlaylistItem> playlistResults = Arrays.asList(PlaylistFixtures.playlistItem(), playlistItem);
         Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromSearchableItems(
                 playlistResults,
                 Optional.absent(),

@@ -7,10 +7,10 @@ import com.soundcloud.android.model.Urn
 import com.soundcloud.android.playlists.Playlist
 import com.soundcloud.android.playlists.PlaylistRepository
 import com.soundcloud.android.posts.PostsStorage
+import com.soundcloud.android.testsupport.PlaylistFixtures
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.UserFixtures
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackRepository
 import com.soundcloud.android.users.Following
@@ -72,11 +72,11 @@ class LocalSearchSuggestionOperationsTest : StorageIntegrationTest() {
         postedTrack = TrackFixtures.trackBuilder().creatorName(loggedInUser.username()).title("Awesome song that I created").urn(Urn.forTrack(456)).createdAt(Date(100L)).build()
         postedTrackSearchSuggestion = buildSearchSuggestionFromTrack(postedTrack, DatabaseSearchSuggestion.Kind.Post)
 
-        likedPlaylist = ModelFixtures.playlistBuilder().creatorName(creator.username()).title("Liked playlist").createdAt(Date(0L)).build()
+        likedPlaylist = PlaylistFixtures.playlistBuilder().creatorName(creator.username()).title("Liked playlist").createdAt(Date(0L)).build()
         likedPlaylistSearchSuggestion = buildSearchSuggestionFromPlaylist(likedPlaylist, DatabaseSearchSuggestion.Kind.Like)
         likedPlaylistArtistUsernameSearchSuggestion = buildSearchSuggestionFromPlaylistCreatorName(likedPlaylist)
 
-        postedPlaylist = ModelFixtures.playlistBuilder().creatorName(loggedInUser.username()).title("Cool mix created by me").createdAt(Date(0L)).build()
+        postedPlaylist = PlaylistFixtures.playlistBuilder().creatorName(loggedInUser.username()).title("Cool mix created by me").createdAt(Date(0L)).build()
         postedPlaylistSearchSuggestion = buildSearchSuggestionFromPlaylist(postedPlaylist, DatabaseSearchSuggestion.Kind.Post)
 
         followingUserSearchSuggestion = buildSearchSuggestionFromUser(followingUser)

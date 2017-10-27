@@ -4,7 +4,6 @@ import com.soundcloud.android.api.model.ApiUser
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.UserFixtures
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.java.optional.Optional.fromNullable
 import com.soundcloud.java.optional.Optional.of
 import org.assertj.core.api.Assertions
@@ -41,7 +40,7 @@ class UserStorageTest : StorageIntegrationTest() {
 
     @Test
     fun loadsExtendedUser() {
-        val apiUser = ModelFixtures.create(ApiUser::class.java)
+        val apiUser = UserFixtures.apiUser()
         testFixtures().insertExtendedUser(apiUser, DESCRIPTION, WEBSITE_URL, WEBSITE_NAME, DISCOGS_NAME, MYSPACE_NAME)
 
         val expectedUser = getExtendedUserBuilder(apiUser).build()
@@ -54,7 +53,7 @@ class UserStorageTest : StorageIntegrationTest() {
     @Test
     fun loadUserWithArtistStation() {
         val artistStation = Urn.forArtistStation(123)
-        val apiUser = ModelFixtures.create(ApiUser::class.java)
+        val apiUser = UserFixtures.apiUser()
         testFixtures().insertUser(apiUser, artistStation)
 
         val expectedUser = getApiUserBuilder(apiUser)
@@ -100,10 +99,10 @@ class UserStorageTest : StorageIntegrationTest() {
 
     @Test
     fun loadsMultipleUsers() {
-        val firstUser = ModelFixtures.create(ApiUser::class.java)
+        val firstUser = UserFixtures.apiUser()
         testFixtures().insertUser(firstUser)
 
-        val secondUser = ModelFixtures.create(ApiUser::class.java)
+        val secondUser = UserFixtures.apiUser()
         testFixtures().insertUser(secondUser)
 
         val urns = listOf(firstUser.urn, secondUser.urn)

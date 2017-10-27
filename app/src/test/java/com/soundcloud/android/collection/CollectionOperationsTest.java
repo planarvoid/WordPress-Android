@@ -23,6 +23,7 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -117,7 +118,7 @@ public class CollectionOperationsTest {
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Single.just(Lists.newArrayList(StationFixtures.getStation(Urn.forTrackStation(123L)))));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Maybe.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
+                .thenReturn(Maybe.just(singletonList(Playlist.from(PlaylistFixtures.apiPlaylist()))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Single.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
                 .thenReturn(Single.just(recentlyPlayed));
@@ -173,7 +174,7 @@ public class CollectionOperationsTest {
     public void onCollectionChangedWhenPlaylistPushedEventFires() {
         TestObserver testObserver = operations.onCollectionChanged().test();
 
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), Playlist.from(apiPlaylist)));
 
         testObserver.assertValueCount(1);
@@ -223,9 +224,9 @@ public class CollectionOperationsTest {
     public void collectionsShouldSeparatePlaylistsAndAlbumsIfUserIsIntoABTest() {
         when(playlistAndAlbumsPreviewsExperiment.isEnabled()).thenReturn(true);
 
-        Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
-        Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
-        Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
+        Playlist playlist1 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(false).build();
+        Playlist playlist2 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(false).build();
+        Playlist album1 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(true).build();
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 
@@ -244,9 +245,9 @@ public class CollectionOperationsTest {
     public void collectionsShouldKeepPlaylistsAndAlbumsTogetherIfUserIsNotIntoAbTest() {
         when(playlistAndAlbumsPreviewsExperiment.isEnabled()).thenReturn(false);
 
-        Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
-        Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
-        Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
+        Playlist playlist1 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(false).build();
+        Playlist playlist2 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(false).build();
+        Playlist album1 = PlaylistFixtures.playlistBuilder(Playlist.from(PlaylistFixtures.apiPlaylist())).isAlbum(true).build();
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 

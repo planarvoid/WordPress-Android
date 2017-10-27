@@ -19,7 +19,7 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.tracks.TrackStatsDisplayPolicy;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
@@ -54,7 +54,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
-    private final PlayableItem playableItem = ModelFixtures.playlistItem();
+    private final PlayableItem playlistItem = PlaylistFixtures.playlistItem();
     private final SingleSubject<LikeOperations.LikeResult> testSubject = SingleSubject.create();
     private final SingleSubject<RepostOperations.RepostResult> repostTestSubject = SingleSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
@@ -74,8 +74,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
                                                  trackStatsDisplayPolicy);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
-        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isUserLike())).thenReturn(testSubject);
-        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isUserRepost())).thenReturn(repostTestSubject);
+        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(testSubject);
+        when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost())).thenReturn(repostTestSubject);
         when(viewHolder.getContext()).thenReturn(context());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
     }
@@ -85,10 +85,10 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(true);
         when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(true);
 
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
-        verify(viewHolder).showLikeStats(formattedStats(playableItem.likesCount()), playableItem.isUserLike());
-        verify(viewHolder).showRepostStats(formattedStats(playableItem.repostsCount()), playableItem.isUserRepost());
+        verify(viewHolder).showLikeStats(formattedStats(playlistItem.likesCount()), playlistItem.isUserLike());
+        verify(viewHolder).showRepostStats(formattedStats(playlistItem.repostsCount()), playlistItem.isUserRepost());
     }
 
     @Test
@@ -96,64 +96,64 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         when(trackStatsDisplayPolicy.displayLikesCount(any())).thenReturn(false);
         when(trackStatsDisplayPolicy.displayRepostsCount(any())).thenReturn(false);
 
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
-        verify(viewHolder).showLikeStats(Strings.EMPTY, playableItem.isUserLike());
-        verify(viewHolder).showRepostStats(Strings.EMPTY, playableItem.isUserRepost());
+        verify(viewHolder).showLikeStats(Strings.EMPTY, playlistItem.isUserLike());
+        verify(viewHolder).showRepostStats(Strings.EMPTY, playlistItem.isUserRepost());
     }
 
     @Test
     public void setsDuration() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
-        verify(viewHolder).showDuration("2:03");
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
+        verify(viewHolder).showDuration("0:12");
     }
 
     @Test
     public void setsGenre() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
         verify(viewHolder).showGenre("clownstep");
     }
 
     @Test
     public void doesNotShowRepostStatsForOwnTracks() {
-        when(accountOperations.isLoggedInUser(playableItem.creatorUrn())).thenReturn(true);
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
-        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.repostsCount()),
-                                                    playableItem.isUserRepost());
+        verify(viewHolder, never()).showRepostStats(formattedStats(playlistItem.repostsCount()),
+                                                    playlistItem.isUserRepost());
         verify(viewHolder).hideRepostStats();
     }
 
     @Test
     public void togglesLikeOnLikeClick() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
         captureListener().onLikeClick(view);
 
-        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isUserLike());
+        verify(likeOperations).toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike());
         assertThat(testSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void togglesRepostOnRepostClick() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
         captureListener().onRepostClick(view);
 
-        verify(repostOperations).toggleRepost(playableItem.getUrn(), !playableItem.isUserRepost());
+        verify(repostOperations).toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost());
         assertThat(repostTestSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void toggleRepostSendsTrackingEvent() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
         captureListener().onRepostClick(view);
 
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isUserRepost() ?
+        assertThat(trackingEvent.kind()).isEqualTo(playlistItem.isUserRepost() ?
                                                    UIEvent.Kind.UNREPOST :
                                                    UIEvent.Kind.REPOST);
         assertThat(trackingEvent.isFromOverflow().get()).isFalse();
@@ -161,14 +161,14 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeSendsTrackingEvent() {
-        presenter.bind(viewHolder, playableItem, contextMetadata);
+        presenter.bind(viewHolder, playlistItem, contextMetadata);
 
         captureListener().onLikeClick(view);
 
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isUserLike() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
+        assertThat(trackingEvent.kind()).isEqualTo(playlistItem.isUserLike() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
         assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 

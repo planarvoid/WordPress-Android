@@ -109,8 +109,8 @@ class UserItemRepositoryTest {
 
     @Test
     fun `load user item map from urns`() {
-        val followedUser = ModelFixtures.user()
-        val notFollowedUser = ModelFixtures.user()
+        val followedUser = UserFixtures.user()
+        val notFollowedUser = UserFixtures.user()
         val userUrns = listOf(followedUser.urn(), notFollowedUser.urn())
 
         whenever(followingStorage.loadFollowings()).thenReturn(Single.just(listOf(Following(followedUser.urn(), 0))))

@@ -6,8 +6,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.UserFixtures;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,11 +28,11 @@ public class SearchModelCollectionTest {
                 new SearchModelCollection<>(TrackFixtures.apiTracks(2),
                                             Collections.emptyMap());
         final SearchModelCollection<ApiPlaylist> searchResultPlaylists =
-                new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2),
+                new SearchModelCollection<>(PlaylistFixtures.apiPlaylists(2),
                                             Collections.emptyMap(), "queryUrn", null,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
         final SearchModelCollection<ApiUser> searchResultUsers =
-                new SearchModelCollection<>(ModelFixtures.create(ApiUser.class, 1));
+                new SearchModelCollection<>(UserFixtures.apiUsers(1));
 
         assertThat(searchResultTracks.premiumContent()).isEqualTo(absent());
         assertThat(searchResultPlaylists.premiumContent()).isEqualTo(absent());
@@ -54,7 +55,7 @@ public class SearchModelCollectionTest {
     @Test
     public void shouldCalculateResultsCountFromTracksPlaylistsAndUsers() {
         final SearchModelCollection<ApiPlaylist> searchResultPlaylists =
-                new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2),
+                new SearchModelCollection<>(PlaylistFixtures.apiPlaylists(2),
                                             Collections.emptyMap(), "queryUrn", null,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
 

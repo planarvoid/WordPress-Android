@@ -15,7 +15,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -41,14 +41,14 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        final Playlist playlist = ModelFixtures.playlistBuilder()
-                                               .urn(Urn.forPlaylist(123))
-                                               .title("title")
-                                               .creatorName("creator")
-                                               .likesCount(5)
-                                               .trackCount(11)
-                                               .build();
-        playlistItemBuilder = ModelFixtures.playlistItemBuilder(playlist).isUserLike(false);
+        final Playlist playlist = PlaylistFixtures.playlistBuilder()
+                                                  .urn(Urn.forPlaylist(123))
+                                                  .title("title")
+                                                  .creatorName("creator")
+                                                  .likesCount(5)
+                                                  .trackCount(11)
+                                                  .build();
+        playlistItemBuilder = PlaylistFixtures.playlistItemBuilder(playlist).isUserLike(false);
         playlistItem = playlistItemBuilder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());

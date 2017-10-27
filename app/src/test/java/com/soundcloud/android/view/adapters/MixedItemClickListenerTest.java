@@ -34,9 +34,9 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -94,9 +94,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem track1 = TrackFixtures.trackItem();
         final TrackItem track2 = TrackFixtures.trackItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.playlistItem(),
+                PlaylistFixtures.playlistItem(),
                 track1,
-                ModelFixtures.playlistItem(),
+                PlaylistFixtures.playlistItem(),
                 track2,
                 UserFixtures.userItem()
         );
@@ -137,9 +137,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.playlistItem(),
+                PlaylistFixtures.playlistItem(),
                 TrackFixtures.trackItem(),
                 playlistItem,
                 TrackFixtures.trackItem(),
@@ -201,10 +201,10 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     public void itemClickOnUserGoesToUserProfile() {
         final UserItem userItem = UserFixtures.userItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.playlistItem(),
+                PlaylistFixtures.playlistItem(),
                 TrackFixtures.trackItem(),
                 userItem,
-                ModelFixtures.playlistItem(),
+                PlaylistFixtures.playlistItem(),
                 TrackFixtures.trackItem()
         );
 
@@ -234,7 +234,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getUrn());
 
         listener.onItemClick(Observable.just(items), 1, playlistItem);
@@ -286,7 +286,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
                                                          createPlayable(playlistItem.getUrn()));
 
@@ -309,7 +309,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void onPostClickOpensPlaylistOnNonTrackItem() {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
+        final PlaylistItem playlistItem = PlaylistFixtures.playlistItem();
         List<PlayableItem> items = Arrays.asList(createPlayableItem(Urn.forTrack(123L)),
                                                  createPlayableItem(playlistItem.getUrn()));
 
@@ -354,6 +354,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @NonNull
     private PlayableItem createPlayableItem(Urn urn) {
-        return ModelFixtures.playlistItem(urn);
+        return PlaylistFixtures.playlistItem(urn);
     }
 }

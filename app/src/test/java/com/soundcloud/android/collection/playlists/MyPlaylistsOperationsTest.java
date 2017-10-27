@@ -14,8 +14,8 @@ import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.posts.PostsStorage;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TestOfflinePropertiesProvider;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Maps;
 import io.reactivex.Single;
@@ -279,7 +279,7 @@ public class MyPlaylistsOperationsTest {
     }
 
     private Playlist.Builder getPlaylistBuilder(Urn urn, String title) {
-        return ModelFixtures.playlistBuilder().urn(urn).title(title);
+        return PlaylistFixtures.playlistBuilder().urn(urn).title(title);
     }
 
     private PlaylistAssociation getAssociatedPlaylist(Playlist playlistItem, Date postedAt) {

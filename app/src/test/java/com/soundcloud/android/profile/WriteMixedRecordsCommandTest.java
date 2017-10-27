@@ -12,9 +12,9 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.ApiEntityHolder;
+import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.InsertResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void writesPlaylistsSuccessfully() {
-        final List<ApiPlaylist> apiPlaylists = Arrays.asList(ModelFixtures.create(ApiPlaylist.class));
+        final List<ApiPlaylist> apiPlaylists = Arrays.asList(PlaylistFixtures.apiPlaylist());
         when(storePlaylistsCommand.call(apiPlaylists)).thenReturn(new InsertResult(1));
 
         assertThat(command.call(new ModelCollection<>(apiPlaylists))).isTrue();
@@ -73,7 +73,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void writesMixedCollectionSuccessfully() {
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
         final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiUser apiUser = UserFixtures.apiUser();
         final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);
@@ -107,7 +107,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void returnsFalseIfPlaylistFailsToWrite() {
-        final List<ApiPlaylist> apiPlaylists = Arrays.asList(ModelFixtures.create(ApiPlaylist.class));
+        final List<ApiPlaylist> apiPlaylists = Arrays.asList(PlaylistFixtures.apiPlaylist());
         when(storePlaylistsCommand.call(apiPlaylists)).thenReturn(unsuccessfulResult);
 
         assertThat(command.call(new ModelCollection<>(apiPlaylists))).isFalse();
@@ -115,7 +115,7 @@ public class WriteMixedRecordsCommandTest {
 
     @Test
     public void returnsFalseIfMixedCollectionFailsToWriteOneType() {
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist apiPlaylist = PlaylistFixtures.apiPlaylist();
         final ApiTrack apiTrack = TrackFixtures.apiTrack();
         final ApiUser apiUser = UserFixtures.apiUser();
         final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);

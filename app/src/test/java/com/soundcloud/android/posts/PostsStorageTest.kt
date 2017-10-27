@@ -13,6 +13,7 @@ import com.soundcloud.android.playlists.RemovePlaylistCommand
 import com.soundcloud.android.storage.Table
 import com.soundcloud.android.storage.TableColumns
 import com.soundcloud.android.storage.Tables
+import com.soundcloud.android.testsupport.PlaylistFixtures
 import com.soundcloud.android.testsupport.StorageIntegrationTest
 import com.soundcloud.android.testsupport.TrackFixtures
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
@@ -107,7 +108,7 @@ class PostsStorageTest : StorageIntegrationTest() {
 
     @Test
     fun `markPlaylistPendingRemoval removes associated entry from Activities View`() {
-        val playlist = ModelFixtures.create(ApiPlaylist::class.java)
+        val playlist = PlaylistFixtures.apiPlaylist()
         val apiActivityItem = ModelFixtures.apiPlaylistRepostActivity(playlist)
         testFixtures().insertPlaylistRepostActivity(apiActivityItem)
 
@@ -122,7 +123,7 @@ class PostsStorageTest : StorageIntegrationTest() {
 
     @Test
     fun `markPlaylistPendingRemoval removes associated entry from SoundStream View`() {
-        val playlist = ModelFixtures.create(ApiPlaylist::class.java)
+        val playlist = PlaylistFixtures.apiPlaylist()
         testFixtures().insertStreamPlaylistPost(playlist.id, 123L)
 
         storage.markPlaylistPendingRemoval(playlist.urn).subscribe()
@@ -147,7 +148,7 @@ class PostsStorageTest : StorageIntegrationTest() {
 
     @Test
     fun `markPlaylistPendingRemoval removes associated entry from Sounds table`() {
-        val playlist = ModelFixtures.create(ApiPlaylist::class.java)
+        val playlist = PlaylistFixtures.apiPlaylist()
         testFixtures().insertStreamPlaylistPost(playlist.id, 123L)
 
         storage.markPlaylistPendingRemoval(playlist.urn).subscribe()
@@ -171,7 +172,7 @@ class PostsStorageTest : StorageIntegrationTest() {
 
     private fun createPlaylistAssociation(postedAt: Date, playlistCreatedAt: Date): PlaylistAssociation {
         val apiPlaylist = createPlaylistAt(playlistCreatedAt)
-        val playlist = ModelFixtures.playlistBuilder(apiPlaylist)
+        val playlist = PlaylistFixtures.playlistBuilder(apiPlaylist)
                 .isLikedByCurrentUser(false)
                 .isRepostedByCurrentUser(false)
 
