@@ -68,13 +68,9 @@ import static com.soundcloud.android.storage.Tables.Users.ARTIST_STATION;
 import static com.soundcloud.android.storage.Tables.Users.AVATAR_URL;
 import static com.soundcloud.android.storage.Tables.Users.COUNTRY;
 import static com.soundcloud.android.storage.Tables.Users.DESCRIPTION;
-import static com.soundcloud.android.storage.Tables.Users.DISCOGS_NAME;
 import static com.soundcloud.android.storage.Tables.Users.FOLLOWERS_COUNT;
 import static com.soundcloud.android.storage.Tables.Users.IS_PRO;
-import static com.soundcloud.android.storage.Tables.Users.MYSPACE_NAME;
 import static com.soundcloud.android.storage.Tables.Users.VISUAL_URL;
-import static com.soundcloud.android.storage.Tables.Users.WEBSITE_NAME;
-import static com.soundcloud.android.storage.Tables.Users.WEBSITE_URL;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
@@ -695,12 +691,8 @@ public class DatabaseAssertions {
                 .whereEq(IS_PRO, user.isPro());
 
         assertOptionalColumn(query, DESCRIPTION, user.getDescription());
-        assertOptionalColumn(query, WEBSITE_URL, user.getWebsiteUrl());
         assertOptionalColumn(query, AVATAR_URL, user.getImageUrlTemplate());
         assertOptionalColumn(query, VISUAL_URL, user.getVisualUrlTemplate());
-        assertOptionalColumn(query, WEBSITE_NAME, user.getWebsiteName());
-        assertOptionalColumn(query, DISCOGS_NAME, user.getDiscogsName());
-        assertOptionalColumn(query, MYSPACE_NAME, user.getMyspaceName());
         assertOptionalColumn(query, ARTIST_STATION, user.getArtistStationUrn());
         assertThat(select(query)).counts(1);
     }

@@ -18,10 +18,6 @@ public class PublicApiUserBlueprint {
             // these have to go here because the setter has a differen param than the return type,
             // and ModelCitizen if you use the annotation
             publicApiUser.setDescription("description");
-            publicApiUser.setWebsite("http://website-url.com");
-            publicApiUser.setWebsiteTitle("website title");
-            publicApiUser.setDiscogsName("discogs name");
-            publicApiUser.setMyspaceName("myspace name");
             return publicApiUser;
         }
     };

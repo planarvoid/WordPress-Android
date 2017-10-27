@@ -87,26 +87,6 @@ public class TestUserRecord implements UserRecord {
     }
 
     @Override
-    public Optional<String> getWebsiteUrl() {
-        return Optional.of("website-url");
-    }
-
-    @Override
-    public Optional<String> getWebsiteName() {
-        return Optional.of("website-name");
-    }
-
-    @Override
-    public Optional<String> getDiscogsName() {
-        return Optional.of("discogs-name");
-    }
-
-    @Override
-    public Optional<String> getMyspaceName() {
-        return Optional.of("myspace-name");
-    }
-
-    @Override
     public Optional<Urn> getArtistStationUrn() {
         return Optional.of(Urn.forArtistStation(123));
     }

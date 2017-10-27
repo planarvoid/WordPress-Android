@@ -28,14 +28,6 @@ public interface UserRecord extends ImageResource {
 
     Optional<String> getDescription();
 
-    Optional<String> getWebsiteUrl();
-
-    Optional<String> getWebsiteName();
-
-    Optional<String> getDiscogsName();
-
-    Optional<String> getMyspaceName();
-
     Optional<Urn> getArtistStationUrn();
 
     Optional<String> getVisualUrlTemplate();

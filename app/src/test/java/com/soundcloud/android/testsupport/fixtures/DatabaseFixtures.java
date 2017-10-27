@@ -334,24 +334,8 @@ public class DatabaseFixtures {
         cv.put(Tables.Users.VISUAL_URL, user.getVisualUrlTemplate().orNull());
         cv.put(Tables.Users.PERMALINK, user.getPermalink());
         cv.put(Tables.Users.IS_PRO, user.isPro());
+        cv.put(Tables.Users.DESCRIPTION, user.getDescription().orNull());
         return cv;
-    }
-
-    public void insertExtendedUser(ApiUser user,
-                                   String description,
-                                   String websiteUrl,
-                                   String websiteTitle,
-                                   String discogsName,
-                                   String myspaceName) {
-
-        ContentValuesBuilder cv = basicUserContentValues(user);
-        cv.put(Tables.Users.DESCRIPTION, description);
-        cv.put(Tables.Users.WEBSITE_URL, websiteUrl);
-        cv.put(Tables.Users.WEBSITE_NAME, websiteTitle);
-        cv.put(Tables.Users.DISCOGS_NAME, discogsName);
-        cv.put(Tables.Users.MYSPACE_NAME, myspaceName);
-
-        insertInto(Tables.Users.TABLE, cv.get());
     }
 
     public void insertUser(ApiUser user,

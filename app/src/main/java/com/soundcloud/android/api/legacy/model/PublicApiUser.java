@@ -41,10 +41,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     @Nullable public String full_name;
     @Nullable public String description;
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
-    @Nullable public String website;
-    @Nullable public String website_title;
-    @Nullable public String myspace_name;
-    @Nullable public String discogs_name;
     // counts
     public int track_count = NOT_SET;
     public int followers_count = NOT_SET;
@@ -87,10 +83,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
         model.city = bundle.getString("city");
         model.country = bundle.getString("country");
         model.plan = bundle.getString("plan");
-        model.website = bundle.getString("website");
-        model.website_title = bundle.getString("website_title");
-        model.myspace_name = bundle.getString("myspace_name");
-        model.discogs_name = bundle.getString("discogs_name");
         model.track_count = bundle.getInt("track_count");
         model.followers_count = bundle.getInt("followers_count");
         model.followings_count = bundle.getInt("followings_count");
@@ -116,12 +108,9 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
                 "id=" + getId() +
                 ", username='" + username + '\'' +
                 ", track_count='" + track_count + '\'' +
-                ", discogs_name='" + discogs_name + '\'' +
                 ", city='" + city + '\'' +
                 ", uri='" + uri + '\'' +
                 ", avatar_url='" + avatar_url + '\'' +
-                ", website_title='" + website_title + '\'' +
-                ", website='" + website + '\'' +
                 ", description='" + description + '\'' +
                 ", permalink='" + permalink + '\'' +
                 ", permalink_url='" + permalink_url + '\'' +
@@ -130,7 +119,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
                 ", followings_count='" + followings_count + '\'' +
                 ", public_likes_count='" + public_likes_count + '\'' +
                 ", private_tracks_count='" + private_tracks_count + '\'' +
-                ", myspace_name='" + myspace_name + '\'' +
                 ", country='" + country + '\'' +
                 ", plan='" + plan + '\'' +
                 ']';
@@ -218,26 +206,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
     }
 
     @Override
-    public Optional<String> getWebsiteUrl() {
-        return Optional.fromNullable(website);
-    }
-
-    @Override
-    public Optional<String> getWebsiteName() {
-        return Optional.fromNullable(website_title);
-    }
-
-    @Override
-    public Optional<String> getDiscogsName() {
-        return Optional.fromNullable(discogs_name);
-    }
-
-    @Override
-    public Optional<String> getMyspaceName() {
-        return Optional.fromNullable(myspace_name);
-    }
-
-    @Override
     public Optional<Urn> getArtistStationUrn() {
         return Optional.absent();
     }
@@ -276,10 +244,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
         bundle.putString("city", model.city);
         bundle.putString("country", model.country);
         bundle.putString("plan", model.plan);
-        bundle.putString("website", model.website);
-        bundle.putString("website_title", model.website_title);
-        bundle.putString("myspace_name", model.myspace_name);
-        bundle.putString("discogs_name", model.discogs_name);
         bundle.putInt("track_count", model.track_count);
         bundle.putInt("followers_count", model.followers_count);
         bundle.putInt("followings_count", model.followings_count);
@@ -299,30 +263,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
                       .followingsCount(followings_count)
                       .username(username)
                       .description(getDescription())
-                      .websiteUrl(getWebsiteUrl())
-                      .websiteName(getWebsiteName())
-                      .myspaceName(getMyspaceName())
-                      .discogsName(getDiscogsName())
                       .trackCount(track_count)
                       .verified(false)
                       .pro(false)
                       .build();
-    }
-
-    public void setWebsite(String website) {
-        this.website = website;
-    }
-
-    public void setWebsiteTitle(String websiteTitle) {
-        this.website_title = websiteTitle;
-    }
-
-    public void setDiscogsName(String discogsName) {
-        this.discogs_name = discogsName;
-    }
-
-    public void setMyspaceName(String myspaceName) {
-        this.myspace_name = myspaceName;
     }
 
     @Override

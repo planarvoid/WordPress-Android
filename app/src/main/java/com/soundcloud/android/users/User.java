@@ -39,14 +39,6 @@ public abstract class User {
 
     public abstract Optional<String> visualUrl();
 
-    public abstract Optional<String> websiteUrl();
-
-    public abstract Optional<String> websiteName();
-
-    public abstract Optional<String> mySpaceName();
-
-    public abstract Optional<String> discogsName();
-
     public abstract Optional<Urn> artistStation();
 
     public abstract boolean isPro();
@@ -67,10 +59,6 @@ public abstract class User {
                 .description(Optional.fromNullable(cursorReader.getString(Users.DESCRIPTION.name())))
                 .avatarUrl(Optional.fromNullable(cursorReader.getString(Users.AVATAR_URL.name())))
                 .visualUrl(Optional.fromNullable(cursorReader.getString(Users.VISUAL_URL.name())))
-                .websiteUrl(Optional.fromNullable(cursorReader.getString(Users.WEBSITE_URL.name())))
-                .websiteName(Optional.fromNullable(cursorReader.getString(Users.WEBSITE_NAME.name())))
-                .mySpaceName(Optional.fromNullable(cursorReader.getString(Users.MYSPACE_NAME.name())))
-                .discogsName(Optional.fromNullable(cursorReader.getString(Users.DISCOGS_NAME.name())))
                 .artistStation(Optional.fromNullable(cursorReader.getString(Users.ARTIST_STATION.name())).transform(STRING_TO_URN))
                 .isPro(cursorReader.getBoolean(Users.IS_PRO.name()))
                 .build();
@@ -90,10 +78,6 @@ public abstract class User {
                 .description(apiUser.getDescription())
                 .avatarUrl(apiUser.getImageUrlTemplate())
                 .visualUrl(apiUser.getVisualUrlTemplate())
-                .websiteUrl(apiUser.getWebsiteUrl())
-                .websiteName(apiUser.getWebsiteName())
-                .mySpaceName(apiUser.getMyspaceName())
-                .discogsName(apiUser.getDiscogsName())
                 .artistStation(apiUser.getArtistStationUrn())
                 .isPro(apiUser.isPro())
                 .build();
@@ -111,10 +95,6 @@ public abstract class User {
                 .description(Optional.absent())
                 .avatarUrl(Optional.absent())
                 .visualUrl(Optional.absent())
-                .websiteUrl(Optional.absent())
-                .websiteName(Optional.absent())
-                .mySpaceName(Optional.absent())
-                .discogsName(Optional.absent())
                 .artistStation(Optional.absent());
 
     }
@@ -144,14 +124,6 @@ public abstract class User {
         public abstract Builder avatarUrl(Optional<String> avatarUrl);
 
         public abstract Builder visualUrl(Optional<String> visualUrl);
-
-        public abstract Builder websiteUrl(Optional<String> websiteUrl);
-
-        public abstract Builder websiteName(Optional<String> websiteName);
-
-        public abstract Builder mySpaceName(Optional<String> myspaceName);
-
-        public abstract Builder discogsName(Optional<String> discogsName);
 
         public abstract Builder artistStation(Optional<Urn> artistStation);
 

@@ -39,18 +39,6 @@ class UserStorageTest : StorageIntegrationTest() {
     }
 
     @Test
-    fun loadsExtendedUser() {
-        val apiUser = UserFixtures.apiUser()
-        testFixtures().insertExtendedUser(apiUser, DESCRIPTION, WEBSITE_URL, WEBSITE_NAME, DISCOGS_NAME, MYSPACE_NAME)
-
-        val expectedUser = getExtendedUserBuilder(apiUser).build()
-
-        storage.loadUser(apiUser.urn)
-                .test()
-                .assertValue(expectedUser)
-    }
-
-    @Test
     fun loadUserWithArtistStation() {
         val artistStation = Urn.forArtistStation(123)
         val apiUser = UserFixtures.apiUser()
@@ -144,10 +132,6 @@ class UserStorageTest : StorageIntegrationTest() {
                 .country(fromNullable(apiUser.country))
                 .city(fromNullable(apiUser.city))
                 .description(of(DESCRIPTION))
-                .websiteUrl(of(WEBSITE_URL))
-                .websiteName(of(WEBSITE_NAME))
-                .discogsName(of(DISCOGS_NAME))
-                .mySpaceName(of(MYSPACE_NAME))
     }
 
     private fun getApiUserBuilder(apiUser: ApiUser): User.Builder {

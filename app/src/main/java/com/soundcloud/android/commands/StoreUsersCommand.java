@@ -48,10 +48,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                 Users.DESCRIPTION,
                 Users.AVATAR_URL,
                 Users.VISUAL_URL,
-                Users.WEBSITE_URL,
-                Users.WEBSITE_NAME,
-                Users.DISCOGS_NAME,
-                Users.MYSPACE_NAME,
                 Users.ARTIST_STATION,
                 Users.SIGNUP_DATE,
                 Users.IS_PRO
@@ -71,10 +67,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getDescription().orNull(),
                     user.getImageUrlTemplate().orNull(),
                     user.getVisualUrlTemplate().orNull(),
-                    user.getWebsiteUrl().orNull(),
-                    user.getWebsiteName().orNull(),
-                    user.getDiscogsName().orNull(),
-                    user.getMyspaceName().orNull(),
                     user.getArtistStationUrn().transform(urn -> urn.getContent()).orNull(),
                     user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null,
                     user.isPro()
@@ -91,10 +83,6 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
         putOptionalValue(baseBuilder, user.getDescription(), Users.DESCRIPTION);
         putOptionalValue(baseBuilder, user.getImageUrlTemplate(), Users.AVATAR_URL);
         putOptionalValue(baseBuilder, user.getVisualUrlTemplate(), Users.VISUAL_URL);
-        putOptionalValue(baseBuilder, user.getWebsiteUrl(), Users.WEBSITE_URL);
-        putOptionalValue(baseBuilder, user.getWebsiteName(), Users.WEBSITE_NAME);
-        putOptionalValue(baseBuilder, user.getDiscogsName(), Users.DISCOGS_NAME);
-        putOptionalValue(baseBuilder, user.getMyspaceName(), Users.MYSPACE_NAME);
         putOptionalValue(baseBuilder, user.getArtistStationUrn(), Users.ARTIST_STATION);
 
         return baseBuilder.get();

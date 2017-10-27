@@ -183,24 +183,14 @@ public interface Tables {
         public static final Column VISUAL_URL = Column.create(TABLE, "visual_url", String.class);
         public static final Column CITY = Column.create(TABLE, "city", String.class);
         public static final Column COUNTRY = Column.create(TABLE, "country", String.class);
-        public static final Column DISCOGS_NAME = Column.create(TABLE, "discogs_name", String.class);
         public static final Column FOLLOWERS_COUNT = Column.create(TABLE, "followers_count", Long.class);
         public static final Column FOLLOWINGS_COUNT = Column.create(TABLE, "followings_count", Long.class);
         public static final Column FIRST_NAME = Column.create(TABLE, "first_name", String.class);
         public static final Column LAST_NAME = Column.create(TABLE, "last_name", String.class);
-        public static final Column FULL_NAME = Column.create(TABLE, "full_name", String.class);
-        public static final Column MYSPACE_NAME = Column.create(TABLE, "myspace_name", String.class);
         public static final Column TRACK_COUNT = Column.create(TABLE, "track_count", Long.class);
-        public static final Column WEBSITE_URL = Column.create(TABLE, "website", String.class);
-        public static final Column WEBSITE_NAME = Column.create(TABLE, "website_title", String.class);
         public static final Column DESCRIPTION = Column.create(TABLE, "description", String.class);
-        public static final Column USER_FOLLOWING = Column.create(TABLE, "user_following", Boolean.class);
-        public static final Column USER_FOLLOWER = Column.create(TABLE, "user_follower", Boolean.class);
-        public static final Column PERMALINK_URL = Column.create(TABLE, "permalink_url", String.class);
         public static final Column ARTIST_STATION = Column.create(TABLE, "artist_station", String.class);
         public static final Column PRIMARY_EMAIL_CONFIRMED = Column.create(TABLE, "primary_email_confirmed", Boolean.class);
-        public static final Column PUBLIC_LIKES_COUNT = Column.create(TABLE, "public_favorites_count", Long.class);
-        public static final Column PRIVATE_TRACKS_COUNT = Column.create(TABLE, "private_tracks_count", Long.class);
         public static final Column SIGNUP_DATE = Column.create(TABLE, "signup_date", Long.class);
         public static final Column IS_PRO = Column.create(TABLE, "is_pro", Boolean.class);
 
@@ -226,15 +216,7 @@ public interface Tables {
                 "artist_station TEXT," +
                 "plan VARCHAR(16)," +
                 "primary_email_confirmed INTEGER," +
-
-                "website VARCHAR(255)," +
-                "website_title VARCHAR(255), " +
-
-                "discogs_name VARCHAR(255)," +
-                "myspace_name VARCHAR(255)," +
-
                 "visual_url VARCHAR(255)," +
-
                 "is_pro BOOLEAN," +
 
                 // counts

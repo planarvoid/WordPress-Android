@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
@@ -17,12 +16,6 @@ import java.util.List;
 
 @AutoValue
 public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, ApiSyncable {
-
-    private static final String DISCOGS_PATH = "http://www.discogs.com/artist/";
-    private static final String DISCOGS_NETWORK = "discogs";
-    private static final String MYSPACE_PATH = "http://www.myspace.com/";
-    private static final String MYSPACE_NETWORK = "myspace";
-    private static final String PERSONAL_NETWORK = "personal";
 
     @JsonCreator
     public static ApiUser create(
@@ -42,8 +35,7 @@ public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecord
             @JsonProperty("is_pro") boolean isPro,
             @JsonProperty("visual_url_template") String visualUrlTemplate,
             @JsonProperty("created_at") Date createdAt,
-            @JsonProperty("station_urns") List<Urn> stationsUrns,
-            @JsonProperty("social_media_links") ModelCollection<ApiSocialMediaLink> apiSocialMediaLinks) {
+            @JsonProperty("station_urns") List<Urn> stationsUrns) {
 
         Builder builder = builder(urn).permalink(permalink)
                                       .username(username)
@@ -61,21 +53,6 @@ public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecord
                                       .verified(verified)
                                       .pro(isPro)
                                       .artistStationUrn(extractArtistStationUrn(stationsUrns));
-
-        // this converts new social links to the legacy format, and should be removed when we fully move
-        // to the new format in https://soundcloud.atlassian.net/browse/CREATORS-2240
-        if (apiSocialMediaLinks != null) {
-            for (ApiSocialMediaLink apiSocialMediaLink : apiSocialMediaLinks) {
-                if (MYSPACE_NETWORK.equals(apiSocialMediaLink.network())) {
-                    builder.myspaceName(Optional.of(apiSocialMediaLink.url().replace(MYSPACE_PATH, Strings.EMPTY)));
-                } else if (DISCOGS_NETWORK.equals(apiSocialMediaLink.network())) {
-                    builder.discogsName(Optional.of(apiSocialMediaLink.url().replace(DISCOGS_PATH, Strings.EMPTY)));
-                } else if (PERSONAL_NETWORK.equals(apiSocialMediaLink.network())) {
-                    builder.websiteUrl(Optional.of(apiSocialMediaLink.url()));
-                    builder.websiteName(Optional.fromNullable(apiSocialMediaLink.title().orNull()));
-                }
-            }
-        }
         return builder.build();
     }
 
@@ -101,10 +78,6 @@ public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecord
                 .description(Optional.absent())
                 .imageUrlTemplate(Optional.absent())
                 .visualUrlTemplate(Optional.absent())
-                .websiteUrl(Optional.absent())
-                .websiteName(Optional.absent())
-                .discogsName(Optional.absent())
-                .myspaceName(Optional.absent())
                 .artistStationUrn(Optional.absent());
     }
 
@@ -149,18 +122,6 @@ public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecord
 
     @Override
     public abstract Optional<String> getDescription();
-
-    @Override
-    public abstract Optional<String> getWebsiteUrl();
-
-    @Override
-    public abstract Optional<String> getWebsiteName();
-
-    @Override
-    public abstract Optional<String> getDiscogsName();
-
-    @Override
-    public abstract Optional<String> getMyspaceName();
 
     @Override
     public abstract Optional<Urn> getArtistStationUrn();
@@ -214,14 +175,6 @@ public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecord
         public abstract Builder followersCount(int followersCount);
 
         public abstract Builder description(Optional<String> description);
-
-        public abstract Builder websiteUrl(Optional<String> websiteUrl);
-
-        public abstract Builder websiteName(Optional<String> websiteName);
-
-        public abstract Builder discogsName(Optional<String> discogsName);
-
-        public abstract Builder myspaceName(Optional<String> myspaceName);
 
         public abstract Builder artistStationUrn(Optional<Urn> artistStationUrn);
 
