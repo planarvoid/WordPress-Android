@@ -948,14 +948,6 @@ Riavvia l\'applicazione.</string>
   <string name="play_queue_header_magic_box_subtitle">Nuova musica basata su quello che stai ascoltando</string>
   <string name="play_queue_header_auto_play_toggle">Riproduzione automatica stazione</string>
   <string name="play_queue_header_cast">Trasmissione</string>
-  <!--__SUGGESTED CREATORS-->
-  <string name="suggested_creators">Artisti consigliati</string>
-  <string name="suggested_creators_blurb">Segui i tuoi artisti preferiti per essere sempre aggiornato sulle loro nuove tracce</string>
-  <string name="suggested_creators_recent_posts">Post recenti</string>
-  <string name="suggested_creators_relation_listened_to">Hai ascoltato una loro traccia di recente</string>
-  <string name="suggested_creators_relation_liked">Hai messo Mi piace a una loro traccia di recente</string>
-  <string name="suggested_creators_relation_reposted">Hai ripubblicato una loro traccia di recente</string>
-  <string name="suggested_creators_relation_curated">Hai aggiunto una loro traccia a una playlist di recente</string>
   <string name="remote_signin_activity_title">Attiva</string>
   <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Invia il rapporto bug</string>
@@ -998,7 +990,6 @@ Riavvia l\'applicazione.</string>
   <string name="push_notifications_add">Post aggiunto alla libreria</string>
   <string name="email_notifications_add">Post aggiunto alla libreria</string>
   <string name="play_queue_header_tracks">Dalle tue tracce</string>
-  <string name="suggested_creators_relation_added">Hai recentemente aggiunto le loro tracce alla tua libreria</string>
   <string name="like_your_favorite_tracks_title">Metti Mi piace alle tue tracce preferite</string>
   <string name="like_your_favorite_tracks_description">Tocca per salvare la tua libreria e supportare i tuoi artisti preferiti.</string>
   <string name="add_your_favorite_tracks_title">Aggiunta alla tua libreria</string>

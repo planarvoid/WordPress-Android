@@ -4,13 +4,11 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdItemResult;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.VideoAdItemRenderer;
-import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookLoadingResult;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsItemRenderer;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
 import com.soundcloud.android.upsell.UpsellLoadingResult;
 import com.soundcloud.java.optional.Optional;
@@ -26,7 +24,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
-    private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
     private final AppInstallItemRenderer appInstallItemRenderer;
     private final VideoAdItemRenderer videoAdItemRenderer;
@@ -37,7 +34,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
                          FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
                          FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
                          StreamUpsellItemRenderer upsellItemRenderer,
-                         SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
                          AppInstallItemRenderer appInstallItemRenderer,
                          VideoAdItemRenderer videoAdItemRenderer) {
         super(new CellRendererBinding<>(StreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
@@ -45,13 +41,11 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
               new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_LISTENER_INVITES.ordinal(), facebookListenerInvitesItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_CREATORS.ordinal(), facebookCreatorInvitesItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
-              new CellRendererBinding<>(StreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.VIDEO_AD.ordinal(), videoAdItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.upsellItemRenderer = upsellItemRenderer;
-        this.suggestedCreatorsItemRenderer = suggestedCreatorsItemRenderer;
         this.appInstallItemRenderer = appInstallItemRenderer;
         this.videoAdItemRenderer = videoAdItemRenderer;
     }
@@ -59,10 +53,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getKind().ordinal();
-    }
-
-    void unsubscribe() {
-        suggestedCreatorsItemRenderer.unsubscribe();
     }
 
     @Override
@@ -99,10 +89,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     public VideoAdItemRenderer getVideoAdItemRenderer() {
         return videoAdItemRenderer;
-    }
-
-    void onFollowingEntityChange(FollowingStatusEvent event) {
-        suggestedCreatorsItemRenderer.onFollowingEntityChange(event);
     }
 
     Observable<FacebookLoadingResult> facebookListenerInvitesLoadingResult() {

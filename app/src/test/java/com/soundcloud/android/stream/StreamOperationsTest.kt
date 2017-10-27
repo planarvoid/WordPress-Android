@@ -8,8 +8,6 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesOperations
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.playback.PlayableWithReposter
 import com.soundcloud.android.stream.StreamItem.Kind
-import com.soundcloud.android.suggestedcreators.SuggestedCreator
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.sync.SyncStateStorage
 import com.soundcloud.android.sync.Syncable
@@ -49,7 +47,6 @@ import java.util.Date
 
 class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, StreamStorage>() {
 
-    private val suggestedCreatorsItem = StreamItem.SuggestedCreators.create(Lists.newArrayList<SuggestedCreator>())
     private lateinit var streamOperations: StreamOperations
 
     @Mock private lateinit var streamStorage: StreamStorage
@@ -59,7 +56,6 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
     @Mock private lateinit var facebookInvitesOperations: FacebookInvitesOperations
     @Mock private lateinit var streamAdsController: StreamAdsController
     @Mock private lateinit var upsellOperations: InlineUpsellOperations
-    @Mock private lateinit var suggestedCreatorsOperations: SuggestedCreatorsOperations
     @Mock private lateinit var streamEntityToItemTransformer: StreamEntityToItemTransformer
 
     private val eventBus = TestEventBusV2()
@@ -77,7 +73,6 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
         whenever(removeStalePromotedItemsCommand.toSingle()).thenReturn(Single.just(emptyList()))
         whenever(facebookInvitesOperations.creatorInvites()).thenReturn(Maybe.empty())
         whenever(facebookInvitesOperations.listenerInvites()).thenReturn(Maybe.empty())
-        whenever(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Maybe.empty())
         whenever(streamEntityToItemTransformer.apply(eq(emptyList()))).thenReturn(Single.just(emptyList()))
         this.streamOperations = super.operations as StreamOperations
     }
@@ -86,10 +81,17 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
                                  syncInitiator: SyncInitiator,
                                  scheduler: Scheduler,
                                  syncStateStorage: SyncStateStorage): TimelineOperations<StreamEntity, StreamItem> {
-        return StreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
-                                markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                                streamAdsController, upsellOperations, syncStateStorage,
-                                suggestedCreatorsOperations, streamEntityToItemTransformer)
+        return StreamOperations(storage,
+                                syncInitiator,
+                                removeStalePromotedItemsCommand,
+                                markPromotedItemAsStaleCommand,
+                                eventBus,
+                                scheduler,
+                                facebookInvitesOperations,
+                                streamAdsController,
+                                upsellOperations,
+                                syncStateStorage,
+                                streamEntityToItemTransformer)
     }
 
     override fun provideStorageMock(): StreamStorage? {
@@ -115,53 +117,6 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
         inOrder.verify(streamStorage).timelineItems(TimelineOperationsTest.PAGE_SIZE)
         inOrder.verify(this.observer).onSuccess(emptyList())
         inOrder.verifyNoMoreInteractions()
-    }
-
-    @Test
-    fun showsSuggestedCreatorsWhenOnlyPromotedTrackIsReturned() {
-        initWithTrack()
-        whenever(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Single.just(successWithChange()))
-
-        initSuggestedCreatorsItem()
-
-        assertInitialStreamFirstItemKind(Kind.SUGGESTED_CREATORS)
-    }
-
-    @Test
-    fun showsSuggestedCreatorsWhenNoTracksAreReturned() {
-        whenever(streamStorage.timelineItems(TimelineOperationsTest.PAGE_SIZE))
-                .thenReturn(Observable.empty())
-                .thenReturn(Observable.empty())
-        whenever(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Single.just(successWithChange()))
-
-        initSuggestedCreatorsItem()
-
-        assertInitialStreamFirstItemKind(Kind.SUGGESTED_CREATORS)
-    }
-
-    @Test
-    fun showsSuggestedCreatorsInsteadOfOtherNotificationItems() {
-        val items = createItems(TimelineOperationsTest.PAGE_SIZE, 123L)
-        initWithStorageModel(items)
-
-        initSuggestedCreatorsItem()
-        initFacebookCreatorsItem()
-        initFacebookListenersItem()
-
-        assertInitialStreamFirstItemKind(Kind.SUGGESTED_CREATORS)
-    }
-
-    @Test
-    fun showsSuggestedCreatorsInUpdatedItems() {
-        initUpdatedTimelineItems()
-
-        initSuggestedCreatorsItem()
-
-        val subscriber = streamOperations.updatedStreamItems().test()
-
-        subscriber.assertValueCount(1)
-        val streamItem = subscriber.values().get(0).get(0)
-        assertThat(streamItem.kind).isEqualTo(Kind.SUGGESTED_CREATORS)
     }
 
     @Test
@@ -446,10 +401,6 @@ class StreamOperationsTest : TimelineOperationsTest<StreamEntity, StreamItem, St
         val streamItemsWithPromoted = viewModelsFromStorageModel(items)
         initWithStorageModel(items, streamItemsWithPromoted)
         return streamItemsWithPromoted
-    }
-
-    private fun initSuggestedCreatorsItem() {
-        whenever(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Maybe.just(suggestedCreatorsItem))
     }
 
     private fun initFacebookListenersItem() {

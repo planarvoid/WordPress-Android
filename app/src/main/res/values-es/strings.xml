@@ -946,14 +946,6 @@
   <string name="play_queue_header_magic_box_subtitle">Nueva música basada en lo que estás escuchando</string>
   <string name="play_queue_header_auto_play_toggle">Reproducción automática de emisora</string>
   <string name="play_queue_header_cast">Enviando</string>
-  <!--__SUGGESTED CREATORS-->
-  <string name="suggested_creators">Artistas sugeridos</string>
-  <string name="suggested_creators_blurb">Sigue a tus artistas favoritos para no perderte sus pistas más recientes</string>
-  <string name="suggested_creators_recent_posts">Posts recientes</string>
-  <string name="suggested_creators_relation_listened_to">Hace poco escuchaste su pista</string>
-  <string name="suggested_creators_relation_liked">Hace poco indicaste que te gustó su pista</string>
-  <string name="suggested_creators_relation_reposted">Hace poco reposteaste su pista</string>
-  <string name="suggested_creators_relation_curated">Hace poco añadiste su pista a una lista</string>
   <string name="remote_signin_activity_title">Activar</string>
   <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Notificar error</string>
@@ -996,7 +988,6 @@
   <string name="push_notifications_add">Post añadido a la colección</string>
   <string name="email_notifications_add">Post añadido a la colección</string>
   <string name="play_queue_header_tracks">De tus pistas</string>
-  <string name="suggested_creators_relation_added">Hace poco añadiste su pista a tu colección</string>
   <string name="like_your_favorite_tracks_title">Dale a Me gusta en tus pistas favoritas</string>
   <string name="like_your_favorite_tracks_description">Toca para guardar tu colección y demuestra tu apoyo a tus artistas favoritos.</string>
   <string name="add_your_favorite_tracks_title">Añadir a tu colección</string>

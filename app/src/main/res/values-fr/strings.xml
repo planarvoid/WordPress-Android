@@ -951,14 +951,6 @@
   <string name="play_queue_header_magic_box_subtitle">Nouveaux titres sélectionnés en fonction de ce que vous écoutez</string>
   <string name="play_queue_header_auto_play_toggle">Lecture automatique de la station</string>
   <string name="play_queue_header_cast">Diffusion</string>
-  <!--__SUGGESTED CREATORS-->
-  <string name="suggested_creators">Artistes suggérés</string>
-  <string name="suggested_creators_blurb">Suivez vos artistes préférés pour ne plus manquer aucun titre</string>
-  <string name="suggested_creators_recent_posts">Posts récents</string>
-  <string name="suggested_creators_relation_listened_to">Vous avez récemment écouté leur titre</string>
-  <string name="suggested_creators_relation_liked">Vous avez récemment aimé leur titre</string>
-  <string name="suggested_creators_relation_reposted">Vous avez récemment reposté leur titre</string>
-  <string name="suggested_creators_relation_curated">Vous avez récemment ajouté leur titre à une playlist</string>
   <string name="remote_signin_activity_title">Activer</string>
   <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">Envoyer des rapports d\'erreurs</string>
@@ -1001,7 +993,6 @@
   <string name="push_notifications_add">Post ajouté à la collection</string>
   <string name="email_notifications_add">Post ajouté à la collection</string>
   <string name="play_queue_header_tracks">Depuis vos titres</string>
-  <string name="suggested_creators_relation_added">Vous avez récemment ajouté leur titre à votre collection</string>
   <string name="like_your_favorite_tracks_title">Aimez vos titres préférés</string>
   <string name="like_your_favorite_tracks_description">Appuyez pour sauvegarder votre collection et soutenir vos artistes favoris.</string>
   <string name="add_your_favorite_tracks_title">Ajouter à votre collection</string>

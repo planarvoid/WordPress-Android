@@ -13,7 +13,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.users.FollowingCleanupHelper;
 import com.soundcloud.android.stations.StationsCleanupHelper;
 import com.soundcloud.android.stream.StreamCleanupHelper;
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsCleanupHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.android.waveform.WaveformCacheSerializer;
@@ -382,7 +381,6 @@ public abstract class StorageModule {
                                               PlayQueueCleanupHelper playQueueCleanupHelper,
                                               StationsCleanupHelper stationsCleanupHelper,
                                               StreamCleanupHelper streamCleanupHelper,
-                                              SuggestedCreatorsCleanupHelper suggestedCreatorsCleanupHelper,
                                               RecentlyPlayedCleanupHelper recentlyPlayedCleanupHelper,
                                               PlayHistoryCleanupHelper playHistoryCleanupHelper) {
         return Lists.newArrayList(likeCleanupHelper,
@@ -393,7 +391,6 @@ public abstract class StorageModule {
                                   playQueueCleanupHelper,
                                   stationsCleanupHelper,
                                   streamCleanupHelper,
-                                  suggestedCreatorsCleanupHelper,
                                   recentlyPlayedCleanupHelper,
                                   playHistoryCleanupHelper);
     }

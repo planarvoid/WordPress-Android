@@ -28,7 +28,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 124;
+    public static final int DATABASE_VERSION = 125;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -270,7 +270,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo88(db, oldVersion);
                             break;
                         case 92:
-                            success = upgradeTo92(db, oldVersion);
+                            success = upgradeTo92();
                             break;
                         case 93:
                             success = upgradeTo93(db, oldVersion);
@@ -279,7 +279,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo94(db, oldVersion);
                             break;
                         case 98:
-                            success = upgradeTo98(db, oldVersion);
+                            success = upgradeTo98();
                             break;
                         case 103:
                             success = upgradeTo103(db, oldVersion);
@@ -325,6 +325,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 124:
                             success = upgradeTo124(db, oldVersion);
+                            break;
+                        case 125:
+                            success = upgradeTo125(db, oldVersion);
                             break;
                         default:
                             break;
@@ -948,14 +951,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Create Suggested Creators Table
      */
-    private boolean upgradeTo92(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.SuggestedCreators.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 92);
-        }
-        return false;
+    private boolean upgradeTo92() {
+        return true;
     }
 
     /**
@@ -988,14 +985,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add followed_at column to suggested creators
      */
-    private boolean upgradeTo98(SQLiteDatabase db, int oldVersion) {
-        try {
-            alterColumns(Tables.SuggestedCreators.TABLE.name(), Tables.SuggestedCreators.SQL, db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 98);
-        }
-        return false;
+    private boolean upgradeTo98() {
+        return true;
     }
 
     /**
@@ -1174,6 +1165,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    private boolean upgradeTo125(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("SuggestedCreators", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 125);
+        }
+        return false;
+    }
+
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
             db.execSQL(LegacyTables.RecentlyPlayed.MIGRATE_SQL);
@@ -1232,8 +1233,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 Tables.Stations.TABLE,
                 Tables.StationsPlayQueues.TABLE,
                 Tables.StationsCollections.TABLE,
-                Tables.Comments.TABLE,
-                Tables.SuggestedCreators.TABLE
+                Tables.Comments.TABLE
         );
     }
 

@@ -44,9 +44,6 @@
     <!-- Collections -->
     <dimen name="collection_recently_played_item_size">180dp</dimen>
 
-    <!-- Suggested creators -->
-    <dimen name="suggested_creators_module_left_padding">0dp</dimen>
-
     <!-- Search Suggestions -->
     <!-- Note: In a future PR, default_list_item_padding and this value will be standardized -->
     <dimen name="search_suggestions_list_item_padding">24dp</dimen>

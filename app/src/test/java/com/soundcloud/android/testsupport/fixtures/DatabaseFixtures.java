@@ -25,7 +25,6 @@ import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
-import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
@@ -130,16 +129,6 @@ public class DatabaseFixtures {
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
         cv.put(StationsCollections.ADDED_AT, time);
         insertInto(StationsCollections.TABLE, cv.get());
-    }
-
-    public void insertSuggestedCreator(ApiSuggestedCreator apiSuggestedCreator) {
-        insertUser(apiSuggestedCreator.getSeedUser());
-        insertUser(apiSuggestedCreator.getSuggestedUser());
-        ContentValues cv = new ContentValues();
-        cv.put(Tables.SuggestedCreators.RELATION_KEY.name(), apiSuggestedCreator.getRelationKey());
-        cv.put(Tables.SuggestedCreators.SEED_USER_ID.name(), apiSuggestedCreator.getSeedUser().getId());
-        cv.put(Tables.SuggestedCreators.SUGGESTED_USER_ID.name(), apiSuggestedCreator.getSuggestedUser().getId());
-        insertInto(Tables.SuggestedCreators.TABLE, cv);
     }
 
     private void insertPolicy(ApiTrack track) {

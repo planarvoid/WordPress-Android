@@ -10,7 +10,6 @@ import com.soundcloud.android.main.Screen
 import com.soundcloud.android.playback.PlayableWithReposter
 import com.soundcloud.android.presentation.PlayableItem
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver.fireAndForget
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations
 import com.soundcloud.android.sync.SyncInitiator
 import com.soundcloud.android.sync.SyncStateStorage
 import com.soundcloud.android.sync.Syncable
@@ -43,16 +42,11 @@ internal constructor(private val streamStorage: StreamStorage,
                      private val streamAdsController: StreamAdsController,
                      private val upsellOperations: InlineUpsellOperations,
                      syncStateStorage: SyncStateStorage,
-                     private val suggestedCreatorsOperations: SuggestedCreatorsOperations,
                      private val streamEntityToItemTransformer: StreamEntityToItemTransformer) : TimelineOperations<StreamEntity, StreamItem>(Syncable.SOUNDSTREAM,
                                                                                                                                               streamStorage,
                                                                                                                                               syncInitiator,
                                                                                                                                               scheduler,
                                                                                                                                               syncStateStorage) {
-
-    private fun isSuggestedCreatorsNotification(notificationItemOptional: Optional<out StreamItem>): Boolean {
-        return notificationItemOptional.isPresent && notificationItemOptional.get() is StreamItem.SuggestedCreators
-    }
 
     override fun toViewModels(streamEntities: List<StreamEntity>): Single<List<StreamItem>> {
         return streamEntityToItemTransformer.apply(streamEntities)
@@ -93,8 +87,7 @@ internal constructor(private val streamStorage: StreamStorage,
     }
 
     private fun initialNotificationItem(): Single<Optional<StreamItem>> {
-        return suggestedCreatorsOperations.suggestedCreators()
-                .switchIfEmpty(facebookInvites.creatorInvites())
+        return facebookInvites.creatorInvites()
                 .switchIfEmpty(facebookInvites.listenerInvites())
                 .map { Optional.of(it) }
                 .toSingle(Optional.absent())
@@ -103,20 +96,10 @@ internal constructor(private val streamStorage: StreamStorage,
     fun updatedStreamItems(): Single<List<StreamItem>> {
         return super.updatedTimelineItems()
                 .subscribeOn(scheduler)
-                .zipWith(updatedNotificationItem(),
-                         { streamItems, notificationItemOptional ->
-                             addNotificationItemToStream(streamItems, notificationItemOptional)
-                         })
                 // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                 // logic to the presenter
                 .observeOn(mainThread())
                 .doOnSuccess { streamAdsController.insertAds() }
-    }
-
-    private fun updatedNotificationItem(): Single<Optional<StreamItem>> {
-        return suggestedCreatorsOperations.suggestedCreators()
-                .map { Optional.of(it) }
-                .toSingle(Optional.absent())
     }
 
     fun urnsForPlayback(): Single<List<PlayableWithReposter>> {
@@ -185,7 +168,7 @@ internal constructor(private val streamStorage: StreamStorage,
     private fun addNotificationItemToStream(streamItems: List<StreamItem>,
                                             notificationItemOptional: Optional<out StreamItem>): List<StreamItem> {
         val result = newArrayList(streamItems)
-        if (isSuggestedCreatorsNotification(notificationItemOptional) || !streamItems.isEmpty()) {
+        if (!streamItems.isEmpty()) {
             result.addAll(0, notificationItemOptional.asSet())
         }
         return result

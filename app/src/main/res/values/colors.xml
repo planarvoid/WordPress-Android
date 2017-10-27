@@ -156,11 +156,6 @@
     <color name="play_related_tracks_bars_color">@color/ash</color>
     <color name="play_related_tracks_text_color">@color/raven</color>
 
-    <!-- Suggested Creators -->
-    <color name="suggested_creators_heading">@color/charcoal</color>
-    <color name="suggested_creators_blurb">@color/ash</color>
-    <color name="suggested_creators_reason">@color/ash</color>
-
     <!-- Stations -->
     <color name="stations_blur_overlay">@color/milkglass</color>
     <color name="stations_home_background">@color/page_background</color>

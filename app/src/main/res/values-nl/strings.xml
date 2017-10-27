@@ -946,14 +946,6 @@
   <string name="play_queue_header_magic_box_subtitle">Nieuwe muziek op basis van wat er wordt afgespeeld</string>
   <string name="play_queue_header_auto_play_toggle">Zender automatisch afspelen</string>
   <string name="play_queue_header_cast">Casten</string>
-  <!--__SUGGESTED CREATORS-->
-  <string name="suggested_creators">Voorgestelde artiesten</string>
-  <string name="suggested_creators_blurb">Volg je favoriete artiesten zodat je hun laatste tracks nooit meer misloopt</string>
-  <string name="suggested_creators_recent_posts">Recente posts</string>
-  <string name="suggested_creators_relation_listened_to">Je hebt onlangs naar een track van deze artiest geluisterd</string>
-  <string name="suggested_creators_relation_liked">Je hebt onlangs een track van deze artiest geliket</string>
-  <string name="suggested_creators_relation_reposted">Je hebt onlangs een track van deze artiest gerepost</string>
-  <string name="suggested_creators_relation_curated">Je hebt deze artiest onlangs toegevoegd in een afspeellijst</string>
   <string name="remote_signin_activity_title">Activeren</string>
   <!--BUG REPORT SETTINGS TILE-->
   <string name="bug_report_settings_title">bugrapport versturen</string>
@@ -996,7 +988,6 @@
   <string name="push_notifications_add">Post toegevoegd aan verzameling</string>
   <string name="email_notifications_add">Post toegevoegd aan verzameling</string>
   <string name="play_queue_header_tracks">Uit jouw tracks</string>
-  <string name="suggested_creators_relation_added">Je hebt zijn/haar track onlangs toegevoegd aan je verzameling</string>
   <string name="like_your_favorite_tracks_title">Like je favoriete tracks</string>
   <string name="like_your_favorite_tracks_description">Tik om je verzameling op te slaan en steun te betuigen aan je favoriete artiesten.</string>
   <string name="add_your_favorite_tracks_title">Toevoegen aan je verzameling</string>

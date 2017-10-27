@@ -120,7 +120,6 @@ public enum Screen {
     SETTINGS_AUTOMATIC_SYNC_ONBOARDING(85, "settings:automatic_sync_onboarding"),
 
     WIDGET(86, "widget"),
-    SUGGESTED_USERS(87, "suggested_users"),
     VOICE_COMMAND(88, "voice:command"), // context when we play from voice search
     DEEPLINK(89, "deeplink"), // context provided when we intercept a track
     NOTIFICATION(90, "notification"),

@@ -14,8 +14,6 @@ import com.soundcloud.android.presentation.PlayableItem
 import com.soundcloud.android.presentation.RepostableItem
 import com.soundcloud.android.presentation.UpdatablePlaylistItem
 import com.soundcloud.android.presentation.UpdatableTrackItem
-import com.soundcloud.android.suggestedcreators.SuggestedCreator
-import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackItem
 import com.soundcloud.android.view.adapters.PlayableViewItem
@@ -58,7 +56,6 @@ sealed class StreamItem(val kind: Kind) {
         FACEBOOK_LISTENER_INVITES,
         FACEBOOK_CREATORS,
         STREAM_UPSELL,
-        SUGGESTED_CREATORS,
         APP_INSTALL,
         VIDEO_AD
     }
@@ -72,17 +69,6 @@ sealed class StreamItem(val kind: Kind) {
 
         fun hasPictures(): Boolean {
             return friendPictureUrls.isPresent && !friendPictureUrls.get().isEmpty()
-        }
-    }
-
-    data class SuggestedCreators(val suggestedCreators: List<SuggestedCreatorItem>) : StreamItem(Kind.SUGGESTED_CREATORS) {
-        override fun identityEquals(streamItem: StreamItem) = streamItem is SuggestedCreators
-
-        companion object {
-
-            fun create(suggestedCreators: List<SuggestedCreator>): SuggestedCreators {
-                return SuggestedCreators(suggestedCreators.map { SuggestedCreatorItem.fromSuggestedCreator(it) })
-            }
         }
     }
 

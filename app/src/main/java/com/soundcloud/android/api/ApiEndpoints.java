@@ -38,9 +38,6 @@ public enum ApiEndpoints {
     SEARCH_PREMIUM_PLAYLISTS("/search/playlists/premium_content"),
     SEARCH_PREMIUM_ALL("/search/universal/premium_content"),
 
-    // suggested creators
-    SUGGESTED_CREATORS("/you/suggested-creators"),
-
     // Home card selection
     DISCOVERY_CARDS("/discovery/cards"),
     SYSTEM_PLAYLISTS("/system-playlists/%s"),

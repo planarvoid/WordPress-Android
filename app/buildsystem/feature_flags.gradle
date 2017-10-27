@@ -9,8 +9,6 @@ def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
   HOLISTIC_TRACKING,
-  SUGGESTED_CREATORS,
-  FORCE_SUGGESTED_CREATORS_FOR_ALL,
   NEW_HOME,
   FLIPPER_V2,
   ENCRYPTED_HLS,
@@ -33,8 +31,6 @@ enum Feature {
 android {
   defaultConfig {
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_V2.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), UNDER_DEVELOPMENT
@@ -73,7 +69,6 @@ android {
 
     alpha {
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE

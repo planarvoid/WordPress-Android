@@ -23,7 +23,6 @@ import com.soundcloud.android.events.FacebookInvitesEvent.forCreatorDismiss
 import com.soundcloud.android.events.FacebookInvitesEvent.forListenerClick
 import com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss
 import com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown
-import com.soundcloud.android.events.FollowingStatusEvent
 import com.soundcloud.android.events.PromotedTrackingEvent
 import com.soundcloud.android.events.TrackingEvent
 import com.soundcloud.android.events.UIEvent
@@ -145,9 +144,6 @@ constructor(private val streamOperations: StreamOperations,
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterObserverFactory.create(adapter)),
                 eventBus.subscribe(EventQueue.TRACK_CHANGED, UpdateTrackListObserver(adapter)),
                 eventBus.subscribe(EventQueue.PLAYLIST_CHANGED, UpdatePlaylistListObserver(adapter)),
-                eventBus.queue(EventQueue.FOLLOWING_CHANGED).subscribeWith<LambdaObserver<FollowingStatusEvent>>(LambdaObserver.onNext<FollowingStatusEvent> {
-                    adapter.onFollowingEntityChange(it)
-                }),
                 eventBus.subscribe(EventQueue.LIKE_CHANGED, LikeEntityListObserver(adapter)),
                 eventBus.subscribe(EventQueue.REPOST_CHANGED, RepostEntityListObserver(adapter)),
                 eventBus.queue(EventQueue.STREAM)
@@ -235,7 +231,6 @@ constructor(private val streamOperations: StreamOperations,
         streamDepthPublisher = null
 
         viewLifeCycleDisposable.clear()
-        adapter.unsubscribe()
         newItemsIndicator.destroy()
         recyclerView.removeOnScrollListener(imagePauseOnScrollListener)
         imagePauseOnScrollListener.resume()

@@ -1039,14 +1039,6 @@
     <string name="play_queue_header_auto_play_toggle">Station Autoplay</string>
     <string name="play_queue_header_cast">Casting</string>
 
-    <!-- __SUGGESTED CREATORS -->
-    <string name="suggested_creators">Suggested artists</string>
-    <string name="suggested_creators_blurb">Follow your favorite artists so you never miss any of their latest tracks</string>
-    <string name="suggested_creators_recent_posts">Recent posts</string>
-    <string name="suggested_creators_relation_listened_to">You recently listened to their track</string>
-    <string name="suggested_creators_relation_liked">You recently liked their track</string>
-    <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
-    <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
     <string name="remote_signin_activity_title">Activate</string>
 
     <!-- BUG REPORT SETTINGS TILE -->
@@ -1091,7 +1083,6 @@
     <string name="push_notifications_add">Post added to collection</string>
     <string name="email_notifications_add">Post added to collection</string>
     <string name="play_queue_header_tracks">From your tracks</string>
-    <string name="suggested_creators_relation_added">You recently added their track to your collection</string>
     <string name="like_your_favorite_tracks_title">Like your favorite tracks</string>
     <string name="like_your_favorite_tracks_description">Tap to save to your collection and show support for your favorite artists.</string>
     <string name="add_your_favorite_tracks_title">Add to your collection</string>

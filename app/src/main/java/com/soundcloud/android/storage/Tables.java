@@ -446,35 +446,6 @@ public interface Tables {
         }
     }
 
-    class SuggestedCreators extends SCBaseTable {
-        public static final SuggestedCreators TABLE = new SuggestedCreators();
-
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column SEED_USER_ID = Column.create(TABLE, "seed_user_id", Long.class);
-        public static final Column SUGGESTED_USER_ID = Column.create(TABLE, "suggested_user_id", Long.class);
-        public static final Column RELATION_KEY = Column.create(TABLE, "relation_key", String.class);
-        public static final Column FOLLOWED_AT = Column.create(TABLE, "followed_at", Long.class);
-
-        static final String SQL = "CREATE TABLE IF NOT EXISTS SuggestedCreators (" +
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "seed_user_id INTEGER, " +
-                "suggested_user_id INTEGER, " +
-                "relation_key VARCHAR(50), " +
-                "followed_at INTEGER," +
-                "FOREIGN KEY(seed_user_id) REFERENCES Users(_id) " +
-                "FOREIGN KEY(suggested_user_id) REFERENCES Users(_id) " +
-                ");";
-
-        SuggestedCreators() {
-            super("SuggestedCreators", PrimaryKey.of("_id"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     // Views
     class PlaylistView extends SCBaseTable {
 

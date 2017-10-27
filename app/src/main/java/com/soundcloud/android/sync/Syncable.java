@@ -16,7 +16,6 @@ public enum Syncable {
     MY_FOLLOWINGS,
     ME,
     LIKED_STATIONS,
-    SUGGESTED_CREATORS,
     DISCOVERY_CARDS,
 
     /**

@@ -100,11 +100,9 @@ import com.soundcloud.android.storage.Tables.Sounds;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
-import com.soundcloud.android.storage.Tables.SuggestedCreators;
 import com.soundcloud.android.storage.Tables.TrackPolicies;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.sync.likes.ApiLike;
-import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.collections.Lists;
@@ -734,27 +732,5 @@ public class DatabaseAssertions {
                                   .whereEq(TIMESTAMP, comment.getTrackTime().orNull())
                                   .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
                                   .whereEq(BODY, comment.getBody()))).counts(1);
-    }
-
-    public void assertSuggestedCreatorInserted(ApiSuggestedCreator apiSuggestedCreator) {
-        assertThat(select(from(SuggestedCreators.TABLE)
-                                  .whereEq(SuggestedCreators.RELATION_KEY, apiSuggestedCreator.getRelationKey())
-                                  .whereEq(SuggestedCreators.SEED_USER_ID, apiSuggestedCreator.getSeedUser().getId())
-                                  .whereEq(SuggestedCreators.SUGGESTED_USER_ID,
-                                           apiSuggestedCreator.getSuggestedUser().getId()))).counts(1);
-        assertUserInserted(apiSuggestedCreator.getSeedUser());
-        assertUserInserted(apiSuggestedCreator.getSuggestedUser());
-    }
-
-    public void assertSuggestedCreatorRemoved(ApiSuggestedCreator apiSuggestedCreator) {
-        assertThat(select(from(SuggestedCreators.TABLE)
-                                  .whereEq(SuggestedCreators.RELATION_KEY, apiSuggestedCreator.getRelationKey())
-                                  .whereEq(SuggestedCreators.SEED_USER_ID, apiSuggestedCreator.getSeedUser().getId())
-                                  .whereEq(SuggestedCreators.SUGGESTED_USER_ID,
-                                           apiSuggestedCreator.getSuggestedUser().getId()))).counts(0);
-    }
-
-    public void assertNoSuggestedCreators() {
-        assertThat(select(from(SuggestedCreators.TABLE))).counts(0);
     }
 }
