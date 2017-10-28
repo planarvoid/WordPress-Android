@@ -86,7 +86,7 @@ public abstract class ApiPlaylist implements ImageResource, ApiEntityHolder, Pla
                                      @JsonProperty("title") String title,
                                      @JsonProperty("genre") String genre,
                                      @JsonProperty("user_tags") List<String> tags,
-                                     @JsonProperty("trackCount") int trackCount,
+                                     @JsonProperty("track_count") int trackCount,
                                      @JsonProperty("_embedded") RelatedResources relatedResources,
                                      @JsonProperty("duration") long duration,
                                      @JsonProperty("sharing") Sharing sharing,
