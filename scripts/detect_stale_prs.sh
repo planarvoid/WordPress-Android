@@ -57,7 +57,7 @@ function notifyAndClosePR {
 
 function prContainsWarningComment {
     RESULT=false
-    curl $1 -H "Authorization: token $GITHUB_ACCESS_TOKEN" | jq '.[] | select(.user.login == "sc-mobile-ci") | .body' > $FILE_BOT_COMMENTS
+    curl "$1" -H "Authorization: token $GITHUB_ACCESS_TOKEN" | jq '.[] | select(.user.login == "sc-mobile-ci") | .body' > $FILE_BOT_COMMENTS
     while IFS='' read -r line || [[ -n "$line" ]]; do
         if [ "$line" == "Friendly reminder: *" ]
         then
@@ -79,13 +79,14 @@ CLOSE_THRESHOLD=$(($NOW - $WARNING_DIFF - $CLOSE_DIFF))
 I=0
 while IFS='' read -r line || [[ -n "$line" ]]; do
     DATE=$(echo $line | sed 's/"//g')
-    UNIXDATE=$(date -d $DATE +%s) # this command fails on macOS, try `date -j -u -f "%Y-%m-%dT%H:%M:%SZ" $DATE +%s` for debugging locally
+    UNIXDATE=$(date -d $DATE +%s) # use this command on Linux machines
+#    UNIXDATE=$(date -j -u -f "%Y-%m-%dT%H:%M:%SZ" $DATE +%s) # Use this command on macOS machines
 
-    PR_URL=$(cat prs.txt | jq ".[${I}].html_url")
-    PR_COMMENTS_URL=$(cat prs.txt | jq ".[${I}].comments_url")
-    PR_BRANCH=$(cat prs.txt | jq ".[${I}].head.ref")
-    PR_AUTHOR=$(cat prs.txt | jq ".[${I}].user.login")
-    PR_NUMBER=$(cat prs.txt | jq ".[${I}].number")
+    PR_URL=$(echo ${PRS_JSON} | jq ".[${I}].html_url")
+    PR_COMMENTS_URL=$(echo ${PRS_JSON} | jq ".[${I}].comments_url" | sed 's/"//g')
+    PR_BRANCH=$(echo ${PRS_JSON} | jq ".[${I}].head.ref")
+    PR_AUTHOR=$(echo ${PRS_JSON} | jq ".[${I}].user.login")
+    PR_NUMBER=$(echo ${PRS_JSON} | jq ".[${I}].number")
 
     if [ "${UNIXDATE}" -lt "${WARNING_THRESHOLD}" ]
     then
