@@ -14,6 +14,8 @@ abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFra
     internal var presenter: T? = null
     private var presenterId: Long = 0
 
+    protected abstract val presenterKey: String
+
     @Inject lateinit var presenterManager: PresenterManager
     @LightCycle internal var logger = LightCycleLogger.forSupportFragment(javaClass.name)
 
@@ -29,7 +31,7 @@ abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFra
         if (savedInstanceState == null) {
             initializePresenter()
         } else {
-            presenterId = savedInstanceState.getLong(Companion.PRESENTER_KEY)
+            presenterId = savedInstanceState.getLong(presenterKey)
             presenter = presenterManager.get(presenterId)
             if (presenter == null) {
                 ErrorUtils.log(Log.INFO, "com.soundcloud.android.view.BaseFragment.onCreate", "Reinitializing empty presenter")
@@ -74,11 +76,7 @@ abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFra
     protected abstract fun createPresenter(): T
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putLong(Companion.PRESENTER_KEY, presenterId)
+        outState.putLong(presenterKey, presenterId)
         super.onSaveInstanceState(outState)
-    }
-
-    companion object {
-        val PRESENTER_KEY = "presenter_key"
     }
 }

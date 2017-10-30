@@ -20,6 +20,9 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), StreamUniflowView, MainPagerAdapter.ScrollContent, MainPagerAdapter.FocusListener {
+
+    override val presenterKey: String = "StreamPresenterKey"
+
     @Inject internal lateinit var presenterLazy: Lazy<StreamUniflowPresenter>
     @Inject internal lateinit var adapter: StreamAdapter
 

@@ -36,9 +36,9 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
     @Inject internal lateinit var adapterFactory: DiscoveryAdapter.Factory
     @Inject internal lateinit var feedbackController: FeedbackController
     @Inject internal lateinit var swipeRefreshAttacher: StreamSwipeRefreshAttacher
-
     private lateinit var collectionRenderer: CollectionRenderer<DiscoveryCardViewModel, RecyclerView.ViewHolder>
 
+    override val presenterKey: String = "HomePresenterKey"
     override val selectionItemClick: PublishSubject<SelectionItemViewModel> = PublishSubject.create<SelectionItemViewModel>()
     override val searchClick: PublishSubject<RxSignal> = PublishSubject.create<RxSignal>()
     override val enterScreenTimestamp: Observable<Pair<Long, Screen>> by lazy {
