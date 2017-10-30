@@ -71,11 +71,13 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        if (shouldIncludeInCrashlyticsLogs(event)) {
-            logWithCrashlytics(event);
-        }
-        if (event instanceof MetricEvent) {
-            fabricReporter.post(((MetricEvent) event).toMetric());
+        if (fabricProvider.isReportingCrashes()) {
+            if (shouldIncludeInCrashlyticsLogs(event)) {
+                logWithCrashlytics(event);
+            }
+            if (event instanceof MetricEvent) {
+                fabricReporter.post(((MetricEvent) event).toMetric());
+            }
         }
     }
 
@@ -91,11 +93,13 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void logWithCrashlytics(TrackingEvent event) {
-        final CrashlyticsCore crashlytics = fabricProvider.getCrashlyticsCore();
-        if (debugBuild) {
-            crashlytics.log(Log.DEBUG, TAG, event.toString());
-        } else {
-            crashlytics.log(event.toString());
+        if (fabricProvider.isInitialized()) {
+            final CrashlyticsCore crashlytics = fabricProvider.getCrashlyticsCore();
+            if (debugBuild) {
+                crashlytics.log(Log.DEBUG, TAG, event.toString());
+            } else {
+                crashlytics.log(event.toString());
+            }
         }
     }
 }

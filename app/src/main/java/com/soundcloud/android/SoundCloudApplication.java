@@ -18,6 +18,7 @@ import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
+import com.soundcloud.android.analytics.crashlytics.FabricReportingHelper;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiUser;
@@ -51,7 +52,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
-import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsController;
@@ -75,7 +75,6 @@ import org.jetbrains.annotations.NotNull;
 import android.accounts.Account;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
@@ -94,8 +93,8 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     // These are not injected because we need them before Dagger initializes
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
-    private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
+    private FabricReportingHelper fabricReportingHelper;
 
     @Inject MigrationEngine migrationEngine;
     @Inject NetworkConnectivityListener networkConnectivityListener;
@@ -274,12 +273,12 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void initializePreInjectionObjects() {
         applicationProperties = new ApplicationProperties(getResources());
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, isReportingCrashes());
+        fabricReportingHelper = new FabricReportingHelper(applicationProperties, PreferenceManager.getDefaultSharedPreferences(this));
+        uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, fabricReportingHelper.isReportingCrashes());
     }
 
     private void setUpCrashReportingIfNeeded() {
-        if (isReportingCrashes()) {
+        if (fabricReportingHelper.isReportingCrashes()) {
             FabricProvider.initialize(this, applicationProperties);
         }
         uncaughtExceptionHandlerController.setHandler();
@@ -360,11 +359,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         } else {
             throw new RuntimeException("Debug exception from Rx chain", t);
         }
-    }
-
-    private boolean isReportingCrashes() {
-        return applicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true);
     }
 
     @Override

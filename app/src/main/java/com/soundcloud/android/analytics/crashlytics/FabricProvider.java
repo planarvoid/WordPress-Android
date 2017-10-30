@@ -20,13 +20,16 @@ import java.util.concurrent.Executor;
 public class FabricProvider {
 
     private final Executor executor;
+    private final FabricReportingHelper fabricReportingHelper;
 
     @Inject
-    public FabricProvider(Context context) {
+    public FabricProvider(Context context,
+                          FabricReportingHelper fabricReportingHelper) {
         // Note : Fabric is only initialized the first time you call start,
         // so calling it multiple times won’t cause any issues.
         // https://docs.fabric.io/android/fabric/overview.html
         executor = Fabric.with(context).getExecutorService();
+        this.fabricReportingHelper = fabricReportingHelper;
     }
 
     public static void initialize(Context context, ApplicationProperties applicationProperties) {
@@ -43,6 +46,10 @@ public class FabricProvider {
 
     boolean isInitialized() {
         return Fabric.isInitialized();
+    }
+
+    boolean isReportingCrashes() {
+        return fabricReportingHelper.isReportingCrashes();
     }
 
     Executor getExecutor() {

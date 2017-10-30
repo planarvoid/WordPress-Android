@@ -116,6 +116,7 @@ public class FabricAnalyticsProviderTest {
     @Test
     public void shouldPostFileAccessEvent() {
         final FileAccessEvent fileAccessEvent = FileAccessEvent.create(true, true, false);
+        when(fabricProvider.isReportingCrashes()).thenReturn(true);
 
         provider.handleTrackingEvent(fileAccessEvent);
 
@@ -123,6 +124,20 @@ public class FabricAnalyticsProviderTest {
                                                   DataPoint.string("FileExists", "true"),
                                                   DataPoint.string("CanWrite", "true"),
                                                   DataPoint.string("CanRead", "false")));
+        verify(fabricProvider, never()).getCrashlyticsCore();
+    }
+
+    @Test
+    public void shouldNotPostFileAccessEventWhenNotReporting() {
+        final FileAccessEvent fileAccessEvent = FileAccessEvent.create(true, true, false);
+        when(fabricProvider.isReportingCrashes()).thenReturn(false);
+
+        provider.handleTrackingEvent(fileAccessEvent);
+
+        verify(fabricReporter, never()).post(Metric.create("FileAccess",
+                                                           DataPoint.string("FileExists", "true"),
+                                                           DataPoint.string("CanWrite", "true"),
+                                                           DataPoint.string("CanRead", "false")));
         verify(fabricProvider, never()).getCrashlyticsCore();
     }
 }

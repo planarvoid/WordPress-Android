@@ -5,6 +5,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.crashlytics.FabricReportingHelper;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -61,6 +62,7 @@ import com.soundcloud.android.presentation.EnrichedEntities;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.EntityItemEmitter;
 import com.soundcloud.android.profile.ProfileModule;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.SearchItemRenderer;
 import com.soundcloud.android.sync.SyncModule;
@@ -204,15 +206,15 @@ public class ApplicationModule {
 
     @Provides
     protected ConfigurationOperations provideConfigurationOperations(ApiClientRx apiClientRx,
-                                                                  ExperimentOperations experimentOperations,
-                                                                  FeatureOperations featureOperations,
-                                                                  PendingPlanOperations pendingPlanOperations,
-                                                                  ConfigurationSettingsStorage configurationSettingsStorage,
-                                                                  TryWithBackOff.Factory tryWithBackOffFactory,
-                                                                  @Named(HIGH_PRIORITY) rx.Scheduler scheduler,
-                                                                  PlanChangeDetector planChangeDetector,
-                                                                  ForceUpdateHandler forceUpdateHandler,
-                                                                  ImageConfigurationStorage imageConfigurationStorage) {
+                                                                     ExperimentOperations experimentOperations,
+                                                                     FeatureOperations featureOperations,
+                                                                     PendingPlanOperations pendingPlanOperations,
+                                                                     ConfigurationSettingsStorage configurationSettingsStorage,
+                                                                     TryWithBackOff.Factory tryWithBackOffFactory,
+                                                                     @Named(HIGH_PRIORITY) rx.Scheduler scheduler,
+                                                                     PlanChangeDetector planChangeDetector,
+                                                                     ForceUpdateHandler forceUpdateHandler,
+                                                                     ImageConfigurationStorage imageConfigurationStorage) {
         return new ConfigurationOperations(apiClientRx,
                                            experimentOperations,
                                            featureOperations,
@@ -450,5 +452,10 @@ public class ApplicationModule {
     @Provides
     static Random provideRandom() {
         return new Random();
+    }
+
+    @Provides
+    FabricReportingHelper provideFabricReportingHelper(ApplicationProperties applicationProperties, SharedPreferences sharedPreferences) {
+        return new FabricReportingHelper(applicationProperties, sharedPreferences);
     }
 }
