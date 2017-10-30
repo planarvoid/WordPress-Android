@@ -52,10 +52,10 @@ task staticAnalysisChanged(dependsOn: ["checkstyleChanged",
 detekt {
   profile("main") {
     version = "$detektVersion"
-    input = "$sourceSetMain"
+    input = "./src"
     config = "${staticAnalysisDirPath}/detekt/config.yml"
     output = "$reportDir/detekt-${project.name}"
-    filters = ".*test.*, .*/resources/.*"
+    filters = ".*/resources/.*"
   }
 }
 
