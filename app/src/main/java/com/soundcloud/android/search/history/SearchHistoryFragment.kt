@@ -20,6 +20,7 @@ import javax.inject.Inject
 
 class SearchHistoryFragment : BaseFragment<SearchHistoryPresenter>(), SearchHistoryView {
 
+    override val presenterKey: String = "SearchHistoryPresenterKey"
     override val itemClickListener: PublishSubject<SearchHistoryItem> = PublishSubject.create()
     override val autocompleteArrowClickListener: PublishSubject<SearchHistoryItem> = PublishSubject.create()
 

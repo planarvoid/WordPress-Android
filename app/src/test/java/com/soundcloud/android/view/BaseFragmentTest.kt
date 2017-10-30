@@ -70,11 +70,13 @@ class BaseFragmentTest : AndroidUnitTest() {
 
     private fun getBundle(): Bundle {
         val savedInstanceState = Bundle()
-        savedInstanceState.putLong(BaseFragment.PRESENTER_KEY, 123)
+        savedInstanceState.putLong("TestBasePresenterKey", 123)
         return savedInstanceState
     }
 
     internal class TestBaseFragment(presenterManager: PresenterManager, val basePresenter: TestBasePresenter) : BaseFragment<TestBasePresenter>(presenterManager) {
+
+        override val presenterKey: String = "TestBasePresenterKey"
 
         var connectedPresenter: TestBasePresenter? = null
 

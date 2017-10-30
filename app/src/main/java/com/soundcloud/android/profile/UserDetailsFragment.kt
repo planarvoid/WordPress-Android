@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 class UserDetailsFragment : BaseFragment<UserDetailsPresenter>(), UserDetailsView {
 
+    override val presenterKey: String = "UserDetailsPresenterKey"
     override val linkClickListener: PublishSubject<String> = PublishSubject.create()
     override val followersClickListener: PublishSubject<UserFollowsItem> = PublishSubject.create()
     override val followingsClickListener: PublishSubject<UserFollowsItem> = PublishSubject.create()
