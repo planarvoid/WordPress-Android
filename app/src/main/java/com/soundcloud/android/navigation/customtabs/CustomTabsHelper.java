@@ -29,7 +29,7 @@ public final class CustomTabsHelper {
     @VisibleForTesting public static final String ACTION_CUSTOM_TABS_CONNECTION =
             "android.support.customtabs.action.CustomTabsService";
     @VisibleForTesting public static final String URL_TO_BE_MATCHED_AGAINST_VIEW_INTENT = "http://www.example.com";
-    private static final List<String> SAMSUNG_J7_DEVICES = Lists.newArrayList("j7xelte", "on7xelte", "j7e3g", "j7elte");
+    private static final List<String> BLACKLISTED_DEVICES = Lists.newArrayList("j7xelte", "on7xelte", "j7e3g", "j7elte", "shieldtablet");
 
     private static String sPackageNameToUse;
 
@@ -37,14 +37,14 @@ public final class CustomTabsHelper {
     }
 
     public static boolean isChromeCustomTabsAvailable(Context context) {
-        return getPackageNameToUse(context) != null && !isDeviceSamsungGalaxyJ7();
+        return getPackageNameToUse(context) != null && !isDeviceBlacklisted();
     }
 
-    private static boolean isDeviceSamsungGalaxyJ7() {
-        // Samsung Galaxy J7 devices seem to have a high probability of getting a native crash
+    private static boolean isDeviceBlacklisted() {
+        // Samsung Galaxy J7 devices and SCHIELD tablets seem to have a high probability of getting a native crash
         // https://soundcloud.atlassian.net/browse/DROID-1841
         // This is just a workaround to fallback to native web view for those devices
-        return SAMSUNG_J7_DEVICES.contains(Build.DEVICE);
+        return BLACKLISTED_DEVICES.contains(Build.DEVICE);
     }
 
     public static CustomTabsMetadata createMetadata(Context context, Uri uri) {
