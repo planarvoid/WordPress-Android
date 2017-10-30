@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.soundcloud.android.view.CustomFontButton
-        android:id="@+id/google_plus_btn"
-        style="@style/Onboarding.GooglePlusButton"
+    <!--This is a normal Button as the Google Sign in button should have Roboto as its Font-->
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/google_btn"
+        style="@style/Onboarding.GoogleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/authentication_log_in_with_google_plus" />

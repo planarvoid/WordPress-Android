@@ -18,7 +18,7 @@ public class LoginScreen extends Screen {
     }
 
     private ViewElement googleSignInButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.google_plus_btn));
+        return testDriver.findOnScreenElement(With.id(R.id.google_btn));
     }
 
     private ViewElement facebookSignInButton() {

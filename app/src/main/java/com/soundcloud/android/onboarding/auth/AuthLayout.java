@@ -29,7 +29,7 @@ public abstract class AuthLayout extends RelativeLayout {
 
     protected abstract AuthHandler getAuthHandler();
 
-    @OnClick(R.id.google_plus_btn)
+    @OnClick(R.id.google_btn)
     public void onGooglePlusClick() {
         getAuthHandler().onGooglePlusAuth();
     }
@@ -40,6 +40,6 @@ public abstract class AuthLayout extends RelativeLayout {
     }
 
     public void setGooglePlusVisibility(boolean visible) {
-        findViewById(R.id.google_plus_btn).setVisibility(visible ? VISIBLE : GONE);
+        findViewById(R.id.google_btn).setVisibility(visible ? VISIBLE : GONE);
     }
 }
