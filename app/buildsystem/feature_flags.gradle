@@ -95,7 +95,6 @@ android {
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_FLIPPER_CACHE.name(), DEFAULT_HIDE
     }
@@ -110,7 +109,6 @@ android {
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.UNIFLOW_NEW_HOME.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_FLIPPER_CACHE.name(), DEFAULT_HIDE
     }
   }
