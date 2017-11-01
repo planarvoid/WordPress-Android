@@ -134,7 +134,7 @@ ext {
           kotlinAllOpen: "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion",
           detekt       : "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion",
           gms          : 'com.google.gms:google-services:3.0.0',
-          fabric       : 'io.fabric.tools:gradle:1.24.2',
+          fabric       : 'io.fabric.tools:gradle:1.24.4',
           frodo        : 'com.fernandocejas.frodo:frodo-plugin:0.8.2',
           retrolambda  : 'me.tatarka:gradle-retrolambda:3.7.0',
           sqlDelight   : 'com.squareup.sqldelight:gradle-plugin:0.6.1',
