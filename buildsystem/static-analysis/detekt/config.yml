@@ -329,7 +329,7 @@ style:
   OptionalReturnKeyword:
     active: true
   ExpressionBodySyntax:
-    active: true
+    active: false
   UnusedImports:
     active: true
   NestedClassesVisibility:
