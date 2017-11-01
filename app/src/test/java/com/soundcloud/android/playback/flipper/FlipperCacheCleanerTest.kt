@@ -124,7 +124,7 @@ class FlipperCacheCleanerTest : AndroidUnitTest() {
 
     private fun verifyResultLogged(result: Result) {
         val trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING) as FlipperCacheCleaner.ClearFlipperCacheEvent
-        val expectedTrackingEvent = FlipperCacheCleaner.ClearFlipperCacheEvent(result)
+        val expectedTrackingEvent = FlipperCacheCleaner.ClearFlipperCacheEvent(result = result)
         assertEquals(expectedTrackingEvent.toMetric(), trackingEvent.toMetric())
     }
 }

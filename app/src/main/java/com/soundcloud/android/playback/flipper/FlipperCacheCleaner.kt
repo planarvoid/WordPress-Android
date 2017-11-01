@@ -58,19 +58,26 @@ constructor(val featureFlags: FeatureFlags,
     }
 
     private fun sendClearFlipperCacheEvent(result: Result) {
-        eventBus.publish(EventQueue.TRACKING, ClearFlipperCacheEvent(result))
+        eventBus.publish(EventQueue.TRACKING, ClearFlipperCacheEvent(result = result))
     }
 
     private fun sendFabricLog(result: Result) {
         ErrorUtils.log(Log.INFO, TAG, "Attempt to clear Flipper cache: ${result.key}")
     }
 
-    class ClearFlipperCacheEvent(val result: Result) : TrackingEvent(), MetricEvent {
-        override fun id(): String = defaultId()
-        override fun timestamp(): Long = defaultTimestamp()
-        override fun referringEvent(): Optional<ReferringEvent> = Optional.absent()
-        override fun putReferringEvent(referringEvent: ReferringEvent?): TrackingEvent = this
+    data class ClearFlipperCacheEvent(val id: String = defaultId(),
+                                      val ts: Long = TrackingEvent.defaultTimestamp(),
+                                      val referringEvent: Optional<ReferringEvent> = Optional.absent(),
+                                      val result: Result) : TrackingEvent(), MetricEvent {
+        override fun id() = id
+
+        override fun timestamp() = ts
+
+        override fun referringEvent() = referringEvent
+
         override fun toMetric(): Metric = Metric.create("ClearFlipperCache", DataPoint.string("result", result.key))
+
+        override fun putReferringEvent(referringEvent: ReferringEvent): TrackingEvent = copy(referringEvent = Optional.of(referringEvent))
     }
 
     enum class Result(val key: String) {
