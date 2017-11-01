@@ -25,7 +25,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlay;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
@@ -99,7 +98,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
-    @Mock private ImageOperations imageOperations;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
@@ -247,7 +245,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        assertThat(getHolder(trackView).footerPlayToggle).isChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isSelected();
     }
 
     @Test
@@ -294,7 +292,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        assertThat(getHolder(trackView).footerPlayToggle).isNotChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isNotSelected();
     }
 
     @Test

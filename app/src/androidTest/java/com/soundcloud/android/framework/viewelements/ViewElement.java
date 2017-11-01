@@ -49,6 +49,8 @@ public abstract class ViewElement {
 
     public abstract boolean isChecked();
 
+    public abstract boolean isSelected();
+
     public abstract int getId();
 
     public abstract CharSequence getContentDescription();

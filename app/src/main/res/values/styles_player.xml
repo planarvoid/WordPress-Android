@@ -8,10 +8,13 @@
         <item name="android:background">@color/soundcloud_orange</item>
     </style>
 
-    <style name="FooterToggle" parent="CustomToggle">
+    <style name="FooterToggle">
         <item name="android:layout_width">@dimen/player_footer_control</item>
         <item name="android:layout_height">@dimen/player_footer_control</item>
-        <item name="android:background">@drawable/btn_footer_play_toggle</item>
+        <item name="android:layout_marginLeft">@dimen/player_footer_control_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/player_footer_control_horizontal_margin</item>
+        <item name="android:src">@drawable/btn_footer_play_toggle</item>
+        <item name="android:background">@null</item>
     </style>
 
     <style name="PlayerPlay">
@@ -35,26 +38,20 @@
         <item name="android:background">@drawable/btn_player_previous</item>
     </style>
 
-    <style name="FooterTitleWrapper">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
     <style name="FooterUser" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginRight">16dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:scrollHorizontally">false</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/player_user_text</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="FooterTitle" parent="FooterUser">
-        <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="PlayerUser" parent="ShrinkWrap.Secondary.Medium">
@@ -263,11 +260,12 @@
     <style name="PlayerFooterLike">
         <item name="android:src">@drawable/btn_player_mini_like</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_width">@dimen/player_footer_like_width_height</item>
-        <item name="android:layout_height">@dimen/player_footer_like_width_height</item>
+        <item name="android:layout_width">@dimen/player_footer_control</item>
+        <item name="android:layout_height">@dimen/player_footer_control</item>
         <item name="android:padding">@dimen/player_footer_like_padding</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_marginLeft">@dimen/player_footer_control_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/player_footer_control_horizontal_margin</item>
     </style>
 
 </resources>

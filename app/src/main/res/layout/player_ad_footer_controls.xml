@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/footer_controls"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_footer_control"
-        android:layout_below="@+id/player_strip">
+    android:id="@+id/footer_controls"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/player_footer_control"
+    android:layout_below="@+id/player_strip"
+    tools:background="@color/black_90">
 
-    <com.soundcloud.android.view.CustomFontToggleButton
-            android:id="@+id/footer_toggle"
-            style="@style/FooterToggle"
-            android:layout_marginRight="8dp" />
+    <ImageButton
+        android:id="@+id/footer_toggle"
+        style="@style/FooterToggle" />
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/footer_ad_text"
-            style="@style/FooterTitle"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@id/footer_toggle" />
+        android:id="@+id/footer_ad_text"
+        style="@style/FooterTitle"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/footer_toggle"
+        android:layout_toRightOf="@id/footer_toggle"
+        tools:text="@string/ads_advertisement" />
 </RelativeLayout>

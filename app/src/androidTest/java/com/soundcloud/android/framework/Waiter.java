@@ -105,6 +105,10 @@ public class Waiter {
         return solo.waitForCondition(new CheckedViewCondition(matcher), ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForElementToBeSelected(With matcher) {
+        return solo.waitForCondition(new SelectedViewCondition(matcher), ELEMENT_TIMEOUT);
+    }
+
     public boolean waitForNetworkCondition(Condition condition) {
         return solo.waitForCondition(condition, NETWORK_TIMEOUT);
     }
@@ -410,6 +414,19 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return solo.findOnScreenElement(matcher).isChecked();
+        }
+    }
+
+    private class SelectedViewCondition implements Condition {
+        private final With matcher;
+
+        public SelectedViewCondition(With matcher) {
+            this.matcher = matcher;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return solo.findOnScreenElement(matcher).isSelected();
         }
     }
 

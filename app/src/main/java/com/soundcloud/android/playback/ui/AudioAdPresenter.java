@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -133,7 +132,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         } else {
             holder.companionlessText.setVisibility(View.GONE);
         }
-        holder.footerPlayToggle.setChecked(playSessionIsActive);
+        holder.footerPlayToggle.setSelected(playSessionIsActive);
         holder.playerOverlayController.setPlayState(playStateEvent);
     }
 
@@ -236,7 +235,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private final View artworkIdleOverlay;
         private final View companionlessText;
 
-        private final ToggleButton footerPlayToggle;
+        private final View footerPlayToggle;
         private final View close;
 
         private final View footer;

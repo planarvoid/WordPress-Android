@@ -148,6 +148,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.footer_toggle:
+                view.setSelected(!view.isSelected());
                 listener.onFooterTogglePlay();
                 break;
             case R.id.player_play:
@@ -423,7 +424,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerUser.setText(Strings.EMPTY);
         holder.footerTitle.setText(Strings.EMPTY);
         holder.footerLikeToggle.setSelected(false);
-        holder.footerLikeToggle.setVisibility(View.GONE);
+        holder.footerLikeToggle.setVisibility(View.INVISIBLE);
 
         holder.timestamp.setPreview(false);
         holder.timestamp.setVisibility(View.GONE);
@@ -443,7 +444,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = playStateEvent.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.footerPlayToggle.setChecked(playSessionIsActive);
+        holder.footerPlayToggle.setSelected(playSessionIsActive);
         setWaveformPlayState(holder, playStateEvent, isCurrentTrack);
         setViewPlayState(holder, playStateEvent, isCurrentTrack);
 
@@ -865,7 +866,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         // Footer player
         View footer;
-        ToggleButton footerPlayToggle;
+        ImageButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
         ImageButton footerLikeToggle;
