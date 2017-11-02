@@ -23,7 +23,7 @@ ext {
   robolectricVersion = '3.4.2'
   pmdVersion = '5.7.0'
   kotlinVersion = '1.1.51'
-  detektVersion = '1.0.0.RC5-2'
+  detektVersion = '1.0.0.RC5-3'
   mementoVersion = '0.2-SNAPSHOT'
   flankVersion = '1.4.4-SOUNDCLOUD'
 
