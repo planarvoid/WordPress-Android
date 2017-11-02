@@ -16,19 +16,19 @@ def productionAppConfiguration =  new PublishConfiguration(file("$rootProject.pr
 task uploadBeta(type: BetaPublishTask) {
   description = 'Uploads app to Google Play Store Beta track.'
   publishConfiguration = productionAppConfiguration
-  apkFileProvider = { findApkPath("beta", project.('betaVersionCode')) }
+  apkFileProvider = { file(findApkPath("beta", project.('betaVersionCode'))) }
 }
 
 task uploadFollowUpBeta(type: BetaPublishTask) {
   description = 'Uploads app to Google Play Store Beta track following Production rollout.'
   publishConfiguration = productionAppConfiguration
-  apkFileProvider = { findApkPath("beta", project.('followUpBetaVersionCode')) }
+  apkFileProvider = { file(findApkPath("beta", project.('followUpBetaVersionCode'))) }
 }
 
 task rolloutOnePercent(type: RolloutPublishTask) {
   description = 'Uploads app to Google Play Store Staged Rollout track and rolls the app out to 1% of user base.'
   publishConfiguration = productionAppConfiguration
-  apkFileProvider = { findApkPath("release", project.('releaseVersionCode')) }
+  apkFileProvider = { file(findApkPath("release", project.('releaseVersionCode'))) }
   userFraction = UserFraction.ONE_PERCENT
 }
 

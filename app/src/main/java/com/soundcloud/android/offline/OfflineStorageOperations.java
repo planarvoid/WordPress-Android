@@ -37,7 +37,7 @@ public class OfflineStorageOperations {
     private void checkForOfflineStorageConsistency() {
         if (IOUtils.isSDCardMounted(context) && shouldDeleteOfflineDirOnSDCard()) {
             File sdCardDir = IOUtils.getSDCardDir(context);
-            if (sdCardDir != null) {
+            if (sdCardDir != null && sdCardDir.exists()) {
                 IOUtils.cleanDir(sdCardDir);
             }
         }

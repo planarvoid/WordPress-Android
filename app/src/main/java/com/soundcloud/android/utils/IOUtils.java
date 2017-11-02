@@ -327,7 +327,9 @@ public class IOUtils {
             }
             return result;
         }
-        throw new IllegalArgumentException("Argument " + dir.toString() + " is not a directory");
+        throw new IllegalArgumentException("Argument " + dir.toString() + " is not a directory " +
+                                                   "(exists=" + dir.exists() + ", " +
+                                                   "canWrite=" + dir.canWrite() + ", canRead=" + dir.canRead() + ")");
     }
 
     public static boolean renameCaseSensitive(File oldFile, File newFile) {
