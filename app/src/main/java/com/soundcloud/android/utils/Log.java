@@ -1,12 +1,12 @@
 package com.soundcloud.android.utils;
 
-import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.properties.ApplicationProperties;
 import org.jetbrains.annotations.NotNull;
 
 public final class Log {
     public static final String ADS_TAG = "ScAds";
-    private static LogLevel logLevel = BuildConfig.DEBUG ? LogLevel.VERBOSE : LogLevel.WARN;
+    private static LogLevel logLevel = ApplicationProperties.isAlphaOrBelow() ? LogLevel.VERBOSE : LogLevel.WARN;
 
     public static void d(@NotNull final String tag, @NotNull final String message) {
         if (shouldLog(LogLevel.DEBUG)) {

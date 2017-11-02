@@ -78,7 +78,6 @@ android {
     alpha {
       applicationIdSuffix '.alpha'
       versionNameSuffix '-alpha'
-      debuggable true
       minifyEnabled false
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false

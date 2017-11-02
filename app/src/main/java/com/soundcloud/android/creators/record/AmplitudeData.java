@@ -1,12 +1,10 @@
 package com.soundcloud.android.creators.record;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.soundcloud.android.BuildConfig;
-
 import android.util.Log;
 
 import java.io.File;
@@ -52,7 +50,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         initialCapacity = source.readInt();
         pos = source.readInt();
         int length = source.readInt();
-        if (BuildConfig.DEBUG && !(pos <= length)) {
+        if (ApplicationProperties.isAlphaOrBelow() && !(pos <= length)) {
             throw new AssertionError();
         }
         data = new float[length];

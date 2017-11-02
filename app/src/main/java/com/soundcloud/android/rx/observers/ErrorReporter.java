@@ -2,7 +2,7 @@ package com.soundcloud.android.rx.observers;
 
 import static com.soundcloud.android.rx.OperationDurationLogger.report;
 
-import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.OperationDurationLogger;
 import com.soundcloud.android.utils.CallsiteToken;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 class ErrorReporter {
     private final CallsiteToken callsiteToken = CallsiteToken.build();
     private final OperationDurationLogger.TimeMeasure measure =
-            OperationDurationLogger.create(callsiteToken.getStackTrace(), BuildConfig.DEBUG);
+            OperationDurationLogger.create(callsiteToken.getStackTrace(), ApplicationProperties.isAlphaOrBelow());
 
     ErrorReporter() {}
 
