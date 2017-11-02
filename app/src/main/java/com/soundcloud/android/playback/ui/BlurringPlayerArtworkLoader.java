@@ -6,7 +6,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -15,8 +14,6 @@ import rx.Subscription;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
@@ -51,15 +48,12 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     }
 
     @Override
-    public void loadArtwork(ImageResource imageResource, ImageView wrappedImageView, ImageView imageOverlay,
-                            boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
-        super.loadArtwork(imageResource, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
-        loadBlurredArtwork(imageResource, imageOverlay, Optional.of(viewVisibilityProvider));
+    public void loadArtwork(ImageResource imageResource, ImageView wrappedImageView, ImageView imageOverlay, boolean isHighPriority) {
+        super.loadArtwork(imageResource, wrappedImageView, imageOverlay, isHighPriority);
+        loadBlurredArtwork(imageResource, imageOverlay);
     }
 
-    protected void loadBlurredArtwork(ImageResource imageResource,
-                                      ImageView imageOverlay,
-                                      Optional<ViewVisibilityProvider> viewVisibilityProvider) {
+    protected void loadBlurredArtwork(ImageResource imageResource, ImageView imageOverlay) {
         blurSubscription.unsubscribe();
         blurSubscription = RxJava.toV1Observable(imageOperations.blurredArtwork(resources,
                                                                                 imageResource.getUrn(),
@@ -67,17 +61,14 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
                                                                                 Optional.absent(),
                                                                                 graphicsScheduler,
                                                                                 observeOnScheduler))
-                                 .subscribe(new BlurredOverlaySubscriber(imageOverlay,
-                                                                         viewVisibilityProvider));
+                                 .subscribe(new BlurredOverlaySubscriber(imageOverlay));
     }
 
     private class BlurredOverlaySubscriber extends DefaultSubscriber<Bitmap> {
         private final WeakReference<ImageView> imageOverlayRef;
-        private final Optional<ViewVisibilityProvider> viewVisibilityProvider;
 
-        BlurredOverlaySubscriber(ImageView imageOverlay, Optional<ViewVisibilityProvider> viewVisibilityProvider) {
+        BlurredOverlaySubscriber(ImageView imageOverlay) {
             this.imageOverlayRef = new WeakReference<>(imageOverlay);
-            this.viewVisibilityProvider = viewVisibilityProvider;
         }
 
         @Override
@@ -85,14 +76,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
             final ImageView imageView = imageOverlayRef.get();
 
             if (imageView != null) {
-                if (viewVisibilityProvider.isPresent() && viewVisibilityProvider.get().isCurrentlyVisible(imageView)) {
-                    final TransitionDrawable transitionDrawable =
-                            ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
-                    imageView.setImageDrawable(transitionDrawable);
-                    transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
-                } else {
-                    imageView.setImageBitmap(bitmap);
-                }
+                imageView.setImageBitmap(bitmap);
             }
         }
     }

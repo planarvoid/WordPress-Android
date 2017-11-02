@@ -4,7 +4,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
-import com.soundcloud.java.optional.Optional;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -22,9 +21,8 @@ class BlurringPlayQueueArtworkLoader extends BlurringPlayerArtworkLoader {
         super(imageOperations, resources, graphicsScheduler, AndroidSchedulers.mainThread());
     }
 
-    public void loadArtwork(ImageResource imageResource,
-                            ImageView imageOverlay) {
-        loadBlurredArtwork(imageResource, imageOverlay, Optional.absent());
+    public void loadArtwork(ImageResource imageResource, ImageView imageOverlay) {
+        loadBlurredArtwork(imageResource, imageOverlay);
     }
 
 }

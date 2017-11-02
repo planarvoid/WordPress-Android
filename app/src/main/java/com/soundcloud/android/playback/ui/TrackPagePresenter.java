@@ -201,7 +201,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         updatePlayQueueButton(trackView);
 
-        holder.artworkController.loadArtwork(trackState, false, trackState.getViewVisibilityProvider());
+        holder.artworkController.loadArtwork(trackState, false);
 
         holder.timestamp.resetTo(playableDuration, fullDuration);
         holder.menuController.setTrack(trackState);

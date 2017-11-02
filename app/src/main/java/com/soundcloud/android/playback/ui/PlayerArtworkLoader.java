@@ -28,8 +28,7 @@ public class PlayerArtworkLoader {
     public void loadArtwork(ImageResource imageResource,
                             ImageView wrappedImageView,
                             ImageView imageOverlay,
-                            boolean isHighPriority,
-                            ViewVisibilityProvider viewVisibilityProvider) {
+                            boolean isHighPriority) {
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
         final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, imageResource.getUrn(), imageResource.getImageUrlTemplate());
         imageOperations.displayInPlayer(imageResource.getUrn(), imageResource.getImageUrlTemplate(), size, wrappedImageView, cachedListBitmap, isHighPriority);

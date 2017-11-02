@@ -82,8 +82,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         activityContext = activity();
         builder = PlayableFixtures.expectedTrackBuilderForPlayer();
         sourceTrack = trackItem(builder.build());
-        track = new PlayerTrackState(sourceTrack, false, false, null, INITIAL_PROGRESS);
-        privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, null, INITIAL_PROGRESS);
+        track = new PlayerTrackState(sourceTrack, false, false, INITIAL_PROGRESS);
+        privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, INITIAL_PROGRESS);
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(textView.getContext()).thenReturn(activityContext);
@@ -117,7 +117,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Test
     public void clickingStartStationOnBlockedTrackStartsStationWithoutPrependingSeed() {
         final TrackItem blockedTrackItem = trackItem(builder.blocked(true).build());
-        final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, null, INITIAL_PROGRESS);
+        final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, INITIAL_PROGRESS);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
         controller.setTrack(updatedPlayerTrackState);
@@ -267,7 +267,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
         final TrackItem notCommentable = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build());
-        track = new PlayerTrackState(notCommentable, false, false, null, INITIAL_PROGRESS);
+        track = new PlayerTrackState(notCommentable, false, false, INITIAL_PROGRESS);
         controller.setTrack(track);
 
         verify(popupMenuWrapper).setItemVisible(R.id.comment, false);

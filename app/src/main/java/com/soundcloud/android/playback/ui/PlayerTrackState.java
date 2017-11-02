@@ -12,11 +12,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerTrackState extends PlayerItem implements ImageResource {
 
-    static final PlayerTrackState EMPTY = new PlayerTrackState(false, false, ViewVisibilityProvider.EMPTY);
+    static final PlayerTrackState EMPTY = new PlayerTrackState(false, false);
 
     private final boolean isCurrentTrack;
     private final boolean isForeground;
-    private final ViewVisibilityProvider viewVisibilityProvider;
     private final PlaybackProgress initialProgress;
 
     private Optional<StationRecord> station = Optional.absent();
@@ -24,19 +23,16 @@ public class PlayerTrackState extends PlayerItem implements ImageResource {
     PlayerTrackState(TrackItem source,
                      boolean isCurrentTrack,
                      boolean isForeground,
-                     ViewVisibilityProvider viewVisibilityProvider,
                      PlaybackProgress initialProgress) {
         super(source);
         this.isCurrentTrack = isCurrentTrack;
         this.isForeground = isForeground;
-        this.viewVisibilityProvider = viewVisibilityProvider;
         this.initialProgress = initialProgress;
     }
 
-    public PlayerTrackState(boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
+    public PlayerTrackState(boolean isCurrentTrack, boolean isForeground) {
         this.isCurrentTrack = isCurrentTrack;
         this.isForeground = isForeground;
-        this.viewVisibilityProvider = viewVisibilityProvider;
         this.initialProgress = PlaybackProgress.empty();
     }
 
@@ -46,10 +42,6 @@ public class PlayerTrackState extends PlayerItem implements ImageResource {
 
     public boolean isCurrentTrack() {
         return isCurrentTrack;
-    }
-
-    public ViewVisibilityProvider getViewVisibilityProvider() {
-        return viewVisibilityProvider;
     }
 
     public boolean isForeground() {

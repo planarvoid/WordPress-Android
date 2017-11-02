@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
@@ -23,8 +22,6 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
     @Mock ImageOperations imageOperations;
     @Mock ImageView wrappedImageView;
     @Mock ImageView imageOverlayView;
-    @Mock ImageListener listener;
-    @Mock ViewVisibilityProvider viewVisibilityProvider;
 
     private PlayerArtworkLoader playerArtworkLoader;
     private Urn urn = Urn.forTrack(1L);
@@ -43,8 +40,7 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
                                         imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
+                                        true);
 
         verify(imageOperations).displayInPlayer(urn, Optional.absent(), ApiImageSize.getFullImageSize(resources()), wrappedImageView, cachedBitmap, true);
     }

@@ -260,7 +260,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         final PlayerTrackState trackState = new PlayerTrackState(PlayableFixtures.expectedTrackForPlayer(),
                                                                  true,
                                                                  true,
-                                                                 viewVisibilityProvider,
                                                                  EMPTY_PROGRESS);
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         trackState.setStation(station);
@@ -944,22 +943,22 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private TrackItem populateTrackPage(boolean creatorIsPro, int position, int duration) {
         final TrackItem source = TrackFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).creatorIsPro(creatorIsPro).build());
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, new PlaybackProgress(position, duration, source.getUrn())));
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, new PlaybackProgress(position, duration, source.getUrn())));
         return source;
     }
 
     private void bindSnippedTrack() {
         final TrackItem snippedTrack = PlayableFixtures.upsellableTrack();
-        presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider, EMPTY_PROGRESS));
+        presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, EMPTY_PROGRESS));
     }
 
     private TrackItem bindUpsellableHighTierTrack() {
         final TrackItem source = PlayableFixtures.upsellableTrackForPlayer();
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider, EMPTY_PROGRESS));
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, EMPTY_PROGRESS));
         return source;
     }
 
     private void bindEmptyTrack() {
-        presenter.bindItemView(trackView, new PlayerTrackState(true, true, viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(true, true));
     }
 }

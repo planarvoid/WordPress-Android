@@ -41,7 +41,6 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     @Mock private ImageView wrappedImageView;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlayerArtworkLoader playerArtworkLoader;
-    @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private ImageResource imageResource;
 
     private Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
@@ -196,16 +195,15 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadArtworkDisplaysArtworkThroughImageOperations()  {
+    public void loadArtworkDisplaysArtworkThroughImageOperations() {
         when(wrappedImageView.getResources()).thenReturn(resources());
         when(wrappedImageView.getContext()).thenReturn(context());
 
-        playerArtworkController.loadArtwork(imageResource, true, viewVisibilityProvider);
+        playerArtworkController.loadArtwork(imageResource, true);
         verify(playerArtworkLoader).loadArtwork(same(imageResource),
                                                 same(wrappedImageView),
                                                 same(artworkOverlayImage),
-                                                eq(true),
-                                                same(viewVisibilityProvider));
+                                                eq(true));
     }
 
     @Test

@@ -532,7 +532,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         return trackItem -> new PlayerTrackState(trackItem,
                                                  playQueueManager.isCurrentItem(playQueueItem),
                                                  isForeground,
-                                                 viewVisibilityProvider,
                                                  playSessionStateProvider.getLastProgressForItem(playQueueItem.getUrn())
         );
     }

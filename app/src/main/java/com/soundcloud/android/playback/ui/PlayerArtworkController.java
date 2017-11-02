@@ -138,14 +138,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         artworkView.getImageOverlay().setImageDrawable(null);
     }
 
-    public void loadArtwork(ImageResource imageResource,
-                            boolean isHighPriority,
-                            ViewVisibilityProvider viewVisibilityProvider) {
+    public void loadArtwork(ImageResource imageResource, boolean isHighPriority) {
         playerArtworkLoader.loadArtwork(imageResource,
                                         artworkView.getWrappedImageView(),
                                         artworkView.getImageOverlay(),
-                                        isHighPriority,
-                                        viewVisibilityProvider);
+                                        isHighPriority);
     }
 
     public void reset() {

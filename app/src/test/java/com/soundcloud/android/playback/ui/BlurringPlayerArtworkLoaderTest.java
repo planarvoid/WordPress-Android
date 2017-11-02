@@ -18,12 +18,9 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
@@ -32,7 +29,6 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
     @Mock ImageView wrappedImageView;
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
-    @Mock ViewVisibilityProvider viewVisibilityProvider;
 
     private PlayerArtworkLoader playerArtworkLoader;
     private Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
@@ -56,8 +52,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
                                         imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
+                                        true);
 
         verify(imageOperations).displayInPlayer(imageResource.getUrn(), imageResource.getImageUrlTemplate(), ApiImageSize.getFullImageSize(resources()), wrappedImageView, cachedBitmap, true);
     }
@@ -72,29 +67,9 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
                                         imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
+                                        true);
 
         verify(imageOverlayView).setImageBitmap(blurredBitmap);
-    }
-
-    @Test
-    public void loadArtworkSetsBlurredArtworkOnImageOverlayWithTransitionDrawableWhenOnScreen() {
-        final Bitmap blurredBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-        when(imageOperations.getCachedListItemBitmap(resources(), urn, Optional.absent())).thenReturn(cachedBitmap);
-        when(imageOperations.blurredArtwork(resources(), urn, Optional.absent(), Optional.absent(), immediateScheduler, immediateScheduler))
-                .thenReturn(Single.just(blurredBitmap));
-        when(viewVisibilityProvider.isCurrentlyVisible(imageOverlayView)).thenReturn(true);
-
-        playerArtworkLoader.loadArtwork(imageResource,
-                                        wrappedImageView,
-                                        imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
-
-        ArgumentCaptor<TransitionDrawable> captor = ArgumentCaptor.forClass(TransitionDrawable.class);
-        verify(imageOverlayView).setImageDrawable(captor.capture());
-        assertThat(((BitmapDrawable) captor.getValue().getDrawable(1)).getBitmap()).isEqualTo(blurredBitmap);
     }
 
     @Test
@@ -109,13 +84,11 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
                                         imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
+                                        true);
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,
                                         imageOverlayView,
-                                        true,
-                                        viewVisibilityProvider);
+                                        true);
 
         assertThat(firstBlurObservable.hasObservers()).isFalse();
         assertThat(secondBlurObservable.hasObservers()).isTrue();
