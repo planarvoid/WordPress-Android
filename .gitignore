@@ -46,6 +46,7 @@ build
 .config
 .gsutil
 bucket
+flank.tests
 
 # Test data
 tests-*.sqlite

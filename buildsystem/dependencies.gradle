@@ -25,7 +25,7 @@ ext {
   kotlinVersion = '1.1.51'
   detektVersion = '1.0.0.RC5-3'
   mementoVersion = '0.2-SNAPSHOT'
-  flankVersion = '1.4.4-SOUNDCLOUD'
+  flankVersion = '1.4.5-SOUNDCLOUD'
 
   libraries = [
           // Annotation processors / Annotations
