@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -38,6 +39,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock DelayedLoadingDialogPresenter dialogPresenter;
     @Mock PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ExpandPlayerCommand expandPlayerCommand;
 
     private final Screen screen = Screen.SEARCH_MAIN;
     private StartStationPresenter presenter;
@@ -59,9 +61,8 @@ public class StartStationPresenterTest extends AndroidUnitTest {
                                               stationsOperations,
                                               playbackInitiator,
                                               eventBus,
-                                              playbackFeedbackHelper,
                                               screenProvider,
-                                              performanceMetricsEngine);
+                                              expandPlayerCommand);
     }
 
     @Test

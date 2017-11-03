@@ -5,7 +5,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
@@ -20,11 +19,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSingleObserver;
@@ -66,14 +65,13 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final PlaybackInitiator playbackInitiator;
-    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final EventTracker eventTracker;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     private final FeedbackController feedbackController;
     private final NavigationExecutor navigationExecutor;
-    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
+    private final ExpandPlayerCommand expandPlayerCommand;
 
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
@@ -101,14 +99,13 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            AccountOperations accountOperations,
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
-                           PlaybackFeedbackHelper playbackFeedbackHelper,
                            EventTracker eventTracker,
                            ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                            ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper,
                            FeedbackController feedbackController,
                            NavigationExecutor navigationExecutor,
-                           PerformanceMetricsEngine performanceMetricsEngine,
-                           Navigator navigator) {
+                           Navigator navigator,
+                           ExpandPlayerCommand expandPlayerCommand) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -122,14 +119,13 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.playbackInitiator = playbackInitiator;
-        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.eventTracker = eventTracker;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.feedbackController = feedbackController;
         this.navigationExecutor = navigationExecutor;
-        this.performanceMetricsEngine = performanceMetricsEngine;
         this.navigator = navigator;
+        this.expandPlayerCommand = expandPlayerCommand;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -299,7 +295,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         if (playQueueManager.isQueueEmpty()) {
             final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
-                             .subscribe(new ExpandPlayerSingleObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine));
+                             .subscribe(new ExpandPlayerSingleObserver(expandPlayerCommand));
         } else {
             playQueueManager.insertNext(trackUrn);
         }

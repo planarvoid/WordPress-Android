@@ -4,16 +4,15 @@ import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.ExpandPlayerSingleObserver;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.rx.eventbus.EventBusV2;
 import io.reactivex.Maybe;
@@ -32,9 +31,8 @@ public class StartStationPresenter {
     private final StationsOperations stationsOperations;
     private final PlaybackInitiator playbackInitiator;
     private final EventBusV2 eventBus;
-    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final PlaySessionOriginScreenProvider screenProvider;
-    private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final ExpandPlayerCommand expandPlayerCommand;
     private Disposable disposable = Disposables.empty();
 
     @Inject
@@ -42,16 +40,14 @@ public class StartStationPresenter {
                                  StationsOperations stationsOperations,
                                  PlaybackInitiator playbackInitiator,
                                  EventBusV2 eventBus,
-                                 PlaybackFeedbackHelper playbackFeedbackHelper,
                                  PlaySessionOriginScreenProvider screenProvider,
-                                 PerformanceMetricsEngine performanceMetricsEngine) {
+                                 ExpandPlayerCommand expandPlayerCommand) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
-        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.screenProvider = screenProvider;
-        this.performanceMetricsEngine = performanceMetricsEngine;
+        this.expandPlayerCommand = expandPlayerCommand;
     }
 
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
@@ -71,10 +67,8 @@ public class StartStationPresenter {
                              final int position) {
         disposable = station.flatMapSingle(toPlaybackResult(discoverySource, position))
                             .subscribeWith(new ExpandAndDismissDialogSingleObserver(context,
-                                                                                    eventBus,
-                                                                                    playbackFeedbackHelper,
                                                                                     getLoadingDialogPresenter(context),
-                                                                                    performanceMetricsEngine));
+                                                                                    expandPlayerCommand));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -105,10 +99,8 @@ public class StartStationPresenter {
                      final DiscoverySource discoverySource) {
         disposable = station.flatMapSingle(toPlaybackResult(discoverySource))
                             .subscribeWith(new ExpandAndDismissDialogSingleObserver(context,
-                                                                                    eventBus,
-                                                                                    playbackFeedbackHelper,
                                                                                     getLoadingDialogPresenter(context),
-                                                                                    performanceMetricsEngine));
+                                                                                    expandPlayerCommand));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -150,11 +142,9 @@ public class StartStationPresenter {
         private final DelayedLoadingDialogPresenter delayedLoadingDialogPresenter;
 
         ExpandAndDismissDialogSingleObserver(Context context,
-                                             EventBusV2 eventBus,
-                                             PlaybackFeedbackHelper playbackFeedbackHelper,
                                              DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
-                                             PerformanceMetricsEngine performanceMetricsEngine) {
-            super(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
+                                             ExpandPlayerCommand expandPlayerCommand) {
+            super(expandPlayerCommand);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
         }
@@ -169,10 +159,8 @@ public class StartStationPresenter {
         public void onSuccess(PlaybackResult result) {
             super.onSuccess(result);
             if (result.isSuccess()) {
-                expandPlayer();
                 delayedLoadingDialogPresenter.onSuccess();
             } else {
-                onPlaybackError();
                 delayedLoadingDialogPresenter.onError(context);
             }
         }

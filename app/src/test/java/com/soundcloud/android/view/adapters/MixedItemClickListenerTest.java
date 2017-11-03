@@ -6,7 +6,7 @@ import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,8 +22,10 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -31,6 +33,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.suggestions.SearchSuggestionItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -41,15 +44,14 @@ import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import rx.Observable;
 
 import android.support.annotation.NonNull;
@@ -65,7 +67,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     private final Screen screen = Screen.ACTIVITIES;
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123), "query");
-    private EventBus eventBus = new TestEventBus();
+    private EventBusV2 eventBusv2 = new TestEventBusV2();
     private MixedItemClickListener listener;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
@@ -73,13 +75,21 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private Navigator navigator;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private PlaySessionStateStorage playSessionStateStorage;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
+    private ExpandPlayerCommand expandPlayerCommand;
+
     @Captor private ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor;
-    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, mock(PerformanceMetricsEngine.class));
+    private ExpandPlayerSubscriber expandPlayerSubscriber;
     private AppCompatActivity activity;
 
     @Before
     public void setUp() {
+        expandPlayerCommand = new ExpandPlayerCommand(playSessionStateStorage, playbackFeedbackHelper, performanceMetricsEngine, featureFlags, eventBusv2);
+        expandPlayerSubscriber = spy(new ExpandPlayerSubscriber(expandPlayerCommand));
         listener = new MixedItemClickListener(playbackInitiator,
                                               providerOf(expandPlayerSubscriber),
                                               screen,

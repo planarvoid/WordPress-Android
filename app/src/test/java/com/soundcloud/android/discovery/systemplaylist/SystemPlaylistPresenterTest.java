@@ -97,7 +97,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     @Mock TrackingStateProvider trackingStateProvider;
 
     private final TestEventBusV2 eventBus = new TestEventBusV2();
-    private final Provider<ExpandPlayerSingleObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver(eventBus);
+    private final Provider<ExpandPlayerSingleObserver> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerObserver();
     private SystemPlaylistPresenter presenter;
 
     @Before

@@ -101,7 +101,7 @@ class TrackLikesHeaderPresenterTest : AndroidUnitTest() {
                 likeOperations,
                 featureOperations,
                 playbackInitiator,
-                TestSubscribers.expandPlayerObserver(eventBus),
+                TestSubscribers.expandPlayerObserver(),
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigationExecutor,
                 eventBus,

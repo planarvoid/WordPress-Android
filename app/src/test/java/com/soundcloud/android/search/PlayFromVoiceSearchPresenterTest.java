@@ -9,11 +9,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
@@ -51,6 +53,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private ExpandPlayerCommand expandPlayerCommand;
+
     private TestEventBus eventBus;
     private PlayFromVoiceSearchPresenter presenter;
 
@@ -64,10 +69,8 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter = new PlayFromVoiceSearchPresenter(searchOperations,
                                                      playbackInitiator,
                                                      random,
-                                                     playbackFeedbackHelper,
                                                      navigationExecutor,
-                                                     eventBus,
-                                                     performanceMetricsEngine);
+                                                     expandPlayerCommand);
     }
 
     @Test

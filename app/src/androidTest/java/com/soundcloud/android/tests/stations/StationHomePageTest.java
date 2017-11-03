@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.stations;
 
 import static com.soundcloud.android.framework.TestUser.stationsUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static com.soundcloud.android.properties.Flag.MINI_PLAYER;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,6 +29,11 @@ public class StationHomePageTest extends ActivityTest<LauncherActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return stationsUser;
+    }
+
+    @Override
+    protected void beforeActivityLaunched() {
+        getFeatureFlags().disable(MINI_PLAYER);
     }
 
     @Override

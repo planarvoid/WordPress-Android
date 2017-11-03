@@ -14,12 +14,15 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -44,6 +47,10 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private TrackRepository trackRepository;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private PlaySessionStateStorage playSessionStateStorage;
+
+    private ExpandPlayerCommand expandPlayerCommand;
 
     private PlayQueueHelper playQueueHelper;
     private List<Urn> trackList;
@@ -57,8 +64,8 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         Urn track2 = Urn.forTrack(2L);
         trackList = newArrayList(track1, track2);
         when(screenProvider.getLastScreenTag()).thenReturn(Screen.STREAM.get());
-        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackFeedbackHelper, eventBus,
-                                              playbackInitiator, screenProvider, performanceMetricsEngine);
+        expandPlayerCommand = new ExpandPlayerCommand(playSessionStateStorage, playbackFeedbackHelper, performanceMetricsEngine, featureFlags, eventBus);
+        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackInitiator, screenProvider, expandPlayerCommand);
     }
 
     @Test

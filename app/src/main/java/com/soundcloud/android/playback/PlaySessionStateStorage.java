@@ -14,7 +14,7 @@ public class PlaySessionStateStorage {
     private final SharedPreferences sharedPreferences;
 
     enum Keys {
-        PROGRESS, DURATION, ITEM, PLAY_ID
+        PROGRESS, DURATION, ITEM, PLAY_ID, PLAYED
     }
 
     @Inject
@@ -35,6 +35,12 @@ public class PlaySessionStateStorage {
         editor.apply();
     }
 
+    void setPlayedState() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Keys.PLAYED.name(), true);
+        editor.apply();
+    }
+
     void clearProgressAndDuration() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(Keys.PROGRESS.name());
@@ -51,6 +57,10 @@ public class PlaySessionStateStorage {
 
     long getLastStoredProgress() {
         return sharedPreferences.getLong(Keys.PROGRESS.name(), 0);
+    }
+
+    boolean hasPlayed() {
+        return sharedPreferences.getBoolean(Keys.PLAYED.name(), false);
     }
 
     long getLastStoredDuration() {
@@ -74,6 +84,7 @@ public class PlaySessionStateStorage {
         clearProgressAndDuration();
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(Keys.PLAYED.name());
         editor.remove(Keys.ITEM.name());
         editor.remove(Keys.PLAY_ID.name());
         editor.apply();

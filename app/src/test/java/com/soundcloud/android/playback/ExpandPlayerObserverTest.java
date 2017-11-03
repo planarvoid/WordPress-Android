@@ -1,12 +1,9 @@
 package com.soundcloud.android.playback;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
-import com.soundcloud.rx.eventbus.TestEventBusV2;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,39 +13,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ExpandPlayerObserverTest {
 
-    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ExpandPlayerCommand expandPlayerCommand;
 
     private ExpandPlayerObserver observer;
-    private final TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
-        observer = new ExpandPlayerObserver(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
+        observer = new ExpandPlayerObserver(expandPlayerCommand);
     }
 
     @Test
-    public void showsPlayerOnSuccessfulPlaybackResult() {
-        observer.onNext(PlaybackResult.success());
-
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isAutomaticExpand()).isTrue();
+    public void callsCommandOnNext() {
+        PlaybackResult playbackResult = PlaybackResult.success();
+        observer.onNext(playbackResult);
+        verify(expandPlayerCommand).call(playbackResult);
     }
 
     @Test
-    public void showsFeedbackOnPlaybackResultError() {
-        PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS);
-
-        observer.onNext(errorResult);
-
-        verify(playbackFeedbackHelper).showFeedbackOnPlaybackError(errorResult.getErrorReason());
+    public void ignoresErrors() {
+        observer.onError(new Throwable());
+        verify(expandPlayerCommand, never()).call(any());
     }
 
-    @Test
-    public void allowsMultiplePlaybackResults() throws Exception {
-        observer.onNext(PlaybackResult.success());
-        observer.onNext(PlaybackResult.success());
-        observer.onNext(PlaybackResult.success());
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(3);
-    }
 }

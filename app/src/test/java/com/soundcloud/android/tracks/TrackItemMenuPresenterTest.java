@@ -28,6 +28,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -77,13 +78,13 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock FeedbackController feedbackController;
     @Mock NavigationExecutor navigationExecutor;
     @Mock PerformanceMetricsEngine performanceMetricsEngine;
-
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock PopupMenuWrapper popupMenuWrapper;
     @Mock MenuItem menuItem;
     @Mock View view;
     @Mock Navigator navigator;
+    @Mock ExpandPlayerCommand expandPlayerCommand;
 
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -116,14 +117,13 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                accountOperations,
                                                playQueueManager,
                                                playbackInitiator,
-                                               playbackFeedbackHelper,
                                                tracker,
                                                changeLikeToSaveExperiment,
                                                changeLikeToSaveExperimentStringHelper,
                                                feedbackController,
                                                navigationExecutor,
-                                               performanceMetricsEngine,
-                                               navigator);
+                                               navigator,
+                                               expandPlayerCommand);
     }
 
     @Test

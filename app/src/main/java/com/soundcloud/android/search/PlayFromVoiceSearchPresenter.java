@@ -2,20 +2,18 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.playback.ExpandPlayerCommand;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -39,10 +37,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final SearchOperations searchOperations;
     private final PlaybackInitiator playbackInitiator;
     private final Random random;
-    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final NavigationExecutor navigationExecutor;
-    private final EventBus eventBus;
-    private PerformanceMetricsEngine performanceMetricsEngine;
+    private final ExpandPlayerCommand expandPlayerCommand;
+
     private Context activityContext;
 
     private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
@@ -72,17 +69,13 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     PlayFromVoiceSearchPresenter(SearchOperations searchOperations,
                                  PlaybackInitiator playbackInitiator,
                                  Random random,
-                                 PlaybackFeedbackHelper playbackFeedbackHelper,
                                  NavigationExecutor navigationExecutor,
-                                 EventBus eventBus,
-                                 PerformanceMetricsEngine performanceMetricsEngine) {
+                                 ExpandPlayerCommand expandPlayerCommand) {
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
         this.random = random;
-        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.navigationExecutor = navigationExecutor;
-        this.eventBus = eventBus;
-        this.performanceMetricsEngine = performanceMetricsEngine;
+        this.expandPlayerCommand = expandPlayerCommand;
     }
 
     @Override
@@ -125,7 +118,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                 .onErrorReturn(t -> SearchResult.empty())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(toPlayWithRecommendations)
-                .subscribe(new PlayFromQuerySubscriber(eventBus, playbackFeedbackHelper, query));
+                .subscribe(new PlayFromQuerySubscriber(expandPlayerCommand, query));
     }
 
     private void playPlaylist(final String query) {
@@ -144,8 +137,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private class PlayFromQuerySubscriber extends ExpandPlayerSubscriber {
         private final String query;
 
-        public PlayFromQuerySubscriber(EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper, String query) {
-            super(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
+        public PlayFromQuerySubscriber(ExpandPlayerCommand expandPlayerCommand, String query) {
+            super(expandPlayerCommand);
             this.query = query;
         }
 
