@@ -21,7 +21,7 @@
       query_urn: soundcloud:charts:e6c087565bc5464781f9e45f2911aea3
       query_position: 0
       anonymous_id: (\w|-)+
-      policy: MONETIZE
+      policy: (\w)+
       page_name: systemplaylists:main
       playhead_position: 0
       track_length: 254195
