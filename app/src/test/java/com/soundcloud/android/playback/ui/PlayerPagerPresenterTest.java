@@ -96,7 +96,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     @Mock private ViewGroup container;
-    @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     @Mock private View view1;
     @Mock private View view2;

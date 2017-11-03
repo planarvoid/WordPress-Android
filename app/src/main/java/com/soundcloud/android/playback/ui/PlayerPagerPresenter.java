@@ -107,7 +107,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private SkipListener skipListener;
 
     private List<PlayQueueItem> currentPlayQueue = Collections.emptyList();
-    private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
     private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
@@ -229,7 +228,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         trackPager.setSwipeListener(this);
         selectedPage = trackPager.getCurrentItem();
 
-        viewVisibilityProvider = new PlayerViewVisibilityProvider(trackPager);
         trackPager.setPageMargin(view.getResources().getDimensionPixelSize(R.dimen.player_pager_spacing));
         trackPager.setPageMarginDrawable(R.color.black);
         trackPager.setAdapter(trackPagerAdapter);
@@ -349,7 +347,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
         castConnectionHelper.removeOnConnectionChangeListener(this);
         skipListener = null;
-        viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
 
         backgroundSubscription.unsubscribe();
         backgroundSubscription = new CompositeSubscription();

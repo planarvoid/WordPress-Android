@@ -59,7 +59,6 @@ import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
@@ -92,7 +91,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private ErrorViewController errorViewController;
     @Mock private EmptyViewController emptyViewController;
     @Mock private SkipListener skipListener;
-    @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private CastButtonInstaller castButtonInstaller;
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
@@ -108,8 +106,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageView trackPageView;
     @Mock private TrackStatsDisplayPolicy trackStatsDisplayPolicy;
     @Mock private FeatureFlags featureFlags;
-
-    @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
     private TrackQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
 
