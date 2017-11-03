@@ -85,6 +85,7 @@ ext {
           dualCache                   : "com.vincentbrison.openlibraries.android:dualcache:3.1.1",
           rxBinding                   : 'com.jakewharton.rxbinding2:rxbinding:2.0.0',
           rxBindingRecyclerView       : 'com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:2.0.0',
+          telescope                   : 'com.mattprecious.telescope:telescope:2.1.0',
 
           // UI libraries
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",

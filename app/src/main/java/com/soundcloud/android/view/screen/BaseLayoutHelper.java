@@ -15,10 +15,12 @@ import javax.inject.Inject;
 public class BaseLayoutHelper {
 
     private final AppNavigationExperiment appNavigationExperiment;
+    private final TelescopeLayoutWrapper telescopeLayoutWrapper;
 
     @Inject
-    BaseLayoutHelper(AppNavigationExperiment appNavigationExperiment) {
+    BaseLayoutHelper(AppNavigationExperiment appNavigationExperiment, TelescopeLayoutWrapper telescopeLayoutWrapper) {
         this.appNavigationExperiment = appNavigationExperiment;
+        this.telescopeLayoutWrapper = telescopeLayoutWrapper;
     }
 
     public View setContainerLayout(AppCompatActivity activity) {
@@ -76,7 +78,7 @@ public class BaseLayoutHelper {
     }
 
     private View createLayout(AppCompatActivity activity, int baseLayoutId) {
-        final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
+        final View layout = telescopeLayoutWrapper.wrapLayoutIfNecessary(activity, activity.getLayoutInflater().inflate(baseLayoutId, null));
         activity.setContentView(layout);
         return layout;
     }

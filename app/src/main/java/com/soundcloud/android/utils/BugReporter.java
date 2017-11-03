@@ -3,10 +3,12 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.ApplicationModule.BUG_REPORTER;
 import static java.lang.String.format;
 
+import com.mattprecious.telescope.TelescopeFileProvider;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.LambdaSingleObserver;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Charsets;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -24,6 +26,7 @@ import android.support.v4.content.FileProvider;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class BugReporter {
@@ -47,15 +50,15 @@ public class BugReporter {
         this.scheduler = scheduler;
     }
 
-    public void showGeneralFeedbackDialog(final Context context) {
-        getFeedbackDialog(context, R.array.feedback_general).show();
+    public void showGeneralFeedbackDialog(final Context context, Optional<File> screenshotFile) {
+        getFeedbackDialog(context, R.array.feedback_general, screenshotFile).show();
     }
 
     public void showSignInFeedbackDialog(final Context context) {
-        getFeedbackDialog(context, R.array.feedback_sign_in).show();
+        getFeedbackDialog(context, R.array.feedback_sign_in, Optional.absent()).show();
     }
 
-    public AlertDialog getFeedbackDialog(final Context context, @ArrayRes int options) {
+    public AlertDialog getFeedbackDialog(final Context context, @ArrayRes int options, Optional<File> screenshot) {
         final String[] feedbackOptions = resources.getStringArray(options);
         return new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
                                                .setItems(feedbackOptions, (dialog, which) -> {
@@ -71,20 +74,27 @@ public class BugReporter {
                                                             feedbackEmail,
                                                             subject,
                                                             deviceHelper.getUserAgent(),
-                                                            actionChooser);
+                                                            actionChooser,
+                                                            screenshot);
                                                }).create();
     }
 
-    private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
-        Intent intent = new Intent(Intent.ACTION_SEND);
+    private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText, Optional<File> screenshot) {
+        Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         intent.setType(EMAIL_MESSAGE_FORMAT_RFC822);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.putExtra(Intent.EXTRA_TEXT, body);
 
+        ArrayList<Uri> attachments = new ArrayList<>(2);
+        if (screenshot.isPresent()) {
+            attachments.add(TelescopeFileProvider.getUriForFile(context, screenshot.get()));
+        }
+
         File outputFile = IOUtils.createExternalStorageDir(context, LOGCAT_FILE_NAME);
         if (outputFile == null) {
             Log.e("Failed to get external storage directory for logcat file. Sending bug report without logs.");
+            addAttachments(intent, attachments);
             context.startActivity(Intent.createChooser(intent, chooserText));
             return;
         }
@@ -93,10 +103,17 @@ public class BugReporter {
                                           .observeOn(AndroidSchedulers.mainThread())
                                           .subscribeWith(LambdaSingleObserver.onSuccess((uri) -> {
                                               if (!Uri.EMPTY.equals(uri)) {
-                                                  intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                                  attachments.add(uri);
                                               }
+                                              addAttachments(intent, attachments);
                                               context.startActivity(Intent.createChooser(intent, chooserText));
                                           }));
+    }
+
+    private void addAttachments(Intent intent, ArrayList<Uri> attachments) {
+        if (!attachments.isEmpty()) {
+            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachments);
+        }
     }
 
     private Single<Uri> collectLogCat(Context context, File outputFile) {

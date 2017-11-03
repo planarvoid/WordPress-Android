@@ -270,7 +270,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onReportBugClicked(new View(context()));
 
-        verify(bugReporter).showGeneralFeedbackDialog(context());
+        verify(bugReporter).showGeneralFeedbackDialog(context(), Optional.absent());
     }
 
     @Test

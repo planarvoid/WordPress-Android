@@ -265,6 +265,7 @@ dependencies {
 
   compile libraries.rxBinding
   compile libraries.rxBindingRecyclerView
+  compile libraries.telescope
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

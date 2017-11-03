@@ -270,7 +270,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onReportBugClicked(View view) {
-        bugReporter.showGeneralFeedbackDialog(view.getContext());
+        bugReporter.showGeneralFeedbackDialog(view.getContext(), Optional.absent());
     }
 
     @Override

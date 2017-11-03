@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.AlertDialog;
 import android.os.Build;
@@ -21,7 +22,7 @@ public class BugReporterTileService extends TileService {
 
     @Override
     public void onClick() {
-        AlertDialog feedbackDialog = bugReporter.getFeedbackDialog(getApplicationContext(), R.array.feedback_all);
+        AlertDialog feedbackDialog = bugReporter.getFeedbackDialog(getApplicationContext(), R.array.feedback_all, Optional.absent());
         this.showDialog(feedbackDialog);
     }
 

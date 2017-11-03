@@ -31,14 +31,16 @@ public class BaseLayoutHelperTest {
     @Mock private ViewGroup container;
     @Mock private View content;
     @Mock private AppNavigationExperiment appNavigationExperiment;
+    @Mock private TelescopeLayoutWrapper telescopeLayoutWrapper;
 
     @Before
     public void setUp() throws Exception {
-        helper = new BaseLayoutHelper(appNavigationExperiment);
+        helper = new BaseLayoutHelper(appNavigationExperiment, telescopeLayoutWrapper);
 
         when(appNavigationExperiment.isBottomNavigationEnabled()).thenReturn(false);
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
+        when(telescopeLayoutWrapper.wrapLayoutIfNecessary(activity, layout)).thenReturn(layout);
     }
 
     @Test
