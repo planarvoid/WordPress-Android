@@ -1,6 +1,7 @@
 package com.soundcloud.android.share;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -61,12 +64,13 @@ public class SharePresenterTest extends AndroidUnitTest {
     @Mock private DynamicLinkSharingConfig config;
     @Mock private EventTracker tracker;
     @Mock private FirebaseDynamicLinksApi firebaseApi;
+    @Mock private FeatureFlags featureFlags;
     @Captor ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Before
     public void setUp() {
         activityContext = activity();
-        operations = new SharePresenter(config, tracker, firebaseApi);
+        operations = new SharePresenter(config, tracker, firebaseApi, featureFlags);
     }
 
     @Test
@@ -108,7 +112,8 @@ public class SharePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotSharePrivateTracks() throws Exception {
+    public void shouldNotSharePrivateTracksWithoutSecretTokensWhenFeatureEnabled() throws Exception {
+        when(featureFlags.isEnabled(eq(Flag.PRIVATE_TRACK_SHARING))).thenReturn(true);
         operations.share(activityContext, PRIVATE_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
         Assertions.assertThat(activityContext).hasNoNextStartedIntent();
@@ -116,7 +121,28 @@ public class SharePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSharePrivateTracksWithSecretTokens() throws Exception {
+    public void shouldNotSharePrivateTracksWithoutSecretTokensWhenFeatureDisabled() throws Exception {
+        when(featureFlags.isEnabled(eq(Flag.PRIVATE_TRACK_SHARING))).thenReturn(false);
+        operations.share(activityContext, PRIVATE_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
+
+        Assertions.assertThat(activityContext).hasNoNextStartedIntent();
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldNotSharePrivateTracksWithSecretTokensWhenFeatureDisabled() throws Exception {
+        when(featureFlags.isEnabled(eq(Flag.PRIVATE_TRACK_SHARING))).thenReturn(false);
+        Track privateSecretTokenTrack = PRIVATE_TRACK.track().toBuilder().secretToken(Optional.of("secret_token")).build();
+        TrackItem privateSecretTokenTrackItem = PRIVATE_TRACK.toBuilder().track(privateSecretTokenTrack).build();
+        operations.share(activityContext, privateSecretTokenTrackItem, eventContext(), PROMOTED_SOURCE_INFO);
+
+        Assertions.assertThat(activityContext).hasNoNextStartedIntent();
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldSharePrivateTracksWithSecretTokensWhenFeatureEnabled() throws Exception {
+        when(featureFlags.isEnabled(eq(Flag.PRIVATE_TRACK_SHARING))).thenReturn(true);
         Track privateSecretTokenTrack = PRIVATE_TRACK.track().toBuilder().secretToken(Optional.of("secret_token")).build();
         TrackItem privateSecretTokenTrackItem = PRIVATE_TRACK.toBuilder().track(privateSecretTokenTrack).build();
         operations.share(activityContext, privateSecretTokenTrackItem, eventContext(), PROMOTED_SOURCE_INFO);

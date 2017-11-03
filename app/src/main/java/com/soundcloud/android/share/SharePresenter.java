@@ -10,6 +10,8 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ShareDialog;
@@ -33,12 +35,14 @@ public class SharePresenter {
     private final DynamicLinkSharingConfig dynamicLinkSharingConfig;
     private final EventTracker eventTracker;
     private final FirebaseDynamicLinksApi firebaseDynamicLinksApi;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public SharePresenter(DynamicLinkSharingConfig dynamicLinkSharingConfig, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
+    public SharePresenter(DynamicLinkSharingConfig dynamicLinkSharingConfig, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi, FeatureFlags featureFlags) {
         this.dynamicLinkSharingConfig = dynamicLinkSharingConfig;
         this.eventTracker = eventTracker;
         this.firebaseDynamicLinksApi = firebaseDynamicLinksApi;
+        this.featureFlags = featureFlags;
     }
 
     public void share(Context context, PlayableItem playable, EventContextMetadata contextMetadata,
@@ -53,7 +57,7 @@ public class SharePresenter {
     }
 
     private boolean canShare(PlayableItem playable) {
-        return !playable.isPrivate() || playable.secretToken().isPresent();
+        return !playable.isPrivate() || (featureFlags.isEnabled(Flag.PRIVATE_TRACK_SHARING) && playable.secretToken().isPresent());
     }
 
     public void share(final Context context,

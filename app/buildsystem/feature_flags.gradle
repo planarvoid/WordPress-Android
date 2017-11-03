@@ -25,6 +25,7 @@ enum Feature {
   LOCAL_SEARCH_HISTORY,
   FLIPPER_CRASH_ON_HANG,
   CLEAR_FLIPPER_CACHE,
+  PRIVATE_TRACK_SHARING,
   MINI_PLAYER;
 }
 
@@ -47,6 +48,7 @@ android {
     buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_CRASH_ON_HANG.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CLEAR_FLIPPER_CACHE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.PRIVATE_TRACK_SHARING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MINI_PLAYER.name(), UNDER_DEVELOPMENT
   }
 
