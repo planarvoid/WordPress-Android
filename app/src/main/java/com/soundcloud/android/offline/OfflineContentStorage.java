@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.Sets;
 import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -51,7 +52,7 @@ public class OfflineContentStorage {
 
     Completable storeAsOfflinePlaylists(final List<Urn> playlistUrns) {
         return updatePlaylists(() -> {
-            Set<String> playlists = offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, new HashSet<>());
+            Set<String> playlists = Sets.newHashSet(offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, new HashSet<>()));
             playlists.addAll(Urns.toString(playlistUrns));
             return playlists;
         });
@@ -59,7 +60,7 @@ public class OfflineContentStorage {
 
     Completable removePlaylistsFromOffline(List<Urn> playlistUrns) {
         return updatePlaylists(() -> {
-            Set<String> playlists = offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, Collections.emptySet());
+            Set<String> playlists = Sets.newHashSet(offlineContent.getStringSet(KEY_OFFLINE_PLAYLISTS, Collections.emptySet()));
             playlists.removeAll(Urns.toString(playlistUrns));
             return playlists;
         });
