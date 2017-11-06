@@ -16,6 +16,7 @@ import javax.inject.Inject;
 public class HlsStreamUrlBuilder {
 
     private static final String PARAM_CAN_SNIP = "can_snip";
+    private static final String PARAM_SECURE = "secure";
 
     private final AccountOperations accountOperations;
     private final SecureFileStorage secureFileStorage;
@@ -53,7 +54,8 @@ public class HlsStreamUrlBuilder {
         if (playType == PlaybackType.AUDIO_SNIPPET) {
             return getApiUrlBuilder(urn, ApiEndpoints.HLS_SNIPPET_STREAM).build();
         } else {
-            return getApiUrlBuilder(urn, ApiEndpoints.HLS_STREAM).withQueryParam(PARAM_CAN_SNIP, false).build();
+            return getApiUrlBuilder(urn, ApiEndpoints.HLS_STREAM).withQueryParam(PARAM_CAN_SNIP, false).
+                    withQueryParam(PARAM_SECURE, true).build();
         }
     }
 
