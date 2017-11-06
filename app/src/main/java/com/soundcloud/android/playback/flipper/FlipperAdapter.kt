@@ -88,7 +88,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         ErrorUtils.log(android.util.Log.DEBUG, TAG, "resume() called with: playbackItem = [$playbackItem, ${playbackItem.urn} in duration ${playbackItem.duration}]")
 
         lastReportedPlaybackTransition?.let {
-            if (!it.wasError() && currentPlaybackItem == null) {
+            if (!it.wasError() && !it.playbackEnded() && currentPlaybackItem == null) {
                 RemoveParameterFromResume.handleException("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null, " +
                                                                   "lastReportedPlaybackTransition = ${lastReportedPlaybackTransition}")
             }

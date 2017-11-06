@@ -412,6 +412,21 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void resumingAfterPlaybackCompleteTransitionOpensAndPlaysTheStream() {
+        // user is playing a track and playback completes
+        AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
+        String mediaUri = whenPlaying(playbackItem);
+        flipperAdapter.onStateChanged(stateChange(playbackItem.getUrn(), PlayerState.Completed, ErrorReason.Nothing, DURATION, DURATION));
+
+        // user toggles playback from the UI, which triggers resume call
+        flipperAdapter.resume(playbackItem);
+
+        // flipper should reopen the stream and play it from the start
+        verify(flipperWrapper, times(2)).open(eq(mediaUri), eq(0L));
+        verify(flipperWrapper, times(2)).play();
+    }
+
+    @Test
     public void resumingAfterErrorTransitionOpensAndPlaysTheStream() {
         // user is playing a track and for some reason flipper errors out
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
