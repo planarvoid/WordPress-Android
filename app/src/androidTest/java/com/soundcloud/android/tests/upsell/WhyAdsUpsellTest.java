@@ -1,6 +1,11 @@
 package com.soundcloud.android.tests.upsell;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.soundcloud.android.framework.TestUser.upsellUser;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableUpsell;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static com.soundcloud.android.tests.TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
@@ -14,6 +19,7 @@ import com.soundcloud.android.screens.WhyAdsUpsellScreen;
 import com.soundcloud.android.tests.player.ads.AdBaseTest;
 import org.junit.Test;
 
+import android.content.res.Resources;
 import android.net.Uri;
 
 @AdsTest
@@ -34,6 +40,22 @@ public class WhyAdsUpsellTest extends AdBaseTest {
     @Override
     protected Uri getUri() {
         return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+    }
+
+    @Override
+    protected void addInitialStubMappings() {
+        Resources resources = getInstrumentation().getContext().getResources();
+        String body = readBodyOfFile(resources, "audio_ad_and_leave_behind.json");
+        stubFor(get(urlPathMatching("/tracks/soundcloud%3Atracks%3A163824437/ads.*"))
+                        .willReturn(aResponse().withStatus(200).withBody(body)));
+    }
+
+
+    // Override the default to remove the waits that are now unnecessary, since we are mocking the response.
+    // Once all the ads tests are mocked, we can remove this and use this as the default.
+    @Override
+    protected void playAdPlaylist() {
+        playAdPlaylistWithoutWaits();
     }
 
     @org.junit.Ignore

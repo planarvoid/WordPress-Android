@@ -1,0 +1,52 @@
+{
+  "collection": [
+    {
+      "audio_ad": {
+        "urn": "dfp:ads:210000002-22000000008",
+        "skippable": true,
+        "audio_tracking": {},
+        "audio_sources": [
+          {
+            "type": "audio/mpeg",
+            "url": "https://va.sndcdn.com/audio/sample-squarespace-test.mp3",
+            "requires_auth": false
+          },
+          {
+            "type": "application/x-mpegurl",
+            "url": "https://api-mobile-alpha.soundcloud.com/streams/to-hls?url=https%3A%2F%2Fva.sndcdn.com%2Faudio%2Fsample-squarespace-test.mp3&duration=30000",
+            "requires_auth": true
+          }
+        ],
+        "_embedded": {
+          "visual_ad": {
+            "urn": "dfp:ads:1-3",
+            "image_url": "https://va.sndcdn.com/mda/1024x1024-soundcloud-mobile-audio-ad-companion-a.jpg",
+            "clickthrough_url": "http://pubads.g.doubleclick.net/pcs/click?adurl=https://advertising.soundclouds.com/",
+            "tracking_impression_urls": [
+            ],
+            "tracking_click_urls": [
+            ],
+            "cta_button_text": "TRY FREE FOR 30 DAYS",
+            "display_properties": {
+              "color.learn_more.default.text": "#FFFFFF",
+              "color.learn_more.default.background": "#000000",
+              "color.learn_more.pressed.text": "#FFFFFF",
+              "color.learn_more.pressed.background": "#333333",
+              "color.learn_more.focused.text": "#FFFFFF",
+              "color.learn_more.focused.background": "#333333"
+            }
+          },
+          "leave_behind": {
+            "urn": "dfp:ads:210000002-22000000008",
+            "image_url": "https://va.sndcdn.com/mlb/960x800-soundcloud-leave-behind-b.jpg",
+            "clickthrough_url": "http://pubads.g.doubleclick.net/pcs/click?adurl=https://advertising.soundcloud.com/",
+            "tracking_impression_urls": [
+            ],
+            "tracking_click_urls": [
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

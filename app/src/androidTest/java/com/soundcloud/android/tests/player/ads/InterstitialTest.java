@@ -1,14 +1,18 @@
 package com.soundcloud.android.tests.player.ads;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.tests.TestConsts.INTERSTITIAL_PLAYLIST_URI;
-import static com.soundcloud.android.utils.Log.ADS_TAG;
-import static com.soundcloud.android.utils.Log.d;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
 import org.junit.Test;
 
+import android.content.res.Resources;
 import android.net.Uri;
 
 @AdsTest
@@ -21,23 +25,28 @@ public class InterstitialTest extends AdBaseTest {
 
     @Override
     public void setUp() throws Exception {
-        d(ADS_TAG, "InterstitialTest.setUp->");
         super.setUp();
-        d(ADS_TAG, "<-InterstitialTest.setUp");
+    }
+
+    // Override the default to remove the waits that are now unnecessary, since we are mocking the response.
+    // Once all the ads tests are mocked, we can remove this and use this as the default.
+    @Override
+    protected void playAdPlaylist() {
+        playAdPlaylistWithoutWaits();
+    }
+
+    @Override
+    protected void addInitialStubMappings() {
+        Resources resources = getInstrumentation().getContext().getResources();
+        String body = readBodyOfFile(resources, "interstitial_ad.json");
+        stubFor(get(urlPathMatching("/tracks/soundcloud%3Atracks%3A168135902/ads.*"))
+                        .willReturn(aResponse().withStatus(200).withBody(body)));
     }
 
     @Test
     public void testShouldShowInterstitial() throws Exception {
-        d(ADS_TAG, "InterstitialTest.testShouldShowInterstitial");
-
-        d(ADS_TAG, "InterstitialTest.setUp::swipeNext->");
         playerElement.swipeNext(); // to monetizableTrack
-        d(ADS_TAG, "InterstitialTest.setUp::<-swipeNext");
-
-        d(ADS_TAG, "InterstitialTest.setUp::waitForPlayState->");
         assertTrue(playerElement.waitForPlayState());
-        d(ADS_TAG, "InterstitialTest.setUp::<-waitForPlayState");
-
         assertThat("Display interstitial", playerElement.waitForInterstitialToBeDisplayed());
     }
 }

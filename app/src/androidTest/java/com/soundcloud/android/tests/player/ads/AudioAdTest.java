@@ -1,6 +1,11 @@
 
 package com.soundcloud.android.tests.player.ads;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
@@ -18,16 +23,33 @@ import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import org.junit.Test;
 
+import android.content.res.Resources;
 import android.net.Uri;
 
 @AdsTest
 public class AudioAdTest extends AdBaseTest {
 
-    public static final String SCENARIO_AUDIO_AD_QUARTILES = "specs/audio_ad_quartiles.spec";
+    private static final String SCENARIO_AUDIO_AD_QUARTILES = "specs/audio_ad_quartiles.spec";
 
     @Override
     protected Uri getUri() {
         return AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+    }
+
+    @Override
+    protected void addInitialStubMappings() {
+        Resources resources = getInstrumentation().getContext().getResources();
+        String body = readBodyOfFile(resources, "audio_ad_and_leave_behind.json");
+        stubFor(get(urlPathMatching("/tracks/soundcloud%3Atracks%3A163824437/ads.*"))
+                        .willReturn(aResponse().withStatus(200).withBody(body)));
+    }
+
+
+    // Override the default to remove the waits that are now unnecessary, since we are mocking the response.
+    // Once all the ads tests are mocked, we can remove this and use this as the default.
+    @Override
+    protected void playAdPlaylist() {
+        playAdPlaylistWithoutWaits();
     }
 
     @org.junit.Ignore
@@ -38,6 +60,9 @@ public class AudioAdTest extends AdBaseTest {
         swipeToAd();
 
         playerElement.waitForAudioAdToBeDone();
+        playerElement.waitForLeaveBehindToLoad();
+        assertThat("Should display leave behind", playerElement.isLeaveBehindVisible());
+
         mrLocalLocal.verify(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
@@ -68,7 +93,8 @@ public class AudioAdTest extends AdBaseTest {
         }
     }
 
-    public void skip_testSkipShouldBeDisplayedWhenAdIsSkippable() {
+    @Test
+    public void testSkipShouldBeDisplayedWhenAdIsSkippable() throws Exception {
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         assertThat(playerElement, is(SkipAllowed()));

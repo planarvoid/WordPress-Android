@@ -1,0 +1,19 @@
+{
+  "collection": [
+    {
+      "interstitial": {
+        "urn": "dfp:ads:110000031-12000000031",
+        "image_url": "https://va.sndcdn.com/min/1024x1024-souncloud-mobile-insertitial-v2-b.jpg",
+        "clickthrough_url": "soundcloud://soundcloudgo",
+        "tracking_impression_urls": [
+          "https://promoted-staging.soundcloud.com/event?z=interstitial-android&e=SCImpression&a=110000031-12000000031&c=65422406493056&g=DE&t=1507725309427",
+          "https://va.sndcdn.com/pixel1.png?type=interstitial&event=impression&cb=1507725309424"
+        ],
+        "tracking_click_urls": [
+          "https://promoted-staging.soundcloud.com/event?z=interstitial-android&e=SCAdClicked&a=110000031-12000000031&c=65422406493056&g=DE&t=1507725309427",
+          "https://va.sndcdn.com/pixel2.png?type=interstitial&event=click&cb=1507725309424"
+        ]
+      }
+    }
+  ]
+}
