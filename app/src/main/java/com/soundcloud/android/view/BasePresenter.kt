@@ -33,7 +33,7 @@ abstract class BasePresenter<ViewModel, PageParams, in View : BaseView<AsyncLoad
     }
 
     open fun attachView(view: View) {
-        compositeDisposable.addAll(loader.subscribeWith(LambdaObserver.onNext(view::accept)),
+        compositeDisposable.addAll(loader.flatMap(this::processAsyncLoaderState).subscribeWith(LambdaObserver.onNext(view::accept)),
                                    view.requestContent().subscribeWithSubject(requestContentSignal),
                                    view.refreshSignal().subscribeWithSubject(refreshSignal),
                                    refreshError.subscribeWith(LambdaObserver.onNext(view::refreshErrorConsumer)))
@@ -45,6 +45,12 @@ abstract class BasePresenter<ViewModel, PageParams, in View : BaseView<AsyncLoad
 
     abstract fun firstPageFunc(pageParams: PageParams): Observable<AsyncLoader.PageResult<ViewModel>>
     open fun refreshFunc(pageParams: PageParams): Observable<AsyncLoader.PageResult<ViewModel>> = Observable.empty()
+
+    open fun postProcessViewModel(viewModel: ViewModel): Observable<ViewModel> = Observable.just(viewModel)
+
+    private fun processAsyncLoaderState(asyncLoaderState: AsyncLoaderState<ViewModel>): Observable<AsyncLoaderState<ViewModel>> {
+        return asyncLoaderState.data?.let { postProcessViewModel(it) }?.map { asyncLoaderState.copy(data = it) } ?: Observable.just(asyncLoaderState)
+    }
 }
 
 interface BaseView<in ViewModel, PageParams> {

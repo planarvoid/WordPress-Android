@@ -416,6 +416,20 @@ public class ModelFixtures {
         }
     }
 
+    public static StreamItem highTierPreviewTrackFromStreamEntity(StreamEntity streamEntity) {
+        final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
+        final Track track = trackBuilder().urn(streamEntity.urn())
+                                          .imageUrlTemplate(avatarUrlTemplate)
+                                          .subHighTier(true)
+                                          .snipped(true)
+                                          .build();
+        if (streamEntity.isPromoted()) {
+            return TrackStreamItem.Companion.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt(), avatarUrlTemplate);
+        } else {
+            return TrackStreamItem.Companion.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt(), avatarUrlTemplate);
+        }
+    }
+
     public static ListItem listItemFromSearchItem(ApiUniversalSearchItem searchItem) {
         EntityItemCreator entityItemCreator = new EntityItemCreator(testOfflinePropertiesProvider());
         if (searchItem.track().isPresent()) {

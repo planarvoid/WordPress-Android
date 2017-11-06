@@ -14,6 +14,7 @@ import com.soundcloud.android.presentation.PlayableItem
 import com.soundcloud.android.presentation.RepostableItem
 import com.soundcloud.android.presentation.UpdatablePlaylistItem
 import com.soundcloud.android.presentation.UpdatableTrackItem
+import com.soundcloud.android.tracks.TieredTracks
 import com.soundcloud.android.tracks.Track
 import com.soundcloud.android.tracks.TrackItem
 import com.soundcloud.android.view.adapters.PlayableViewItem
@@ -47,6 +48,11 @@ sealed class StreamItem(val kind: Kind) {
 
     val isUpsell: Boolean
         get() = this is Upsell
+
+    val isUpsellableTrack: Boolean
+        get() = this is TrackStreamItem && TieredTracks.isHighTierPreview(this.trackItem)
+
+    open val createdAt: Date? = null
 
     abstract fun identityEquals(streamItem: StreamItem): Boolean
 
@@ -85,11 +91,11 @@ sealed class StreamItem(val kind: Kind) {
     }
 }
 
-data class TrackStreamItem(val trackItem: TrackItem, val promoted: Boolean, val createdAt: Date, val avatarUrlTemplate: Optional<String>) : StreamItem(Kind.TRACK),
-                                                                                                                                            PlayableViewItem<TrackStreamItem>,
-                                                                                                                                            UpdatableTrackItem,
-                                                                                                                                            LikeableItem,
-                                                                                                                                            RepostableItem {
+data class TrackStreamItem(val trackItem: TrackItem, val promoted: Boolean, override val createdAt: Date, val avatarUrlTemplate: Optional<String>) : StreamItem(Kind.TRACK),
+                                                                                                                                                     PlayableViewItem<TrackStreamItem>,
+                                                                                                                                                     UpdatableTrackItem,
+                                                                                                                                                     LikeableItem,
+                                                                                                                                                     RepostableItem {
     override fun identityEquals(streamItem: StreamItem) = streamItem is TrackStreamItem && streamItem.urn == urn
 
     override val urn: Urn
@@ -120,10 +126,10 @@ data class TrackStreamItem(val trackItem: TrackItem, val promoted: Boolean, val 
     }
 }
 
-data class PlaylistStreamItem(val playlistItem: PlaylistItem, val promoted: Boolean, val createdAt: Date, val avatarUrlTemplate: Optional<String>) : StreamItem(Kind.PLAYLIST),
-                                                                                                                                                     LikeableItem,
-                                                                                                                                                     RepostableItem,
-                                                                                                                                                     UpdatablePlaylistItem {
+data class PlaylistStreamItem(val playlistItem: PlaylistItem, val promoted: Boolean, override val createdAt: Date, val avatarUrlTemplate: Optional<String>) : StreamItem(Kind.PLAYLIST),
+                                                                                                                                                              LikeableItem,
+                                                                                                                                                              RepostableItem,
+                                                                                                                                                              UpdatablePlaylistItem {
     override fun identityEquals(streamItem: StreamItem) = streamItem is PlaylistStreamItem && streamItem.urn == urn
 
     override val urn: Urn

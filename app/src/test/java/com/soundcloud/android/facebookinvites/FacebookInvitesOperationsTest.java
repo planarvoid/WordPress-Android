@@ -9,7 +9,6 @@ import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.S
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
@@ -33,7 +32,6 @@ public class FacebookInvitesOperationsTest {
     private FacebookInvitesOperations operations;
 
     @Mock private FacebookInvitesStorage storage;
-    @Mock private FacebookApi facebookApi;
     @Mock private FacebookApiHelper facebookApiHelper;
     @Mock private ConnectionHelper connectionHelper;
     @Mock private MyProfileOperations myProfileOperations;
@@ -166,5 +164,4 @@ public class FacebookInvitesOperationsTest {
         final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.values().get(0);
         assertThat(invitesItem.getTrackUrn()).isEqualTo(track.urn());
     }
-
 }
