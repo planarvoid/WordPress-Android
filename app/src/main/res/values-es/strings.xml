@@ -101,7 +101,7 @@
   <string name="authentication_your_password">Tu contraseña</string>
   <string name="authentication_clear_image">Mantén pulsado para borrar la imagen</string>
   <string name="authentication_login_error_message">No hemos podido iniciar tu sesión. Inténtalo de nuevo.</string>
-  <string name="authentication_log_in_with_google_plus">Inicia sesión con Google Plus</string>
+  <string name="authentication_log_in_with_google_plus">Iniciar sesión con Google</string>
   <string name="error_google_sign_in_failed">No hemos podido iniciar tu sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ e inténtalo de nuevo.</string>
   <string name="auth_disclaimer_title">Un paso más</string>
   <string name="auth_disclaimer_message">Al seleccionar \"Continuar\" estas aceptando las Condiciones de uso y la Política de privacidad de SoundCloud.</string>
@@ -612,6 +612,7 @@
   <string name="more_sign_out">Cerrar sesión</string>
   <string name="more_view_public_profile">Ver perfil público</string>
   <string name="more_app_version">Versión %s de la app</string>
+  <string name="more_flipper_version">Versión para Flipper %s</string>
   <string name="more_subscription">Suscripción</string>
   <string name="more_subscription_check">¿Ya estás suscrito? Compruébalo</string>
   <string name="more_subscription_check_not_subscribed">No estás suscrito</string>

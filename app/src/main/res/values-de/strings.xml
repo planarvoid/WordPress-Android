@@ -101,7 +101,7 @@
   <string name="authentication_your_password">Dein Kennwort</string>
   <string name="authentication_clear_image">Zum Entfernen des Bildes gedrückt halten</string>
   <string name="authentication_login_error_message">Eine Anmeldung war nicht möglich. Versuch es später noch einmal.</string>
-  <string name="authentication_log_in_with_google_plus">Mit Google Plus anmelden</string>
+  <string name="authentication_log_in_with_google_plus">Mit Google anmelden</string>
   <string name="error_google_sign_in_failed">Eine Anmeldung mit Google+ war nicht möglich. Aktiviere dein Google+-Konto auf plus.google.com und versuch es erneut.</string>
   <string name="auth_disclaimer_title">Ein weiterer Schritt</string>
   <string name="auth_disclaimer_message">Wenn du auf „Fortsetzen“ tippst, erklärst du dich mit den Nutzungsbedingungen und der Datenschutzrichtlinie von SoundCloud einverstanden.</string>
@@ -612,6 +612,7 @@
   <string name="more_sign_out">Abmelden</string>
   <string name="more_view_public_profile">Öffentliches Profil anzeigen</string>
   <string name="more_app_version">App-Version %s</string>
+  <string name="more_flipper_version">Flipper-Version %s</string>
   <string name="more_subscription">Abonnement</string>
   <string name="more_subscription_check">Vielleicht bist du schon Abonnent? Hier erfährst du’s.</string>
   <string name="more_subscription_check_not_subscribed">Du hast kein Abonnement</string>

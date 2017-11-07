@@ -101,7 +101,7 @@
   <string name="authentication_your_password">Your password</string>
   <string name="authentication_clear_image">Hold to clear image</string>
   <string name="authentication_login_error_message">We couldn’t sign you in. Please try again.</string>
-  <string name="authentication_log_in_with_google_plus">Sign in with Google Plus</string>
+  <string name="authentication_log_in_with_google_plus">Sign in with Google</string>
   <string name="error_google_sign_in_failed">We couldn’t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
   <string name="auth_disclaimer_title">One more step</string>
   <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of use and Privacy policy of SoundCloud.</string>
@@ -614,6 +614,7 @@
   <string name="more_sign_out">Sign out</string>
   <string name="more_view_public_profile">View public profile</string>
   <string name="more_app_version">App version %s</string>
+  <string name="more_flipper_version">Flipper version %s</string>
   <string name="more_subscription">Subscription</string>
   <string name="more_subscription_check">Already subscribed? Check now</string>
   <string name="more_subscription_check_not_subscribed">You are not subscribed</string>
@@ -753,7 +754,7 @@
   <string name="go_onboarding_error_dialog_button">Try again later</string>
   <string name="go_onboarding_offline_settings_title">Save everything automatically</string>
   <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes, playlists and albums offline automatically.</string>
-  <string name="go_onboarding_offline_settings_continue">Ok, got it</string>
+  <string name="go_onboarding_offline_settings_continue">OK, got it</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboard_to_free_title">We’ll miss you</string>
   <string name="go_offboard_to_free_description">Your subscription has ended.\n\nYou will no longer have offline and advert-free listening, and Go+ tracks are only playable as previews. Don’t worry, you can resubscribe any time.</string>

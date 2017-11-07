@@ -101,7 +101,7 @@
   <string name="authentication_your_password">Je wachtwoord</string>
   <string name="authentication_clear_image">Houd vast om afbeelding te wissen</string>
   <string name="authentication_login_error_message">We konden je niet inloggen. Probeer het opnieuw.</string>
-  <string name="authentication_log_in_with_google_plus">Inloggen met Google Plus</string>
+  <string name="authentication_log_in_with_google_plus">Inloggen met Google</string>
   <string name="error_google_sign_in_failed">We kunnen je niet inloggen met Google+. Bezoek plus.google.com om je account op Google+ te activeren en probeer het opnieuw.</string>
   <string name="auth_disclaimer_title">Nog één stap</string>
   <string name="auth_disclaimer_message">Door op \'Doorgaan\' te klikken ga je akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
@@ -612,6 +612,7 @@
   <string name="more_sign_out">Uitloggen</string>
   <string name="more_view_public_profile">Openbaar profiel weergeven</string>
   <string name="more_app_version">App-versie %s</string>
+  <string name="more_flipper_version">Flipper-versie %s</string>
   <string name="more_subscription">Abonnement</string>
   <string name="more_subscription_check">Ben je al abonnee? Ga nu kijken</string>
   <string name="more_subscription_check_not_subscribed">Je bent niet geabonneerd</string>
