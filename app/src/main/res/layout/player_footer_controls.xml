@@ -1,48 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<android.support.constraint.ConstraintLayout
     android:id="@+id/footer_controls"
+    style="@style/MiniPlayer"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/player_footer_control"
     android:orientation="horizontal"
-    tools:showIn="@layout/player_track_page">
+    tools:background="@color/black_90">
 
     <ImageButton
         android:id="@+id/footer_toggle"
-        style="@style/FooterToggle" />
+        style="@style/FooterToggle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <RelativeLayout
-        android:id="@+id/footer_text_and_like_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/footer_title"
+        style="@style/FooterTitle"
+        android:layout_width="0dp"
+        android:layout_marginEnd="@dimen/player_footer_control_horizontal_margin"
+        android:layout_marginStart="@dimen/player_footer_control_horizontal_margin"
+        app:layout_constraintBottom_toTopOf="@+id/footer_user"
+        app:layout_constraintEnd_toStartOf="@+id/like_button_placeholder"
+        app:layout_constraintStart_toEndOf="@+id/footer_toggle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Track title" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"
-            android:layout_toLeftOf="@+id/footer_like_button"
-            android:layout_toStartOf="@+id/footer_like_button"
-            android:gravity="center"
-            android:orientation="vertical">
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/footer_user"
+        style="@style/FooterUser"
+        android:layout_width="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/footer_title"
+        app:layout_constraintStart_toStartOf="@+id/footer_title"
+        app:layout_constraintTop_toBottomOf="@+id/footer_title"
+        tools:text="Track user" />
 
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/footer_title"
-                style="@style/FooterTitle"
-                tools:text="Track title" />
+    <Space
+        android:id="@+id/like_button_placeholder"
+        android:layout_width="@dimen/player_footer_control"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/footer_user"
-                style="@style/FooterUser"
-                tools:text="Track user" />
-        </LinearLayout>
+    <ImageButton
+        android:id="@+id/footer_like_button"
+        style="@style/PlayerFooterLike"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@id/footer_like_button"
-            style="@style/PlayerFooterLike" />
-    </RelativeLayout>
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

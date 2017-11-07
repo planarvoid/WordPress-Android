@@ -367,4 +367,7 @@
         <item name="android:background">@color/black_60</item>
         <item name="android:elevation" tools:ignore="NewApi">@dimen/player_dark_overlay_elevation</item>
     </style>
+
+    <style name="MiniPlayer"/>
+
 </resources>

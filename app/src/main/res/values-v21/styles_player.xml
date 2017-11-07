@@ -79,8 +79,6 @@
         <item name="android:layout_height">@dimen/player_footer_control</item>
         <item name="android:src">@drawable/btn_footer_play_toggle</item>
         <item name="android:background">@drawable/circular_ripple</item>
-        <item name="android:layout_marginLeft">@dimen/player_footer_control_horizontal_margin</item>
-        <item name="android:layout_marginRight">@dimen/player_footer_control_horizontal_margin</item>
     </style>
 
     <style name="PlayerFooterLike" parent="Widget.AppCompat.Button.Borderless">
@@ -90,8 +88,6 @@
         <item name="android:layout_height">@dimen/player_footer_control</item>
         <item name="android:padding">@dimen/player_footer_like_padding</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_marginLeft">@dimen/player_footer_control_horizontal_margin</item>
-        <item name="android:layout_marginRight">@dimen/player_footer_control_horizontal_margin</item>
     </style>
 
 </resources>

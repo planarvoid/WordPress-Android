@@ -6,7 +6,7 @@
     <integer name="timestamp_animate_percentage">50</integer>
     <integer name="overlay_animate_duration">120</integer>
 
-    <integer name="miniplayer_play_toggle_disabled_alpha">77</integer>
+    <integer name="miniplayer_play_toggle_disabled_alpha">179</integer>
 
     <!-- Stations -->
     <integer name="stations_grid_span_count">2</integer>

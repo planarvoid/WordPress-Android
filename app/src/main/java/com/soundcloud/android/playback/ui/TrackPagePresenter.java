@@ -424,7 +424,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerUser.setText(Strings.EMPTY);
         holder.footerTitle.setText(Strings.EMPTY);
         holder.footerLikeToggle.setSelected(false);
-        holder.footerLikeToggle.setVisibility(View.INVISIBLE);
+        holder.footerLikeToggle.setVisibility(View.GONE);
 
         holder.timestamp.setPreview(false);
         holder.timestamp.setVisibility(View.GONE);

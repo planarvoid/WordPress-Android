@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     android:id="@+id/footer_controls"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/player_footer_control"
@@ -16,8 +16,22 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/footer_ad_text"
         style="@style/FooterTitle"
+        android:layout_width="0dp"
         android:layout_centerVertical="true"
-        android:layout_toEndOf="@id/footer_toggle"
-        android:layout_toRightOf="@id/footer_toggle"
+        android:layout_marginEnd="@dimen/player_footer_control_horizontal_margin"
+        android:layout_marginStart="@dimen/player_footer_control_horizontal_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/like_button_placeholder"
+        app:layout_constraintStart_toEndOf="@+id/footer_toggle"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/ads_advertisement" />
-</RelativeLayout>
+
+    <Space
+        android:id="@+id/like_button_placeholder"
+        android:layout_width="@dimen/player_footer_control"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
