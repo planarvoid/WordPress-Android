@@ -42,7 +42,7 @@ abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFra
 
     private fun initializePresenter() {
         presenter = createPresenter()
-        (presenter as? Destroyable)?.let {
+        presenter?.let {
             presenterId = presenterManager.save(it)
         }
     }
