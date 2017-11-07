@@ -94,7 +94,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_SHOW
@@ -108,7 +108,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER_V2.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.CREATOR_APP_LINK.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.DATABASE_CLEANUP_SERVICE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FETCH_FEATURE_FLAGS_ON_LOGIN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.LOCAL_SEARCH_HISTORY.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.COMMENTS_ON_API_MOBILE.name(), DEFAULT_HIDE
