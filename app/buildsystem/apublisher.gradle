@@ -39,6 +39,13 @@ task rolloutTwentyPercent(type: UpdateRolloutTask) {
   userFraction = UserFraction.TWENTY_PERCENT
 }
 
+task rolloutFiftyPercent(type: UpdateRolloutTask) {
+  description = 'Rolls the app out to 50% of user base.'
+  publishConfiguration = productionAppConfiguration
+  versionCode = project.('releaseVersionCode')
+  userFraction = UserFraction.FIFTY_PERCENT
+}
+
 task rolloutFull(type: ProductionRolloutTask) {
   description = 'Rolls the app out to 100% of user base.'
   publishConfiguration = productionAppConfiguration

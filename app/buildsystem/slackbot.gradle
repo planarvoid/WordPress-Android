@@ -33,6 +33,12 @@ task slogRolloutTwentyPercent {
   }
 }
 
+task slogRolloutFiftyPercent {
+  doLast {
+    sendMessage(basicText("50% rollout", project.('ext').releaseVersionCode, release_annotation))
+  }
+}
+
 task slogRolloutFull {
   doLast {
     sendMessage(basicText("100% rollout", project.('ext').releaseVersionCode, release_annotation))

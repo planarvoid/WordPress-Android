@@ -109,6 +109,11 @@ task deployReleaseTwentyPercent(dependsOn: ['rolloutTwentyPercent', 'slogRollout
 }
 slogRolloutTwentyPercent.mustRunAfter('rolloutTwentyPercent')
 
+task deployReleaseFiftyPercent(dependsOn: ['rolloutFiftyPercent', 'slogRolloutFiftyPercent']) {
+  description = 'Deploy Release build to playstore (50% rollout).'
+}
+slogRolloutFiftyPercent.mustRunAfter('rolloutFiftyPercent')
+
 task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull', 'logVersion']) {
   description = 'Deploy Release build to playstore (100% rollout).'
 }

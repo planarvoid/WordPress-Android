@@ -163,6 +163,16 @@
               "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
             ]
           }
+        },        {
+          "rollout_release_50_percent": {
+            "cmd": "curl -T production_client_secrets.json.enc http://shibboleth/decrypt > production_client_secrets.json\nBUILD_TYPE=release ./gradlew deployReleaseFiftyPercent",
+            "manual": true,
+            "localBranch": true,
+            "artifacts": [
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk",
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
+            ]
+          }
         },
         {
           "rollout_release_100_percent": {
