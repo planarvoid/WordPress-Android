@@ -74,7 +74,7 @@ public class AppInstallItemRenderer extends AdItemRenderer {
                                                    }
                                                })));
 
-        holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_app)));
+        holder.headerText.setText(resources.getString(R.string.stream_sponsored_app));
         holder.appNameText.setText(appInstall.name());
         holder.ratingsCount.setText(resources.getQuantityString(R.plurals.ads_app_ratings,
                                                                 appInstall.ratersCount(),

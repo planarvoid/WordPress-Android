@@ -1,13 +1,8 @@
 package com.soundcloud.android.ads
 
 import android.content.Context
-import android.content.res.Resources
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.view.TextureView
 import android.view.View
-import com.soundcloud.android.R
 import com.soundcloud.android.presentation.CellRenderer
 import com.soundcloud.android.stream.StreamItem
 import com.soundcloud.java.optional.Optional
@@ -47,17 +42,6 @@ abstract class AdItemRenderer : CellRenderer<StreamItem> {
         }
     }
 
-    fun getSponsoredHeaderText(resources: Resources, itemType: String): SpannableString {
-        val headerText = resources.getString(R.string.stream_sponsored_item, itemType)
-        val spannedString = SpannableString(headerText)
-
-        spannedString.setSpan(ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
-                              0,
-                              headerText.length - itemType.length,
-                              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        return spannedString
-    }
 }
 
 sealed class AdItemResult {

@@ -50,23 +50,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         }
     }
 
-    public static int getSetTypeLabel(String playableType) {
-        switch (playableType) {
-            case PlaylistItem.TYPE_PLAYLIST:
-                return R.string.set_type_default_label_for_text;
-            case PlaylistItem.TYPE_ALBUM:
-                return R.string.set_type_album_label_for_text;
-            case PlaylistItem.TYPE_EP:
-                return R.string.set_type_ep_label_for_text;
-            case PlaylistItem.TYPE_SINGLE:
-                return R.string.set_type_single_label_for_text;
-            case PlaylistItem.TYPE_COMPILATION:
-                return R.string.set_type_compilation_label_for_text;
-            default:
-                return R.string.set_type_default_label_for_text;
-        }
-    }
-
     public static PlaylistItem from(Playlist playlist, OfflineProperties offlineProperties) {
         return builder(playlist, offlineProperties).build();
     }

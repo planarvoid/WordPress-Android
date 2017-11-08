@@ -620,18 +620,9 @@
   <string name="more_upsell">Fazer o upgrade para a SoundCloud Go</string>
   <string name="more_upsell_mt">Fazer o upgrade para a SoundCloud Go+</string>
   <!--__NEW STREAM-->
-  <string name="stream_playlist_header_text">%1$s %2$s uma playlist</string>
-  <string name="stream_track_header_text">%1$s %2$s uma faixa</string>
-  <string name="stream_album_header_text">%1$s %2$s um álbum</string>
-  <string name="stream_ep_header_text">%1$s %2$s um EP</string>
-  <string name="stream_single_header_text">%1$s %2$s um single</string>
-  <string name="stream_compilation_header_text">%1$s %2$s uma compilação</string>
-  <string name="stream_posted_action">publicou</string>
-  <string name="stream_reposted_action">republicou</string>
-  <string name="stream_promoted_action">promoveu</string>
-  <string name="stream_track">faixa</string>
-  <string name="stream_promoted_playable">%s promovida</string>
-  <string name="stream_sponsored_item">%s patrocinado</string>
+
+
+
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->

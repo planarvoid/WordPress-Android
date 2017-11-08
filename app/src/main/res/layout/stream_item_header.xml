@@ -25,8 +25,17 @@
         tools:text="User" />
 
     <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/post_text"
+        style="@style/Cards.SecondaryHeaderText"
+        android:layout_marginLeft="0dp"
+        android:layout_alignTop="@id/user_image"
+        android:layout_toRightOf="@id/header_text"
+        android:visibility="visible"
+        tools:text=" posted a track or a playlist" />
+
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/reposter"
-        style="@style/Cards.PrimaryHeaderText"
+        style="@style/Cards.SecondaryHeaderText"
         android:layout_alignTop="@id/user_image"
         android:layout_toRightOf="@id/header_text"
         android:drawableLeft="@drawable/inset_stats_repost"
@@ -52,7 +61,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/promoted_item"
-        style="@style/Cards.PrimaryHeaderText"
+        style="@style/Cards.SecondaryHeaderText"
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp"
         android:layout_toRightOf="@id/promoter"

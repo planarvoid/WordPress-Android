@@ -15,11 +15,13 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -30,7 +32,6 @@ import java.util.Date;
 
 class StreamCardViewPresenter {
 
-    private final HeaderSpannableBuilder headerSpannableBuilder;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final Resources resources;
@@ -38,14 +39,12 @@ class StreamCardViewPresenter {
     private final Navigator navigator;
 
     @Inject
-    StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder,
-                            EventBus eventBus,
+    StreamCardViewPresenter(EventBus eventBus,
                             ScreenProvider screenProvider,
                             Resources resources,
                             ImageOperations imageOperations,
                             Navigator navigator) {
 
-        this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
         this.resources = resources;
@@ -128,16 +127,87 @@ class StreamCardViewPresenter {
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
         boolean isRepost = playableItem.reposter().isPresent();
         final String userName = playableItem.reposter().or(playableItem.creatorName());
-        final String action = resources.getString(isRepost ?
-                                                  R.string.stream_reposted_action :
-                                                  R.string.stream_posted_action);
 
         if (isRepost) {
-            headerSpannableBuilder.actionSpannedString(action, playableItem.getPlayableType());
-            itemView.setRepostHeader(userName, headerSpannableBuilder.get());
+            itemView.setRepostHeader(userName, getRepostMessage(playableItem, Strings.EMPTY));
         } else {
-            headerSpannableBuilder.userActionSpannedString(userName, action, playableItem.getPlayableType());
-            itemView.setHeaderText(headerSpannableBuilder.get());
+            itemView.setPostHeader(userName, getPostMessage(playableItem, Strings.EMPTY));
+        }
+    }
+
+    private String getRepostMessage(PlayableItem playableItem, String userName) {
+        switch (playableItem.getPlayableType()) {
+            case TrackItem.PLAYABLE_TYPE:
+                return resources.getString(R.string.stream_reposted_a_track, userName);
+            case PlaylistItem.TYPE_PLAYLIST:
+                return resources.getString(R.string.stream_reposted_a_playlist, userName);
+            case PlaylistItem.TYPE_ALBUM:
+                return resources.getString(R.string.stream_reposted_a_album, userName);
+            case PlaylistItem.TYPE_EP:
+                return resources.getString(R.string.stream_reposted_a_ep, userName);
+            case PlaylistItem.TYPE_SINGLE:
+                return resources.getString(R.string.stream_reposted_a_single, userName);
+            case PlaylistItem.TYPE_COMPILATION:
+                return resources.getString(R.string.stream_reposted_a_compilation, userName);
+            default:
+                return resources.getString(R.string.stream_reposted_a_track, userName);
+        }
+    }
+
+    private String getPostMessage(PlayableItem playableItem, String userName) {
+        switch (playableItem.getPlayableType()) {
+            case TrackItem.PLAYABLE_TYPE:
+                return resources.getString(R.string.stream_posted_a_track, userName);
+            case PlaylistItem.TYPE_PLAYLIST:
+                return resources.getString(R.string.stream_posted_a_playlist, userName);
+            case PlaylistItem.TYPE_ALBUM:
+                return resources.getString(R.string.stream_posted_a_album, userName);
+            case PlaylistItem.TYPE_EP:
+                return resources.getString(R.string.stream_posted_a_ep, userName);
+            case PlaylistItem.TYPE_SINGLE:
+                return resources.getString(R.string.stream_posted_a_single, userName);
+            case PlaylistItem.TYPE_COMPILATION:
+                return resources.getString(R.string.stream_posted_a_compilation, userName);
+            default:
+                return resources.getString(R.string.stream_posted_a_track, userName);
+        }
+    }
+
+    private String getPromotedByText(PlayableItem playableItem, String userName) {
+        switch (playableItem.getPlayableType()) {
+            case TrackItem.PLAYABLE_TYPE:
+                return resources.getString(R.string.stream_promoted_a_track, userName);
+            case PlaylistItem.TYPE_PLAYLIST:
+                return resources.getString(R.string.stream_promoted_a_playlist, userName);
+            case PlaylistItem.TYPE_ALBUM:
+                return resources.getString(R.string.stream_promoted_a_album, userName);
+            case PlaylistItem.TYPE_EP:
+                return resources.getString(R.string.stream_promoted_a_ep, userName);
+            case PlaylistItem.TYPE_SINGLE:
+                return resources.getString(R.string.stream_promoted_a_single, userName);
+            case PlaylistItem.TYPE_COMPILATION:
+                return resources.getString(R.string.stream_promoted_a_compilation, userName);
+            default:
+                return resources.getString(R.string.stream_promoted_a_track, userName);
+        }
+    }
+
+    private String getPromotedText(String playableType) {
+        switch (playableType) {
+            case TrackItem.PLAYABLE_TYPE:
+                return resources.getString(R.string.stream_promoted_track);
+            case PlaylistItem.TYPE_PLAYLIST:
+                return resources.getString(R.string.stream_promoted_playlist);
+            case PlaylistItem.TYPE_ALBUM:
+                return resources.getString(R.string.stream_promoted_album);
+            case PlaylistItem.TYPE_EP:
+                return resources.getString(R.string.stream_promoted_ep);
+            case PlaylistItem.TYPE_SINGLE:
+                return resources.getString(R.string.stream_promoted_single);
+            case PlaylistItem.TYPE_COMPILATION:
+                return resources.getString(R.string.stream_promoted_compilation);
+            default:
+                return resources.getString(R.string.stream_promoted_playlist);
         }
     }
 
@@ -149,17 +219,13 @@ class StreamCardViewPresenter {
                               Optional<String> avatarUrlTemplate) {
         if (promoted.isPromoted() && promoted.promoterUrn().isPresent()) {
             final PromotedProperties promotedProperties = promoted.promotedProperties().get();
-            final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promotedProperties.promoterUrn().get(), avatarUrlTemplate, itemUrn,
-                       eventContextMetadata);
-            headerSpannableBuilder.actionSpannedString(action, playableType);
-            itemView.setPromoterHeader(promotedProperties.promoterName().get(), headerSpannableBuilder.get());
+            loadAvatar(itemView, promotedProperties.promoterUrn().get(), avatarUrlTemplate, itemUrn, eventContextMetadata);
+            String username = promotedProperties.promoterName().get();
+            itemView.setPromoterHeader(username, getPromotedByText(promoted, Strings.EMPTY));
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();
-
-            headerSpannableBuilder.promotedSpannedString(playableType);
-            itemView.setPromotedHeader(headerSpannableBuilder.get());
+            itemView.setPromotedHeader(getPromotedText(playableType));
         }
     }
 
@@ -196,10 +262,10 @@ class StreamCardViewPresenter {
         @Override
         public void onClick(View v) {
             navigator.navigateTo(NavigationTarget.forProfile(
-                                         userUrn,
-                                         Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
-                                         Optional.absent(),
-                                         Optional.absent()));
+                    userUrn,
+                    Optional.of(UIEvent.fromNavigation(itemUrn, eventContextMetadata)),
+                    Optional.absent(),
+                    Optional.absent()));
         }
     }
 }

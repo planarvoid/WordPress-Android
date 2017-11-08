@@ -56,7 +56,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         final VideoAd videoAd = ((Video) items.get(position)).getVideo();
         final Holder holder = getHolder(itemView);
 
-        holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
+        holder.headerText.setText(resources.getString(R.string.stream_sponsored_video));
         holder.videoView.setAspectRatio(videoAd.videoProportion());
         holder.videoView.setVisibility(View.INVISIBLE);
         holder.resetMuteState(holder);

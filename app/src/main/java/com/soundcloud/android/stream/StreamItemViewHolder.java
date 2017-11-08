@@ -20,6 +20,7 @@ public class StreamItemViewHolder implements CardViewHolder {
 
     @BindView(R.id.user_image) ImageView userImage;
     @BindView(R.id.header_text) TextView headerText;
+    @BindView(R.id.post_text) TextView postText;
     @BindView(R.id.reposter) TextView reposter;
     @BindView(R.id.creation_date) TextView createdAt;
     @BindView(R.id.private_indicator) View privateIndicator;
@@ -93,21 +94,28 @@ public class StreamItemViewHolder implements CardViewHolder {
         headerText.setVisibility(View.VISIBLE);
     }
 
-    public void setRepostHeader(String userName, SpannableString spannableString) {
+    public void setRepostHeader(String userName, String repost) {
         headerText.setText(userName);
         headerText.setVisibility(View.VISIBLE);
-        reposter.setText(spannableString);
+        reposter.setText(repost);
         reposter.setVisibility(View.VISIBLE);
     }
 
-    public void setPromoterHeader(String username, SpannableString spannableString) {
+    public void setPostHeader(String userName, String post) {
+        headerText.setText(userName);
+        headerText.setVisibility(View.VISIBLE);
+        postText.setText(post);
+        postText.setVisibility(View.VISIBLE);
+    }
+
+    public void setPromoterHeader(String username, String promoted) {
         promoter.setText(username);
         promoter.setVisibility(View.VISIBLE);
-        promotedItem.setText(spannableString);
+        promotedItem.setText(promoted);
         promotedItem.setVisibility(View.VISIBLE);
     }
 
-    public void setPromotedHeader(SpannableString promoted) {
+    public void setPromotedHeader(String promoted) {
         promotedItem.setText(promoted);
         promotedItem.setVisibility(View.VISIBLE);
     }
@@ -213,6 +221,7 @@ public class StreamItemViewHolder implements CardViewHolder {
 
     public void resetCardView() {
         headerText.setVisibility(View.GONE);
+        postText.setVisibility(View.GONE);
         reposter.setVisibility(View.GONE);
         createdAt.setVisibility(View.GONE);
         promotedItem.setVisibility(View.GONE);

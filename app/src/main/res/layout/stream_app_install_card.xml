@@ -20,7 +20,7 @@
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/ad_item"
-                style="@style/Cards.PrimaryHeaderText"
+                style="@style/Cards.SecondaryHeaderText"
                 android:layout_marginLeft="0dp"
                 android:drawableLeft="@drawable/inset_promoted_icon"
                 android:drawablePadding="3dp"/>

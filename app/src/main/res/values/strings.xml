@@ -677,18 +677,36 @@
     <string name="more_upsell_mt">Upgrade to SoundCloud Go+</string>
 
     <!-- __NEW STREAM -->
-    <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
-    <string name="stream_track_header_text">%1$s %2$s a track</string>
-    <string name="stream_album_header_text">%1$s %2$s an album</string>
-    <string name="stream_ep_header_text">%1$s %2$s an EP</string>
-    <string name="stream_single_header_text">%1$s %2$s a single</string>
-    <string name="stream_compilation_header_text">%1$s %2$s a compilation</string>
-    <string name="stream_posted_action">posted</string>
-    <string name="stream_reposted_action">reposted</string>
-    <string name="stream_promoted_action">promoted</string>
-    <string name="stream_track">track</string>
-    <string name="stream_promoted_playable">Promoted %s</string>
-    <string name="stream_sponsored_item">Sponsored %s</string>
+    <string name="stream_promoted_a_playlist">%s promoted a playlist</string>
+    <string name="stream_promoted_a_track">%s promoted a track</string>
+    <string name="stream_promoted_a_album">%s promoted an album</string>
+    <string name="stream_promoted_a_ep">%s promoted an EP</string>
+    <string name="stream_promoted_a_single">%s promoted a single</string>
+    <string name="stream_promoted_a_compilation">%s promoted a compilation</string>
+
+    <string name="stream_posted_a_playlist">%s posted a playlist</string>
+    <string name="stream_posted_a_track">%s posted a track</string>
+    <string name="stream_posted_a_album">%s posted an album</string>
+    <string name="stream_posted_a_ep">%s posted an EP</string>
+    <string name="stream_posted_a_single">%s posted a single</string>
+    <string name="stream_posted_a_compilation">%s posted a compilation</string>
+
+    <string name="stream_reposted_a_playlist">%s reposted a playlist</string>
+    <string name="stream_reposted_a_track">%s reposted a track</string>
+    <string name="stream_reposted_a_album">%s reposted an album</string>
+    <string name="stream_reposted_a_ep">%s reposted an EP</string>
+    <string name="stream_reposted_a_single">%s reposted a single</string>
+    <string name="stream_reposted_a_compilation">%s reposted a compilation</string>
+
+    <string name="stream_promoted_track">Promoted track</string>
+    <string name="stream_promoted_playlist">Promoted playlist</string>
+    <string name="stream_promoted_album">Promoted album</string>
+    <string name="stream_promoted_ep">Promoted ep</string>
+    <string name="stream_promoted_single">Promoted single</string>
+    <string name="stream_promoted_compilation">Promoted compilation</string>
+
+    <string name="stream_sponsored_app">Sponsored app</string>
+    <string name="stream_sponsored_video">Sponsored video</string>
 
     <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
     <!--
