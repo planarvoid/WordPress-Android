@@ -227,16 +227,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isSeekableCallsIsSeekableOnVideoPlayer() {
-        instantiateStreamPlaya();
-        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
-
-        streamPlayerWrapper.isSeekable();
-
-        verify(mediaPlayerAdapter).isSeekable();
-    }
-
-    @Test
     public void getProgressCallsGetProgressOnVideoPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
@@ -329,14 +319,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isSeekableReturnsMediaPlayerIsSeekable() {
-        instantiateStreamPlaya();
-        startsAndFailsPlaybackOnSkippy();
-        when(mediaPlayerAdapter.isSeekable()).thenReturn(true);
-        assertThat(streamPlayerWrapper.isSeekable()).isTrue();
-    }
-
-    @Test
     public void resumeCallsResumeOnSkippyPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
@@ -390,14 +372,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
         startPlaybackOnSkippy();
         streamPlayerWrapper.stop();
         verify(skippyAdapter).stop();
-    }
-
-    @Test
-    public void isSeekableReturnsSkippyIsSeekable() {
-        instantiateStreamPlaya();
-        startPlaybackOnSkippy();
-        when(skippyAdapter.isSeekable()).thenReturn(true);
-        assertThat(streamPlayerWrapper.isSeekable()).isTrue();
     }
 
     @Test

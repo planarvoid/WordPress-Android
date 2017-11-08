@@ -92,7 +92,7 @@ class AdPlayer implements Player.PlayerListener {
             currentAd = Optional.of(ad);
             setUserInitiated(isUserInitiated);
 
-            currentPlayer.stopForTrackTransition();
+            currentPlayer.stop();
             currentPlayer.play(playbackItem);
 
             subscription = eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlayStateSubscriber());

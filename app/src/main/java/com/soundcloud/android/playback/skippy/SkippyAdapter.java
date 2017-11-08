@@ -232,11 +232,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void stopForTrackTransition() {
-        stop();
-    }
-
-    @Override
     public void destroy() {
         skippy.destroy();
     }
@@ -246,11 +241,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.playerListener = playerListener;
         this.stateHandler.setPlayerListener(playerListener);
         this.progressChangeHandler.setPlayerListener(playerListener);
-    }
-
-    @Override
-    public boolean isSeekable() {
-        return true;
     }
 
     @Override

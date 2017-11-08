@@ -43,6 +43,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.view.Surface;
 import android.view.View;
@@ -128,12 +129,12 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public void preload(PreloadItem preloadItem) {
+    public void preload(@NonNull PreloadItem preloadItem) {
         // Preload is not implemented
     }
 
     @Override
-    public void play(PlaybackItem playbackItem) {
+    public void play(@NonNull PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
@@ -480,7 +481,7 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public void resume(PlaybackItem ignored) {
+    public void resume(@NonNull PlaybackItem ignored) {
         if (mediaPlayer != null && internalState.isStartable()) {
             play();
         } else {
@@ -506,7 +507,7 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public void setListener(PlayerListener playerListener) {
+    public void setListener(@NonNull PlayerListener playerListener) {
         this.playerListener = playerListener;
     }
 
@@ -604,8 +605,7 @@ public class MediaPlayerAdapter implements
         }
     }
 
-    @Override
-    public boolean isSeekable() {
+    boolean isSeekable() {
         return mediaPlayer != null && internalState.isSeekable();
     }
 
@@ -652,11 +652,6 @@ public class MediaPlayerAdapter implements
             final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
             adViewabilityController.stopVideoTracking(videoItem.getUuid());
         }
-    }
-
-    @Override
-    public void stopForTrackTransition() {
-        stop();
     }
 
     private void attemptToSetSurface() {

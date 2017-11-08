@@ -90,7 +90,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         lastReportedPlaybackTransition?.let {
             if (!it.wasError() && !it.playbackEnded() && currentPlaybackItem == null) {
                 RemoveParameterFromResume.handleException("[FLIPPER] playbackItem param = $playbackItem, currentPlaybackItem = null, " +
-                                                                  "lastReportedPlaybackTransition = ${lastReportedPlaybackTransition}")
+                                                                  "lastReportedPlaybackTransition = $lastReportedPlaybackTransition")
             }
         }
 
@@ -105,32 +105,28 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
 
     override fun pause() = flipperWrapper.pause()
 
-    override fun seek(position: Long) {
-        Log.d(TAG, "seek() called with: position = [$position]")
+    override fun seek(ms: Long) {
+        Log.d(TAG, "seek() called with: position = [$ms]")
         isSeekPending = true
-        progress = position
-        flipperWrapper.seek(position)
+        progress = ms
+        flipperWrapper.seek(ms)
     }
 
     override fun getProgress() = progress
 
     override fun getVolume() = flipperWrapper.volume.toFloat()
 
-    override fun setVolume(level: Float) {
-        flipperWrapper.volume = level.toDouble()
+    override fun setVolume(volume: Float) {
+        flipperWrapper.volume = volume.toDouble()
     }
 
     override fun stop() = flipperWrapper.pause()
-
-    override fun stopForTrackTransition() = stop()
 
     override fun destroy() = flipperWrapper.destroy()
 
     override fun setListener(playerListener: Player.PlayerListener) {
         this.playerListener = playerListener
     }
-
-    override fun isSeekable() = true
 
     override fun getPlayerType() = PlayerType.FLIPPER
 
@@ -147,10 +143,11 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         }
     }
 
+    @Suppress("detekt.TooGenericExceptionCaught")
     override fun onPerformanceEvent(event: AudioPerformanceEvent) {
         callbackThread {
             try {
-                performanceReporter.report(event, playerType)
+                performanceReporter.report(event, getPlayerType())
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
@@ -201,6 +198,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         }
     }
 
+    @Suppress("detekt.TooGenericExceptionCaught")
     override fun onError(error: FlipperError) {
         callbackThread {
             try {
@@ -209,7 +207,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                     ErrorUtils.handleSilentExceptionWithLog(FlipperException(error.category, error.line, error.sourceFile), error.message)
                 }
 
-                val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, playerType)
+                val event = PlaybackErrorEvent(error.category, error.streamingProtocol.playbackProtocol(), error.cdn, error.format, error.bitrate, getPlayerType())
                 eventBus.publish(EventQueue.PLAYBACK_ERROR, event)
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)
@@ -221,7 +219,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     private fun reportStateTransition(event: StateChange, urn: Urn, progress: Long) {
         with(PlaybackStateTransition(event.playbackState(), event.playStateReason(), urn, progress, event.duration)) {
             addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, event.streamingProtocol.playbackProtocol().value)
-            addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, playerType.value)
+            addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().value)
             addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.currentConnectionType.value)
             addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, true)
             addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl)

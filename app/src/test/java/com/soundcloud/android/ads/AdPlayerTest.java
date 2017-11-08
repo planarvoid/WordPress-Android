@@ -78,7 +78,7 @@ public class AdPlayerTest extends AndroidUnitTest {
     public void autoplayWhenNoAdWasPlayedBeforeShouldStopForTrackTransitionAndPlay() {
         player.autoplay(VIDEO_AD);
 
-        verify(adapter).stopForTrackTransition();
+        verify(adapter).stop();
         verify(adapter).play(VIDEO_ITEM);
     }
 
@@ -110,7 +110,7 @@ public class AdPlayerTest extends AndroidUnitTest {
         player.play(VIDEO_AD, false);
         player.autoplay(ad);
 
-        verify(adapter, times(2)).stopForTrackTransition();
+        verify(adapter, times(2)).stop();
         verify(adapter).play(VIDEO_ITEM);
         verify(adapter).play(item);
     }
@@ -137,7 +137,7 @@ public class AdPlayerTest extends AndroidUnitTest {
     public void playForwardsPlayToMediaPlayerAdapter() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
 
-        verify(adapter).stopForTrackTransition();
+        verify(adapter).stop();
         verify(adapter).play(VIDEO_ITEM);
     }
 
@@ -170,7 +170,7 @@ public class AdPlayerTest extends AndroidUnitTest {
 
         player.play(VIDEO_AD, NOT_USER_INITIATED);
 
-        verify(adapter).stopForTrackTransition();
+        verify(adapter).stop();
         verify(adapter).play(VIDEO_ITEM);
     }
 

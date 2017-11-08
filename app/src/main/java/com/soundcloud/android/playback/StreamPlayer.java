@@ -156,10 +156,6 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.stop();
     }
 
-    boolean isSeekable() {
-        return currentPlayer.isSeekable();
-    }
-
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayerDelegate.destroy();
@@ -179,7 +175,7 @@ class StreamPlayer implements PlayerListener {
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
-            final long currentProgress = currentPlayer.getProgress();
+            final long currentProgress = getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);
             currentPlayer.play(getUpdatedItem(currentProgress));
         } else {
@@ -219,7 +215,7 @@ class StreamPlayer implements PlayerListener {
         Log.i(TAG, "Configuring next player to use : " + nextPlayer);
 
         if (currentPlayer != nextPlayer) {
-            currentPlayer.stopForTrackTransition();
+            currentPlayer.stop();
         }
 
         currentPlayer = nextPlayer;

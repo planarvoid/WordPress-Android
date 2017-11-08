@@ -275,12 +275,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stopForTrackTransitionCallsStopOnSkippy() {
-        skippyAdapter.stopForTrackTransition();
-        verify(skippy).stop();
-    }
-
-    @Test
     public void destroyCallsDestroySkippy() {
         skippyAdapter.destroy();
         verify(skippy).destroy();

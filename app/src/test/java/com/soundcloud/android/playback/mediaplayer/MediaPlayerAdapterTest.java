@@ -816,7 +816,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void stopForTransitionCallsStopAndSetsIdleStateIfStoppable() {
         playUrlAndSetPrepared(trackItem);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        mediaPlayerAdapter.stopForTrackTransition();
+        mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
         verify(listener).onPlaystateChanged(eq(new PlaybackStateTransition(PlaybackState.IDLE,
                                                                            PlayStateReason.NONE,
