@@ -30,7 +30,7 @@ verify_inputs() {
         exit 1
     fi
 
-    VERSION_REGEX=[0-9]\.[0-9]\.[0-9]-.+
+    VERSION_REGEX="[0-9]\.[0-9]\.[0-9](-.+)?"
     if ! [[ "$2" =~ ${VERSION_REGEX} ]]
     then
         echo "Version number incorrect. It should have the pattern x.y.z (e.g.: 1.0.0)"
