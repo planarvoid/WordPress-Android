@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
@@ -15,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @AutoValue
-public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder, ApiSyncable {
+public abstract class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     @JsonCreator
     public static ApiUser create(

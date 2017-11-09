@@ -4,7 +4,6 @@ import static com.soundcloud.android.model.Urn.STRING_TO_URN;
 import static com.soundcloud.android.model.Urn.forUser;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.optional.Optional;
@@ -64,22 +63,22 @@ public abstract class User {
                 .build();
     }
 
-    public static User fromApiUser(ApiUser apiUser) {
+    public static User fromUserRecord(UserRecord userRecord) {
         return new AutoValue_User.Builder()
-                .urn(apiUser.getUrn())
-                .username(apiUser.getUsername())
-                .firstName(apiUser.getFirstName())
-                .lastName(apiUser.getLastName())
-                .signupDate(apiUser.getCreatedAt())
-                .country(Optional.fromNullable(apiUser.getCountry()))
-                .city(Optional.fromNullable(apiUser.getCity()))
-                .followersCount(apiUser.getFollowersCount())
-                .followingsCount(apiUser.getFollowingsCount())
-                .description(apiUser.getDescription())
-                .avatarUrl(apiUser.getImageUrlTemplate())
-                .visualUrl(apiUser.getVisualUrlTemplate())
-                .artistStation(apiUser.getArtistStationUrn())
-                .isPro(apiUser.isPro())
+                .urn(userRecord.getUrn())
+                .username(userRecord.getUsername())
+                .firstName(userRecord.getFirstName())
+                .lastName(userRecord.getLastName())
+                .signupDate(userRecord.getCreatedAt())
+                .country(Optional.fromNullable(userRecord.getCountry()))
+                .city(Optional.fromNullable(userRecord.getCity()))
+                .followersCount(userRecord.getFollowersCount())
+                .followingsCount(userRecord.getFollowingsCount())
+                .description(userRecord.getDescription())
+                .avatarUrl(userRecord.getImageUrlTemplate())
+                .visualUrl(userRecord.getVisualUrlTemplate())
+                .artistStation(userRecord.getArtistStationUrn())
+                .isPro(userRecord.isPro())
                 .build();
     }
 

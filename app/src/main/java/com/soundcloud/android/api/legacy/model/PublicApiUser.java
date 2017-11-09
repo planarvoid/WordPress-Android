@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
@@ -20,7 +18,7 @@ import java.util.Date;
 
 @Deprecated
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PublicApiUser extends PublicApiResource implements UserHolder, UserRecord, ApiSyncable {
+public class PublicApiUser extends PublicApiResource implements UserHolder, UserRecord {
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
     public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
@@ -251,22 +249,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, User
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.getId());
         out.writeBundle(bundle);
-    }
-
-    public ApiUser toApiMobileUser() {
-        return ApiUser.builder(getUrn())
-                      .permalink(getPermalink())
-                      .imageUrlTemplate(imageUrlToTemplate(avatar_url))
-                      .country(country)
-                      .city(city)
-                      .followersCount(followers_count)
-                      .followingsCount(followings_count)
-                      .username(username)
-                      .description(getDescription())
-                      .trackCount(track_count)
-                      .verified(false)
-                      .pro(false)
-                      .build();
     }
 
     @Override

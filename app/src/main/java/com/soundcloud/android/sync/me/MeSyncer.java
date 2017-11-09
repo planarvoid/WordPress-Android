@@ -44,7 +44,7 @@ public class MeSyncer implements Callable<Boolean> {
     }
 
     private void publishChangeEvent(Me me) {
-        eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(me.getUser())));
+        eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromUserRecord(me.getUser())));
     }
 
 }

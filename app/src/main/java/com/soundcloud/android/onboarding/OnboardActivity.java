@@ -12,7 +12,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdsStorage;
@@ -21,8 +20,6 @@ import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crop.Crop;
@@ -54,6 +51,7 @@ import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
@@ -568,7 +566,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    public void onAuthTaskComplete(ApiUser user, SignupVia via, boolean wasApiSignupTask) {
+    public void onAuthTaskComplete(UserRecord user, SignupVia via, boolean wasApiSignupTask) {
         log(INFO, ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
 
         if (wasApiSignupTask) {
@@ -582,10 +580,6 @@ public class OnboardActivity extends FragmentActivity
             result.putString(AccountManager.KEY_ACCOUNT_NAME, user.getUsername());
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
             resultBundle = result;
-
-            sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                                  .putExtra(PublicApiUser.EXTRA_ID, user.getId())
-                                  .putExtra(SignupVia.EXTRA, via.name));
 
             if (deepLinkUri.isPresent()) {
                 navigationExecutor.openResolveForUri(this, deepLinkUri.get());

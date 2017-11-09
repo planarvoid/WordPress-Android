@@ -63,7 +63,7 @@ object UserFixtures {
     fun user(): User = UserFixtures.userBuilder().build()
 
     @JvmStatic
-    fun userBuilder(): User.Builder = User.fromApiUser(apiUser()).toBuilder()
+    fun userBuilder(): User.Builder = User.fromUserRecord(apiUser()).toBuilder()
 
     @JvmStatic
     fun user(urn: Urn): User = userBuilder().urn(urn).build()
@@ -97,7 +97,7 @@ object UserFixtures {
     fun userItem(user: ApiUser, isFollowing: Boolean): UserItem = userItem(user(user), isFollowing)
 
     @JvmStatic
-    fun user(user: ApiUser): User = User.fromApiUser(user)
+    fun user(user: ApiUser): User = User.fromUserRecord(user)
 
     @JvmStatic
     fun userItem(user: User): UserItem = userItem(user, false)

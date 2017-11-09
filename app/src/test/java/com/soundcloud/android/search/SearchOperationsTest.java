@@ -678,7 +678,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
         final SearchModelCollection<ApiUser> apiUsers = mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
 
-        final ArrayList<UserItem> userItems = Lists.newArrayList(transform(apiUsers, apiUser -> UserItem.from(User.fromApiUser(apiUser), false)));
+        final ArrayList<UserItem> userItems = Lists.newArrayList(transform(apiUsers, apiUser -> UserItem.from(User.fromUserRecord(apiUser), false)));
         when(userItemRepository.userItems(apiUsers)).thenReturn(Single.just(userItems));
 
         operations.searchResult("query", Optional.absent(), SearchType.USERS).subscribe(subscriber);
@@ -793,7 +793,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final List<Urn> urns = Lists.newArrayList(transform(apiUsers, ApiUser::getUrn));
         final HashMap<Urn, UserItem> userItemHashMap = Maps.newHashMap();
         for (ApiUser apiUser : apiUsers) {
-            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromApiUser(apiUser), false));
+            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromUserRecord(apiUser), false));
         }
         when(userItemRepository.userItemsMap(ArgumentMatchers.argThat(argument -> Lists.newArrayList(argument).containsAll(urns)))).thenReturn(Single.just(userItemHashMap));
     }
@@ -804,7 +804,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final List<Urn> urns = Lists.newArrayList(transform(apiUsers, ApiUser::getUrn));
         final HashMap<Urn, UserItem> userItemHashMap = Maps.newHashMap();
         for (ApiUser apiUser : apiUsers) {
-            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromApiUser(apiUser), followedUser.equals(apiUser.getUrn())));
+            userItemHashMap.put(apiUser.getUrn(), UserItem.from(User.fromUserRecord(apiUser), followedUser.equals(apiUser.getUrn())));
         }
         when(userItemRepository.userItemsMap(ArgumentMatchers.argThat(argument -> Lists.newArrayList(argument).containsAll(urns)))).thenReturn(Single.just(userItemHashMap));
     }

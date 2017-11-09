@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.objects.MoreObjects;
@@ -432,30 +430,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @Override
     public boolean isCommentable() {
         return commentable;
-    }
-
-    public ApiTrack toApiMobileTrack() {
-        return ApiTrack.builder(getUrn())
-                .createdAt(getCreatedAt())
-                .commentable(isCommentable())
-                .snippetDuration(getSnippetDuration())
-                .fullDuration(getFullDuration())
-                .genre(getGenre())
-                .monetizable(isMonetizable())
-                .permalinkUrl(getPermalinkUrl())
-                .policy(getPolicy())
-                .sharing(getSharing())
-                .syncable(isSyncable())
-                .userTags(humanTags())
-                .title(getTitle())
-                .waveformUrl(getWaveformUrl())
-                .user(getUser().toApiMobileUser())
-                .stats(ApiTrackStats.create(
-                        getPlaybackCount(),
-                        getCommentsCount(),
-                        getRepostsCount(),
-                        getLikesCount()))
-                .build();
     }
 
     @Override

@@ -11,7 +11,7 @@ public abstract class UserProfileInfo {
         return create(
                 apiUserProfileInfo.getSocialMediaLinks().transform(SocialMediaLinkItem.Companion::from),
                 apiUserProfileInfo.getDescription(),
-                User.fromApiUser(apiUserProfileInfo.getUser())
+                User.fromUserRecord(apiUserProfileInfo.getUser())
         );
     }
 

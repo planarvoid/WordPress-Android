@@ -76,7 +76,7 @@ public class EntityItemCreator {
     }
 
     public UserItem userItem(ApiUser apiUser, boolean isFollowedByMe) {
-        return userItem(User.fromApiUser(apiUser), isFollowedByMe);
+        return userItem(User.fromUserRecord(apiUser), isFollowedByMe);
     }
 
     public Map<Urn, TrackItem> convertTrackMap(Map<Urn, Track> map) {

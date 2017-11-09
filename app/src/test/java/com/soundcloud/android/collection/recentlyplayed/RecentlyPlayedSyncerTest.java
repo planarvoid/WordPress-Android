@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -18,6 +17,7 @@ import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -84,7 +84,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldPreloadNewArtists() throws Exception {
         Urn userUrn = Urn.forUser(123L);
-        List<ApiUser> users = singletonList(UserFixtures.apiUser());
+        List<UserRecord> users = singletonList(UserFixtures.apiUser());
         when(fetchRecentlyPlayedCommand.call()).thenReturn(singletonList(contextFor(userUrn)));
         when(fetchUsersCommand.with(singletonList(userUrn)).call()).thenReturn(users);
 

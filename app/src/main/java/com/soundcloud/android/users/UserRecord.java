@@ -1,12 +1,13 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.ApiSyncable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-public interface UserRecord extends ImageResource {
+public interface UserRecord extends ImageResource, ApiSyncable {
 
     String getPermalink();
 

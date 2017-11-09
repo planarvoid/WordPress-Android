@@ -11,10 +11,10 @@ import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.strings.Strings;
 
 import android.os.Bundle;
@@ -62,7 +62,7 @@ public class AddUserInfoTask extends AuthTask {
             if (avatarFile != null && avatarFile.canWrite()) {
                 request.withFormPart(FilePart.from(Params.User.AVATAR, avatarFile, FilePart.BLOB_MEDIA_TYPE));
             }
-            ApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class).toApiMobileUser();
+            UserRecord updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class);
             addAccount(updatedUser, accountOperations.getSoundCloudToken(), SignupVia.API);
             return LegacyAuthTaskResult.success(updatedUser, SignupVia.API).toAuthTaskResult();
         } catch (ApiRequestException e) {

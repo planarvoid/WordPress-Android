@@ -6,7 +6,6 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -16,6 +15,7 @@ import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBusV2;
@@ -136,7 +136,7 @@ public class AccountOperations {
      * @return the new account, or null if account already existed or adding it failed
      */
     @Nullable
-    public Account addOrReplaceSoundCloudAccount(ApiUser user, Token token, SignupVia via) {
+    public Account addOrReplaceSoundCloudAccount(UserRecord user, Token token, SignupVia via) {
         Optional<Account> accountOptional = accountManager.addOrReplaceSoundCloudAccount(user.getUrn(), user.getPermalink(), token, via);
         if (accountOptional.isPresent()) {
             tokenOperations.storeSoundCloudTokenData(accountOptional.get(), token);

@@ -21,7 +21,6 @@ import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricReportingHelper;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.RepostsStateProvider;
@@ -60,6 +59,7 @@ import com.soundcloud.android.storage.DatabaseCleanupScheduler;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
@@ -376,7 +376,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     @VisibleForTesting
-    public boolean addUserAccountAndEnableSync(ApiUser user, Token token, SignupVia via) {
+    public boolean addUserAccountAndEnableSync(UserRecord user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time

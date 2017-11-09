@@ -41,7 +41,7 @@ public class MeSyncerTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        me = Me.create(UserFixtures.apiUser(), ModelFixtures.create(Configuration.class), false);
+        me = Me.createFromUserRecord(UserFixtures.apiUser(), ModelFixtures.create(Configuration.class), false);
 
         meSyncer = new MeSyncer(apiClient, eventBus, meStorage);
     }
@@ -68,7 +68,7 @@ public class MeSyncerTest extends AndroidUnitTest {
 
         meSyncer.call();
 
-        assertThat(eventBus.lastEventOn(EventQueue.USER_CHANGED)).isEqualTo(UserChangedEvent.forUpdate(User.fromApiUser(me.getUser())));
+        assertThat(eventBus.lastEventOn(EventQueue.USER_CHANGED)).isEqualTo(UserChangedEvent.forUpdate(User.fromUserRecord(me.getUser())));
     }
 
     private void setupSuccessfulFetch() throws ApiRequestException, IOException, ApiMapperException {

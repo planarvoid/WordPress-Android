@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.dialog.LoggingDialogFragment;
 import com.soundcloud.android.onboarding.auth.tasks.AgeRestrictionAuthResult;
@@ -16,6 +15,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
@@ -46,7 +46,7 @@ public abstract class AuthTaskFragment extends LoggingDialogFragment {
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public interface OnAuthResultListener {
-        void onAuthTaskComplete(ApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
+        void onAuthTaskComplete(UserRecord user, SignupVia signupVia, boolean shouldAddUserInfo);
 
         void onError(String message, boolean allowFeedback);
 

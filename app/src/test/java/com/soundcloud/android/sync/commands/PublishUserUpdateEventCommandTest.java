@@ -43,7 +43,7 @@ public class PublishUserUpdateEventCommandTest {
 
         verify(eventBus).publish(eq(EventQueue.USER_CHANGED), userChangedEventArgumentCaptor.capture());
         final UserChangedEvent changedEvent = userChangedEventArgumentCaptor.getValue();
-        assertThat(changedEvent.changeMap().values()).containsExactly(User.fromApiUser(apiUser));
+        assertThat(changedEvent.changeMap().values()).containsExactly(User.fromUserRecord(apiUser));
     }
 
     @Test

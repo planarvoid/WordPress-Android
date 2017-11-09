@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.model.Urn.forTrack;
-import static com.soundcloud.android.users.User.fromApiUser;
+import static com.soundcloud.android.users.User.fromUserRecord;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -196,8 +196,8 @@ public class PlayQueueOperationsTest extends StorageIntegrationTest {
         final ApiUser user = testFixtures().insertUser();
         final TrackQueueItem trackQueueItem = createTrackQueueItem(user.getUrn(), PlaybackContext.Bucket.PROFILE);
 
-        when(storage.getContextUrns()).thenReturn(Collections.singletonList(fromApiUser(user).urn()));
-        when(userRepository.usersInfo(anyList())).thenReturn(Single.just(Collections.singletonList(fromApiUser(user))));
+        when(storage.getContextUrns()).thenReturn(Collections.singletonList(fromUserRecord(user).urn()));
+        when(userRepository.usersInfo(anyList())).thenReturn(Single.just(Collections.singletonList(fromUserRecord(user))));
 
         PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Collections.singletonList(trackQueueItem));
         storage.store(playQueue);

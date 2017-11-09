@@ -23,4 +23,6 @@ public class CustomFontTextView extends AppCompatTextView {
 
         applyCustomFont(context, this, attrs);
     }
+
+
 }

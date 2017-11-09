@@ -49,7 +49,7 @@ public class SignInOperationsTest extends AndroidUnitTest {
     private static final String PASSWORD = "pass";
     private final ApiUser user = UserFixtures.apiUser();
     private final Configuration configuration = ModelFixtures.create(Configuration.class);
-    private final Me me = Me.create(user, configuration, false);
+    private final Me me = Me.createFromUserRecord(user, configuration, false);
     @Mock SoundCloudApplication application;
     @Mock Context context;
     @Mock ApiClient apiClient;

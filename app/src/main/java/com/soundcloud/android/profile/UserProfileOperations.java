@@ -278,10 +278,10 @@ public class UserProfileOperations {
     }
 
     private Action1<ApiUserProfile> publishEntityChangedFromProfile() {
-        return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(userProfile.getUser())));
+        return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromUserRecord(userProfile.getUser())));
     }
 
     private Action1<ApiUserProfileInfo> publishEntityChangedFromProfileInfo() {
-        return userProfileInfo -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(userProfileInfo.getUser())));
+        return userProfileInfo -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromUserRecord(userProfileInfo.getUser())));
     }
 }

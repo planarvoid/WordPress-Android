@@ -9,13 +9,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tests.SoundCloudTestApplication;
+import com.soundcloud.android.users.UserRecord;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -53,7 +53,7 @@ public final class AccountAssistant {
             try {
                 tryCount++;
                 PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(testUser.token.getAccessToken());
-                accountAdded = AccountAssistant.addAccountAndEnableSync(context, testUser.token, loggedInUser.toApiMobileUser());
+                accountAdded = AccountAssistant.addAccountAndEnableSync(context, testUser.token, loggedInUser);
             } catch (IOException e) {
                 Log.e(TAG, "Error fetching account data", e);
             }
@@ -61,7 +61,7 @@ public final class AccountAssistant {
         return accountAdded;
     }
 
-    static boolean addAccountAndEnableSync(Context context, Token token, ApiUser user) {
+    static boolean addAccountAndEnableSync(Context context, Token token, UserRecord user) {
         final SoundCloudTestApplication application = SoundCloudTestApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);

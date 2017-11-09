@@ -7,15 +7,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -45,9 +44,9 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
 
         setupLegacyRequest(urns, users);
 
-        Collection<ApiUser> result = command.with(urns).call();
+        Collection<UserRecord> result = command.with(urns).call();
 
-        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
+        assertThat(result).isEqualTo(users);
     }
 
     @Test
@@ -58,8 +57,8 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
         setupLegacyRequest(urns.subList(0, 2), users.subList(0, 2));
         setupLegacyRequest(urns.subList(2, 3), users.subList(2, 3));
 
-        Collection<ApiUser> result = command.with(urns).call();
-        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
+        Collection<UserRecord> result = command.with(urns).call();
+        assertThat(result).isEqualTo(users);
     }
 
     @Test
@@ -69,11 +68,11 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
 
         setupLegacyRequest(urns, users);
 
-        Collection<ApiUser> result = command
+        Collection<UserRecord> result = command
                 .with(Arrays.asList(users.get(0).getUrn(), Urn.forUser(-10)))
                 .call();
 
-        assertThat(result.toArray()).isEqualTo(transformUsers(users).toArray());
+        assertThat(result.toArray()).isEqualTo(users.toArray());
     }
 
     @Test
@@ -91,9 +90,5 @@ public class FetchUsersCommandTest extends AndroidUnitTest {
                                                            .withQueryParam("ids", joinedIds)
                                                            .withQueryParam("linked_partitioning", "1")), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(users));
-    }
-
-    private List<ApiUser> transformUsers(List<PublicApiUser> users) {
-        return Lists.transform(users, PublicApiUser::toApiMobileUser);
     }
 }

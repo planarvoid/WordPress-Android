@@ -134,7 +134,7 @@ public class UserProfileOperationsProfileTest {
 
     @Test
     public void shouldPublishEntityChangedEvent() {
-        User user = User.fromApiUser(profile.getUser());
+        User user = User.fromUserRecord(profile.getUser());
 
         operations.userProfile(userUrn).subscribe(subscriber);
 

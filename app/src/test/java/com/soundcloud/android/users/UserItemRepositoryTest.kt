@@ -75,7 +75,7 @@ class UserItemRepositoryTest {
         val observer = userItemRepository.userItem(apiUser).test()
 
         observer.assertValue { it.isFollowedByMe }
-        observer.assertValue { it.user() == User.fromApiUser(apiUser) }
+        observer.assertValue { it.user() == User.fromUserRecord(apiUser) }
     }
 
     @Test
@@ -86,7 +86,7 @@ class UserItemRepositoryTest {
         val observer = userItemRepository.userItem(apiUser).test()
 
         observer.assertValue { !it.isFollowedByMe }
-        observer.assertValue { it.user() == User.fromApiUser(apiUser) }
+        observer.assertValue { it.user() == User.fromUserRecord(apiUser) }
     }
 
     @Test
@@ -101,9 +101,9 @@ class UserItemRepositoryTest {
 
         observer.assertValue { it.size == 2 }
         observer.assertValue { it[0].isFollowedByMe }
-        observer.assertValue { it[0].user() == User.fromApiUser(followedApiUser) }
+        observer.assertValue { it[0].user() == User.fromUserRecord(followedApiUser) }
         observer.assertValue { !it[1].isFollowedByMe }
-        observer.assertValue { it[1].user() == User.fromApiUser(notFollowedApiUser) }
+        observer.assertValue { it[1].user() == User.fromUserRecord(notFollowedApiUser) }
     }
 
 

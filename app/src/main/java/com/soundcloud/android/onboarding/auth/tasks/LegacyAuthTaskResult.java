@@ -2,10 +2,10 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.AuthResultMapper;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
+import com.soundcloud.android.users.UserRecord;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
@@ -17,13 +17,13 @@ import android.os.Bundle;
 public final class LegacyAuthTaskResult {
 
     private final TaskResultKind kind;
-    private final ApiUser user;
+    private final UserRecord user;
     private final SignupVia signupVia;
     private final Exception exception;
 
     private final Bundle loginBundle;
 
-    public static LegacyAuthTaskResult success(ApiUser user, SignupVia signupVia) {
+    public static LegacyAuthTaskResult success(UserRecord user, SignupVia signupVia) {
         return new LegacyAuthTaskResult(user, signupVia);
     }
 
@@ -94,7 +94,7 @@ public final class LegacyAuthTaskResult {
         return new LegacyAuthTaskResult(TaskResultKind.DEVICE_BLOCK);
     }
 
-    private LegacyAuthTaskResult(ApiUser user, SignupVia signupVia) {
+    private LegacyAuthTaskResult(UserRecord user, SignupVia signupVia) {
         this(TaskResultKind.SUCCESS, user, signupVia, null, null);
     }
 
@@ -114,7 +114,7 @@ public final class LegacyAuthTaskResult {
         this(kind, null, null, null, null);
     }
 
-    private LegacyAuthTaskResult(@NotNull TaskResultKind kind, ApiUser user, SignupVia signupVia,
+    private LegacyAuthTaskResult(@NotNull TaskResultKind kind, UserRecord user, SignupVia signupVia,
                                  Exception exception, Bundle loginBundle) {
         this.kind = kind;
         this.user = user;
@@ -159,7 +159,7 @@ public final class LegacyAuthTaskResult {
         return kind == TaskResultKind.VALIDATION_ERROR;
     }
 
-    public ApiUser getUser() {
+    public UserRecord getUser() {
         return user;
     }
 
@@ -177,7 +177,7 @@ public final class LegacyAuthTaskResult {
 
     public AuthTaskResult toAuthTaskResult() {
         if (wasSuccess()) {
-            return AuthTaskResult.success(new AuthResponse(null, Me.create(user, null, false)), signupVia);
+            return AuthTaskResult.success(new AuthResponse(null, Me.createFromUserRecord(user, null, false)), signupVia);
         }
 
         if (exception instanceof ApiRequestException) {

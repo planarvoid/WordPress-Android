@@ -145,7 +145,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
 
         when(authSignature.getSignature(anyString(), anyString())).thenReturn("signupSignature");
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(setupApiRequest(), 200, ""));
-        when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.create(user, configuration, false)));
+        when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.createFromUserRecord(user, configuration, false)));
     }
 
     private ApiResponse setupUnsuccessfulApiResponse() {
