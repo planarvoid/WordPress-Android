@@ -6,7 +6,7 @@ import com.soundcloud.android.ads.StreamAdsController
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations
 import com.soundcloud.android.sync.NewSyncOperations
 import com.soundcloud.android.sync.Syncable
-import com.soundcloud.android.upsell.InlineUpsellOperations
+import com.soundcloud.android.utils.OpenForTesting
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Scheduler
@@ -15,13 +15,13 @@ import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 
+@OpenForTesting
 class StreamUniflowOperations
 @Inject
 constructor(private val streamStorage: StreamStorage,
             private val syncOperations: NewSyncOperations,
             private val removeStalePromotedItemsCommand: RemoveStalePromotedItemsCommand,
             private val streamEntityToItemTransformer: StreamEntityToItemTransformer,
-            private val upsellOperations: InlineUpsellOperations,
             private val streamAdsController: StreamAdsController,
             private val facebookInvitesOperations: FacebookInvitesOperations,
             @param:Named(ApplicationModule.RX_HIGH_PRIORITY) private val scheduler: Scheduler) {
@@ -30,7 +30,6 @@ constructor(private val streamStorage: StreamStorage,
         return Completable.mergeArray(removeStalePromotedItemsCommand.toCompletable(),
                                       syncOperations.lazySyncIfStale(Syncable.SOUNDSTREAM).toCompletable())
                 .andThen(streamStorage.timelineItems(Consts.LIST_PAGE_SIZE).toList().flatMap { streamEntityToItemTransformer.apply(it) })
-                .map { this.addUpsellableItem(it.toMutableList()) }
                 .doOnSuccess { streamAdsController.insertAds() }
                 .subscribeOn(scheduler)
     }
@@ -55,15 +54,6 @@ constructor(private val streamStorage: StreamStorage,
         return syncOperations.lazySyncIfStale(Syncable.SOUNDSTREAM).flatMap {
             streamStorage.timelineItemsBefore(nextTimestamp, Consts.LIST_PAGE_SIZE).toList().flatMap { streamEntityToItemTransformer.apply(it) }
         }
-    }
-
-    private fun addUpsellableItem(streamItems: MutableList<StreamItem>): List<StreamItem> {
-        if (upsellOperations.shouldDisplayInStream()) {
-            getFirstUpsellable(streamItems)?.let {
-                streamItems.add(streamItems.indexOf(it) + 1, StreamItem.Upsell)
-            }
-        }
-        return streamItems
     }
 
     private fun getFirstUpsellable(streamItems: List<StreamItem>): StreamItem? {

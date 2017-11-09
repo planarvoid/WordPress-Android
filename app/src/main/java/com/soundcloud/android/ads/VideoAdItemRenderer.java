@@ -68,7 +68,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
         holder.fullscreenButton.setOnClickListener(view -> {
-            getAdItemClick().onNext(new AdItemResult.VideoFullscreenClick(videoAd));
+            getAdItemCallback().onNext(new AdItemCallback.VideoFullscreenClick(videoAd));
             getListener().ifPresent(callback -> callback.onVideoFullscreenClicked(videoAd));
         });
 
@@ -78,7 +78,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     void bindVideoSurface(View itemView, VideoAd videoAd) {
         final Holder holder = getHolder(itemView);
-        getAdItemClick().onNext(new AdItemResult.VideoTextureBind(holder.videoView, holder.viewabilityLayer, videoAd));
+        getAdItemCallback().onNext(new AdItemCallback.VideoTextureBind(holder.videoView, holder.viewabilityLayer, videoAd));
         getListener().ifPresent(listener -> listener.onVideoTextureBind(holder.videoView, holder.viewabilityLayer, videoAd));
     }
 
@@ -143,7 +143,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         if (getListener().isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
             final Holder holder = getHolder(itemView);
             holder.resetMuteState(holder);
-            getAdItemClick().onNext(new AdItemResult.VideoTextureBind(holder.videoView, holder.viewabilityLayer, (VideoAd) adData.get()));
+            getAdItemCallback().onNext(new AdItemCallback.VideoTextureBind(holder.videoView, holder.viewabilityLayer, (VideoAd) adData.get()));
             getListener().get().onVideoTextureBind(holder.videoView, holder.viewabilityLayer, (VideoAd) adData.get());
         }
     }

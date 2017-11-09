@@ -14,7 +14,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLauncherIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLegalIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLikedStationsIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createTheUploadIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOfflineSettingsOnboardingIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createOnboardingIntent;
@@ -36,6 +35,7 @@ import static com.soundcloud.android.navigation.IntentFactory.createSettingsInte
 import static com.soundcloud.android.navigation.IntentFactory.createStationsInfoIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createStreamWithExpandedPlayerIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createSystemPlaylistIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createTheUploadIntent;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.PlaybackServiceController;
@@ -267,7 +267,7 @@ public class NavigationResolver {
             case TRACKED_REDIRECT:
                 return resolveTarget(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_UPSELL:
-                return showUpgradeScreen(navigationTarget);
+                return showGoPlusUpsellScreen(navigationTarget);
             case SOUNDCLOUD_GO_BUY:
                 return showMidTierCheckoutScreen(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_BUY:
@@ -332,6 +332,8 @@ public class NavigationResolver {
                 return showBasicSettings(navigationTarget);
             case EXTERNAL_APP:
                 return showExternalApp(navigationTarget);
+            case UPGRADE:
+                return showUpgrade(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
@@ -660,7 +662,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> showUpgradeScreen(NavigationTarget navigationTarget) {
+    private Single<NavigationResult> showGoPlusUpsellScreen(NavigationTarget navigationTarget) {
         if (featureOperations.upsellHighTier()) {
             List<Intent> taskStack = Collections.singletonList(createHomeIntent(context));
             Intent intent = createConversionIntent(context, UpsellContext.DEFAULT);
@@ -669,6 +671,11 @@ public class NavigationResolver {
         } else {
             return showHome(navigationTarget);
         }
+    }
+
+    @CheckResult
+    private Single<NavigationResult> showUpgrade(NavigationTarget navigationTarget) {
+        return Single.just(NavigationResult.create(navigationTarget, createConversionIntent(context, navigationTarget.upsellContext().get())));
     }
 
     @CheckResult

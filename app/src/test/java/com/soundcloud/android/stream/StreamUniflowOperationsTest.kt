@@ -10,7 +10,6 @@ import com.soundcloud.android.sync.SyncResult
 import com.soundcloud.android.sync.Syncable
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures
-import com.soundcloud.android.upsell.InlineUpsellOperations
 import com.soundcloud.java.optional.Optional
 import com.soundcloud.java.strings.Strings
 import io.reactivex.Completable
@@ -34,7 +33,6 @@ class StreamUniflowOperationsTest {
     @Mock private lateinit var streamStorage: StreamStorage
     @Mock private lateinit var removeStalePromotedItemsCommand: RemoveStalePromotedItemsCommand
     @Mock private lateinit var streamAdsController: StreamAdsController
-    @Mock private lateinit var upsellOperations: InlineUpsellOperations
     @Mock private lateinit var streamEntityToItemTransformer: StreamEntityToItemTransformer
     @Mock private lateinit var syncOperations: NewSyncOperations
     @Mock private lateinit var facebookInvitesOperations: FacebookInvitesOperations
@@ -48,7 +46,6 @@ class StreamUniflowOperationsTest {
                                                    syncOperations,
                                                    removeStalePromotedItemsCommand,
                                                    streamEntityToItemTransformer,
-                                                   upsellOperations,
                                                    streamAdsController,
                                                    facebookInvitesOperations,
                                                    Schedulers.trampoline())
@@ -84,17 +81,6 @@ class StreamUniflowOperationsTest {
         streamOperations.initialStreamItems().test()
 
         verify(streamAdsController).insertAds()
-    }
-
-    @Test
-    fun `adds upsellable item`() {
-        val tracks = initStorageWithHighTierTrack()
-        whenever(upsellOperations.shouldDisplayInStream()).thenReturn(true)
-
-        val testObserver = streamOperations.initialStreamItems().test()
-
-        testObserver.assertValue { it[0] == tracks[0] }
-        testObserver.assertValue { it[1] == StreamItem.Upsell }
     }
 
     @Test

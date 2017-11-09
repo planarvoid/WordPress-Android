@@ -62,7 +62,8 @@ public enum DeepLink {
     HELP_CENTER,
     LEGAL,
     BASIC_SETTINGS,
-    EXTERNAL_APP;
+    EXTERNAL_APP,
+    UPGRADE;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
@@ -100,7 +101,8 @@ public enum DeepLink {
                        PROFILE_ALBUMS,
                        PROFILE_PLAYLISTS,
                        LIKED_STATIONS,
-                       BASIC_SETTINGS);
+                       BASIC_SETTINGS,
+                       UPGRADE);
 
     @VisibleForTesting
     static final EnumSet<DeepLink> RESOLVE_REQUIRED =

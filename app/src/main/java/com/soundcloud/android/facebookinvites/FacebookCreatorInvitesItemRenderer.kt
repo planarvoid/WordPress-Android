@@ -22,7 +22,7 @@ class FacebookCreatorInvitesItemRenderer
 constructor(private val imageOperations: ImageOperations,
             private val facebookInvitesStorage: FacebookInvitesStorage,
             private val eventBus: EventBusV2) : CellRenderer<StreamItem.FacebookCreatorInvites> {
-    val loadingResult: PublishSubject<FacebookLoadingResult> = PublishSubject.create()
+    val notificationCallback: PublishSubject<FacebookNotificationCallback<StreamItem.FacebookCreatorInvites>> = PublishSubject.create()
 
     override fun createItemView(parent: ViewGroup): View {
         eventBus.publish(EventQueue.TRACKING, FacebookInvitesEvent.forCreatorShown())
@@ -34,11 +34,11 @@ constructor(private val imageOperations: ImageOperations,
         itemView.isEnabled = false
         itemView.close_button.setOnClickListener {
             facebookInvitesStorage.setCreatorDismissed()
-            loadingResult.onNext(FacebookLoadingResult.Dismiss(position))
+            notificationCallback.onNext(FacebookNotificationCallback.Dismiss(position, items[position]))
         }
         itemView.action_button.setOnClickListener {
             facebookInvitesStorage.setClicked()
-            loadingResult.onNext(FacebookLoadingResult.Click(position))
+            notificationCallback.onNext(FacebookNotificationCallback.Click(position, items[position]))
         }
         imageOperations.displayWithPlaceholder(
                 items[position].trackUrn,

@@ -8,9 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import com.soundcloud.android.R
 import com.soundcloud.android.SoundCloudApplication
+import com.soundcloud.android.ads.AdItemCallback
+import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter
+import com.soundcloud.android.facebookinvites.FacebookNotificationCallback
 import com.soundcloud.android.main.MainPagerAdapter
+import com.soundcloud.android.model.Urn
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.SearchEmptyStateProvider
+import com.soundcloud.android.upsell.UpsellItemCallback
 import com.soundcloud.android.utils.collection.AsyncLoaderState
 import com.soundcloud.android.view.BaseFragment
 import com.soundcloud.android.view.collection.CollectionRenderer
@@ -25,6 +30,7 @@ internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), S
 
     @Inject internal lateinit var presenterLazy: Lazy<StreamUniflowPresenter>
     @Inject internal lateinit var adapter: StreamAdapter
+    @Inject internal lateinit var facebookInvitesDialogPresenter: FacebookInvitesDialogPresenter
 
     private lateinit var collectionRenderer: CollectionRenderer<StreamItem, RecyclerView.ViewHolder>
 
@@ -78,5 +84,23 @@ internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), S
 
     override fun onFocusChange(hasFocus: Boolean) {
         presenter?.onFocusChange(hasFocus)
+    }
+
+    override fun facebookListenerInvitesItemCallback(): Observable<FacebookNotificationCallback<StreamItem.FacebookListenerInvites>> = adapter.facebookListenerInvitesItemCallback()
+
+    override fun facebookCreatorInvitesItemCallback(): Observable<FacebookNotificationCallback<StreamItem.FacebookCreatorInvites>> = adapter.facebookCreatorInvitesItemCallback()
+
+    override fun upsellItemCallback(): Observable<UpsellItemCallback> = adapter.upsellItemCallback()
+
+    override fun videoAdItemCallback(): Observable<AdItemCallback> = adapter.videoAdItemCallback()
+
+    override fun appInstallCallback(): Observable<AdItemCallback> = adapter.appInstallCallback()
+
+    override fun showFacebookListenersInvitesDialog() {
+        facebookInvitesDialogPresenter.showForListeners(activity)
+    }
+
+    override fun showFacebookCreatorsInvitesDialog(trackUrl: String, trackUrn: Urn) {
+        facebookInvitesDialogPresenter.showForCreators(activity, trackUrl, trackUrn)
     }
 }

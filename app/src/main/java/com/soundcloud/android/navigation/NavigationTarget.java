@@ -11,6 +11,7 @@ import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
@@ -27,7 +28,8 @@ public abstract class NavigationTarget {
 
     // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
 
-    @IgnoreHashEquals public abstract Date creationDate();
+    @IgnoreHashEquals
+    public abstract Date creationDate();
 
     public abstract Optional<DeepLink> deeplink();
 
@@ -61,6 +63,8 @@ public abstract class NavigationTarget {
 
     public abstract Optional<OfflineSettingsMetaData> offlineSettingsMetaData();
 
+    public abstract Optional<UpsellContext> upsellContext();
+
     public abstract Builder toBuilder();
 
     // If you add a field here, be sure to add it to NavigationTargetMatcher, too!
@@ -82,7 +86,8 @@ public abstract class NavigationTarget {
                 .uiEvent(Optional.absent())
                 .notificationPreferencesMetaData(Optional.absent())
                 .recording(Optional.absent())
-                .offlineSettingsMetaData(Optional.absent());
+                .offlineSettingsMetaData(Optional.absent())
+                .upsellContext(Optional.absent());
     }
 
     /**
@@ -291,6 +296,10 @@ public abstract class NavigationTarget {
                 .build();
     }
 
+    public static NavigationTarget forUpgrade(UpsellContext upsellContext) {
+        return forNavigationDeeplink(DeepLink.UPGRADE, Screen.UNKNOWN).toBuilder().upsellContext(Optional.of(upsellContext)).build();
+    }
+
     NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }
@@ -341,6 +350,8 @@ public abstract class NavigationTarget {
         abstract Builder recording(Optional<Recording> recording);
 
         abstract Builder offlineSettingsMetaData(Optional<OfflineSettingsMetaData> offlineSettingsMetaData);
+
+        abstract Builder upsellContext(Optional<UpsellContext> upsellContext);
 
         Builder linkNavigationParameters(@Nullable LinkNavigationParameters parameters) {
             return linkNavigationParameters(Optional.fromNullable(parameters));

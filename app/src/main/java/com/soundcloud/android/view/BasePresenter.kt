@@ -33,7 +33,8 @@ abstract class BasePresenter<ViewModel, PageParams, in View : BaseView<AsyncLoad
     }
 
     open fun attachView(view: View) {
-        compositeDisposable.addAll(loader.flatMap(this::processAsyncLoaderState).subscribeWith(LambdaObserver.onNext(view::accept)),
+        compositeDisposable.addAll(loader.flatMap { this.processAsyncLoaderState(it).observeOn(AndroidSchedulers.mainThread()) }
+                                           .subscribeWith(LambdaObserver.onNext(view::accept)),
                                    view.requestContent().subscribeWithSubject(requestContentSignal),
                                    view.refreshSignal().subscribeWithSubject(refreshSignal),
                                    refreshError.subscribeWith(LambdaObserver.onNext(view::refreshErrorConsumer)))

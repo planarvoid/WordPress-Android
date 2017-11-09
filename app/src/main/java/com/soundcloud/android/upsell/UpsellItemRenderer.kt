@@ -15,7 +15,7 @@ abstract class UpsellItemRenderer<T> internal
 constructor(private val featureOperations: FeatureOperations) : CellRenderer<T> {
 
     private var listener: Listener<T>? = null
-    val loadingResult: PublishSubject<UpsellLoadingResult> = PublishSubject.create()
+    val itemCallback: PublishSubject<UpsellItemCallback> = PublishSubject.create()
 
     interface Listener<T> {
         fun onUpsellItemDismissed(position: Int, item: T)
@@ -25,7 +25,7 @@ constructor(private val featureOperations: FeatureOperations) : CellRenderer<T> 
 
     override fun createItemView(parent: ViewGroup): View {
         listener?.onUpsellItemCreated()
-        loadingResult.onNext(UpsellLoadingResult.Create)
+        itemCallback.onNext(UpsellItemCallback.Create)
         return parent
     }
 
@@ -40,7 +40,7 @@ constructor(private val featureOperations: FeatureOperations) : CellRenderer<T> 
         view.isEnabled = false
         view.findViewById<ImageButton>(R.id.close_button).setOnClickListener {
             listener?.onUpsellItemDismissed(position, item)
-            loadingResult.onNext(UpsellLoadingResult.Dismiss(position))
+            itemCallback.onNext(UpsellItemCallback.Dismiss(position))
         }
         bindActionButton(view, position, item)
     }
@@ -50,7 +50,7 @@ constructor(private val featureOperations: FeatureOperations) : CellRenderer<T> 
         setButtonText(view, action)
         action.setOnClickListener {
             listener?.onUpsellItemClicked(view.context, position, item)
-            loadingResult.onNext(UpsellLoadingResult.Click(view.context))
+            itemCallback.onNext(UpsellItemCallback.Click(view.context))
         }
     }
 
@@ -71,8 +71,8 @@ constructor(private val featureOperations: FeatureOperations) : CellRenderer<T> 
     protected abstract fun getTrialActionButtonText(context: Context, trialDays: Int): String
 }
 
-sealed class UpsellLoadingResult {
-    data class Dismiss(val position: Int) : UpsellLoadingResult()
-    data class Click(val context: Context) : UpsellLoadingResult()
-    object Create : UpsellLoadingResult()
+sealed class UpsellItemCallback {
+    data class Dismiss(val position: Int) : UpsellItemCallback()
+    data class Click(val context: Context) : UpsellItemCallback()
+    object Create : UpsellItemCallback()
 }

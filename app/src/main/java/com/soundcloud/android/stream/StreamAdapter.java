@@ -1,16 +1,16 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdItemResult;
+import com.soundcloud.android.ads.AdItemCallback;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.VideoAdItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
-import com.soundcloud.android.facebookinvites.FacebookLoadingResult;
+import com.soundcloud.android.facebookinvites.FacebookNotificationCallback;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
-import com.soundcloud.android.upsell.UpsellLoadingResult;
+import com.soundcloud.android.upsell.UpsellItemCallback;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
 
@@ -91,23 +91,23 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         return videoAdItemRenderer;
     }
 
-    Observable<FacebookLoadingResult> facebookListenerInvitesLoadingResult() {
-        return facebookListenerInvitesItemRenderer.getLoadingResult();
+    Observable<FacebookNotificationCallback<StreamItem.FacebookListenerInvites>> facebookListenerInvitesItemCallback() {
+        return facebookListenerInvitesItemRenderer.getNotificationCallback();
     }
 
-    Observable<FacebookLoadingResult> facebookCreatorInvitesLoadingResult() {
-        return facebookCreatorInvitesItemRenderer.getLoadingResult();
+    Observable<FacebookNotificationCallback<StreamItem.FacebookCreatorInvites>> facebookCreatorInvitesItemCallback() {
+        return facebookCreatorInvitesItemRenderer.getNotificationCallback();
     }
 
-    Observable<UpsellLoadingResult> upsellLoadingResult() {
-        return upsellItemRenderer.getLoadingResult();
+    Observable<UpsellItemCallback> upsellItemCallback() {
+        return upsellItemRenderer.getItemCallback();
     }
 
-    Observable<AdItemResult> videoAdItemClick() {
-        return videoAdItemRenderer.getAdItemClick();
+    Observable<AdItemCallback> videoAdItemCallback() {
+        return videoAdItemRenderer.getAdItemCallback();
     }
 
-    Observable<AdItemResult> appInstallClick() {
-        return appInstallItemRenderer.getAdItemClick();
+    Observable<AdItemCallback> appInstallCallback() {
+        return appInstallItemRenderer.getAdItemCallback();
     }
 }

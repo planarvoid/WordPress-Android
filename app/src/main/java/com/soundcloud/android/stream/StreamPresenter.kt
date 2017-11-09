@@ -10,7 +10,7 @@ import android.view.View
 import com.soundcloud.android.Actions
 import com.soundcloud.android.R
 import com.soundcloud.android.ads.AdData
-import com.soundcloud.android.ads.AdItemResult
+import com.soundcloud.android.ads.AdItemCallback
 import com.soundcloud.android.ads.AppInstallAd
 import com.soundcloud.android.ads.StreamAdsController
 import com.soundcloud.android.ads.VideoAd
@@ -28,7 +28,7 @@ import com.soundcloud.android.events.TrackingEvent
 import com.soundcloud.android.events.UIEvent
 import com.soundcloud.android.events.UpgradeFunnelEvent
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter
-import com.soundcloud.android.facebookinvites.FacebookLoadingResult
+import com.soundcloud.android.facebookinvites.FacebookNotificationCallback
 import com.soundcloud.android.image.ImagePauseOnScrollListener
 import com.soundcloud.android.main.Screen
 import com.soundcloud.android.model.Urn
@@ -52,7 +52,7 @@ import com.soundcloud.android.stream.perf.StreamMeasurements
 import com.soundcloud.android.stream.perf.StreamMeasurementsFactory
 import com.soundcloud.android.sync.timeline.TimelinePresenter
 import com.soundcloud.android.tracks.UpdatePlayableAdapterObserver
-import com.soundcloud.android.upsell.UpsellLoadingResult
+import com.soundcloud.android.upsell.UpsellItemCallback
 import com.soundcloud.android.utils.ErrorUtils
 import com.soundcloud.android.view.EmptyView
 import com.soundcloud.android.view.NewItemsIndicator
@@ -151,40 +151,40 @@ constructor(private val streamOperations: StreamOperations,
                         .flatMap { updateIndicatorFromMostRecent() }.subscribeWith(DefaultObserver()),
                 followingOperations.onUserFollowed().subscribeWith(LambdaObserver.onNext { swipeRefreshAttacher.forceRefresh() }),
                 followingOperations.onUserUnfollowed().subscribeWith(LambdaObserver.onNext { swipeRefreshAttacher.forceRefresh() }),
-                adapter.facebookListenerInvitesLoadingResult().subscribeWith(LambdaObserver.onNext {
+                adapter.facebookListenerInvitesItemCallback().subscribeWith(LambdaObserver.onNext {
                     when (it) {
-                        is FacebookLoadingResult.Click -> onListenerInvitesClicked(it.position)
-                        is FacebookLoadingResult.Dismiss -> onListenerInvitesDismiss(it.position)
-                        is FacebookLoadingResult.Load -> onListenerInvitesLoaded(it.hasPictures)
+                        is FacebookNotificationCallback.Click -> onListenerInvitesClicked(it.position)
+                        is FacebookNotificationCallback.Dismiss -> onListenerInvitesDismiss(it.position)
+                        is FacebookNotificationCallback.Load -> onListenerInvitesLoaded(it.hasPictures)
                     }
                 }),
-                adapter.facebookCreatorInvitesLoadingResult().subscribeWith(LambdaObserver.onNext {
+                adapter.facebookCreatorInvitesItemCallback().subscribeWith(LambdaObserver.onNext {
                     when (it) {
-                        is FacebookLoadingResult.Click -> onCreatorInvitesClicked(it.position)
-                        is FacebookLoadingResult.Dismiss -> onCreatorInvitesDismiss(it.position)
+                        is FacebookNotificationCallback.Click -> onCreatorInvitesClicked(it.position)
+                        is FacebookNotificationCallback.Dismiss -> onCreatorInvitesDismiss(it.position)
                     }
                 }),
-                adapter.upsellLoadingResult().subscribeWith(LambdaObserver.onNext {
+                adapter.upsellItemCallback().subscribeWith(LambdaObserver.onNext {
                     when (it) {
-                        is UpsellLoadingResult.Click -> onUpsellItemClicked(it.context)
-                        is UpsellLoadingResult.Dismiss -> onUpsellItemDismissed(it.position)
-                        is UpsellLoadingResult.Create -> onUpsellItemCreated()
+                        is UpsellItemCallback.Click -> onUpsellItemClicked(it.context)
+                        is UpsellItemCallback.Dismiss -> onUpsellItemDismissed(it.position)
+                        is UpsellItemCallback.Create -> onUpsellItemCreated()
                     }
                 }),
-                adapter.videoAdItemClick().subscribeWith(LambdaObserver.onNext {
+                adapter.videoAdItemCallback().subscribeWith(LambdaObserver.onNext {
                     when (it) {
-                        is AdItemResult.AdItemClick -> onAdItemClicked(it.adData)
-                        is AdItemResult.WhyAdsClicked -> onWhyAdsClicked(it.context)
-                        is AdItemResult.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
-                        is AdItemResult.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
+                        is AdItemCallback.AdItemClick -> onAdItemClicked(it.adData)
+                        is AdItemCallback.WhyAdsClicked -> onWhyAdsClicked(it.context)
+                        is AdItemCallback.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
+                        is AdItemCallback.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
                     }
                 }),
-                adapter.appInstallClick().subscribeWith(LambdaObserver.onNext {
+                adapter.appInstallCallback().subscribeWith(LambdaObserver.onNext {
                     when (it) {
-                        is AdItemResult.AdItemClick -> onAdItemClicked(it.adData)
-                        is AdItemResult.WhyAdsClicked -> onWhyAdsClicked(it.context)
-                        is AdItemResult.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
-                        is AdItemResult.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
+                        is AdItemCallback.AdItemClick -> onAdItemClicked(it.adData)
+                        is AdItemCallback.WhyAdsClicked -> onWhyAdsClicked(it.context)
+                        is AdItemCallback.VideoFullscreenClick-> onVideoFullscreenClicked(it.videoAd)
+                        is AdItemCallback.VideoTextureBind-> onVideoTextureBind(it.textureView, it.viewabilityLayer, it.videoAd)
                     }
                 })
         )

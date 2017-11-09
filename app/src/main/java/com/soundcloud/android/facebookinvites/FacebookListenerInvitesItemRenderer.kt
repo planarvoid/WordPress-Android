@@ -24,7 +24,7 @@ constructor(private val imageOperations: ImageOperations,
             private val facebookInvitesStorage: FacebookInvitesStorage,
             private val facebookApi: FacebookApi) : CellRenderer<StreamItem> {
 
-    val loadingResult: PublishSubject<FacebookLoadingResult> = PublishSubject.create()
+    val notificationCallback: PublishSubject<FacebookNotificationCallback<StreamItem.FacebookListenerInvites>> = PublishSubject.create()
 
     override fun createItemView(parent: ViewGroup): View {
         return LayoutInflater.from(parent.context)
@@ -34,7 +34,9 @@ constructor(private val imageOperations: ImageOperations,
     override fun bindItemView(position: Int, itemView: View, items: MutableList<StreamItem>) {
         val item = items[position] as? StreamItem.FacebookListenerInvites
         itemView.isEnabled = false
-        setClickListeners(itemView, position)
+        item?.let {
+            setClickListeners(itemView, position, it)
+        }
 
         if (item != null && item.friendPictureUrls.isPresent) {
             setContent(itemView, item)
@@ -77,15 +79,15 @@ constructor(private val imageOperations: ImageOperations,
         }
     }
 
-    private fun setClickListeners(itemView: View, position: Int) {
+    private fun setClickListeners(itemView: View, position: Int, facebookListenerInvites: StreamItem.FacebookListenerInvites) {
         itemView.close_button.setOnClickListener {
             facebookInvitesStorage.setDismissed()
-            loadingResult.onNext(FacebookLoadingResult.Dismiss(position))
+            notificationCallback.onNext(FacebookNotificationCallback.Dismiss(position, facebookListenerInvites))
         }
 
         itemView.action_button.setOnClickListener {
             facebookInvitesStorage.setClicked()
-            loadingResult.onNext(FacebookLoadingResult.Click(position))
+            notificationCallback.onNext(FacebookNotificationCallback.Click(position, facebookListenerInvites))
         }
     }
 
@@ -100,7 +102,7 @@ constructor(private val imageOperations: ImageOperations,
                 itemView.get()?.let {
                     val item = StreamItem.FacebookListenerInvites(Optional.of(friendPictureUrls))
                     items[position] = item
-                    loadingResult.onNext(FacebookLoadingResult.Load(item.hasPictures()))
+                    notificationCallback.onNext(FacebookNotificationCallback.Load(item.hasPictures()))
                     setContent(it, item)
                 }
             }
