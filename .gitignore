@@ -51,6 +51,9 @@ flank.tests
 # Test data
 tests-*.sqlite
 coverage-error.log
+build-stats.txt
+dependency-tree.txt
+scripts/lib/dex-method-counts.jar
 
 # Properties
 app/src/main/res/values/app_properties*.xml
