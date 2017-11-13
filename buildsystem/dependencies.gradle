@@ -182,6 +182,7 @@ ext {
           httpComponents         : "org.apache.httpcomponents:httpclient-android:4.3.5.1",
           mockito                : "org.mockito:mockito-core:$mockitoVersion",
           mockitoAndroid         : "org.mockito:mockito-android:$mockitoVersion",
+          firebaseScreenshotter  : "com.firebase:cloudtestingscreenshotter:1.0.0",
           mrLocalLocal           : project(':modules:mrlocallocal')
   ]
 }

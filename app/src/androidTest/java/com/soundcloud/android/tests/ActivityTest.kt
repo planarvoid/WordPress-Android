@@ -43,7 +43,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -54,15 +54,18 @@ import java.util.concurrent.TimeUnit
  * - Espresso (via [ActivityTestRule])
  * - WireMock for network stubbing concerns
  * - MrLocalLocal for verifying event tracking
- *g
- * and handles screenshots for test failures.
+ *
+ * Various JUnit rules:
+ * - RetryRule retries tests that failed
+ * - LogHandlerRule performs logging for each test start/end
+ * - ScreenshotRule handles taking screenshots in case the test fails
  */
-abstract class ActivityTest<T : Activity>
+open class ActivityTest<T : Activity>
 protected constructor(activityClass: Class<T>) {
     @JvmField @Rule val retryRule = RetryRule(BuildConfig.TEST_RETRY_COUNT)
     @JvmField @Rule val activityTestRule: ActivityTestRule<T> = ActivityTestRule(activityClass, true, false)
     @JvmField @Rule val logHandlerRule = LogHandlerRule()
-    @JvmField @Rule val screenshot = ScreenshotOnTestFailureRule()
+    @JvmField @Rule val screenshotRule = ScreenshotOnTestFailureRule()
 
     @JvmField protected val runConditions = RunConditionsHelper()
     protected val featureFlags: FeatureFlagsHelper
@@ -118,6 +121,7 @@ protected constructor(activityClass: Class<T>) {
         // Applies run conditions which can lead to the test not being run
         runConditions.apply()
         activityTestRule.launchActivity(activityIntent)
+        screenshotRule.start(activityTestRule.activity)
         setDefaultLocale()
 
         mainNavHelper = MainNavigationHelper(solo)
