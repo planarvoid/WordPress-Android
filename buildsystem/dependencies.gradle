@@ -167,7 +167,7 @@ ext {
           compileTesting                  : 'com.google.testing.compile:compile-testing:0.10',
           lintTests                       : "com.android.tools.lint:lint-tests:$lintVersion",
           lint                            : "com.android.tools.lint:lint:$lintVersion",
-          nebulatest                      : "com.netflix.nebula:nebula-test:6.0.1",
+          nebulatest                      : "com.netflix.nebula:nebula-test:6.1.2",
   ]
 
   acceptanceTestLibraries = [
