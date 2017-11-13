@@ -30,11 +30,9 @@ abstract class BaseFragment<T : Destroyable> : LightCycleSupportFragment<BaseFra
 
         if (savedInstanceState == null) {
             initializePresenter()
-            Log.d("vojta", "Saved state is null: $presenterKey, PresenterId: $presenterId, Presenter: ${presenter.toString()}")
         } else {
             presenterId = savedInstanceState.getLong(presenterKey)
             presenter = presenterManager.get(presenterId)
-            Log.d("vojta", "Presenter key: $presenterKey, PresenterId: $presenterId, Presenter: ${presenter.toString()}")
             if (presenter == null) {
                 ErrorUtils.log(Log.INFO, "com.soundcloud.android.view.BaseFragment.onCreate", "Reinitializing empty presenter")
                 initializePresenter()
