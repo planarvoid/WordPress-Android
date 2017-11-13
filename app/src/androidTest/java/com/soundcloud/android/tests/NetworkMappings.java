@@ -58,17 +58,17 @@ public class NetworkMappings {
     private static class SoundcloudNotifier implements Notifier {
         @Override
         public void info(String s) {
-            Log.i(s);
+            Log.i("WIREMOCK", s);
         }
 
         @Override
         public void error(String s) {
-            Log.e(s);
+            Log.e("WIREMOCK", s);
         }
 
         @Override
         public void error(String s, Throwable throwable) {
-            Log.e(s, throwable);
+            Log.e("WIREMOCK", s, throwable);
         }
     }
 }

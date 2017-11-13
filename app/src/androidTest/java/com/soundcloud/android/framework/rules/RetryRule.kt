@@ -10,6 +10,8 @@ import org.junit.runners.model.Statement
  * The given retry count indicates how often a test will be retried.
  * A retryCount of 0 means the test will only run once and won't be retried
  */
+const val RETRY_TIMEOUT_MS = 5000L
+
 class RetryRule(private val retryCount: Int) : TestRule {
     private val actualRuns = retryCount + 1
 
@@ -25,6 +27,7 @@ class RetryRule(private val retryCount: Int) : TestRule {
                     } catch (t: Throwable) {
                         throwableList.add(t)
                         Log.e("TESTRUNNER", "Run (${it + 1}/$actualRuns): ${description.displayName} failed with $t")
+                        Thread.sleep(RETRY_TIMEOUT_MS)
                     }
                 }
 

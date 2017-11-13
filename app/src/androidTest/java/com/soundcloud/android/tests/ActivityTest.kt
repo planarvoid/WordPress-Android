@@ -206,6 +206,7 @@ protected constructor(activityClass: Class<T>) {
     protected open fun removeActivityMonitors(instrumentation: Instrumentation) {}
 
     protected fun stopWiremock() {
+        Log.d("WIREMOCK", "Stopping Wiremock")
         wireMockServer.stop()
     }
 
