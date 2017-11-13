@@ -2,6 +2,7 @@ package com.soundcloud.android.commands;
 
 import static com.soundcloud.java.collections.Iterables.addAll;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
@@ -16,6 +17,7 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 
 public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? extends UserRecord>, WriteResult> {
@@ -67,8 +69,8 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                     user.getDescription().orNull(),
                     user.getImageUrlTemplate().orNull(),
                     user.getVisualUrlTemplate().orNull(),
-                    user.getArtistStationUrn().transform(urn -> urn.getContent()).orNull(),
-                    user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null,
+                    user.getArtistStationUrn().transform(Urn::getContent).orNull(),
+                    user.getCreatedAt().transform(Date::getTime).or(-1L),
                     user.isPro()
             ));
         }
@@ -97,7 +99,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
                                    .put(Users.CITY, user.getCity())
                                    .put(Users.FOLLOWERS_COUNT, user.getFollowersCount())
                                    .put(Users.FOLLOWINGS_COUNT, user.getFollowingsCount())
-                                   .put(Users.SIGNUP_DATE, user.getCreatedAt().isPresent() ? user.getCreatedAt().get().getTime() : null)
+                                   .put(Users.SIGNUP_DATE, user.getCreatedAt().transform(Date::getTime).or(-1L))
                                    .put(Users.IS_PRO, user.isPro());
     }
 
