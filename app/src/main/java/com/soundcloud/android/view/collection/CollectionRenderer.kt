@@ -60,6 +60,7 @@ class CollectionRenderer<ItemT, VH : RecyclerView.ViewHolder>(private val adapte
         swipeRefreshLayout?.apply {
             setSwipeableChildren(recyclerView)
             setOnRefreshListener { onRefresh.onNext(RxSignal.SIGNAL) }
+            setColorSchemeResources(R.color.soundcloud_orange)
         }
         recyclerView?.let {
             paginator = RecyclerViewPaginator(it) { this.nextPage() }
