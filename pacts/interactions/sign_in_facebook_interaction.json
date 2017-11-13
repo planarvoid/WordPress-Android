@@ -5,7 +5,8 @@
     "path": "/sign_in",
     "query": "client_id=dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf",
     "headers": {
-      "Device-Locale": "en"
+      "Device-Locale": "en",
+      "User-Agent": "SoundCloud/2017.11.01-release (api-mobile; Pact test suite)"
     },
     "body": {
       "auth_method": "facebook",
