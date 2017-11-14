@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.image.BitmapLoadingAdapter;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ViewError;
@@ -16,6 +17,7 @@ import com.soundcloud.java.strings.Strings;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.exceptions.MissingBackpressureException;
 import rx.exceptions.OnErrorThrowable;
 
 import android.os.Handler;
@@ -89,6 +91,8 @@ public final class ErrorUtils {
         }
         if (isFatalException(t)) {
             throw (RuntimeException) t;
+        } else if (ApplicationProperties.isAlphaOrBelow() && (t instanceof MissingBackpressureException || t instanceof io.reactivex.exceptions.MissingBackpressureException)) {
+            throw new IllegalStateException(t);
         } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
