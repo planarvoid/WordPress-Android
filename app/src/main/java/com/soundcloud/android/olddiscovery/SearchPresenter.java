@@ -219,8 +219,11 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void addSearchHistoryItem(String suggestion) {
-        SearchHistoryItem searchHistoryItem = new SearchHistoryItem(suggestion, System.currentTimeMillis());
-        searchHistoryStorage.addSearchHistoryItem(searchHistoryItem);
+        String trimmedSuggestion = suggestion.trim();
+        if (!trimmedSuggestion.isEmpty()) {
+            SearchHistoryItem searchHistoryItem = new SearchHistoryItem(trimmedSuggestion, System.currentTimeMillis());
+            searchHistoryStorage.addSearchHistoryItem(searchHistoryItem);
+        }
     }
 
     private void setupTransitionAnimation(Window window) {
