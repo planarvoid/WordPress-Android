@@ -1,6 +1,5 @@
 package com.soundcloud.android.comments
 
-
 import android.app.Dialog
 import android.os.Bundle
 import android.support.v7.app.AlertDialog

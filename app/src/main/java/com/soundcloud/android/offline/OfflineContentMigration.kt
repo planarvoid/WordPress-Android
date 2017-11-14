@@ -11,8 +11,6 @@ import com.soundcloud.propeller.PropellerDatabase
 import com.soundcloud.propeller.query.Query
 import javax.inject.Inject
 
-
-
 class OfflineContentMigration
 @Inject
 constructor(private val offlineServiceInitiator: OfflineServiceInitiator,

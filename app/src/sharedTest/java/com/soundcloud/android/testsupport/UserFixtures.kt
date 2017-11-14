@@ -1,4 +1,5 @@
 package com.soundcloud.android.testsupport
+
 import com.soundcloud.android.api.model.ApiUser
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.users.User

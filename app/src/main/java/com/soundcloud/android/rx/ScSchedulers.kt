@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-
 class ScSchedulers {
     companion object {
         private const val HIGH_PRIORITY_THREADS = 8
