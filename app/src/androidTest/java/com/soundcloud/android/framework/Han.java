@@ -21,6 +21,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.support.design.widget.AppBarLayout;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.Espresso;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -37,7 +38,6 @@ import java.util.List;
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
-@Deprecated
 public class Han {
     private static final int MAX_SCROLL_ATTEMPTS = 10;
 
@@ -279,8 +279,7 @@ public class Han {
     }
 
     public void goBack() {
-        solo.goBack();
-        solo.sleep(1);
+        Espresso.pressBack();
     }
 
     public Activity getCurrentActivity() {
@@ -419,6 +418,7 @@ public class Han {
         return instrumentation.getTargetContext().getResources();
     }
 
+    @Deprecated // prefer Espresso calls over Robotium
     private static class Chewbacca extends Solo {
 
         public Chewbacca(Instrumentation instrumentation) {
