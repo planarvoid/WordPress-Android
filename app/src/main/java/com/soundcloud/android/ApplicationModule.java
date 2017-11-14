@@ -42,7 +42,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.BottomNavigationViewPresenter;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationStateController;
-import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -394,11 +393,7 @@ public class ApplicationModule {
     @SuppressLint("VisibleForTests")
     @Provides
     static NavigationExecutor provideNavigationExecutor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigationExecutor();
-        } else {
-            return new NavigationExecutor();
-        }
+        return new NavigationExecutor();
     }
 
     @Provides
