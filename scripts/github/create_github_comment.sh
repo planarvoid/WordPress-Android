@@ -7,7 +7,7 @@
 
 COMMENT="$2"
 REQ_BODY=`jq -Rn --arg body "$COMMENT" '{body:$body}'`
-curl -verbose -X "POST" https://api.github.com/repos/soundcloud/android-listeners/issues/$1/comments \
+curl --silent -X "POST" https://api.github.com/repos/soundcloud/android-listeners/issues/$1/comments \
 -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
 -H "Content-Type: application/json" \
 -d "${REQ_BODY}"

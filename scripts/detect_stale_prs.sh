@@ -57,7 +57,7 @@ function notifyAndClosePR {
 
 function prContainsWarningComment {
     RESULT=false
-    curl "$1" -H "Authorization: token $GITHUB_ACCESS_TOKEN" | jq '.[] | select(.user.login == "sc-mobile-ci") | .body' > $FILE_BOT_COMMENTS
+    curl "$1" -H --silent "Authorization: token $GITHUB_ACCESS_TOKEN" | jq '.[] | select(.user.login == "sc-mobile-ci") | .body' > $FILE_BOT_COMMENTS
     while IFS='' read -r line || [[ -n "$line" ]]; do
         if [ "$line" == "Friendly reminder: *" ]
         then
