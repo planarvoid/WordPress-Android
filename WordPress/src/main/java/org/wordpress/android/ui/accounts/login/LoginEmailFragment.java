@@ -1,5 +1,8 @@
 package org.wordpress.android.ui.accounts.login;
 
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -8,14 +11,22 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.credentials.Credential;
+import com.google.android.gms.auth.api.credentials.CredentialPickerConfig;
+import com.google.android.gms.auth.api.credentials.HintRequest;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -39,21 +50,49 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static android.app.Activity.RESULT_OK;
+
 public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
-        implements TextWatcher, OnEditorCommitListener {
+        implements
+        TextWatcher,
+        OnEditorCommitListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     private static final String KEY_GOOGLE_EMAIL = "KEY_GOOGLE_EMAIL";
     private static final String KEY_IS_SOCIAL = "KEY_IS_SOCIAL";
     private static final String KEY_OLD_SITES_IDS = "KEY_OLD_SITES_IDS";
     private static final String KEY_REQUESTED_EMAIL = "KEY_REQUESTED_EMAIL";
+    private static final int REQUEST_CREDENTIALS = 9001;  // IT'S OVER 9000!
 
     public static final String TAG = "login_email_fragment_tag";
     public static final int MAX_EMAIL_LENGTH = 100;
 
     private ArrayList<Integer> mOldSitesIDs;
+    private GoogleApiClient mGoogleApiClient;
     private String mGoogleEmail;
     private String mRequestedEmail;
     private WPLoginInputRow mEmailInput;
     private boolean isSocialLogin;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CREDENTIALS) {
+            if (resultCode == RESULT_OK) {
+                Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
+                mEmailInput.getEditText().setText(credential.getId());
+                Toast.makeText(getActivity(),
+                        "Email: " + credential.getId() +
+                        "\n\nName: " + credential.getName() +
+                        "\n\nPhoto: " + credential.getProfilePictureUri(),
+                        Toast.LENGTH_LONG).show();
+            } else {
+                Log.e(LoginEmailFragment.class.getSimpleName(), "Hints: NOT OK");
+                Toast.makeText(getActivity(), "Hints Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected @LayoutRes int getContentLayout() {
@@ -92,6 +131,14 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
         autoFillFromBuildConfig("DEBUG_DOTCOM_LOGIN_EMAIL", mEmailInput.getEditText());
         mEmailInput.addTextChangedListener(this);
         mEmailInput.setOnEditorCommitListener(this);
+        mEmailInput.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    getCredentials();
+                }
+            }
+        });
 
         LinearLayout googleLoginButton = (LinearLayout) rootView.findViewById(R.id.login_google_button);
         googleLoginButton.setOnClickListener(new OnClickListener() {
@@ -151,11 +198,6 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
     }
 
     @Override
-    protected EditText getEditTextToFocusOnStart() {
-        return mEmailInput.getEditText();
-    }
-
-    @Override
     protected void onHelp() {
         if (mLoginListener != null) {
             if (isSocialLogin) {
@@ -188,6 +230,11 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WordPress) getActivity().getApplication()).component().inject(this);
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(LoginEmailFragment.this)
+                .enableAutoManage(getActivity(), 1, LoginEmailFragment.this)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
     }
 
     @Override
@@ -322,5 +369,37 @@ public class LoginEmailFragment extends LoginBaseFormFragment<LoginListener>
     protected void onLoginFinished() {
         AnalyticsUtils.trackAnalyticsSignIn(mAccountStore, mSiteStore, true);
         mLoginListener.loggedInViaSocialAccount(mOldSitesIDs);
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(LoginEmailFragment.class.getSimpleName(), "onConnected");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(LoginEmailFragment.class.getSimpleName(), "onConnectionFailed: " + connectionResult);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.d(LoginEmailFragment.class.getSimpleName(), "onConnectionSuspended: " + cause);
+    }
+
+    public void getCredentials() {
+        HintRequest hintRequest = new HintRequest.Builder()
+                .setHintPickerConfig(new CredentialPickerConfig.Builder()
+                        .setShowCancelButton(true)
+                        .build())
+                .setEmailAddressIdentifierSupported(true)
+                .build();
+
+        PendingIntent intent = Auth.CredentialsApi.getHintPickerIntent(mGoogleApiClient, hintRequest);
+
+        try {
+            startIntentSenderForResult(intent.getIntentSender(), REQUEST_CREDENTIALS, null, 0, 0, 0, null);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(LoginEmailFragment.class.getSimpleName(), "Could not start hint picker Intent", e);
+        }
     }
 }
