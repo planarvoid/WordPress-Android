@@ -98,7 +98,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        bindTrackView(trackItems.get(position), itemView, position, Optional.absent(), Optional.absent(), Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault());
+        bindTrackView(trackItems.get(position),
+                      itemView,
+                      position,
+                      Optional.absent(),
+                      Optional.absent(),
+                      Optional.absent(),
+                      Optional.absent(),
+                      Optional.absent(),
+                      ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindTrackView(final TrackItem track,
@@ -107,7 +115,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module,
                               ItemMenuOptions itemMenuOptions) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent(), itemMenuOptions);
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent(), Optional.absent(), Optional.absent(), itemMenuOptions);
+    }
+
+    public void bindSearchTrackView(final TrackItem track,
+                                    View itemView,
+                                    final int position,
+                                    Optional<Urn> queryUrn) {
+        bindTrackView(track, itemView, position, Optional.absent(), Optional.absent(), Optional.absent(), Optional.absent(), queryUrn, ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindPlaylistTrackView(final TrackItem track,
@@ -129,7 +144,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       Optional.of(Module.create(Module.PLAYLIST, position)),
                       pageUrn,
                       Optional.of(ActiveFooter.OFFLINE_STATE),
-                      ItemMenuOptions.Companion.createDefault());
+                      Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindSystemPlaylistTrackView(final TrackItem track,
@@ -144,7 +159,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       Optional.absent(),
                       pageUrn,
                       Optional.of(ActiveFooter.PLAYS_AND_POSTED),
-                      ItemMenuOptions.Companion.createDefault());
+                      Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
     public void bindOfflineTrackView(final TrackItem trackItem,
@@ -159,7 +174,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       module,
                       Optional.absent(),
                       Optional.of(ActiveFooter.OFFLINE_STATE),
-                      ItemMenuOptions.Companion.createDefault());
+                      Optional.absent(), ItemMenuOptions.Companion.createDefault());
     }
 
     private void bindTrackView(final TrackItem trackItem,
@@ -169,6 +184,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                Optional<Module> module,
                                Optional<Urn> pageUrn,
                                Optional<ActiveFooter> activeFooter,
+                               Optional<Urn> queryUrn,
                                ItemMenuOptions itemMenuOptions) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(trackItem.creatorName());
@@ -185,7 +201,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoBottom(trackItemView, trackItem, activeFooter);
 
         bindArtwork(trackItemView, trackItem);
-        bindOverFlow(trackItemView, trackItem, position, pageUrn, trackSourceInfo, module, itemMenuOptions);
+        bindOverFlow(trackItemView, trackItem, pageUrn, trackSourceInfo, module, queryUrn, itemMenuOptions);
     }
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
@@ -202,20 +218,20 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private void bindOverFlow(final TrackItemView itemView,
                               final TrackItem track,
-                              final int position,
                               final Optional<Urn> pageUrn,
                               final Optional<TrackSourceInfo> trackSourceInfo,
                               final Optional<Module> module,
+                              final Optional<Urn> queryUrn,
                               final ItemMenuOptions itemMenuOptions) {
-        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, pageUrn, trackSourceInfo, module, itemMenuOptions));
+        itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, pageUrn, trackSourceInfo, module, queryUrn, itemMenuOptions));
     }
 
     protected void showTrackItemMenu(View button,
                                      TrackItem track,
-                                     int position,
                                      Optional<Urn> pageUrn,
                                      Optional<TrackSourceInfo> trackSourceInfo,
                                      Optional<Module> module,
+                                     Optional<Urn> queryUrn,
                                      ItemMenuOptions itemMenuOptions) {
         Urn playlistUrn = null;
         Urn ownerUrn = null;
@@ -233,14 +249,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                     playlistUrn,
                                     ownerUrn,
                                     promotedSourceInfo,
-                                    getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo),
+                                    getEventContextMetaDataBuilder(track, module, pageUrn, trackSourceInfo, queryUrn),
                                     itemMenuOptions);
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(TrackItem item,
                                                                         Optional<Module> module,
                                                                         Optional<Urn> pageUrn,
-                                                                        Optional<TrackSourceInfo> trackSourceInfo) {
+                                                                        Optional<TrackSourceInfo> trackSourceInfo,
+                                                                        Optional<Urn> queryUrn) {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
@@ -254,10 +271,17 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
         if (trackSourceInfo.isPresent()) {
             builder.trackSourceInfo(trackSourceInfo.get());
+            if (trackSourceInfo.get().hasQuerySourceInfo()) {
+                builder.queryUrn(trackSourceInfo.get().getQuerySourceInfo().getQueryUrn());
+            }
         }
 
         if (pageUrn.isPresent()) {
             builder.pageUrn(pageUrn.get());
+        }
+
+        if (queryUrn.isPresent()) {
+            builder.queryUrn(queryUrn);
         }
 
         return builder;

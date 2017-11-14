@@ -134,12 +134,11 @@ public class SearchTracker {
     }
 
     private void publishItemClickEvent(Screen screen, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        final SearchResultItem searchResultItem = SearchResultItem.fromUrn(urn);
-        if (searchResultItem.isTrack()) {
+        if (urn.isTrack()) {
             eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
-        } else if (searchResultItem.isPlaylist()) {
+        } else if (urn.isPlaylist()) {
             eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
-        } else if (searchResultItem.isUser()) {
+        } else if (urn.isUser()) {
             eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
         }
     }

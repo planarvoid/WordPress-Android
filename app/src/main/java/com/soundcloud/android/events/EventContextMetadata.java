@@ -71,6 +71,10 @@ public abstract class EventContextMetadata {
 
         public abstract Builder queryUrn(Optional<Urn> queryUrn);
 
+        public Builder queryUrn(Urn queryUrn) {
+            return queryUrn(Optional.of(queryUrn));
+        }
+
         abstract Builder queryPosition(Optional<Integer> queryPosition);
 
         public Builder queryPosition(Integer queryPosition) {

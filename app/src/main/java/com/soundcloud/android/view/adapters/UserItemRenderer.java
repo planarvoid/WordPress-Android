@@ -38,7 +38,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         bindItemView(itemView, items.get(position));
     }
 
-    protected void bindItemView(View itemView, UserItem user) {
+    public void bindItemView(View itemView, UserItem user) {
         ((TextView) itemView.findViewById(R.id.list_item_header)).setText(user.name());
         setOptionalCountry(itemView, user);
         setupFollowersCount(itemView, user);

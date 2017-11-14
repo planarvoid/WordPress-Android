@@ -57,7 +57,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
-            final List<ListItem> searchableItems = searchResult.getItems();
+            final List<ListItem> searchableItems = SearchItemsTransformerKt.convertSearchResultToSearchItems(searchResult);
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
             final List<ListItem> searchItems = new ArrayList<>(searchableItems.size() + PREMIUM_ITEMS_DISPLAYED);
             if (premiumContent.isPresent()) {

@@ -13,11 +13,11 @@ import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_S
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -47,20 +47,10 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, ListItem>
         implements SearchUpsellRenderer.OnUpsellClickListener {
-
-    private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = searchResult -> {
-        final List<ListItem> sourceSetsItems = searchResult.getItems();
-        final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
-        for (ListItem source : sourceSetsItems) {
-            searchItems.add(source);
-        }
-        return searchItems;
-    };
 
     private final Func1<SearchResult, SearchResult> addUpsellItem = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -179,7 +169,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         adapter.setUpsellListener(this);
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
-                .from(searchResultObservable.map(addUpsellItem), TO_PRESENTATION_MODELS)
+                .from(searchResultObservable.map(addUpsellItem), SearchItemsTransformerKt::convertSearchResultToSearchItems)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();

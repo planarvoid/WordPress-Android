@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
@@ -67,14 +68,23 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistView(playlists.get(position), itemView, Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault());
+        bindPlaylistView(playlists.get(position), itemView, Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault(), Optional.absent());
     }
 
     public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, ItemMenuOptions itemMenuOptions) {
-        bindPlaylistView(playlist, itemView, module, Optional.absent(), itemMenuOptions);
+        bindPlaylistView(playlist, itemView, module, Optional.absent(), itemMenuOptions, Optional.absent());
     }
 
-    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, Optional<String> clickSource, ItemMenuOptions itemMenuOptions) {
+    public void bindSearchPlaylistView(PlaylistItem playlist, View itemView, Optional<Urn> queryUrn) {
+        bindPlaylistView(playlist, itemView, Optional.absent(), Optional.absent(), ItemMenuOptions.Companion.createDefault(), queryUrn);
+    }
+
+    public void bindPlaylistView(PlaylistItem playlist,
+                                 View itemView,
+                                 Optional<Module> module,
+                                 Optional<String> clickSource,
+                                 ItemMenuOptions itemMenuOptions,
+                                 Optional<Urn> queryUrn) {
         getTextView(itemView, R.id.list_item_header).setText(playlist.creatorName());
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.title());
 
@@ -82,17 +92,18 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module, clickSource, itemMenuOptions);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module, clickSource, itemMenuOptions, queryUrn);
     }
 
     private void setupOverFlow(final View button,
                                final PlaylistItem playlist,
                                final Optional<Module> module,
                                Optional<String> clickSource,
-                               ItemMenuOptions itemMenuOptions) {
+                               ItemMenuOptions itemMenuOptions,
+                               Optional<Urn> queryUrn) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button,
                                                                       playlist,
-                                                                      getEventContextMetaDataBuilder(playlist, module, clickSource),
+                                                                      getEventContextMetaDataBuilder(playlist, module, clickSource, queryUrn),
                                                                       itemMenuOptions));
     }
 
@@ -192,7 +203,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,
                                                                         Optional<Module> module,
-                                                                        Optional<String> clickSource) {
+                                                                        Optional<String> clickSource, Optional<Urn> queryUrn) {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
@@ -203,6 +214,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
         if (module.isPresent()) {
             builder.module(module.get());
+        }
+
+        if (queryUrn.isPresent()) {
+            builder.queryUrn(queryUrn);
         }
 
         return builder;
