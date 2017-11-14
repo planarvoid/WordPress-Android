@@ -4,8 +4,8 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackRepository;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
@@ -24,15 +24,15 @@ public class PlayQueueOperations {
 
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final ApiClientRxV2 apiClientRx;
     private final Scheduler scheduler;
 
     @Inject
     PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                        StoreTracksCommand storeTracksCommand, ApiClientRxV2 apiClientRx,
+                        TrackRepository trackRepository, ApiClientRxV2 apiClientRx,
                         @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.scheduler = scheduler;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
@@ -88,7 +88,7 @@ public class PlayQueueOperations {
                                              .build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
-                          .doOnSuccess(storeTracksCommand.toConsumer())
+                          .flatMap(trackRepository::asyncStoreTracks)
                           .subscribeOn(scheduler);
     }
 

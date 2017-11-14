@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.discovery.DiscoveryReadableStorage;
 import com.soundcloud.android.discovery.DiscoveryWritableStorage;
 import com.soundcloud.android.model.Urn;
@@ -41,7 +40,6 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
 
 
     @Mock private ApiClientRxV2 apiClient;
-    @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private DiscoveryWritableStorage discoveryWriteableStorage;
     @Mock private DiscoveryReadableStorage discoveryReadableStorage;
     @Mock private TrackRepository trackRepository;
@@ -71,7 +69,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         apiReturns(Single.never());
 
-        this.operations = new SystemPlaylistOperations(apiClient, storeTracksCommand, Schedulers.trampoline(), discoveryWriteableStorage, discoveryReadableStorage, trackRepository);
+        this.operations = new SystemPlaylistOperations(apiClient, Schedulers.trampoline(), discoveryWriteableStorage, discoveryReadableStorage, trackRepository);
     }
 
     @Test
@@ -84,7 +82,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertValue(systemPlaylist)
                   .assertNoErrors();
 
-        verify(storeTracksCommand, never()).call(any());
+        verify(trackRepository, never()).asyncStoreTracks(any());
         verify(discoveryWriteableStorage, never()).storeSystemPlaylist(any());
     }
 
@@ -100,7 +98,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertValue(mappedSystemPlaylist)
                   .assertNoErrors();
 
-        verify(storeTracksCommand).call(apiSystemPlaylist.tracks());
+        verify(trackRepository).storeTracks(apiSystemPlaylist.tracks());
         verify(discoveryWriteableStorage).storeSystemPlaylist(apiSystemPlaylist);
     }
 
@@ -113,7 +111,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertValue(systemPlaylistWithNoTracks)
                   .assertNoErrors();
 
-        verify(storeTracksCommand, never()).call(anyIterable());
+        verify(trackRepository, never()).storeTracks(anyIterable());
         verify(discoveryWriteableStorage, never()).storeSystemPlaylist(any(ApiSystemPlaylist.class));
     }
 
@@ -138,7 +136,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertNoValues()
                   .assertError(IOException.class);
 
-        verify(storeTracksCommand, never()).call(anyIterable());
+        verify(trackRepository, never()).asyncStoreTracks(anyIterable());
         verify(discoveryWriteableStorage, never()).storeSystemPlaylist(any(ApiSystemPlaylist.class));
     }
 
@@ -153,7 +151,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertValue(mappedSystemPlaylist)
                   .assertNoErrors();
 
-        verify(storeTracksCommand).call(apiSystemPlaylist.tracks());
+        verify(trackRepository).storeTracks(apiSystemPlaylist.tracks());
         verify(discoveryWriteableStorage).storeSystemPlaylist(apiSystemPlaylist);
     }
 
@@ -175,7 +173,7 @@ public class SystemPlaylistOperationsTest extends AndroidUnitTest {
                   .assertNoValues()
                   .assertError(IOException.class);
 
-        verify(storeTracksCommand, never()).call(anyIterable());
+        verify(trackRepository, never()).asyncStoreTracks(anyIterable());
         verify(discoveryWriteableStorage, never()).storeSystemPlaylist(any(ApiSystemPlaylist.class));
     }
 

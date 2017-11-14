@@ -1,5 +1,8 @@
 package com.soundcloud.android.profile;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -12,12 +15,15 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Collections;
 
 public class StoreProfileCommandTest extends StorageIntegrationTest {
+    @Mock private TrackRepository trackRepository;
     private StoreProfileCommand storeProfileCommand;
 
     @Before
@@ -25,7 +31,8 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
         final StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
         final StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller(), storeUsersCommand);
         final StorePlaylistsCommand storePlaylistsCommand = new StorePlaylistsCommand(propeller(), storeUsersCommand);
-        final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(storeTracksCommand,
+        doAnswer(invocationOnMock -> storeTracksCommand.call((Iterable<? extends TrackRecord>) invocationOnMock.getArguments()[0]).success()).when(trackRepository).storeTracks(any());
+        final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(trackRepository,
                                                                                                storePlaylistsCommand,
                                                                                                storeUsersCommand);
 

@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,10 +13,11 @@ import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
+import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -43,7 +45,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Mock private Context context;
     @Mock private PlayQueueStorage playQueueStorage;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueue playQueue;
@@ -58,7 +60,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         playQueueOperations = new PlayQueueOperations(context,
                                                       playQueueStorage,
-                                                      storeTracksCommand,
+                                                      trackRepository,
                                                       apiClientRx,
                                                       Schedulers.trampoline());
 
@@ -71,6 +73,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(
                 Urn.forUser(123L).toString());
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
+        doAnswer(invocationOnMock -> Single.just((Iterable<? extends TrackRecord>) invocationOnMock.getArguments()[0])).when(trackRepository).asyncStoreTracks(any());
 
         playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, Urn.forUser(2), 5);
     }
@@ -214,7 +217,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         playQueueOperations.relatedTracks(Urn.forTrack(1), false).test();
 
-        verify(storeTracksCommand).call(collection);
+        verify(trackRepository).asyncStoreTracks(collection);
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {

@@ -100,6 +100,14 @@ public class TrackRepository {
         }
     }
 
+    public <T extends Iterable<? extends TrackRecord>> Single<T> asyncStoreTracks(T tracks) {
+        return trackStorage.asyncStoreTracks(tracks).map(ignore -> tracks);
+    }
+
+    public boolean storeTracks(Iterable<? extends TrackRecord> tracks) {
+        return trackStorage.storeTracks(tracks).success();
+    }
+
     private Single<List<Track>> loadPlaylistTracks(Urn playlistUrn) {
         return loadPlaylistTracksCommand
                 .toSingle(playlistUrn)

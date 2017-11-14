@@ -7,17 +7,16 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.stations.StationsStorage;
 import com.soundcloud.android.stations.StoreStationCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserStorage;
 import com.soundcloud.android.utils.UriUtils;
-
 import io.reactivex.Maybe;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -37,7 +36,7 @@ class ResolveOperations {
 
     private final ApiClientRxV2 apiClient;
     private final Scheduler scheduler;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
     private final StoreStationCommand storeStationsCommand;
@@ -50,7 +49,7 @@ class ResolveOperations {
     @Inject
     ResolveOperations(ApiClientRxV2 apiClient,
                       @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                      StoreTracksCommand storeTracksCommand,
+                      TrackRepository trackRepository,
                       StorePlaylistsCommand storePlaylistsCommand,
                       StoreUsersCommand storeUsersCommand,
                       StoreStationCommand storeStationsCommand,
@@ -60,7 +59,7 @@ class ResolveOperations {
                       StationsStorage stationsStorage) {
         this.apiClient = apiClient;
         this.scheduler = scheduler;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
         this.storeStationsCommand = storeStationsCommand;
@@ -170,7 +169,7 @@ class ResolveOperations {
 
     private void storeResource(@NonNull ApiResolvedResource resource) {
         if (resource.getOptionalTrack().isPresent()) {
-            storeTracksCommand.call(Collections.singletonList(resource.getOptionalTrack().get()));
+            trackRepository.storeTracks(Collections.singletonList(resource.getOptionalTrack().get()));
         } else if (resource.getOptionalPlaylist().isPresent()) {
             storePlaylistsCommand.call(Collections.singletonList(resource.getOptionalPlaylist().get()));
         } else if (resource.getOptionalUser().isPresent()) {

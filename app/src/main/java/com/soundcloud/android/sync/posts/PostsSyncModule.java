@@ -3,10 +3,10 @@ package com.soundcloud.android.sync.posts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Module;
@@ -47,7 +47,7 @@ public abstract class PostsSyncModule {
                                              StorePlaylistsCommand storePlaylistsCommand,
                                              EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                                 fetchPlaylistsCommand, storePlaylistsCommand, eventBus);
+                                 fetchPlaylistsCommand, storePlaylistsCommand::call, eventBus);
     }
 
     @Provides
@@ -69,9 +69,9 @@ public abstract class PostsSyncModule {
                                      StorePostsCommand storePostsCommand,
                                      RemovePostsCommand removePostsCommand,
                                      FetchTracksCommand fetchTracksCommand,
-                                     StoreTracksCommand storeTracksCommand,
+                                     TrackRepository trackRepository,
                                      EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                                 fetchTracksCommand, storeTracksCommand, eventBus);
+                                 fetchTracksCommand, trackRepository::storeTracks, eventBus);
     }
 }

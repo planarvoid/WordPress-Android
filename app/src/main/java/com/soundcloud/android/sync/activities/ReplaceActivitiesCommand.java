@@ -1,10 +1,10 @@
 package com.soundcloud.android.sync.activities;
 
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
@@ -15,10 +15,10 @@ class ReplaceActivitiesCommand extends StoreActivitiesCommand {
     @Inject
     ReplaceActivitiesCommand(PropellerDatabase propeller,
                              StoreUsersCommand storeUsersCommand,
-                             StoreTracksCommand storeTracksCommand,
+                             TrackStorage trackStorage,
                              StorePlaylistsCommand storePlaylistsCommand,
                              StoreCommentCommand storeCommentCommand) {
-        super(propeller, storeUsersCommand, storeTracksCommand, storePlaylistsCommand, storeCommentCommand);
+        super(propeller, storeUsersCommand, trackStorage, storePlaylistsCommand, storeCommentCommand);
     }
 
     @Override

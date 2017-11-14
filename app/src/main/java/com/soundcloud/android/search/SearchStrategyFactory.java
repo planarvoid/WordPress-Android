@@ -15,7 +15,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
@@ -24,6 +23,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchOperations.ContentType;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemRepository;
 import com.soundcloud.java.collections.Lists;
@@ -74,7 +74,7 @@ class SearchStrategyFactory {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final StorePlaylistsCommand storePlaylistsCommand;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StoreUsersCommand storeUsersCommand;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
@@ -98,16 +98,6 @@ class SearchStrategyFactory {
             return input.copyWithSearchableItems(result);
         }
     };
-
-    private final Action1<SearchModelCollection<ApiTrack>> cachePremiumTracks =
-            new Action1<SearchModelCollection<ApiTrack>>() {
-                @Override
-                public void call(SearchModelCollection<ApiTrack> apiTrackSearchItems) {
-                    if (apiTrackSearchItems.premiumContent().isPresent()) {
-                        storeTracksCommand.call(apiTrackSearchItems.premiumContent().get());
-                    }
-                }
-            };
 
     private final Action1<SearchModelCollection<ApiPlaylist>> cachePremiumPlaylists =
             new Action1<SearchModelCollection<ApiPlaylist>>() {
@@ -143,7 +133,7 @@ class SearchStrategyFactory {
     SearchStrategyFactory(ApiClientRx apiClientRx,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           StorePlaylistsCommand storePlaylistsCommand,
-                          StoreTracksCommand storeTracksCommand,
+                          TrackRepository trackRepository,
                           StoreUsersCommand storeUsersCommand,
                           CacheUniversalSearchCommand cacheUniversalSearchCommand,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
@@ -152,7 +142,7 @@ class SearchStrategyFactory {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storePlaylistsCommand = storePlaylistsCommand;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storeUsersCommand = storeUsersCommand;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
@@ -225,10 +215,18 @@ class SearchStrategyFactory {
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                               .subscribeOn(scheduler)
-                              .doOnNext(storeTracksCommand.toAction1())
-                              .doOnNext(cachePremiumTracks)
+                              .flatMap(apiTrackSearchItems -> RxJava.toV1Observable(trackRepository.asyncStoreTracks(apiTrackSearchItems)))
+                              .flatMap(this::storePremiumTracks)
                               .map(searchResult -> searchResult.transform(entityItemCreator::trackItem))
                               .map(TO_SEARCH_RESULT);
+        }
+
+        private Observable<SearchModelCollection<ApiTrack>> storePremiumTracks(SearchModelCollection<ApiTrack> apiTrackSearchItems) {
+            if (apiTrackSearchItems.premiumContent().isPresent()) {
+                return RxJava.toV1Observable(trackRepository.asyncStoreTracks(apiTrackSearchItems.premiumContent().get()));
+            } else {
+                return Observable.just(apiTrackSearchItems);
+            }
         }
     }
 

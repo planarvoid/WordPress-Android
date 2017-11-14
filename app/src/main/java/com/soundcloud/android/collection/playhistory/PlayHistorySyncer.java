@@ -3,11 +3,11 @@ package com.soundcloud.android.collection.playhistory;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
     private final FetchPlayHistoryCommand fetchPlayHistoryCommand;
     private final FetchTracksCommand fetchTracksCommand;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final EventBus eventBus;
 
     @Inject
@@ -31,13 +31,13 @@ class PlayHistorySyncer implements Callable<Boolean> {
                       FetchPlayHistoryCommand fetchPlayHistoryCommand,
                       PushPlayHistoryCommand pushPlayHistoryCommand,
                       FetchTracksCommand fetchTracksCommand,
-                      StoreTracksCommand storeTracksCommand,
+                      TrackRepository trackRepository,
                       EventBus eventBus) {
         this.playHistoryStorage = playHistoryStorage;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.fetchPlayHistoryCommand = fetchPlayHistoryCommand;
         this.fetchTracksCommand = fetchTracksCommand;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.eventBus = eventBus;
     }
 
@@ -92,7 +92,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
     private void preloadNewTracks(List<PlayHistoryRecord> addRecords) throws Exception {
         List<Urn> urns = new ArrayList<>(new HashSet<>(transform(addRecords, PlayHistoryRecord.TO_TRACK_URN)));
         Collection<ApiTrack> tracks = fetchTracksCommand.with(urns).call();
-        storeTracksCommand.call(tracks);
+        trackRepository.storeTracks(tracks);
     }
 
 }

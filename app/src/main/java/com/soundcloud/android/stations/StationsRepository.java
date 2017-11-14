@@ -1,12 +1,12 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DiffUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
@@ -27,7 +27,7 @@ public class StationsRepository {
     private final StationsStorage stationsStorage;
     private final Scheduler scheduler;
     private final StationsApi stationsApi;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StoreStationCommand storeStationCommand;
     private final SyncStateStorage syncStateStorage;
     private final SyncInitiator syncInitiator;
@@ -36,14 +36,14 @@ public class StationsRepository {
     public StationsRepository(StationsStorage stationsStorage,
                               @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                               StationsApi stationsApi,
-                              StoreTracksCommand storeTracksCommand,
+                              TrackRepository trackRepository,
                               StoreStationCommand storeStationCommand,
                               SyncStateStorage syncStateStorage,
                               SyncInitiator syncInitiator) {
         this.stationsStorage = stationsStorage;
         this.scheduler = scheduler;
         this.stationsApi = stationsApi;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storeStationCommand = storeStationCommand;
         this.syncStateStorage = syncStateStorage;
         this.syncInitiator = syncInitiator;
@@ -139,7 +139,7 @@ public class StationsRepository {
     }
 
     private void storeStationTracks(ApiStation apiStation) {
-        storeTracksCommand.call(apiStation.getTrackRecords());
+        trackRepository.storeTracks(apiStation.getTrackRecords());
     }
 
     private void storeStation(StationRecord stationRecord) {

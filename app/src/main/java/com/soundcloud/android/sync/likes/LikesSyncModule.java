@@ -6,10 +6,10 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -41,7 +41,7 @@ public abstract class LikesSyncModule {
             @Named(TRACK_LIKE_DELETIONS) PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition,
             LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-            StoreTracksCommand storeTracks,
+            TrackRepository trackRepository,
             StoreLikesCommand storeLikes,
             @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes,
             EventBus eventBus) {
@@ -52,7 +52,7 @@ public abstract class LikesSyncModule {
                                  loadLikes,
                                  loadLikesPendingAddition,
                                  loadLikesPendingRemoval,
-                                 storeTracks,
+                                 trackRepository::storeTracks,
                                  storeLikes,
                                  removeLikes,
                                  eventBus,
@@ -80,7 +80,7 @@ public abstract class LikesSyncModule {
                                  loadLikes,
                                  loadLikesPendingAddition,
                                  loadLikesPendingRemoval,
-                                 storePlaylists,
+                                 storePlaylists::call,
                                  storeLikes,
                                  removeLikes,
                                  eventBus,

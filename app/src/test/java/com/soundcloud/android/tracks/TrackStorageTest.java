@@ -5,6 +5,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
@@ -26,7 +28,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new TrackStorage(propellerRxV2());
+        storage = new TrackStorage(propellerRxV2(), new StoreTracksCommand(propeller(), new StoreUsersCommand(propeller())));
     }
 
     @Test

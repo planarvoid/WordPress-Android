@@ -5,10 +5,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.android.testsupport.TrackFixtures;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class PlayHistorySyncerTest {
     @Mock private FetchPlayHistoryCommand fetchPlayHistoryCommand;
     @Mock private PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private FetchTracksCommand fetchTracksCommand;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private EventBus eventBus;
 
     private PlayHistorySyncer syncer;
@@ -43,7 +43,7 @@ public class PlayHistorySyncerTest {
         when(fetchPlayHistoryCommand.call()).thenReturn(REMOTE);
 
         syncer = new PlayHistorySyncer(playHistoryStorage, fetchPlayHistoryCommand, pushPlayHistoryCommand,
-                                       fetchTracksCommand, storeTracksCommand, eventBus);
+                                       fetchTracksCommand, trackRepository, eventBus);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class PlayHistorySyncerTest {
         syncer.call();
 
         verify(fetchTracksCommand).with(trackUrns).call();
-        verify(storeTracksCommand).call(tracks);
+        verify(trackRepository).storeTracks(tracks);
     }
 
     @Test

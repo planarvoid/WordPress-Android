@@ -36,6 +36,7 @@ import static com.soundcloud.java.collections.MoreCollections.transform;
 import static java.lang.String.format;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.TrackUrnMapperV2;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -48,6 +49,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.QueryResult;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import io.reactivex.Maybe;
@@ -70,6 +72,7 @@ public class TrackStorage {
     private static final TrackUrnMapperV2 TRACK_URN_MAPPER = new TrackUrnMapperV2();
 
     private final PropellerRxV2 propeller;
+    private final StoreTracksCommand storeTracksCommand;
     private final Function<List<Urn>, Observable<QueryResult>> fetchTracks = new Function<List<Urn>, Observable<QueryResult>>() {
         @Override
         public Observable<QueryResult> apply(List<Urn> urns) {
@@ -86,8 +89,9 @@ public class TrackStorage {
     };
 
     @Inject
-    public TrackStorage(PropellerRxV2 propeller) {
+    public TrackStorage(PropellerRxV2 propeller, StoreTracksCommand storeTracksCommand) {
         this.propeller = propeller;
+        this.storeTracksCommand = storeTracksCommand;
     }
 
     @SuppressWarnings("PMD.SimplifyStartsWith")
@@ -141,6 +145,14 @@ public class TrackStorage {
                         .map(result -> result.toList(new TrackDescriptionMapper()))
                         .flatMap(Observable::fromIterable)
                         .first(Optional.absent());
+    }
+
+    public WriteResult storeTracks(Iterable<? extends TrackRecord> tracks) {
+        return storeTracksCommand.call(tracks);
+    }
+
+    public Single<WriteResult> asyncStoreTracks(Iterable<? extends TrackRecord> tracks) {
+        return storeTracksCommand.toSingle(tracks);
     }
 
     private Query buildTrackDescriptionQuery(Urn trackUrn) {

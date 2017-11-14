@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync.entities;
 
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
@@ -9,6 +8,7 @@ import com.soundcloud.android.sync.commands.FetchUsersCommand;
 import com.soundcloud.android.sync.commands.PublishPlaylistUpdateEventCommand;
 import com.soundcloud.android.sync.commands.PublishTrackUpdateEventCommand;
 import com.soundcloud.android.sync.commands.PublishUserUpdateEventCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import dagger.Module;
 import dagger.Provides;
 
@@ -24,19 +24,19 @@ public abstract class EntitySyncModule {
 
     @Provides
     @Named(TRACKS_SYNC)
-    static EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks, PublishTrackUpdateEventCommand publishTracksUpdateEvent) {
-        return new EntitySyncJob(fetchTracks, storeTracks, publishTracksUpdateEvent);
+    static EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, TrackRepository trackRepository, PublishTrackUpdateEventCommand publishTracksUpdateEvent) {
+        return new EntitySyncJob<>(fetchTracks, trackRepository::storeTracks, publishTracksUpdateEvent);
     }
 
     @Provides
     @Named(PLAYLISTS_SYNC)
     static EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists, PublishPlaylistUpdateEventCommand publishPlaylistUpdateEvent) {
-        return new EntitySyncJob(fetchPlaylists, storePlaylists, publishPlaylistUpdateEvent);
+        return new EntitySyncJob<>(fetchPlaylists, storePlaylists::call, publishPlaylistUpdateEvent);
     }
 
     @Provides
     @Named(USERS_SYNC)
     static EntitySyncJob provideUsersSyncJob(FetchUsersCommand fetchUsers, StoreUsersCommand storeUsers, PublishUserUpdateEventCommand publishUserUpdateEvent) {
-        return new EntitySyncJob(fetchUsers, storeUsers, publishUserUpdateEvent);
+        return new EntitySyncJob<>(fetchUsers, storeUsers::call, publishUserUpdateEvent);
     }
 }

@@ -1,13 +1,12 @@
 package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropellerWriteException;
-import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.functions.Consumer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private final LoadLikesCommand loadLikes;
     private final LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
-    private final DefaultWriteStorageCommand<Iterable<ApiModel>, WriteResult> storeLikedResources;
+    private final Consumer<Iterable<ApiModel>> storeLikedResources;
     private final StoreLikesCommand storeLikes;
     private final RemoveLikesCommand removeLikes;
     private final EventBus eventBus;
@@ -45,7 +44,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 LoadLikesCommand loadLikes,
                 LoadLikesPendingAdditionCommand loadLikesPendingAddition,
                 LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-                DefaultWriteStorageCommand storeLikedResources,
+                Consumer<Iterable<ApiModel>> storeLikedResources,
                 StoreLikesCommand storeLikes,
                 RemoveLikesCommand removeLikes,
                 EventBus eventBus,
@@ -126,7 +125,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 urns.add(like.getTargetUrn());
             }
             final Collection<ApiModel> apiModels = fetchLikedResources.with(urns).call();
-            storeLikedResources.call(apiModels);
+            storeLikedResources.accept(apiModels);
         }
     }
 

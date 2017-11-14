@@ -4,13 +4,13 @@ import static com.soundcloud.android.events.RepostsStatusEvent.RepostStatus.crea
 import static com.soundcloud.android.events.RepostsStatusEvent.RepostStatus.createUnposted;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.functions.Consumer;
 
 import android.text.TextUtils;
 
@@ -36,7 +36,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     private final StorePostsCommand storePostsCommand;
     private final RemovePostsCommand removePostsCommand;
     private final BulkFetchCommand<ApiModel, ApiModel> fetchPostResources;
-    private final WriteStorageCommand storePostResources;
+    private final Consumer<Iterable<ApiModel>> storePostResources;
     private final EventBus eventBus;
 
     public PostsSyncer(LoadLocalPostsCommand loadLocalPosts,
@@ -44,7 +44,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                        StorePostsCommand storePostsCommand,
                        RemovePostsCommand removePostsCommand,
                        BulkFetchCommand<ApiModel, ApiModel> fetchPostResources,
-                       WriteStorageCommand storePostResources,
+                       Consumer<Iterable<ApiModel>> storePostResources,
                        EventBus eventBus) {
         this.loadLocalPosts = loadLocalPosts;
         this.fetchRemotePosts = fetchRemotePosts;
@@ -135,7 +135,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
             urns.add(like.getTargetUrn());
         }
         final Collection<ApiModel> apiResources = fetchPostResources.with(urns).call();
-        storePostResources.call(apiResources);
+        storePostResources.accept(apiResources);
     }
 
     private Set<PostRecord> getSetDifference(Set<PostRecord> set, Set<PostRecord> without) {

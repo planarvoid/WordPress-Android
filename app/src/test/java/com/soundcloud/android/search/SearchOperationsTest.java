@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +25,6 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
@@ -37,6 +37,8 @@ import com.soundcloud.android.testsupport.UserFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemRepository;
@@ -74,7 +76,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
@@ -97,13 +99,14 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations = new SearchOperations(new SearchStrategyFactory(apiClientRx,
                                                                     Schedulers.immediate(),
                                                                     storePlaylistsCommand,
-                                                                    storeTracksCommand,
+                                                                    trackRepository,
                                                                     storeUsersCommand,
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
                                                                     ModelFixtures.entityItemCreator(),
                                                                     userItemRepository),
                                           trackItemRepository);
+        doAnswer(invocationOnMock -> Single.just((Iterable<? extends TrackRecord>) invocationOnMock.getArguments()[0])).when(trackRepository).asyncStoreTracks(any());
     }
 
     @Test
@@ -111,8 +114,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -120,8 +123,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.absent(), SearchType.TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -129,9 +132,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.absent(), SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
-                                                                                  ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                                  ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -139,8 +142,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.absent(), SearchType.ALBUMS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALBUMS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -148,8 +151,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_USERS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -157,8 +160,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALL.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -166,8 +169,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_TRACKS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -175,8 +178,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -184,8 +187,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.ALBUMS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALBUMS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -193,8 +196,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchResult("query", Optional.absent(), SearchType.USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
-                                                                           .withQueryParam("limit", "30")
-                                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -301,13 +304,14 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         operations.searchResult("query", Optional.absent(), SearchType.TRACKS).subscribe(subscriber);
 
-        verify(storeTracksCommand).call(tracks);
+        verify(trackRepository).asyncStoreTracks(tracks);
     }
 
     @Test
     public void shouldCachePremiumTracksSearchResult() {
         final List<ApiTrack> apiTracks = TrackFixtures.apiTracks(2);
-        final SearchModelCollection<ApiTrack> premiumTracks = new SearchModelCollection<>(apiTracks);
+        final List<ApiTrack> premiumApiTracks = TrackFixtures.apiTracks(2);
+        final SearchModelCollection<ApiTrack> premiumTracks = new SearchModelCollection<>(premiumApiTracks);
         final SearchModelCollection<ApiTrack> tracks = new SearchModelCollection<>(apiTracks,
                                                                                    Collections.emptyMap(),
                                                                                    "query",
@@ -318,11 +322,12 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
                                         isA(TypeToken.class))).thenReturn(Observable.just(tracks));
+        doAnswer(invocationOnMock -> Single.just(((SearchModelCollection<ApiTrack>) invocationOnMock.getArguments()[0]))).when(trackRepository).asyncStoreTracks(any());
 
         operations.searchResult("query", Optional.absent(), SearchType.TRACKS).subscribe(subscriber);
 
-        verify(storeTracksCommand).call(tracks);
-        verify(storeTracksCommand).call(premiumTracks);
+        verify(trackRepository).asyncStoreTracks(tracks);
+        verify(trackRepository).asyncStoreTracks(premiumTracks);
     }
 
     @Test
@@ -764,12 +769,12 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     private <T> SearchModelCollection<T> mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {
         final SearchModelCollection<T> searchModelCollection = new SearchModelCollection<>(searchItems,
-                                                                              Collections.emptyMap(),
-                                                                              "queryUrn",
-                                                                              apiPremiumItems,
-                                                                              TRACK_RESULTS_COUNT,
-                                                                              PLAYLIST_RESULTS_COUNT,
-                                                                              USER_RESULTS_COUNT);
+                                                                                           Collections.emptyMap(),
+                                                                                           "queryUrn",
+                                                                                           apiPremiumItems,
+                                                                                           TRACK_RESULTS_COUNT,
+                                                                                           PLAYLIST_RESULTS_COUNT,
+                                                                                           USER_RESULTS_COUNT);
         final Observable observable = Observable.just(searchModelCollection);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
         return searchModelCollection;

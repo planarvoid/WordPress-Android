@@ -9,13 +9,13 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Joiner;
@@ -37,15 +37,15 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
     private final Iterable<ApiStreamItem> streamItems;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackStorage trackStorage;
 
     SoundStreamInsertTransaction(Iterable<ApiStreamItem> streamItems,
                                  @Provided StoreUsersCommand storeUsersCommand,
-                                 @Provided StoreTracksCommand storeTracksCommand,
+                                 @Provided TrackStorage trackStorage,
                                  @Provided StorePlaylistsCommand storePlaylistsCommand) {
         this.streamItems = streamItems;
         this.storeUsersCommand = storeUsersCommand;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackStorage = trackStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
     }
 
@@ -97,7 +97,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
             }
         }
         step(storeUsersCommand.call(users));
-        step(storeTracksCommand.call(tracks));
+        step(trackStorage.storeTracks(tracks));
         step(storePlaylistsCommand.call(playlists));
     }
 

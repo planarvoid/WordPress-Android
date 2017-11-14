@@ -10,13 +10,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.functions.Consumer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ public class PostsSyncerTest {
     @Mock private StorePostsCommand storePlaylistPosts;
     @Mock private RemovePostsCommand removePlaylistPosts;
     @Mock private BulkFetchCommand<ApiPlaylist, ApiPlaylist> fetchPostResources;
-    @Mock private StorePlaylistsCommand storePostResources;
+    @Mock private Consumer<Iterable<ApiPlaylist>> storePostResources;
     private TestEventBus eventBus = new TestEventBus();
 
     private PostRecord post1;
@@ -167,7 +167,7 @@ public class PostsSyncerTest {
 
         assertThat(syncer.call()).isTrue();
 
-        verify(storePostResources).call(playlists);
+        verify(storePostResources).accept(playlists);
 
     }
 

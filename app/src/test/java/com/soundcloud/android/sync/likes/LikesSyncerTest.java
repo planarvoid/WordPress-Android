@@ -12,16 +12,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.functions.Consumer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,21 +49,20 @@ public class LikesSyncerTest {
     @Mock private LoadLikesCommand loadLikes;
     @Mock private LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     @Mock private LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
-    @Mock private BulkFetchCommand fetchLikedResources;
+    @Mock private BulkFetchCommand<ApiTrack, ApiTrack> fetchLikedResources;
     @Mock private PushLikesCommand<ApiLike> pushLikeAdditions;
     @Mock private PushLikesCommand<ApiDeletedLike> pushLikeDeletions;
-    @Mock private StoreTracksCommand storeLikedResources;
+    @Mock private Consumer<Iterable<ApiTrack>> storeLikedResources;
     @Mock private StoreLikesCommand storeLikes;
     @Mock private RemoveLikesCommand removeLikes;
-    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<Collection<LikeRecord>> removedLikes;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setup() throws Exception {
-        syncer = new LikesSyncer(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
-                                 loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
-                                 removeLikes, eventBus, TYPE_TRACK);
+        syncer = new LikesSyncer<>(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
+                                   loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
+                                   removeLikes, eventBus, TYPE_TRACK);
         trackLike = ModelFixtures.apiTrackLike();
     }
 
@@ -277,7 +275,7 @@ public class LikesSyncerTest {
 
         assertThat(syncer.call()).isTrue();
 
-        verify(storeLikedResources).call(tracks);
+        verify(storeLikedResources).accept(tracks);
     }
 
     @Test
@@ -306,10 +304,6 @@ public class LikesSyncerTest {
     }
 
     private void withLocalTrackLikes(ApiLike... likes) throws Exception {
-        when(loadLikes.call(TYPE_TRACK)).thenReturn(asList(likes));
-    }
-
-    private void withLocalTrackLikes(LikeRecord... likes) throws Exception {
         when(loadLikes.call(TYPE_TRACK)).thenReturn(asList(likes));
     }
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.sync.activities;
 import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.comments.StoreCommentCommand;
@@ -13,6 +12,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns.Activities;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -26,19 +26,19 @@ import java.util.Set;
 public class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
 
     private final StoreUsersCommand storeUsersCommand;
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackStorage trackStorage;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreCommentCommand storeCommentCommand;
 
     @Inject
     StoreActivitiesCommand(PropellerDatabase propeller,
                            StoreUsersCommand storeUsersCommand,
-                           StoreTracksCommand storeTracksCommand,
+                           TrackStorage trackStorage,
                            StorePlaylistsCommand storePlaylistsCommand,
                            StoreCommentCommand storeCommentCommand) {
         super(propeller);
         this.storeUsersCommand = storeUsersCommand;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackStorage = trackStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeCommentCommand = storeCommentCommand;
     }
@@ -58,7 +58,7 @@ public class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<
 
         @Override
         public void steps(PropellerDatabase propeller) {
-            storeDependencies();
+            storeDependencies(propeller);
 
             for (ApiActivityItem activityItem : activities) {
                 handleLikeActivity(propeller, activityItem);
@@ -117,7 +117,7 @@ public class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<
             }
         }
 
-        private void storeDependencies() {
+        private void storeDependencies(PropellerDatabase propeller) {
             final Set<UserRecord> users = new HashSet<>();
             final Set<TrackRecord> tracks = new HashSet<>();
             final Set<PlaylistRecord> playlists = new HashSet<>();
@@ -131,7 +131,7 @@ public class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<
                 step(storeUsersCommand.call(users));
             }
             if (!tracks.isEmpty()) {
-                step(storeTracksCommand.call(tracks));
+                step(trackStorage.storeTracks(tracks));
             }
             if (!playlists.isEmpty()) {
                 step(storePlaylistsCommand.call(playlists));

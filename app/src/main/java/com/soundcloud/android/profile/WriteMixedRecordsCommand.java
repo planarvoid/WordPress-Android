@@ -2,13 +2,13 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
 
@@ -18,15 +18,15 @@ import java.util.List;
 
 public class WriteMixedRecordsCommand extends Command<Iterable<? extends RecordHolder>, Boolean> {
 
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
 
     @Inject
-    protected WriteMixedRecordsCommand(StoreTracksCommand storeTracksCommand,
+    protected WriteMixedRecordsCommand(TrackRepository trackRepository,
                                        StorePlaylistsCommand storePlaylistsCommand,
                                        StoreUsersCommand storeUsersCommand) {
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
     }
@@ -48,7 +48,7 @@ public class WriteMixedRecordsCommand extends Command<Iterable<? extends RecordH
                 users.add(((UserRecordHolder) entity).getUserRecord());
             }
         }
-        return ((tracks.isEmpty() || storeTracksCommand.call(tracks).success()) &&
+        return ((tracks.isEmpty() || trackRepository.storeTracks(tracks)) &&
                 (playlists.isEmpty() || storePlaylistsCommand.call(playlists).success()) &&
                 (users.isEmpty() || storeUsersCommand.call(users).success()));
     }

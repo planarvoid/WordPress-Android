@@ -8,29 +8,29 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
+import com.soundcloud.android.tracks.TrackRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CacheUniversalSearchCommandTest {
 
     private CacheUniversalSearchCommand command;
 
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
 
     @Before
     public void setup() {
-        command = new CacheUniversalSearchCommand(storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+        command = new CacheUniversalSearchCommand(trackRepository, storePlaylistsCommand, storeUsersCommand);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class CacheUniversalSearchCommandTest {
         final ApiTrack track = TrackFixtures.apiTrack();
         command.call(singletonList(new ApiUniversalSearchItem(null, null, track)));
 
-        verify(storeTracksCommand).call(singletonList(track));
+        verify(trackRepository).storeTracks(singletonList(track));
         verifyZeroInteractions(storePlaylistsCommand);
         verifyZeroInteractions(storeUsersCommand);
     }
@@ -49,7 +49,7 @@ public class CacheUniversalSearchCommandTest {
         command.call(singletonList(new ApiUniversalSearchItem(null, playlist, null)));
 
         verify(storePlaylistsCommand).call(singletonList(playlist));
-        verifyZeroInteractions(storeTracksCommand);
+        verifyZeroInteractions(trackRepository);
         verifyZeroInteractions(storeUsersCommand);
     }
 
@@ -59,7 +59,7 @@ public class CacheUniversalSearchCommandTest {
         command.call(singletonList(new ApiUniversalSearchItem(user, null, null)));
 
         verify(storeUsersCommand).call(singletonList(user));
-        verifyZeroInteractions(storeTracksCommand);
+        verifyZeroInteractions(trackRepository);
         verifyZeroInteractions(storePlaylistsCommand);
     }
 }

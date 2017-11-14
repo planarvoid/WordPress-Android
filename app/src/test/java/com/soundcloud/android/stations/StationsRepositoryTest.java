@@ -10,12 +10,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -36,7 +36,7 @@ public class StationsRepositoryTest {
 
     @Mock private StationsStorage stationsStorage;
     @Mock private StationsApi stationsApi;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private StoreStationCommand storeStationCommand;
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncInitiator syncInitiator;
@@ -76,7 +76,7 @@ public class StationsRepositoryTest {
         stationsRepository = new StationsRepository(stationsStorage,
                                                     Schedulers.trampoline(),
                                                     stationsApi,
-                                                    storeTracksCommand,
+                                                    trackRepository,
                                                     storeStationCommand,
                                                     syncStateStorage,
                                                     syncInitiator);
@@ -106,7 +106,7 @@ public class StationsRepositoryTest {
 
         stationsRepository.syncSingleStation(station, StationsRepository.IDENTITY).test();
 
-        verify(storeTracksCommand).call(apiStation.getTrackRecords());
+        verify(trackRepository).storeTracks(apiStation.getTrackRecords());
         verify(storeStationCommand).call(eq(apiStation));
     }
 

@@ -12,13 +12,13 @@ import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.posts.DatabasePostRecord;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -47,7 +47,7 @@ public class Uploader implements Runnable {
     static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
     static final String LEGACY_TRACKS_PATH = "/tracks";
 
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StorePostsCommand storePostsCommand;
 
     private final ApiClient apiClient;
@@ -58,11 +58,11 @@ public class Uploader implements Runnable {
 
     private final EventBus eventBus;
 
-    public Uploader(Context context, ApiClient apiClient, Recording recording, StoreTracksCommand storeTracksCommand,
+    public Uploader(Context context, ApiClient apiClient, Recording recording, TrackRepository trackRepository,
                     StorePostsCommand storePostsCommand, EventBus eventBus) {
         this.apiClient = apiClient;
         this.recording = recording;
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storePostsCommand = storePostsCommand;
         this.context = context;
         this.subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
@@ -189,7 +189,7 @@ public class Uploader implements Runnable {
             track.setPolicy("ALLOW");
         }
 
-        storeTracksCommand.call(singletonList(track));
+        trackRepository.storeTracks(singletonList(track));
         createNewTrackPost(track);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {

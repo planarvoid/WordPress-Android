@@ -8,6 +8,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.likes.LikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
@@ -36,7 +38,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         NOW = System.currentTimeMillis();
         command = new LoadExpectedContentCommand(
                 new LikesStorage(propellerRxV2()),
-                new TrackStorage(propellerRxV2()),
+                new TrackStorage(propellerRxV2(), new StoreTracksCommand(propeller(), new StoreUsersCommand(propeller()))),
                 new LoadPlaylistTracksCommand(propeller()),
                 new PlaylistStorage(propeller(), propellerRxV2(), new NewPlaylistMapper()),
                 offlineContentStorage);

@@ -4,13 +4,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -57,7 +57,7 @@ public class UploadService extends Service {
     private Handler processingHandler;
 
     @Inject UploadNotificationController notificationController;
-    @Inject StoreTracksCommand storeTracksCommand;
+    @Inject TrackRepository trackRepository;
     @Inject StorePostsCommand storePostsCommand;
     @Inject ApiClient apiClient;
     @Inject EventBus eventBus;
@@ -78,7 +78,7 @@ public class UploadService extends Service {
         super.onCreate();
         Log.d(TAG, "upload service started");
         uploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT),
-                                          apiClient, storeTracksCommand, storePostsCommand, eventBus);
+                                          apiClient, trackRepository, storePostsCommand, eventBus);
         processingHandler = new Handler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         wakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
@@ -231,18 +231,18 @@ public class UploadService extends Service {
         private final WeakReference<UploadService> serviceRef;
         private final ApiClient apiClient;
         private final EventBus eventBus;
-        private final StoreTracksCommand storeTracksCommand;
+        private final TrackRepository trackRepository;
         private final StorePostsCommand storePostsCommand;
 
         private UploadHandler(UploadService service,
                               Looper looper,
                               ApiClient apiClient,
-                              StoreTracksCommand storeTracksCommand,
+                              TrackRepository trackRepository,
                               StorePostsCommand storePostsCommand,
                               EventBus eventBus) {
             super(looper);
             this.apiClient = apiClient;
-            this.storeTracksCommand = storeTracksCommand;
+            this.trackRepository = trackRepository;
             this.storePostsCommand = storePostsCommand;
             this.eventBus = eventBus;
             serviceRef = new WeakReference<>(service);
@@ -267,7 +267,7 @@ public class UploadService extends Service {
                 service.processingHandler.post(new Encoder(upload.recording, eventBus));
             } else {
                 // perform the actual upload
-                post(new Uploader(service, apiClient, upload.recording, storeTracksCommand,
+                post(new Uploader(service, apiClient, upload.recording, trackRepository,
                                   storePostsCommand, eventBus));
             }
         }

@@ -14,7 +14,6 @@ import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.stations.StationFixtures;
@@ -24,6 +23,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserStorage;
 import io.reactivex.Completable;
@@ -45,7 +45,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     private ResolveOperations operations;
 
     @Mock private ApiClientRxV2 apiClient;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private StoreStationCommand storeStationsCommand;
@@ -60,7 +60,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         operations = new ResolveOperations(apiClient,
                                            scheduler,
-                                           storeTracksCommand,
+                                           trackRepository,
                                            storePlaylistsCommand,
                                            storeUsersCommand,
                                            storeStationsCommand,
@@ -194,7 +194,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 .assertValue(ResolveResult.success(resolvedResource.getOptionalTrack().get().getUrn()))
                 .assertComplete();
 
-        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, storeTracksCommand, storeUsersCommand);
+        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, trackRepository, storeUsersCommand);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 .assertValue(ResolveResult.success(resolvedResource.getOptionalUser().get().getUrn()))
                 .assertComplete();
 
-        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, storeTracksCommand, storeUsersCommand);
+        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, trackRepository, storeUsersCommand);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 .assertValue(ResolveResult.success(resolvedResource.getOptionalPlaylist().get().getUrn()))
                 .assertComplete();
 
-        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, storeTracksCommand, storeUsersCommand);
+        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, trackRepository, storeUsersCommand);
     }
 
     @Test
@@ -236,7 +236,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 .assertValue(ResolveResult.success(resolvedResource.getOptionalStation().get().getUrn()))
                 .assertComplete();
 
-        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, storeTracksCommand, storeUsersCommand);
+        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, trackRepository, storeUsersCommand);
     }
 
     @Test
@@ -250,7 +250,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                 .assertValue(ResolveResult.success(resolvedResource.getOptionalStation().get().getUrn()))
                 .assertComplete();
 
-        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, storeTracksCommand, storeUsersCommand);
+        verifyZeroInteractions(storePlaylistsCommand, storeStationsCommand, trackRepository, storeUsersCommand);
     }
 
     @Test
@@ -261,7 +261,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
         operations.resolve(uri).test();
 
-        verify(storeTracksCommand).call(Collections.singletonList(resolvedResource.getOptionalTrack().get()));
+        verify(trackRepository).storeTracks(Collections.singletonList(resolvedResource.getOptionalTrack().get()));
     }
 
     @Test

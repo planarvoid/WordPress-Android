@@ -9,7 +9,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -18,6 +17,7 @@ import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -37,7 +37,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     private final ApiClient apiClient;
     private final FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
-    private final StoreTracksCommand storeTracks;
+    private final TrackRepository trackRepository;
     private final StorePlaylistsCommand storePlaylists;
     private final ReplacePlaylistTracksCommand replacePlaylistTracks;
     private final RemovePlaylistCommand removePlaylist;
@@ -48,7 +48,8 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     SinglePlaylistSyncer(FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,
                          RemovePlaylistCommand removePlaylist,
                          LoadPlaylistTracksWithChangesCommand loadPlaylistTracks,
-                         ApiClient apiClient, StoreTracksCommand storeTracks,
+                         ApiClient apiClient,
+                         TrackRepository trackRepository,
                          StorePlaylistsCommand storePlaylists,
                          ReplacePlaylistTracksCommand replacePlaylistTracks,
                          PlaylistStorage playlistStorage,
@@ -58,7 +59,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         this.loadPlaylistTracks = loadPlaylistTracks;
         this.apiClient = apiClient;
         this.fetchPlaylistWithTracks = fetchPlaylistWithTracks;
-        this.storeTracks = storeTracks;
+        this.trackRepository = trackRepository;
         this.storePlaylists = storePlaylists;
         this.removePlaylist = removePlaylist;
         this.replacePlaylistTracks = replacePlaylistTracks;
@@ -175,7 +176,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
                                    ApiPlaylistWithTracks apiPlaylistWithTracks,
                                    List<Urn> finalTrackList) throws Exception {
         // store dependencies (all still valid tracks that came back)
-        storeTracks.call(extractValidRemoteTracks(apiPlaylistWithTracks, finalTrackList));
+        trackRepository.storeTracks(extractValidRemoteTracks(apiPlaylistWithTracks, finalTrackList));
 
         // store final playlist tracks
         replacePlaylistTracks.with(finalTrackList).call();

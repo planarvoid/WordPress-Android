@@ -4,8 +4,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action1;
@@ -16,15 +16,15 @@ import java.util.List;
 
 public class CacheUniversalSearchCommand implements Action1<Iterable<ApiUniversalSearchItem>> {
 
-    private final StoreTracksCommand storeTracksCommand;
+    private final TrackRepository trackRepository;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
 
     @Inject
-    public CacheUniversalSearchCommand(StoreTracksCommand storeTracksCommand,
+    public CacheUniversalSearchCommand(TrackRepository trackRepository,
                                        StorePlaylistsCommand storePlaylistsCommand,
                                        StoreUsersCommand storeUsersCommand) {
-        this.storeTracksCommand = storeTracksCommand;
+        this.trackRepository = trackRepository;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
     }
@@ -55,7 +55,7 @@ public class CacheUniversalSearchCommand implements Action1<Iterable<ApiUniversa
             storePlaylistsCommand.call(playlists);
         }
         if (!tracks.isEmpty()) {
-            storeTracksCommand.call(tracks);
+            trackRepository.storeTracks(tracks);
         }
     }
 }

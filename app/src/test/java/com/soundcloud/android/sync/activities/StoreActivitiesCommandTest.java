@@ -10,6 +10,8 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiComme
 import static com.soundcloud.propeller.query.Query.from;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -25,20 +27,26 @@ import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.UserFixtures;
+import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackStorage;
 import com.soundcloud.android.users.UserRecord;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
+    @Mock private TrackStorage trackStorage;
     private StoreActivitiesCommand command;
 
     @Before
     public void setUp() throws Exception {
         final StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
+        final StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller(), storeUsersCommand);
+        doAnswer(invocationOnMock -> storeTracksCommand.call((Iterable<? extends TrackRecord>) invocationOnMock.getArguments()[0])).when(trackStorage).storeTracks(any());
         command = new StoreActivitiesCommand(propeller(),
                                              storeUsersCommand,
-                                             new StoreTracksCommand(propeller(), storeUsersCommand),
+                                             trackStorage,
                                              new StorePlaylistsCommand(propeller(), storeUsersCommand),
                                              new StoreCommentCommand(propeller()));
     }

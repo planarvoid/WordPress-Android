@@ -3,16 +3,15 @@ package com.soundcloud.android.sync.entities;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.commands.PublishUpdateEventCommand;
 import com.soundcloud.android.testsupport.TrackFixtures;
+import io.reactivex.functions.Consumer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,14 +29,17 @@ public class EntitySyncJobTest {
 
     private EntitySyncJob entitySyncJob;
 
-    @Mock private BulkFetchCommand fetchResources;
-    @Mock private StoreTracksCommand storeResources;
+    @Mock private BulkFetchCommand<ApiTrack, ApiTrack> fetchResources;
+    @Mock private BulkFetchCommand<ApiTrack, ApiTrack> fetchResources2;
+    @Mock private Consumer<Collection<ApiTrack>> storeResources;
+    @Mock private Consumer<Collection<ApiTrack>> storeResources2;
     @Mock private PublishUpdateEventCommand<ApiTrack> publishUpdateEventCommand;
+    @Mock private PublishUpdateEventCommand<ApiTrack> publishUpdateEventCommand2;
     @Captor private ArgumentCaptor<Collection<ApiTrack>> collectionArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        entitySyncJob = new EntitySyncJob(fetchResources, storeResources, publishUpdateEventCommand);
+        entitySyncJob = new EntitySyncJob<>(fetchResources, storeResources, publishUpdateEventCommand);
     }
 
     @Test
@@ -48,7 +50,7 @@ public class EntitySyncJobTest {
         entitySyncJob.setUrns(singletonList(Urn.forTrack(123L)));
         entitySyncJob.run();
 
-        verify(storeResources).call(tracks);
+        verify(storeResources).accept(tracks);
     }
 
     @Test
@@ -113,8 +115,8 @@ public class EntitySyncJobTest {
         assertThat(entitySyncJob.equals(otherSyncJob)).isTrue();
     }
 
-    private EntitySyncJob syncJobWithMockedDependencies() {
-        return new EntitySyncJob(mock(BulkFetchCommand.class), mock(StoreTracksCommand.class), mock(PublishUpdateEventCommand.class));
+    private EntitySyncJob<ApiTrack> syncJobWithMockedDependencies() {
+        return new EntitySyncJob<>(fetchResources2, storeResources2, publishUpdateEventCommand2);
     }
 
 }

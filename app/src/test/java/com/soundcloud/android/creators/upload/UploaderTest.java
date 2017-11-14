@@ -17,13 +17,13 @@ import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class UploaderTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private ApiClient apiClient;
-    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private TrackRepository trackRepository;
     @Mock private StorePostsCommand storePostsCommand;
     @Captor private ArgumentCaptor<List<PublicApiTrack>> trackCaptor;
 
@@ -52,7 +52,7 @@ public class UploaderTest extends AndroidUnitTest {
     }
 
     private Uploader uploader(Recording recording) {
-        return new Uploader(context(), apiClient, recording, storeTracksCommand, storePostsCommand,
+        return new Uploader(context(), apiClient, recording, trackRepository, storePostsCommand,
                             eventBus);
     }
 
@@ -169,7 +169,7 @@ public class UploaderTest extends AndroidUnitTest {
         uploader(recording).run();
 
         assertThat(recording.isUploaded()).isTrue();
-        verify(storeTracksCommand).call(trackCaptor.capture());
+        verify(trackRepository).storeTracks(trackCaptor.capture());
         assertThat(trackCaptor.getValue()).hasSize(1);
         assertThat(trackCaptor.getValue().get(0).getPolicy()).isEqualTo("BLOCK");
     }
@@ -185,7 +185,7 @@ public class UploaderTest extends AndroidUnitTest {
         uploader(recording).run();
 
         assertThat(recording.isUploaded()).isTrue();
-        verify(storeTracksCommand).call(trackCaptor.capture());
+        verify(trackRepository).storeTracks(trackCaptor.capture());
         assertThat(trackCaptor.getValue()).hasSize(1);
         assertThat(trackCaptor.getValue().get(0).getPolicy()).isEqualTo("ALLOW");
     }

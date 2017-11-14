@@ -22,7 +22,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -33,10 +32,10 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.PlaylistFixtures;
 import com.soundcloud.android.testsupport.TrackFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
-import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,8 +52,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     @Mock private StorePlaylistsCommand storePlaylistCommand;
     @Mock private RemovePlaylistCommand removePlaylist;
     @Mock private ReplacePlaylistTracksCommand replacePlaylistTracks;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private WriteResult writeResult;
+    @Mock private TrackRepository trackRepository;
     @Mock private ApiRequest apiRequest;
     @Mock private ApiClient apiClient;
     @Mock private EntitySyncStateStorage entitySyncStateStorage;
@@ -68,7 +66,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         updatedPlaylist = PlaylistFixtures.apiPlaylist();
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
-                                                        apiClient, storeTracksCommand,
+                                                        apiClient, trackRepository,
                                                         storePlaylistCommand, replacePlaylistTracks, playlistStorage, eventBus,
                                                         entitySyncStateStorage);
     }
@@ -311,7 +309,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void verifyTracksStored(ApiTrack... apiTrack) throws PropellerWriteException {
-        verify(storeTracksCommand).call(Arrays.asList(apiTrack));
+        verify(trackRepository).storeTracks(Arrays.asList(apiTrack));
     }
 
     private void verifyNoChangesPushed() throws ApiRequestException, IOException, ApiMapperException {
@@ -326,7 +324,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void verifyNoTracksStored() throws PropellerWriteException {
-        verify(storeTracksCommand).call(Collections.emptyList());
+        verify(trackRepository).storeTracks(Collections.emptyList());
     }
 
     private void withLocalPlaylist(Urn urn, Optional<LocalPlaylistChange> playlistFromStorage) {
