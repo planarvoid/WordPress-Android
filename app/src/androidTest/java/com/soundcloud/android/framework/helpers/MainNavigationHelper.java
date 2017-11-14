@@ -30,10 +30,6 @@ public class MainNavigationHelper {
         return mainTabs().clickDiscovery();
     }
 
-    public DiscoveryScreen discoveryScreen() {
-        return mainTabs().discovery();
-    }
-
     public ActivitiesScreen goToActivities() {
         return mainTabs().clickMore().clickActivitiesLink();
     }

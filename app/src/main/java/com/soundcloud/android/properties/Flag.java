@@ -32,7 +32,8 @@ public enum Flag {
     FLIPPER_CRASH_ON_HANG(BuildConfig.FLIPPER_CRASH_ON_HANG),
     CLEAR_FLIPPER_CACHE(BuildConfig.CLEAR_FLIPPER_CACHE),
     PRIVATE_TRACK_SHARING(BuildConfig.PRIVATE_TRACK_SHARING),
-    MINI_PLAYER(BuildConfig.MINI_PLAYER);
+    MINI_PLAYER(BuildConfig.MINI_PLAYER),
+    SEPARATE_SEARCH(BuildConfig.SEPARATE_SEARCH);
 
     private final State state;
 

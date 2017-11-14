@@ -13,6 +13,8 @@ import com.soundcloud.android.model.Urn
 import com.soundcloud.android.navigation.NavigationTarget
 import com.soundcloud.android.navigation.Navigator
 import com.soundcloud.android.playback.DiscoverySource
+import com.soundcloud.android.properties.FeatureFlags
+import com.soundcloud.android.properties.Flag
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.testsupport.AndroidUnitTest
 import com.soundcloud.android.utils.collection.AsyncLoaderState
@@ -32,6 +34,7 @@ class HomePresenterTest : AndroidUnitTest() {
     @Mock private lateinit var navigator: Navigator
     @Mock private lateinit var eventTracker: EventTracker
     @Mock private lateinit var referringEventProvider: ReferringEventProvider
+    @Mock private lateinit var featureFlags: FeatureFlags
 
     private lateinit var newHomePresenter: HomePresenter
     private val refreshSignalSubject = PublishSubject.create<RxSignal>()
@@ -43,7 +46,7 @@ class HomePresenterTest : AndroidUnitTest() {
 
     @Before
     fun setUp() {
-        newHomePresenter = HomePresenter(discoveryOperations, navigator, eventTracker, referringEventProvider)
+        newHomePresenter = HomePresenter(discoveryOperations, navigator, eventTracker, referringEventProvider, featureFlags)
     }
 
     @Test
@@ -83,7 +86,7 @@ class HomePresenterTest : AndroidUnitTest() {
 
         verify(view).accept(AsyncLoaderState(asyncLoadingState = AsyncLoadingState(isRefreshing = true), data = emptyList))
         verify(view, times(2)).accept(AsyncLoaderState(data = emptyList))
-        verify(view).accept(AsyncLoaderState(data = toViewModel(discoveryResult)))
+        verify(view).accept(AsyncLoaderState(data = toViewModel(discoveryResult, featureFlags)))
     }
 
     @Test
@@ -142,6 +145,8 @@ class HomePresenterTest : AndroidUnitTest() {
         whenever(view.searchClick).thenReturn(searchSignalSubject)
         whenever(view.selectionItemClick).thenReturn(selectionItemClickSubject)
         whenever(view.enterScreenTimestamp).thenReturn(enterScreenTimestamp)
+        whenever(featureFlags.isEnabled(Flag.SEPARATE_SEARCH)).thenReturn(false)
+
         return view
     }
 }

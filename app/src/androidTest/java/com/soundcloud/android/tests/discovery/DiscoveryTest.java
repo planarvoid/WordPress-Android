@@ -52,7 +52,7 @@ public class DiscoveryTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        discoveryScreen = mainNavHelper.discoveryScreen();
+        discoveryScreen = new DiscoveryScreen(solo);
     }
 
     @Test

@@ -118,12 +118,15 @@ import com.soundcloud.android.profile.UserSoundsFragment;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.profile.UserTracksFragment;
 import com.soundcloud.android.profile.VerifyAgeActivity;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.PlayFromVoiceSearchActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.history.SearchHistoryFragment;
+import com.soundcloud.android.search.main.SearchFragment;
+import com.soundcloud.android.search.main.SearchPresenter;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.ClearCacheDialog;
@@ -275,6 +278,9 @@ public interface ApplicationComponent {
     void inject(FollowersActivity followersActivity);
     void inject(FollowingsActivity followingsActivity);
 
+    //SearchModule
+    void inject(SearchFragment searchFragment);
+
     //StreamModule
     void inject(StreamFragment streamFragment);
     void inject(StreamUniflowFragment streamFragment);
@@ -386,6 +392,8 @@ public interface ApplicationComponent {
     DiscoveryReadableStorage discoveryReadableStorage();
     DiscoveryWritableStorage discoveryWritableStorage();
     HomePresenter homePresenter();
+    SearchPresenter searchPresenter();
+    FeatureFlags featureFlags();
 
     UserDetailsPresenter newUserDetailsPresenter();
 }

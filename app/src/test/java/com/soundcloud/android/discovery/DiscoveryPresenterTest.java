@@ -22,6 +22,7 @@ import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -61,6 +62,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private EventTracker eventTracker;
     @Mock private ReferringEventProvider referringEventProvider;
     @Mock private SyncStateStorage syncStateStorage;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
     @Captor private ArgumentCaptor<Iterable<DiscoveryCardViewModel>> discoveryCardsArgumentCaptor;
 
@@ -80,7 +82,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                            feedbackController,
                                            eventTracker,
                                            referringEventProvider,
-                                           syncStateStorage);
+                                           syncStateStorage,
+                                           featureFlags);
         when(discoveryOperations.discoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.INSTANCE.getSingleContentSelectionCard()), Optional.absent())));
         when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(new DiscoveryResult(Lists.newArrayList(DiscoveryFixtures.INSTANCE.getMultipleContentSelectionCard()),
                                                                                                      Optional.absent())));

@@ -22,7 +22,7 @@ public class MainTabs extends Tabs {
 
     public DiscoveryScreen clickDiscovery() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
-        return discovery();
+        return new DiscoveryScreen(testDriver);
     }
 
     public CollectionScreen clickCollections() {
@@ -33,9 +33,5 @@ public class MainTabs extends Tabs {
     public MoreScreen clickMore() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_more))).click();
         return new MoreScreen(testDriver);
-    }
-
-    public DiscoveryScreen discovery() {
-        return new DiscoveryScreen(testDriver);
     }
 }

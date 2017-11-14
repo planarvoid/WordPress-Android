@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.soundcloud.android.R
 import com.soundcloud.android.SoundCloudApplication
+import com.soundcloud.android.main.Screen
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.history.SearchHistoryAdapter.ViewHolder
 import com.soundcloud.android.utils.collection.AsyncLoaderState
@@ -30,6 +31,8 @@ class SearchHistoryFragment : BaseFragment<SearchHistoryPresenter>(), SearchHist
     private lateinit var collectionRenderer: CollectionRenderer<SearchHistoryItem, ViewHolder>
 
     override fun requestContent(): Observable<RxSignal> = Observable.just(RxSignal.SIGNAL)
+
+    override fun getScreen(): Screen = Screen.SEARCH_HISTORY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

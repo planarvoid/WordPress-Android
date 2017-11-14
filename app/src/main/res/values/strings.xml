@@ -454,6 +454,10 @@
     <!-- __DISCOVERY -->
     <string name="discovery_empty">No discovery items yet</string>
 
+    <!-- __SEARCH TAB -->
+    <string name="empty_search_tab">Search SoundCloud</string>
+    <string name="empty_search_tab_subtext">Find artists, tracks, albums, and playlists.</string>
+
     <!-- __SETTINGS -->
     <string name="pref_clear_cache">Clear application cache</string>
     <string name="pref_clear_cache_desc">Clear the application cache to free up memory on your device</string>
@@ -654,6 +658,7 @@
     <string name="tab_discovery">Discover</string>
     <string name="tab_collection">Collection</string>
     <string name="tab_more">More</string>
+    <string name="tab_search">Search</string>
 
     <!-- __MORE -->
     <string name="more_activity">Notifications</string>

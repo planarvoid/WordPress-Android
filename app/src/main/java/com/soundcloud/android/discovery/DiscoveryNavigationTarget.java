@@ -14,7 +14,7 @@ public class DiscoveryNavigationTarget extends BaseNavigationTarget {
     private final FeatureFlags featureFlags;
 
     public DiscoveryNavigationTarget(FeatureFlags featureFlags) {
-        super(R.string.tab_discovery, R.drawable.tab_discovery);
+        super(R.string.tab_discovery, featureFlags.isEnabled(Flag.SEPARATE_SEARCH) ? R.drawable.tab_home : R.drawable.tab_discovery);
         this.featureFlags = featureFlags;
     }
 

@@ -8,6 +8,8 @@ import com.soundcloud.android.model.Urn
 import com.soundcloud.android.navigation.NavigationTarget
 import com.soundcloud.android.navigation.Navigator
 import com.soundcloud.android.playback.DiscoverySource
+import com.soundcloud.android.properties.FeatureFlags
+import com.soundcloud.android.properties.Flag
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.rx.observers.LambdaObserver
 import com.soundcloud.android.utils.collection.AsyncLoader
@@ -25,7 +27,8 @@ internal class HomePresenter
 constructor(private val discoveryOperations: DiscoveryOperations,
             private val navigator: Navigator,
             private val eventTracker: EventTracker,
-            private val referringEventProvider: ReferringEventProvider)
+            private val referringEventProvider: ReferringEventProvider,
+            private val featureFlags: FeatureFlags)
     : BasePresenter<List<DiscoveryCardViewModel>, RxSignal, HomeView>() {
 
     override fun attachView(view: HomeView) {
@@ -44,8 +47,8 @@ constructor(private val discoveryOperations: DiscoveryOperations,
                                                    }
                                            ),
                                    Observables.combineLatest(view.enterScreenTimestamp
-                                                                      .filter { it.second == Screen.DISCOVER }
-                                                                      .map { it.first },
+                                                                     .filter { it.second == Screen.DISCOVER }
+                                                                     .map { it.first },
                                                              loader.filter { it.data != null }.map { it.data ?: emptyList() },
                                                              { first, second ->
                                                                  Pair(first, Optional.fromNullable(second.responseQueryUrn()))
@@ -62,7 +65,7 @@ constructor(private val discoveryOperations: DiscoveryOperations,
 
     private fun Single<DiscoveryResult>.toViewModelObservable(): Observable<AsyncLoader.PageResult<List<DiscoveryCardViewModel>>> {
         return this.map {
-            AsyncLoader.PageResult(data = toViewModel(it))
+            AsyncLoader.PageResult(data = toViewModel(it, featureFlags))
         }.toObservable()
     }
 
@@ -73,10 +76,10 @@ constructor(private val discoveryOperations: DiscoveryOperations,
     }
 }
 
-internal fun toViewModel(discoveryResult: DiscoveryResult): List<DiscoveryCardViewModel> {
+internal fun toViewModel(discoveryResult: DiscoveryResult, featureFlags: FeatureFlags): List<DiscoveryCardViewModel> {
     val cardsWithSearch = discoveryResult.cards.toMutableList()
     val result = mutableListOf<DiscoveryCardViewModel>()
-    result.add(0, DiscoveryCardViewModel.SearchCard)
+    if (!featureFlags.isEnabled(Flag.SEPARATE_SEARCH)) result.add(0, DiscoveryCardViewModel.SearchCard)
     result.addAll(cardsWithSearch.mapIndexed { index, discoveryCard ->
         val offsetForSearchCard = 1
         when (discoveryCard) {

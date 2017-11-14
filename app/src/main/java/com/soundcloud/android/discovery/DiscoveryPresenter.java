@@ -16,6 +16,7 @@ import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.stream.StreamSwipeRefreshAttacher;
@@ -53,6 +54,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
     private final EventTracker eventTracker;
     private final ReferringEventProvider referringEventProvider;
     private final SyncStateStorage syncStateStorage;
+    private final FeatureFlags featureFlags;
     private final CompositeDisposable disposable = new CompositeDisposable();
     private final BehaviorSubject<Optional<Urn>> queryUrn = BehaviorSubject.create();
 
@@ -64,7 +66,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
                        FeedbackController feedbackController,
                        EventTracker eventTracker,
                        ReferringEventProvider referringEventProvider,
-                       SyncStateStorage syncStateStorage) {
+                       SyncStateStorage syncStateStorage,
+                       FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         adapter = adapterFactory.create(this);
@@ -74,6 +77,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
         this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.syncStateStorage = syncStateStorage;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -138,7 +142,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCardViewMod
     private SingleTransformer<DiscoveryResult, List<DiscoveryCardViewModel>> handleDiscoveryResult() {
         return discoveryResult -> discoveryResult.doOnSuccess(this::showErrorMessage)
                                                  .doOnSuccess(this::emitQueryUrn)
-                                                 .map(HomePresenterKt::toViewModel);
+                                                 .map(it -> HomePresenterKt.toViewModel(it, featureFlags));
     }
 
     private void emitQueryUrn(DiscoveryResult discoveryResult) {

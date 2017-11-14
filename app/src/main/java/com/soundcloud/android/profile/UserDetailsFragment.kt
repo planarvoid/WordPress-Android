@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import com.soundcloud.android.R
 import com.soundcloud.android.SoundCloudApplication
 import com.soundcloud.android.analytics.SearchQuerySourceInfo
+import com.soundcloud.android.main.Screen
 import com.soundcloud.android.model.AsyncLoadingState
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.presentation.RecyclerItemAdapter
@@ -36,6 +37,8 @@ class UserDetailsFragment : BaseFragment<UserDetailsPresenter>(), UserDetailsVie
     init {
         SoundCloudApplication.getObjectGraph().inject(this)
     }
+
+    override fun getScreen(): Screen = Screen.USER_INFO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

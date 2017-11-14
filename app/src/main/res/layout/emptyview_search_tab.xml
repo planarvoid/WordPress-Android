@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/EmptySearch.Container"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        style="@style/EmptySearch.Image"
+        android:src="@drawable/empty_search_tab" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/EmptySearch.Text.Main"
+        android:text="@string/empty_search_tab" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/EmptySearch.Text.Sub"
+        android:text="@string/empty_search_tab_subtext" />
+
+</LinearLayout>

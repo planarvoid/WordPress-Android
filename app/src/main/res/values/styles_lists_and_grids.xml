@@ -316,4 +316,36 @@
         <item name="android:textColor">@color/empty_text_color_sub</item>
     </style>
 
+    <style name="EmptySearch" />
+    <style name="EmptySearch.Container">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">32dp</item>
+    </style>
+
+    <style name="EmptySearch.Image">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_marginBottom">40dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+    <style name="EmptySearch.Text" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="EmptySearch.Text.Main">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/empty_text_color_main</item>
+    </style>
+    <style name="EmptySearch.Text.Sub">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/empty_text_color_sub</item>
+    </style>
+
 </resources>

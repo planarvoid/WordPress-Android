@@ -82,6 +82,7 @@ public enum Screen {
     SYSTEM_PLAYLIST(48, "systemplaylists:main"),
 
     // search
+    SEARCH_HISTORY(96, "search:history"),
     SEARCH_MAIN(49, "search:main"),
     SEARCH_EVERYTHING(50, "search:everything"),
     SEARCH_TRACKS(51, "search:tracks"),

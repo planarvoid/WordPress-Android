@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import com.soundcloud.android.R
 import com.soundcloud.android.SoundCloudApplication
 import com.soundcloud.android.feedback.Feedback
-import com.soundcloud.android.main.MainActivity
 import com.soundcloud.android.main.Screen
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.SearchEmptyStateProvider
@@ -23,15 +22,14 @@ import com.soundcloud.android.view.ViewError
 import com.soundcloud.android.view.collection.CollectionRenderer
 import com.soundcloud.android.view.collection.CollectionRendererState
 import com.soundcloud.android.view.snackbar.FeedbackController
-import com.soundcloud.java.optional.Optional
 import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchItemRenderer.SearchListener {
+
     @Inject internal lateinit var presenterLazy: Lazy<HomePresenter>
     @Inject internal lateinit var adapterFactory: DiscoveryAdapter.Factory
     @Inject internal lateinit var feedbackController: FeedbackController
@@ -41,16 +39,7 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
     override val presenterKey: String = "HomePresenterKey"
     override val selectionItemClick: PublishSubject<SelectionItemViewModel> = PublishSubject.create<SelectionItemViewModel>()
     override val searchClick: PublishSubject<RxSignal> = PublishSubject.create<RxSignal>()
-    override val enterScreenTimestamp: Observable<Pair<Long, Screen>> by lazy {
-        val onResume = resume.filter { it.isPresent }.map { Pair(it.get(), Screen.DISCOVER) }
-        val act = activity
-        when (act) {
-            is MainActivity -> act.pageSelectedTimestampWithScreen().flatMap { onResume }
-            else -> onResume
-        }
-    }
 
-    private val resume = BehaviorSubject.create<Optional<Long>>()
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -67,16 +56,6 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
                                                 animateLayoutChangesInItems = true,
                                                 parallaxImageScrolling = true)
         setHasOptionsMenu(true)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        resume.onNext(Optional.of(System.currentTimeMillis()))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        resume.onNext(Optional.absent())
     }
 
     private fun areItemsTheSame(item1: DiscoveryCardViewModel, item2: DiscoveryCardViewModel): Boolean =
@@ -132,4 +111,6 @@ internal class HomeFragment : BaseFragment<HomePresenter>(), HomeView, SearchIte
     override fun onSearchClicked(context: Context) {
         searchClick.onNext(RxSignal.SIGNAL)
     }
+
+    override fun getScreen(): Screen = Screen.DISCOVER
 }

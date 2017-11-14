@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ApiRequestException
 import com.soundcloud.android.framework.TestUser
 import com.soundcloud.android.hamcrest.TestAsyncState
 import com.soundcloud.android.main.Screen
+import com.soundcloud.android.properties.Flag
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.utils.Supplier
 import com.soundcloud.android.utils.collection.AsyncLoaderState
@@ -114,6 +115,22 @@ class HomePresenterIntegrationTest : BaseIntegrationTest(TestUser.testUser) {
         testView.selectionItemClick.onNext((lastState.data?.get(1) as DiscoveryCardViewModel.SingleContentSelectionCard).selectionItem)
 
         mrLocalLocal.verify(HOME_PAGEVIEW_AND_CARD_CLICK_SPECS)
+    }
+
+    @Test
+    fun presenterOmitsSearchWhenFeatureFlagToSeparateSearchIsEnabled() {
+        SoundCloudApplication.getObjectGraph().featureFlags().setRuntimeFeatureFlagValue(Flag.SEPARATE_SEARCH, true)
+
+        addMockedResponse(ApiEndpoints.DISCOVERY_CARDS.path(), DISCOVERY_CARDS)
+
+        val testView = TestView()
+
+        testView.initialLoadSignal.onNext(RxSignal.SIGNAL)
+
+        testView.assertLastState({ it.hasData() }, equalTo(true))
+        testView.assertLastState({ it.cardsCount() }, equalTo(2))
+        testView.assertLastState({ it.card(0) }, instanceOf(DiscoveryCardViewModel.SingleContentSelectionCard::class.java))
+        testView.assertLastState({ it.card(1) }, instanceOf(DiscoveryCardViewModel.MultipleContentSelectionCard::class.java))
     }
 
     private fun AsyncLoaderState<*>.hasData(): Boolean = data != null

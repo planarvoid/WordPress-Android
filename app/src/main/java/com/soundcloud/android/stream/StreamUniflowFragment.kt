@@ -12,6 +12,7 @@ import com.soundcloud.android.ads.AdItemCallback
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter
 import com.soundcloud.android.facebookinvites.FacebookNotificationCallback
 import com.soundcloud.android.main.MainPagerAdapter
+import com.soundcloud.android.main.Screen
 import com.soundcloud.android.model.Urn
 import com.soundcloud.android.rx.RxSignal
 import com.soundcloud.android.search.SearchEmptyStateProvider
@@ -38,6 +39,8 @@ internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), S
         SoundCloudApplication.getObjectGraph().inject(this)
     }
 
+    override fun getScreen(): Screen = Screen.STREAM
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         collectionRenderer = CollectionRenderer(adapter = adapter,
@@ -60,7 +63,7 @@ internal class StreamUniflowFragment : BaseFragment<StreamUniflowPresenter>(), S
         super.onDestroyView()
     }
 
-    override fun createPresenter() = presenterLazy.get()
+    override fun createPresenter(): StreamUniflowPresenter = presenterLazy.get()
 
     override fun connectPresenter(presenter: StreamUniflowPresenter) {
         presenter.attachView(this)
