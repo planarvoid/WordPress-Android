@@ -64,7 +64,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     }
 
     @Override
-    public void updateCastData(View trackPage, boolean animate) {
+    public void updateCastData(View trackPage) {
         // default no-op
     }
 

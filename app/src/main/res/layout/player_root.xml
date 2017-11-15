@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:alpha="0"
         app:layout_behavior="@string/player_overlay_background_behavior"
-        app:player_collapsed_height="@dimen/player_footer"
+        app:player_collapsed_height="@dimen/player_footer_control"
         tools:ignore="MissingPrefix" />
 
     <fragment
@@ -18,7 +18,7 @@
         android:name="com.soundcloud.android.playback.ui.PlayerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:behavior_peekHeight="@dimen/player_footer"
+        app:behavior_peekHeight="@dimen/player_footer_control"
         app:layout_behavior="@string/fullscreenable_bottomsheet_behavior" />
 
 </merge>

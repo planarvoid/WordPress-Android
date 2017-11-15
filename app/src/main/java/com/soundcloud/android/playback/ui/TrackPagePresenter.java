@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.forEach;
 import static java.util.Collections.singletonList;
@@ -11,8 +10,6 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.cast.CastPlayerStripController;
-import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -29,7 +26,6 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
@@ -81,7 +77,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
-    private final CastPlayerStripControllerFactory castPlayerStripControllerFactory;
     private final AdOverlayControllerFactory adOverlayControllerFactory;
     private final ErrorViewControllerFactory errorControllerFactory;
     private final EmptyViewControllerFactory emptyControllerFactory;
@@ -107,7 +102,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        PlayerArtworkController.Factory artworkControllerFactory,
                        PlayerOverlayController.Factory playerOverlayControllerFactory,
                        TrackPageMenuController.Factory trackMenuControllerFactory,
-                       CastPlayerStripControllerFactory castPlayerStripControllerFactory,
                        AdOverlayControllerFactory adOverlayControllerFactory,
                        ErrorViewControllerFactory errorControllerFactory,
                        EmptyViewControllerFactory emptyControllerFactory,
@@ -129,7 +123,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
-        this.castPlayerStripControllerFactory = castPlayerStripControllerFactory;
         this.adOverlayControllerFactory = adOverlayControllerFactory;
         this.errorControllerFactory = errorControllerFactory;
         this.emptyControllerFactory = emptyControllerFactory;
@@ -240,7 +233,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         configurePlayerStates(trackState, urn, holder);
 
         setClickListener(this, holder.onClickViews);
-        updateCastData(trackView, false);
+        updateCastData(trackView);
     }
 
     private void clearAllProgresses(TrackPageHolder holder) {
@@ -311,12 +304,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                          TrackPageHolder holder,
                                          FeatureOperations featureOperations) {
         if (trackState.getSource().isPresent() && isHighTierPreview(trackState.getSource().get())) {
-            holder.topStrip.setBackgroundResource(R.drawable.go_gradient);
             configureUpsell(holder, featureOperations);
-        } else if (trackState.getSource().isPresent() && isFullHighTierTrack(trackState.getSource().get())) {
-            holder.topStrip.setBackgroundResource(R.drawable.go_gradient);
         } else {
-            holder.topStrip.setBackgroundResource(R.color.soundcloud_orange);
             holder.upsellView.setVisibility(View.GONE);
         }
     }
@@ -381,9 +370,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void updateCastData(View view, boolean animate) {
+    public void updateCastData(View view) {
         getViewHolder(view).mediaRouteButton.setVisibility(castConnectionHelper.isCastAvailable() ? View.VISIBLE : View.GONE);
-        getViewHolder(view).castPlayerStripController.update(animate);
     }
 
     @Override
@@ -504,7 +492,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void onBackground(View trackPage) {
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onBackground();
-        viewHolder.castPlayerStripController.unsubscribeFromEvents();
     }
 
     @Override
@@ -512,7 +499,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onForeground();
         castButtonInstaller.addMediaRouteButton(viewHolder.mediaRouteButton);
-        viewHolder.castPlayerStripController.subscribeToEvents();
     }
 
     @Override
@@ -619,7 +605,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         onPlayerSlide(trackView, 0);
         getViewHolder(trackView).waveformController.setCollapsed();
         getViewHolder(trackView).adOverlayController.setCollapsed();
-        getViewHolder(trackView).topStrip.setCollapsed();
     }
 
     @Override
@@ -627,7 +612,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         onPlayerSlide(trackView, 1);
         getViewHolder(trackView).waveformController.setExpanded();
         getViewHolder(trackView).adOverlayController.setExpanded();
-        getViewHolder(trackView).castPlayerStripController.updateWithoutAnimation();
         if (isSelected && getViewHolder(trackView).upsellView.getVisibility() == View.VISIBLE) {
             upsellImpressionController.recordUpsellViewed(playQueueItem);
         }
@@ -642,7 +626,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                             holder.footer,
                                             fullScreenViews,
                                             holder.fullyHideOnCollapseViews,
-                                            holder.castPlayerStripController,
                                             holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
 
@@ -729,7 +712,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.shareButton = trackView.findViewById(R.id.track_page_share);
         holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
-        holder.topStrip = trackView.findViewById(R.id.player_strip);
         holder.upsellView = trackView.findViewById(R.id.upsell_container);
         holder.topGradient = trackView.findViewById(R.id.top_gradient);
 
@@ -756,7 +738,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.waveformController.addScrubListener(holder.timestamp);
         holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
         holder.menuController = trackMenuControllerFactory.create(holder.more);
-        holder.castPlayerStripController = castPlayerStripControllerFactory.create(holder.topStrip, holder.upsellView);
 
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
@@ -846,7 +827,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         @Nullable
         View playButton;
         View closeIndicator;
-        PlayerStripView topStrip;
         PlayerUpsellView upsellView;
         View profileLink;
         View playControlsHolder;
@@ -862,7 +842,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         AdOverlayController adOverlayController;
         ErrorViewController errorViewController;
         EmptyViewController emptyViewController;
-        CastPlayerStripController castPlayerStripController;
 
         // Footer player
         View footer;

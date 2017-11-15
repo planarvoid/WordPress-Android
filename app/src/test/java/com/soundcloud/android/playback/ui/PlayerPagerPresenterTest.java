@@ -670,7 +670,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void bindingTrackViewUpdatesCastDataOnPresenter() {
         final View pageView = getPageView(1);
 
-        verify(trackPagePresenter).updateCastData(pageView, false);
+        verify(trackPagePresenter).updateCastData(pageView);
     }
 
     @Test
@@ -679,7 +679,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.onCastAvailable();
 
-        verify(trackPagePresenter).updateCastData(pageView, true);
+        verify(trackPagePresenter, times(2)).updateCastData(pageView);
     }
 
     @Test

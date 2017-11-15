@@ -39,7 +39,6 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     @BindView(R.id.shuffle_button) ToggleButton shuffleView;
     @BindView(R.id.loading_indicator) View loadingIndicator;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
-    @BindView(R.id.player_strip) View playerStrip;
     private Unbinder unbinder;
 
     @Inject
@@ -100,14 +99,6 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setLayoutManager(null);
         unbinder.unbind();
         playQueuePresenter.detachContract();
-    }
-
-    public void setGoPlayerStrip() {
-        playerStrip.setBackgroundResource(R.drawable.go_gradient);
-    }
-
-    public void setDefaultPlayerStrip() {
-        playerStrip.setBackgroundResource(R.color.soundcloud_orange);
     }
 
     public void setShuffledState(boolean shuffled) {

@@ -443,7 +443,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void updateCastViews() {
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            pagePresenter(entry.getValue()).updateCastData(entry.getKey(), true);
+            pagePresenter(entry.getValue()).updateCastData(entry.getKey());
         }
     }
 
@@ -567,7 +567,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private void onTrackPageSet(View view, int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         trackPagePresenter.onPositionSet(view, position, currentPlayQueue.size());
-        trackPagePresenter.updateCastData(view, false);
+        trackPagePresenter.updateCastData(view);
         trackPagePresenter.updatePlayQueueButton(view);
         if (hasAdOverlay(playQueueItem)) {
             final VisualAdData overlayData = (VisualAdData) playQueueItem.getAdData().get();

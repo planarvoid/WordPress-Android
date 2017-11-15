@@ -5,37 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.soundcloud.android.playback.ui.view.PlayerStripView
-        android:id="@+id/player_strip"
-        style="@style/PlayerStrip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView
         android:id="@+id/track_page_artwork"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/player_strip" />
+        android:layout_height="match_parent"/>
 
     <View
         android:id="@+id/artwork_overlay_dark"
-        style="@style/PlayerTrackArtworkOverlay"
-        android:layout_below="@id/player_strip" />
+        style="@style/PlayerTrackArtworkOverlay"/>
 
     <include layout="@layout/player_gradient" />
 
     <com.soundcloud.android.playback.ui.view.PlayerUpsellView
         android:id="@+id/upsell_container"
-        style="@style/PlayerUpsellContainer"
-        android:layout_below="@id/player_strip" />
+        style="@style/PlayerUpsellContainer"/>
 
     <include layout="@layout/player_expanded_top_bar" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_above="@+id/player_bottom_close"
-        android:layout_below="@id/player_strip"
         android:orientation="vertical">
 
         <View
@@ -61,9 +51,8 @@
     <com.soundcloud.android.playback.ui.view.TimestampView
         android:id="@+id/timestamp"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_above="@+id/player_bottom_close"
-        android:layout_below="@+id/player_strip" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/player_bottom_close" />
 
     <LinearLayout
         android:id="@id/player_bottom_close"
@@ -134,8 +123,7 @@
     <include
         layout="@layout/player_footer_controls"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/player_strip" />
+        android:layout_height="wrap_content" />
 
     <ViewStub
         android:id="@+id/leave_behind_stub"
@@ -149,8 +137,7 @@
     <FrameLayout
         android:id="@+id/interstitial_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/player_strip">
+        android:layout_height="match_parent">
 
         <ViewStub
             android:id="@+id/interstitial_stub"
@@ -164,7 +151,6 @@
         android:id="@+id/track_page_empty_stub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/player_strip"
         android:inflatedId="@+id/track_page_empty"
         android:layout="@layout/track_page_empty" />
 
@@ -172,7 +158,6 @@
         android:id="@+id/track_page_error_stub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/player_strip"
         android:inflatedId="@+id/track_page_error"
         android:layout="@layout/track_page_error" />
 

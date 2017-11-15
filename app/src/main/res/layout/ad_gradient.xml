@@ -3,8 +3,7 @@
     <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/player_gradient_height"
-            android:background="@drawable/player_gradient_top"
-            android:layout_below="@+id/player_strip" />
+            android:background="@drawable/player_gradient_top"/>
 
     <View
             android:layout_width="match_parent"

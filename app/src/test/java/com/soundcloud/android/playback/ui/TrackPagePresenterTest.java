@@ -19,8 +19,6 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.cast.CastPlayerStripController;
-import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -36,9 +34,7 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlayerInteractionsTracker;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.ui.view.PlayerStripView;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
-import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -99,8 +95,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
-    @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
-    @Mock private CastPlayerStripController castPlayerStripController;
     @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private PlayerInteractionsTracker playerInteractionsTracker;
     @Mock private TrackPageView trackPageView;
@@ -127,7 +121,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            artworkFactory,
                                            playerOverlayControllerFactory,
                                            trackMenuControllerFactory,
-                                           castPlayerStripControllerFactory,
                                            adOverlayControllerFactory,
                                            errorControllerFactory,
                                            emptyControllerFactory,
@@ -146,7 +139,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
                 adOverlayController);
-        when(castPlayerStripControllerFactory.create(any(PlayerStripView.class), any(PlayerUpsellView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         when(emptyControllerFactory.create(any(View.class))).thenReturn(emptyViewController);
         when(waveformOperations.waveformDataFor(any(Urn.class), anyString())).thenReturn(Single.never());
@@ -611,24 +603,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         getHolder(trackView).bottomClose.performClick();
 
         verify(listener).onPlayerClose();
-    }
-
-    @Test
-    public void onForegroundSubscribesCastController() throws Exception {
-        populateTrackPage();
-
-        presenter.onForeground(trackView);
-
-        verify(castPlayerStripController).subscribeToEvents();
-    }
-
-    @Test
-    public void onBackgroundUnsubscribesCastController() throws Exception {
-        populateTrackPage();
-
-        presenter.onBackground(trackView);
-
-        verify(castPlayerStripController).unsubscribeFromEvents();
     }
 
     @Test

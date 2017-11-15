@@ -229,10 +229,6 @@
     <dimen name="conversion_divider_width">60dp</dimen>
     <dimen name="conversion_divider_height">2dp</dimen>
 
-    <!-- Player -->
-    <dimen name="collapsed_player_strip">3dp</dimen>
-    <dimen name="expanded_player_strip">20dp</dimen>
-
     <!-- SummaryRadioButton -->
     <dimen name="summary_radio_button_summary_size">14sp</dimen>
     

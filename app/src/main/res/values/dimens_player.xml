@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- player_footer is player_footer_control + player_strip -->
-    <dimen name="player_footer">52dp</dimen>
     <dimen name="player_footer_control">48dp</dimen>
     <dimen name="player_ad_engagement">64dp</dimen>
     <dimen name="player_engagement">88dp</dimen>

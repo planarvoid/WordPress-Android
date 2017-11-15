@@ -43,7 +43,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 
 import android.content.res.Resources;
@@ -137,26 +136,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         verify(playQueueViewContract).setRepeatNone();
         verify(playQueueViewContract).scrollTo(0, false);
         verify(playQueueViewContract).removeLoadingIndicator();
-    }
-
-    @Test
-    public void shouldSetDefaultPlayerStrip() {
-        presenter.trackClicked(1);
-        verify(playQueueViewContract).setDefaultPlayerStrip();
-    }
-
-    @Test
-    public void shouldSetGoPlayerStrip() {
-        TrackPlayQueueUIItem trackPlayQueueUIItem = Mockito.mock(TrackPlayQueueUIItem.class);
-        when(trackPlayQueueUIItem.isTrack()).thenReturn(true);
-        when(trackPlayQueueUIItem.isGoTrack()).thenReturn(true);
-        when(trackPlayQueueUIItem.getPlayState()).thenReturn(PlayState.COMING_UP);
-        when(trackPlayQueueUIItem.getPlayQueueItem()).thenReturn(currentPlayQueueItem);
-        uiSubject.onNext(loadQueueUpdate.withItems(Collections.singletonList(trackPlayQueueUIItem)));
-
-        presenter.trackClicked(0);
-
-        verify(playQueueViewContract).setGoPlayerStrip();
     }
 
     @Test

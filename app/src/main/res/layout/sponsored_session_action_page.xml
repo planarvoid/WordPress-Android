@@ -12,10 +12,6 @@
         android:background="@color/white"
         android:layout_height="43dp">
 
-        <View
-            android:id="@+id/player_strip"
-            style="@style/PlayerStrip"/>
-
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/advertisement"
             android:textColor="@color/ash"

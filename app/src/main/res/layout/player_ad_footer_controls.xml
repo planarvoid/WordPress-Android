@@ -6,7 +6,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/player_footer_control"
-    android:layout_below="@+id/player_strip"
     tools:background="@color/black_90">
 
     <ImageButton

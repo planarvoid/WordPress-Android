@@ -164,12 +164,6 @@ class PlayQueuePresenter {
             playQueueView.get().setItems(items);
             playQueueManager.setCurrentPlayQueueItem(trackItem.getPlayQueueItem());
 
-            if (trackItem.isGoTrack()) {
-                playQueueView.get().setGoPlayerStrip();
-            } else {
-                playQueueView.get().setDefaultPlayerStrip();
-            }
-
             if (playSessionController.isPlayingCurrentPlayQueueItem()) {
                 playSessionController.togglePlayback();
             } else {

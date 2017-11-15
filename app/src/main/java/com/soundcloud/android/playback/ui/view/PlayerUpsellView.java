@@ -1,10 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.cast.RedrawLayoutListener;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.StringRes;
 import android.util.AttributeSet;
@@ -14,9 +11,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class PlayerUpsellView extends RelativeLayout {
 
     private final TextView upsellText;
@@ -24,7 +18,6 @@ public class PlayerUpsellView extends RelativeLayout {
 
     private final int expandedHeight;
     private final int collapsedHeight;
-    private final int animTranslationY;
 
     public PlayerUpsellView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -34,7 +27,6 @@ public class PlayerUpsellView extends RelativeLayout {
         upsellText = findViewById(R.id.upsell_text);
         upsellButton = findViewById(R.id.upsell_button);
         expandedHeight = getResources().getDimensionPixelSize(R.dimen.player_upsell_height);
-        animTranslationY = getResources().getDimensionPixelOffset(R.dimen.player_upsell_anim_translation_y);
         collapsedHeight = 0;
     }
 
@@ -69,21 +61,4 @@ public class PlayerUpsellView extends RelativeLayout {
         requestLayout();
     }
 
-    public List<ValueAnimator> getCollapseAnimators() {
-        final ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(upsellButton, View.TRANSLATION_Y, 0f, animTranslationY);
-        final ObjectAnimator textViewAnimator = ObjectAnimator.ofFloat(upsellText, View.TRANSLATION_Y, 0f, animTranslationY);
-        return Arrays.asList(buttonAnimator, textViewAnimator, createRedrawnAnimator(expandedHeight, 0));
-    }
-
-    public List<ValueAnimator> getExpandAnimators() {
-        final ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(upsellButton, View.TRANSLATION_Y, animTranslationY, 0f);
-        final ObjectAnimator textViewAnimator = ObjectAnimator.ofFloat(upsellText, View.TRANSLATION_Y, animTranslationY, 0f);
-        return Arrays.asList(buttonAnimator, textViewAnimator, createRedrawnAnimator(0, expandedHeight));
-    }
-
-    private ValueAnimator createRedrawnAnimator(int from, int to) {
-        final ValueAnimator upsellExpand = ObjectAnimator.ofInt(from, to);
-        upsellExpand.addUpdateListener(new RedrawLayoutListener(this));
-        return upsellExpand;
-    }
 }
