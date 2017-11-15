@@ -134,7 +134,6 @@ public enum ApiEndpoints {
     CURRENT_USER("/me"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
-    LEGACY_USERS("/users"),
     TRACK_COMMENTS("/tracks/%s/comments");
 
     private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
