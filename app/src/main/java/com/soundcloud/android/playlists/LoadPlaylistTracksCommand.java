@@ -31,7 +31,7 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<Track>> {
     public List<Track> call(Urn playlistUrn) {
         List<Optional<Track>> tracks = propeller
                 .query(getPlaylistTracksQuery(playlistUrn))
-                .toList(TrackStorage::trackFromCursorReader);
+                .toList(TrackStorage.Companion::optionalTrackFromCursorReader);
         return Lists.newArrayList(Iterables.transform(Iterables.filter(tracks, Optional::isPresent), Optional::get));
     }
 
