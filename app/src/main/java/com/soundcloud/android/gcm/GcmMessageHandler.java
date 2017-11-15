@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -59,13 +60,7 @@ public class GcmMessageHandler {
 
             final String payload = remoteMessage.getData().get(EXTRA_DATA);
             if (Strings.isBlank(payload)) {
-                MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(remoteMessage);
-                toStringHelper.add("data", remoteMessage.getData());
-                if (remoteMessage.getNotification() != null) {
-                    toStringHelper.add("body", remoteMessage.getNotification().getBody());
-                    toStringHelper.add("title", remoteMessage.getNotification().getTitle());
-                }
-                ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + toStringHelper.toString()));
+                ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + getDebugString(remoteMessage)));
             } else {
                 handleScMessage(remoteMessage, payload);
             }
@@ -92,8 +87,20 @@ public class GcmMessageHandler {
                 }
             }
         } catch (Exception e) {
-            ErrorUtils.handleSilentException(e, "payload", payload);
+            ErrorUtils.handleSilentException(new IllegalArgumentException("Unable to handle remote message : " + getDebugString(remoteMessage)));
         }
+    }
+
+
+    @NonNull
+    private String getDebugString(RemoteMessage remoteMessage) {
+        MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(remoteMessage);
+        toStringHelper.add("data", remoteMessage.getData());
+        if (remoteMessage.getNotification() != null) {
+            toStringHelper.add("body", remoteMessage.getNotification().getBody());
+            toStringHelper.add("title", remoteMessage.getNotification().getTitle());
+        }
+        return toStringHelper.toString();
     }
 
     private void logScMessage(String decryptedString) {

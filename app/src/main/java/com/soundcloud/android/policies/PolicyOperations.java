@@ -7,7 +7,6 @@ import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.rx.eventbus.EventBus;
 import io.reactivex.Single;
@@ -88,10 +87,6 @@ public class PolicyOperations {
     }
 
     private void handlePolicyUpdateFailure(Throwable error, boolean isBackgroundUpdate) {
-        if (ErrorUtils.isNetworkError(error.getCause())) {
-            String context = isBackgroundUpdate ? "background" : "foreground";
-            ErrorUtils.handleSilentException("Policy update failed: " + context, error);
-        }
         Throwable cause = error instanceof PolicyUpdateFailure ? error.getCause() : error;
         final PolicyUpdateFailureEvent failureEvent =
                 cause instanceof PropellerWriteException
