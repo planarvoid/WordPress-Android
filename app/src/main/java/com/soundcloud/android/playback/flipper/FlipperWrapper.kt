@@ -10,7 +10,9 @@ import com.soundcloud.flippernative.api.state_change
 
 @OpenForTesting
 internal class FlipperWrapper
-constructor(private val flipperCallbacks: FlipperCallbacks, flipperFactory: FlipperFactory)
+constructor(private val playerType: String,
+            private val flipperCallbacks: FlipperCallbacks,
+            flipperFactory: FlipperFactory)
     : PlayerListener() {
 
     private val flipper = flipperFactory.create(this)
@@ -34,8 +36,13 @@ constructor(private val flipperCallbacks: FlipperCallbacks, flipperFactory: Flip
     }
 
     override fun onPerformanceEvent(event: audio_performance) {
-        flipperCallbacks.onPerformanceEvent(AudioPerformanceEvent(PlaybackMetric.from(event.type.const_get_value()), event.latency.const_get_value(), event.protocol.const_get_value(),
-                                                                  event.host.const_get_value(), event.format.const_get_value(), event.bitrate.const_get_value().toInt(),
+        flipperCallbacks.onPerformanceEvent(AudioPerformanceEvent(playerType,
+                                                                  PlaybackMetric.from(event.type.const_get_value()),
+                                                                  event.latency.const_get_value(),
+                                                                  event.protocol.const_get_value(),
+                                                                  event.host.const_get_value(),
+                                                                  event.format.const_get_value(),
+                                                                  event.bitrate.const_get_value().toInt(),
                                                                   event.details._value.toJson()))
     }
 

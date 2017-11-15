@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback
 
-import com.soundcloud.android.events.PlayerType
-
 interface Player {
     fun preload(preloadItem: PreloadItem)
     fun play(playbackItem: PlaybackItem)
@@ -11,7 +9,7 @@ interface Player {
     fun stop()
     fun destroy()
     fun getProgress(): Long
-    fun getPlayerType(): PlayerType
+    fun getPlayerType(): String
     fun getVolume(): Float
     fun setVolume(volume: Float)
     fun setListener(playerListener: PlayerListener)

@@ -43,18 +43,18 @@ public class BufferUnderrunListenerTest {
 
     @Test
     public void shouldNotSendUninterruptedPlaytimeEvent() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(), false);
         final List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
     }
 
     @Test
     public void shouldSendUninterruptedPlaytimeEvent() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(1000L), true);
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
 
@@ -67,7 +67,7 @@ public class BufferUnderrunListenerTest {
     public void shouldSendUninterruptedPlaytimeEventForAdWithFormatAndBitrate() {
         PlaybackItem playbackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(track), 0L);
         createAndProcessStateTransition(playbackItem,
-                                        PlayerType.MEDIA_PLAYER,
+                                        PlayerType.MediaPlayer.INSTANCE,
                                         PlaybackState.PLAYING,
                                         "video/mp4",
                                         1001000,
@@ -77,7 +77,7 @@ public class BufferUnderrunListenerTest {
         assertThat(playbackPerformanceEvents).isEmpty();
 
         createAndProcessStateTransition(playbackItem,
-                                        PlayerType.MEDIA_PLAYER,
+                                        PlayerType.MediaPlayer.INSTANCE,
                                         PlaybackState.BUFFERING,
                                         "video/mp4",
                                         1001000,
@@ -95,37 +95,37 @@ public class BufferUnderrunListenerTest {
 
     @Test
     public void shouldFilterBufferingEventOnSeekAndStart() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(1000L), false);
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
     }
 
     @Test
     public void shouldSaveUninterruptedPlaytimeOnIdle() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.IDLE, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.IDLE, new Date(1000L), false);
 
-        verify(uninterruptedPlaytimeStorage).setPlaytime(900L, PlayerType.SKIPPY);
+        verify(uninterruptedPlaytimeStorage).setPlaytime(900L, PlayerType.Skippy.INSTANCE);
     }
 
     @Test
     public void shouldSaveZeroedUninterruptedPlaytimeOnBufferUnderun() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(1000L), true);
 
-        verify(uninterruptedPlaytimeStorage).setPlaytime(0L, PlayerType.SKIPPY);
+        verify(uninterruptedPlaytimeStorage).setPlaytime(0L, PlayerType.Skippy.INSTANCE);
     }
 
     @Test
     public void shouldIncrementOverExistingUninterruptedPlaytime() {
-        when(uninterruptedPlaytimeStorage.getPlayTime(PlayerType.SKIPPY)).thenReturn(50L);
+        when(uninterruptedPlaytimeStorage.getPlayTime(PlayerType.Skippy.INSTANCE)).thenReturn(50L);
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1000L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(2000L), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(2000L), true);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
@@ -135,13 +135,13 @@ public class BufferUnderrunListenerTest {
 
     @Test
     public void shouldFilterPlayingAfterBufferUnderrun() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(1000L), true);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1500), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(1500), true);
 
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
@@ -149,13 +149,13 @@ public class BufferUnderrunListenerTest {
 
     @Test
     public void shouldFilterTimeCalculationOnPlayingAfterPlaying() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.PLAYING, new Date(1000L), false);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(5000L), true);
+        createAndProcessStateTransition(PlayerType.Skippy.INSTANCE, PlaybackState.BUFFERING, new Date(5000L), true);
 
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);

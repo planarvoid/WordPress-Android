@@ -92,7 +92,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private Message message;
     @Mock private ConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
-    @Mock private Skippy.Configuration preloadConfiguration;
     @Mock private LockUtil lockUtil;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private CryptoOperations cryptoOperations;
@@ -700,8 +699,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        verify(performanceReporter).report(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
+        verify(performanceReporter).report(audioPerformanceEventArgumentCaptor.capture());
         assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_PLAY);
+        assertThat(audioPerformanceEventArgumentCaptor.getValue().getPlayerType()).isEqualTo(PlayerType.Skippy.INSTANCE.getValue());
         verifyNoMoreInteractions(performanceReporter);
     }
 
@@ -714,7 +714,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             MP3,
                                             BITRATE);
 
-        verify(performanceReporter).reportTimeToLoadLibrary(audioPerformanceEventArgumentCaptor.capture(), eq(PlayerType.SKIPPY));
+        verify(performanceReporter).reportTimeToLoadLibrary(audioPerformanceEventArgumentCaptor.capture());
         assertThat(audioPerformanceEventArgumentCaptor.getValue().getMetric()).isEqualTo(com.soundcloud.android.playback.PlaybackMetric.TIME_TO_LOAD_LIBRARY);
         verifyNoMoreInteractions(performanceReporter);
     }

@@ -9,5 +9,6 @@ import javax.inject.Singleton
 internal class FlipperWrapperFactory
 @Inject
 constructor(private val flipperFactory: FlipperFactory) {
-    fun create(flipperCallbacks: FlipperCallbacks) = FlipperWrapper(flipperCallbacks, flipperFactory)
+    fun create(playerType: String, flipperCallbacks: FlipperCallbacks) =
+            FlipperWrapper(playerType, flipperCallbacks, flipperFactory)
 }

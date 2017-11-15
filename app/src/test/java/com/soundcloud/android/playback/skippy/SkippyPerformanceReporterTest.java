@@ -18,7 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class SkippyPerformanceReporterTest {
 
     private static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
-    private static final PlayerType PLAYER_TYPE = PlayerType.SKIPPY;
+    private static final String PLAYER_TYPE = PlayerType.Skippy.INSTANCE.getValue();
     private static final Long LATENCY = 1000L;
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private static final String FORMAT = "opus";
@@ -37,7 +37,7 @@ public class SkippyPerformanceReporterTest {
     public void reportsTimeToPlayEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_PLAY);
 
-        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
@@ -47,7 +47,7 @@ public class SkippyPerformanceReporterTest {
     public void reportsTimeToSeekEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_SEEK);
 
-        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
@@ -57,7 +57,7 @@ public class SkippyPerformanceReporterTest {
     public void reportsTimeToPlaylistEvent() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_GET_PLAYLIST);
 
-        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
@@ -67,7 +67,7 @@ public class SkippyPerformanceReporterTest {
     public void reportsCacheUsagePercentage() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.CACHE_USAGE_PERCENT);
 
-        performanceReporter.report(audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.report(audioPerformanceEvent);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT);
@@ -77,7 +77,7 @@ public class SkippyPerformanceReporterTest {
     public void reportsTimeToLoadSkippyLibrary() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_LOAD_LIBRARY);
 
-        performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent, PLAYER_TYPE);
+        performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertPerformanceEvent(event, PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
@@ -86,7 +86,7 @@ public class SkippyPerformanceReporterTest {
     @Test
     public void ignoresTimeToBufferEvents() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.TIME_TO_BUFFER);
-        performanceReporter.report(audioPerformanceEvent, PlayerType.SKIPPY);
+        performanceReporter.report(audioPerformanceEvent);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
@@ -94,20 +94,20 @@ public class SkippyPerformanceReporterTest {
     @Test
     public void ignoresUninterruptedPlaytimeEvents() {
         AudioPerformanceEvent audioPerformanceEvent = createAudioPerformanceEventWithType(PlaybackMetric.UNINTERRUPTED_PLAYTIME);
-        performanceReporter.report(audioPerformanceEvent, PlayerType.SKIPPY);
+        performanceReporter.report(audioPerformanceEvent);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
     private AudioPerformanceEvent createAudioPerformanceEventWithType(PlaybackMetric metric) {
-        return new AudioPerformanceEvent(metric, LATENCY, PROTOCOL.getValue(), CDN_HOST, FORMAT, BITRATE, null);
+        return new AudioPerformanceEvent(PLAYER_TYPE, metric, LATENCY, PROTOCOL.getValue(), CDN_HOST, FORMAT, BITRATE, null);
     }
 
     private void assertPerformanceEvent(PlaybackPerformanceEvent event, int metric) {
         assertThat(event.metric()).isEqualTo(metric);
         assertThat(event.metricValue()).isEqualTo(LATENCY);
         assertThat(event.playbackProtocol()).isEqualTo(PROTOCOL.getValue());
-        assertThat(event.playerType()).isEqualTo(PLAYER_TYPE.getValue());
+        assertThat(event.playerType()).isEqualTo(PLAYER_TYPE);
         assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
         assertThat(event.format()).isEqualTo(FORMAT);
         assertThat(event.bitrate()).isEqualTo(BITRATE);

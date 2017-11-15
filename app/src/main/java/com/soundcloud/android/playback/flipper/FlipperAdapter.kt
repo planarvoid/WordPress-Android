@@ -37,7 +37,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
                      private val cryptoOperations: CryptoOperations,
                      private val performanceReporter: FlipperPerformanceReporter) : Player, FlipperCallbacks {
 
-    private val flipperWrapper: FlipperWrapper = flipperWrapperFactory.create(this)
+    private val flipperWrapper: FlipperWrapper = flipperWrapperFactory.create(getPlayerType(), this)
 
     @Volatile private var currentStreamUrl: String? = null
     private var currentPlaybackItem: PlaybackItem? = null
@@ -128,7 +128,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
         this.playerListener = playerListener
     }
 
-    override fun getPlayerType() = PlayerType.FLIPPER
+    final override fun getPlayerType() = PlayerType.Flipper.value
 
     override fun onProgressChanged(event: ProgressChange) {
         callbackThread {
@@ -147,7 +147,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     override fun onPerformanceEvent(event: AudioPerformanceEvent) {
         callbackThread {
             try {
-                performanceReporter.report(event, getPlayerType())
+                performanceReporter.report(event)
             } catch (t: Throwable) {
                 ErrorUtils.handleThrowableOnMainThread(t, javaClass)
             }
@@ -219,7 +219,7 @@ internal constructor(flipperWrapperFactory: FlipperWrapperFactory,
     private fun reportStateTransition(event: StateChange, urn: Urn, progress: Long) {
         with(PlaybackStateTransition(event.playbackState(), event.playStateReason(), urn, progress, event.duration)) {
             addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, event.streamingProtocol.playbackProtocol().value)
-            addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().value)
+            addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType())
             addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.currentConnectionType.value)
             addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, true)
             addExtraAttribute(PlaybackStateTransition.EXTRA_URI, currentStreamUrl)

@@ -8,7 +8,7 @@ import org.junit.Test;
 public class PlaybackPerformanceEventTest {
 
     private static final String CDN_HOST = "ec-media.com";
-    private static final String PLAYER_TYPE = PlayerType.MEDIA_PLAYER.getValue();
+    private static final String PLAYER_TYPE = "fakeTestPlayerType";
     private static final String PROTOCOL = PlaybackProtocol.HLS.getValue();
     private static final String MEDIA_TYPE = "mp3";
     private static final int BIT_RATE = 128000;

@@ -246,7 +246,7 @@ public class MediaPlayerAdapter implements
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(timeToPlay)
                                                                  .playbackProtocol(getPlaybackProtocol().getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PlayerType.MediaPlayer.INSTANCE.getValue())
                                                                  .cdnHost(streamUrl)
                                                                  .format(getCurrentFormat())
                                                                  .bitrate(getCurrentBitrate())
@@ -448,17 +448,16 @@ public class MediaPlayerAdapter implements
                     dateProvider);
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
                                               getPlaybackProtocol().getValue());
-            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE,
-                                              PlayerType.MEDIA_PLAYER.getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType());
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
                                               connectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.MEDIA_PLAYER);
+            bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.MediaPlayer.INSTANCE);
         }
     }
 
-    String getCurrentFormat() {
+    private String getCurrentFormat() {
         if (currentVideoSource.isPresent()) {
             return currentVideoSource.get().type();
         } else if (currentItem != null && currentItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
@@ -609,9 +608,10 @@ public class MediaPlayerAdapter implements
         return mediaPlayer != null && internalState.isSeekable();
     }
 
+    @NonNull
     @Override
-    public PlayerType getPlayerType() {
-        return PlayerType.MEDIA_PLAYER;
+    public String getPlayerType() {
+        return PlayerType.MediaPlayer.INSTANCE.getValue();
     }
 
     @Override

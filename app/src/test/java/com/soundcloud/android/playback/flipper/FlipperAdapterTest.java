@@ -79,7 +79,8 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(flipperWrapperFactory.create(any(FlipperAdapter.class))).thenReturn(flipperWrapper);
+        when(flipperWrapperFactory.create(eq(PlayerType.Flipper.INSTANCE.getValue()),
+                                          any(FlipperAdapter.class))).thenReturn(flipperWrapper);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(CONNECTION_TYPE);
@@ -119,7 +120,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
 
     @Test
     public void ensureFlipperPlayerType() {
-        assertThat(flipperAdapter.getPlayerType()).isEqualTo(PlayerType.FLIPPER);
+        assertThat(flipperAdapter.getPlayerType()).isEqualTo(PlayerType.Flipper.INSTANCE.getValue());
     }
 
     @Test
@@ -221,11 +222,11 @@ public class FlipperAdapterTest extends AndroidUnitTest {
     public void performanceEventIsForwardedToReporter() {
         AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         whenPlaying(playbackItem);
-        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlayerType.Flipper.INSTANCE.getValue(), PlaybackMetric.TIME_TO_PLAY, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
 
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter).report(audioPerformance, PlayerType.FLIPPER);
+        verify(performanceReporter).report(audioPerformance);
     }
 
     @Test
@@ -239,10 +240,10 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         flipperAdapter.onStateChanged(stateChange);
 
         // Suppose a second thread posts a performance event after the playback item is disposed
-        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlaybackMetric.CACHE_USAGE_PERCENT, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
+        AudioPerformanceEvent audioPerformance = new AudioPerformanceEvent(PlayerType.Flipper.INSTANCE.getValue(), PlaybackMetric.CACHE_USAGE_PERCENT, 1234L, PlaybackProtocol.ENCRYPTED_HLS.getValue(), CDN_HOST, OPUS, BITRATE, null);
         flipperAdapter.onPerformanceEvent(audioPerformance);
 
-        verify(performanceReporter).report(audioPerformance, PlayerType.FLIPPER);
+        verify(performanceReporter).report(audioPerformance);
     }
 
     @Test
@@ -451,7 +452,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         assertThat(event.getProtocol()).isEqualTo(protocol);
         assertThat(event.getCategory()).isEqualTo(category);
         assertThat(event.getCdnHost()).isEqualTo(cdnHost);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.FLIPPER.getValue());
+        assertThat(event.getPlayerType()).isEqualTo(PlayerType.Flipper.INSTANCE.getValue());
     }
 
     private void verifyReportedState(PlaybackItem playbackItem, PlaybackState playbackState, PlayStateReason playStateReason,
@@ -464,7 +465,7 @@ public class FlipperAdapterTest extends AndroidUnitTest {
         assertThat(stateTransition.getUrn()).isEqualTo(playbackItem.getUrn());
         assertThat(stateTransition.getProgress().getPosition()).isEqualTo(position);
         assertThat(stateTransition.getProgress().getDuration()).isEqualTo(duration);
-        assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE)).isEqualTo(PlayerType.FLIPPER.getValue());
+        assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE)).isEqualTo(PlayerType.Flipper.INSTANCE.getValue());
         assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE)).isEqualTo(connectionType.getValue());
         assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_URI)).isEqualTo(fakeMediaUri(playbackItem.getUrn()));
         assertThat(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE)).isEqualTo("true");

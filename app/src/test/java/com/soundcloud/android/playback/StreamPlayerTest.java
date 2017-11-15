@@ -178,7 +178,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void playLogsErrorOnOfflinePlayWhenSkippyFailedToInitialize() {
         when(skippyAdapter.init()).thenReturn(false);
-        when(mediaPlayerAdapter.getPlayerType()).thenReturn(PlayerType.MEDIA_PLAYER);
+        when(mediaPlayerAdapter.getPlayerType()).thenReturn(PlayerType.MediaPlayer.INSTANCE.getValue());
         instantiateStreamPlaya();
 
         startPlaybackOnSkippy(offlinePlaybackItem);

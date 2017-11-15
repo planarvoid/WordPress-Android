@@ -51,7 +51,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
-import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ReferringEvent;
@@ -1038,7 +1037,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
@@ -1055,7 +1054,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
@@ -1072,7 +1071,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
@@ -1090,7 +1089,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
@@ -1107,7 +1106,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HTTPS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost(CDN_URL)
                                                                  .format(MEDIA_TYPE)
                                                                  .bitrate(BIT_RATE)
@@ -1496,14 +1495,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                           "cdn-uri",
                                                           MEDIA_TYPE,
                                                           BIT_RATE,
-                                                          PlayerType.FLIPPER);
+                                                          PLAYER_TYPE);
 
         jsonDataBuilder.buildForPlaybackError(event);
 
         verify(jsonTransformer).toJson(getEventData("audio_error", BOOGALOO_VERSION, event.getTimestamp())
                                                .protocol("https")
                                                .os(userAgent)
-                                               .playerType(PlayerType.FLIPPER.getValue())
+                                               .playerType(PLAYER_TYPE)
                                                .bitrate(BIT_RATE)
                                                .format("mp3")
                                                .errorCode("category")
@@ -2351,7 +2350,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         return getEventData("audio_performance", BOOGALOO_VERSION, event.timestamp())
                 .latency(1000L)
                 .protocol("https")
-                .playerType("MediaPlayer")
+                .playerType(PLAYER_TYPE)
                 .type(type)
                 .format(MEDIA_TYPE)
                 .bitrate(BIT_RATE)

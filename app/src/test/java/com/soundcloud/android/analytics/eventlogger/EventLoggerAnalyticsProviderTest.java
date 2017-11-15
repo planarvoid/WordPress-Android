@@ -35,7 +35,6 @@ import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -72,6 +71,7 @@ import java.util.List;
 
 public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
+    private static final String PLAYER_TYPE = "fakePlayerType";
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
     @Mock private EventTrackingManager eventTrackingManager;
@@ -113,7 +113,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay()
                                                                  .metricValue(1000L)
                                                                  .playbackProtocol(PlaybackProtocol.HLS.getValue())
-                                                                 .playerType(PlayerType.MEDIA_PLAYER.getValue())
+                                                                 .playerType(PLAYER_TYPE)
                                                                  .cdnHost("uri")
                                                                  .format(PlaybackConstants.MediaType.UNKNOWN)
                                                                  .bitrate(0)
@@ -134,7 +134,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                           "uri",
                                                           PlaybackConstants.MediaType.MP3,
                                                           128000,
-                                                          PlayerType.FLIPPER);
+                                                          PLAYER_TYPE);
         when(dataBuilder.buildForPlaybackError(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.configuration.experiments.FlipperExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
@@ -257,11 +256,7 @@ class StreamPlayer implements PlayerListener {
         return new PlaybackErrorEvent(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE,
                                       PlaybackProtocol.HLS,
                                       Strings.EMPTY,
-                                      getCurrentPlayerType());
-    }
-
-    private PlayerType getCurrentPlayerType() {
-        return currentPlayer.getPlayerType();
+                                      currentPlayer.getPlayerType());
     }
 
     private static class OfflinePlayUnavailableException extends Exception {

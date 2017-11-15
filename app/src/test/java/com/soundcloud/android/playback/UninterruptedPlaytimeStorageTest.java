@@ -11,8 +11,8 @@ import android.content.SharedPreferences;
 
 public class UninterruptedPlaytimeStorageTest extends AndroidUnitTest {
 
-    public static final long PLAYTIME1 = 123L;
-    public static final long PLAYTIME2 = 456L;
+    private static final long PLAYTIME1 = 123L;
+    private static final long PLAYTIME2 = 456L;
     private final SharedPreferences preferences = sharedPreferences();
 
     private UninterruptedPlaytimeStorage storage;
@@ -24,26 +24,26 @@ public class UninterruptedPlaytimeStorageTest extends AndroidUnitTest {
 
     @Test
     public void savesPlayTimeForMediaPlayer() {
-        storage.setPlaytime(PLAYTIME1, PlayerType.MEDIA_PLAYER);
-        assertThat(storage.getPlayTime(PlayerType.MEDIA_PLAYER)).isEqualTo(PLAYTIME1);
+        storage.setPlaytime(PLAYTIME1, PlayerType.MediaPlayer.INSTANCE);
+        assertThat(storage.getPlayTime(PlayerType.MediaPlayer.INSTANCE)).isEqualTo(PLAYTIME1);
     }
 
     @Test
     public void savesPlayTimeForSkippy() {
-        storage.setPlaytime(PLAYTIME1, PlayerType.SKIPPY);
-        assertThat(storage.getPlayTime(PlayerType.SKIPPY)).isEqualTo(PLAYTIME1);
+        storage.setPlaytime(PLAYTIME1, PlayerType.Skippy.INSTANCE);
+        assertThat(storage.getPlayTime(PlayerType.Skippy.INSTANCE)).isEqualTo(PLAYTIME1);
     }
 
     @Test
     public void doesNotGetUnrelatedPlayTime() {
-        storage.setPlaytime(PLAYTIME1, PlayerType.SKIPPY);
-        storage.setPlaytime(PLAYTIME2, PlayerType.MEDIA_PLAYER);
-        assertThat(storage.getPlayTime(PlayerType.MEDIA_PLAYER)).isEqualTo(PLAYTIME2);
+        storage.setPlaytime(PLAYTIME1, PlayerType.Skippy.INSTANCE);
+        storage.setPlaytime(PLAYTIME2, PlayerType.MediaPlayer.INSTANCE);
+        assertThat(storage.getPlayTime(PlayerType.MediaPlayer.INSTANCE)).isEqualTo(PLAYTIME2);
     }
 
     @Test
     public void getsZeroedPlaytimeAsDefault() {
-        assertThat(storage.getPlayTime(PlayerType.MEDIA_PLAYER)).isEqualTo(0L);
+        assertThat(storage.getPlayTime(PlayerType.MediaPlayer.INSTANCE)).isEqualTo(0L);
     }
 
 }

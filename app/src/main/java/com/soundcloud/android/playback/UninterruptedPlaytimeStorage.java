@@ -29,7 +29,7 @@ class UninterruptedPlaytimeStorage {
     }
 
     private String getPlayerTypeKey(PlayerType playerType) {
-        if (playerType.getValue().equals(PlayerType.MEDIA_PLAYER.getValue())) {
+        if (playerType.getValue().equals(PlayerType.MediaPlayer.INSTANCE.getValue())) {
             return TIME_FOR_MEDIA_PLAYER;
         } else {
             return TIME_FOR_SKIPPY;

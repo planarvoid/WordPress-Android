@@ -243,9 +243,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.progressChangeHandler.setPlayerListener(playerListener);
     }
 
+    @NonNull
     @Override
-    public PlayerType getPlayerType() {
-        return PlayerType.SKIPPY;
+    public String getPlayerType() {
+        return PlayerType.Skippy.INSTANCE.getValue();
     }
 
     @Override
@@ -293,7 +294,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                                                    dateProvider);
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
                                          getPlaybackProtocol().getValue());
-            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType());
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
                                          connectionHelper.getCurrentConnectionType().getValue());
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE,
@@ -336,7 +337,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                       String cdnHost,
                                       Skippy.SkippyMediaType format,
                                       int bitRate) {
-        AudioPerformanceEvent audioPerformanceEvent = new AudioPerformanceEvent(SkippyExtensionsKt.map(metric),
+        AudioPerformanceEvent audioPerformanceEvent = new AudioPerformanceEvent(getPlayerType(),
+                                                                                SkippyExtensionsKt.map(metric),
                                                                                 value,
                                                                                 getPlaybackProtocol().getValue(),
                                                                                 cdnHost == null ? "" : cdnHost,
@@ -344,9 +346,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                                                 bitRate,
                                                                                 null);
         if (metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY) {
-            performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent, getPlayerType());
+            performanceReporter.reportTimeToLoadLibrary(audioPerformanceEvent);
         } else {
-            performanceReporter.report(audioPerformanceEvent, getPlayerType());
+            performanceReporter.report(audioPerformanceEvent);
         }
     }
 
@@ -444,7 +446,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final StateChangeMessage message = (StateChangeMessage) msg.obj;
             if (bufferUnderrunListener != null) {
-                bufferUnderrunListener.onPlaystateChanged(message.stateTransition, PlaybackProtocol.HLS, PlayerType.SKIPPY);
+                bufferUnderrunListener.onPlaystateChanged(message.stateTransition, PlaybackProtocol.HLS, PlayerType.Skippy.INSTANCE);
             }
         }
     }

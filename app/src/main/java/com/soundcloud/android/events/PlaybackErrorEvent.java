@@ -20,21 +20,20 @@ public class PlaybackErrorEvent {
     private final String playerType;
 
     public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost,
-                              String format, int bitrate,
-                              PlayerType playerType) {
+                              String format, int bitrate, String playerType) {
         this.category = category;
         this.protocol = protocol;
         this.cdnHost = cdnHost;
         this.bitrate = bitrate;
         this.format = format;
         this.timestamp = System.currentTimeMillis();
-        this.playerType = playerType.getValue();
+        this.playerType = playerType;
     }
 
     public PlaybackErrorEvent(String category,
                               PlaybackProtocol protocol,
                               String cdnHost,
-                              PlayerType playerType) {
+                              String playerType) {
         this(category,
              protocol,
              cdnHost,

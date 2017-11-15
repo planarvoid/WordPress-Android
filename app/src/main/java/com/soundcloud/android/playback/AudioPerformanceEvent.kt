@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback
 
-data class AudioPerformanceEvent(val metric: PlaybackMetric,
+data class AudioPerformanceEvent(val playerType: String,
+                                 val metric: PlaybackMetric,
                                  val latency: Long,
                                  val protocol: String,
                                  val cdnHost: String,
