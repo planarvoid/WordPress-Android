@@ -169,6 +169,20 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void availableTracksReemitsWhenTrackWasStored() {
+        ApiTrack apiTrack = testFixtures().insertTrack();
+
+        final TestObserver<List<Urn>> subscriber = storage.availableTracks(asList(apiTrack.getUrn())).test();
+
+        subscriber.assertValueCount(1);
+        subscriber.assertValue(singletonList(apiTrack.getUrn()));
+
+        storage.storeTracks(asList(apiTrack));
+
+        subscriber.assertValueCount(2);
+    }
+
+    @Test
     public void loadTracksSetsUserLikeIndividually() {
         ApiTrack likedApiTrack = testFixtures().insertLikedTrack(new Date());
         ApiTrack apiTrack = testFixtures().insertTrack();

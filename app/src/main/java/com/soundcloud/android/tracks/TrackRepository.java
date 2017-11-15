@@ -60,28 +60,32 @@ public class TrackRepository {
     }
 
     public Maybe<Track> track(final Urn trackUrn) {
-        return fromUrns(singletonList(trackUrn))
+        return liveFromUrns(singletonList(trackUrn))
                 .filter(urnTrackMap -> !urnTrackMap.isEmpty())
-                .map(urnTrackMap -> urnTrackMap.values().iterator().next());
+                .map(urnTrackMap -> urnTrackMap.values().iterator().next()).firstElement();
     }
 
     public Single<Map<Urn, Track>> fromUrns(final List<Urn> requestedTracks) {
+        return liveFromUrns(requestedTracks).firstOrError();
+    }
+
+    public Observable<Map<Urn, Track>> liveFromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
         return trackStorage
                 .availableTracks(requestedTracks)
-                .flatMap(syncMissingTracks(requestedTracks))
-                .flatMap(success -> trackStorage.loadTracks(requestedTracks))
-                .doOnSuccess(loadedTracks -> reportMissingAfterSync(loadedTracks.size(), requestedTracks.size()))
+                .flatMapSingle(syncMissingTracks(requestedTracks))
+                .flatMapSingle(success -> trackStorage.loadTracks(requestedTracks))
+                .doOnNext(loadedTracks -> reportMissingAfterSync(loadedTracks.size(), requestedTracks.size()))
                 .subscribeOn(scheduler);
     }
 
     public Single<List<Urn>> availableTracks(List<Urn> requestedTracks) {
-        return trackStorage.availableTracks(requestedTracks);
+        return trackStorage.availableTracks(requestedTracks).firstOrError();
     }
 
     public Single<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
         return fromUrns(requestedTracks)
-                .map(urnTrackMap -> Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));
+                .map(urnTrackMap -> (List<Track>) Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));
     }
 
     public Single<List<Track>> forPlaylist(Urn playlistUrn) {

@@ -30,9 +30,11 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBusV2;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +90,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Urn> availableTracks = singletonList(trackUrn);
         final Map<Urn, Track> syncedTrackProperties = singletonMap(trackUrn, track);
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(syncedTrackProperties));
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
@@ -105,7 +107,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Track syncedTrack = TrackFixtures.trackBuilder().build();
         final Map<Urn, Track> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
@@ -121,7 +123,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Urn> availableTracks = emptyList();
         final Map<Urn, Track> syncedTracks = emptyMap();
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(syncedTracks));
 
@@ -162,7 +164,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Test
     public void fromUrnsLoadsTracksFromStorage() throws CreateModelException {
         List<Urn> urns = asList(track1.urn(), track2.urn());
-        when(trackStorage.availableTracks(urns)).thenReturn(Single.just(urns));
+        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(urns));
         final List<Track> trackList = asList(track1, track2);
         when(trackStorage.loadTracks(urns))
                 .thenReturn(Single.just(toMap(trackList)));
@@ -177,7 +179,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Test
     public void fromUrnsLoadsTracksFromStorageAfterSyncingMissingTracks() throws CreateModelException {
         List<Urn> urns = asList(track1.urn(), track2.urn());
-        when(trackStorage.availableTracks(urns)).thenReturn(Single.just(singletonList(track1.urn())));
+        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(singletonList(track1.urn())));
         when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(syncSubject);
         when(trackStorage.loadTracks(urns))
                 .thenReturn(Single.just(toMap(asList(track1, track2))));
@@ -281,13 +283,33 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         // omit track 2, as if it were unavailable
         final Map<Urn, Track> actualTrackProperties = singletonMap(track1.urn(), track1);
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
         when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(Single.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
         trackRepository.trackListFromUrns(requestedTracks).test().assertValue(
                 singletonList(track1)
         );
+    }
+
+    @Test
+    public void tracklistFromLiveUrnsReemitsWhenStorageReemits() throws Exception {
+        final List<Urn> requestedTracks = asList(track1.urn());
+        final Map<Urn, Track> actualTrackProperties = singletonMap(track1.urn(), track1);
+
+        final PublishSubject<List<Urn>> availableTracks = PublishSubject.create();
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(availableTracks);
+        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(Single.just(getSuccessResult()));
+        when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
+
+        final TestObserver<Map<Urn, Track>> testObserver = trackRepository.liveFromUrns(requestedTracks).test();
+        availableTracks.onNext(asList(track1.urn()));
+        testObserver.assertValueCount(1);
+        testObserver.assertValueAt(0, singletonMap(track1.urn(), track1));
+
+        availableTracks.onNext(asList(track1.urn()));
+        testObserver.assertValueCount(2);
+        testObserver.assertValueAt(1, singletonMap(track1.urn(), track1));
     }
 
     private Map<Urn, Track> toMap(List<Track> tracks) {

@@ -4,8 +4,10 @@ import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.associations.RepostStatuses;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflineState;
@@ -29,6 +31,13 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     public static TrackItem from(Track track, OfflineProperties offlineProperties) {
         return builder(track, offlineProperties).build();
+    }
+
+    public static TrackItem from(Track track, OfflineProperties offlineProperties, LikedStatuses likedStatuses, RepostStatuses repostStatuses, Urn nowPlayingUrn) {
+        return builder(track, offlineProperties).isUserLike(likedStatuses.isLiked(track.urn()))
+                                                .isUserRepost(repostStatuses.isReposted(track.urn()))
+                                                .isPlaying(track.urn().equals(nowPlayingUrn))
+                                                .build();
     }
 
     public static TrackItem from(Track track, StreamEntity streamEntity, OfflineProperties offlineProperties) {

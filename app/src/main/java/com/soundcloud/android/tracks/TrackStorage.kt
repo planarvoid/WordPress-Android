@@ -55,7 +55,7 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.functions.Function
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.BehaviorSubject
 import java.lang.String.format
 import java.util.Date
 import javax.inject.Inject
@@ -65,7 +65,7 @@ class TrackStorage
 @Inject
 constructor(private val propeller: PropellerRxV2, private val storeTracksCommand: StoreTracksCommand) {
 
-    private val trackChangeSubject = PublishSubject.create<Iterable<Urn>>()
+    private val trackChangeSubject = BehaviorSubject.createDefault(emptyList<Urn>())
 
     private val fetchAvailableTrackUrns = Function<List<Urn>, Observable<Urn>> { urns ->
         propeller.queryResult(buildAvailableTracksQuery(urns))
@@ -112,8 +112,15 @@ constructor(private val propeller: PropellerRxV2, private val storeTracksCommand
         return tracks
     }
 
-    fun availableTracks(requestedTracks: List<Urn>): Single<List<Urn>> {
-        return batchedAvailableTracks(requestedTracks).toList()
+    fun availableTracks(requestedTracks: List<Urn>): Observable<List<Urn>> {
+        return changedTracks(requestedTracks)
+                .flatMapSingle { batchedAvailableTracks(requestedTracks).toList() }
+    }
+
+    private fun changedTracks(requestedTracks: List<Urn>): Observable<Set<Urn>> {
+        return trackChangeSubject
+                .map { changedTracks -> changedTracks.intersect(requestedTracks) }
+                .distinctUntilChanged()
     }
 
     fun loadTrackDescription(urn: Urn): Single<Optional<String>> {
